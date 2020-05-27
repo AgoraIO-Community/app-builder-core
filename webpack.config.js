@@ -1,6 +1,10 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+
+const isDevelopment = true;
+
 module.exports = {
-    mode: 'development',
+    mode: isDevelopment ? 'development' : 'production',
     entry:{
         main: './index.web.js'
     },
@@ -12,6 +16,7 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
+                        cacheDirectory: true,
                         presets: ['@babel/preset-env',
                             '@babel/preset-react',
                             ['@babel/preset-typescript', {
@@ -19,14 +24,18 @@ module.exports = {
                                 'isTSX': true
                             }]
                         ],
+                        plugins: [isDevelopment && require.resolve('react-refresh/babel')].filter(Boolean),
                     }
                 }
             }
         ],
     },
-    plugins: [new HtmlWebpackPlugin({
-        template: 'web/index.html',
-    })],
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: 'web/index.html',
+        }),
+        isDevelopment && new ReactRefreshWebpackPlugin(),
+    ].filter(Boolean),
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".jsx"],
         alias: {
