@@ -14,7 +14,8 @@
     "react": "16.11.0",
     "react-dom": "^16.13.1",
     "react-native": "0.62.2",
-    "react-native-web": "^0.12.2"
+    "react-native-web": "^0.12.2",
+    "react-native-agora":"^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
