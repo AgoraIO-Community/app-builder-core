@@ -77,7 +77,13 @@ export default class RtcEngine {
     }
 
     async enableVideo(): Promise<void> {
-        this.streams.set(0, AgoraRTC.createStream(this.streamSpec));
+        let enable = new Promise(((resolve, reject) => {
+            this.streams.set(0, AgoraRTC.createStream(this.streamSpec));
+            (this.streams.get(0) as AgoraRTC.Stream).init(() => {
+                resolve();
+            },reject)
+        }));
+        await enable;
     }
 
     async joinChannel(token: string, channelName: string, optionalInfo: string, optionalUid: number): Promise<void> {
@@ -101,13 +107,11 @@ export default class RtcEngine {
             this.client.on('stream-published', (evt) => {
                 (this.eventsMap.get('JoinChannelSuccess') as callbackType)();
             });
-            (this.streams.get(0) as AgoraRTC.Stream).init(() => {
-                this.client.join(token || null, channelName, optionalUid || null, (uid) => {
-                    this.localUid = uid as number;
-                    this.client.publish(this.streams.get(0) as AgoraRTC.Stream)
-                    resolve();
-                }, reject);
-            },reject)
+            this.client.join(token || null, channelName, optionalUid || null, (uid) => {
+                this.localUid = uid as number;
+                this.client.publish(this.streams.get(0) as AgoraRTC.Stream)
+                resolve();
+            }, reject);
         });
         await join;
     }
