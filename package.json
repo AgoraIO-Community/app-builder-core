@@ -11,11 +11,13 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@types/agora-rtc-sdk": "^3.1.0",
+    "agora-rtc-sdk": "^3.1.1",
     "react": "16.11.0",
     "react-dom": "^16.13.1",
     "react-native": "0.62.2",
-    "react-native-web": "^0.12.2",
-    "react-native-agora":"^3.0.0"
+    "react-native-agora": "^3.0.0-beta.6",
+    "react-native-web": "^0.12.2"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

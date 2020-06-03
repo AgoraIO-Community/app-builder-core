@@ -1,15 +1,14 @@
-/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, StatusBar, TouchableOpacity, Text, Platform, Image } from 'react-native';
-import { LocalControls, MinVideoView, MaxVideoView, RemoteAudioMute, RemoteVideoMute } from './agora-rn-uikit/Components';
+import { Controls, MaxVideoView, RemoteAudioMute, RemoteVideoMute } from './agora-rn-uikit/Components';
 import RtcConfigure from './agora-rn-uikit/src/RTCConfigure';
 import { MinUidConsumer } from './agora-rn-uikit/src/MinUidContext';
 import { MaxUidConsumer } from './agora-rn-uikit/src/MaxUidContext';
 import { PropsProvider, PropsInterface } from './agora-rn-uikit/src/PropsContext';
 import images from './src/images';
 const App: React.FC<PropsInterface> = () => {
-  const [channel, onChangeChannel] = useState(undefined);
-  const [password, onChangePassword] = useState(undefined);
+  const [channel, onChangeChannel] = useState();
+  const [password, onChangePassword] = useState();
   const [joinCall, setJoinCall] = useState(true);
   const [participantsView, setParticipantsView] = useState(false);
   const [videoCall, setVideoCall] = useState(true);
@@ -125,7 +124,7 @@ const App: React.FC<PropsInterface> = () => {
             </MinUidConsumer>
           </View>
         </View>
-        <LocalControls showButton={false} />
+        <Controls showButton={false} />
       </RtcConfigure>
     </PropsProvider>
   </View>
@@ -139,7 +138,7 @@ const App: React.FC<PropsInterface> = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles ={
   main: {
     flex: 1,
     backgroundColor: '#333',
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
     height: '100%',
     aspectRatio: 1,
   },
-});
+};
 
 const styleProps = {
   'maxViewStyles': styles.temp,
