@@ -103,7 +103,7 @@ const App: React.FC<PropsInterface> = () => {
               </View>
             )}
           </View>
-          <Controls />
+          <Controls channelName={rtcProps.channel} appId={rtcProps.appId} />
         </RtcConfigure>
       </PropsProvider>
     </View>

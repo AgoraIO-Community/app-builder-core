@@ -139,7 +139,17 @@ const styles = {
   },
   endCall: {
     backgroundColor: '#F86051',
-    borderRadius: 5,
+    borderRadius: 2,
+    borderColor: '#F86051',
+    width: Platform.OS === 'web' ? 60 : 46,
+    height: Platform.OS === 'web' ? 60 : 46,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  greenLocalButton: {
+    backgroundColor: '#4BEB5B',
+    borderRadius: 2,
     borderColor: '#F86051',
     width: Platform.OS === 'web' ? 60 : 46,
     height: Platform.OS === 'web' ? 60 : 46,

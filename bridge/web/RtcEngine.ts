@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 
 /*
 X create
@@ -34,13 +35,18 @@ export default class RtcEngine {
     public appId: string;
     // public AgoraRTC: any;
     public client: AgoraRTC.Client;
+    public screenClient: AgoraRTC.Client;
     public eventsMap = new Map<string, callbackType>([
         ['UserJoined', () => null],
         ['UserOffline', () => null],
+        ['ScreenshareStopped', () => null],
     ]);
     public streams = new Map<number, AgoraRTC.Stream>();
     public streamSpec: AgoraRTC.StreamSpec;
+    public streamSpecScreenshare: AgoraRTC.StreamSpec;
     private localUid: number = 0;
+    private localScreenUid: number = 0;
+    private inScreenshare: Boolean = false;
     private removeStream = (evt: { uid: string }) => {
         let uid = parseInt(evt.uid, 10);
         if (this.streams.has(uid)) {
@@ -56,9 +62,19 @@ export default class RtcEngine {
             codec: 'vp8',
             mode: 'live'
         });
+        this.screenClient = AgoraRTC.createClient({
+            codec: 'vp8',
+            mode: 'live',
+        });
         this.streamSpec = {
             video: true,
             audio: true,
+        };
+        this.streamSpecScreenshare = {
+            audio: false,
+            video: false,
+            screen: true,
+            screenAudio: true,
         }
     }
     static async create(appId: string): Promise<RtcEngine> {
@@ -125,7 +141,7 @@ export default class RtcEngine {
     }
 
     addListener<EventType extends keyof RtcEngineEvents>(event: EventType, listener: RtcEngineEvents[EventType]): Subscription {
-        if (event === 'UserJoined' || event === 'UserOffline' || event=== 'JoinChannelSuccess') {
+        if (event === 'UserJoined' || event === 'UserOffline' || event=== 'JoinChannelSuccess' || event === 'ScreenshareStopped') {
             this.eventsMap.set(event, listener as callbackType)
         }
         return {
@@ -181,6 +197,54 @@ export default class RtcEngine {
                 stream.close();
             });
             this.streams.clear();
+        }
+    }
+    async startScreenshare(token: string, channelName: string, optionalInfo: string, optionalUid: number, appId: string, engine: AgoraRTC): Promise<void> {
+        if (!this.inScreenshare) {
+            let init = new Promise(((resolve, reject) => {
+                engine.screenClient.init(appId, function () {
+                    resolve();
+                }, function (err) {
+                    console.error(err);
+                    reject();
+                });
+            }));
+            await init;
+
+            let enable = new Promise(((resolve, reject) => {
+                this.streams.set(1, AgoraRTC.createStream(this.streamSpecScreenshare));
+                (this.streams.get(1) as AgoraRTC.Stream).init(() => {
+                    resolve();
+                }, reject);
+            }));
+            await enable;
+
+            let join = new Promise((resolve, reject) => {
+                this.screenClient.join(token || null, channelName, optionalUid || null, (uid) => {
+                    this.localScreenUid = uid as number;
+                    this.screenClient.publish(this.streams.get(1) as AgoraRTC.Stream);
+                    resolve();
+                }, reject);
+            });
+            await join;
+            this.inScreenshare = true;
+
+            this.streams.get(1).on('stopScreenSharing', (evt) => {
+                (this.streams.get(1) as AgoraRTC.Stream).close();
+                this.screenClient.leave();
+                (this.eventsMap.get('ScreenshareStopped') as callbackType)();
+                this.inScreenshare = false;
+            });
+        }
+        else {
+            this.screenClient.leave();
+            (this.eventsMap.get('ScreenshareStopped') as callbackType)();
+            try {
+                (this.streams.get(1) as AgoraRTC.Stream).close();
+            } catch (err) {
+                throw err;
+            }
+            this.inScreenshare = false;
         }
     }
 }
