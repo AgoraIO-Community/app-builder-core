@@ -14,11 +14,12 @@ import Controls from './components/Controls';
 import styles from './components/styles';
 
 const App: React.FC<PropsInterface> = () => {
-  const [channel, onChangeChannel] = useState();
-  const [password, onChangePassword] = useState();
+  const [channel, onChangeChannel] = useState('');
+  const [password, onChangePassword] = useState('');
   const [joinCall, setJoinCall] = useState(true);
   const [participantsView, setParticipantsView] = useState(false);
   const [layout, setLayout] = useState(false);
+  const [recording, setRecording] = useState(false);
   const rtcProps = {
     appId: '9383ec2f56364d478cefc38b0a37d8bc',
     channel: channel,
@@ -27,8 +28,10 @@ const App: React.FC<PropsInterface> = () => {
     EndCall: () => setJoinCall(true),
   };
   const startCall = () => {
-    rtcProps.channel = channel;
-    setJoinCall(false);
+    if (channel !== '') {
+      rtcProps.channel = channel;
+      setJoinCall(false);
+    }
   };
 
   return joinCall ? (
@@ -49,6 +52,8 @@ const App: React.FC<PropsInterface> = () => {
             setParticipantsView={setParticipantsView}
             layout={layout}
             setLayout={setLayout}
+            recording={recording}
+            setRecording={setRecording}
           />
           <View style={styles.videoView}>
             {participantsView ? <ParticipantsView /> : <></>}

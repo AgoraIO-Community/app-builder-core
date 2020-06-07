@@ -106,7 +106,11 @@ export default class RtcEngine {
         let self = this;
         let join = new Promise((resolve, reject) => {
             this.client.on('stream-added', (evt) => {
-                this.client.subscribe(evt.stream);
+                this.inScreenshare ?
+                    evt.stream.getId() !== this.streams.get(1).getId() ?
+                        this.client.subscribe(evt.stream)
+                        : (this.eventsMap.get('UserJoined') as callbackType)(1)
+                    : this.client.subscribe(evt.stream);
             });
             this.client.on('stream-subscribed', (evt) => {
                 this.streams.set(evt.stream.getId(), evt.stream);
@@ -230,6 +234,7 @@ export default class RtcEngine {
             this.inScreenshare = true;
 
             this.streams.get(1).on('stopScreenSharing', (evt) => {
+                (this.eventsMap.get('UserOffline') as callbackType)(1);
                 (this.streams.get(1) as AgoraRTC.Stream).close();
                 this.screenClient.leave();
                 (this.eventsMap.get('ScreenshareStopped') as callbackType)();
@@ -237,6 +242,7 @@ export default class RtcEngine {
             });
         }
         else {
+            (this.eventsMap.get('UserOffline') as callbackType)(1);
             this.screenClient.leave();
             (this.eventsMap.get('ScreenshareStopped') as callbackType)();
             try {
