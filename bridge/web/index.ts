@@ -1,6 +1,7 @@
 import RtcEngine from './RtcEngine';
 import SurfaceView from "./SurfaceView";
 import LocalView from  './LocalView'
+import * as Types from './Types';
 
 export const RtcLocalView = {
     SurfaceView: LocalView,
@@ -12,4 +13,6 @@ export const RtcRemoteView = {
     TextureView: SurfaceView
 }
 
+export {Types};
+  
 export default RtcEngine;
