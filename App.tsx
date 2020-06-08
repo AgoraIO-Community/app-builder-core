@@ -22,7 +22,7 @@ const App: React.FC<PropsInterface> = () => {
   const [recordingActive, setRecordingActive] = useState(false);
 
   const rtcProps = {
-    appId: '9383ec2f56364d478cefc38b0a37d8bc',
+    appId: '5c2412e4b1dd4ac89db273c928e29b4d',
     channel: channel,
   };
   const callbacks = {
