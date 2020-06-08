@@ -31,6 +31,7 @@ const JoinCall = (props) => {
           style={styles.textBox}
           value={channel}
           onChangeText={(text) => onChangeChannel(text)}
+          onSubmitEditing={() => startCall()}
           placeholder="Channel Name"
           placeholderTextColor="#3DAAF8"
           autoCorrect={false}
@@ -39,6 +40,7 @@ const JoinCall = (props) => {
           style={styles.textBox}
           value={password}
           onChangeText={(text) => onChangePassword(text)}
+          onSubmitEditing={() => startCall()}
           placeholder="Password (Optional)"
           placeholderTextColor="#3DAAF8"
           secureTextEntry={true}
