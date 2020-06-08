@@ -19,7 +19,7 @@ const App: React.FC<PropsInterface> = () => {
   const [joinCall, setJoinCall] = useState(true);
   const [participantsView, setParticipantsView] = useState(false);
   const [layout, setLayout] = useState(false);
-  const [recording, setRecording] = useState(false);
+  const [recordingActive, setRecordingActive] = useState(false);
 
   const rtcProps = {
     appId: '9383ec2f56364d478cefc38b0a37d8bc',
@@ -53,8 +53,8 @@ const App: React.FC<PropsInterface> = () => {
             setParticipantsView={setParticipantsView}
             layout={layout}
             setLayout={setLayout}
-            recording={recording}
-            setRecording={setRecording}
+            recordingActive={recordingActive}
+            setRecordingActive={setRecordingActive}
           />
           <View style={styles.videoView}>
             {participantsView ? <ParticipantsView /> : <></>}
@@ -92,7 +92,12 @@ const App: React.FC<PropsInterface> = () => {
               <GridVideo />
             )}
           </View>
-          <Controls channelName={rtcProps.channel} appId={rtcProps.appId} />
+          <Controls
+            channelName={rtcProps.channel}
+            appId={rtcProps.appId}
+            recordingActive={recordingActive}
+            setRecordingActive={setRecordingActive}
+          />
         </RtcConfigure>
       </PropsProvider>
     </View>
