@@ -10,8 +10,9 @@ import {
 import Recording from './Recording';
 import styles from '../components/styles';
 
-export default function Controls() {
-  const [recordingActive, setRecordingActive] = useState(false);
+export default function Controls(props) {
+  const setRecordingActive = props.setRecordingActive;
+  const recordingActive = props.recordingActive;
   return (
     <LocalUserContext>
       <View style={{...styles.bottomBar}}>

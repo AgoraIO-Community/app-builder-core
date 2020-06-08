@@ -175,7 +175,7 @@ export default class RtcEngine {
 
     async muteRemoteAudioStream(uid: number, muted: boolean): Promise<void> {
         try {
-            (this.streams.get(uid) as AgoraRTC.Stream)[muted ? "muteVideo" : "unmuteVideo"]();
+            (this.streams.get(uid) as AgoraRTC.Stream)[muted ? "muteAudio" : "unmuteAudio"]();
         }
         catch (e) {
             console.error(e)

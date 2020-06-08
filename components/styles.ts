@@ -109,15 +109,20 @@ const styles = {
   temp: {
     width: '100%',
     height: '100%',
+    backgroundColor: '#333237',
     // margin: 5,
   },
   gridRow: {
     flex: 1,
     flexDirection: 'row',
+    width: '100%',
   },
   gridVideoContainer: {
-    margin: Platform.OS === 'web' ? 4 : 2,
+    padding: Platform.OS === 'web' ? 4 : 2,
     flex: 1,
+    backgroundColor: '#333237',
+    flexGrow: Platform.OS === 'web' ? 0.5 : 1,
+    marginHorizontal: 'auto',
   },
   bottomBarButton: {
     height: '70%',

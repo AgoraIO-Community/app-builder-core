@@ -23,14 +23,17 @@ const SurfaceView = (props: SurfaceViewInterface) => {
     console.log("Surface View props", props);
     useEffect(function () {
         const stream: AgoraRTC.Stream = window.engine.streams.get(props.uid);
-        stream.play(String(props.uid));
+        if(props.renderMode==2)
+            stream.play(String(props.uid),{fit:'contain'});
+        else
+            stream.play(String(props.uid));
         return ()=>{
             console.log(`unmounting stream ${props.uid}`, stream);
             stream.stop();
         }
     },[props.uid]);
 
-    return <div id={String(props.uid)} style={{flex:1, ...props.style as Object}}>
+    return <div id={String(props.uid)} className={'video-container'} style={{flex:1, ...props.style as Object}}>
     </div>
 }
 
