@@ -12,7 +12,8 @@ import styles from '../components/styles';
 
 export default function Controls(props) {
   const [screenshareActive, setScreenshareActive] = useState(false);
-  const [recordingActive, setRecordingActive] = useState(false);
+  const setRecordingActive = props.setRecordingActive;
+  const recordingActive = props.recordingActive;
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.addListener('ScreenshareStopped', () => {
     setScreenshareActive(false);
