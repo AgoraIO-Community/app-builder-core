@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {View, StatusBar, Platform} from 'react-native';
 import {MaxVideoView} from './agora-rn-uikit/Components';
 import RtcConfigure from './agora-rn-uikit/src/RTCConfigure';
-import {MinUidConsumer} from './agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from './agora-rn-uikit/src/MaxUidContext';
 import {PropsProvider, PropsInterface} from './agora-rn-uikit/src/PropsContext';
 import JoinCall from './components/JoinCall';
@@ -11,14 +10,17 @@ import ParticipantsView from './components/ParticipantsView';
 import PinnedVideo from './components/PinnedVideo';
 import ParticipantCounter from './components/ParticipantCounter';
 import Controls from './components/Controls';
+import GridVideo from './components/GridVideo';
 import styles from './components/styles';
 
 const App: React.FC<PropsInterface> = () => {
-  const [channel, onChangeChannel] = useState();
-  const [password, onChangePassword] = useState();
+  const [channel, onChangeChannel] = useState('');
+  const [password, onChangePassword] = useState('');
   const [joinCall, setJoinCall] = useState(true);
   const [participantsView, setParticipantsView] = useState(false);
   const [layout, setLayout] = useState(false);
+  const [recording, setRecording] = useState(false);
+
   const rtcProps = {
     appId: '9383ec2f56364d478cefc38b0a37d8bc',
     channel: channel,
@@ -27,8 +29,10 @@ const App: React.FC<PropsInterface> = () => {
     EndCall: () => setJoinCall(true),
   };
   const startCall = () => {
-    rtcProps.channel = channel;
-    setJoinCall(false);
+    if (channel !== '') {
+      rtcProps.channel = channel;
+      setJoinCall(false);
+    }
   };
 
   return joinCall ? (
@@ -49,6 +53,8 @@ const App: React.FC<PropsInterface> = () => {
             setParticipantsView={setParticipantsView}
             layout={layout}
             setLayout={setLayout}
+            recording={recording}
+            setRecording={setRecording}
           />
           <View style={styles.videoView}>
             {participantsView ? <ParticipantsView /> : <></>}
@@ -83,27 +89,10 @@ const App: React.FC<PropsInterface> = () => {
                 )}
               </View>
             ) : (
-              <View style={styles.gridView}>
-                <MaxUidConsumer>
-                  {(maxUsers) => (
-                    <View style={styles.full}>
-                      <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-                    </View>
-                  )}
-                </MaxUidConsumer>
-                <MinUidConsumer>
-                  {(minUsers) =>
-                    minUsers.map((user) => (
-                      <View style={styles.full} key={user.uid}>
-                        <MaxVideoView user={user} key={user.uid} />
-                      </View>
-                    ))
-                  }
-                </MinUidConsumer>
-              </View>
+              <GridVideo />
             )}
           </View>
-          <Controls />
+          <Controls channelName={rtcProps.channel} appId={rtcProps.appId} />
         </RtcConfigure>
       </PropsProvider>
     </View>
