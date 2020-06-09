@@ -33,10 +33,12 @@ const GridVideo = () => {
         <View style={styles.gridRow} key={ridx}>
           {r.map((c, cidx) => (
             <View style={styles.gridVideoContainer} key={cidx}>
-              <MaxVideoView
-              user={users[ridx * dims.c + cidx]}
-              key={users[ridx * dims.c + cidx].uid}
-            />
+              <View style={styles.gridVideoContainerInner}>
+                <MaxVideoView
+                  user={users[ridx * dims.c + cidx]}
+                  key={users[ridx * dims.c + cidx].uid}
+                />
+              </View>
             </View>
           ))}
         </View>

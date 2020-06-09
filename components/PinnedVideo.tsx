@@ -36,7 +36,7 @@ const PinnedVideo = () => {
                   onPress={() => {
                     data.dispatch({type: 'SwapVideo', value: [user]});
                   }}>
-                  <View style={styles.full}>
+                  <View style={styles.pinnedVideo}>
                     <MaxVideoView
                       user={user}
                       key={user.uid}

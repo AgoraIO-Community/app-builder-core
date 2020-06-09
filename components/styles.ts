@@ -5,7 +5,7 @@ const {width} = Dimensions.get('window');
 const styles = {
   main: {
     flex: 1,
-    backgroundColor: '#333',
+    backgroundColor: '#333237',
     flexDirection: 'column',
     paddingHorizontal: Platform.OS === 'web' ? '1%' : 0,
   },
@@ -104,7 +104,7 @@ const styles = {
   },
   videoView: {
     flex: 12,
-    backgroundColor: '#333',
+    backgroundColor: '#333237',
     flexDirection: 'column',
   },
   videoViewInner: {
@@ -132,11 +132,17 @@ const styles = {
     width: '100%',
   },
   gridVideoContainer: {
-    padding: Platform.OS === 'web' ? 4 : 2,
+    // marginVertical: 2,
     flex: 1,
     backgroundColor: '#333237',
     flexGrow: Platform.OS === 'web' ? 0.5 : 1,
     marginHorizontal: 'auto',
+  },
+  gridVideoContainerInner: {
+    borderColor: '#eee',
+    borderWidth:2,
+    flex: 1,
+    margin:2,
   },
   bottomBarButton: {
     height: '70%',
@@ -174,7 +180,7 @@ const styles = {
     alignItems: 'center',
   },
   participantCountText: {
-    fontSize: Platform.OS === 'web' ? 26 : 22,
+    fontSize: Platform.OS === 'web' ? 24 : 16,
     color: '#ABABAB',
     fontWeight: '500',
   },
@@ -195,6 +201,11 @@ const styles = {
     flex: 2,
     backgroundColor: '#333237',
     flexDirection: 'row',
+  },
+  pinnedVideo: {
+    flex: 1,
+    borderColor: '#eee',
+    borderWidth:2
   },
   participantCountInner: {
     width: width / 7.5,
