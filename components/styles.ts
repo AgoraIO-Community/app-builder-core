@@ -41,9 +41,23 @@ const styles = {
     textAlign: 'center',
     flex: 1,
   },
+  roomNameContainer: {
+    paddingHorizontal: 5,
+    marginHorizontal: 5,
+    height: 35,
+    maxHeight: 30,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+  },
+  roomNameText: {
+    fontSize:18,
+    color:'#fff',
+  },
   recordingNav: {
     backgroundColor: '#FF6A6B',
-    flex: 1,
+    flex: .8,
     maxWidth: 150,
     paddingHorizontal: 2,
     height: 35,
@@ -54,7 +68,7 @@ const styles = {
     alignItems: 'center',
     alignContent: 'center',
     borderRadius: 3,
-    marginLeft: 10,
+    marginHorizontal: 5,
   },
   recordingNavText: {
     fontSize: Platform.OS === 'web' ? 19 : 17,
@@ -62,7 +76,7 @@ const styles = {
     fontWeight: '400',
     alignSelf: 'center',
     textAlign: 'center',
-    flex: 1,
+    flex: .8,
     lineHeight: 35,
   },
   participantButton: {
@@ -251,6 +265,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
+    backgroundColor: '#6E757D',
   },
   minCloseBtn: {
     alignItems: 'center',

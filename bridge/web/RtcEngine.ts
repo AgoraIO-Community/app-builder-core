@@ -95,6 +95,7 @@ export default class RtcEngine {
     async enableVideo(): Promise<void> {
         let enable = new Promise(((resolve, reject) => {
             this.streams.set(0, AgoraRTC.createStream(this.streamSpec));
+            (this.streams.get(0)  as AgoraRTC.Stream).setVideoProfile('480p_9');
             (this.streams.get(0) as AgoraRTC.Stream).init(() => {
                 resolve();
             },reject)
@@ -192,6 +193,11 @@ export default class RtcEngine {
     }
 
     async destroy(): Promise<void> {
+        if (this.inScreenshare) {
+            (this.eventsMap.get('UserOffline') as callbackType)(1);
+            this.screenClient.leave();
+            (this.eventsMap.get('ScreenshareStopped') as callbackType)();
+        }
         this.eventsMap.forEach((callback, event, map) => {
             this.client.off(event, callback);
         });

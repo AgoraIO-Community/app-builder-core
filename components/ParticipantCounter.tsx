@@ -9,7 +9,7 @@ export default function ParticipantCounter() {
       <MinUidConsumer>
         {(minUsers) => (
           <View style={styles.participantCountTextHolder}>
-            <Text style={styles.participantCountText}>+{minUsers.length}</Text>
+            <Text style={styles.participantCountText}>+{minUsers.length + 1}</Text>
           </View>
         )}
       </MinUidConsumer>

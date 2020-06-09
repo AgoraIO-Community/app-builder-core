@@ -1,8 +1,11 @@
 import React from 'react';
-import {View, Text, Platform} from 'react-native';
+import {View, Text} from 'react-native';
 import {MinUidConsumer} from '../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../agora-rn-uikit/src/MaxUidContext';
 import {RemoteAudioMute, RemoteVideoMute} from '../agora-rn-uikit/Components';
+import LocalAudioMute from './LocalAudioMute';
+import LocalVideoMute from './LocalVideoMute';
+import LocalUserContext from '../agora-rn-uikit/src/LocalUserContext';
 import styles from '../components/styles';
 
 const ParticipantView = () => {
@@ -20,7 +23,15 @@ const ParticipantView = () => {
                 </View>
               </View>
             ) : (
-              <View key={user.uid} />
+              <View style={styles.participantContainer} key={user.uid}>
+                <Text style={styles.participantText}>{user.uid}</Text>
+                <View style={styles.participantButtonContainer}>
+                  <LocalUserContext>
+                    <LocalAudioMute />
+                    <LocalVideoMute />
+                  </LocalUserContext>
+                </View>
+              </View>
             ),
           )
         }
@@ -37,7 +48,15 @@ const ParticipantView = () => {
                 </View>
               </View>
             ) : (
-              <View key={user.uid} />
+              <View style={styles.participantContainer} key={user.uid}>
+                <Text style={styles.participantText}>{user.uid}</Text>
+                <View style={styles.participantButtonContainer}>
+                  <LocalUserContext>
+                    <LocalAudioMute />
+                    <LocalVideoMute />
+                  </LocalUserContext>
+                </View>
+              </View>
             ),
           )
         }
