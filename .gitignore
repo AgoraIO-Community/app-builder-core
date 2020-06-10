@@ -64,3 +64,6 @@ buck-out/
 
 #UI Kit
 agora-rn-uikit/
+
+#built website
+dist/
