@@ -8,7 +8,7 @@ console.log("node env: ", process.env.NODE_ENV);
 
 module.exports = {
     mode: isDevelopment ? 'development' : 'production',
-    devtool: 'eval-source-map',
+    devtool: isDevelopment?'eval-source-map': undefined,
     entry:{
         main: './index.web.js'
     },
