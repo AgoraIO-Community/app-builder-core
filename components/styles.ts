@@ -124,7 +124,6 @@ const styles = {
     width: '100%',
     height: '100%',
     backgroundColor: '#333237',
-    // margin: 5,
   },
   gridRow: {
     flex: 1,
@@ -132,10 +131,8 @@ const styles = {
     width: '100%',
   },
   gridVideoContainer: {
-    // marginVertical: 2,
     flex: 1,
     backgroundColor: '#333237',
-    flexGrow: Platform.OS === 'web' ? 0.5 : 1,
     marginHorizontal: 'auto',
   },
   gridVideoContainerInner: {
