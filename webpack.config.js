@@ -1,8 +1,10 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
-const isDevelopment = true;
+const isDevelopment = process.env.NODE_ENV === "development";
 const path = require('path');
+
+console.log("node env: ", process.env.NODE_ENV);
 
 module.exports = {
     mode: isDevelopment ? 'development' : 'production',
