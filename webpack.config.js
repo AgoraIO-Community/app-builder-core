@@ -50,7 +50,8 @@ module.exports = {
         extensions: [".ts", ".tsx", ".js", ".jsx"],
         alias: {
             'react-native$': 'react-native-web',
-            'react-native-agora': path.join(__dirname,'bridge/web')
+            'agora-react-native-rtm': path.join(__dirname,'bridge/rtm/web'),
+            'react-native-agora': path.join(__dirname,'bridge/rtc/web')
         }
     },
     devServer: {
