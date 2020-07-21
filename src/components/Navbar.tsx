@@ -1,8 +1,8 @@
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Image, Text} from 'react-native';
-import styles from '../components/styles';
-import {MinUidConsumer} from '../agora-rn-uikit/src/MinUidContext';
-import PropsContext from '../agora-rn-uikit/src/PropsContext';
+import styles from './styles';
+import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
+import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from './icons';
 
 const {

@@ -8,12 +8,21 @@ import {
   Platform,
   Image,
 } from 'react-native';
-import images from '../src/images';
+import images from '../assets/images';
 import styles from '../components/styles';
+import {useHistory} from '../components/Router';
 
-const JoinCall = (props) => {
+const Join = (props) => {
+  const history = useHistory();
+  console.log('history ', history);
+
+  const startCall = () => {
+    if (channel !== '') {
+      history.push(`/${channel}`);
+    }
+  };
+
   const channel = props.channel;
-  const startCall = props.startCall;
   const onChangeChannel = props.onChangeChannel;
   const password = props.password;
   const onChangePassword = props.onChangePassword;
@@ -60,4 +69,4 @@ const JoinCall = (props) => {
   );
 };
 
-export default JoinCall;
+export default Join;

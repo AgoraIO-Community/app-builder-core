@@ -1,49 +1,36 @@
 import React, {useState} from 'react';
 import {View, StatusBar, Platform} from 'react-native';
-import {MaxVideoView} from './agora-rn-uikit/Components';
-import RtcConfigure from './agora-rn-uikit/src/RTCConfigure';
-import {MaxUidConsumer} from './agora-rn-uikit/src/MaxUidContext';
-import {PropsProvider, PropsInterface} from './agora-rn-uikit/src/PropsContext';
-import JoinCall from './components/JoinCall';
-import Navbar from './components/Navbar';
-import ParticipantsView from './components/ParticipantsView';
-import PinnedVideo from './components/PinnedVideo';
-import ParticipantCounter from './components/ParticipantCounter';
-import Controls from './components/Controls';
-import GridVideo from './components/GridVideo';
-import styles from './components/styles';
+import {MaxVideoView} from '../../agora-rn-uikit/Components';
+import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
+import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import {
+  PropsProvider,
+  PropsInterface,
+} from '../../agora-rn-uikit/src/PropsContext';
+import Navbar from '../components/Navbar';
+import ParticipantsView from '../components/ParticipantsView';
+import PinnedVideo from '../components/PinnedVideo';
+import ParticipantCounter from '../components/ParticipantCounter';
+import Controls from '../components/Controls';
+import GridVideo from '../components/GridVideo';
+import styles from '../components/styles';
+import {useParams, useHistory} from '../components/Router';
 
-const App: React.FC<PropsInterface> = () => {
-  const [channel, onChangeChannel] = useState('');
-  const [password, onChangePassword] = useState('');
-  const [joinCall, setJoinCall] = useState(true);
+const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
-
+  const {channel} = useParams();
   const rtcProps = {
     appId: '5c2412e4b1dd4ac89db273c928e29b4d',
-    channel: channel,
+    channel,
   };
+  const history = useHistory();
   const callbacks = {
-    EndCall: () => setJoinCall(true),
-  };
-  const startCall = () => {
-    if (channel !== '') {
-      rtcProps.channel = channel;
-      setJoinCall(false);
-    }
+    EndCall: () => history.push('/'),
   };
 
-  return joinCall ? (
-    <JoinCall
-      channel={channel}
-      onChangeChannel={onChangeChannel}
-      password={password}
-      onChangePassword={onChangePassword}
-      startCall={startCall}
-    />
-  ) : (
+  return (
     <View style={styles.main}>
       <PropsProvider value={{rtcProps, callbacks, styleProps}}>
         <RtcConfigure>
@@ -126,4 +113,4 @@ const styleProps = {
   BtnStyles: styles.remoteButton,
 };
 
-export default App;
+export default VideoCall;

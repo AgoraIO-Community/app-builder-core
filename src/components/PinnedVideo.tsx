@@ -6,9 +6,9 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import {MinUidConsumer} from '../agora-rn-uikit/src/MinUidContext';
-import RtcContext from '../agora-rn-uikit/src/RtcContext';
-import {MaxVideoView} from '../agora-rn-uikit/Components';
+import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
+import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import styles from './styles';
 
 const {width} = Dimensions.get('window');

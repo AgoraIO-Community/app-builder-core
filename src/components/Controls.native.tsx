@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import {View} from 'react-native';
-import LocalUserContext from '../agora-rn-uikit/src/LocalUserContext';
+import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import {
   LocalAudioMute,
   LocalVideoMute,
   SwitchCamera,
   Endcall,
-} from '../agora-rn-uikit/Components';
+} from '../../agora-rn-uikit/Components';
 import Recording from './Recording';
-import styles from '../components/styles';
+import styles from './styles';
 
 export default function Controls(props) {
   const setRecordingActive = props.setRecordingActive;

@@ -1,14 +1,14 @@
 import React, {useContext, useState} from 'react';
 import {View, Image, TouchableOpacity} from 'react-native';
-import LocalUserContext from '../agora-rn-uikit/src/LocalUserContext';
-import RtcContext from '../agora-rn-uikit/src/RtcContext';
+import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
+import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import {
   LocalAudioMute,
   LocalVideoMute,
   Endcall,
-} from '../agora-rn-uikit/Components';
+} from '../../agora-rn-uikit/Components';
 import Recording from './Recording';
-import styles from '../components/styles';
+import styles from './styles';
 import icons from './icons';
 
 const screenshareIcon = icons.screenshareIcon;

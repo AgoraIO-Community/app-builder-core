@@ -1,5 +1,5 @@
 import React from 'react';
-import {MinUidConsumer} from '../agora-rn-uikit/src/MinUidContext';
+import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {View, Text} from 'react-native';
 import styles from './styles';
 
