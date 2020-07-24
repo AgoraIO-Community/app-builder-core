@@ -12,7 +12,14 @@ import images from '../assets/images';
 import styles from '../components/styles';
 import {useHistory} from '../components/Router';
 
-const Join = (props) => {
+interface joinProps {
+  channel: string;
+  onChangeChannel: (text: string) => void;
+  password: string;
+  onChangePassword: (text: string) => void;
+}
+
+const Join = (props: joinProps) => {
   const history = useHistory();
   console.log('history ', history);
 
