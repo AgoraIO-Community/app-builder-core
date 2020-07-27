@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Image, TouchableOpacity } from 'react-native';
 import styles from './styles';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext'
-import icons from './icons';
+import icons from '../assets/icons';
 const { recordingIcon } = icons;
 
 let data = {

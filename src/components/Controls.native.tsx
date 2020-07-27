@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {View} from 'react-native';
+import {View, TouchableOpacity} from 'react-native';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import {
   LocalAudioMute,
@@ -13,6 +13,8 @@ import styles from './styles';
 export default function Controls(props) {
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
+  const setChatDisplayed = props.setChatDisplayed;
+  const chatDisplayed = props.chatDisplayed;
   return (
     <LocalUserContext>
       <View style={{...styles.bottomBar}}>
@@ -23,6 +25,12 @@ export default function Controls(props) {
           setRecordingActive={setRecordingActive}
         />
         <SwitchCamera />
+        <TouchableOpacity
+          style={chatDisplayed ? styles.greenLocalButton : styles.localButton}
+          onPress={() => {
+            setChatDisplayed(!chatDisplayed);
+          }}>
+        </TouchableOpacity>
         <Endcall />
       </View>
     </LocalUserContext>

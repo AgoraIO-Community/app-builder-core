@@ -3,10 +3,7 @@ import {View, StatusBar, Platform} from 'react-native';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
-import {
-  PropsProvider,
-  PropsInterface,
-} from '../../agora-rn-uikit/src/PropsContext';
+import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
 import ParticipantsView from '../components/ParticipantsView';
 import PinnedVideo from '../components/PinnedVideo';
@@ -15,11 +12,13 @@ import Controls from '../components/Controls';
 import GridVideo from '../components/GridVideo';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
+import Chat from '../components/Chat';
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
+  const [chatDisplayed, setChatDisplayed] = useState(true);
   const {channel} = useParams();
   const rtcProps = {
     appId: '5c2412e4b1dd4ac89db273c928e29b4d',
@@ -84,7 +83,10 @@ const VideoCall: React.FC = () => {
             appId={rtcProps.appId}
             recordingActive={recordingActive}
             setRecordingActive={setRecordingActive}
+            chatDisplayed={chatDisplayed}
+            setChatDisplayed={setChatDisplayed}
           />
+          {chatDisplayed ? <Chat /> : <></>}
         </RtcConfigure>
       </PropsProvider>
     </View>
