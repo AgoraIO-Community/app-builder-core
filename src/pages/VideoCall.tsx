@@ -13,6 +13,7 @@ import GridVideo from '../components/GridVideo';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
 import Chat from '../components/Chat';
+import RtmConfigure from '../components/RTMConfigure';
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
@@ -32,62 +33,64 @@ const VideoCall: React.FC = () => {
   return (
     <View style={styles.main}>
       <PropsProvider value={{rtcProps, callbacks, styleProps}}>
-        <RtcConfigure>
-          <StatusBar hidden />
-          <Navbar
-            participantsView={participantsView}
-            setParticipantsView={setParticipantsView}
-            layout={layout}
-            setLayout={setLayout}
-            recordingActive={recordingActive}
-            setRecordingActive={setRecordingActive}
-          />
-          <View style={styles.videoView}>
-            {participantsView ? <ParticipantsView /> : <></>}
-            {layout ? (
-              <View style={styles.full}>
-                {Platform.OS !== 'web' ? (
-                  <></>
-                ) : (
-                  <View style={styles.pinnedView}>
-                    <PinnedVideo />
+        <RtmConfigure>
+          <RtcConfigure>
+            <StatusBar hidden />
+            <Navbar
+              participantsView={participantsView}
+              setParticipantsView={setParticipantsView}
+              layout={layout}
+              setLayout={setLayout}
+              recordingActive={recordingActive}
+              setRecordingActive={setRecordingActive}
+            />
+            <View style={styles.videoView}>
+              {participantsView ? <ParticipantsView /> : <></>}
+              {layout ? (
+                <View style={styles.full}>
+                  {Platform.OS !== 'web' ? (
+                    <></>
+                  ) : (
+                    <View style={styles.pinnedView}>
+                      <PinnedVideo />
+                    </View>
+                  )}
+                  <View style={styles.videoViewInner}>
+                    <View style={styles.full}>
+                      <MaxUidConsumer>
+                        {(maxUsers) => (
+                          <MaxVideoView
+                            user={maxUsers[0]}
+                            key={maxUsers[0].uid}
+                          />
+                        )}
+                      </MaxUidConsumer>
+                    </View>
                   </View>
-                )}
-                <View style={styles.videoViewInner}>
-                  <View style={styles.full}>
-                    <MaxUidConsumer>
-                      {(maxUsers) => (
-                        <MaxVideoView
-                          user={maxUsers[0]}
-                          key={maxUsers[0].uid}
-                        />
-                      )}
-                    </MaxUidConsumer>
-                  </View>
+                  {Platform.OS === 'web' ? (
+                    <></>
+                  ) : (
+                    <View style={styles.pinnedView}>
+                      <ParticipantCounter />
+                      <PinnedVideo />
+                    </View>
+                  )}
                 </View>
-                {Platform.OS === 'web' ? (
-                  <></>
-                ) : (
-                  <View style={styles.pinnedView}>
-                    <ParticipantCounter />
-                    <PinnedVideo />
-                  </View>
-                )}
-              </View>
-            ) : (
-              <GridVideo />
-            )}
-          </View>
-          <Controls
-            channelName={rtcProps.channel}
-            appId={rtcProps.appId}
-            recordingActive={recordingActive}
-            setRecordingActive={setRecordingActive}
-            chatDisplayed={chatDisplayed}
-            setChatDisplayed={setChatDisplayed}
-          />
-          {chatDisplayed ? <Chat /> : <></>}
-        </RtcConfigure>
+              ) : (
+                <GridVideo />
+              )}
+            </View>
+            <Controls
+              channelName={rtcProps.channel}
+              appId={rtcProps.appId}
+              recordingActive={recordingActive}
+              setRecordingActive={setRecordingActive}
+              chatDisplayed={chatDisplayed}
+              setChatDisplayed={setChatDisplayed}
+            />
+            {chatDisplayed ? <Chat /> : <></>}
+          </RtcConfigure>
+        </RtmConfigure>
       </PropsProvider>
     </View>
   );

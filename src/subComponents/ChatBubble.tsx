@@ -3,20 +3,21 @@ import {View, Text} from 'react-native';
 import styles from '../components/styles';
 
 const ChatBubble = (props) => {
-  let {type} = props;
+  let {type, msg, ts, uid} = props;
+  let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
   return (
     <View>
       {!type ? (
         <View style={type ? styles.chatSenderViewLocal : styles.chatSenderView}>
-          <Text style={styles.chatSenderText}>Ekaansh</Text>
-          <Text style={styles.whiteText}>12:47 pm</Text>
+          <Text style={styles.chatSenderText}>{uid}</Text>
+          <Text style={styles.whiteText}>{time}</Text>
         </View>
       ) : (
         <></>
       )}
       <View style={type ? styles.chatBubbleLocal : styles.chatBubble}>
         <Text style={type ? styles.whiteText : styles.blackText}>
-          Sample message goes here. Sample message goes here.
+          {msg.slice(1)}
         </Text>
       </View>
     </View>
