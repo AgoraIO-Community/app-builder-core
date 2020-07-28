@@ -2,36 +2,29 @@ import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import ChatContext from './ChatContext';
+import {messageStoreInterface} from '../components/ChatContext';
 
 enum mType {
   Control = '0',
   Normal = '1',
 }
 
-interface messageStore {
-  Array: {
-    ts: string;
-    uid: string;
-    msg: string;
-  };
-}
-
 const RtmConfigure = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
-  const [messageStore, setMessageStore] = useState<messageStore>([]);
+  const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [login, setLogin] = useState<boolean>(false);
-  let engine = useRef<RtmEngine | null>(null);
-  let localUid: string;
+  let engine = useRef<RtmEngine>(null!);
+  let localUid = useRef<string>('');
 
   const addMessageToStore = (uid: string, text: string, ts: string) => {
-    setMessageStore((m) => {
+    setMessageStore((m: messageStoreInterface[]) => {
       return [...m, {ts: ts, uid: uid, msg: text}];
     });
   };
 
   const init = async () => {
     engine.current = new RtmEngine();
-    localUid = '' + new Date().getTime();
+    localUid.current = '' + new Date().getTime();
     engine.current.on('error', (evt: any) => {
       console.log(evt);
     });
@@ -50,16 +43,19 @@ const RtmConfigure = (props: any) => {
       }
     });
     engine.current.createClient(rtcProps.appId);
-    await engine.current.login({uid: localUid});
+    await engine.current.login({uid: localUid.current});
     await engine.current.joinChannel(rtcProps.channel);
     console.log('Join channel success');
     setLogin(true);
   };
 
   const sendMessage = async (msg: string) => {
-    await (engine.current as RtmEngine).sendMessageByChannelId(rtcProps.channel, '1' + msg);
+    await (engine.current as RtmEngine).sendMessageByChannelId(
+      rtcProps.channel,
+      mType.Normal + msg,
+    );
     let ts = '' + new Date().getTime;
-    addMessageToStore(localUid, '1' + msg, ts);
+    addMessageToStore(localUid.current, mType.Normal + msg, ts);
   };
 
   const end = async () => {
@@ -81,7 +77,12 @@ const RtmConfigure = (props: any) => {
 
   return (
     <ChatContext.Provider
-      value={{messageStore, sendMessage, engine: engine.current, localUid}}>
+      value={{
+        messageStore,
+        sendMessage,
+        engine: engine.current,
+        localUid: localUid.current,
+      }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>
   );

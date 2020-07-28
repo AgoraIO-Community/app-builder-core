@@ -1,8 +1,9 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 import styles from '../components/styles';
+import {channelMessage} from '../components/ChatContext';
 
-const ChatBubble = (props) => {
+const ChatBubble = (props: channelMessage) => {
   let {type, msg, ts, uid} = props;
   let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
   return (

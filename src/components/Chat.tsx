@@ -4,7 +4,7 @@ import styles from './styles';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 
-const Chat = (props) => {
+const Chat = () => {
   return (
     <View style={Platform.OS === 'web' ? styles.chatWeb : styles.chatNative}>
       <View style={styles.chatNav}>
