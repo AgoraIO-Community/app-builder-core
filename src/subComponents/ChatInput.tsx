@@ -5,20 +5,27 @@ import ChatContext from '../components/ChatContext';
 
 const ChatInput = () => {
   const [message, onChangeMessage] = useState('');
-  const {sendMessage, engine} = useContext(ChatContext);
+  const {sendMessage} = useContext(ChatContext);
   return (
     <View style={styles.chatInputView}>
       <TextInput
         style={styles.chatInput}
         value={message}
         onChangeText={(text) => onChangeMessage(text)}
+        onSubmitEditing={() => {
+          sendMessage(message);
+          onChangeMessage('');
+        }}
         placeholder="Type your message.."
         placeholderTextColor="#000"
         autoCorrect={false}
       />
       <TouchableOpacity
         style={styles.ChatInputButton}
-        onPress={() => sendMessage(message)}>
+        onPress={() => {
+          sendMessage(message);
+          onChangeMessage('');
+        }}>
         <Text style={styles.ChatInputButtonText}> S </Text>
       </TouchableOpacity>
     </View>
