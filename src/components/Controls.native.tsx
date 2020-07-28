@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import {View, TouchableOpacity} from 'react-native';
+import React from 'react';
+import {View, TouchableOpacity, Image} from 'react-native';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import {
   LocalAudioMute,
@@ -9,8 +9,9 @@ import {
 } from '../../agora-rn-uikit/Components';
 import Recording from './Recording';
 import styles from './styles';
+import icons from '../assets/icons';
 
-export default function Controls(props) {
+export default function Controls(props: any) {
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
   const setChatDisplayed = props.setChatDisplayed;
@@ -26,10 +27,11 @@ export default function Controls(props) {
         />
         <SwitchCamera />
         <TouchableOpacity
-          style={chatDisplayed ? styles.greenLocalButton : styles.localButton}
+          style={styles.localButton}
           onPress={() => {
             setChatDisplayed(!chatDisplayed);
           }}>
+          <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
       </View>
