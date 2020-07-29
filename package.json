@@ -15,7 +15,7 @@
     "windows:build": "npm run electron:build",
     "mac": "npm run electron",
     "mac:build": "npm run electron:build",
-    "linux": "npm run electron",
+    "linux": "cross-env PLATFORM=linux npm run electron",
     "linux:build": "npm run electron:build",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
@@ -24,6 +24,7 @@
     "forge": "./forge.config.js"
   },
   "dependencies": {
+    "agora-electron-sdk": "^3.0.0-build.661",
     "agora-react-native-rtm": "^1.0.1-alpha.1",
     "agora-rtc-sdk": "^3.1.1",
     "agora-rtm-sdk": "^1.3.0",
@@ -66,6 +67,7 @@
     "metro-react-native-babel-preset": "^0.58.0",
     "node-loader": "^1.0.0",
     "prettier": "^2.0.4",
+    "react-devtools-electron": "^4.7.0",
     "react-refresh": "^0.8.3",
     "react-test-renderer": "16.11.0",
     "typescript": "^3.8.3",
