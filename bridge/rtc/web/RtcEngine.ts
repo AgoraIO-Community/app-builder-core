@@ -191,6 +191,17 @@ export default class RtcEngine {
             console.error(e)
         }
     }
+    getDevices(callback: (devices: any) => void): void {
+        AgoraRTC.getDevices(devices => callback(devices));
+    }
+
+    changeCamera(cameraId, callback, error) {
+        (this.streams.get(0) as AgoraRTC.Stream).switchDevice('video', cameraId, () => callback(), (e) => error(e));
+    }
+
+    changeMic(micId, callback, error) {
+        (this.streams.get(0) as AgoraRTC.Stream).switchDevice('audio', micId, () => callback(), (e) => error(e));
+    }
 
     async destroy(): Promise<void> {
         if (this.inScreenshare) {

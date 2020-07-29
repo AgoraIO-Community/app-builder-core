@@ -5,6 +5,7 @@ import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
+import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
 import PinnedVideo from '../components/PinnedVideo';
 import ParticipantCounter from '../components/ParticipantCounter';
@@ -17,9 +18,10 @@ import RtmConfigure from '../components/RTMConfigure';
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
+  const [callActive, setCallActive] = useState(false);
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
-  const [chatDisplayed, setChatDisplayed] = useState(true);
+  const [chatDisplayed, setChatDisplayed] = useState(false);
   const {channel} = useParams();
   const rtcProps = {
     appId: '5c2412e4b1dd4ac89db273c928e29b4d',
@@ -34,61 +36,67 @@ const VideoCall: React.FC = () => {
     <View style={styles.main}>
       <PropsProvider value={{rtcProps, callbacks, styleProps}}>
         <RtmConfigure>
-          <RtcConfigure>
+          <RtcConfigure callActive={callActive}>
             <StatusBar hidden />
-            <Navbar
-              participantsView={participantsView}
-              setParticipantsView={setParticipantsView}
-              layout={layout}
-              setLayout={setLayout}
-              recordingActive={recordingActive}
-              setRecordingActive={setRecordingActive}
-            />
-            <View style={styles.videoView}>
-              {participantsView ? <ParticipantsView /> : <></>}
-              {layout ? (
-                <View style={styles.full}>
-                  {Platform.OS !== 'web' ? (
-                    <></>
-                  ) : (
-                    <View style={styles.pinnedView}>
-                      <PinnedVideo />
-                    </View>
-                  )}
-                  <View style={styles.videoViewInner}>
+            {callActive ? (
+              <View style={styles.full}>
+                <Navbar
+                  participantsView={participantsView}
+                  setParticipantsView={setParticipantsView}
+                  layout={layout}
+                  setLayout={setLayout}
+                  recordingActive={recordingActive}
+                  setRecordingActive={setRecordingActive}
+                />
+                <View style={styles.videoView}>
+                  {participantsView ? <ParticipantsView /> : <></>}
+                  {layout ? (
                     <View style={styles.full}>
-                      <MaxUidConsumer>
-                        {(maxUsers) => (
-                          <MaxVideoView
-                            user={maxUsers[0]}
-                            key={maxUsers[0].uid}
-                          />
-                        )}
-                      </MaxUidConsumer>
+                      {Platform.OS !== 'web' ? (
+                        <></>
+                      ) : (
+                        <View style={styles.pinnedView}>
+                          <PinnedVideo />
+                        </View>
+                      )}
+                      <View style={styles.videoViewInner}>
+                        <View style={styles.full}>
+                          <MaxUidConsumer>
+                            {(maxUsers) => (
+                              <MaxVideoView
+                                user={maxUsers[0]}
+                                key={maxUsers[0].uid}
+                              />
+                            )}
+                          </MaxUidConsumer>
+                        </View>
+                      </View>
+                      {Platform.OS === 'web' ? (
+                        <></>
+                      ) : (
+                        <View style={styles.pinnedView}>
+                          <ParticipantCounter />
+                          <PinnedVideo />
+                        </View>
+                      )}
                     </View>
-                  </View>
-                  {Platform.OS === 'web' ? (
-                    <></>
                   ) : (
-                    <View style={styles.pinnedView}>
-                      <ParticipantCounter />
-                      <PinnedVideo />
-                    </View>
+                    <GridVideo />
                   )}
                 </View>
-              ) : (
-                <GridVideo />
-              )}
-            </View>
-            <Controls
-              channelName={rtcProps.channel}
-              appId={rtcProps.appId}
-              recordingActive={recordingActive}
-              setRecordingActive={setRecordingActive}
-              chatDisplayed={chatDisplayed}
-              setChatDisplayed={setChatDisplayed}
-            />
-            {chatDisplayed ? <Chat /> : <></>}
+                <Controls
+                  channelName={rtcProps.channel}
+                  appId={rtcProps.appId}
+                  recordingActive={recordingActive}
+                  setRecordingActive={setRecordingActive}
+                  chatDisplayed={chatDisplayed}
+                  setChatDisplayed={setChatDisplayed}
+                />
+                {chatDisplayed ? <Chat /> : <></>}
+              </View>
+            ) : (
+              <Precall setCallActive={setCallActive} />
+            )}
           </RtcConfigure>
         </RtmConfigure>
       </PropsProvider>
