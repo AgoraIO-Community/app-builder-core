@@ -151,9 +151,10 @@ export default class RtmEngine {
 
   async joinChannel(channelId: string): Promise<any> {
     this.channelMap.set(channelId, this.client.createChannel(channelId));
-    this.channelMap.get(channelId).on('ChannelMessage', (msg: {text: string}, uid: string) => {
+    this.channelMap.get(channelId).on('ChannelMessage', (msg: {text: string}, uid: string, messagePros) => {
         let text = msg.text;
-        this.channelEventsMap.get('channelMessageReceived')({uid, channelId, text});
+        let ts = messagePros.serverReceivedTs;
+        this.channelEventsMap.get('channelMessageReceived')({uid, channelId, text, ts});
       });
     this.channelMap.get(channelId).on('MemberJoined', (uid: string) => {
       this.channelEventsMap.get('channelMemberJoined')(uid);
@@ -176,6 +177,7 @@ export default class RtmEngine {
     if (this.channelMap.get(channel)) {
       return this.channelMap.get(channel).sendMessage({text: message});
     } else {
+      console.log(this.channelMap, channel);
       Promise.reject('Wrong channel');
     }
   }

@@ -1,3 +1,4 @@
+import { ChatInput } from 'src/subComponents/ChatInput';
 import {Platform, Dimensions} from 'react-native';
 
 const {width} = Dimensions.get('window');
@@ -11,6 +12,12 @@ const styles = {
   },
   full: {
     flex: 1,
+  },
+  whiteText: {
+    color: '#000',
+  },
+  blackText: {
+    color: '#000',
   },
   navbar: {
     flex: 1,
@@ -416,6 +423,107 @@ const styles = {
     width: 25,
     height: 25,
     tintColor: '#fff',
+  },
+  chatWeb: {
+    backgroundColor: '#E8ECF4',
+    position: 'absolute',
+    width: '20%',
+    height: '80%',
+    zIndex: 3,
+    display: 'flex',
+    right: 10,
+    bottom: 0,
+    flex: 1,
+  },
+  chatNative: {
+    backgroundColor: '#E8ECF4',
+    position: 'absolute',
+    width: '100%',
+    height: '89%',
+    zIndex: 3,
+    display: 'flex',
+    right: 0,
+    top: 0,
+    flex: 1,
+  },
+  chatNav: {
+    backgroundColor: '#D1D5DF',
+    width: '100%',
+    height: '7%',
+    paddingLeft: 10,
+  },
+  chatNavText: {
+    marginVertical: 'auto',
+    fontWeight: '700',
+    color: '#555',
+    fontSize: 25,
+    justifyContent: 'center',
+  },
+  chatInputView: {
+    flex: 1,
+    flexDirection: 'row',
+    marginHorizontal: 5,
+    backgroundColor: '#fff',
+  },
+  chatInput: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#fff',
+    color: '#000',
+    marginLeft: 10,
+  },
+  ChatInputButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 35,
+    marginVertical: 'auto',
+    alignSelf:'center',
+    marginHorizontal: 10,
+    backgroundColor: '#343944',
+    display: 'flex',
+    justifyContent:'center',
+  },
+  ChatInputButtonText: {
+    color: '#fff',
+    justifyContent:'center',
+    alignSelf:'center',
+  },
+  chatSenderView: {
+    flex: 2,
+    marginVertical: 2,
+    flexDirection: 'row',
+    marginRight: 30,
+    marginLeft: 15,
+  },
+  chatSenderViewLocal: {
+    flex: 2,
+    marginVertical: 2,
+    flexDirection: 'row',
+    marginRight: 15,
+    marginLeft: 30,
+  },
+  chatSenderText: {
+    color: '#000',
+    paddingRight: 10,
+    fontWeight: '700',
+  },
+  chatBubble: {
+    backgroundColor: '#fff',
+    flex: 1,
+    display: 'flex',
+    marginVertical: 5,
+    padding: 10,
+    marginRight: 30,
+    marginLeft: 15,
+  },
+  chatBubbleLocal: {
+    backgroundColor: '#0884FF',
+    flex: 1,
+    display: 'flex',
+    marginVertical: 5,
+    padding: 10,
+    marginRight: 15,
+    marginLeft: 30,
   },
 };
 

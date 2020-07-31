@@ -9,14 +9,14 @@ import {
 } from '../../agora-rn-uikit/Components';
 import Recording from './Recording';
 import styles from './styles';
-import icons from './icons';
-
-const screenshareIcon = icons.screenshareIcon;
+import icons from '../assets/icons';
 
 export default function Controls(props) {
   const [screenshareActive, setScreenshareActive] = useState(false);
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
+  const setChatDisplayed = props.setChatDisplayed;
+  const chatDisplayed = props.chatDisplayed;
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.addListener('ScreenshareStopped', () => {
     setScreenshareActive(false);
@@ -45,7 +45,17 @@ export default function Controls(props) {
               rtc.RtcEngine,
             );
           }}>
-          <Image source={{uri: screenshareIcon}} style={styles.buttonIcon} />
+          <Image
+            source={{uri: icons.screenshareIcon}}
+            style={styles.buttonIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.localButton}
+          onPress={() => {
+            setChatDisplayed(!chatDisplayed);
+          }}>
+          <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
       </View>

@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 import {LocalContext} from '../../agora-rn-uikit/src/LocalUserContext';
 import {Image, TouchableOpacity} from 'react-native';
-import icons from './icons';
+import icons from '../assets/icons';
 import styles from './styles';
 
 function LocalAudioMute() {
