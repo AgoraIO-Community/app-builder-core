@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
-import {Router, Route, Switch, Redirect, useHistory} from './components/Router';
+import {Router, Route, Switch, Redirect} from './components/Router';
 const App: React.FC = () => {
   const [channel, onChangeChannel] = useState('');
   const [password, onChangePassword] = useState('');
