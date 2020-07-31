@@ -169,6 +169,17 @@ export default class RtcEngine {
       console.error(e);
     }
   }
+  getDevices(callback: (devices: any) => void): void {
+    this.agoraRtcEngine.getDevices(devices => callback(devices));
+  }
+
+  changeCamera(cameraId, callback, error) {
+    this.agoraRtcEngine.setVideoDevice(cameraId, () => callback(), (e) => error(e));
+  }
+
+  changeMic(micId, callback, error) {
+    this.agoraRtcEngine.setAudioRecordingDevice(micId, () => callback(), (e) => error(e));
+  }
 
   async destroy(): Promise<void> {
     this.agoraRtcEngine.release();
