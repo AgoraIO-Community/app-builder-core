@@ -170,7 +170,12 @@ export default class RtcEngine {
     }
   }
   getDevices(callback: (devices: any) => void): void {
-    this.agoraRtcEngine.getDevices(devices => callback(devices));
+    let vdevices = this.agoraRtcEngine.getVideoDevices()
+    vdevices = vdevices.map( d => ({ kind:'videoinput', deviceId:d.deviceid, label:d.devicename}))
+    let adevices = this.agoraRtcEngine.getAudioRecordingDevices()
+    adevices = adevices.map( d => ({kind:'audioinput', deviceId:d.deviceid, label:d.devicename}))
+    let devices = [...adevices, ...vdevices];
+    callback(devices);
   }
 
   changeCamera(cameraId, callback, error) {
@@ -181,6 +186,18 @@ export default class RtcEngine {
   changeMic(micId, callback, error) {
     this.agoraRtcEngine.setAudioRecordingDevice(micId);
     callback();
+  }
+
+  startPreview() {
+    this.enableVideo();
+    this.agoraRtcEngine.startPreview();
+  }
+  async enableDualStreamMode(option: boolean) {
+    this.agoraRtcEngine.enableDualStreamMode(option) === 0 ? Promise.resolve() : Promise.reject('error in enabledualstream');
+  }
+
+  async setRemoteSubscribeFallbackOption(option: 0 | 1 | 2) {
+      this.agoraRtcEngine.setRemoteSubscribeFallbackOption(option) === 0 ? Promise.resolve() : Promise.reject('error in setremotefallback');
   }
 
   async destroy(): Promise<void> {
