@@ -5,8 +5,8 @@ import {
   StatusBar,
   TouchableOpacity,
   Text,
-  Platform,
   Image,
+  ImageBackground,
 } from 'react-native';
 import images from '../assets/images';
 import styles from '../components/styles';
@@ -21,12 +21,15 @@ interface joinProps {
 
 const Join = (props: joinProps) => {
   const history = useHistory();
-  console.log('history ', history);
 
   const startCall = () => {
     if (channel !== '') {
       history.push(`/${channel}`);
     }
+  };
+
+  const createMeeting = () => {
+    history.push('/create');
   };
 
   const channel = props.channel;
@@ -35,20 +38,28 @@ const Join = (props: joinProps) => {
   const onChangePassword = props.onChangePassword;
 
   return (
-    <View
-      style={
-        Platform.OS === 'web' ? styles.mainContainerWeb : styles.mainContainer
-      }>
+    <ImageBackground
+      source={{uri: images.background}}
+      style={styles.full}
+      resizeMode={'cover'}>
       <StatusBar hidden />
       <View style={styles.contentContainer}>
-        <Image source={{uri: images.icons}} style={styles.icons} />
-        <Image source={{uri: images.logo}} style={styles.logo} />
+        <Image
+          source={{uri: images.icons}}
+          style={styles.icons}
+          resizeMode={'contain'}
+        />
+        <Image
+          source={{uri: images.logo}}
+          style={styles.logo}
+          resizeMode={'contain'}
+        />
         <TextInput
           style={styles.textBox}
           value={channel}
           onChangeText={(text) => onChangeChannel(text)}
           onSubmitEditing={() => startCall()}
-          placeholder="Channel Name"
+          placeholder="Enter Channel Name"
           placeholderTextColor="#3DAAF8"
           autoCorrect={false}
         />
@@ -57,22 +68,19 @@ const Join = (props: joinProps) => {
           value={password}
           onChangeText={(text) => onChangePassword(text)}
           onSubmitEditing={() => startCall()}
-          placeholder="Password (Optional)"
+          placeholder="Password"
           placeholderTextColor="#3DAAF8"
           secureTextEntry={true}
         />
         <TouchableOpacity style={styles.button} onPress={() => startCall()}>
           <Text style={styles.buttonText}>Enter</Text>
         </TouchableOpacity>
+        <View style={styles.hr} />
+        <TouchableOpacity style={styles.button} onPress={() => createMeeting()}>
+          <Text style={styles.buttonText}>Create a new meeting</Text>
+        </TouchableOpacity>
       </View>
-      {Platform.OS === 'web' ? (
-        <View style={styles.imageContainer}>
-          <Image source={{uri: images.people}} style={styles.hero} />
-        </View>
-      ) : (
-        <></>
-      )}
-    </View>
+    </ImageBackground>
   );
 };
 

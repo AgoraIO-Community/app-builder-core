@@ -109,7 +109,7 @@ const Precall = (props: any) => {
       <TouchableOpacity onPress={() => setCallActive(true)}>
         <View
           style={{
-            backgroundColor: '#55aaff',
+            backgroundColor: '#6E757D',
             height: 50,
             width: '50vw',
             alignSelf: 'center',
@@ -117,7 +117,7 @@ const Precall = (props: any) => {
             justifyContent: 'center',
             marginBottom: '5vh',
           }}>
-          <Text style={{textAlign: 'center'}}>Join</Text>
+          <Text style={{textAlign: 'center', color: '#fff', fontSize: 18}}>Join</Text>
         </View>
       </TouchableOpacity>
     </View>

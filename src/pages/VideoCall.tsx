@@ -15,6 +15,7 @@ import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
 import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
+import HostControlView from '../components/HostControlView';
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
@@ -22,6 +23,7 @@ const VideoCall: React.FC = () => {
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
+  const [hostControlView, setHostControlView] = useState(false);
   const {channel} = useParams();
   const rtcProps = {
     appId: '5c2412e4b1dd4ac89db273c928e29b4d',
@@ -31,7 +33,6 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () => history.push('/'),
   };
-
   return (
     <View style={styles.main}>
       <PropsProvider value={{rtcProps, callbacks, styleProps}}>
@@ -43,6 +44,8 @@ const VideoCall: React.FC = () => {
                 <Navbar
                   participantsView={participantsView}
                   setParticipantsView={setParticipantsView}
+                  hostControlView={hostControlView}
+                  setHostControlView={setHostControlView}
                   layout={layout}
                   setLayout={setLayout}
                   recordingActive={recordingActive}
@@ -50,6 +53,7 @@ const VideoCall: React.FC = () => {
                 />
                 <View style={styles.videoView}>
                   {participantsView ? <ParticipantsView /> : <></>}
+                  {hostControlView ? <HostControlView /> : <></>}
                   {layout ? (
                     <View style={styles.full}>
                       {Platform.OS !== 'web' ? (

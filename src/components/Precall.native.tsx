@@ -10,6 +10,7 @@ import {
 } from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import styles from './styles';
 
 const Precall = (props: any) => {
   const maxUsers = useContext(MaxUidContext);
@@ -18,6 +19,17 @@ const Precall = (props: any) => {
   const {setCallActive} = props;
   return (
     <View style={{flex: 1}}>
+      <View style={{flex: 0.1, justifyContent: 'center'}}>
+        <Text
+          style={{
+            fontSize: 24,
+            color: '#fff',
+            fontWeight: '400',
+            alignSelf: 'center',
+          }}>
+          Precall
+        </Text>
+      </View>
       <View style={{flex: 1}}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
@@ -41,7 +53,7 @@ const Precall = (props: any) => {
             justifyContent: 'center',
             marginBottom: 10,
           }}>
-          <Text style={{textAlign: 'center'}}>Join</Text>
+          <Text style={styles.buttonText}>Join Room</Text>
         </View>
       </TouchableOpacity>
     </View>

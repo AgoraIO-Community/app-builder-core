@@ -191,6 +191,7 @@ export default class RtcEngine {
             console.error(e)
         }
     }
+
     getDevices(callback: (devices: any) => void): void {
         AgoraRTC.getDevices(devices => callback(devices));
     }
@@ -201,6 +202,23 @@ export default class RtcEngine {
 
     changeMic(micId, callback, error) {
         (this.streams.get(0) as AgoraRTC.Stream).switchDevice('audio', micId, () => callback(), (e) => error(e));
+    }
+
+    async enableDualStreamMode(option: boolean) {
+        option ? this.client.enableDualStream(
+            () => Promise.resolve(null),
+            () => Promise.reject('error in enable dual stream'))
+        : this.client.disableDualStream(
+            () => Promise.resolve(null),
+            () => Promise.reject('error in disable dual stream'));
+    }
+
+    async setRemoteSubscribeFallbackOption(option: 0 | 1 | 2) {
+        this.streams.forEach(stream => {
+            this.client.setStreamFallbackOption(stream, option);
+        });
+        Promise.resolve();
+        console.log('!set fallback');
     }
 
     async destroy(): Promise<void> {
