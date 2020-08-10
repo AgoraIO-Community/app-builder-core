@@ -12,6 +12,7 @@ const Precall = (props: any) => {
   const [selectedMic, setSelectedMic] = useState('');
   const {setCallActive} = props;
   const rtc = useContext(RtcContext);
+  // rtc.RtcEngine.startPreview();
   const [deviceList, setDeviceList] = useState([]);
 
   useEffect(() => {
@@ -74,7 +75,13 @@ const Precall = (props: any) => {
         onValueChange={(itemValue) => setSelectedCam(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'videoinput') {
-            return <Picker.Item label={device.label} value={device.deviceId} />;
+            return (
+              <Picker.Item
+                label={device.label}
+                value={device.deviceId}
+                key={device.deviceId}
+              />
+            );
           }
         })}
       </Picker>
@@ -89,7 +96,13 @@ const Precall = (props: any) => {
         onValueChange={(itemValue) => setSelectedMic(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'audioinput') {
-            return <Picker.Item label={device.label} value={device.deviceId} />;
+            return (
+              <Picker.Item
+                label={device.label}
+                value={device.deviceId}
+                key={device.deviceId}
+              />
+            );
           }
         })}
       </Picker>

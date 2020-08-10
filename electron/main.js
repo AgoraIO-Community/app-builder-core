@@ -4,18 +4,19 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 isDevelopment && require('react-devtools-electron')
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
   app.quit();
 }
 
+let mainWindow;
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
+    width: 1280,
+    height: 720,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
     },
+    show: false,
   });
 
   // and load the index.html of the app.
@@ -23,6 +24,12 @@ const createWindow = () => {
 
   // Open the DevTools.
   isDevelopment && mainWindow.webContents.openDevTools();
+  mainWindow.once('ready-to-show', () => {
+    if (process.platform === 'win32') {
+      mainWindow.reload();
+    }
+    mainWindow.show();
+  });
 };
 
 // This method will be called when Electron has finished
