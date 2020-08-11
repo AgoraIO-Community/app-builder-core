@@ -60,6 +60,7 @@ export default class RtcEngine {
     });
     console.log("create invoked", engine);
     await init;
+    engine.agoraRtcEngine.startPreview();
     return engine;
   }
 

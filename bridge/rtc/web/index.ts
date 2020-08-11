@@ -13,6 +13,6 @@ export const RtcRemoteView = {
     TextureView: SurfaceView
 }
 
-export {Types};
+export const VideoRenderMode = {...Types.VideoRenderMode};
   
 export default RtcEngine;

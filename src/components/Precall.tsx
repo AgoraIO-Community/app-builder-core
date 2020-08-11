@@ -12,6 +12,7 @@ const Precall = (props: any) => {
   const [selectedMic, setSelectedMic] = useState('');
   const {setCallActive} = props;
   const rtc = useContext(RtcContext);
+  // rtc.RtcEngine.startPreview();
   const [deviceList, setDeviceList] = useState([]);
 
   useEffect(() => {
@@ -74,7 +75,13 @@ const Precall = (props: any) => {
         onValueChange={(itemValue) => setSelectedCam(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'videoinput') {
-            return <Picker.Item label={device.label} value={device.deviceId} />;
+            return (
+              <Picker.Item
+                label={device.label}
+                value={device.deviceId}
+                key={device.deviceId}
+              />
+            );
           }
         })}
       </Picker>
@@ -89,7 +96,13 @@ const Precall = (props: any) => {
         onValueChange={(itemValue) => setSelectedMic(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'audioinput') {
-            return <Picker.Item label={device.label} value={device.deviceId} />;
+            return (
+              <Picker.Item
+                label={device.label}
+                value={device.deviceId}
+                key={device.deviceId}
+              />
+            );
           }
         })}
       </Picker>
@@ -109,7 +122,7 @@ const Precall = (props: any) => {
       <TouchableOpacity onPress={() => setCallActive(true)}>
         <View
           style={{
-            backgroundColor: '#55aaff',
+            backgroundColor: '#6E757D',
             height: 50,
             width: '50vw',
             alignSelf: 'center',
@@ -117,7 +130,7 @@ const Precall = (props: any) => {
             justifyContent: 'center',
             marginBottom: '5vh',
           }}>
-          <Text style={{textAlign: 'center'}}>Join</Text>
+          <Text style={{textAlign: 'center', color: '#fff', fontSize: 18}}>Join</Text>
         </View>
       </TouchableOpacity>
     </View>

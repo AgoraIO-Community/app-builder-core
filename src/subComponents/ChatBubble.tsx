@@ -11,7 +11,7 @@ const ChatBubble = (props: channelMessage) => {
       {!type ? (
         <View style={type ? styles.chatSenderViewLocal : styles.chatSenderView}>
           <Text style={styles.chatSenderText}>{uid}</Text>
-          <Text style={styles.whiteText}>{time}</Text>
+          <Text style={styles.blackText}>{time}</Text>
         </View>
       ) : (
         <></>

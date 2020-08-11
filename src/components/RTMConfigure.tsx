@@ -45,8 +45,8 @@ const RtmConfigure = (props: any) => {
     engine.current.createClient(rtcProps.appId);
     await engine.current.login({uid: localUid.current});
     await engine.current.joinChannel(rtcProps.channel);
-    console.log('Join channel success');
     setLogin(true);
+    console.log('RTM init done.', engine.current);
   };
 
   const sendMessage = async (msg: string) => {
@@ -59,17 +59,15 @@ const RtmConfigure = (props: any) => {
   };
 
   const end = async () => {
-    await (engine.current as RtmEngine).leaveChannel(rtcProps.channel);
     await (engine.current as RtmEngine).logout();
-    (engine.current as RtmEngine).destroyClient;
+    await (engine.current as RtmEngine).destroyClient();
     setLogin(false);
+    console.log('RTM cleanup done.', engine.current);
   };
 
   useEffect(() => {
     init();
-    console.log('RTM init done.', engine.current);
     return () => {
-      console.log('RTM cleanup.', engine.current);
       end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
