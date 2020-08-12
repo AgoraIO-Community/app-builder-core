@@ -19,10 +19,6 @@ import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/RtcEvents';
-//
-// export interface StreamsInterface {
-//     [uid: number]: AgoraRTC.Stream;
-// }
 
 type callbackType = (uid?: number) => void;
 type UidWithElapsedCallbackType = (
@@ -170,6 +166,7 @@ export default class RtcEngine {
       console.error(e);
     }
   }
+
   getDevices(callback: (devices: any) => void): void {
     let vdevices = this.agoraRtcEngine.getVideoDevices()
     vdevices = vdevices.map( d => ({ kind:'videoinput', deviceId:d.deviceid, label:d.devicename}))
@@ -193,6 +190,7 @@ export default class RtcEngine {
     this.enableVideo();
     this.agoraRtcEngine.startPreview();
   }
+
   async enableDualStreamMode(option: boolean) {
     this.agoraRtcEngine.enableDualStreamMode(option) === 0 ? Promise.resolve() : Promise.reject('error in enabledualstream');
   }
@@ -205,13 +203,32 @@ export default class RtcEngine {
     this.agoraRtcEngine.release();
     this.eventsMap.clear();
   }
-  async startScreenshare(
-    token: string,
-    channelName: string,
-    optionalInfo: string,
-    optionalUid: number,
-    appId: string,
-    engine: AgoraRTC,
-  ): Promise<void> {
+
+  getScreenDisplaysInfo() {
+    return this.agoraRtcEngine.getScreenDisplaysInfo();
+  }
+
+  startScreenshare(screen = null) {
+    if (!this.inScreenshare) {
+      // let screens = this.agoraRtcEngine.getScreenDisplaysInfo();
+      let captureParam = {
+        bitrate: 0,
+        frameRate: 5,
+        height: screen.height,
+        width: screen.width,
+      };
+      let rect = {
+        height: screen.height,
+        width: screen.width,
+        x: 0,
+        y: 0,
+      };
+      console.log('startScreenCapture: ', this.agoraRtcEngine.startScreenCaptureByScreen(screen.displayId, rect, captureParam));
+      this.inScreenshare = true;
+    } else {
+      console.log('stopScreenCapture: ', this.agoraRtcEngine.stopScreenCapture());
+      (this.eventsMap.get('ScreenshareStopped') as callbackType)();
+      this.inScreenshare = false;
+    }
   }
 }
