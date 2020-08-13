@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useContext, useState} from 'react';
 import {Image, TouchableOpacity, View, Picker, Text} from 'react-native';
 import styles from '../components/styles';
@@ -36,33 +35,11 @@ export default function ScreenshareButton(props) {
         />
       </TouchableOpacity>
       {screenListActive ? (
-        <View
-          style={{
-            position: 'absolute',
-            top: '-400%',
-            left: '20%',
-            width: '60%',
-            height: '350%',
-            backgroundColor: '#333237',
-            justifyContent: 'space-evenly',
-            alignContent: 'center',
-          }}>
-          <Text
-            style={{
-              width: '100%',
-              fontSize: 24,
-              textAlign: 'center',
-              color: '#fff',
-            }}>
-            Please select a screen to share:
-          </Text>
+        <View style={styles.popupView}>
+          <Text style={styles.popupText}>Please select a screen to share:</Text>
           <Picker
             selectedValue={selectedScreen}
-            style={{
-              height: 50,
-              width: '50vw',
-              alignSelf: 'center',
-            }}
+            style={styles.popupPicker}
             onValueChange={(itemValue) => setSelectedScreen(itemValue)}>
             {screens.map((device: any, i) => {
               console.log(device, i);
@@ -78,13 +55,7 @@ export default function ScreenshareButton(props) {
               setScreenshareActive(true);
               setButtonDisabled(false);
             }}
-            style={{
-              width: '85%',
-              backgroundColor: '#6E757D',
-              alignSelf: 'center',
-              justifyContent: 'center',
-              height: '20%',
-            }}>
+            style={styles.popupButton}>
             <Text style={styles.buttonText}>Start Sharing</Text>
           </TouchableOpacity>
         </View>

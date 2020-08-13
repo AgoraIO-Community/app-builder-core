@@ -16,8 +16,21 @@ export interface messageStoreInterface {
 interface chatContext {
   messageStore: messageStoreInterface | any;
   sendMessage: (msg: string) => void;
+  sendControlMessage: (msg: string) => void;
+  sendControlMessageToUid: (msg: string, uid: number) => void;
   engine: RtmEngine;
   localUid: string;
+  // peersRTM: Array<string>;
+}
+
+export enum controlMessageEnum {
+  muteVideo = '1',
+  muteAudio = '2',
+  muteSingleVideo = '3',
+  muteSingleAudio = '4',
+  kickUser = '5',
+  cloudRecordingActive = '6',
+  cloudRecordingUnactive = '7',
 }
 
 const ChatContext = createContext((null as unknown) as chatContext);

@@ -40,6 +40,8 @@ export default class RtcEngine {
     ['UserJoined', () => null],
     ['UserOffline', () => null],
     ['ScreenshareStopped', () => null],
+    ['RemoteAudioStateChanged', () => null],
+    ['RemoteVideoStateChanged', () => null],
   ]);
   private inScreenshare: Boolean = false;
 
@@ -82,6 +84,13 @@ export default class RtcEngine {
       this.agoraRtcEngine.on('userOffline', (uid, reason) => {
         (this.eventsMap.get('UserOffline') as callbackType)(uid);
       });
+      this.agoraRtcEngine.on('remoteAudioStateChanged', (uid, state, reason, elapsed) => {
+        console.log(uid);
+        (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)([uid, state, reason, elapsed]);
+      });
+      this.agoraRtcEngine.on('remoteVideoStateChanged', (uid, state, reason, elapsed) => {
+        (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)([uid, state, reason, elapsed]);
+      });
       this.agoraRtcEngine.on('joinedChannel', (channel, uid, elapsed) => {
         if(this.eventsMap.get('JoinChannelSuccess')){
           (this.eventsMap.get(
@@ -116,9 +125,11 @@ export default class RtcEngine {
   ): Subscription {
     if (
       event === 'UserJoined' ||
-      event === 'UserOffline' ||
+      event === 'UserOffline' || 
       event === 'JoinChannelSuccess' ||
-      event === 'ScreenshareStopped'
+      event === 'ScreenshareStopped' ||
+      event === 'RemoteAudioStateChanged' ||
+      event === 'RemoteVideoStateChanged'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }

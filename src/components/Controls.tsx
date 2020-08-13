@@ -6,26 +6,34 @@ import {
   LocalVideoMute,
   Endcall,
 } from '../../agora-rn-uikit/Components';
-import Recording from './Recording';
+import Recording from '../subComponents/Recording';
 import styles from './styles';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
+import Settings from '../components/Settings';
 
-export default function Controls(props) {
+export default function Controls(props: any) {
   const [screenshareActive, setScreenshareActive] = useState(false);
-  const setRecordingActive = props.setRecordingActive;
-  const recordingActive = props.recordingActive;
-  const setChatDisplayed = props.setChatDisplayed;
-  const chatDisplayed = props.chatDisplayed;
+  const {
+    setRecordingActive,
+    recordingActive,
+    setChatDisplayed,
+    chatDisplayed,
+    isHost,
+  } = props;
   return (
     <LocalUserContext>
       <View style={{...styles.bottomBar}}>
         <LocalAudioMute />
         <LocalVideoMute />
-        <Recording
-          recordingActive={recordingActive}
-          setRecordingActive={setRecordingActive}
-        />
+        {isHost ? (
+          <Recording
+            recordingActive={recordingActive}
+            setRecordingActive={setRecordingActive}
+          />
+        ) : (
+          <></>
+        )}
         <ScreenshareButton
           screenshareActive={screenshareActive}
           setScreenshareActive={setScreenshareActive}
@@ -40,6 +48,7 @@ export default function Controls(props) {
           <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
+        <Settings />
       </View>
     </LocalUserContext>
   );

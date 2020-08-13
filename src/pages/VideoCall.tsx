@@ -21,6 +21,7 @@ const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState(false);
   const [layout, setLayout] = useState(false);
+  const [isHost, setIsHost] = useState(true);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [hostControlView, setHostControlView] = useState(false);
@@ -28,6 +29,7 @@ const VideoCall: React.FC = () => {
   const rtcProps = {
     appId: '5c2412e4b1dd4ac89db273c928e29b4d',
     channel,
+    // uid: Platform.OS === 'web' ? 1 : 2,
   };
   const history = useHistory();
   const callbacks = {
@@ -36,8 +38,8 @@ const VideoCall: React.FC = () => {
   return (
     <View style={styles.main}>
       <PropsProvider value={{rtcProps, callbacks, styleProps}}>
-        <RtmConfigure>
-          <RtcConfigure callActive={callActive}>
+        <RtcConfigure callActive={callActive}>
+          <RtmConfigure setRecordingActive={setRecordingActive}>
             <StatusBar hidden />
             {callActive ? (
               <View style={styles.full}>
@@ -52,7 +54,11 @@ const VideoCall: React.FC = () => {
                   setRecordingActive={setRecordingActive}
                 />
                 <View style={styles.videoView}>
-                  {participantsView ? <ParticipantsView /> : <></>}
+                  {participantsView ? (
+                    <ParticipantsView isHost={isHost} />
+                  ) : (
+                    <></>
+                  )}
                   {hostControlView ? <HostControlView /> : <></>}
                   {layout ? (
                     <View style={styles.full}>
@@ -95,14 +101,15 @@ const VideoCall: React.FC = () => {
                   setRecordingActive={setRecordingActive}
                   chatDisplayed={chatDisplayed}
                   setChatDisplayed={setChatDisplayed}
+                  isHost={isHost}
                 />
                 {chatDisplayed ? <Chat /> : <></>}
               </View>
             ) : (
               <Precall setCallActive={setCallActive} />
             )}
-          </RtcConfigure>
-        </RtmConfigure>
+          </RtmConfigure>
+        </RtcConfigure>
       </PropsProvider>
     </View>
   );

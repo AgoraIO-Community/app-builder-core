@@ -2,13 +2,15 @@ import React from 'react';
 import {View, Text} from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
-import {RemoteAudioMute, RemoteVideoMute} from '../../agora-rn-uikit/Components';
-import LocalAudioMute from './LocalAudioMute';
-import LocalVideoMute from './LocalVideoMute';
+import LocalAudioMute from '../subComponents/LocalAudioMute';
+import LocalVideoMute from '../subComponents/LocalVideoMute';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import styles from './styles';
+import RemoteAudioMute from '../subComponents/RemoteAudioMute';
+import RemoteVideoMute from '../subComponents/RemoteVideoMute';
+import RemoteEndCall from '../subComponents/RemoteEndCall';
 
-const ParticipantView = () => {
+const ParticipantView = (props: {isHost: boolean}) => {
   return (
     <View style={styles.participantView}>
       <MinUidConsumer>
@@ -18,8 +20,17 @@ const ParticipantView = () => {
               <View style={styles.participantContainer} key={user.uid}>
                 <Text style={styles.participantText}>{user.uid}</Text>
                 <View style={styles.participantButtonContainer}>
-                  <RemoteAudioMute user={user} />
-                  <RemoteVideoMute user={user} rightButton={true} />
+                  <RemoteAudioMute
+                    uid={user.uid}
+                    audio={user.audio}
+                    isHost={props.isHost}
+                  />
+                  <RemoteVideoMute
+                    uid={user.uid}
+                    video={user.video}
+                    isHost={props.isHost}
+                  />
+                  <RemoteEndCall uid={user.uid} isHost={props.isHost} />
                 </View>
               </View>
             ) : (
@@ -43,8 +54,17 @@ const ParticipantView = () => {
               <View style={styles.participantContainer} key={user.uid}>
                 <Text style={styles.participantText}>{user.uid}</Text>
                 <View style={styles.participantButtonContainer}>
-                  <RemoteAudioMute user={user} />
-                  <RemoteVideoMute user={user} rightButton={false} />
+                  <RemoteAudioMute
+                    uid={user.uid}
+                    audio={user.audio}
+                    isHost={props.isHost}
+                  />
+                  <RemoteVideoMute
+                    uid={user.uid}
+                    video={user.video}
+                    isHost={props.isHost}
+                  />
+                  <RemoteEndCall uid={user.uid} isHost={props.isHost} />
                 </View>
               </View>
             ) : (

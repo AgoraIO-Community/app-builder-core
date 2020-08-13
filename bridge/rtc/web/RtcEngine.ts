@@ -40,6 +40,8 @@ export default class RtcEngine {
         ['UserJoined', () => null],
         ['UserOffline', () => null],
         ['ScreenshareStopped', () => null],
+        ['RemoteAudioStateChanged', () => null],
+        ['RemoteVideoStateChanged', () => null],
     ]);
     public streams = new Map<number, AgoraRTC.Stream>();
     public streamSpec: AgoraRTC.StreamSpec;
@@ -128,6 +130,18 @@ export default class RtcEngine {
             this.client.on('stream-published', (evt) => {
                 (this.eventsMap.get('JoinChannelSuccess') as callbackType)();
             });
+            this.client.on('mute-audio', (evt) => {
+                (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(evt.uid, 0, 0, 0);
+            });
+            this.client.on('unmute-audio', (evt) => {
+                (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(evt.uid, 2, 0, 0);
+            });
+            this.client.on('mute-video', (evt) => {
+                (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(evt.uid, 0, 0, 0);
+            });
+            this.client.on('unmute-video', (evt) => {
+                (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(evt.uid, 2, 0, 0);
+            });
             this.client.join(token || null, channelName, optionalUid || null, (uid) => {
                 this.localUid = uid as number;
                 this.client.publish(this.streams.get(0) as AgoraRTC.Stream)
@@ -146,7 +160,14 @@ export default class RtcEngine {
     }
 
     addListener<EventType extends keyof RtcEngineEvents>(event: EventType, listener: RtcEngineEvents[EventType]): Subscription {
-        if (event === 'UserJoined' || event === 'UserOffline' || event=== 'JoinChannelSuccess' || event === 'ScreenshareStopped') {
+        if (
+            event === 'UserJoined' ||
+            event === 'UserOffline' || 
+            event === 'JoinChannelSuccess' ||
+            event === 'ScreenshareStopped' ||
+            event === 'RemoteAudioStateChanged' ||
+            event === 'RemoteVideoStateChanged'
+        ) {
             this.eventsMap.set(event, listener as callbackType)
         }
         return {
