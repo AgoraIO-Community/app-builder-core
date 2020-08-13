@@ -16,6 +16,7 @@ import {useParams, useHistory} from '../components/Router';
 import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import HostControlView from '../components/HostControlView';
+import DeviceConfigure from '../components/DeviceConfigure';
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
@@ -39,76 +40,78 @@ const VideoCall: React.FC = () => {
     <View style={styles.main}>
       <PropsProvider value={{rtcProps, callbacks, styleProps}}>
         <RtcConfigure callActive={callActive}>
-          <RtmConfigure setRecordingActive={setRecordingActive}>
-            <StatusBar hidden />
-            {callActive ? (
-              <View style={styles.full}>
-                <Navbar
-                  participantsView={participantsView}
-                  setParticipantsView={setParticipantsView}
-                  hostControlView={hostControlView}
-                  setHostControlView={setHostControlView}
-                  layout={layout}
-                  setLayout={setLayout}
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
-                <View style={styles.videoView}>
-                  {participantsView ? (
-                    <ParticipantsView isHost={isHost} />
-                  ) : (
-                    <></>
-                  )}
-                  {hostControlView ? <HostControlView /> : <></>}
-                  {layout ? (
-                    <View style={styles.full}>
-                      {Platform.OS !== 'web' ? (
-                        <></>
-                      ) : (
-                        <View style={styles.pinnedView}>
-                          <PinnedVideo />
+          <DeviceConfigure>
+            <RtmConfigure setRecordingActive={setRecordingActive}>
+              <StatusBar hidden />
+              {callActive ? (
+                <View style={styles.full}>
+                  <Navbar
+                    participantsView={participantsView}
+                    setParticipantsView={setParticipantsView}
+                    hostControlView={hostControlView}
+                    setHostControlView={setHostControlView}
+                    layout={layout}
+                    setLayout={setLayout}
+                    recordingActive={recordingActive}
+                    setRecordingActive={setRecordingActive}
+                  />
+                  <View style={styles.videoView}>
+                    {participantsView ? (
+                      <ParticipantsView isHost={isHost} />
+                    ) : (
+                      <></>
+                    )}
+                    {hostControlView ? <HostControlView /> : <></>}
+                    {layout ? (
+                      <View style={styles.full}>
+                        {Platform.OS !== 'web' ? (
+                          <></>
+                        ) : (
+                          <View style={styles.pinnedView}>
+                            <PinnedVideo />
+                          </View>
+                        )}
+                        <View style={styles.videoViewInner}>
+                          <View style={styles.full}>
+                            <MaxUidConsumer>
+                              {(maxUsers) => (
+                                <MaxVideoView
+                                  user={maxUsers[0]}
+                                  key={maxUsers[0].uid}
+                                />
+                              )}
+                            </MaxUidConsumer>
+                          </View>
                         </View>
-                      )}
-                      <View style={styles.videoViewInner}>
-                        <View style={styles.full}>
-                          <MaxUidConsumer>
-                            {(maxUsers) => (
-                              <MaxVideoView
-                                user={maxUsers[0]}
-                                key={maxUsers[0].uid}
-                              />
-                            )}
-                          </MaxUidConsumer>
-                        </View>
+                        {Platform.OS === 'web' ? (
+                          <></>
+                        ) : (
+                          <View style={styles.pinnedView}>
+                            <ParticipantCounter />
+                            <PinnedVideo />
+                          </View>
+                        )}
                       </View>
-                      {Platform.OS === 'web' ? (
-                        <></>
-                      ) : (
-                        <View style={styles.pinnedView}>
-                          <ParticipantCounter />
-                          <PinnedVideo />
-                        </View>
-                      )}
-                    </View>
-                  ) : (
-                    <GridVideo />
-                  )}
+                    ) : (
+                      <GridVideo />
+                    )}
+                  </View>
+                  <Controls
+                    channelName={rtcProps.channel}
+                    appId={rtcProps.appId}
+                    recordingActive={recordingActive}
+                    setRecordingActive={setRecordingActive}
+                    chatDisplayed={chatDisplayed}
+                    setChatDisplayed={setChatDisplayed}
+                    isHost={isHost}
+                  />
+                  {chatDisplayed ? <Chat /> : <></>}
                 </View>
-                <Controls
-                  channelName={rtcProps.channel}
-                  appId={rtcProps.appId}
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                  chatDisplayed={chatDisplayed}
-                  setChatDisplayed={setChatDisplayed}
-                  isHost={isHost}
-                />
-                {chatDisplayed ? <Chat /> : <></>}
-              </View>
-            ) : (
-              <Precall setCallActive={setCallActive} />
-            )}
-          </RtmConfigure>
+              ) : (
+                <Precall setCallActive={setCallActive} />
+              )}
+            </RtmConfigure>
+          </DeviceConfigure>
         </RtcConfigure>
       </PropsProvider>
     </View>

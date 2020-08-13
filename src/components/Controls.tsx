@@ -20,6 +20,12 @@ export default function Controls(props: any) {
     setChatDisplayed,
     chatDisplayed,
     isHost,
+    selectedCam,
+    setSelectedCam,
+    selectedMic,
+    setSelectedMic,
+    deviceList,
+    setDeviceList,
   } = props;
   return (
     <LocalUserContext>
@@ -48,7 +54,14 @@ export default function Controls(props: any) {
           <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
-        <Settings />
+        <Settings
+          selectedCam={selectedCam}
+          setSelectedCam={setSelectedCam}
+          selectedMic={selectedMic}
+          setSelectedMic={setSelectedMic}
+          deviceList={deviceList}
+          setDeviceList={setDeviceList}
+        />
       </View>
     </LocalUserContext>
   );

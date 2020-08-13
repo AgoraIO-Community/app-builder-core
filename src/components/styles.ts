@@ -628,11 +628,11 @@ const styles = {
     color: '#fff',
   },
   popupPicker: {
-    height: '20%',
+    height: '40%',
     width: '50vw',
     alignSelf: 'center',
-    paddingVertical: 5,
-    // marginVertical: '1%',
+    // paddingVertical: 2,
+    // marginVertical: 5,
   },
   popupButton: {
     backgroundColor: '#6E757D',
@@ -641,6 +641,33 @@ const styles = {
     alignSelf: 'center',
     alignContent: 'center',
     justifyContent: 'center',
+  },
+  popupPickerHolder: {
+    height: '40%',
+    justifyContent: 'space-around',
+  },
+  precallControls: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    padding: 10,
+    marginBottom: '2vh',
+    width: '20%',
+    justifyContent: 'space-around'
+  },
+  precallPickers: {
+    height: '15%',
+    justifyContent: 'space-evenly',
+    padding: 0,
+    margin: 0,
+  },
+  precallButton: {
+    backgroundColor: '#6E757D',
+    height: 50,
+    width: '50vw',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginBottom: '5vh',
   }
 };
 
