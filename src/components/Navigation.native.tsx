@@ -4,7 +4,7 @@ import {useHistory} from './Router';
 
 const processUrl = (url: string): string => {
   return url
-    .replace('my-scheme://my-domain', '')
+    .replace('my-scheme://my-host', '')
     .replace('https://agora-meet.netlify.app', '');
 };
 
