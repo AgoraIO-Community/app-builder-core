@@ -19,7 +19,7 @@ module.exports = merge(commons, electronCommons, {
       }),
   ].filter(Boolean),
   resolve: {
-    extensions: ['.electron.tsx', '.tsx', '.electron.ts', '.ts', '.jsx', '.js'],
+    extensions: ['.electron.tsx', '.electron.ts', '.tsx', '.ts', '.jsx', '.js'],
     alias: {
       'react-native$': 'react-native-web',
       'agora-react-native-rtm': path.join(__dirname, 'bridge/rtm/web'),

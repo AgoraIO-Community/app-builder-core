@@ -19,7 +19,7 @@ module.exports = merge(commons, {
     isDevelopment && new ReactRefreshWebpackPlugin(),
   ].filter(Boolean),
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    extensions: ['web.tsx', 'web.ts', '.tsx', '.ts', '.jsx', '.js'],
     alias: {
       'react-native$': 'react-native-web',
       'agora-react-native-rtm': path.join(__dirname, 'bridge/rtm/web'),
@@ -28,5 +28,7 @@ module.exports = merge(commons, {
   },
   devServer: {
     port: 9000,
+    historyApiFallback: true,
+    contentBase: './',
   },
 });
