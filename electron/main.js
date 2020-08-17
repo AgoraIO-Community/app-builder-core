@@ -1,7 +1,7 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, session} = require('electron');
 const path = require('path');
 const isDevelopment = process.env.NODE_ENV === 'development';
-isDevelopment && require('react-devtools-electron')
+isDevelopment && require('react-devtools-electron');
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -10,14 +10,37 @@ if (require('electron-squirrel-startup')) {
 let mainWindow;
 const createWindow = () => {
   // Create the browser window.
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    details.requestHeaders['User-Agent'] = 'Chrome';
+    callback({cancel: false, requestHeaders: details.requestHeaders});
+  });
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
     webPreferences: {
       nodeIntegration: true,
+      nativeWindowOpen: true,
     },
     show: false,
   });
+
+  mainWindow.webContents.on(
+    'new-window',
+    (event, url, frameName, disposition, options, additionalFeatures) => {
+      // console.log('modal opened', event, url, frameName, disposition, options);
+      if (frameName === 'modal') {
+        // open window as modal
+        event.preventDefault();
+        Object.assign(options, {
+          modal: true,
+          parent: mainWindow,
+          // frame: false,
+        });
+        event.newGuest = new BrowserWindow(options);
+      }
+    },
+  );
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);

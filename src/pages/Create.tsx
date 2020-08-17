@@ -11,7 +11,36 @@ import Checkbox from '../subComponents/Checkbox';
 import images from '../assets/images';
 import styles from '../components/styles';
 import {useHistory} from '../components/Router';
+import {gql, useMutation} from '@apollo/client';
 
+type PasswordInput = {
+  host: string;
+  view: string;
+};
+
+const CREATE_CHANNEL = gql`
+  mutation CreateChannel(
+    $channel: String!
+    $enableLink: Boolean
+    $password: PasswordInput
+  ) {
+    createChannel(
+      channel: $channel
+      enableLink: $enableLink
+      password: $password
+    ) {
+      password {
+        host
+        view
+      }
+      passphrase {
+        host
+        view
+      }
+    }
+  }
+`;
+// https://agora-meet.netlify.app/join/khjshbdfkhsdf-sd-fkhsdbfsd
 const Create = () => {
   const history = useHistory();
   const [channel, onChangeChannel] = useState('');
@@ -20,14 +49,29 @@ const Create = () => {
   const [urlCheckbox, setUrlCheckbox] = useState(true);
   const [passwordCheckbox, setPasswordCheckbox] = useState(false);
   const [urlOne, setUrlOne] = useState('https://meet.agora.io/room=%22test%22');
-  const [urlTwo, setUrlTwo] = useState("https://meet.agora.io/room=%22test%22&pass='pass'");
+  const [urlTwo, setUrlTwo] = useState(
+    "https://meet.agora.io/room=%22test%22&pass='pass'",
+  );
   const [receivedChannel, setReceivedChannel] = useState('test');
   const [password, setPassword] = useState('temppass');
   const [roomCreated, setRoomCreated] = useState(false);
+  const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
+
+  console.log('mutation data', data);
 
   const createRoom = () => {
     if (channel !== '') {
-      setRoomCreated(true);
+      console.log('Create room invoked');
+      createChannel({
+        variables: {
+          channel,
+          enableLink: urlCheckbox,
+          password: {host: hostPassword, view: attendeePassword},
+        },
+      }).then((data) => {
+        console.log('promise data', data);
+      });
+      // setRoomCreated(true);
     }
   };
   const enterMeeting = () => {
@@ -42,7 +86,7 @@ const Create = () => {
       style={styles.full}
       resizeMode={'cover'}>
       <StatusBar hidden />
-      {!roomCreated ?
+      {!roomCreated ? (
         <View style={styles.contentContainer}>
           <Text style={styles.headingText}>Create a new Meeting</Text>
           <View style={styles.checkboxHolder}>
@@ -100,7 +144,7 @@ const Create = () => {
             <Text style={styles.buttonText}>Create Meeting</Text>
           </TouchableOpacity>
         </View>
-      :
+      ) : (
         <View style={styles.meetingDetailsContainer}>
           <Text style={styles.headingText}>Meeting Details</Text>
           <Text style={styles.subHeadingText}>Meeting URL:</Text>
@@ -119,11 +163,13 @@ const Create = () => {
           <View style={styles.urlTextView}>
             <Text style={styles.urlText}>{password}</Text>
           </View>
-          <TouchableOpacity style={styles.button} onPress={() => enterMeeting()}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => enterMeeting()}>
             <Text style={styles.buttonText}>Enter Meeting</Text>
           </TouchableOpacity>
         </View>
-      }
+      )}
     </ImageBackground>
   );
 };

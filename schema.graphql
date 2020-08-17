@@ -1,0 +1,51 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Mutation {
+    createChannel(channel: String!, enableLink: Boolean = true, password: PasswordInput): ShareResponse!
+    updateUserName(name: String!): User!
+}
+
+type Passphrase {
+    host: String!
+    view: String!
+}
+
+type Password {
+    host: String!
+    view: String!
+}
+
+type Query {
+    getUser: User!
+    joinChannel(channel: String!, password: String!): Session!
+    joinChannelWithPassphrase(passphrase: String!): Session!
+    share(channel: String!): ShareResponse!
+}
+
+type Session {
+    channel: String
+    isHost: Boolean!
+    rtc: String!
+    rtm: String!
+    uid: Int!
+}
+
+type ShareResponse {
+    passphrase: Passphrase
+    password: Password
+}
+
+type User {
+    email: String!
+    name: String!
+}
+
+input PasswordInput {
+    host: String!
+    view: String!
+}

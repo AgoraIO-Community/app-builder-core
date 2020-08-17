@@ -11,6 +11,7 @@ import {
 import images from '../assets/images';
 import styles from '../components/styles';
 import {useHistory} from '../components/Router';
+import {gql, useLazyQuery} from '@apollo/client';
 
 interface joinProps {
   channel: string;
@@ -19,14 +20,21 @@ interface joinProps {
   onChangePassword: (text: string) => void;
 }
 
+const JOIN_CHANNEL = gql`
+  query JoinChannel($channel: String!, $password: String!) {
+    joinChannel(channel: $channel, password: $password) {
+      channel
+      isHost
+      rtc
+      rtm
+      uid
+    }
+  }
+`;
+
 const Join = (props: joinProps) => {
   const history = useHistory();
-
-  const startCall = () => {
-    if (channel !== '') {
-      history.push(`/${channel}`);
-    }
-  };
+  const [joinChannel, {data, loading}] = useLazyQuery(JOIN_CHANNEL);
 
   const createMeeting = () => {
     history.push('/create');
@@ -36,7 +44,17 @@ const Join = (props: joinProps) => {
   const onChangeChannel = props.onChangeChannel;
   const password = props.password;
   const onChangePassword = props.onChangePassword;
-
+  const startCall = async () => {
+    // if (channel !== '') {
+    //   history.push(`/${channel}`);
+    // }
+    let data = await joinChannel({
+      variables: {
+        channel,
+        password,
+      },
+    });
+  };
   return (
     <ImageBackground
       source={{uri: images.background}}
