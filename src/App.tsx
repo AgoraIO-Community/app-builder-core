@@ -9,6 +9,7 @@ import Navigation from './components/Navigation';
 import StoreToken from './components/StoreToken';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
+import JoinPhrase from './components/JoinPhrase';
 const App: React.FC = () => {
   const [channel, onChangeChannel] = useState('');
   const [password, onChangePassword] = useState('');
@@ -35,6 +36,9 @@ const App: React.FC = () => {
                 password={password}
                 onChangePassword={onChangePassword}
               />
+            </Route>
+            <Route path={'/join/:phrase'}>
+              <JoinPhrase />
             </Route>
             <PrivateRoute path={'/create'} failureRedirectTo={'/authenticate'}>
               <Create />

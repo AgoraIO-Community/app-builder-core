@@ -40,7 +40,7 @@ const CREATE_CHANNEL = gql`
     }
   }
 `;
-
+// https://agora-meet.netlify.app/join/khjshbdfkhsdf-sd-fkhsdbfsd
 const Create = () => {
   const history = useHistory();
   const [channel, onChangeChannel] = useState('');
@@ -55,7 +55,7 @@ const Create = () => {
   const [receivedChannel, setReceivedChannel] = useState('test');
   const [password, setPassword] = useState('temppass');
   const [roomCreated, setRoomCreated] = useState(false);
-  const [createChannel, {data}] = useMutation(CREATE_CHANNEL);
+  const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
 
   console.log('mutation data', data);
 
