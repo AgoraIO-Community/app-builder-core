@@ -3,26 +3,26 @@ import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 import {LocalContext} from '../../agora-rn-uikit/src/LocalUserContext';
 import {Image, TouchableOpacity} from 'react-native';
 import icons from '../assets/icons';
-import styles from './styles';
+import styles from '../components/styles';
 
-function LocalVideoMute() {
+function LocalAudioMute() {
   const {dispatch} = useContext(RtcContext);
   const local = useContext(LocalContext);
 
   return (
     <TouchableOpacity
       onPress={() => {
-        (dispatch as DispatchType<'LocalMuteVideo'>)({
-          type: 'LocalMuteVideo',
-          value: [local.video],
+        (dispatch as DispatchType<'LocalMuteAudio'>)({
+          type: 'LocalMuteAudio',
+          value: [local.audio],
         });
       }}>
       <Image
-        style={styles.buttonIcon}
-        source={{uri: local.video ? icons.videocam : icons.videocamOff}}
+        style={styles.buttonIconMic}
+        source={{uri: local.audio ? icons.mic : icons.micOff}}
       />
     </TouchableOpacity>
   );
 }
 
-export default LocalVideoMute;
+export default LocalAudioMute;

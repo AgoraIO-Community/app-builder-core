@@ -1,55 +1,51 @@
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import {View, Image, TouchableOpacity} from 'react-native';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import {
   LocalAudioMute,
   LocalVideoMute,
   Endcall,
 } from '../../agora-rn-uikit/Components';
-import Recording from './Recording';
+import Recording from '../subComponents/Recording';
 import styles from './styles';
 import icons from '../assets/icons';
+import ScreenshareButton from '../subComponents/ScreenshareButton';
+import Settings from '../components/Settings';
 
-export default function Controls(props) {
+export default function Controls(props: any) {
   const [screenshareActive, setScreenshareActive] = useState(false);
-  const setRecordingActive = props.setRecordingActive;
-  const recordingActive = props.recordingActive;
-  const setChatDisplayed = props.setChatDisplayed;
-  const chatDisplayed = props.chatDisplayed;
-  const rtc = useContext(RtcContext);
-  rtc.RtcEngine.addListener('ScreenshareStopped', () => {
-    setScreenshareActive(false);
-  });
+  const {
+    setRecordingActive,
+    recordingActive,
+    setChatDisplayed,
+    chatDisplayed,
+    isHost,
+    selectedCam,
+    setSelectedCam,
+    selectedMic,
+    setSelectedMic,
+    deviceList,
+    setDeviceList,
+  } = props;
   return (
     <LocalUserContext>
       <View style={{...styles.bottomBar}}>
         <LocalAudioMute />
         <LocalVideoMute />
-        <Recording
-          recordingActive={recordingActive}
-          setRecordingActive={setRecordingActive}
-        />
-        <TouchableOpacity
-          style={
-            screenshareActive ? styles.greenLocalButton : styles.localButton
-          }
-          onPress={() => {
-            setScreenshareActive(true);
-            rtc.RtcEngine.startScreenshare(
-              null,
-              props.channelName,
-              null,
-              null,
-              props.appId,
-              rtc.RtcEngine,
-            );
-          }}>
-          <Image
-            source={{uri: icons.screenshareIcon}}
-            style={styles.buttonIcon}
+        {isHost ? (
+          <Recording
+            recordingActive={recordingActive}
+            setRecordingActive={setRecordingActive}
           />
-        </TouchableOpacity>
+        ) : (
+          <></>
+        )}
+        <ScreenshareButton
+          screenshareActive={screenshareActive}
+          setScreenshareActive={setScreenshareActive}
+          channelName={props.channelName}
+          appId={props.appId}
+        />
         <TouchableOpacity
           style={styles.localButton}
           onPress={() => {
@@ -58,6 +54,14 @@ export default function Controls(props) {
           <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
+        <Settings
+          selectedCam={selectedCam}
+          setSelectedCam={setSelectedCam}
+          selectedMic={selectedMic}
+          setSelectedMic={setSelectedMic}
+          deviceList={deviceList}
+          setDeviceList={setDeviceList}
+        />
       </View>
     </LocalUserContext>
   );

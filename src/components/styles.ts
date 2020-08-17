@@ -178,6 +178,7 @@ const styles = {
   },
   participantView: {
     width: Platform.OS === 'web' ? '25%' : '50%',
+    // minWidth: Platform.OS === 'web' ? '25%' : '50%',
     height: '100%',
     backgroundColor: '#6E757D',
     zIndex: 20,
@@ -228,10 +229,11 @@ const styles = {
     marginLeft: 10,
   },
   participantButtonContainer: {
-    flex: 0.3,
+    // flex: 0.3,
     flexDirection: 'row',
-    paddingRight: 20,
+    paddingRight: 10,
     alignSelf: 'center',
+    alignItems: 'center',
   },
   pinnedView: {
     flex: 2,
@@ -344,6 +346,23 @@ const styles = {
     width: 40,
     marginHorizontal: 20,
   },
+  buttonIconMic: {
+    width: 22,
+    height: 20,
+    tintColor: '#fff',
+  },
+  buttonIconCam: {
+    width: 25,
+    height: 25,
+    marginHorizontal: 3,
+    tintColor: '#fff',
+  },
+  buttonIconEnd: {
+    width: 25,
+    height: 25,
+    marginLeft: 3,
+    tintColor: '#f86051',
+  },
   maxVideoContainer: {
     flex: 1,
     margin: 5,
@@ -371,12 +390,6 @@ const styles = {
     backgroundColor: '#777',
     marginTop: 10,
     marginLeft: 10,
-  },
-  participantsButtonContainer: {
-    flex: 0.3,
-    flexDirection: 'row',
-    paddingRight: 20,
-    alignSelf: 'center',
   },
   mainContainer: {
     flex: 1,
@@ -597,6 +610,65 @@ const styles = {
     marginRight: 15,
     marginLeft: 30,
   },
+  popupView: {
+    position: 'absolute',
+    top: '-400%',
+    left: '20%',
+    width: '60%',
+    height: '350%',
+    backgroundColor: '#333237',
+    justifyContent: 'space-evenly',
+    alignContent: 'center',
+    paddingVertical: 5,
+  },
+  popupText: {
+    width: '100%',
+    fontSize: 24,
+    textAlign: 'center',
+    color: '#fff',
+  },
+  popupPicker: {
+    height: '40%',
+    width: '50vw',
+    alignSelf: 'center',
+    // paddingVertical: 2,
+    // marginVertical: 5,
+  },
+  popupButton: {
+    backgroundColor: '#6E757D',
+    height: '20%',
+    width: '50vw',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
+  popupPickerHolder: {
+    height: '40%',
+    justifyContent: 'space-around',
+  },
+  precallControls: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    padding: 10,
+    marginBottom: '2vh',
+    width: '20%',
+    justifyContent: 'space-around'
+  },
+  precallPickers: {
+    height: '15%',
+    justifyContent: 'space-evenly',
+    padding: 0,
+    margin: 0,
+  },
+  precallButton: {
+    backgroundColor: '#6E757D',
+    height: 50,
+    width: '50vw',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginBottom: '5vh',
+  }
 };
 
 export default styles;

@@ -7,7 +7,7 @@ import {
   SwitchCamera,
   Endcall,
 } from '../../agora-rn-uikit/Components';
-import Recording from './Recording';
+import Recording from '../subComponents/Recording';
 import styles from './styles';
 import icons from '../assets/icons';
 
