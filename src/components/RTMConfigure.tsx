@@ -108,7 +108,7 @@ const RtmConfigure = (props: any) => {
       }
     });
     engine.current.createClient(rtcProps.appId);
-    await engine.current.login({uid: localUid.current});
+    await engine.current.login({uid: localUid.current, token: rtcProps.token});
     await engine.current.joinChannel(rtcProps.channel);
     setLogin(true);
     console.log('RTM init done.', engine.current);
