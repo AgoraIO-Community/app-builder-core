@@ -11,13 +11,14 @@ enum mType {
 }
 
 const RtmConfigure = (props: any) => {
-  const {setRecordingActive} = props;
+  const {setRecordingActive, callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [login, setLogin] = useState<boolean>(false);
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
+  // const {sessionStore} = useContext(SessionContext);
   // const [peersRTM, setPeersRTM] = useState<Array<string>>([]);
   const addMessageToStore = (uid: string, text: string, ts: string) => {
     setMessageStore((m: messageStoreInterface[]) => {
@@ -108,7 +109,11 @@ const RtmConfigure = (props: any) => {
       }
     });
     engine.current.createClient(rtcProps.appId);
-    await engine.current.login({uid: localUid.current, token: rtcProps.token});
+    console.log('fromrtmm:', {rtcProps});
+    await engine.current.login({
+      uid: localUid.current,
+      token: rtcProps.rtm,
+    });
     await engine.current.joinChannel(rtcProps.channel);
     setLogin(true);
     console.log('RTM init done.', engine.current);
@@ -142,19 +147,21 @@ const RtmConfigure = (props: any) => {
     });
   };
   const end = async () => {
-    await (engine.current as RtmEngine).logout();
-    await (engine.current as RtmEngine).destroyClient();
-    setLogin(false);
-    console.log('RTM cleanup done.', engine.current);
+    callActive
+      ? (await (engine.current as RtmEngine).logout(),
+        await (engine.current as RtmEngine).destroyClient(),
+        setLogin(false),
+        console.log('RTM cleanup done.', engine.current))
+      : {};
   };
 
   useEffect(() => {
-    init();
+    callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
     return () => {
       end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rtcProps.channel, rtcProps.appId]);
+  }, [rtcProps.channel, rtcProps.appId, callActive]);
 
   return (
     <ChatContext.Provider

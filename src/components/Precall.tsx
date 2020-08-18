@@ -8,7 +8,7 @@ import SelectDevice from '../subComponents/SelectDevice';
 import styles from './styles';
 
 const Precall = (props: any) => {
-  const {setCallActive} = props;
+  const {setCallActive, queryComplete} = props;
 
   return (
     <View style={styles.full}>
@@ -26,8 +26,11 @@ const Precall = (props: any) => {
           <LocalAudioMute />
         </LocalUserContext>
       </View>
-      <TouchableOpacity onPress={() => setCallActive(true)}>
-        <View style={styles.precallButton}>
+      <TouchableOpacity onPress={() => setCallActive(true)} disabled={!queryComplete}>
+        <View
+          style={
+            queryComplete ? styles.precallButton : styles.precallButtonDisabled
+          }>
           <Text style={styles.buttonText}>Join</Text>
         </View>
       </TouchableOpacity>

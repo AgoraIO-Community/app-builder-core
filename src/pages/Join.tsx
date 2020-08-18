@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   TextInput,
@@ -11,8 +11,9 @@ import {
 import images from '../assets/images';
 import styles from '../components/styles';
 import {useHistory} from '../components/Router';
-import {gql, useLazyQuery} from '@apollo/client';
+import SessionContext from '../components/SessionContext';
 
+const joinFlag = 0;
 interface joinProps {
   channel: string;
   onChangeChannel: (text: string) => void;
@@ -20,40 +21,21 @@ interface joinProps {
   onChangePassword: (text: string) => void;
 }
 
-const JOIN_CHANNEL = gql`
-  query JoinChannel($channel: String!, $password: String!) {
-    joinChannel(channel: $channel, password: $password) {
-      channel
-      isHost
-      rtc
-      rtm
-      uid
-    }
-  }
-`;
-
 const Join = (props: joinProps) => {
   const history = useHistory();
-  const [joinChannel, {data, loading}] = useLazyQuery(JOIN_CHANNEL);
+  const {joinSession} = useContext(SessionContext);
 
   const createMeeting = () => {
     history.push('/create');
   };
 
+  const logout = () => {};
   const channel = props.channel;
   const onChangeChannel = props.onChangeChannel;
   const password = props.password;
   const onChangePassword = props.onChangePassword;
   const startCall = async () => {
-    // if (channel !== '') {
-    //   history.push(`/${channel}`);
-    // }
-    let data = await joinChannel({
-      variables: {
-        channel,
-        password,
-      },
-    });
+    joinSession({channel, password, joinFlag});
   };
   return (
     <ImageBackground
@@ -61,6 +43,27 @@ const Join = (props: joinProps) => {
       style={styles.full}
       resizeMode={'cover'}>
       <StatusBar hidden />
+      <View style={{alignSelf: 'flex-end'}}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#099DFD',
+            width: 80,
+            height: 30,
+            marginTop: 5,
+            marginRight: 5,
+          }}
+          onPress={() => logout()}>
+          <Text
+            style={{
+              lineHeight: 30,
+              fontSize: 16,
+              textAlign: 'center',
+              color: '#fff',
+            }}>
+            Logout
+          </Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.contentContainer}>
         <Image
           source={{uri: images.icons}}

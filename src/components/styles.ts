@@ -668,6 +668,16 @@ const styles = {
     alignContent: 'center',
     justifyContent: 'center',
     marginBottom: '5vh',
+  },
+  precallButtonDisabled: {
+    backgroundColor: '#6E757D',
+    opacity: .3,
+    height: 50,
+    width: '50vw',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginBottom: '5vh',
   }
 };
 
