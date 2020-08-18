@@ -61,6 +61,7 @@ const VideoCall: React.FC = () => {
     uid: null,
     token: null,
     rtm: null,
+    dual: true,
   };
   let data, loading, error;
 
@@ -85,6 +86,7 @@ const VideoCall: React.FC = () => {
         uid: data.joinChannel.uid,
         token: data.joinChannel.rtc,
         rtm: data.joinChannel.rtm,
+        dual: true,
       };
       isHost = data.joinChannel.isHost;
     }
