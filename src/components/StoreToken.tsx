@@ -18,7 +18,7 @@ const StoreToken = () => {
     setStore && setStore((store) => ({...store, token}));
     setReady(true);
   });
-  return ready ? <Redirect to={'/create'} /> : <Authenticated />;
+  return ready ? <Redirect to={'/'} /> : <Authenticated />;
 };
 
 export default StoreToken;

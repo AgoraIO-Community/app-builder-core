@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {Text} from 'react-native';
-import {useHistory} from "./Router";
+import {useHistory} from './Router';
 
 const oauth = {
   client_id:
@@ -25,10 +25,11 @@ const Oauth = () => {
     window.addEventListener(
       'message',
       ({data, origin}: {data: {token: string}; origin: string}) => {
-        if(data.token){
+        if (data.token) {
           console.log(data, origin);
-          history.push(`/auth-token/${data.token}`)
-        };
+          history.push(`/auth-token/${data.token}`);
+        }
+        ;
       },
       false,
     );

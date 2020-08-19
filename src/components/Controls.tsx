@@ -43,8 +43,6 @@ export default function Controls(props: any) {
         <ScreenshareButton
           screenshareActive={screenshareActive}
           setScreenshareActive={setScreenshareActive}
-          channelName={props.channelName}
-          appId={props.appId}
         />
         <TouchableOpacity
           style={styles.localButton}

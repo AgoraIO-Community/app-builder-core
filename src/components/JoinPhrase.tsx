@@ -8,9 +8,16 @@ const JOIN_CHANNEL_PHRASE = gql`
     joinChannelWithPassphrase(passphrase: $passphrase) {
       channel
       isHost
-      rtc
-      rtm
-      uid
+      mainUser {
+        rtc
+        rtm
+        uid
+      }
+      screenShare {
+        rtc
+        rtm
+        uid
+      }
     }
   }
 `;

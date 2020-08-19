@@ -22,12 +22,14 @@ const CREATE_CHANNEL = gql`
   mutation CreateChannel(
     $channel: String!
     $enableLink: Boolean
+    $enablePSTN: Boolean
     $password: PasswordInput
   ) {
     createChannel(
       channel: $channel
       enableLink: $enableLink
       password: $password
+      enablePSTN: $enablePSTN
     ) {
       password {
         host
@@ -37,6 +39,7 @@ const CREATE_CHANNEL = gql`
         host
         view
       }
+      pstn
     }
   }
 `;
@@ -47,12 +50,14 @@ const Create = () => {
   const [attendeePassword, onChangeAttendeePassword] = useState('');
   const [hostPassword, onChangeHostPassword] = useState('');
   const [urlCheckbox, setUrlCheckbox] = useState(true);
+  const [pstnCheckbox, setPstnCheckbox] = useState(true);
   const [passwordCheckbox, setPasswordCheckbox] = useState(false);
   const [urlView, setUrlView] = useState(null);
   const [urlHost, setUrlHost] = useState(null);
   // const [receivedChannel, setReceivedChannel] = useState('test');
   const [passwordView, setPasswordView] = useState(null);
   const [passwordHost, setPasswordHost] = useState(null);
+  const [pstn, setPstn] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
   const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
 
@@ -66,6 +71,7 @@ const Create = () => {
           channel,
           enableLink: urlCheckbox,
           password: {host: hostPassword, view: attendeePassword},
+          enablePSTN: pstnCheckbox,
         },
       }).then((res) => {
         console.log('promise data', res);
@@ -83,6 +89,7 @@ const Create = () => {
           'https://agora-meet.netlify.app/join/' +
             res.data.createChannel.passphrase.host,
         );
+        setPstn(res.data.createChannel.pstn);
         setRoomCreated(true);
       });
       // setRoomCreated(true);
@@ -110,6 +117,10 @@ const Create = () => {
             <View style={styles.checkboxView}>
               <Text style={styles.paddedText}>URLs </Text>
               <Checkbox value={urlCheckbox} onValueChange={setUrlCheckbox} />
+            </View>
+            <View style={styles.checkboxView}>
+              <Text style={styles.paddedText}>PSTN </Text>
+              <Checkbox value={pstnCheckbox} onValueChange={setPstnCheckbox} />
             </View>
             <View style={styles.checkboxView}>
               <Text style={styles.paddedText}>Room name & Password </Text>
@@ -161,7 +172,7 @@ const Create = () => {
       ) : (
         <View style={styles.meetingDetailsContainer}>
           <Text style={styles.headingText}>Meeting Created</Text>
-          <Text style={styles.subHeadingText}>Meeting URL:</Text>
+          <Text style={styles.subHeadingText}>Participant URL:</Text>
           <View style={styles.urlTextView}>
             <Text style={styles.urlText}>{urlView}</Text>
           </View>
@@ -175,7 +186,7 @@ const Create = () => {
           </View>
           {passwordView ? (
             <>
-              <Text style={styles.subHeadingText}>Password:</Text>
+              <Text style={styles.subHeadingText}>Password (Participant):</Text>
               <View style={styles.urlTextView}>
                 <Text style={styles.urlText}>{passwordView}</Text>
               </View>
@@ -188,6 +199,16 @@ const Create = () => {
               <Text style={styles.subHeadingText}>Password (Host):</Text>
               <View style={styles.urlTextView}>
                 <Text style={styles.urlText}>{passwordHost}</Text>
+              </View>
+            </>
+          ) : (
+            <></>
+          )}
+          {pstn ? (
+            <>
+              <Text style={styles.subHeadingText}>PSTN:</Text>
+              <View style={styles.urlTextView}>
+                <Text style={styles.urlText}>{pstn}</Text>
               </View>
             </>
           ) : (

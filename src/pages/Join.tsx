@@ -12,6 +12,7 @@ import images from '../assets/images';
 import styles from '../components/styles';
 import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
+import LogoutButton from '../subComponents/LogoutButton';
 
 const joinFlag = 0;
 interface joinProps {
@@ -29,7 +30,6 @@ const Join = (props: joinProps) => {
     history.push('/create');
   };
 
-  const logout = () => {};
   const channel = props.channel;
   const onChangeChannel = props.onChangeChannel;
   const password = props.password;
@@ -43,27 +43,7 @@ const Join = (props: joinProps) => {
       style={styles.full}
       resizeMode={'cover'}>
       <StatusBar hidden />
-      <View style={{alignSelf: 'flex-end'}}>
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#099DFD',
-            width: 80,
-            height: 30,
-            marginTop: 5,
-            marginRight: 5,
-          }}
-          onPress={() => logout()}>
-          <Text
-            style={{
-              lineHeight: 30,
-              fontSize: 16,
-              textAlign: 'center',
-              color: '#fff',
-            }}>
-            Logout
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <LogoutButton />
       <View style={styles.contentContainer}>
         <Image
           source={{uri: images.icons}}
