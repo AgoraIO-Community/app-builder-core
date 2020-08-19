@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {Text, Platform, Linking} from 'react-native';
 
 import InAppBrowser from 'react-native-inappbrowser-reborn';
+import {useHistory} from './Router';
 
 const oauth = {
   client_id:
@@ -17,8 +18,15 @@ const oauth = {
 };
 
 const url = `${oauth.auth_uri}?response_type=code&scope=${oauth.scope}&include_granted_scopes=true&state=${oauth.state}&client_id=${oauth.client_id}&redirect_uri=${oauth.redirect_uri}`;
+const processUrl = (url: string): string => {
+  return url
+    .replace('my-scheme://my-host', '')
+    .replace('https://agora-meet.netlify.app', '');
+};
 
 const Oauth = () => {
+  let history = useHistory();
+
   useEffect(() => {
     console.log('mobile OAuth in ', Platform.OS);
 
@@ -29,7 +37,8 @@ const Oauth = () => {
           const result = await InAppBrowser.openAuth(url, url);
           console.log(JSON.stringify(result));
           if (result.type === 'success') {
-            Linking.openURL(result.url);
+            console.log('success', Linking.canOpenURL(result.url));
+            history.push(processUrl(result.url));
           }
         } else {
           Linking.openURL(url);
