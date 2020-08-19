@@ -40,7 +40,7 @@
     "react": "16.11.0",
     "react-dom": "^16.13.1",
     "react-native": "0.62.2",
-    "react-native-agora": "^3.0.1-rc.4",
+    "react-native-agora": "^3.0.1-rc.5",
     "react-native-inappbrowser-reborn": "^3.4.0",
     "react-native-web": "^0.12.2",
     "react-router-dom": "^5.2.0",
