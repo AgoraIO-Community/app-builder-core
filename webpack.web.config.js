@@ -27,7 +27,7 @@ module.exports = merge(commons, {
     },
   },
   devServer: {
-    port: 9000,
+    port: 9002,
     historyApiFallback: true,
     contentBase: './',
   },

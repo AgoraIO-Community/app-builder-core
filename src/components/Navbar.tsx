@@ -15,13 +15,16 @@ const {
 
 const Navbar = (props) => {
   const {rtcProps} = useContext(PropsContext);
-  const participantsView = props.participantsView;
-  const setParticipantsView = props.setParticipantsView;
-  const hostControlView = props.hostControlView;
-  const setHostControlView = props.setHostControlView;
-  const layout = props.layout;
-  const setLayout = props.setLayout;
-  const recordingActive = props.recordingActive;
+  const {
+    participantsView,
+    setParticipantsView,
+    hostControlView,
+    setHostControlView,
+    layout,
+    setLayout,
+    recordingActive,
+    isHost,
+  } = props;
 
   return (
     <View style={styles.navbar}>
@@ -68,11 +71,18 @@ const Navbar = (props) => {
             style={styles.participantIcon}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setHostControlView(!hostControlView)}
-          style={styles.threeDots}>
-          <Image source={{uri: threeDotsIcon}} style={styles.participantIcon} />
-        </TouchableOpacity>
+        {isHost ? (
+          <TouchableOpacity
+            onPress={() => setHostControlView(!hostControlView)}
+            style={styles.threeDots}>
+            <Image
+              source={{uri: threeDotsIcon}}
+              style={styles.participantIcon}
+            />
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
       </View>
     </View>
   );

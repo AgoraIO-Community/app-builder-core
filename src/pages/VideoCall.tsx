@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View, StatusBar, Platform} from 'react-native';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
@@ -17,31 +17,111 @@ import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import HostControlView from '../components/HostControlView';
 import DeviceConfigure from '../components/DeviceConfigure';
+import {gql, useQuery} from '@apollo/client';
+import SessionContext from '../components/SessionContext';
+
+const JOIN_CHANNEL = gql`
+  query JoinChannel($channel: String!, $password: String!) {
+    joinChannel(channel: $channel, password: $password) {
+      channel
+      isHost
+      rtc
+      rtm
+      uid
+    }
+  }
+`;
+
+const JOIN_CHANNEL_PHRASE = gql`
+  query JoinChannelWithPassphrase($passphrase: String!) {
+    joinChannelWithPassphrase(passphrase: $passphrase) {
+      channel
+      isHost
+      rtc
+      rtm
+      uid
+    }
+  }
+`;
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState(false);
   const [layout, setLayout] = useState(false);
-  const [isHost, setIsHost] = useState(true);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [hostControlView, setHostControlView] = useState(false);
-  const {channel} = useParams();
-  const rtcProps = {
-    appId: '5c2412e4b1dd4ac89db273c928e29b4d',
-    channel,
-    // uid: Platform.OS === 'web' ? 1 : 2,
+  const [queryComplete, setQueryComplete] = useState(false);
+  const {joinStore} = useContext(SessionContext);
+  const {channel, password, joinFlag, phrase} = joinStore;
+  let isHost = false;
+  let rtcProps = {
+    appId: 'b8c2ef0f986541a8992451c07d30fb4b',
+    channel: null,
+    uid: null,
+    token: null,
+    rtm: null,
+    dual: true,
   };
+  let data, loading, error;
+
+  joinFlag === 0
+    ? ({data, loading, error} = useQuery(JOIN_CHANNEL, {
+        variables: {channel, password},
+      }))
+    : ({data, loading, error} = useQuery(JOIN_CHANNEL_PHRASE, {
+        variables: {passphrase: phrase},
+      }));
+
+  setTimeout(() => {
+    console.log({data}, {loading}, {error});
+  }, 500);
+
+  if (!loading && data) {
+    console.log('in query:', data);
+    if (joinFlag === 0) {
+      rtcProps = {
+        appId: 'b8c2ef0f986541a8992451c07d30fb4b',
+        channel: data.joinChannel.channel,
+        uid: data.joinChannel.uid,
+        token: data.joinChannel.rtc,
+        rtm: data.joinChannel.rtm,
+        dual: true,
+      };
+      isHost = data.joinChannel.isHost;
+    }
+    if (joinFlag === 1) {
+      rtcProps = {
+        appId: 'b8c2ef0f986541a8992451c07d30fb4b',
+        channel: data.joinChannelWithPassphrase.channel,
+        uid: data.joinChannelWithPassphrase.uid,
+        token: data.joinChannelWithPassphrase.rtc,
+        rtm: data.joinChannelWithPassphrase.rtm,
+      };
+      isHost = data.joinChannelWithPassphrase.isHost;
+    }
+    console.log('query done: ', data, queryComplete);
+    queryComplete ? {} : setQueryComplete(true);
+  }
+
   const history = useHistory();
   const callbacks = {
     EndCall: () => history.push('/'),
   };
+
   return (
     <View style={styles.main}>
-      <PropsProvider value={{rtcProps, callbacks, styleProps}}>
+      <PropsProvider
+        value={{
+          rtcProps,
+          callbacks,
+          styleProps,
+        }}>
         <RtcConfigure callActive={callActive}>
           <DeviceConfigure>
-            <RtmConfigure setRecordingActive={setRecordingActive}>
+            <RtmConfigure
+              setRecordingActive={setRecordingActive}
+              callActive={callActive}>
               <StatusBar hidden />
               {callActive ? (
                 <View style={styles.full}>
@@ -54,6 +134,7 @@ const VideoCall: React.FC = () => {
                     setLayout={setLayout}
                     recordingActive={recordingActive}
                     setRecordingActive={setRecordingActive}
+                    isHost={isHost}
                   />
                   <View style={styles.videoView}>
                     {participantsView ? (
@@ -108,7 +189,10 @@ const VideoCall: React.FC = () => {
                   {chatDisplayed ? <Chat /> : <></>}
                 </View>
               ) : (
-                <Precall setCallActive={setCallActive} />
+                <Precall
+                  setCallActive={setCallActive}
+                  queryComplete={queryComplete}
+                />
               )}
             </RtmConfigure>
           </DeviceConfigure>

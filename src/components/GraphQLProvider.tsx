@@ -27,12 +27,16 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
       token = JSON.parse(storeString).token;
     }
     console.log('link module token', storeString);
-    return {
-      headers: {
-        ...headers,
-        authorization: token ? `Bearer ${token}` : '',
-      },
-    };
+    if (token) {
+      return {
+        headers: {
+          ...headers,
+          authorization: token ? `Bearer ${token}` : '',
+        },
+      };
+    } else {
+      return headers;
+    }
   });
 
   const client = useRef(

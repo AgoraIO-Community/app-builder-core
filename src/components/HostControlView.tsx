@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import styles from './styles';
-import chatContext, { controlMessageEnum } from './ChatContext';
+import chatContext, {controlMessageEnum} from './ChatContext';
 
 const HostControlView = () => {
   const {sendControlMessage} = useContext(chatContext);

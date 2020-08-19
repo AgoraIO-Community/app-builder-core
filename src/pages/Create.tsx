@@ -40,7 +40,7 @@ const CREATE_CHANNEL = gql`
     }
   }
 `;
-
+// https://agora-meet.netlify.app/join/khjshbdfkhsdf-sd-fkhsdbfsd
 const Create = () => {
   const history = useHistory();
   const [channel, onChangeChannel] = useState('');
@@ -48,14 +48,13 @@ const Create = () => {
   const [hostPassword, onChangeHostPassword] = useState('');
   const [urlCheckbox, setUrlCheckbox] = useState(true);
   const [passwordCheckbox, setPasswordCheckbox] = useState(false);
-  const [urlOne, setUrlOne] = useState('https://meet.agora.io/room=%22test%22');
-  const [urlTwo, setUrlTwo] = useState(
-    "https://meet.agora.io/room=%22test%22&pass='pass'",
-  );
-  const [receivedChannel, setReceivedChannel] = useState('test');
-  const [password, setPassword] = useState('temppass');
+  const [urlView, setUrlView] = useState(null);
+  const [urlHost, setUrlHost] = useState(null);
+  // const [receivedChannel, setReceivedChannel] = useState('test');
+  const [passwordView, setPasswordView] = useState(null);
+  const [passwordHost, setPasswordHost] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
-  const [createChannel, {data}] = useMutation(CREATE_CHANNEL);
+  const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
 
   console.log('mutation data', data);
 
@@ -68,15 +67,30 @@ const Create = () => {
           enableLink: urlCheckbox,
           password: {host: hostPassword, view: attendeePassword},
         },
-      }).then((data) => {
-        console.log('promise data', data);
+      }).then((res) => {
+        console.log('promise data', res);
+        res.data.createChannel.password.view
+          ? setPasswordView(res.data.createChannel.password.view)
+          : {};
+        res.data.createChannel.password.host
+          ? setPasswordHost(res.data.createChannel.password.host)
+          : {};
+        setUrlView(
+          'https://agora-meet.netlify.app/join/' +
+            res.data.createChannel.passphrase.view,
+        );
+        setUrlHost(
+          'https://agora-meet.netlify.app/join/' +
+            res.data.createChannel.passphrase.host,
+        );
+        setRoomCreated(true);
       });
       // setRoomCreated(true);
     }
   };
   const enterMeeting = () => {
     if (channel !== '') {
-      history.push(`/${channel}`);
+      history.push('/join');
     }
   };
 
@@ -146,27 +160,43 @@ const Create = () => {
         </View>
       ) : (
         <View style={styles.meetingDetailsContainer}>
-          <Text style={styles.headingText}>Meeting Details</Text>
+          <Text style={styles.headingText}>Meeting Created</Text>
           <Text style={styles.subHeadingText}>Meeting URL:</Text>
           <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{urlOne}</Text>
+            <Text style={styles.urlText}>{urlView}</Text>
           </View>
           <Text style={styles.subHeadingText}>Host URL:</Text>
           <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{urlTwo}</Text>
+            <Text style={styles.urlText}>{urlHost}</Text>
           </View>
           <Text style={styles.subHeadingText}>Room Name:</Text>
           <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{receivedChannel}</Text>
+            <Text style={styles.urlText}>{channel}</Text>
           </View>
-          <Text style={styles.subHeadingText}>Password:</Text>
-          <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{password}</Text>
-          </View>
+          {passwordView ? (
+            <>
+              <Text style={styles.subHeadingText}>Password:</Text>
+              <View style={styles.urlTextView}>
+                <Text style={styles.urlText}>{passwordView}</Text>
+              </View>
+            </>
+          ) : (
+            <></>
+          )}
+          {passwordHost ? (
+            <>
+              <Text style={styles.subHeadingText}>Password (Host):</Text>
+              <View style={styles.urlTextView}>
+                <Text style={styles.urlText}>{passwordHost}</Text>
+              </View>
+            </>
+          ) : (
+            <></>
+          )}
           <TouchableOpacity
             style={styles.button}
             onPress={() => enterMeeting()}>
-            <Text style={styles.buttonText}>Enter Meeting</Text>
+            <Text style={styles.buttonText}>Back</Text>
           </TouchableOpacity>
         </View>
       )}
