@@ -25,9 +25,16 @@ const JOIN_CHANNEL = gql`
     joinChannel(channel: $channel, password: $password) {
       channel
       isHost
-      rtc
-      rtm
-      uid
+      mainUser {
+        rtc
+        rtm
+        uid
+      }
+      screenShare {
+        rtc
+        rtm
+        uid
+      }
     }
   }
 `;
@@ -37,9 +44,16 @@ const JOIN_CHANNEL_PHRASE = gql`
     joinChannelWithPassphrase(passphrase: $passphrase) {
       channel
       isHost
-      rtc
-      rtm
-      uid
+      mainUser {
+        rtc
+        rtm
+        uid
+      }
+      screenShare {
+        rtc
+        rtm
+        uid
+      }
     }
   }
 `;
@@ -61,6 +75,8 @@ const VideoCall: React.FC = () => {
     uid: null,
     token: null,
     rtm: null,
+    screenShareUid: null,
+    screenShareToken: null,
     dual: true,
   };
   let data, loading, error;
@@ -73,20 +89,18 @@ const VideoCall: React.FC = () => {
         variables: {passphrase: phrase},
       }));
 
-  setTimeout(() => {
-    console.log({data}, {loading}, {error});
-  }, 500);
-
   if (!loading && data) {
-    console.log('in query:', data);
+    // console.log('in query:', data);
     if (joinFlag === 0) {
       rtcProps = {
         appId: 'b8c2ef0f986541a8992451c07d30fb4b',
         channel: data.joinChannel.channel,
-        uid: data.joinChannel.uid,
-        token: data.joinChannel.rtc,
-        rtm: data.joinChannel.rtm,
+        uid: data.joinChannel.mainUser.uid,
+        token: data.joinChannel.mainUser.rtc,
+        rtm: data.joinChannel.mainUser.rtm,
         dual: true,
+        screenShareUid: data.joinChannel.screenShare.uid,
+        screenShareToken: data.joinChannel.screenShare.rtc,
       };
       isHost = data.joinChannel.isHost;
     }
@@ -94,9 +108,12 @@ const VideoCall: React.FC = () => {
       rtcProps = {
         appId: 'b8c2ef0f986541a8992451c07d30fb4b',
         channel: data.joinChannelWithPassphrase.channel,
-        uid: data.joinChannelWithPassphrase.uid,
-        token: data.joinChannelWithPassphrase.rtc,
-        rtm: data.joinChannelWithPassphrase.rtm,
+        uid: data.joinChannelWithPassphrase.mainUser.uid,
+        token: data.joinChannelWithPassphrase.mainUser.rtc,
+        rtm: data.joinChannelWithPassphrase.mainUser.rtm,
+        dual: true,
+        screenShareUid: data.joinChannelWithPassphrase.screenShare.uid,
+        screenShareToken: data.joinChannelWithPassphrase.screenShare.rtc,
       };
       isHost = data.joinChannelWithPassphrase.isHost;
     }
@@ -178,8 +195,6 @@ const VideoCall: React.FC = () => {
                     )}
                   </View>
                   <Controls
-                    channelName={rtcProps.channel}
-                    appId={rtcProps.appId}
                     recordingActive={recordingActive}
                     setRecordingActive={setRecordingActive}
                     chatDisplayed={chatDisplayed}
