@@ -1,7 +1,7 @@
 const {app, BrowserWindow, session} = require('electron');
 const path = require('path');
 const isDevelopment = process.env.NODE_ENV === 'development';
-isDevelopment && require('react-devtools-electron');
+// isDevelopment && require('react-devtools-electron');
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -43,7 +43,18 @@ const createWindow = () => {
   );
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  if (isDevelopment) {
+    mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
+  }
+  else {
+    mainWindow.loadURL(formatUrl({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file',
+      slashes: true
+    }))
+  }
 
   // Open the DevTools.
   isDevelopment && mainWindow.webContents.openDevTools();
