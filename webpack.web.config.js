@@ -1,4 +1,3 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const commons = require('./webpack.commons');
 const {merge} = require('webpack-merge');
 
@@ -11,15 +10,9 @@ module.exports = merge(commons, {
   entry: {
     main: './index.web.js',
   },
-  plugins: [
-    // Using html webpack plugin to utilize our index.html
-    new HtmlWebpackPlugin({
-      template: 'web/index.html',
-    }),
-  ],
   // Webpack dev server config
   devServer: {
-    port: 9002,
+    port: 9000,
     historyApiFallback: true, // Support for react-router
     contentBase: './',
   },
