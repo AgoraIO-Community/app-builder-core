@@ -9,4 +9,14 @@ module.exports = {
   mac: {
     target: ['dmg'],
   },
+  win: {
+    target: [
+      {
+        target: "nsis",
+        arch: [
+          "ia32"
+        ]
+      }
+    ]
+  }
 };
