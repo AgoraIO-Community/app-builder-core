@@ -2,6 +2,7 @@ module.exports = {
   appId: 'io.agora.saas',
   directories: {
     output: './out',
+    app: './.electron',
   },
   linux: {
     target: ['AppImage'],
@@ -12,11 +13,9 @@ module.exports = {
   win: {
     target: [
       {
-        target: "nsis",
-        arch: [
-          "ia32"
-        ]
-      }
-    ]
-  }
+        target: 'nsis',
+        arch: ['ia32'],
+      },
+    ],
+  },
 };

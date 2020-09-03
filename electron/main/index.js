@@ -50,11 +50,13 @@ const createWindow = () => {
   //   mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
   // }
   // else {
-    mainWindow.loadURL(format({
+  mainWindow.loadURL(
+    format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
-      slashes: true
-    }))
+      slashes: true,
+    }),
+  );
   // }
 
   // Open the DevTools.

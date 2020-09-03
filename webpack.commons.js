@@ -11,21 +11,23 @@ const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 
 module.exports = {
   // Adds React Refresh webpack plugin for webpack dev server hmr
-  // plugins: [isDevelopment && new ReactRefreshWebpackPlugin()].filter(Boolean),
+  plugins: [
+    // Using html webpack plugin to utilize our index.html
+    new HtmlWebpackPlugin({
+      template: 'web/index.html',
+    }),
+    isDevelopment && new ReactRefreshWebpackPlugin(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       // Using react-native web to translate UI
       'react-native$': 'react-native-web',
       // Using rtm bridge to translate React Native RTM SDK calls to web SDK calls
-      'agora-react-native-rtm': path.join(
-        __dirname,
-        'bridge/rtm/web/index.ts',
-      ),
+      'agora-react-native-rtm': path.join(__dirname, 'bridge/rtm/web/index.ts'),
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora':
-        process.env.TARGET === 'linux' ||
-          process.env.TARGET === 'web'
+        process.env.TARGET === 'linux' || process.env.TARGET === 'web'
           ? path.join(__dirname, 'bridge/rtc/web/index.ts')
           : path.join(__dirname, 'bridge/rtc/electron/index.ts'),
     },
@@ -71,17 +73,11 @@ module.exports = {
             plugins: [
               // Adds support for class properties
               '@babel/plugin-proposal-class-properties',
-              // isDevelopment && require.resolve('react-refresh/babel'),
+              isDevelopment && require.resolve('react-refresh/babel'),
             ].filter(Boolean),
           },
         },
       },
     ],
   },
-  plugins: [
-    // Using html webpack plugin to utilize our index.html
-    new HtmlWebpackPlugin({
-      template: 'web/index.html',
-    }),
-  ]
 };
