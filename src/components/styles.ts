@@ -5,7 +5,7 @@ const {width} = Dimensions.get('window');
 const styles = {
   main: {
     flex: 1,
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     flexDirection: 'column',
     paddingHorizontal: Platform.OS === 'web' ? '1%' : 0,
   },
@@ -20,7 +20,7 @@ const styles = {
   },
   navbar: {
     flex: 1,
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
@@ -116,7 +116,7 @@ const styles = {
   },
   videoView: {
     flex: 12,
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     flexDirection: 'column',
   },
   videoViewInner: {
@@ -125,7 +125,7 @@ const styles = {
   bottomBar: {
     flex: Platform.OS === 'web' ? 1.3 : 1.6,
     paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -153,7 +153,7 @@ const styles = {
   temp: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
   },
   gridRow: {
     flex: 1,
@@ -162,14 +162,14 @@ const styles = {
   },
   gridVideoContainer: {
     flex: 1,
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     marginHorizontal: 'auto',
   },
   gridVideoContainerInner: {
-    borderColor: '#eee',
-    borderWidth:2,
+    // borderColor: '#fff',
+    // borderWidth:2,
     flex: 1,
-    margin:2,
+    margin: 1,
   },
   bottomBarButton: {
     height: '70%',
@@ -189,7 +189,7 @@ const styles = {
     justifyContent: 'center',
     width: Platform.OS === 'web' ? '25%' : '50%',
     height: '25%',
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     zIndex: 20,
     position: 'absolute',
   },
@@ -237,13 +237,13 @@ const styles = {
   },
   pinnedView: {
     flex: 2,
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     flexDirection: 'row',
   },
   pinnedVideo: {
     flex: 1,
-    borderColor: '#eee',
-    borderWidth:2
+    // borderColor: '#eee',
+    // borderWidth:2
   },
   participantCountInner: {
     width: width / 7.5,
@@ -258,9 +258,10 @@ const styles = {
     alignSelf: 'center',
   },
   localButton: {
-    backgroundColor: '#6E757D',
+    backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#6E757D',
+    borderColor: '#099DFD',
+    borderWidth: 1,
     width: 46,
     height: 46,
     display: 'flex',
@@ -269,9 +270,10 @@ const styles = {
     justifyContent: 'center',
   },
   endCall: {
-    backgroundColor: '#F86051',
+    backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#F86051',
+    borderColor: '#099DFD',
+    borderWidth: 1,
     width: 46,
     height: 46,
     alignSelf: 'center',
@@ -298,7 +300,8 @@ const styles = {
     zIndex: 40,
   },
   remoteViewTouchableWeb: {
-    width: width / 8,
+    width: '100%',
+    height: '200%',
     marginRight: 10,
     marginVertical: 8,
     zIndex: 40,
@@ -314,7 +317,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: '#6E757D',
+    backgroundColor: '#fff',
   },
   minCloseBtn: {
     alignItems: 'center',
@@ -349,13 +352,13 @@ const styles = {
   buttonIconMic: {
     width: 22,
     height: 20,
-    tintColor: '#fff',
+    tintColor: '#099DFD',
   },
   buttonIconCam: {
     width: 25,
     height: 25,
     marginHorizontal: 3,
-    tintColor: '#fff',
+    tintColor: '#099DFD',
   },
   buttonIconEnd: {
     width: 25,
@@ -507,7 +510,7 @@ const styles = {
   buttonIcon:{
     width: 25,
     height: 25,
-    tintColor: '#fff',
+    tintColor: '#099DFD',
   },
   chatWeb: {
     backgroundColor: '#E8ECF4',
@@ -616,7 +619,7 @@ const styles = {
     left: '20%',
     width: '60%',
     height: '350%',
-    backgroundColor: '#333237',
+    backgroundColor: '#fff',
     justifyContent: 'space-evenly',
     alignContent: 'center',
     paddingVertical: 5,

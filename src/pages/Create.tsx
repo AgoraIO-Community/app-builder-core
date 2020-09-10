@@ -2,16 +2,17 @@ import React, {useState} from 'react';
 import {
   View,
   TextInput,
-  StatusBar,
   TouchableOpacity,
   Text,
   ImageBackground,
+  StyleSheet,
 } from 'react-native';
 import Checkbox from '../subComponents/Checkbox';
 import images from '../assets/images';
-import styles from '../components/styles';
 import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
+import Logo from '../subComponents/Logo';
+import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 
 type PasswordInput = {
   host: string;
@@ -47,16 +48,10 @@ const CREATE_CHANNEL = gql`
 const Create = () => {
   const history = useHistory();
   const [channel, onChangeChannel] = useState('');
-  const [attendeePassword, onChangeAttendeePassword] = useState('');
-  const [hostPassword, onChangeHostPassword] = useState('');
-  const [urlCheckbox, setUrlCheckbox] = useState(true);
   const [pstnCheckbox, setPstnCheckbox] = useState(true);
-  const [passwordCheckbox, setPasswordCheckbox] = useState(false);
+  const [hostControlCheckbox, setHostControlCheckbox] = useState(false);
   const [urlView, setUrlView] = useState(null);
   const [urlHost, setUrlHost] = useState(null);
-  // const [receivedChannel, setReceivedChannel] = useState('test');
-  const [passwordView, setPasswordView] = useState(null);
-  const [passwordHost, setPasswordHost] = useState(null);
   const [pstn, setPstn] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
   const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
@@ -64,165 +59,313 @@ const Create = () => {
   console.log('mutation data', data);
 
   const createRoom = () => {
-    if (channel !== '') {
-      console.log('Create room invoked');
-      createChannel({
-        variables: {
-          channel,
-          enableLink: urlCheckbox,
-          password: {host: hostPassword, view: attendeePassword},
-          enablePSTN: pstnCheckbox,
-        },
-      }).then((res) => {
-        console.log('promise data', res);
-        res.data.createChannel.password.view
-          ? setPasswordView(res.data.createChannel.password.view)
-          : {};
-        res.data.createChannel.password.host
-          ? setPasswordHost(res.data.createChannel.password.host)
-          : {};
-        setUrlView(
-          'https://agora-meet.netlify.app/join/' +
-            res.data.createChannel.passphrase.view,
-        );
-        setUrlHost(
-          'https://agora-meet.netlify.app/join/' +
-            res.data.createChannel.passphrase.host,
-        );
-        setPstn(res.data.createChannel.pstn);
-        setRoomCreated(true);
-      });
-      // setRoomCreated(true);
-    }
+    // if (channel !== '') {
+    //   console.log('Create room invoked');
+    //   createChannel({
+    //     variables: {
+    //       channel,
+    //       enableLink: urlCheckbox,
+    //       password: {host: hostPassword, view: attendeePassword},
+    //       enablePSTN: pstnCheckbox,
+    //     },
+    //   }).then((res) => {
+    //     console.log('promise data', res);
+    //     res.data.createChannel.password.view
+    //       ? setPasswordView(res.data.createChannel.password.view)
+    //       : {};
+    //     res.data.createChannel.password.host
+    //       ? setPasswordHost(res.data.createChannel.password.host)
+    //       : {};
+    //     setUrlView(
+    //       'https://agora-meet.netlify.app/join/' +
+    //         res.data.createChannel.passphrase.view,
+    //     );
+    //     setUrlHost(
+    //       'https://agora-meet.netlify.app/join/' +
+    //         res.data.createChannel.passphrase.host,
+    //     );
+    //     setPstn(res.data.createChannel.pstn);
+    //     setRoomCreated(true);
+    //   });
+    // }
   };
   const enterMeeting = () => {
-    if (channel !== '') {
-      history.push('/join');
-    }
+    // if (channel !== '') {
+    //   history.push('/join');
+    // }
+  };
+
+  const [dim, setDim] = useState([0, 0]);
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
 
   return (
     <ImageBackground
+      onLayout={onLayout}
       source={{uri: images.background}}
-      style={styles.full}
+      style={style.full}
       resizeMode={'cover'}>
-      <StatusBar hidden />
-      {!roomCreated ? (
-        <View style={styles.contentContainer}>
-          <Text style={styles.headingText}>Create a new Meeting</Text>
-          <View style={styles.checkboxHolder}>
-            <Text style={styles.subHeadingText}>
-              Select methods to join the Meeting:
-            </Text>
-            <View style={styles.checkboxView}>
-              <Text style={styles.paddedText}>URLs </Text>
-              <Checkbox value={urlCheckbox} onValueChange={setUrlCheckbox} />
-            </View>
-            <View style={styles.checkboxView}>
-              <Text style={styles.paddedText}>PSTN </Text>
-              <Checkbox value={pstnCheckbox} onValueChange={setPstnCheckbox} />
-            </View>
-            <View style={styles.checkboxView}>
-              <Text style={styles.paddedText}>Room name & Password </Text>
-              <Checkbox
-                value={passwordCheckbox}
-                onValueChange={setPasswordCheckbox}
-              />
-            </View>
-          </View>
-          <TextInput
-            style={styles.textBox}
-            value={channel}
-            onChangeText={(text) => onChangeChannel(text)}
-            onSubmitEditing={() => createRoom()}
-            placeholder="Enter Room Name"
-            placeholderTextColor="#3DAAF8"
-            autoCorrect={false}
-          />
-          {passwordCheckbox ? (
-            <>
-              <TextInput
-                style={styles.textBox}
-                value={hostPassword}
-                onChangeText={(text) => onChangeHostPassword(text)}
-                onSubmitEditing={() => createRoom()}
-                placeholder="Enter Attendee Password"
-                placeholderTextColor="#3DAAF8"
-                secureTextEntry={true}
-                disabled={!passwordCheckbox}
-              />
-              <TextInput
-                style={styles.textBox}
-                value={attendeePassword}
-                onChangeText={(text) => onChangeAttendeePassword(text)}
-                onSubmitEditing={() => createRoom()}
-                placeholder="Enter Host Password"
-                placeholderTextColor="#3DAAF8"
-                secureTextEntry={true}
-                disabled={!passwordCheckbox}
-              />
-            </>
-          ) : (
-            <></>
-          )}
-          <TouchableOpacity style={styles.button} onPress={() => createRoom()}>
-            <Text style={styles.buttonText}>Create Meeting</Text>
-          </TouchableOpacity>
+      <View style={style.main}>
+        <View style={style.nav}>
+          <Logo />
+          <OpenInNativeButton />
         </View>
-      ) : (
-        <View style={styles.meetingDetailsContainer}>
-          <Text style={styles.headingText}>Meeting Created</Text>
-          <Text style={styles.subHeadingText}>Participant URL:</Text>
-          <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{urlView}</Text>
-          </View>
-          <Text style={styles.subHeadingText}>Host URL:</Text>
-          <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{urlHost}</Text>
-          </View>
-          <Text style={styles.subHeadingText}>Room Name:</Text>
-          <View style={styles.urlTextView}>
-            <Text style={styles.urlText}>{channel}</Text>
-          </View>
-          {passwordView ? (
-            <>
-              <Text style={styles.subHeadingText}>Password (Participant):</Text>
-              <View style={styles.urlTextView}>
-                <Text style={styles.urlText}>{passwordView}</Text>
+        {!roomCreated ? (
+          <View style={style.content}>
+            <View style={style.leftContent}>
+              <Text style={style.heading}>Create Meeting</Text>
+              <Text style={style.headline}>
+                The Real-Time Engagement Platform for meaningful human
+                connections.
+              </Text>
+              <View style={style.inputs}>
+                <TextInput
+                  style={style.textInput}
+                  value={channel}
+                  onChangeText={(text) => onChangeChannel(text)}
+                  onSubmitEditing={() => createRoom()}
+                  placeholder="Enter Room Name"
+                  placeholderTextColor="#777"
+                  autoCorrect={false}
+                />
+                <View style={style.checkboxHolder}>
+                  <Checkbox
+                    value={pstnCheckbox}
+                    onValueChange={setPstnCheckbox}
+                  />
+                  <View style={style.checkboxTextHolder}>
+                    <Text style={style.checkboxTitle}>Use PSTN</Text>
+                    <Text style={style.checkboxCaption}>
+                      Join by dialing a number
+                    </Text>
+                  </View>
+                </View>
+                <View style={style.checkboxHolder}>
+                  <Checkbox
+                    value={hostControlCheckbox}
+                    onValueChange={setHostControlCheckbox}
+                  />
+                  <View style={style.checkboxTextHolder}>
+                    <Text style={style.checkboxTitle}>
+                      Restrict Host Controls
+                    </Text>
+                    <Text style={style.checkboxCaption}>
+                      {!hostControlCheckbox
+                        ? 'Everyone is a Host'
+                        : 'Host uses a seperate link'}
+                    </Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  disabled={channel === ''}
+                  style={
+                    channel === '' ? style.primaryBtnDisabled : style.primaryBtn
+                  }
+                  onPress={() => createRoom()}>
+                  <Text style={style.primaryBtnText}>Create Meeting</Text>
+                </TouchableOpacity>
               </View>
-            </>
-          ) : (
-            <></>
-          )}
-          {passwordHost ? (
-            <>
-              <Text style={styles.subHeadingText}>Password (Host):</Text>
-              <View style={styles.urlTextView}>
-                <Text style={styles.urlText}>{passwordHost}</Text>
+            </View>
+            {dim[0] > dim[1] + 150 ? (
+              <View style={style.full}>
+                <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} />
               </View>
-            </>
-          ) : (
-            <></>
-          )}
-          {pstn ? (
-            <>
-              <Text style={styles.subHeadingText}>PSTN:</Text>
-              <View style={styles.urlTextView}>
-                <Text style={styles.urlText}>{pstn}</Text>
+            ) : (
+              <></>
+            )}
+          </View>
+        ) : (
+          <View style={style.content}>
+            <View style={style.leftContent}>
+              <Text style={style.heading}>Meeting Created</Text>
+              <Text style={style.urlTitle}>URL for Attendee:</Text>
+              <View style={style.urlHolder}>
+                <Text style={style.url}>{urlView}</Text>
               </View>
-            </>
-          ) : (
-            <></>
-          )}
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => enterMeeting()}>
-            <Text style={styles.buttonText}>Back</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+              <Text style={style.urlTitle}>URL for Host:</Text>
+              <View style={style.urlHolder}>
+                <Text style={style.url}>{urlHost}</Text>
+              </View>
+              {pstn ? (
+                <View style={style.pstnHolder}>
+                  <View style={style.pstnMargin}>
+                    <Text style={style.urlTitle}>PSTN:</Text>
+                    <View style={style.urlHolder}>
+                      <Text style={style.url}>{pstn}</Text>
+                    </View>
+                  </View>
+                  <View>
+                    <Text style={style.urlTitle}>Pin:</Text>
+                    <View style={style.urlHolder}>
+                      <Text style={style.url}>123456789</Text>
+                    </View>
+                  </View>
+                </View>
+              ) : (
+                <></>
+              )}
+              <TouchableOpacity
+                style={style.secondaryBtn}
+                onPress={() => enterMeeting()}>
+                <Text style={style.secondaryBtnText}>Copy to clipboard</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.primaryBtn}
+                onPress={() => enterMeeting()}>
+                <Text style={style.primaryBtnText}>Enter Meeting</Text>
+              </TouchableOpacity>
+            </View>
+            {dim[0] > dim[1] + 150 ? (
+              <View style={style.full}>
+                <View
+                  style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}}
+                />
+              </View>
+            ) : (
+              <></>
+            )}
+          </View>
+        )}
+      </View>
     </ImageBackground>
   );
 };
+
+const style = StyleSheet.create({
+  full: {flex: 1},
+  main: {
+    flex: 2,
+    justifyContent: 'space-evenly',
+    marginHorizontal: '10%',
+  },
+  nav: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  content: {flex: 6, flexDirection: 'row'},
+  leftContent: {
+    width: '100%',
+    flex: 1,
+    justifyContent: 'space-evenly',
+    marginBottom: '5%',
+    marginRight: '5%',
+    marginHorizontal: 'auto',
+  },
+  heading: {
+    fontSize: 38,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 20,
+  },
+  headline: {
+    fontSize: 20,
+    fontWeight: '400',
+    color: '#777',
+    marginBottom: 20,
+  },
+  inputs: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
+  textInput: {
+    width: '100%',
+    paddingLeft: 8,
+    borderColor: '#099DFD',
+    borderWidth: 2,
+    color: '#333',
+    fontSize: 16,
+    marginBottom: 15,
+    maxWidth: 400,
+    minHeight: 45,
+  },
+  primaryBtn: {
+    width: '60%',
+    backgroundColor: '#099DFD',
+    maxWidth: 400,
+    minWidth: 200,
+    minHeight: 45,
+  },
+  primaryBtnDisabled: {
+    width: '60%',
+    backgroundColor: '#96D7FE',
+    maxWidth: 400,
+    minHeight: 45,
+    minWidth: 200,
+  },
+  primaryBtnText: {
+    width: '100%',
+    height: 45,
+    lineHeight: 45,
+    fontSize: 16,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    color: '#fff',
+  },
+  secondaryBtn: {
+    width: '60%',
+    borderColor: '#099DFD',
+    borderWidth: 3,
+    maxWidth: 400,
+    minHeight: 45,
+    minWidth: 200,
+  },
+  secondaryBtnText: {
+    width: '100%',
+    height: 45,
+    lineHeight: 45,
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: '500',
+    textAlignVertical: 'center',
+    color: '#099DFD',
+  },
+  checkboxHolder: {
+    marginVertical: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxTitle: {
+    color: '#333',
+    paddingHorizontal: 5,
+    fontWeight: '700',
+  },
+  checkboxCaption: {color: '#333', paddingHorizontal: 5},
+  checkboxTextHolder: {
+    marginVertical: 0, //check if 5
+    flexDirection: 'column',
+  },
+  urlTitle: {
+    color: '#333',
+    fontSize: 14,
+  },
+  urlHolder: {
+    width: '100%',
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    justifyContent: 'center',
+    maxWidth: 400,
+    minHeight: 45,
+  },
+  url: {
+    color: '#333',
+    fontSize: 18,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
+  pstnHolder: {
+    flexDirection: 'row',
+    width: '80%',
+  },
+  pstnMargin: {
+    marginRight: '10%',
+  },
+});
 
 export default Create;

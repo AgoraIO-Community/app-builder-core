@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {Linking} from 'react-native';
 import {useHistory} from './Router';
+import {BackButton} from './Router.native';
 
 const processUrl = (url: string): string => {
   return url
@@ -24,7 +25,11 @@ const Navigation = () => {
     };
     deepLink();
   }, [history]);
-  return <></>;
+  return (
+    <>
+      <BackButton />
+    </>
+  );
 };
 
 export default Navigation;

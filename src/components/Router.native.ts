@@ -1,1 +1,1 @@
-export {NativeRouter as Router, Switch, Route, Link, Redirect, useHistory, useParams} from 'react-router-native';
+export {NativeRouter as Router, Switch, Route, Link, Redirect, useHistory, useParams, BackButton} from 'react-router-native';

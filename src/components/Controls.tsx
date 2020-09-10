@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Image, TouchableOpacity} from 'react-native';
+import {View, Image, TouchableOpacity, Platform} from 'react-native';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import {
   LocalAudioMute,
@@ -29,7 +29,16 @@ export default function Controls(props: any) {
   } = props;
   return (
     <LocalUserContext>
-      <View style={{...styles.bottomBar}}>
+      <View style={{
+        flex: Platform.OS === 'web' ? 1.3 : 1.6,
+        paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
+        backgroundColor: '#fff',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        position: 'relative',
+        margin: 0,
+        bottom: 0,
+      }}>
         <LocalAudioMute />
         <LocalVideoMute />
         {isHost ? (
@@ -52,14 +61,14 @@ export default function Controls(props: any) {
           <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
-        <Settings
+        {/* <Settings
           selectedCam={selectedCam}
           setSelectedCam={setSelectedCam}
           selectedMic={selectedMic}
           setSelectedMic={setSelectedMic}
           deviceList={deviceList}
           setDeviceList={setDeviceList}
-        />
+        /> */}
       </View>
     </LocalUserContext>
   );

@@ -9,6 +9,7 @@ const Checkbox = (props) => {
       value={urlCheckbox}
       onValueChange={setUrlCheckbox}
       color={'#099DFD'}
+      style={{width:35, height:35}}
     />
   );
 };

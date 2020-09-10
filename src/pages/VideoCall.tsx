@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StatusBar, Platform} from 'react-native';
+import {View, Platform} from 'react-native';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
@@ -67,8 +67,13 @@ const VideoCall: React.FC = () => {
   const [hostControlView, setHostControlView] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const {joinStore} = useContext(SessionContext);
-  const {channel, password, joinFlag, phrase} = joinStore;
-  let isHost = false;
+  // const {channel, password, joinFlag, phrase} = joinStore;
+  //remove me and uncomment the above
+  const channel = 'neu',
+    password = 'pass',
+    joinFlag = 0;
+  //done
+  let isHost = true;
   let rtcProps = {
     appId: 'b8c2ef0f986541a8992451c07d30fb4b',
     channel: null,
@@ -127,7 +132,7 @@ const VideoCall: React.FC = () => {
   };
 
   return (
-    <View style={styles.main}>
+    <>
       <PropsProvider
         value={{
           rtcProps,
@@ -139,7 +144,6 @@ const VideoCall: React.FC = () => {
             <RtmConfigure
               setRecordingActive={setRecordingActive}
               callActive={callActive}>
-              <StatusBar hidden />
               {callActive ? (
                 <View style={styles.full}>
                   <Navbar
@@ -159,40 +163,8 @@ const VideoCall: React.FC = () => {
                     ) : (
                       <></>
                     )}
-                    {hostControlView ? <HostControlView /> : <></>}
-                    {layout ? (
-                      <View style={styles.full}>
-                        {Platform.OS !== 'web' ? (
-                          <></>
-                        ) : (
-                          <View style={styles.pinnedView}>
-                            <PinnedVideo />
-                          </View>
-                        )}
-                        <View style={styles.videoViewInner}>
-                          <View style={styles.full}>
-                            <MaxUidConsumer>
-                              {(maxUsers) => (
-                                <MaxVideoView
-                                  user={maxUsers[0]}
-                                  key={maxUsers[0].uid}
-                                />
-                              )}
-                            </MaxUidConsumer>
-                          </View>
-                        </View>
-                        {Platform.OS === 'web' ? (
-                          <></>
-                        ) : (
-                          <View style={styles.pinnedView}>
-                            <ParticipantCounter />
-                            <PinnedVideo />
-                          </View>
-                        )}
-                      </View>
-                    ) : (
-                      <GridVideo />
-                    )}
+                    {/* {hostControlView ? <HostControlView /> : <></>} */}
+                    {layout ? <PinnedVideo /> : <GridVideo />}
                   </View>
                   <Controls
                     recordingActive={recordingActive}
@@ -213,7 +185,7 @@ const VideoCall: React.FC = () => {
           </DeviceConfigure>
         </RtcConfigure>
       </PropsProvider>
-    </View>
+    </>
   );
 };
 
@@ -230,6 +202,7 @@ const styleProps = {
     recording: styles.localButton,
     screenshare: styles.localButton,
   },
+  theme: '#099DFD',
   remoteBtnStyles: {
     muteRemoteAudio: styles.remoteButton,
     muteRemoteVideo: styles.remoteButton,

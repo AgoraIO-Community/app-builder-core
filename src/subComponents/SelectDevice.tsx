@@ -1,7 +1,6 @@
 import React, {useContext} from 'react';
-import {Picker} from 'react-native';
+import {Picker, StyleSheet} from 'react-native';
 import DeviceContext from '../components/DeviceContext';
-import styles from '../components/styles';
 
 const SelectDevice = (props: any) => {
   const {
@@ -16,7 +15,7 @@ const SelectDevice = (props: any) => {
     <>
       <Picker
         selectedValue={selectedCam}
-        style={styles.popupPicker}
+        style={style.popupPicker}
         onValueChange={(itemValue) => setSelectedCam(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'videoinput') {
@@ -32,7 +31,7 @@ const SelectDevice = (props: any) => {
       </Picker>
       <Picker
         selectedValue={selectedMic}
-        style={styles.popupPicker}
+        style={style.popupPicker}
         onValueChange={(itemValue) => setSelectedMic(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'audioinput') {
@@ -49,4 +48,15 @@ const SelectDevice = (props: any) => {
     </>
   );
 };
+
+const style = StyleSheet.create({
+  popupPicker: {
+    minHeight: 45,
+    width: '100%',
+    alignSelf: 'center',
+    maxWidth: 400,
+    borderWidth: 2,
+    borderColor: '#099DFD',
+  },
+})
 export default SelectDevice;

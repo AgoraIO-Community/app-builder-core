@@ -28,48 +28,56 @@ export default function LogoutButton() {
   };
 
   return (
-    <View style={{alignSelf: 'flex-end'}}>
+    <>
       {token === null ? (
         <TouchableOpacity
           style={{
-            backgroundColor: '#099DFD',
-            width: 80,
-            height: 30,
-            marginTop: 5,
-            marginRight: 5,
+            width: '60%',
+            maxWidth: 400,
+            minHeight: 45,
+            marginBottom: 15,
           }}
           onPress={() => login()}>
           <Text
             style={{
-              lineHeight: 30,
+              width: '100%',
+              height: 45,
+              lineHeight: 45,
               fontSize: 16,
+              fontWeight: 500,
               textAlign: 'center',
-              color: '#fff',
+              textAlignVertical: 'center',
+              color: '#333',
+              textDecorationLine: 'underline',
             }}>
-            Login
+            Login using OAuth
           </Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={{
-            backgroundColor: '#099DFD',
-            width: 80,
-            height: 30,
-            marginTop: 5,
-            marginRight: 5,
+            width: '60%',
+            maxWidth: 400,
+            minHeight: 45,
+            marginBottom: 15,
           }}
           onPress={() => logout()}>
           <Text
             style={{
-              lineHeight: 30,
+              width: '100%',
+              height: 45,
+              lineHeight: 45,
               fontSize: 16,
+              fontWeight: 500,
               textAlign: 'center',
-              color: '#fff',
+              textAlignVertical: 'center',
+              color: '#333',
+              textDecorationLine: 'underline',
             }}>
             Logout
           </Text>
         </TouchableOpacity>
       )}
-    </View>
+    </>
   );
 }
