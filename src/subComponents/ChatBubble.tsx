@@ -8,14 +8,11 @@ const ChatBubble = (props: channelMessage) => {
   let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
   return (
     <View>
-      {!type ? (
-        <View style={type ? styles.chatSenderViewLocal : styles.chatSenderView}>
-          <Text style={styles.chatSenderText}>{uid}</Text>
-          <Text style={styles.blackText}>{time}</Text>
-        </View>
-      ) : (
-        <></>
-      )}
+      <View style={type ? styles.chatSenderViewLocal : styles.chatSenderView}>
+        <Text style={{color: '#C1C1C1', fontWeight: '500', fontSize: 12}}>
+          {uid} | {time}
+        </Text>
+      </View>
       <View style={type ? styles.chatBubbleLocal : styles.chatBubble}>
         <Text style={type ? styles.whiteText : styles.blackText}>
           {msg.slice(1)}

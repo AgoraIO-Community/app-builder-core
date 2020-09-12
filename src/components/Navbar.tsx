@@ -4,6 +4,7 @@ import styles from './styles';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
+import ParticipantView from './ParticipantsView';
 
 const {
   participantIcon,
@@ -23,6 +24,8 @@ const Navbar = (props) => {
     layout,
     setLayout,
     recordingActive,
+    setChatDisplayed,
+    chatDisplayed,
   } = props;
 
   return (
@@ -102,7 +105,9 @@ const Navbar = (props) => {
         }}>
         <TouchableOpacity
           onPress={() => {
-            setParticipantsView(!participantsView);
+            chatDisplayed
+              ? (setChatDisplayed(false), setParticipantsView(true))
+              : setParticipantsView(!participantsView);
           }}
           style={{
             height: '80%',

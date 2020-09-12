@@ -15,6 +15,7 @@ const RtmConfigure = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
+  const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
@@ -24,6 +25,28 @@ const RtmConfigure = (props: any) => {
     setMessageStore((m: messageStoreInterface[]) => {
       return [...m, {ts: ts, uid: uid, msg: text}];
     });
+  };
+
+  const addMessageToPrivateStore = (
+    uid: string,
+    text: string,
+    ts: string,
+    local: boolean,
+  ) => {
+    setPrivateMessageStore((state: any) => {
+      let newState = {...state};
+      newState[uid] !== undefined
+        ? (newState[uid] = [
+            ...newState[uid],
+            {ts: ts, uid: local ? localUid.current : uid, msg: text},
+          ])
+        : (newState = {
+            ...newState,
+            [uid]: [{ts: ts, uid: local ? localUid.current : uid, msg: text}],
+          });
+      return {...newState};
+    });
+    console.log(privateMessageStore);
   };
 
   const init = async () => {
@@ -72,6 +95,8 @@ const RtmConfigure = (props: any) => {
         //       });
         //     }
         //   }
+      } else if (text[0] === mType.Normal) {
+        addMessageToPrivateStore(evt.peerId, evt.text, evt.ts, false);
       }
     });
     engine.current.on('channelMessageReceived', (evt) => {
@@ -124,10 +149,21 @@ const RtmConfigure = (props: any) => {
       rtcProps.channel,
       mType.Normal + msg,
     );
-    let ts = '' + new Date().getTime;
+    let ts = new Date().getTime();
     addMessageToStore(localUid.current, mType.Normal + msg, ts);
   };
-
+  const sendMessageToUid = async (msg: string, uid: number) => {
+    let ts = new Date().getTime();
+    // addMessageToPrivateStore(localUid.current, mType.Normal + msg, ts);
+    // console.log('sp!', localUid.current, mType.Normal + msg, ts);
+    await (engine.current as RtmEngine).sendMessageToPeer({
+      peerId: uid.toString(),
+      offline: false,
+      text: mType.Normal + '' + msg,
+    });
+    console.log(ts);
+    addMessageToPrivateStore(uid, mType.Normal + msg, ts, true);
+  };
   const sendControlMessage = async (msg: string) => {
     await (engine.current as RtmEngine).sendMessageByChannelId(
       rtcProps.channel,
@@ -167,9 +203,11 @@ const RtmConfigure = (props: any) => {
     <ChatContext.Provider
       value={{
         messageStore,
+        privateMessageStore,
         sendControlMessage,
         sendControlMessageToUid,
         sendMessage,
+        sendMessageToUid,
         engine: engine.current,
         localUid: localUid.current,
       }}>

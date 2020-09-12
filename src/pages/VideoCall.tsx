@@ -149,6 +149,8 @@ const VideoCall: React.FC = () => {
                   <Navbar
                     participantsView={participantsView}
                     setParticipantsView={setParticipantsView}
+                    chatDisplayed={chatDisplayed}
+                    setChatDisplayed={setChatDisplayed}
                     hostControlView={hostControlView}
                     setHostControlView={setHostControlView}
                     layout={layout}
