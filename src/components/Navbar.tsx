@@ -1,31 +1,28 @@
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Image, Text, Platform} from 'react-native';
-import styles from './styles';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
-import ParticipantView from './ParticipantsView';
+import Settings from '../components/Settings';
 
 const {
   participantIcon,
   gridLayoutIcon,
   pinnedLayoutIcon,
   recordingIcon,
-  settings,
 } = icons;
 
 const Navbar = (props) => {
-  const {rtcProps} = useContext(PropsContext);
+  // const {rtcProps} = useContext(PropsContext);
   const {
     participantsView,
     setParticipantsView,
-    hostControlView,
-    setHostControlView,
     layout,
     setLayout,
     recordingActive,
     setChatDisplayed,
     chatDisplayed,
+    isHost,
   } = props;
 
   return (
@@ -176,24 +173,7 @@ const Navbar = (props) => {
           />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={() => setHostControlView(!hostControlView)}
-        style={{
-          height: '40%',
-          alignSelf: 'center',
-          width: 40,
-          // marginRight: 5,
-        }}>
-        <Image
-          source={{uri: settings}}
-          style={{
-            flex: 1,
-            // margin: 1,
-            resizeMode: 'contain',
-            tintColor: '#099DFD',
-          }}
-        />
-      </TouchableOpacity>
+      {Platform.OS === 'web' ? <Settings isHost={isHost} /> : <></>}
     </View>
   );
 };

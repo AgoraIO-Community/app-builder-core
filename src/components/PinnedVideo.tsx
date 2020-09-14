@@ -39,7 +39,9 @@ const PinnedVideo = () => {
       <ScrollView
         horizontal={dim[2] ? false : true}
         decelerationRate={0}
-        // snapToInterval={width / 2}
+        // snapToInterval={
+        //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
+        // }
         // snapToAlignment={'center'}
         style={dim[2] ? {marginTop: dim[1] * 0.08, width: '20%'} : {flex: 1}}>
         <RtcContext.Consumer>
@@ -56,7 +58,7 @@ const PinnedVideo = () => {
                             zIndex: 40,
                           }
                         : {
-                            width: ((dim[1] / 3.6) * 16) / 9, //dim[1] /4.3, // width * 20/100 * 9/16 + 2
+                            width: ((dim[1] / 3.6) * 16) / 9, //dim[1] /4.3
                             height: '100%',
                             zIndex: 40,
                           }

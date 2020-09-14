@@ -653,7 +653,7 @@ const styles = {
     justifyContent: 'center',
   },
   popupPickerHolder: {
-    height: '40%',
+    // height: '40%',
     justifyContent: 'space-around',
   },
   precallControls: {

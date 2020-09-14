@@ -10,7 +10,6 @@ import Recording from '../subComponents/Recording';
 import styles from './styles';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
-import Settings from '../components/Settings';
 
 export default function Controls(props: any) {
   const [screenshareActive, setScreenshareActive] = useState(false);
@@ -20,12 +19,6 @@ export default function Controls(props: any) {
     setChatDisplayed,
     chatDisplayed,
     isHost,
-    selectedCam,
-    setSelectedCam,
-    selectedMic,
-    setSelectedMic,
-    deviceList,
-    setDeviceList,
   } = props;
   return (
     <LocalUserContext>
@@ -61,14 +54,6 @@ export default function Controls(props: any) {
           <Image source={{uri: icons.chatIcon}} style={styles.buttonIcon} />
         </TouchableOpacity>
         <Endcall />
-        {/* <Settings
-          selectedCam={selectedCam}
-          setSelectedCam={setSelectedCam}
-          selectedMic={selectedMic}
-          setSelectedMic={setSelectedMic}
-          deviceList={deviceList}
-          setDeviceList={setDeviceList}
-        /> */}
       </View>
     </LocalUserContext>
   );

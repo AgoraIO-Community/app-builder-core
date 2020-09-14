@@ -55,8 +55,11 @@ const style = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     maxWidth: 400,
+    marginHorizontal: 10,
     borderWidth: 2,
     borderColor: '#099DFD',
+    marginBottom: 10,
   },
-})
+});
+
 export default SelectDevice;

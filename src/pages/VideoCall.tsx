@@ -64,7 +64,6 @@ const VideoCall: React.FC = () => {
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
-  const [hostControlView, setHostControlView] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const {joinStore} = useContext(SessionContext);
   // const {channel, password, joinFlag, phrase} = joinStore;
@@ -151,8 +150,6 @@ const VideoCall: React.FC = () => {
                     setParticipantsView={setParticipantsView}
                     chatDisplayed={chatDisplayed}
                     setChatDisplayed={setChatDisplayed}
-                    hostControlView={hostControlView}
-                    setHostControlView={setHostControlView}
                     layout={layout}
                     setLayout={setLayout}
                     recordingActive={recordingActive}
@@ -165,7 +162,6 @@ const VideoCall: React.FC = () => {
                     ) : (
                       <></>
                     )}
-                    {/* {hostControlView ? <HostControlView /> : <></>} */}
                     {layout ? <PinnedVideo /> : <GridVideo />}
                   </View>
                   <Controls
