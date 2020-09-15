@@ -171,11 +171,11 @@ const RtmConfigure = (props: any) => {
     );
   };
   const sendControlMessageToUid = async (msg: string, uid: number) => {
-    console.log('sendcmtouid:', {
-      peerId: uid.toString(),
-      offline: false,
-      text: mType.Control + '' + msg,
-    });
+    // console.log('sendcmtouid:', {
+    //   peerId: uid.toString(),
+    //   offline: false,
+    //   text: mType.Control + '' + msg,
+    // });
     await (engine.current as RtmEngine).sendMessageToPeer({
       peerId: uid.toString(),
       offline: false,

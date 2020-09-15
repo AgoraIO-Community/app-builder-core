@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useContext} from 'react';
-import {View, TouchableOpacity, Text} from 'react-native';
+import {TouchableOpacity, Text} from 'react-native';
 import StorageContext from '../components/StorageContext';
 import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
@@ -44,7 +44,7 @@ export default function LogoutButton() {
               height: 45,
               lineHeight: 45,
               fontSize: 16,
-              fontWeight: 500,
+              fontWeight: '500',
               textAlign: 'center',
               textAlignVertical: 'center',
               color: '#333',
@@ -68,7 +68,7 @@ export default function LogoutButton() {
               height: 45,
               lineHeight: 45,
               fontSize: 16,
-              fontWeight: 500,
+              fontWeight: '500',
               textAlign: 'center',
               textAlignVertical: 'center',
               color: '#333',

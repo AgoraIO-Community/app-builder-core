@@ -58,14 +58,18 @@ const Chat = () => {
                 <MaxUidConsumer>
                   {(maxUser) =>
                     [...minUsers, ...maxUser].map((user) => {
-                      return (
-                        <TouchableOpacity
-                          style={style.participantContainer}
-                          key={user.uid}
-                          onPress={() => selectUser(user)}>
-                          <Text style={style.participantText}>{user.uid}</Text>
-                        </TouchableOpacity>
-                      );
+                      if (user.uid !== 'local') {
+                        return (
+                          <TouchableOpacity
+                            style={style.participantContainer}
+                            key={user.uid}
+                            onPress={() => selectUser(user)}>
+                            <Text style={style.participantText}>
+                              {user.uid}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      }
                     })
                   }
                 </MaxUidConsumer>

@@ -11,7 +11,7 @@ import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 import JoinPhrase from './components/JoinPhrase';
 import {SessionProvider} from './components/SessionContext';
-import {SafeAreaView} from 'react-native';
+import {SafeAreaView, StatusBar} from 'react-native';
 
 const App: React.FC = () => {
   const [channel, onChangeChannel] = useState('');
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   
   return (
     <SafeAreaView style={{flex:1}}>
+      <StatusBar hidden={true} />
       <StorageProvider>
         <GraphQLProvider>
           <Router>
