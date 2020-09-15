@@ -13,6 +13,7 @@ import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
+import Share from '../components/Share';
 
 type PasswordInput = {
   host: string;
@@ -88,11 +89,7 @@ const Create = () => {
     //     setRoomCreated(true);
     //   });
     // }
-  };
-  const enterMeeting = () => {
-    // if (channel !== '') {
-    //   history.push('/join');
-    // }
+    setRoomCreated(!roomCreated);
   };
 
   const [dim, setDim] = useState([0, 0]);
@@ -102,7 +99,6 @@ const Create = () => {
 
   return (
     <ImageBackground
-      onLayout={onLayout}
       source={{uri: images.background}}
       style={style.full}
       resizeMode={'cover'}>
@@ -112,7 +108,7 @@ const Create = () => {
           <OpenInNativeButton />
         </View>
         {!roomCreated ? (
-          <View style={style.content}>
+          <View style={style.content} onLayout={onLayout}>
             <View style={style.leftContent}>
               <Text style={style.heading}>Create Meeting</Text>
               <Text style={style.headline}>
@@ -169,55 +165,6 @@ const Create = () => {
             </View>
             {dim[0] > dim[1] + 150 ? (
               <View style={style.full}>
-                <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} />
-              </View>
-            ) : (
-              <></>
-            )}
-          </View>
-        ) : (
-          <View style={style.content}>
-            <View style={style.leftContent}>
-              <Text style={style.heading}>Meeting Created</Text>
-              <Text style={style.urlTitle}>URL for Attendee:</Text>
-              <View style={style.urlHolder}>
-                <Text style={style.url}>{urlView}</Text>
-              </View>
-              <Text style={style.urlTitle}>URL for Host:</Text>
-              <View style={style.urlHolder}>
-                <Text style={style.url}>{urlHost}</Text>
-              </View>
-              {pstn ? (
-                <View style={style.pstnHolder}>
-                  <View style={style.pstnMargin}>
-                    <Text style={style.urlTitle}>PSTN:</Text>
-                    <View style={style.urlHolder}>
-                      <Text style={style.url}>{pstn}</Text>
-                    </View>
-                  </View>
-                  <View>
-                    <Text style={style.urlTitle}>Pin:</Text>
-                    <View style={style.urlHolder}>
-                      <Text style={style.url}>123456789</Text>
-                    </View>
-                  </View>
-                </View>
-              ) : (
-                <></>
-              )}
-              <TouchableOpacity
-                style={style.secondaryBtn}
-                onPress={() => enterMeeting()}>
-                <Text style={style.secondaryBtnText}>Copy to clipboard</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={style.primaryBtn}
-                onPress={() => enterMeeting()}>
-                <Text style={style.primaryBtnText}>Enter Meeting</Text>
-              </TouchableOpacity>
-            </View>
-            {dim[0] > dim[1] + 150 ? (
-              <View style={style.full}>
                 <View
                   style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}}
                 />
@@ -226,6 +173,8 @@ const Create = () => {
               <></>
             )}
           </View>
+        ) : (
+          <Share />
         )}
       </View>
     </ImageBackground>

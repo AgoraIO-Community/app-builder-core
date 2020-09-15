@@ -6,7 +6,7 @@ const OpenInNativeButton = () => {
 
   return Platform.OS === 'web' ? (
     <View>
-      <TouchableOpacity style={style.Btn} onPress={() => openInNative()}>
+      <TouchableOpacity style={style.btn} onPress={() => openInNative()}>
         <Text style={style.btnText}>Open in App</Text>
       </TouchableOpacity>
     </View>

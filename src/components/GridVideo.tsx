@@ -42,7 +42,12 @@ const GridVideo = () => {
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (
-            <View style={style.gridVideoContainer} key={cidx}>
+            <View
+              style={{
+                flex: Platform.OS === 'web' ? 1 / dims.c : 1,
+                marginHorizontal: 'auto',
+              }}
+              key={cidx}>
               <View style={style.gridVideoContainerInner}>
                 <MaxVideoView
                   user={users[ridx * dims.c + cidx]}
@@ -65,11 +70,6 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-  },
-  gridVideoContainer: {
-    flex: Platform.OS === 'web' ? 1 / dims.c : 1,
-    // backgroundColor: '#fff',
-    marginHorizontal: 'auto',
   },
   gridVideoContainerInner: {
     // borderColor: '#fff',
