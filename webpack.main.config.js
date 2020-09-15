@@ -1,11 +1,19 @@
-const electronCommons = require('./webpack.electron.commons');
-const {merge} = require('webpack-merge');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
-
-module.exports = merge(electronCommons, {
-  /**
-   * This is the main entry point for your application, it's the first file
-   * that runs in the main process.
-   */
-  entry: path.join(__dirname, 'electron/main.js'),
-});
+module.exports = {
+  // Main entry point for the web application
+  entry: {
+    main: path.resolve(__dirname, 'electron/main/index.js'),
+  },
+  node: {
+    __dirname: false,
+  },
+  watch: isDevelopment,
+  target: 'electron-main',
+  output: {
+    filename: 'index.js',
+    path: path.resolve(__dirname, '.electron'),
+  },
+};

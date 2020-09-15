@@ -16,7 +16,7 @@ import {SafeAreaView} from 'react-native';
 const App: React.FC = () => {
   const [channel, onChangeChannel] = useState('');
   const [password, onChangePassword] = useState('');
-
+  
   return (
     <SafeAreaView style={{flex:1}}>
       <StorageProvider>
@@ -58,5 +58,6 @@ const App: React.FC = () => {
       </StorageProvider>
     </SafeAreaView>
   );
+  // return <div> hello world</div>;
 };
 export default App;

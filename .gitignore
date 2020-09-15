@@ -69,4 +69,6 @@ agora-rn-uikit/
 dist/
 
 #Electron cache
+.electron/
 .webpack/
+out/
