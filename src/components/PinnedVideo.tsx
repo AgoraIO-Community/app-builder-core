@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
-  Platform,
+  StyleSheet,
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
@@ -29,7 +29,7 @@ const PinnedVideo = () => {
     <View
       style={{flexDirection: dim[2] ? 'row' : 'column', flex: 1}}
       onLayout={onLayout}>
-      <View style={dim[2] ? {width: '80%'} : {flex: 2}}>
+      <View style={dim[2] ? style.width80 : style.flex2}>
         <MaxUidConsumer>
           {(maxUsers) => (
             <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
@@ -43,7 +43,7 @@ const PinnedVideo = () => {
         //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
         // }
         // snapToAlignment={'center'}
-        style={dim[2] ? {marginTop: dim[1] * 0.08, width: '20%'} : {flex: 1}}>
+        style={dim[2] ? {marginTop: dim[1] * 0.08, width: '20%'} : style.flex1}>
         <RtcContext.Consumer>
           {(data) => (
             <MinUidConsumer>
@@ -67,7 +67,7 @@ const PinnedVideo = () => {
                     onPress={() => {
                       data.dispatch({type: 'SwapVideo', value: [user]});
                     }}>
-                    <View style={{flex: 1}}>
+                    <View style={style.flex1}>
                       <MaxVideoView
                         user={user}
                         key={user.uid}
@@ -84,5 +84,11 @@ const PinnedVideo = () => {
     </View>
   );
 };
+
+const style = StyleSheet.create({
+  width80: {width: '80%'},
+  flex2: {flex: 2},
+  flex1: {flex: 1},
+});
 
 export default PinnedVideo;

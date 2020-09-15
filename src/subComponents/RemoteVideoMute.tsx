@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
-import styles from '../components/styles';
-import {TouchableOpacity, Image, View} from 'react-native';
+import {TouchableOpacity, Image, View, StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import icons from '../assets/icons';
 
@@ -16,18 +15,27 @@ const RemoteVideoMute = (props: {
         sendControlMessageToUid(controlMessageEnum.muteVideo, props.uid);
       }}>
       <Image
-        style={styles.buttonIconCam}
+        style={style.buttonIconCam}
         source={{uri: props.video ? icons.videocam : icons.videocamOff}}
       />
     </TouchableOpacity>
   ) : (
     <View>
       <Image
-        style={styles.buttonIconCam}
+        style={style.buttonIconCam}
         source={{uri: props.video ? icons.videocam : icons.videocamOff}}
       />
     </View>
   );
 };
+
+const style = StyleSheet.create({
+  buttonIconCam: {
+    width: 25,
+    height: 25,
+    marginHorizontal: 3,
+    tintColor: '#099DFD',
+  },
+});
 
 export default RemoteVideoMute;

@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
-import {Image, TouchableOpacity} from 'react-native';
-import styles from '../components/styles';
+import {Image, TouchableOpacity, StyleSheet} from 'react-native';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
@@ -43,14 +42,14 @@ function stopRecording(channel: string) {
     .catch((error) => console.log('error', error));
 }
 
-export default function Recording(props) {
+const Recording = (props: any) => {
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
   const {rtcProps} = useContext(PropsContext);
   const {sendControlMessage} = useContext(ChatContext);
   return (
     <TouchableOpacity
-      style={recordingActive ? styles.greenLocalButton : styles.localButton}
+      style={recordingActive ? style.greenLocalButton : style.localButton}
       onPress={() => {
         if (!recordingActive) {
           startRecording(rtcProps.channel);
@@ -61,7 +60,39 @@ export default function Recording(props) {
         }
         setRecordingActive(!recordingActive);
       }}>
-      <Image source={{uri: icons.recordingIcon}} style={styles.buttonIcon} />
+      <Image source={{uri: icons.recordingIcon}} style={style.buttonIcon} />
     </TouchableOpacity>
   );
-}
+};
+
+const style = StyleSheet.create({
+  localButton: {
+    backgroundColor: '#fff',
+    borderRadius: 2,
+    borderColor: '#099DFD',
+    borderWidth: 1,
+    width: 46,
+    height: 46,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  greenLocalButton: {
+    backgroundColor: '#4BEB5B',
+    borderRadius: 2,
+    borderColor: '#F86051',
+    width: 46,
+    height: 46,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    width: 25,
+    height: 25,
+    tintColor: '#099DFD',
+  },
+});
+
+export default Recording;

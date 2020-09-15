@@ -1,7 +1,7 @@
 import React from 'react';
 import {CheckBox} from 'react-native';
 
-const Checkbox = (props) => {
+const Checkbox = (props: any) => {
   const urlCheckbox = props.value;
   const setUrlCheckbox = props.onValueChange;
   return (

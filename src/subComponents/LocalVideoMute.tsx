@@ -3,7 +3,6 @@ import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 import {LocalContext} from '../../agora-rn-uikit/src/LocalUserContext';
 import {Image, TouchableOpacity} from 'react-native';
 import icons from '../assets/icons';
-import styles from '../components/styles';
 
 function LocalVideoMute() {
   const {dispatch} = useContext(RtcContext);
@@ -18,7 +17,12 @@ function LocalVideoMute() {
         });
       }}>
       <Image
-        style={styles.buttonIconCam}
+        style={{
+          width: 25,
+          height: 25,
+          marginHorizontal: 3,
+          tintColor: '#099DFD',
+        }}
         source={{uri: local.video ? icons.videocam : icons.videocamOff}}
       />
     </TouchableOpacity>

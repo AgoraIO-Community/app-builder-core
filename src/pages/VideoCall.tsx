@@ -1,21 +1,17 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, Platform} from 'react-native';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
+import {View, Platform, StyleSheet} from 'react-native';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
-import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
 import PinnedVideo from '../components/PinnedVideo';
-import ParticipantCounter from '../components/ParticipantCounter';
 import Controls from '../components/Controls';
 import GridVideo from '../components/GridVideo';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
 import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
-import HostControlView from '../components/HostControlView';
 import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import SessionContext from '../components/SessionContext';
@@ -144,7 +140,7 @@ const VideoCall: React.FC = () => {
               setRecordingActive={setRecordingActive}
               callActive={callActive}>
               {callActive ? (
-                <View style={styles.full}>
+                <View style={style.full}>
                   <Navbar
                     participantsView={participantsView}
                     setParticipantsView={setParticipantsView}
@@ -156,7 +152,7 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     isHost={isHost}
                   />
-                  <View style={styles.videoView}>
+                  <View style={style.videoView}>
                     {participantsView ? (
                       <ParticipantsView isHost={isHost} />
                     ) : (
@@ -209,5 +205,16 @@ const styleProps = {
   },
   BtnStyles: styles.remoteButton,
 };
+
+const style = StyleSheet.create({
+  full: {
+    flex: 1,
+  },
+  videoView: {
+    flex: 12,
+    backgroundColor: '#fff',
+    flexDirection: 'column',
+  },
+});
 
 export default VideoCall;

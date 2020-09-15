@@ -1,33 +1,36 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useContext} from 'react';
-import {View, TouchableOpacity, Text} from 'react-native';
+import React from 'react';
+import {View, TouchableOpacity, Text, Platform, StyleSheet} from 'react-native';
 
-export default function OpenInNativeButton() {
+const OpenInNativeButton = () => {
   const openInNative = () => {};
 
-  return (
+  return Platform.OS === 'web' ? (
     <View>
-      <TouchableOpacity
-        style={{
-          backgroundColor: '#fff',
-          width: 110,
-          height: 30,
-          borderWidth: 2,
-          borderColor: '#099DFD',
-          // marginTop: 5,
-          // marginRight: 10,
-        }}
-        onPress={() => openInNative()}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: '500',
-            textAlign: 'center',
-            color: '#099DFD',
-          }}>
-          Open in App
-        </Text>
+      <TouchableOpacity style={style.Btn} onPress={() => openInNative()}>
+        <Text style={style.btnText}>Open in App</Text>
       </TouchableOpacity>
     </View>
+  ) : (
+    <></>
   );
-}
+};
+
+const style = StyleSheet.create({
+  btn: {
+    backgroundColor: '#fff',
+    width: 110,
+    height: 30,
+    borderWidth: 2,
+    borderColor: '#099DFD',
+    // marginTop: 5,
+    // marginRight: 10,
+  },
+  btnText: {
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#099DFD',
+  },
+});
+
+export default OpenInNativeButton;

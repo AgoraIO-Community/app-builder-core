@@ -12,7 +12,6 @@ import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import SelectDevice from '../subComponents/SelectDevice';
-import styles from './styles';
 import images from '../assets/images';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
@@ -50,7 +49,7 @@ const Precall = (props: any) => {
               </LocalUserContext>
             </View>
             {dim[0] < dim[1] + 150 ? (
-              <View style={{marginBottom: '5%'}}>
+              <View style={style.margin5Btm}>
                 <TextInput
                   style={style.textInput}
                   value={name}
@@ -59,7 +58,7 @@ const Precall = (props: any) => {
                   placeholder="Display Name"
                   placeholderTextColor="#777"
                 />
-                <View style={{marginBottom: '5%'}}></View>
+                <View style={style.margin5Btm} />
                 <TouchableOpacity
                   onPress={() => setCallActive(true)}
                   disabled={!queryComplete}
@@ -233,6 +232,7 @@ const style = StyleSheet.create({
     shadowRadius: 5,
     borderRadius: 5,
   },
+  margin5Btm: {marginBottom: '5%'},
 });
 
 export default Precall;

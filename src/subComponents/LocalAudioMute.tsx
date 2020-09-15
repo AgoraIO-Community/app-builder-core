@@ -3,7 +3,6 @@ import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 import {LocalContext} from '../../agora-rn-uikit/src/LocalUserContext';
 import {Image, TouchableOpacity} from 'react-native';
 import icons from '../assets/icons';
-import styles from '../components/styles';
 
 function LocalAudioMute() {
   const {dispatch} = useContext(RtcContext);
@@ -18,7 +17,11 @@ function LocalAudioMute() {
         });
       }}>
       <Image
-        style={styles.buttonIconMic}
+        style={{
+          width: 22,
+          height: 20,
+          tintColor: '#099DFD',
+        }}
         source={{uri: local.audio ? icons.mic : icons.micOff}}
       />
     </TouchableOpacity>

@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {View, TouchableOpacity, Text, Image, StyleSheet} from 'react-native';
 import icons from '../assets/icons';
-import styles from './styles';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 
@@ -21,7 +20,7 @@ const Settings = (props: any) => {
             setButtonDisabled(true);
           }
         }}>
-        <Image source={{uri: icons.settings}} style={styles.buttonIcon} />
+        <Image source={{uri: icons.settings}} style={style.buttonIcon} />
       </TouchableOpacity>
       {screenListActive ? (
         <View style={style.fullOverlay}>
@@ -114,7 +113,12 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
+  buttonIcon:{
+    width: 25,
+    height: 25,
+    tintColor: '#099DFD',
+  },
 });
 
 export default Settings;
