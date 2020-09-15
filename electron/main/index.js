@@ -79,7 +79,7 @@ app.on('ready', createWindow);
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    https: app.quit();
+    app.quit();
   }
 });
 

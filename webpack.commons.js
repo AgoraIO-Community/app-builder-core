@@ -14,7 +14,7 @@ module.exports = {
   plugins: [
     // Using html webpack plugin to utilize our index.html
     new HtmlWebpackPlugin({
-      template: 'web/index.html',
+      template: isElectron ? 'electron/index.html' : 'web/index.html',
     }),
     isDevelopment && new ReactRefreshWebpackPlugin(),
   ].filter(Boolean),
