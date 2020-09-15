@@ -7,6 +7,9 @@ module.exports = {
   entry: {
     main: path.resolve(__dirname, 'electron/main/index.js'),
   },
+  node: {
+    __dirname: false,
+  },
   watch: isDevelopment,
   target: 'electron-main',
   output: {

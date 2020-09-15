@@ -13,6 +13,9 @@ module.exports = merge(commons, {
     main: path.resolve(__dirname, 'electron/renderer/index.js'),
   },
   target: 'node',
+  node: {
+    __dirname: false,
+  },
   externals: {
     'agora-electron-sdk': 'commonjs2 agora-electron-sdk',
   },
