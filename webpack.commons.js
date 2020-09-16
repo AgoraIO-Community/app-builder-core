@@ -72,6 +72,7 @@ module.exports = {
             ],
             plugins: [
               // Adds support for class properties
+              'preval',
               '@babel/plugin-proposal-class-properties',
               isDevelopment && require.resolve('react-refresh/babel'),
             ].filter(Boolean),
