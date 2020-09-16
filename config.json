@@ -1,0 +1,22 @@
+{
+    "projectName":"agorameet",
+    "displayName":"Agora Meet",
+    "logoRect":true,
+    "logoSquare":true,
+    "AppID" : "",
+    "primaryColor": "#sdfnds",
+    "frontEndURL": "",
+    "backEndURL": "",
+    "pstn":true,
+    "precall":true,
+    "watermark":true,
+    "chat": true,
+    "cloudRecording": false,
+    "screenSharing": true,
+    "platformIos":true,
+    "platformAndroid":true,
+    "platformWeb":true,
+    "platformWindows":true,
+    "platformMac":true,
+    "platformLinux":true
+}
