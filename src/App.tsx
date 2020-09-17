@@ -16,9 +16,9 @@ import {SafeAreaView, StatusBar} from 'react-native';
 const App: React.FC = () => {
   const [channel, onChangeChannel] = useState('');
   const [password, onChangePassword] = useState('');
-  
+
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={{flex: 1}}>
       <StatusBar hidden={true} />
       <StorageProvider>
         <GraphQLProvider>
@@ -46,7 +46,9 @@ const App: React.FC = () => {
                 <Route path={'/join/:phrase'}>
                   <JoinPhrase />
                 </Route>
-                <PrivateRoute path={'/create'} failureRedirectTo={'/authenticate'}>
+                <PrivateRoute
+                  path={'/create'}
+                  failureRedirectTo={'/authenticate'}>
                   <Create />
                 </PrivateRoute>
                 <Route path={'/:channel'}>

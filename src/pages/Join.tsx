@@ -21,7 +21,6 @@ interface joinProps {
   password: string;
   onChangePassword: (text: string) => void;
 }
-
 const Join = (props: joinProps) => {
   const history = useHistory();
   const {joinSession} = useContext(SessionContext);
