@@ -1,8 +1,10 @@
 import React, {useContext} from 'react';
 import {Picker, StyleSheet} from 'react-native';
 import DeviceContext from '../components/DeviceContext';
+import ColorContext from '../components/ColorContext';
 
 const SelectDevice = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const {
     selectedCam,
     setSelectedCam,
@@ -15,7 +17,7 @@ const SelectDevice = (props: any) => {
     <>
       <Picker
         selectedValue={selectedCam}
-        style={style.popupPicker}
+        style={[style.popupPicker, {borderColor: primaryColor}]}
         onValueChange={(itemValue) => setSelectedCam(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'videoinput') {
@@ -31,7 +33,7 @@ const SelectDevice = (props: any) => {
       </Picker>
       <Picker
         selectedValue={selectedMic}
-        style={style.popupPicker}
+        style={[style.popupPicker, {borderColor: primaryColor}]}
         onValueChange={(itemValue) => setSelectedMic(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'audioinput') {

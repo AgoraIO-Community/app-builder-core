@@ -102,7 +102,7 @@ const RtmConfigure = (props: any) => {
     engine.current.on('channelMessageReceived', (evt) => {
       let {uid, channelId, text, ts} = evt;
       console.log(evt);
-      if (ts === '0') {
+      if (ts === 0) {
         ts = new Date().getTime();
       }
       if (channelId === rtcProps.channel) {

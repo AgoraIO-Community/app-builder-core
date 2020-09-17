@@ -1,11 +1,22 @@
-import React, {useState} from 'react';
-import {View, Platform, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useState, useContext} from 'react';
+import {
+  View,
+  Platform,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import icons from '../assets/icons';
+import ColorContext from '../components/ColorContext';
 
-const Chat = () => {
+const Chat = (props: any) => {
+  const {setChatDisplayed} = props;
+  const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
   const [selectedUser, setSelectedUser] = useState({uid: null});
@@ -25,21 +36,54 @@ const Chat = () => {
   };
   return (
     // <View style={Platform.OS === 'web' ? styles.chatWeb : styles.chatNative}>
-    <View style={style.participantView}>
+    <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
       <View style={style.heading}>
-        <Text style={style.headingText}>Chats</Text>
+        {Platform.OS === 'web' ? (
+          <Text style={style.headingText}>Chats</Text>
+        ) : (
+          <TouchableOpacity
+            style={style.backButton}
+            onPress={() => setChatDisplayed(false)}>
+            <Image
+              resizeMode={'contain'}
+              style={style.backIcon}
+              source={{uri: icons.backBtn}}
+            />
+            <Text style={style.headingText}>Chats</Text>
+          </TouchableOpacity>
+        )}
       </View>
       <View style={style.chatNav}>
         <TouchableOpacity
           onPress={selectGroup}
-          style={groupActive ? style.groupActive : style.group}>
+          style={
+            groupActive
+              ? [style.groupActive, {borderColor: primaryColor}]
+              : [
+                  style.group,
+                  {
+                    borderColor: primaryColor,
+                    borderTopColor: primaryColor + '80',
+                  },
+                ]
+          }>
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
             Group
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={selectPrivate}
-          style={!groupActive ? style.privateActive : style.private}>
+          style={
+            !groupActive
+              ? [style.privateActive, {borderColor: primaryColor}]
+              : [
+                  style.private,
+                  {
+                    borderColor: primaryColor,
+                    borderTopColor: primaryColor + '80',
+                  },
+                ]
+          }>
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
             Private
           </Text>
@@ -95,7 +139,7 @@ const Chat = () => {
 };
 
 const style = StyleSheet.create({
-  participantView: {
+  chatView: {
     position: 'absolute',
     zIndex: 5,
     width: '20%',
@@ -106,17 +150,30 @@ const style = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#fff',
   },
+  chatViewNative: {
+    position: 'absolute',
+    zIndex: 5,
+    width: '100%',
+    height: '90%',
+    right: 0,
+    top: 0,
+    backgroundColor: '#fff',
+  },
   heading: {
     backgroundColor: '#fff',
-    width: '100%',
+    width: 150,
     height: '7%',
     paddingLeft: 20,
+    flexDirection: 'row',
   },
   headingText: {
+    flex: 1,
+    paddingLeft: 5,
     marginVertical: 'auto',
     fontWeight: '700',
     color: '#333',
     fontSize: 25,
+    alignSelf: 'center',
     justifyContent: 'center',
   },
   chatNav: {
@@ -168,20 +225,25 @@ const style = StyleSheet.create({
   groupTextActive: {
     marginVertical: 'auto',
     fontWeight: '700',
+    textAlign: 'center',
     color: '#333',
     fontSize: 16,
     justifyContent: 'center',
+    paddingVertical: 5,
   },
   groupText: {
     marginVertical: 'auto',
     fontWeight: '700',
+    textAlign: 'center',
     color: '#C1C1C1',
     fontSize: 16,
+    paddingVertical: 5,
     justifyContent: 'center',
   },
   participantContainer: {
     flexDirection: 'row',
     flex: 0.07,
+    // marginTop: 5,
     backgroundColor: '#fff',
     height: '15%',
     width: '90%',
@@ -191,13 +253,25 @@ const style = StyleSheet.create({
   },
   participantText: {
     flex: 1,
-    fontSize: Platform.OS === 'web' ? 20 : 16,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: Platform.OS === 'web' ? '500' : '700',
     flexDirection: 'row',
     color: '#333',
     lineHeight: 20,
     paddingLeft: 10,
     alignSelf: 'center',
+  },
+  backButton: {
+    // marginLeft: 5,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  backIcon: {
+    width: 20,
+    height: 12,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
 });
 

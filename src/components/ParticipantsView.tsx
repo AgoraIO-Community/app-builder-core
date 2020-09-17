@@ -11,7 +11,13 @@ import RemoteEndCall from '../subComponents/RemoteEndCall';
 
 const ParticipantView = (props: {isHost: boolean}) => {
   return (
-    <View style={style.participantView}>
+    <View
+      style={
+        Platform.OS === 'web'
+          ? style.participantView
+          : style.participantViewNative
+      }>
+      <Text style={style.heading}>Participants</Text>
       <MinUidConsumer>
         {(minUsers) => (
           <MaxUidConsumer>
@@ -66,6 +72,21 @@ const style = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#fff',
   },
+  participantViewNative: {
+    position: 'absolute',
+    zIndex: 5,
+    width: '100%',
+    height: '100%',
+    right: 0,
+    top: 0,
+    backgroundColor: '#fff',
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#333',
+  },
   participantContainer: {
     flexDirection: 'row',
     flex: 0.07,
@@ -85,13 +106,6 @@ const style = StyleSheet.create({
     lineHeight: 20,
     paddingLeft: 10,
     alignSelf: 'center',
-  },
-  participantMicButton: {
-    width: 17,
-    height: 17,
-    backgroundColor: '#099DFD',
-    marginTop: 10,
-    marginLeft: 10,
   },
   participantButtonContainer: {
     // flex: 0.3,

@@ -7,13 +7,15 @@ import {
   StyleSheet,
 } from 'react-native';
 import ChatContext from '../components/ChatContext';
+import ColorContext from '../components/ColorContext';
 
-const ChatInput = (props) => {
+const ChatInput = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
   const {privateActive, selectedUser} = props;
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
   return (
-    <View style={style.inputView}>
+    <View style={[style.inputView, {borderColor: primaryColor}]}>
       <TextInput
         style={style.chatInput}
         value={message}

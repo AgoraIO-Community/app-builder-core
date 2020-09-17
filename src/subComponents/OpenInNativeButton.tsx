@@ -1,13 +1,17 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, Platform, StyleSheet} from 'react-native';
+import ColorContext from '../components/ColorContext';
 
 const OpenInNativeButton = () => {
+  const {primaryColor} = useContext(ColorContext);
   const openInNative = () => {};
 
   return Platform.OS === 'web' ? (
     <View>
-      <TouchableOpacity style={style.btn} onPress={() => openInNative()}>
-        <Text style={style.btnText}>Open in App</Text>
+      <TouchableOpacity
+        style={[style.btn, {borderColor: primaryColor}]}
+        onPress={() => openInNative()}>
+        <Text style={[style.btnText, {color: primaryColor}]}>Open in App</Text>
       </TouchableOpacity>
     </View>
   ) : (

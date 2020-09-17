@@ -5,6 +5,8 @@ import {
   View,
   Dimensions,
   StyleSheet,
+  Platform,
+  Text,
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
@@ -29,10 +31,32 @@ const PinnedVideo = () => {
     <View
       style={{flexDirection: dim[2] ? 'row' : 'column', flex: 1}}
       onLayout={onLayout}>
-      <View style={dim[2] ? style.width80 : style.flex2}>
+      <View
+        style={
+          dim[2]
+            ? style.width80
+            : Platform.OS === 'web'
+            ? style.flex2
+            : style.flex4
+        }>
         <MaxUidConsumer>
           {(maxUsers) => (
-            <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+            <View style={style.flex1}>
+              <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+              <View
+                style={{
+                  marginTop: -25,
+                  backgroundColor: '#ffffffbb',
+                  alignSelf: 'flex-start',
+                  paddingHorizontal: 8,
+                  height: 25,
+                }}>
+                <Text
+                  style={{color: '#333', lineHeight: 25, fontWeight: '700'}}>
+                  {maxUsers[0].uid}
+                </Text>
+              </View>
+            </View>
           )}
         </MaxUidConsumer>
       </View>
@@ -43,7 +67,7 @@ const PinnedVideo = () => {
         //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
         // }
         // snapToAlignment={'center'}
-        style={dim[2] ? {marginTop: dim[1] * 0.08, width: '20%'} : style.flex1}>
+        style={dim[2] ? {marginTop: dim[1] * 0.08, width: '20%'} : {flex: 1}}>
         <RtcContext.Consumer>
           {(data) => (
             <MinUidConsumer>
@@ -57,8 +81,14 @@ const PinnedVideo = () => {
                             height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                             zIndex: 40,
                           }
-                        : {
+                        : Platform.OS === 'web'
+                        ? {
                             width: ((dim[1] / 3.6) * 16) / 9, //dim[1] /4.3
+                            height: '100%',
+                            zIndex: 40,
+                          }
+                        : {
+                            width: ((dim[1] / 3) * 16) / 9 / 2, //dim[1] /4.3
                             height: '100%',
                             zIndex: 40,
                           }
@@ -73,6 +103,23 @@ const PinnedVideo = () => {
                         key={user.uid}
                         showOverlay={false}
                       />
+                      <View
+                        style={{
+                          marginTop: -25,
+                          backgroundColor: '#ffffffbb',
+                          alignSelf: 'flex-start',
+                          paddingHorizontal: 8,
+                          height: 25,
+                        }}>
+                        <Text
+                          style={{
+                            color: '#333',
+                            lineHeight: 25,
+                            fontWeight: '700',
+                          }}>
+                          {user.uid}
+                        </Text>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 ))
@@ -88,6 +135,7 @@ const PinnedVideo = () => {
 const style = StyleSheet.create({
   width80: {width: '80%'},
   flex2: {flex: 2},
+  flex4: {flex: 4},
   flex1: {flex: 1},
 });
 

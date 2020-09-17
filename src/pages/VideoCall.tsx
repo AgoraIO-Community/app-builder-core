@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, Platform, StyleSheet} from 'react-native';
+import {View, Platform, StyleSheet, Text} from 'react-native';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
@@ -15,6 +15,7 @@ import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import SessionContext from '../components/SessionContext';
+import Watermark from '../subComponents/Watermark';
 
 const JOIN_CHANNEL = gql`
   query JoinChannel($channel: String!, $password: String!) {
@@ -56,7 +57,7 @@ const JOIN_CHANNEL_PHRASE = gql`
 
 const VideoCall: React.FC = () => {
   const [participantsView, setParticipantsView] = useState(false);
-  const [callActive, setCallActive] = useState(false);
+  const [callActive, setCallActive] = useState($config.precall ? false : true);
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
@@ -128,57 +129,76 @@ const VideoCall: React.FC = () => {
 
   return (
     <>
-      <PropsProvider
-        value={{
-          rtcProps,
-          callbacks,
-          styleProps,
-        }}>
-        <RtcConfigure callActive={callActive}>
-          <DeviceConfigure>
-            <RtmConfigure
-              setRecordingActive={setRecordingActive}
-              callActive={callActive}>
-              {callActive ? (
-                <View style={style.full}>
-                  <Navbar
-                    participantsView={participantsView}
-                    setParticipantsView={setParticipantsView}
-                    chatDisplayed={chatDisplayed}
-                    setChatDisplayed={setChatDisplayed}
-                    layout={layout}
-                    setLayout={setLayout}
-                    recordingActive={recordingActive}
-                    setRecordingActive={setRecordingActive}
-                    isHost={isHost}
-                  />
-                  <View style={style.videoView}>
-                    {participantsView ? (
-                      <ParticipantsView isHost={isHost} />
-                    ) : (
-                      <></>
-                    )}
-                    {layout ? <PinnedVideo /> : <GridVideo />}
-                  </View>
-                  <Controls
-                    recordingActive={recordingActive}
-                    setRecordingActive={setRecordingActive}
-                    chatDisplayed={chatDisplayed}
-                    setChatDisplayed={setChatDisplayed}
-                    isHost={isHost}
-                  />
-                  {chatDisplayed ? <Chat /> : <></>}
-                </View>
-              ) : (
-                <Precall
-                  setCallActive={setCallActive}
-                  queryComplete={queryComplete}
-                />
-              )}
-            </RtmConfigure>
-          </DeviceConfigure>
-        </RtcConfigure>
-      </PropsProvider>
+      {queryComplete || !callActive ? (
+        <>
+          {$config.watermark && callActive ? <Watermark /> : <></>}
+          <PropsProvider
+            value={{
+              rtcProps,
+              callbacks,
+              styleProps,
+            }}>
+            <RtcConfigure callActive={callActive}>
+              <DeviceConfigure>
+                <RtmConfigure
+                  setRecordingActive={setRecordingActive}
+                  callActive={callActive}>
+                  {callActive ? (
+                    <View style={style.full}>
+                      <Navbar
+                        participantsView={participantsView}
+                        setParticipantsView={setParticipantsView}
+                        chatDisplayed={chatDisplayed}
+                        setChatDisplayed={setChatDisplayed}
+                        layout={layout}
+                        setLayout={setLayout}
+                        recordingActive={recordingActive}
+                        setRecordingActive={setRecordingActive}
+                        isHost={isHost}
+                      />
+                      <View style={style.videoView}>
+                        {participantsView ? (
+                          <ParticipantsView isHost={isHost} />
+                        ) : (
+                          <></>
+                        )}
+                        {layout ? <PinnedVideo /> : <GridVideo />}
+                      </View>
+                      <Controls
+                        recordingActive={recordingActive}
+                        setRecordingActive={setRecordingActive}
+                        chatDisplayed={chatDisplayed}
+                        setChatDisplayed={setChatDisplayed}
+                        isHost={isHost}
+                      />
+                      {chatDisplayed ? (
+                        $config.chat ? (
+                          <Chat setChatDisplayed={setChatDisplayed} />
+                        ) : (
+                          <></>
+                        )
+                      ) : (
+                        <></>
+                      )}
+                    </View>
+                  ) : $config.precall ? (
+                    <Precall
+                      setCallActive={setCallActive}
+                      queryComplete={queryComplete}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </RtmConfigure>
+              </DeviceConfigure>
+            </RtcConfigure>
+          </PropsProvider>
+        </>
+      ) : (
+        <>
+          <Text>Loading...</Text>
+        </>
+      )}
     </>
   );
 };
@@ -196,7 +216,7 @@ const styleProps = {
     recording: styles.localButton,
     screenshare: styles.localButton,
   },
-  theme: '#099DFD',
+  theme: $config.primaryColor,
   remoteBtnStyles: {
     muteRemoteAudio: styles.remoteButton,
     muteRemoteVideo: styles.remoteButton,
@@ -205,7 +225,7 @@ const styleProps = {
   },
   BtnStyles: styles.remoteButton,
 };
-
+//change these to inline styles or sth
 const style = StyleSheet.create({
   full: {
     flex: 1,

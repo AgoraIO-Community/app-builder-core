@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Image,
@@ -15,8 +15,10 @@ import {
 import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
+import ColorContext from '../components/ColorContext';
 
 const Controls = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const {
     setRecordingActive,
@@ -31,24 +33,39 @@ const Controls = (props: any) => {
         <LocalAudioMute />
         <LocalVideoMute />
         {isHost ? (
-          <Recording
-            recordingActive={recordingActive}
-            setRecordingActive={setRecordingActive}
+          $config.cloudRecording ? (
+            <Recording
+              recordingActive={recordingActive}
+              setRecordingActive={setRecordingActive}
+            />
+          ) : (
+            <></>
+          )
+        ) : (
+          <></>
+        )}
+        {$config.screenSharing ? (
+          <ScreenshareButton
+            screenshareActive={screenshareActive}
+            setScreenshareActive={setScreenshareActive}
           />
         ) : (
           <></>
         )}
-        <ScreenshareButton
-          screenshareActive={screenshareActive}
-          setScreenshareActive={setScreenshareActive}
-        />
-        <TouchableOpacity
-          style={style.localButton}
-          onPress={() => {
-            setChatDisplayed(!chatDisplayed);
-          }}>
-          <Image source={{uri: icons.chatIcon}} style={style.buttonIcon} />
-        </TouchableOpacity>
+        {$config.chat ? (
+          <TouchableOpacity
+            style={[style.localButton, {borderColor: primaryColor}]}
+            onPress={() => {
+              setChatDisplayed(!chatDisplayed);
+            }}>
+            <Image
+              source={{uri: icons.chatIcon}}
+              style={[style.buttonIcon, {tintColor: primaryColor}]}
+            />
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
         <Endcall />
       </View>
     </LocalUserContext>
@@ -58,6 +75,7 @@ const Controls = (props: any) => {
 const style = StyleSheet.create({
   controlsHolder: {
     flex: Platform.OS === 'web' ? 1.3 : 1.6,
+    maxHeight: '10%',
     paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
     backgroundColor: '#fff',
     flexDirection: 'row',
@@ -78,7 +96,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonIcon:{
+  buttonIcon: {
     width: 25,
     height: 25,
     tintColor: '#099DFD',

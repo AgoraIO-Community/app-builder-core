@@ -1,5 +1,11 @@
 import React, {useContext} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ImageBackground,
+} from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {
@@ -9,16 +15,22 @@ import {
 } from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import images from '../assets/images';
+import ColorContext from '../components/ColorContext';
 
 const Precall = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.startPreview();
   const {setCallActive, queryComplete} = props;
   return (
-    <View style={style.full}>
+    <ImageBackground
+      source={{uri: images.background}}
+      style={style.full}
+      resizeMode={'cover'}>
       <View style={style.heading}>
-        <Text style={style.headingText}>Precall</Text>
+        <Text style={style.headingText}>Precall </Text>
       </View>
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
@@ -34,12 +46,17 @@ const Precall = (props: any) => {
       </View>
       <TouchableOpacity
         onPress={() => setCallActive(true)}
-        disabled={!queryComplete}>
-        <View style={queryComplete ? style.buttonActive : style.buttonDisabled}>
-          <Text style={style.buttonText}>Join Room</Text>
-        </View>
+        disabled={!queryComplete}
+        style={
+          queryComplete
+            ? [style.buttonActive, {backgroundColor: primaryColor}]
+            : [style.buttonDisabled, {backgroundColor: primaryColor}]
+        }>
+        <Text style={style.buttonText}>
+          {queryComplete ? 'Join Room' : 'Loading...'}
+        </Text>
       </TouchableOpacity>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -48,11 +65,11 @@ const style = StyleSheet.create({
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {
     fontSize: 24,
-    color: '#fff',
-    fontWeight: '400',
+    color: '#333',
+    fontWeight: '700',
     alignSelf: 'center',
   },
-  controls: {flexDirection: 'row', alignSelf: 'center', padding: 10},
+  controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 10},
   width50: {width: 50},
   buttonActive: {
     backgroundColor: '#099DFD',
@@ -61,17 +78,16 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     alignContent: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 50,
   },
   buttonDisabled: {
-    backgroundColor: '#099DFD',
+    backgroundColor: '#099DFD80',
     height: 50,
     width: 180,
     alignSelf: 'center',
     alignContent: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
-    opacity: 0.3,
+    marginBottom: 50,
   },
   buttonText: {
     width: '100%',

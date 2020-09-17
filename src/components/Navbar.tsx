@@ -11,6 +11,7 @@ import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import Settings from '../components/Settings';
+import ColorContext from '../components/ColorContext';
 
 const {
   participantIcon,
@@ -20,6 +21,7 @@ const {
 } = icons;
 
 const Navbar = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {
     participantsView,
@@ -33,9 +35,13 @@ const Navbar = (props: any) => {
   } = props;
 
   return (
-    <View style={style.navHolder}>
+    <View
+      style={Platform.OS === 'web' ? style.navHolder : style.navHolderNative}>
+      <View style={style.roomNameContainer}>
+        <Text style={style.roomNameText}>{rtcProps.channel}</Text>
+      </View>
       {recordingActive ? (
-        <View style={style.recordingView}>
+        <View style={[style.recordingView, {backgroundColor: primaryColor}]}>
           <Image source={{uri: recordingIcon}} style={style.recordingIcon} />
           {/* <Text
               style={{
@@ -52,7 +58,7 @@ const Navbar = (props: any) => {
       ) : (
         <></>
       )}
-      <View style={style.participantBtnHolder}>
+      <View style={[style.participantBtnHolder, {borderColor: primaryColor}]}>
         <TouchableOpacity
           onPress={() => {
             chatDisplayed
@@ -62,17 +68,14 @@ const Navbar = (props: any) => {
           style={style.participantBtn}>
           <Image
             source={{uri: participantIcon}}
-            style={style.participantBtnIcon}
+            style={[style.participantBtnIcon, {tintColor: primaryColor}]}
           />
           <MinUidConsumer>
             {(minUsers) => (
-              <Text style={style.participantText}>{minUsers.length + 1}</Text>
+              <Text style={[style.participantText, {color: primaryColor}]}>{minUsers.length + 1}</Text>
             )}
           </MinUidConsumer>
         </TouchableOpacity>
-      </View>
-      <View style={style.roomNameContainer}>
-        <Text style={style.roomNameText}>{rtcProps.channel}</Text>
       </View>
       <View style={style.layoutBtnHolder}>
         <TouchableOpacity
@@ -82,7 +85,7 @@ const Navbar = (props: any) => {
           style={style.layoutBtn}>
           <Image
             source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
-            style={style.layoutBtnIcon}
+            style={[style.layoutBtnIcon, {tintColor: primaryColor}]}
           />
         </TouchableOpacity>
       </View>
@@ -93,13 +96,22 @@ const Navbar = (props: any) => {
 const style = StyleSheet.create({
   navHolder: {
     position: 'absolute',
-    zIndex: 5000,
+    zIndex: 50,
     width: '20%', //recordingActive? '20%' : '15%',
     height: '8%',
     minHeight: 20,
     minWidth: 200,
     maxWidth: 400,
     right: 0,
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  navHolderNative: {
+    position: 'relative',
+    width: '100%',
+    height: '8%',
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
@@ -178,7 +190,11 @@ const style = StyleSheet.create({
   },
   roomNameText: {
     fontSize: 18,
-    color: '#fff',
+    // flex: 10,
+    // width: 50,
+    color: '#333',
+    fontWeight: '500',
+    alignSelf: 'center',
   },
   layoutBtnHolder: {
     // width: 20,

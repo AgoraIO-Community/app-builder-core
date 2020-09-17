@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -15,12 +15,14 @@ import {
 } from '../../agora-rn-uikit/Components';
 import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
+import ColorContext from '../components/ColorContext';
 
 const Controls = (props: any) => {
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
   const setChatDisplayed = props.setChatDisplayed;
   const chatDisplayed = props.chatDisplayed;
+  const {primaryColor} = useContext(ColorContext);
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
@@ -32,11 +34,14 @@ const Controls = (props: any) => {
         />
         <SwitchCamera />
         <TouchableOpacity
-          style={style.localButton}
+          style={[style.localButton, {borderColor: primaryColor}]}
           onPress={() => {
             setChatDisplayed(!chatDisplayed);
           }}>
-          <Image source={{uri: icons.chatIcon}} style={style.buttonIcon} />
+          <Image
+            source={{uri: icons.chatIcon}}
+            style={[style.buttonIcon, {tintColor: primaryColor}]}
+          />
         </TouchableOpacity>
         <Endcall />
       </View>

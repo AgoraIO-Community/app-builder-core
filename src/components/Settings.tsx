@@ -1,10 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {View, TouchableOpacity, Text, Image, StyleSheet} from 'react-native';
 import icons from '../assets/icons';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
+import ColorContext from '../components/ColorContext';
 
 const Settings = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const [screenListActive, setScreenListActive] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const {isHost} = props;
@@ -12,7 +14,7 @@ const Settings = (props: any) => {
   return (
     <>
       <TouchableOpacity
-        style={style.localButton}
+        style={[style.localButton, {borderColor: primaryColor}]}
         disabled={buttonDisabled}
         onPress={() => {
           if (!screenListActive) {
@@ -20,7 +22,10 @@ const Settings = (props: any) => {
             setButtonDisabled(true);
           }
         }}>
-        <Image source={{uri: icons.settings}} style={style.buttonIcon} />
+        <Image
+          source={{uri: icons.settings}}
+          style={[style.buttonIcon, {tintColor: primaryColor}]}
+        />
       </TouchableOpacity>
       {screenListActive ? (
         <View style={style.fullOverlay}>
@@ -31,7 +36,7 @@ const Settings = (props: any) => {
             </View>
             {isHost ? <HostControlView /> : <></>}
             <TouchableOpacity
-              style={style.primaryBtn}
+              style={[style.primaryBtn, {backgroundColor: primaryColor}]}
               onPress={() => {
                 setScreenListActive(false);
                 setButtonDisabled(false);
@@ -74,7 +79,7 @@ const style = StyleSheet.create({
     // height: '40%',
     justifyContent: 'space-around',
   },
-  buttonIcon:{
+  buttonIcon: {
     width: 25,
     height: 25,
     tintColor: '#099DFD',
@@ -113,11 +118,6 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  buttonIcon:{
-    width: 25,
-    height: 25,
-    tintColor: '#099DFD',
   },
 });
 

@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import ColorContext from '../components/ColorContext';
 
 const Share = (props: any) => {
   const {urlView, urlHost, pstn, pstnPin} = props;
-
+  const {primaryColor} = useContext(ColorContext);
   const enterMeeting = () => {
     // if (channel !== '') {
     //   history.push('/join');
@@ -51,7 +52,7 @@ const Share = (props: any) => {
           <Text style={style.secondaryBtnText}>Copy to clipboard</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={style.primaryBtn}
+          style={[style.primaryBtn, {backgroundColor: primaryColor}]}
           onPress={() => enterMeeting()}>
           <Text style={style.primaryBtnText}>Enter Meeting</Text>
         </TouchableOpacity>
@@ -108,30 +109,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-evenly',
   },
-  textInput: {
-    width: '100%',
-    paddingLeft: 8,
-    borderColor: '#099DFD',
-    borderWidth: 2,
-    color: '#333',
-    fontSize: 16,
-    marginBottom: 15,
-    maxWidth: 400,
-    minHeight: 45,
-  },
   primaryBtn: {
     width: '60%',
     backgroundColor: '#099DFD',
     maxWidth: 400,
     minWidth: 200,
     minHeight: 45,
-  },
-  primaryBtnDisabled: {
-    width: '60%',
-    backgroundColor: '#96D7FE',
-    maxWidth: 400,
-    minHeight: 45,
-    minWidth: 200,
   },
   primaryBtnText: {
     width: '100%',

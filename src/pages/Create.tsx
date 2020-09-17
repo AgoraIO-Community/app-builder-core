@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   TextInput,
@@ -14,6 +14,7 @@ import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Share from '../components/Share';
+import ColorContext from '../components/ColorContext';
 
 type PasswordInput = {
   host: string;
@@ -48,12 +49,14 @@ const CREATE_CHANNEL = gql`
 // https://agora-meet.netlify.app/join/khjshbdfkhsdf-sd-fkhsdbfsd
 const Create = () => {
   const history = useHistory();
+  const {primaryColor} = useContext(ColorContext);
   const [channel, onChangeChannel] = useState('');
-  const [pstnCheckbox, setPstnCheckbox] = useState(true);
-  const [hostControlCheckbox, setHostControlCheckbox] = useState(false);
+  const [pstnCheckbox, setPstnCheckbox] = useState(false);
+  const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
   const [urlView, setUrlView] = useState(null);
   const [urlHost, setUrlHost] = useState(null);
   const [pstn, setPstn] = useState(null);
+  const [pstnPin, setPstnPin] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
   const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
 
@@ -117,7 +120,7 @@ const Create = () => {
               </Text>
               <View style={style.inputs}>
                 <TextInput
-                  style={style.textInput}
+                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={channel}
                   onChangeText={(text) => onChangeChannel(text)}
                   onSubmitEditing={() => createRoom()}
@@ -125,18 +128,22 @@ const Create = () => {
                   placeholderTextColor="#777"
                   autoCorrect={false}
                 />
-                <View style={style.checkboxHolder}>
-                  <Checkbox
-                    value={pstnCheckbox}
-                    onValueChange={setPstnCheckbox}
-                  />
-                  <View style={style.checkboxTextHolder}>
-                    <Text style={style.checkboxTitle}>Use PSTN</Text>
-                    <Text style={style.checkboxCaption}>
-                      Join by dialing a number
-                    </Text>
+                {$config.pstn ? (
+                  <View style={style.checkboxHolder}>
+                    <Checkbox
+                      value={pstnCheckbox}
+                      onValueChange={setPstnCheckbox}
+                    />
+                    <View style={style.checkboxTextHolder}>
+                      <Text style={style.checkboxTitle}>Use PSTN</Text>
+                      <Text style={style.checkboxCaption}>
+                        Join by dialing a number
+                      </Text>
+                    </View>
                   </View>
-                </View>
+                ) : (
+                  <></>
+                )}
                 <View style={style.checkboxHolder}>
                   <Checkbox
                     value={hostControlCheckbox}
@@ -156,7 +163,12 @@ const Create = () => {
                 <TouchableOpacity
                   disabled={channel === ''}
                   style={
-                    channel === '' ? style.primaryBtnDisabled : style.primaryBtn
+                    channel === ''
+                      ? [
+                          style.primaryBtnDisabled,
+                          {backgroundColor: primaryColor + '80'},
+                        ]
+                      : [style.primaryBtn, {backgroundColor: primaryColor}]
                   }
                   onPress={() => createRoom()}>
                   <Text style={style.primaryBtnText}>Create Meeting</Text>
@@ -174,7 +186,12 @@ const Create = () => {
             )}
           </View>
         ) : (
-          <Share />
+          <Share
+            urlView={urlView}
+            urlHost={urlHost}
+            pstn={pstn}
+            pstnPin={pstnPin}
+          />
         )}
       </View>
     </ImageBackground>
@@ -255,24 +272,6 @@ const style = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
     color: '#fff',
-  },
-  secondaryBtn: {
-    width: '60%',
-    borderColor: '#099DFD',
-    borderWidth: 3,
-    maxWidth: 400,
-    minHeight: 45,
-    minWidth: 200,
-  },
-  secondaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-    textAlignVertical: 'center',
-    color: '#099DFD',
   },
   checkboxHolder: {
     marginVertical: 0,

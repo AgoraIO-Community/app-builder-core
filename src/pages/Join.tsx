@@ -13,6 +13,7 @@ import SessionContext from '../components/SessionContext';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
 import LogoutButton from '../subComponents/LogoutButton';
+import ColorContext from '../components/ColorContext';
 
 const joinFlag = 0;
 interface joinProps {
@@ -23,8 +24,10 @@ interface joinProps {
 }
 const Join = (props: joinProps) => {
   const history = useHistory();
+  const {primaryColor} = useContext(ColorContext);
+  console.log(primaryColor);
   const {joinSession} = useContext(SessionContext);
-  const [dim, setDim] = useState([0, 0]);
+  const [dim, setDim] = useState([151, 0]);
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -57,7 +60,7 @@ const Join = (props: joinProps) => {
             </Text>
             <View style={style.inputs}>
               <TextInput
-                style={style.textInput}
+                style={[style.textInput, {borderColor: primaryColor}]}
                 value={channel}
                 onChangeText={(text) => onChangeChannel(text)}
                 onSubmitEditing={() => startCall()}
@@ -65,15 +68,23 @@ const Join = (props: joinProps) => {
                 placeholderTextColor="#777"
               />
               <TouchableOpacity
-                style={style.primaryBtn}
+                style={
+                  channel === ''
+                    ? [
+                        style.primaryBtnDisabled,
+                        {backgroundColor: primaryColor + '80'},
+                      ]
+                    : [style.primaryBtn, {backgroundColor: primaryColor}]
+                }
+                disabled={channel === ''}
                 onPress={() => startCall()}>
                 <Text style={style.primaryBtnText}>Enter</Text>
               </TouchableOpacity>
               <View style={style.ruler} />
               <TouchableOpacity
-                style={style.secondaryBtn}
+                style={[style.secondaryBtn, {borderColor: primaryColor}]}
                 onPress={() => createMeeting()}>
-                <Text style={style.secondaryBtnText}>Create a meeting</Text>
+                <Text style={[style.secondaryBtnText, {color: primaryColor}]}>Create a meeting</Text>
               </TouchableOpacity>
               <LogoutButton />
             </View>
@@ -91,7 +102,7 @@ const Join = (props: joinProps) => {
   );
 };
 
-const style = StyleSheet.create({
+const style = {
   full: {flex: 1},
   main: {
     flex: 2,
@@ -148,6 +159,12 @@ const style = StyleSheet.create({
     maxWidth: 400,
     minHeight: 45,
   },
+  primaryBtnDisabled: {
+    width: '60%',
+    backgroundColor: '#099DFD80',
+    maxWidth: 400,
+    minHeight: 45,
+  },
   primaryBtnText: {
     width: '100%',
     height: 45,
@@ -180,6 +197,6 @@ const style = StyleSheet.create({
     textAlignVertical: 'center',
     color: '#099DFD',
   },
-});
+};
 
 export default Join;

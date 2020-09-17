@@ -1,18 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {channelMessage} from '../components/ChatContext';
+import ColorContext from '../components/ColorContext';
 
 const ChatBubble = (props: channelMessage) => {
+  const {primaryColor} = useContext(ColorContext);
   let {type, msg, ts, uid} = props;
   let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
   return (
     <View>
       <View style={type ? style.chatSenderViewLocal : style.chatSenderView}>
-        <Text style={style.timestampText}>
-          {uid} | {time}
-        </Text>
+        <Text style={type ? style.timestampTextLocal : style.timestampText}>{uid} | {time}</Text>
       </View>
-      <View style={type ? style.chatBubbleLocal : style.chatBubble}>
+      <View
+        style={
+          type
+            ? [style.chatBubbleLocal, {backgroundColor: primaryColor}]
+            : style.chatBubble
+        }>
         <Text style={type ? style.whiteText : style.blackText}>
           {msg.slice(1)}
         </Text>
@@ -40,7 +45,20 @@ const style = StyleSheet.create({
     marginRight: 30,
     marginLeft: 15,
   },
-  timestampText: {color: '#C1C1C1', fontWeight: '500', fontSize: 12},
+  timestampText: {
+    color: '#C1C1C1',
+    fontWeight: '500',
+    fontSize: 12,
+    flex: 1,
+    // textAlign: 'right',
+  },
+  timestampTextLocal: {
+    color: '#C1C1C1',
+    fontWeight: '500',
+    fontSize: 12,
+    flex: 1,
+    textAlign: 'right',
+  },
   chatBubble: {
     backgroundColor: '#F5F5F5',
     flex: 1,

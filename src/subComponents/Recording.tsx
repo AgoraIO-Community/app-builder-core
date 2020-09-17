@@ -3,6 +3,7 @@ import {Image, TouchableOpacity, StyleSheet} from 'react-native';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
+import ColorContext from '../components/ColorContext';
 
 let data = {
   resourceId: '',
@@ -43,13 +44,18 @@ function stopRecording(channel: string) {
 }
 
 const Recording = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
   const {rtcProps} = useContext(PropsContext);
   const {sendControlMessage} = useContext(ChatContext);
   return (
     <TouchableOpacity
-      style={recordingActive ? style.greenLocalButton : style.localButton}
+      style={
+        recordingActive
+          ? style.greenLocalButton
+          : [style.localButton, {borderColor: primaryColor}]
+      }
       onPress={() => {
         if (!recordingActive) {
           startRecording(rtcProps.channel);
@@ -60,7 +66,10 @@ const Recording = (props: any) => {
         }
         setRecordingActive(!recordingActive);
       }}>
-      <Image source={{uri: icons.recordingIcon}} style={style.buttonIcon} />
+      <Image
+        source={{uri: icons.recordingIcon}}
+        style={[style.buttonIcon, {tintColor: primaryColor}]}
+      />
     </TouchableOpacity>
   );
 };

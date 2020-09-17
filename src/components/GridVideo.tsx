@@ -1,5 +1,5 @@
 import React, {useMemo, useContext, useState} from 'react';
-import {View, Platform, StyleSheet} from 'react-native';
+import {View, Platform, StyleSheet, Text} from 'react-native';
 import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
@@ -53,6 +53,9 @@ const GridVideo = () => {
                   user={users[ridx * dims.c + cidx]}
                   key={users[ridx * dims.c + cidx].uid}
                 />
+                <View style={{marginTop: -25, backgroundColor: '#ffffffbb', alignSelf: 'flex-start', paddingHorizontal: 8, height: 25}}>
+                  <Text style={{color: '#333', lineHeight:25, fontWeight:'700'}}>{users[ridx * dims.c + cidx].uid}</Text>
+                </View>
               </View>
             </View>
           ))}

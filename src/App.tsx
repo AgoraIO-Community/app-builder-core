@@ -12,6 +12,7 @@ import GraphQLProvider from './components/GraphQLProvider';
 import JoinPhrase from './components/JoinPhrase';
 import {SessionProvider} from './components/SessionContext';
 import {SafeAreaView, StatusBar} from 'react-native';
+import ColorConfigure from './components/ColorConfigure';
 
 const App: React.FC = () => {
   const [channel, onChangeChannel] = useState('');
@@ -24,37 +25,39 @@ const App: React.FC = () => {
         <GraphQLProvider>
           <Router>
             <SessionProvider>
-              <Navigation />
-              <Switch>
-                <Route exact path={'/'}>
-                  <Redirect to={'/join'} />
-                </Route>
-                <Route exact path={'/authenticate'}>
-                  <OAuth />
-                </Route>
-                <Route path={'/auth-token/:token'}>
-                  <StoreToken />
-                </Route>
-                <Route exact path={'/join'}>
-                  <Join
-                    channel={channel}
-                    onChangeChannel={onChangeChannel}
-                    password={password}
-                    onChangePassword={onChangePassword}
-                  />
-                </Route>
-                <Route path={'/join/:phrase'}>
-                  <JoinPhrase />
-                </Route>
-                <PrivateRoute
-                  path={'/create'}
-                  failureRedirectTo={'/authenticate'}>
-                  <Create />
-                </PrivateRoute>
-                <Route path={'/:channel'}>
-                  <VideoCall />
-                </Route>
-              </Switch>
+              <ColorConfigure>
+                <Navigation />
+                <Switch>
+                  <Route exact path={'/'}>
+                    <Redirect to={'/join'} />
+                  </Route>
+                  <Route exact path={'/authenticate'}>
+                    <OAuth />
+                  </Route>
+                  <Route path={'/auth-token/:token'}>
+                    <StoreToken />
+                  </Route>
+                  <Route exact path={'/join'}>
+                    <Join
+                      channel={channel}
+                      onChangeChannel={onChangeChannel}
+                      password={password}
+                      onChangePassword={onChangePassword}
+                    />
+                  </Route>
+                  <Route path={'/join/:phrase'}>
+                    <JoinPhrase />
+                  </Route>
+                  <PrivateRoute
+                    path={'/create'}
+                    failureRedirectTo={'/authenticate'}>
+                    <Create />
+                  </PrivateRoute>
+                  <Route path={'/:channel'}>
+                    <VideoCall />
+                  </Route>
+                </Switch>
+              </ColorConfigure>
             </SessionProvider>
           </Router>
         </GraphQLProvider>

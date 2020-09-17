@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 import icons from '../assets/icons';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import ColorContext from '../components/ColorContext';
 
 const ScreenshareButton = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const [screenListActive, setScreenListActive] = useState(false);
   const [selectedScreen, setSelectedScreen] = useState(0);
   const [screens, setScreens] = useState([]);
@@ -23,7 +25,11 @@ const ScreenshareButton = (props: any) => {
   return (
     <>
       <TouchableOpacity
-        style={screenshareActive ? style.greenLocalButton : style.localButton}
+        style={
+          screenshareActive
+            ? style.greenLocalButton
+            : [style.localButton, {borderColor: primaryColor}]
+        }
         disabled={buttonDisabled}
         onPress={() => {
           if (!screenshareActive) {
@@ -35,7 +41,10 @@ const ScreenshareButton = (props: any) => {
             rtc.RtcEngine.startScreenshare();
           }
         }}>
-        <Image source={{uri: icons.screenshareIcon}} style={style.buttonIcon} />
+        <Image
+          source={{uri: icons.screenshareIcon}}
+          style={[style.buttonIcon, {tintColor: primaryColor}]}
+        />
       </TouchableOpacity>
       {screenListActive ? (
         <View style={style.popupView}>

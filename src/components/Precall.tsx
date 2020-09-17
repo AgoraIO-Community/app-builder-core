@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -15,8 +15,10 @@ import SelectDevice from '../subComponents/SelectDevice';
 import images from '../assets/images';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
+import ColorContext from '../components/ColorContext';
 
 const Precall = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const {setCallActive, queryComplete} = props;
   const [dim, setDim] = useState([0, 0]);
   const [name, onChangeName] = useState('');
@@ -51,7 +53,7 @@ const Precall = (props: any) => {
             {dim[0] < dim[1] + 150 ? (
               <View style={style.margin5Btm}>
                 <TextInput
-                  style={style.textInput}
+                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={name}
                   onChangeText={(text) => onChangeName(text)}
                   onSubmitEditing={() => {}}
@@ -63,9 +65,16 @@ const Precall = (props: any) => {
                   onPress={() => setCallActive(true)}
                   disabled={!queryComplete}
                   style={
-                    queryComplete ? style.primaryBtn : style.primaryBtnDisabled
+                    queryComplete
+                      ? [style.primaryBtn, {backgroundColor: primaryColor}]
+                      : [
+                          style.primaryBtnDisabled,
+                          {backgroundColor: primaryColor + '80'},
+                        ]
                   }>
-                  <Text style={style.primaryBtnText}>Join</Text>
+                  <Text style={style.primaryBtnText}>
+                    {queryComplete ? 'Join Room' : 'Loading...'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -74,11 +83,11 @@ const Precall = (props: any) => {
           </View>
           {dim[0] > dim[1] + 150 ? (
             <View style={style.full}>
-              <View style={style.precallPickers}>
+              <View style={[style.precallPickers, {shadowColor: primaryColor}]}>
                 <Text style={style.subHeading}>Select Input Device</Text>
                 <SelectDevice />
                 <TextInput
-                  style={style.textInput}
+                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={name}
                   onChangeText={(text) => onChangeName(text)}
                   onSubmitEditing={() => {}}
@@ -91,10 +100,15 @@ const Precall = (props: any) => {
                   <View
                     style={
                       queryComplete
-                        ? style.primaryBtn
-                        : style.primaryBtnDisabled
+                        ? [style.primaryBtn, {backgroundColor: primaryColor}]
+                        : [
+                            style.primaryBtnDisabled,
+                            {backgroundColor: primaryColor + '80'},
+                          ]
                     }>
-                    <Text style={style.primaryBtnText}>Join</Text>
+                    <Text style={style.primaryBtnText}>
+                      {queryComplete ? 'Join Room' : 'Loading...'}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -175,7 +189,7 @@ const style = StyleSheet.create({
   },
   primaryBtnDisabled: {
     width: '60%',
-    backgroundColor: '#96D7FE',
+    backgroundColor: '#099DFD80',
     maxWidth: 400,
     minHeight: 45,
     minWidth: 200,
@@ -195,23 +209,6 @@ const style = StyleSheet.create({
     borderBottomWidth: 1,
     width: '100%',
     maxWidth: 200,
-  },
-  secondaryBtn: {
-    width: '60%',
-    borderColor: '#099DFD',
-    borderWidth: 3,
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  secondaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-    textAlignVertical: 'center',
-    color: '#099DFD',
   },
   precallControls: {
     flexDirection: 'row',

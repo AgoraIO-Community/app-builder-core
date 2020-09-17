@@ -1,23 +1,28 @@
 import React, {useContext} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import chatContext, {controlMessageEnum} from './ChatContext';
+import ColorContext from '../components/ColorContext';
 
 const HostControlView = () => {
   const {sendControlMessage} = useContext(chatContext);
-
+  const {primaryColor} = useContext(ColorContext);
   return (
     <>
       <Text style={style.heading}>Host Controls</Text>
       <View style={style.btnContainer}>
         <TouchableOpacity
-          style={style.secondaryBtn}
+          style={[style.secondaryBtn, {borderColor: primaryColor}]}
           onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}>
-          <Text style={style.secondaryBtnText}>Mute all audios</Text>
+          <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
+            Mute all audios
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={style.secondaryBtn}
+          style={[style.secondaryBtn, {borderColor: primaryColor}]}
           onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}>
-          <Text style={style.secondaryBtnText}>Mute all videos</Text>
+          <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
+            Mute all videos
+          </Text>
         </TouchableOpacity>
       </View>
     </>

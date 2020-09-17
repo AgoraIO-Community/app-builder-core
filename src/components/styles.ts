@@ -21,7 +21,7 @@ const styles = {
   localButton: {
     backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 1,
     width: 46,
     height: 46,
@@ -33,7 +33,7 @@ const styles = {
   endCall: {
     backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 1,
     width: 46,
     height: 46,
