@@ -6,10 +6,10 @@ import {
   Text,
   ImageBackground,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
 import Checkbox from '../subComponents/Checkbox';
 import images from '../assets/images';
-import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
@@ -22,33 +22,23 @@ type PasswordInput = {
 };
 
 const CREATE_CHANNEL = gql`
-  mutation CreateChannel(
-    $channel: String!
-    $enableLink: Boolean
-    $enablePSTN: Boolean
-    $password: PasswordInput
-  ) {
-    createChannel(
-      channel: $channel
-      enableLink: $enableLink
-      password: $password
-      enablePSTN: $enablePSTN
-    ) {
-      password {
-        host
-        view
-      }
+  mutation CreateChannel($title: String!, $enablePSTN: Boolean) {
+    createChannel(title: $title, enablePSTN: $enablePSTN) {
       passphrase {
         host
         view
       }
-      pstn
+      channel
+      title
+      pstn {
+        number
+        dtmf
+      }
     }
   }
 `;
 // https://agora-meet.netlify.app/join/khjshbdfkhsdf-sd-fkhsdbfsd
 const Create = () => {
-  const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const [channel, onChangeChannel] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
@@ -56,46 +46,42 @@ const Create = () => {
   const [urlView, setUrlView] = useState(null);
   const [urlHost, setUrlHost] = useState(null);
   const [pstn, setPstn] = useState(null);
-  const [pstnPin, setPstnPin] = useState(null);
+  // const [pstnPin, setPstnPin] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
+  const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
 
   console.log('mutation data', data);
 
   const createRoom = () => {
-    // if (channel !== '') {
-    //   console.log('Create room invoked');
-    //   createChannel({
-    //     variables: {
-    //       channel,
-    //       enableLink: urlCheckbox,
-    //       password: {host: hostPassword, view: attendeePassword},
-    //       enablePSTN: pstnCheckbox,
-    //     },
-    //   }).then((res) => {
-    //     console.log('promise data', res);
-    //     res.data.createChannel.password.view
-    //       ? setPasswordView(res.data.createChannel.password.view)
-    //       : {};
-    //     res.data.createChannel.password.host
-    //       ? setPasswordHost(res.data.createChannel.password.host)
-    //       : {};
-    //     setUrlView(
-    //       'https://agora-meet.netlify.app/join/' +
-    //         res.data.createChannel.passphrase.view,
-    //     );
-    //     setUrlHost(
-    //       'https://agora-meet.netlify.app/join/' +
-    //         res.data.createChannel.passphrase.host,
-    //     );
-    //     setPstn(res.data.createChannel.pstn);
-    //     setRoomCreated(true);
-    //   });
-    // }
-    setRoomCreated(!roomCreated);
+    if (channel !== '') {
+      console.log('Create room invoked');
+      createChannel({
+        variables: {
+          title: channel,
+          enablePSTN: pstnCheckbox,
+        },
+      }).then((res: any) => {
+        console.log('promise data', res);
+        setUrlView(
+          `${$config.frontEndURL}/${res.data.createChannel.passphrase.view}`,
+        );
+        setUrlHost(
+          `${$config.frontEndURL}/${res.data.createChannel.passphrase.host}`,
+        );
+        setPstn(res.data.createChannel.pstn);
+        setJoinPhrase(res.data.createChannel.passphrase.host);
+        // setPstnPin(res.data.createChannel.pstn.)
+        setRoomCreated(true);
+      });
+    }
   };
 
-  const [dim, setDim] = useState([0, 0]);
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -161,9 +147,9 @@ const Create = () => {
                   </View>
                 </View>
                 <TouchableOpacity
-                  disabled={channel === ''}
+                  disabled={channel === '' || loading}
                   style={
-                    channel === ''
+                    channel === '' || loading
                       ? [
                           style.primaryBtnDisabled,
                           {backgroundColor: primaryColor + '80'},
@@ -171,7 +157,9 @@ const Create = () => {
                       : [style.primaryBtn, {backgroundColor: primaryColor}]
                   }
                   onPress={() => createRoom()}>
-                  <Text style={style.primaryBtnText}>Create Meeting</Text>
+                  <Text style={style.primaryBtnText}>
+                    {loading ? 'Loading...' : 'Create Meeting'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -190,7 +178,7 @@ const Create = () => {
             urlView={urlView}
             urlHost={urlHost}
             pstn={pstn}
-            pstnPin={pstnPin}
+            joinPhrase={joinPhrase}
           />
         )}
       </View>

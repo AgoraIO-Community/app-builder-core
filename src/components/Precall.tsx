@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StyleSheet,
   TextInput,
+  Dimensions,
 } from 'react-native';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
@@ -19,9 +20,12 @@ import ColorContext from '../components/ColorContext';
 
 const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  const {setCallActive, queryComplete} = props;
-  const [dim, setDim] = useState([0, 0]);
-  const [name, onChangeName] = useState('');
+  const {setCallActive, queryComplete, username, setUsername} = props;
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -54,8 +58,12 @@ const Precall = (props: any) => {
               <View style={style.margin5Btm}>
                 <TextInput
                   style={[style.textInput, {borderColor: primaryColor}]}
-                  value={name}
-                  onChangeText={(text) => onChangeName(text)}
+                  value={username}
+                  onChangeText={(text) => {
+                    if (username !== 'Getting name...') {
+                      setUsername(text);
+                    }
+                  }}
                   onSubmitEditing={() => {}}
                   placeholder="Display Name"
                   placeholderTextColor="#777"
@@ -88,8 +96,12 @@ const Precall = (props: any) => {
                 <SelectDevice />
                 <TextInput
                   style={[style.textInput, {borderColor: primaryColor}]}
-                  value={name}
-                  onChangeText={(text) => onChangeName(text)}
+                  value={username}
+                  onChangeText={(text) => {
+                    if (username !== 'Getting name...') {
+                      setUsername(text);
+                    }
+                  }}
                   onSubmitEditing={() => {}}
                   placeholder="Display Name"
                   placeholderTextColor="#777"

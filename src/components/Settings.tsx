@@ -78,6 +78,7 @@ const style = StyleSheet.create({
   popupPickerHolder: {
     // height: '40%',
     justifyContent: 'space-around',
+    paddingHorizontal: '8%',
   },
   buttonIcon: {
     width: 25,

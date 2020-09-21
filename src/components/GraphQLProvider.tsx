@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const GraphQLProvider = (props: {children: React.ReactNode}) => {
   const httpLink = createHttpLink({
-    uri: 'https://infinite-dawn-92521.herokuapp.com/query',
+    uri: `${$config.backEndURL}/query`,
   });
   const {store, setStore} = useContext(StorageContext);
   function getToken() {
@@ -53,7 +53,7 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   //     cache: new InMemoryCache(),
   //   });
   // }, [authLink, httpLink, store]);
-  console.log('GraphQL render triggered', store, client.current);
+  console.log('GraphQL render triggered', store);
 
   return (
     <ApolloProvider client={client.current}>{props.children}</ApolloProvider>

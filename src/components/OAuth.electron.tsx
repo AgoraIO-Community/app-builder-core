@@ -6,7 +6,7 @@ const oauth = {
   client_id:
     '621368282378-fdqc9arjk7f10tt0h2utn61he1urv5hb.apps.googleusercontent.com',
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-  redirect_uri: 'https://infinite-dawn-92521.herokuapp.com/oauth/desktop',
+  redirect_uri: `${$config.backEndURL}/oauth/desktop`,
   scope: encodeURIComponent(
     'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
   ),

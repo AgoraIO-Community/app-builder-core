@@ -38,6 +38,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
   },
   btnContainer: {
+    paddingHorizontal: '5%',
     flexDirection: 'row',
     width: '100%',
     alignSelf: 'center',

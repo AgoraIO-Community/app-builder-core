@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   ScrollView,
   TouchableOpacity,
@@ -12,6 +12,7 @@ import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import chatContext from '../components/ChatContext';
 
 const PinnedVideo = () => {
   const [dim, setDim] = useState([
@@ -26,7 +27,7 @@ const PinnedVideo = () => {
       setDim([width, height, isLandscape]);
     }, 20);
   };
-
+  const {userList, localUid} = useContext(chatContext);
   return (
     <View
       style={{flexDirection: dim[2] ? 'row' : 'column', flex: 1}}
@@ -43,17 +44,15 @@ const PinnedVideo = () => {
           {(maxUsers) => (
             <View style={style.flex1}>
               <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-              <View
-                style={{
-                  marginTop: -25,
-                  backgroundColor: '#ffffffbb',
-                  alignSelf: 'flex-start',
-                  paddingHorizontal: 8,
-                  height: 25,
-                }}>
-                <Text
-                  style={{color: '#333', lineHeight: 25, fontWeight: '700'}}>
-                  {maxUsers[0].uid}
+              <View style={style.nameHolder}>
+                <Text style={style.name}>
+                  {maxUsers[0].uid === 'local'
+                    ? userList[localUid]
+                      ? userList[localUid].name + ' '
+                      : 'You '
+                    : userList[maxUsers[0].uid]
+                    ? userList[maxUsers[0].uid].name + ' '
+                    : 'User '}
                 </Text>
               </View>
             </View>
@@ -103,21 +102,15 @@ const PinnedVideo = () => {
                         key={user.uid}
                         showOverlay={false}
                       />
-                      <View
-                        style={{
-                          marginTop: -25,
-                          backgroundColor: '#ffffffbb',
-                          alignSelf: 'flex-start',
-                          paddingHorizontal: 8,
-                          height: 25,
-                        }}>
-                        <Text
-                          style={{
-                            color: '#333',
-                            lineHeight: 25,
-                            fontWeight: '700',
-                          }}>
-                          {user.uid}
+                      <View style={style.nameHolder}>
+                        <Text style={style.name}>
+                          {user.uid === 'local'
+                            ? userList[localUid]
+                              ? userList[localUid].name + ' '
+                              : 'You '
+                            : userList[user.uid]
+                            ? userList[user.uid].name + ' '
+                            : 'User '}
                         </Text>
                       </View>
                     </View>
@@ -137,6 +130,15 @@ const style = StyleSheet.create({
   flex2: {flex: 2},
   flex4: {flex: 4},
   flex1: {flex: 1},
+  nameHolder: {
+    marginTop: -25,
+    backgroundColor: '#ffffffbb',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    height: 25,
+  },
+  name: {color: '#333', lineHeight: 25, fontWeight: '700'},
+
 });
 
 export default PinnedVideo;

@@ -1,17 +1,44 @@
 import React, {useState, useContext} from 'react';
-import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Clipboard,
+  Dimensions,
+} from 'react-native';
 import ColorContext from '../components/ColorContext';
+import {useHistory} from './Router';
 
 const Share = (props: any) => {
-  const {urlView, urlHost, pstn, pstnPin} = props;
+  const history = useHistory();
+  const {urlView, urlHost, pstn, joinPhrase} = props;
   const {primaryColor} = useContext(ColorContext);
+
   const enterMeeting = () => {
-    // if (channel !== '') {
-    //   history.push('/join');
-    // }
+    if (urlHost) {
+      history.push(`/${joinPhrase}`);
+    }
   };
 
-  const [dim, setDim] = useState([0, 0]);
+  const copyToClipboard = () => {
+    Clipboard.setString(
+      pstn
+        ? `URL for Attendee: ${urlView}
+URL for Host: ${urlHost}
+
+PSTN Number: ${pstn.number}
+PSTN Pin: ${pstn.dtmf}`
+        : `URL for Attendee: ${urlView}
+URL for Host: ${urlHost}`,
+    );
+  };
+
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -30,16 +57,16 @@ const Share = (props: any) => {
         </View>
         {pstn ? (
           <View style={style.pstnHolder}>
-            <View style={style.pstnMargin}>
+            <View style={style.urlTitle}>
               <Text style={style.urlTitle}>PSTN:</Text>
               <View style={style.urlHolder}>
-                <Text style={style.url}>{pstn}</Text>
+                <Text style={style.url}>{pstn.number}</Text>
               </View>
             </View>
             <View>
               <Text style={style.urlTitle}>Pin:</Text>
               <View style={style.urlHolder}>
-                <Text style={style.url}>{pstnPin}</Text>
+                <Text style={style.url}>{pstn.dtmf}</Text>
               </View>
             </View>
           </View>
@@ -47,14 +74,16 @@ const Share = (props: any) => {
           <></>
         )}
         <TouchableOpacity
-          style={style.secondaryBtn}
-          onPress={() => enterMeeting()}>
-          <Text style={style.secondaryBtnText}>Copy to clipboard</Text>
+          style={[style.secondaryBtn, {borderColor: primaryColor}]}
+          onPress={() => copyToClipboard()}>
+          <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
+            Copy to clipboard
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[style.primaryBtn, {backgroundColor: primaryColor}]}
           onPress={() => enterMeeting()}>
-          <Text style={style.primaryBtnText}>Enter Meeting</Text>
+          <Text style={style.primaryBtnText}>Enter Meeting (as host)</Text>
         </TouchableOpacity>
       </View>
       {dim[0] > dim[1] + 150 ? (
@@ -130,7 +159,7 @@ const style = StyleSheet.create({
     borderColor: '#099DFD',
     borderWidth: 3,
     maxWidth: 400,
-    minHeight: 45,
+    minHeight: 42,
     minWidth: 200,
   },
   secondaryBtnText: {

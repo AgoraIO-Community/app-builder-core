@@ -50,7 +50,7 @@ const Precall = (props: any) => {
         style={
           queryComplete
             ? [style.buttonActive, {backgroundColor: primaryColor}]
-            : [style.buttonDisabled, {backgroundColor: primaryColor}]
+            : [style.buttonDisabled, {backgroundColor: primaryColor + '80'}]
         }>
         <Text style={style.buttonText}>
           {queryComplete ? 'Join Room' : 'Loading...'}

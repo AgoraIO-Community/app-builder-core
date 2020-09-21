@@ -10,7 +10,7 @@ const SelectDevice = (props: any) => {
     setSelectedCam,
     selectedMic,
     setSelectedMic,
-    deviceList
+    deviceList,
   } = useContext(DeviceContext);
 
   return (
@@ -54,6 +54,7 @@ const SelectDevice = (props: any) => {
 const style = StyleSheet.create({
   popupPicker: {
     minHeight: 45,
+    paddingHorizontal: 6,
     width: '100%',
     alignSelf: 'center',
     maxWidth: 400,

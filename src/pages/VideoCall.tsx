@@ -14,13 +14,14 @@ import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
-import SessionContext from '../components/SessionContext';
 import Watermark from '../subComponents/Watermark';
+import StorageContext from '../components/StorageContext';
 
-const JOIN_CHANNEL = gql`
-  query JoinChannel($channel: String!, $password: String!) {
-    joinChannel(channel: $channel, password: $password) {
+const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
+  query JoinChannel($passphrase: String!) {
+    joinChannel(passphrase: $passphrase) {
       channel
+      title
       isHost
       mainUser {
         rtc
@@ -33,13 +34,18 @@ const JOIN_CHANNEL = gql`
         uid
       }
     }
+    getUser {
+      name
+      email
+    }
   }
 `;
 
 const JOIN_CHANNEL_PHRASE = gql`
-  query JoinChannelWithPassphrase($passphrase: String!) {
-    joinChannelWithPassphrase(passphrase: $passphrase) {
+  query JoinChannel($passphrase: String!) {
+    joinChannel(passphrase: $passphrase) {
       channel
+      title
       isHost
       mainUser {
         rtc
@@ -56,20 +62,17 @@ const JOIN_CHANNEL_PHRASE = gql`
 `;
 
 const VideoCall: React.FC = () => {
+  const {store} = useContext(StorageContext);
+  const [username, setUsername] = useState('Getting name...');
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.precall ? false : true);
   const [layout, setLayout] = useState(false);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
-  const {joinStore} = useContext(SessionContext);
-  // const {channel, password, joinFlag, phrase} = joinStore;
-  //remove me and uncomment the above
-  const channel = 'neu',
-    password = 'pass',
-    joinFlag = 0;
-  //done
-  let isHost = true;
+  const {phrase} = useParams();
+  let isHost = true; //change to false by default after testing
+  let title = null;
   let rtcProps = {
     appId: 'b8c2ef0f986541a8992451c07d30fb4b',
     channel: null,
@@ -82,43 +85,38 @@ const VideoCall: React.FC = () => {
   };
   let data, loading, error;
 
-  joinFlag === 0
-    ? ({data, loading, error} = useQuery(JOIN_CHANNEL, {
-        variables: {channel, password},
-      }))
-    : ({data, loading, error} = useQuery(JOIN_CHANNEL_PHRASE, {
-        variables: {passphrase: phrase},
-      }));
+  ({data, loading, error} = useQuery(
+    store.token === null
+      ? JOIN_CHANNEL_PHRASE
+      : JOIN_CHANNEL_PHRASE_AND_GET_USER,
+    {
+      variables: {passphrase: phrase},
+  }));
 
   if (!loading && data) {
-    // console.log('in query:', data);
-    if (joinFlag === 0) {
-      rtcProps = {
-        appId: 'b8c2ef0f986541a8992451c07d30fb4b',
-        channel: data.joinChannel.channel,
-        uid: data.joinChannel.mainUser.uid,
-        token: data.joinChannel.mainUser.rtc,
-        rtm: data.joinChannel.mainUser.rtm,
-        dual: true,
-        screenShareUid: data.joinChannel.screenShare.uid,
-        screenShareToken: data.joinChannel.screenShare.rtc,
-      };
-      isHost = data.joinChannel.isHost;
-    }
-    if (joinFlag === 1) {
-      rtcProps = {
-        appId: 'b8c2ef0f986541a8992451c07d30fb4b',
-        channel: data.joinChannelWithPassphrase.channel,
-        uid: data.joinChannelWithPassphrase.mainUser.uid,
-        token: data.joinChannelWithPassphrase.mainUser.rtc,
-        rtm: data.joinChannelWithPassphrase.mainUser.rtm,
-        dual: true,
-        screenShareUid: data.joinChannelWithPassphrase.screenShare.uid,
-        screenShareToken: data.joinChannelWithPassphrase.screenShare.rtc,
-      };
-      isHost = data.joinChannelWithPassphrase.isHost;
-    }
+    console.log('token:', rtcProps.token);
+    rtcProps = {
+      appId: 'b8c2ef0f986541a8992451c07d30fb4b',
+      channel: data.joinChannel.channel,
+      uid: data.joinChannel.mainUser.uid,
+      token: data.joinChannel.mainUser.rtc,
+      rtm: data.joinChannel.mainUser.rtm,
+      dual: true,
+      screenShareUid: data.joinChannel.screenShare.uid,
+      screenShareToken: data.joinChannel.screenShare.rtc,
+    };
+    isHost = data.joinChannel.isHost;
+    title = data.joinChannel.title;
     console.log('query done: ', data, queryComplete);
+    console.log('!!!', title);
+    if (username === 'Getting name...') {
+      if (data.getUser){
+        setUsername(data.getUser.name);
+      } else {
+        setUsername('');
+      }
+    }
+    console.log('token:', rtcProps.token);
     queryComplete ? {} : setQueryComplete(true);
   }
 
@@ -142,6 +140,7 @@ const VideoCall: React.FC = () => {
               <DeviceConfigure>
                 <RtmConfigure
                   setRecordingActive={setRecordingActive}
+                  name={username}
                   callActive={callActive}>
                   {callActive ? (
                     <View style={style.full}>
@@ -155,6 +154,7 @@ const VideoCall: React.FC = () => {
                         recordingActive={recordingActive}
                         setRecordingActive={setRecordingActive}
                         isHost={isHost}
+                        title={title}
                       />
                       <View style={style.videoView}>
                         {participantsView ? (
@@ -183,6 +183,8 @@ const VideoCall: React.FC = () => {
                     </View>
                   ) : $config.precall ? (
                     <Precall
+                      username={username}
+                      setUsername={setUsername}
                       setCallActive={setCallActive}
                       queryComplete={queryComplete}
                     />

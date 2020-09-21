@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
@@ -8,8 +8,10 @@ import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RemoteAudioMute from '../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../subComponents/RemoteVideoMute';
 import RemoteEndCall from '../subComponents/RemoteEndCall';
+import chatContext from '../components/ChatContext';
 
 const ParticipantView = (props: {isHost: boolean}) => {
+  const {userList, localUid} = useContext(chatContext);
   return (
     <View
       style={
@@ -25,7 +27,11 @@ const ParticipantView = (props: {isHost: boolean}) => {
               [...minUsers, ...maxUser].map((user) =>
                 user.uid !== 'local' ? (
                   <View style={style.participantContainer} key={user.uid}>
-                    <Text style={style.participantText}>{user.uid}</Text>
+                    <Text style={style.participantText}>
+                      {userList[user.uid]
+                        ? userList[user.uid].name + ' '
+                        : 'User '}
+                    </Text>
                     <View style={style.participantButtonContainer}>
                       <RemoteAudioMute
                         uid={user.uid}
@@ -42,7 +48,11 @@ const ParticipantView = (props: {isHost: boolean}) => {
                   </View>
                 ) : (
                   <View style={style.participantContainer} key={user.uid}>
-                    <Text style={style.participantText}>{user.uid}</Text>
+                    <Text style={style.participantText}>
+                      {userList[localUid]
+                        ? userList[localUid].name + ' '
+                        : 'You '}
+                    </Text>
                     <View style={style.participantButtonContainer}>
                       <LocalUserContext>
                         <LocalAudioMute />

@@ -8,7 +8,7 @@ const oauth = {
   client_id:
     '621368282378-fdqc9arjk7f10tt0h2utn61he1urv5hb.apps.googleusercontent.com',
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-  redirect_uri: 'https://infinite-dawn-92521.herokuapp.com/oauth/mobile',
+  redirect_uri: `${$config.backEndURL}/oauth/mobile`,
   scope: encodeURIComponent(
     'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
   ),
@@ -21,7 +21,7 @@ const url = `${oauth.auth_uri}?response_type=code&scope=${oauth.scope}&include_g
 const processUrl = (url: string): string => {
   return url
     .replace('my-scheme://my-host', '')
-    .replace('https://agora-meet.netlify.app', '');
+    .replace($config.frontEndURL, '');
 };
 
 const Oauth = () => {

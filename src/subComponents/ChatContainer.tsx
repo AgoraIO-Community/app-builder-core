@@ -13,7 +13,7 @@ import ChatContext from '../components/ChatContext';
 import icons from '../assets/icons';
 
 const ChatContainer = (props: any) => {
-  const {selectedUser, privateActive, setPrivateActive} = props;
+  const {selectedUser, privateActive, setPrivateActive, selectedUsername} = props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
   return (
     <View style={style.containerView}>
@@ -28,7 +28,7 @@ const ChatContainer = (props: any) => {
               source={{uri: icons.backBtn}}
             />
           </TouchableOpacity>
-          <Text style={style.name}>{selectedUser.uid}</Text>
+          <Text style={style.name}>{selectedUsername}</Text>
         </View>
       ) : (
         <></>

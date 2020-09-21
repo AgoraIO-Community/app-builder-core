@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 import {Linking} from 'react-native';
-import {useHistory} from './Router';
+import {useHistory} from './Router.native';
 import {BackButton} from './Router.native';
 
 const processUrl = (url: string): string => {
   return url
     .replace('my-scheme://my-host', '')
-    .replace('https://agora-meet.netlify.app', '');
+    .replace($config.frontEndURL, '');
 };
 
 const Navigation = () => {

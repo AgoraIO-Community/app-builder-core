@@ -4,50 +4,33 @@ import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
+import {gql, useMutation} from '@apollo/client';
 
-let data = {
-  resourceId: '',
-  sid: '',
-};
+const START_RECORDING = gql`
+  mutation startRecordingSession($channel: String!) {
+    startRecordingSession(channel: $channel)
+  }
+`;
 
-function startRecording(channel: string) {
-  // let formData = new FormData();
-  // formData.append("cname", channel);
-  fetch('https://peaceful-headland-25872.herokuapp.com/record', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `cname=${channel}`,
-  })
-    .then((response) => response.json())
-    .then((result) => {
-      console.log('started recording : ', result);
-      data = result.values;
-    })
-    .catch((error) => console.log('error', error));
-}
-
-function stopRecording(channel: string) {
-  fetch('https://peaceful-headland-25872.herokuapp.com/stop_record', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `cname=${channel}&resourceId=${data.resourceId}&sid=${data.sid}`,
-  })
-    .then((response) => response.json())
-    .then((result) => {
-      console.log('stopped recording: ', result);
-    })
-    .catch((error) => console.log('error', error));
-}
+const STOP_RECORDING = gql`
+  mutation stopRecordingSession($channel: String!) {
+    startRecordingSession(channel: $channel)
+  }
+`;
 
 const Recording = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
   const {rtcProps} = useContext(PropsContext);
+  const [
+    startRecordingQuery,
+    {data: startData, loading: startLoading, error: startError},
+  ] = useMutation(START_RECORDING);
+  const [
+    stopRecordingQuery,
+    {data: stopData, loading: stopLoading},
+  ] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   return (
     <TouchableOpacity
@@ -58,11 +41,17 @@ const Recording = (props: any) => {
       }
       onPress={() => {
         if (!recordingActive) {
-          startRecording(rtcProps.channel);
-          sendControlMessage(controlMessageEnum.cloudRecordingActive);
+          startRecordingQuery({variables: {channel: rtcProps.channel}});
+          if (!startLoading && startData) {
+            console.log(startData, startError);
+            sendControlMessage(controlMessageEnum.cloudRecordingActive);
+          }
         } else {
-          stopRecording(rtcProps.channel);
-          sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+          stopRecordingQuery({variables: {channel: rtcProps.channel}});
+          if (!stopLoading && stopData) {
+            console.log(stopData);
+            sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+          }
         }
         setRecordingActive(!recordingActive);
       }}>

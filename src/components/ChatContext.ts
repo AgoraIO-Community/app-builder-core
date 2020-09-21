@@ -23,6 +23,7 @@ interface chatContext {
   sendControlMessageToUid: (msg: string, uid: number) => void;
   engine: RtmEngine;
   localUid: string;
+  userList: any;
   // peersRTM: Array<string>;
 }
 

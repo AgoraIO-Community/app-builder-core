@@ -32,18 +32,19 @@ const Navbar = (props: any) => {
     setChatDisplayed,
     chatDisplayed,
     isHost,
+    title,
   } = props;
 
   return (
     <View
       style={Platform.OS === 'web' ? style.navHolder : style.navHolderNative}>
       <View style={style.roomNameContainer}>
-        <Text style={style.roomNameText}>{rtcProps.channel}</Text>
+        <Text style={style.roomNameText}>{title}</Text>
       </View>
-      {recordingActive ? (
+      {/* {recordingActive ? (
         <View style={[style.recordingView, {backgroundColor: primaryColor}]}>
           <Image source={{uri: recordingIcon}} style={style.recordingIcon} />
-          {/* <Text
+          <Text
               style={{
                 fontSize: Platform.OS === 'web' ? 16 : 12,
                 color: '#fff',
@@ -53,11 +54,11 @@ const Navbar = (props: any) => {
                 flex: 1,
               }}>
               Recording
-            </Text> */}
+            </Text>
         </View>
       ) : (
         <></>
-      )}
+      )} */}
       <View style={[style.participantBtnHolder, {borderColor: primaryColor}]}>
         <TouchableOpacity
           onPress={() => {
@@ -179,8 +180,8 @@ const style = StyleSheet.create({
     flex: 1,
   },
   roomNameContainer: {
-    paddingHorizontal: 5,
-    marginHorizontal: 5,
+    paddingHorizontal: 1,
+    marginHorizontal: 1,
     height: 35,
     maxHeight: 30,
     alignSelf: 'center',
@@ -189,7 +190,7 @@ const style = StyleSheet.create({
     alignContent: 'center',
   },
   roomNameText: {
-    fontSize: 18,
+    fontSize: 12,
     // flex: 10,
     // width: 50,
     color: '#333',

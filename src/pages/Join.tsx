@@ -6,6 +6,7 @@ import {
   Text,
   ImageBackground,
   StyleSheet,
+  Dimensions,
 } from 'react-native';
 import images from '../assets/images';
 import {useHistory} from '../components/Router';
@@ -15,19 +16,20 @@ import Logo from '../subComponents/Logo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 
-const joinFlag = 0;
+// const joinFlag = 0;
 interface joinProps {
-  channel: string;
-  onChangeChannel: (text: string) => void;
-  password: string;
-  onChangePassword: (text: string) => void;
+  phrase: string;
+  onChangePhrase: (text: string) => void;
 }
 const Join = (props: joinProps) => {
   const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
-  console.log(primaryColor);
   const {joinSession} = useContext(SessionContext);
-  const [dim, setDim] = useState([151, 0]);
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -35,10 +37,10 @@ const Join = (props: joinProps) => {
     history.push('/create');
   };
 
-  const channel = props.channel;
-  const onChangeChannel = props.onChangeChannel;
+  const phrase = props.phrase;
+  const onChangePhrase = props.onChangePhrase;
   const startCall = async () => {
-    joinSession({channel, joinFlag});
+    joinSession({phrase});
   };
   return (
     <ImageBackground
@@ -61,22 +63,22 @@ const Join = (props: joinProps) => {
             <View style={style.inputs}>
               <TextInput
                 style={[style.textInput, {borderColor: primaryColor}]}
-                value={channel}
-                onChangeText={(text) => onChangeChannel(text)}
+                value={phrase}
+                onChangeText={(text) => onChangePhrase(text)}
                 onSubmitEditing={() => startCall()}
                 placeholder="Meeting ID"
                 placeholderTextColor="#777"
               />
               <TouchableOpacity
                 style={
-                  channel === ''
+                  phrase === ''
                     ? [
                         style.primaryBtnDisabled,
                         {backgroundColor: primaryColor + '80'},
                       ]
                     : [style.primaryBtn, {backgroundColor: primaryColor}]
                 }
-                disabled={channel === ''}
+                disabled={phrase === ''}
                 onPress={() => startCall()}>
                 <Text style={style.primaryBtnText}>Enter</Text>
               </TouchableOpacity>
@@ -102,7 +104,7 @@ const Join = (props: joinProps) => {
   );
 };
 
-const style = {
+const style = StyleSheet.create({
   full: {flex: 1},
   main: {
     flex: 2,
@@ -197,6 +199,6 @@ const style = {
     textAlignVertical: 'center',
     color: '#099DFD',
   },
-};
+});
 
 export default Join;

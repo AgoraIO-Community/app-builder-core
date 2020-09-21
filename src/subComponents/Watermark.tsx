@@ -9,8 +9,8 @@ const Watermark = () => {
       source={{uri: images.logo}}
       style={{
         position: 'absolute',
-        bottom: 30,
-        left: 30,
+        bottom: '2%',
+        left: '3%',
         width: 90,
         height: 30,
         zIndex: 100,

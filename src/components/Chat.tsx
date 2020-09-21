@@ -13,8 +13,10 @@ import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import icons from '../assets/icons';
 import ColorContext from '../components/ColorContext';
+import chatContext from '../components/ChatContext';
 
 const Chat = (props: any) => {
+  const {userList, localUid} = useContext(chatContext);
   const {setChatDisplayed} = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
@@ -109,7 +111,9 @@ const Chat = (props: any) => {
                             key={user.uid}
                             onPress={() => selectUser(user)}>
                             <Text style={style.participantText}>
-                              {user.uid}
+                              {userList[user.uid]
+                                ? userList[user.uid].name + ' '
+                                : 'User '}
                             </Text>
                           </TouchableOpacity>
                         );
@@ -125,6 +129,11 @@ const Chat = (props: any) => {
                 privateActive={privateActive}
                 setPrivateActive={setPrivateActive}
                 selectedUser={selectedUser}
+                selectedUsername={
+                  userList[selectedUser.uid]
+                    ? userList[selectedUser.uid].name + ' '
+                    : 'User '
+                }
               />
               <ChatInput
                 privateActive={privateActive}

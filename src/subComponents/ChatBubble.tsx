@@ -1,16 +1,19 @@
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {channelMessage} from '../components/ChatContext';
+import ChatContext, {channelMessage} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 
 const ChatBubble = (props: channelMessage) => {
+  const {userList} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
   let {type, msg, ts, uid} = props;
   let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
   return (
     <View>
       <View style={type ? style.chatSenderViewLocal : style.chatSenderView}>
-        <Text style={type ? style.timestampTextLocal : style.timestampText}>{uid} | {time}</Text>
+        <Text style={type ? style.timestampTextLocal : style.timestampText}>
+          {userList[uid].name} | {time + ' '}
+        </Text>
       </View>
       <View
         style={
