@@ -12,7 +12,14 @@ import Clipboard from '../subComponents/Clipboard';
 
 const Share = (props: any) => {
   const history = useHistory();
-  const {urlView, urlHost, pstn, joinPhrase, roomTitle} = props;
+  const {
+    urlView,
+    urlHost,
+    pstn,
+    joinPhrase,
+    roomTitle,
+    hostControlCheckbox,
+  } = props;
   const {primaryColor} = useContext(ColorContext);
 
   const enterMeeting = () => {
@@ -24,15 +31,24 @@ const Share = (props: any) => {
   const copyToClipboard = () => {
     Clipboard.setString(
       pstn
-        ? `Meeting - ${roomTitle}
+        ? hostControlCheckbox
+          ? `Meeting - ${roomTitle}
 URL for Attendee: ${urlView}
 URL for Host: ${urlHost}
 
 PSTN Number: ${pstn.number}
 PSTN Pin: ${pstn.dtmf}`
-        : `Meeting - ${roomTitle}
+          : `Meeting - ${roomTitle}
+Meeting URL: ${urlHost}
+
+PSTN Number: ${pstn.number}
+PSTN Pin: ${pstn.dtmf}`
+        : hostControlCheckbox
+        ? `Meeting - ${roomTitle}
 URL for Attendee: ${urlView}
-URL for Host: ${urlHost}`,
+URL for Host: ${urlHost}`
+        : `Meeting - ${roomTitle}
+Meeting URL: ${urlHost}`,
     );
   };
 
@@ -49,11 +65,19 @@ URL for Host: ${urlHost}`,
     <View style={style.content} onLayout={onLayout}>
       <View style={style.leftContent}>
         <Text style={style.heading}>Meeting Created</Text>
-        <Text style={style.urlTitle}>URL for Attendee:</Text>
-        <View style={style.urlHolder}>
-          <Text style={style.url}>{urlView}</Text>
-        </View>
-        <Text style={style.urlTitle}>URL for Host:</Text>
+        {hostControlCheckbox ? (
+          <>
+            <Text style={style.urlTitle}>URL for Attendee:</Text>
+            <View style={style.urlHolder}>
+              <Text style={style.url}>{urlView}</Text>
+            </View>
+          </>
+        ) : (
+          <></>
+        )}
+        <Text style={style.urlTitle}>
+          {hostControlCheckbox ? 'URL for Host:' : 'Meeting URL'}
+        </Text>
         <View style={style.urlHolder}>
           <Text style={style.url}>{urlHost}</Text>
         </View>

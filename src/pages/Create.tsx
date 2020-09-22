@@ -49,7 +49,7 @@ const Create = () => {
   // const [pstnPin, setPstnPin] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
-  const [createChannel, {data, loading}] = useMutation(CREATE_CHANNEL);
+  const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
 
   console.log('mutation data', data);
 
@@ -61,19 +61,23 @@ const Create = () => {
           title: roomTitle,
           enablePSTN: pstnCheckbox,
         },
-      }).then((res: any) => {
-        console.log('promise data', res);
-        setUrlView(
-          `${$config.frontEndURL}/${res.data.createChannel.passphrase.view}`,
-        );
-        setUrlHost(
-          `${$config.frontEndURL}/${res.data.createChannel.passphrase.host}`,
-        );
-        setPstn(res.data.createChannel.pstn);
-        setJoinPhrase(res.data.createChannel.passphrase.host);
-        // setPstnPin(res.data.createChannel.pstn.)
-        setRoomCreated(true);
-      });
+      })
+        .then((res: any) => {
+          console.log('promise data', res);
+          setUrlView(
+            `${$config.frontEndURL}/${res.data.createChannel.passphrase.view}`,
+          );
+          setUrlHost(
+            `${$config.frontEndURL}/${res.data.createChannel.passphrase.host}`,
+          );
+          setPstn(res.data.createChannel.pstn);
+          setJoinPhrase(res.data.createChannel.passphrase.host);
+          // setPstnPin(res.data.createChannel.pstn.)
+          setRoomCreated(true);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     }
   };
 
@@ -94,6 +98,25 @@ const Create = () => {
       <View style={style.main}>
         <View style={style.nav}>
           <Logo />
+          {error ? (
+            <View
+              style={{
+                borderWidth: 2,
+                borderColor: '#ff0000',
+                backgroundColor: '#ffffff80',
+                paddingHorizontal: 10,
+                paddingVertical: 2,
+                width: '30%',
+              }}>
+              <Text
+                style={{fontWeight: '500', textAlign: 'center', fontSize: 16}}>
+                {error.name}
+              </Text>
+              <Text style={{}}>{error.message}</Text>
+            </View>
+          ) : (
+            <></>
+          )}
           <OpenInNativeButton />
         </View>
         {!roomCreated ? (
@@ -178,6 +201,7 @@ const Create = () => {
             urlView={urlView}
             urlHost={urlHost}
             pstn={pstn}
+            hostControlCheckbox={hostControlCheckbox}
             joinPhrase={joinPhrase}
             roomTitle={roomTitle}
           />

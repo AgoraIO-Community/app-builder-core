@@ -23,33 +23,38 @@ const Recording = (props: any) => {
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
   const {phrase} = useParams();
-  const [
-    startRecordingQuery,
-    {data: startData, loading: startLoading, error: startError},
-  ] = useMutation(START_RECORDING);
-  const [
-    stopRecordingQuery,
-    {data: stopData, loading: stopLoading},
-  ] = useMutation(STOP_RECORDING);
+  const [startRecordingQuery] = useMutation(START_RECORDING);
+  const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   return (
     <TouchableOpacity
       style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
-          startRecordingQuery({variables: {passphrase: phrase}});
-          if (!startLoading && startData) {
-            console.log(startData, startError);
-            sendControlMessage(controlMessageEnum.cloudRecordingActive);
-          }
+          startRecordingQuery({variables: {passphrase: phrase}})
+            .then((res) => {
+              console.log(res.data);
+              if (res.data.startRecordingSession === 'success') {
+                sendControlMessage(controlMessageEnum.cloudRecordingActive);
+                setRecordingActive(true);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         } else {
-          stopRecordingQuery({variables: {passphrase: phrase}});
-          if (!stopLoading && stopData) {
-            console.log(stopData);
-            sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-          }
+          stopRecordingQuery({variables: {passphrase: phrase}})
+            .then((res) => {
+              console.log(res.data);
+              if (res.data.stopRecordingSession === 'success') {
+                sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+                setRecordingActive(false);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }
-        setRecordingActive(!recordingActive);
       }}>
       <Image
         source={{
@@ -77,16 +82,6 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // greenLocalButton: {
-  //   backgroundColor: '#4BEB5B',
-  //   borderRadius: 2,
-  //   borderColor: '#F86051',
-  //   width: 46,
-  //   height: 46,
-  //   alignSelf: 'center',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  // },
   buttonIcon: {
     width: 45,
     height: 35,
