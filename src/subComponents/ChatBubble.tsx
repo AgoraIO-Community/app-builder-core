@@ -12,7 +12,7 @@ const ChatBubble = (props: channelMessage) => {
     <View>
       <View style={type ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={type ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid].name} | {time + ' '}
+          {userList[uid] ? userList[uid].name : 'User'} | {time + ' '}
         </Text>
       </View>
       <View
@@ -22,7 +22,7 @@ const ChatBubble = (props: channelMessage) => {
             : style.chatBubble
         }>
         <Text style={type ? style.whiteText : style.blackText}>
-          {msg.slice(1)}
+          {msg.slice(1) + ' '}
         </Text>
       </View>
     </View>

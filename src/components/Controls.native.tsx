@@ -64,7 +64,7 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 2,
     borderColor: '#099DFD',
-    borderWidth: 1,
+    // borderWidth: 1,
     width: 46,
     height: 46,
     display: 'flex',
@@ -72,9 +72,9 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonIcon:{
-    width: 25,
-    height: 25,
+  buttonIcon: {
+    width: 35,
+    height: 35,
     tintColor: '#099DFD',
   },
 });

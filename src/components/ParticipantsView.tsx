@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {View, Text, StyleSheet, Platform, TouchableOpacity} from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
@@ -9,9 +9,53 @@ import RemoteAudioMute from '../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../subComponents/RemoteVideoMute';
 import RemoteEndCall from '../subComponents/RemoteEndCall';
 import chatContext from '../components/ChatContext';
+import Clipboard from '../subComponents/Clipboard';
+import ColorContext from '../components/ColorContext';
+import {useParams} from './Router';
+import {useLazyQuery, gql} from '@apollo/client';
+
+const SHARE = gql`
+  query share($passphrase: String!) {
+    share(passphrase: $passphrase) {
+      passphrase {
+        host
+        view
+      }
+      channel
+      title
+      pstn {
+        number
+        dtmf
+      }
+    }
+  }
+`;
 
 const ParticipantView = (props: {isHost: boolean}) => {
   const {userList, localUid} = useContext(chatContext);
+  const {primaryColor} = useContext(ColorContext);
+  const [share, {data, loading, error}] = useLazyQuery(SHARE);
+  const {phrase} = useParams();
+  const copyToClipboard = () => {
+    share({variables: {passphrase: phrase}});
+    // console.log(data, loading, error);
+    if (data && !loading) {
+      console.log(data.share);
+      Clipboard.setString(
+        data.share.pstn
+          ? `Meeting - ${data.share.title}
+URL for Attendee: ${$config.frontEndURL}/${data.share.passphrase.view}
+URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}
+
+PSTN Number: ${data.share.pstn.number}
+PSTN Pin: ${data.share.pstn.dtmf}`
+          : `Meeting - ${data.share.title}
+URL for Attendee: ${$config.frontEndURL}/${data.share.passphrase.view}
+URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`,
+      );
+    }
+  };
+
   return (
     <View
       style={
@@ -66,6 +110,13 @@ const ParticipantView = (props: {isHost: boolean}) => {
           </MaxUidConsumer>
         )}
       </MinUidConsumer>
+      <TouchableOpacity
+        style={[style.secondaryBtn, {borderColor: primaryColor}]}
+        onPress={() => copyToClipboard()}>
+        <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
+          Copy joining details
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -123,6 +174,26 @@ const style = StyleSheet.create({
     paddingRight: 10,
     alignSelf: 'center',
     alignItems: 'center',
+  },
+  secondaryBtn: {
+    alignSelf: 'center',
+    width: '60%',
+    borderColor: '#099DFD',
+    borderWidth: 3,
+    maxWidth: 400,
+    minHeight: 42,
+    minWidth: 200,
+    marginTop: 'auto',
+  },
+  secondaryBtnText: {
+    width: '100%',
+    height: 45,
+    lineHeight: 45,
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: '500',
+    textAlignVertical: 'center',
+    color: '#099DFD',
   },
 });
 

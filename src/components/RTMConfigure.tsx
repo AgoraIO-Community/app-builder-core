@@ -4,7 +4,7 @@ import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import {messageStoreInterface} from '../components/ChatContext';
-import { Platform } from 'react-native';
+import {Platform} from 'react-native';
 
 enum mType {
   Control = '0',
@@ -46,7 +46,7 @@ const RtmConfigure = (props: any) => {
           });
       return {...newState};
     });
-    console.log(privateMessageStore);
+    // console.log(privateMessageStore);
   };
 
   const init = async () => {
@@ -55,19 +55,13 @@ const RtmConfigure = (props: any) => {
       ? (localUid.current = rtcProps.uid + '')
       : (localUid.current = '' + new Date().getTime());
     engine.current.on('error', (evt: any) => {
-      console.log(evt);
+      // console.log(evt);
     });
     engine.current.on('channelMemberJoined', (data: any) => {
-      // let adjustedUID = data.uid;
-      // if (adjustedUID < 0) {
-      //   adjustedUID = data.uid + parseInt(0xFFFFFFFF) + 1;
-      // }
-      // console.log('xxx!data!', data, data.uid);
       engine.current.getUserAttributesByUid(data.uid).then((attr: any) => {
-        // console.log('xxx!aattr!', attr);
+        console.log({attr});
         let arr = new Int32Array(1);
         arr[0] = parseInt(data.uid);
-        // console.log(data.uid, arr[0], typeof arr[0]);
         setUserList((prevState) => {
           return {
             ...prevState,
@@ -85,11 +79,11 @@ const RtmConfigure = (props: any) => {
     // });
     engine.current.on('messageReceived', (evt: any) => {
       let {text} = evt;
-      console.log('messageReceived: ', evt);
+      // console.log('messageReceived: ', evt);
       if (text[0] === mType.Control) {
         console.log('Control: ', text);
         if (text.slice(1) === controlMessageEnum.muteVideo) {
-          console.log('dispatch', dispatch);
+          // console.log('dispatch', dispatch);
           dispatch({
             type: 'LocalMuteVideo',
             value: [true],
@@ -108,7 +102,11 @@ const RtmConfigure = (props: any) => {
       } else if (text[0] === mType.Normal) {
         let arr = new Int32Array(1);
         arr[0] = parseInt(evt.peerId);
-        console.log(evt);
+        // console.log(evt);
+        let hours = new Date(evt.ts).getHours;
+        if (isNaN(hours)) {
+          evt.ts = new Date().getTime();
+        }
         addMessageToPrivateStore(
           Platform.OS === 'android' ? arr[0] : evt.peerId,
           evt.text,
@@ -122,7 +120,10 @@ const RtmConfigure = (props: any) => {
       // if (uid < 0) {
       //   uid = uid + parseInt(0xFFFFFFFF) + 1;
       // }
-      console.log(evt);
+      let arr = new Int32Array(1);
+      arr[0] = parseInt(uid);
+      Platform.OS ? (uid = arr[0]) : {};
+      // console.log(evt);
       if (ts === 0) {
         ts = new Date().getTime();
       }
@@ -130,7 +131,7 @@ const RtmConfigure = (props: any) => {
         if (text[0] === mType.Control) {
           console.log('Control: ', text);
           if (text.slice(1) === controlMessageEnum.muteVideo) {
-            console.log('dispatch', dispatch);
+            // console.log('dispatch', dispatch);
             dispatch({
               type: 'LocalMuteVideo',
               value: [true],
@@ -205,7 +206,7 @@ const RtmConfigure = (props: any) => {
       offline: false,
       text: mType.Normal + '' + msg,
     });
-    console.log(ts);
+    // console.log(ts);
     addMessageToPrivateStore(uid, mType.Normal + msg, ts, true);
   };
   const sendControlMessage = async (msg: string) => {

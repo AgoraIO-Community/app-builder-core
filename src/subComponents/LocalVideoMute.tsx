@@ -22,7 +22,7 @@ function LocalVideoMute() {
         style={[
           {
             width: 25,
-            height: 25,
+            height: 22,
             marginHorizontal: 3,
             tintColor: '#099DFD',
           },

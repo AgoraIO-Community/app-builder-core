@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
   ImageBackground,
+  TextInput,
 } from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
@@ -23,7 +24,7 @@ const Precall = (props: any) => {
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.startPreview();
-  const {setCallActive, queryComplete} = props;
+  const {setCallActive, queryComplete, username, setUsername} = props;
   return (
     <ImageBackground
       source={{uri: images.background}}
@@ -34,6 +35,20 @@ const Precall = (props: any) => {
       </View>
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+      </View>
+      <View style={style.textInputHolder}>
+        <TextInput
+          style={[style.textInput, {borderColor: primaryColor}]}
+          value={username}
+          onChangeText={(text) => {
+            if (username !== 'Getting name...') {
+              setUsername(text);
+            }
+          }}
+          onSubmitEditing={() => {}}
+          placeholder="Display Name"
+          placeholderTextColor="#777"
+        />
       </View>
       <View style={style.controls}>
         <LocalUserContext>
@@ -69,7 +84,25 @@ const style = StyleSheet.create({
     fontWeight: '700',
     alignSelf: 'center',
   },
-  controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 10},
+  textInputHolder: {
+    flex: 0.1,
+    alignSelf: 'center',
+    paddingTop: 20,
+    width: '100%',
+  },
+  textInput: {
+    width: '80%',
+    paddingLeft: 8,
+    borderColor: '#099DFD',
+    borderWidth: 2,
+    color: '#333',
+    fontSize: 16,
+    // marginBottom: 15,
+    // maxWidth: 400,
+    minHeight: 45,
+    alignSelf: 'center',
+  },
+  controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 5},
   width50: {width: 50},
   buttonActive: {
     backgroundColor: '#099DFD',

@@ -1,20 +1,20 @@
 import React, {useContext} from 'react';
 import {Image, TouchableOpacity, StyleSheet} from 'react-native';
-import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
+import {useParams} from '../components/Router';
 
 const START_RECORDING = gql`
-  mutation startRecordingSession($channel: String!) {
-    startRecordingSession(channel: $channel)
+  mutation startRecordingSession($passphrase: String!) {
+    startRecordingSession(passphrase: $passphrase)
   }
 `;
 
 const STOP_RECORDING = gql`
-  mutation stopRecordingSession($channel: String!) {
-    startRecordingSession(channel: $channel)
+  mutation stopRecordingSession($passphrase: String!) {
+    stopRecordingSession(passphrase: $passphrase)
   }
 `;
 
@@ -22,7 +22,7 @@ const Recording = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
-  const {rtcProps} = useContext(PropsContext);
+  const {phrase} = useParams();
   const [
     startRecordingQuery,
     {data: startData, loading: startLoading, error: startError},
@@ -34,20 +34,16 @@ const Recording = (props: any) => {
   const {sendControlMessage} = useContext(ChatContext);
   return (
     <TouchableOpacity
-      style={
-        recordingActive
-          ? style.greenLocalButton
-          : [style.localButton, {borderColor: primaryColor}]
-      }
+      style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
-          startRecordingQuery({variables: {channel: rtcProps.channel}});
+          startRecordingQuery({variables: {passphrase: phrase}});
           if (!startLoading && startData) {
             console.log(startData, startError);
             sendControlMessage(controlMessageEnum.cloudRecordingActive);
           }
         } else {
-          stopRecordingQuery({variables: {channel: rtcProps.channel}});
+          stopRecordingQuery({variables: {passphrase: phrase}});
           if (!stopLoading && stopData) {
             console.log(stopData);
             sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
@@ -56,8 +52,13 @@ const Recording = (props: any) => {
         setRecordingActive(!recordingActive);
       }}>
       <Image
-        source={{uri: icons.recordingIcon}}
+        source={{
+          uri: recordingActive
+            ? icons.recordingActiveIcon
+            : icons.recordingIcon,
+        }}
         style={[style.buttonIcon, {tintColor: primaryColor}]}
+        resizeMode={'contain'}
       />
     </TouchableOpacity>
   );
@@ -68,7 +69,7 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 2,
     borderColor: '#099DFD',
-    borderWidth: 1,
+    borderWidth: 0,
     width: 46,
     height: 46,
     display: 'flex',
@@ -76,19 +77,19 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  greenLocalButton: {
-    backgroundColor: '#4BEB5B',
-    borderRadius: 2,
-    borderColor: '#F86051',
-    width: 46,
-    height: 46,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  // greenLocalButton: {
+  //   backgroundColor: '#4BEB5B',
+  //   borderRadius: 2,
+  //   borderColor: '#F86051',
+  //   width: 46,
+  //   height: 46,
+  //   alignSelf: 'center',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
   buttonIcon: {
-    width: 25,
-    height: 25,
+    width: 45,
+    height: 35,
     tintColor: '#099DFD',
   },
 });

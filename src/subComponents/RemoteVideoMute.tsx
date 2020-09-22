@@ -19,6 +19,7 @@ const RemoteVideoMute = (props: {
       <Image
         style={[style.buttonIconCam, {tintColor: primaryColor}]}
         source={{uri: props.video ? icons.videocam : icons.videocamOff}}
+        resizeMode={'contain'}
       />
     </TouchableOpacity>
   ) : (
@@ -26,6 +27,7 @@ const RemoteVideoMute = (props: {
       <Image
         style={[style.buttonIconCam, {tintColor: primaryColor}]}
         source={{uri: props.video ? icons.videocam : icons.videocamOff}}
+        resizeMode={'contain'}
       />
     </View>
   );
@@ -33,7 +35,7 @@ const RemoteVideoMute = (props: {
 
 const style = StyleSheet.create({
   buttonIconCam: {
-    width: 25,
+    width: 30,
     height: 25,
     marginHorizontal: 3,
     tintColor: '#099DFD',

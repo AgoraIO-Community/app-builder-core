@@ -108,7 +108,6 @@ const VideoCall: React.FC = () => {
     isHost = data.joinChannel.isHost;
     title = data.joinChannel.title;
     console.log('query done: ', data, queryComplete);
-    console.log('!!!', title);
     if (username === 'Getting name...') {
       if (data.getUser){
         setUsername(data.getUser.name);

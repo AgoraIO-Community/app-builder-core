@@ -30,14 +30,10 @@ const Chat = (props: any) => {
     setGroupActive(false);
   };
   const selectUser = (user: any) => {
-    console.log(user);
     setSelectedUser(user);
     setPrivateActive(true);
-    // setGroupActive(false);
-    console.log(privateActive);
   };
   return (
-    // <View style={Platform.OS === 'web' ? styles.chatWeb : styles.chatNative}>
     <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
       <View style={style.heading}>
         {Platform.OS === 'web' ? (
@@ -281,6 +277,7 @@ const style = StyleSheet.create({
     height: 12,
     alignSelf: 'center',
     justifyContent: 'center',
+    tintColor: '#333',
   },
 });
 

@@ -85,6 +85,7 @@ const style = StyleSheet.create({
     height: 12,
     alignSelf: 'center',
     justifyContent: 'center',
+    tintColor: '#333',
   },
 });
 export default ChatContainer;

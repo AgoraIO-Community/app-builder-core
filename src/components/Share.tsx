@@ -4,15 +4,15 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  Clipboard,
   Dimensions,
 } from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {useHistory} from './Router';
+import Clipboard from '../subComponents/Clipboard';
 
 const Share = (props: any) => {
   const history = useHistory();
-  const {urlView, urlHost, pstn, joinPhrase} = props;
+  const {urlView, urlHost, pstn, joinPhrase, roomTitle} = props;
   const {primaryColor} = useContext(ColorContext);
 
   const enterMeeting = () => {
@@ -24,12 +24,14 @@ const Share = (props: any) => {
   const copyToClipboard = () => {
     Clipboard.setString(
       pstn
-        ? `URL for Attendee: ${urlView}
+        ? `Meeting - ${roomTitle}
+URL for Attendee: ${urlView}
 URL for Host: ${urlHost}
 
 PSTN Number: ${pstn.number}
 PSTN Pin: ${pstn.dtmf}`
-        : `URL for Attendee: ${urlView}
+        : `Meeting - ${roomTitle}
+URL for Attendee: ${urlView}
 URL for Host: ${urlHost}`,
     );
   };

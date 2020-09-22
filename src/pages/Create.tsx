@@ -37,10 +37,10 @@ const CREATE_CHANNEL = gql`
     }
   }
 `;
-// https://agora-meet.netlify.app/join/khjshbdfkhsdf-sd-fkhsdbfsd
+
 const Create = () => {
   const {primaryColor} = useContext(ColorContext);
-  const [channel, onChangeChannel] = useState('');
+  const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
   const [urlView, setUrlView] = useState(null);
@@ -54,11 +54,11 @@ const Create = () => {
   console.log('mutation data', data);
 
   const createRoom = () => {
-    if (channel !== '') {
+    if (roomTitle !== '') {
       console.log('Create room invoked');
       createChannel({
         variables: {
-          title: channel,
+          title: roomTitle,
           enablePSTN: pstnCheckbox,
         },
       }).then((res: any) => {
@@ -107,8 +107,8 @@ const Create = () => {
               <View style={style.inputs}>
                 <TextInput
                   style={[style.textInput, {borderColor: primaryColor}]}
-                  value={channel}
-                  onChangeText={(text) => onChangeChannel(text)}
+                  value={roomTitle}
+                  onChangeText={(text) => onChangeRoomTitle(text)}
                   onSubmitEditing={() => createRoom()}
                   placeholder="Enter Room Name"
                   placeholderTextColor="#777"
@@ -147,9 +147,9 @@ const Create = () => {
                   </View>
                 </View>
                 <TouchableOpacity
-                  disabled={channel === '' || loading}
+                  disabled={roomTitle === '' || loading}
                   style={
-                    channel === '' || loading
+                    roomTitle === '' || loading
                       ? [
                           style.primaryBtnDisabled,
                           {backgroundColor: primaryColor + '80'},
@@ -179,6 +179,7 @@ const Create = () => {
             urlHost={urlHost}
             pstn={pstn}
             joinPhrase={joinPhrase}
+            roomTitle={roomTitle}
           />
         )}
       </View>

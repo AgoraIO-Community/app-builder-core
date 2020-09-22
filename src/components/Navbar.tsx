@@ -39,7 +39,7 @@ const Navbar = (props: any) => {
     <View
       style={Platform.OS === 'web' ? style.navHolder : style.navHolderNative}>
       <View style={style.roomNameContainer}>
-        <Text style={style.roomNameText}>{title}</Text>
+        <Text style={style.roomNameText}>{title + ' '}</Text>
       </View>
       {/* {recordingActive ? (
         <View style={[style.recordingView, {backgroundColor: primaryColor}]}>
@@ -190,7 +190,7 @@ const style = StyleSheet.create({
     alignContent: 'center',
   },
   roomNameText: {
-    fontSize: 12,
+    fontSize: 14,
     // flex: 10,
     // width: 50,
     color: '#333',
@@ -212,7 +212,7 @@ const style = StyleSheet.create({
   },
   layoutBtnIcon: {
     flex: 1,
-    // margin: 1,
+    margin: 6,
     resizeMode: 'contain',
     tintColor: '#099DFD',
   },

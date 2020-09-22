@@ -25,6 +25,7 @@ const Settings = (props: any) => {
         <Image
           source={{uri: icons.settings}}
           style={[style.buttonIcon, {tintColor: primaryColor}]}
+          resizeMode={'contain'}
         />
       </TouchableOpacity>
       {screenListActive ? (
@@ -81,8 +82,8 @@ const style = StyleSheet.create({
     paddingHorizontal: '8%',
   },
   buttonIcon: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
     tintColor: '#099DFD',
   },
   heading: {
@@ -112,7 +113,7 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 2,
     borderColor: '#099DFD',
-    borderWidth: 1,
+    // borderWidth: 1,
     width: 46,
     height: 46,
     display: 'flex',

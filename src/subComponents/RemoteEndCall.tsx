@@ -11,7 +11,10 @@ const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
       onPress={() => {
         sendControlMessageToUid(controlMessageEnum.kickUser, props.uid);
       }}>
-      <Image style={style.buttonIconEnd} source={{uri: icons.endCall}} />
+      <Image
+        style={style.buttonIconEnd}
+        source={{uri: icons.endCall}}
+        resizeMode={'contain'}/>
     </TouchableOpacity>
   ) : (
     <></>
@@ -20,7 +23,7 @@ const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
 
 const style = StyleSheet.create({
   remoteButton: {
-    width: 25,
+    width: 30,
     height: 25,
     borderTopRightRadius: 0,
     borderTopLeftRadius: 0,
@@ -33,9 +36,9 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
   },
   buttonIconEnd: {
-    width: 25,
+    width: 30,
     height: 25,
-    marginLeft: 3,
+    // marginLeft: 3,
     tintColor: '#f86051',
   },
 });
