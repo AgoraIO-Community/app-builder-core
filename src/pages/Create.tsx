@@ -15,6 +15,7 @@ import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Share from '../components/Share';
 import ColorContext from '../components/ColorContext';
+import Illustration from '../subComponents/illustration';
 
 type PasswordInput = {
   host: string;
@@ -101,18 +102,27 @@ const Create = () => {
           {error ? (
             <View
               style={{
+                position: 'absolute',
                 borderWidth: 2,
                 borderColor: '#ff0000',
                 backgroundColor: '#ffffff80',
                 paddingHorizontal: 10,
                 paddingVertical: 2,
-                width: '30%',
-              }}>
-              <Text
-                style={{fontWeight: '500', textAlign: 'center', fontSize: 16}}>
-                {error.name}
+                maxWidth: 250,
+                width: '65%',
+                left: 0,
+                right: 0,
+                top: '30%',
+                marginHorizontal: 'auto',
+                zIndex: 55,
+            }}>
+              <Text style={{alignSelf: 'center'}}>
+                <Text
+                  style={{fontWeight: '500', textAlign: 'center', fontSize: 16}}>
+                  {error.name + ' - '}
+                </Text>
+                <Text style={{}}>{error.message}</Text>
               </Text>
-              <Text style={{}}>{error.message}</Text>
             </View>
           ) : (
             <></>
@@ -188,9 +198,8 @@ const Create = () => {
             </View>
             {dim[0] > dim[1] + 150 ? (
               <View style={style.full}>
-                <View
-                  style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}}
-                />
+                {/* <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} /> */}
+                <Illustration />
               </View>
             ) : (
               <></>

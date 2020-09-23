@@ -17,10 +17,12 @@ import images from '../assets/images';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from '../components/ColorContext';
+import {useHistory} from './Router';
 
 const Precall = (props: any) => {
+  const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
-  const {setCallActive, queryComplete, username, setUsername} = props;
+  const {setCallActive, queryComplete, username, setUsername, error} = props;
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -39,6 +41,50 @@ const Precall = (props: any) => {
       <View style={style.main}>
         <View style={style.nav}>
           <Logo />
+          {error ? (
+            <View
+              style={{
+                position: 'absolute',
+                borderWidth: 2,
+                borderColor: '#ff0000',
+                backgroundColor: '#ffffff80',
+                paddingHorizontal: 10,
+                paddingVertical: 2,
+                maxWidth: 250,
+                width: '65%',
+                left: 0,
+                right: 0,
+                top: '30%',
+                marginHorizontal: 'auto',
+                zIndex: 55,
+              }}>
+              <Text style={{alignSelf: 'center'}}>
+                <Text
+                  style={{
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    fontSize: 16,
+                  }}>
+                  {error.name + ' - '}
+                </Text>
+                <Text style={{}}>{error.message}</Text>
+              </Text>
+              <TouchableOpacity
+                style={{alignSelf: 'center'}}
+                onPress={() => history.replace('./')}>
+                <Text
+                  style={{
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    textDecorationLine: 'underline',
+                  }}>
+                  Try Again
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <></>
+          )}
           <OpenInNativeButton />
         </View>
         <View style={style.content}>
@@ -89,7 +135,7 @@ const Precall = (props: any) => {
               <></>
             )}
           </View>
-          {dim[0] > dim[1] + 150 ? (
+          {dim[0] >= dim[1] + 150 ? (
             <View style={style.full}>
               <View style={[style.precallPickers, {shadowColor: primaryColor}]}>
                 <Text style={style.subHeading}>Select Input Device</Text>

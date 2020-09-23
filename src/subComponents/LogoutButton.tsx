@@ -10,16 +10,22 @@ const LOGOUT = gql`
   }
 `;
 
-const LogoutButton = () => {
+const LogoutButton = (props: any) => {
+  const {setError} = props;
   const {store, setStore} = useContext(StorageContext);
   const {token} = store;
   const history = useHistory();
-  const [logoutQuery, {data, loading}] = useMutation(LOGOUT);
+  const [logoutQuery] = useMutation(LOGOUT);
 
   const logout = () => {
-    logoutQuery({variables: {token}}).then((res) => {
-      setStore({token: null});
-    });
+    logoutQuery({variables: {token}})
+      .then(() => {
+        setStore({token: null});
+      })
+      .catch((e) => {
+        setError(e);
+        console.log(e);
+      });
   };
 
   const login = () => {

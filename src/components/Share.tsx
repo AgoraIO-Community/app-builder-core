@@ -9,6 +9,7 @@ import {
 import ColorContext from '../components/ColorContext';
 import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
+import Illustration from '../subComponents/illustration';
 
 const Share = (props: any) => {
   const history = useHistory();
@@ -114,7 +115,8 @@ Meeting URL: ${urlHost}`,
       </View>
       {dim[0] > dim[1] + 150 ? (
         <View style={style.full}>
-          <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} />
+          {/* <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} /> */}
+          <Illustration />
         </View>
       ) : (
         <></>

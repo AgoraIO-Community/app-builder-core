@@ -16,6 +16,7 @@ import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
+import Logo from '../subComponents/Logo';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -71,6 +72,7 @@ const VideoCall: React.FC = () => {
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const {phrase} = useParams();
+  const [errorMessage, setErrorMessage] = useState(null);
   let isHost = true; //change to false by default after testing
   let title = null;
   let rtcProps = {
@@ -93,8 +95,17 @@ const VideoCall: React.FC = () => {
       variables: {passphrase: phrase},
   }));
 
+  if (error) {
+    console.log('error', error);
+    // console.log('error data', data);
+    if (!errorMessage) {
+      setErrorMessage(error);
+    }
+  }
+
   if (!loading && data) {
     console.log('token:', rtcProps.token);
+    console.log('error', data.error);
     rtcProps = {
       appId: 'b8c2ef0f986541a8992451c07d30fb4b',
       channel: data.joinChannel.channel,
@@ -182,6 +193,7 @@ const VideoCall: React.FC = () => {
                     </View>
                   ) : $config.precall ? (
                     <Precall
+                      error={errorMessage}
                       username={username}
                       setUsername={setUsername}
                       setCallActive={setCallActive}
@@ -196,9 +208,12 @@ const VideoCall: React.FC = () => {
           </PropsProvider>
         </>
       ) : (
-        <>
-          <Text>Loading...</Text>
-        </>
+        <View style={style.loader}>
+          <View style={style.loaderLogo}>
+            <Logo />
+          </View>
+          <Text style={style.loaderText}>Starting Call. Just a second.</Text>
+        </View>
       )}
     </>
   );
@@ -236,6 +251,17 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     flexDirection: 'column',
   },
+  loader: {
+    flex: 1,
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  loaderLogo: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  loaderText: {fontWeight: '500'},
 });
 
 export default VideoCall;

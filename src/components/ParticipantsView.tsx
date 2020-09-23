@@ -12,7 +12,7 @@ import chatContext from '../components/ChatContext';
 import Clipboard from '../subComponents/Clipboard';
 import ColorContext from '../components/ColorContext';
 import {useParams} from './Router';
-import {useLazyQuery, gql} from '@apollo/client';
+import {gql, useQuery} from '@apollo/client';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -34,11 +34,12 @@ const SHARE = gql`
 const ParticipantView = (props: {isHost: boolean}) => {
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
-  const [share, {data, loading, error}] = useLazyQuery(SHARE);
   const {phrase} = useParams();
+  const {data, loading, error} = useQuery(SHARE, {
+    variables: {passphrase: phrase},
+  });
   const copyToClipboard = () => {
-    share({variables: {passphrase: phrase}});
-    // console.log(data, loading, error);
+    console.log(data, loading, error);
     if (data && !loading) {
       console.log(data.share);
       Clipboard.setString(
@@ -114,7 +115,7 @@ URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`,
         style={[style.secondaryBtn, {borderColor: primaryColor}]}
         onPress={() => copyToClipboard()}>
         <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
-          Copy joining details
+          {!data ? 'Getting Data' : 'Copy joining details'}
         </Text>
       </TouchableOpacity>
     </View>

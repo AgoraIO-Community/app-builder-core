@@ -15,6 +15,7 @@ import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
+import Illustration from '../subComponents/illustration';
 
 // const joinFlag = 0;
 interface joinProps {
@@ -25,6 +26,7 @@ const Join = (props: joinProps) => {
   const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
+  const [error, setError] = useState(null);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -51,6 +53,38 @@ const Join = (props: joinProps) => {
       <View style={style.main}>
         <View style={style.nav}>
           <Logo />
+          {error ? (
+            <View
+              style={{
+                position: 'absolute',
+                borderWidth: 2,
+                borderColor: '#ff0000',
+                backgroundColor: '#ffffff80',
+                paddingHorizontal: 10,
+                paddingVertical: 2,
+                maxWidth: 250,
+                width: '65%',
+                left: 0,
+                right: 0,
+                top: '30%',
+                marginHorizontal: 'auto',
+                zIndex: 55,
+            }}>
+              <Text style={{alignSelf: 'center'}}>
+                <Text
+                  style={{
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    fontSize: 16,
+                  }}>
+                  {error.name + ' - '}
+                </Text>
+                <Text style={{}}>{error.message}</Text>
+              </Text>
+            </View>
+          ) : (
+            <></>
+          )}
           <OpenInNativeButton />
         </View>
         <View style={style.content}>
@@ -86,14 +120,17 @@ const Join = (props: joinProps) => {
               <TouchableOpacity
                 style={[style.secondaryBtn, {borderColor: primaryColor}]}
                 onPress={() => createMeeting()}>
-                <Text style={[style.secondaryBtnText, {color: primaryColor}]}>Create a meeting</Text>
+                <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
+                  Create a meeting
+                </Text>
               </TouchableOpacity>
-              <LogoutButton />
+              <LogoutButton setError={setError} />
             </View>
           </View>
           {dim[0] > dim[1] + 150 ? (
             <View style={style.full}>
-              <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} />
+              {/* <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} /> */}
+              <Illustration />
             </View>
           ) : (
             <></>
@@ -106,6 +143,7 @@ const Join = (props: joinProps) => {
 
 const style = StyleSheet.create({
   full: {flex: 1},
+  illustration: {flex: 1, alignSelf: 'flex-end'},
   main: {
     flex: 2,
     justifyContent: 'space-evenly',
