@@ -3,8 +3,7 @@ import {Text} from 'react-native';
 import {useHistory} from './Router';
 
 const oauth = {
-  client_id:
-    '621368282378-fdqc9arjk7f10tt0h2utn61he1urv5hb.apps.googleusercontent.com',
+  client_id: $config.CLIENT_ID,
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
   redirect_uri: `${$config.backEndURL}/oauth/desktop`,
   scope: encodeURIComponent(

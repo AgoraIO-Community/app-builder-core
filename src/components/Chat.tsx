@@ -36,20 +36,16 @@ const Chat = (props: any) => {
   return (
     <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
       <View style={style.heading}>
-        {Platform.OS === 'web' ? (
+        <TouchableOpacity
+          style={style.backButton}
+          onPress={() => setChatDisplayed(false)}>
+          <Image
+            resizeMode={'contain'}
+            style={style.backIcon}
+            source={{uri: icons.backBtn}}
+          />
           <Text style={style.headingText}>Chats</Text>
-        ) : (
-          <TouchableOpacity
-            style={style.backButton}
-            onPress={() => setChatDisplayed(false)}>
-            <Image
-              resizeMode={'contain'}
-              style={style.backIcon}
-              source={{uri: icons.backBtn}}
-            />
-            <Text style={style.headingText}>Chats</Text>
-          </TouchableOpacity>
-        )}
+        </TouchableOpacity>
       </View>
       <View style={style.chatNav}>
         <TouchableOpacity

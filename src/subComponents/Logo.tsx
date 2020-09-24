@@ -11,7 +11,7 @@ export default function Logo() {
   return (
     <TouchableOpacity onPress={() => history.replace('/')}>
       <Image
-        source={{uri: images.logo}}
+        source={{uri: $config.logo}}
         style={{
           width: 90,
           height: 30,
