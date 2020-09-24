@@ -4,13 +4,10 @@ const fs = require('fs').promises;
 const path = require('path');
 const del = require('del');
 const args = require('yargs').argv;
-const os = require('os');
-const platform =
-  os.platform() === 'win32'
-    ? 'windows'
-    : os.platform() === 'darwin'
-    ? 'mac'
-    : 'linux';
+
+const webpack = require('webpack');
+const WebpackDevServer = require('webpack-dev-server');
+const webpackConfig = require('./webpack.renderer.config');
 
 const log = (x) => (args.info ? console.log(x) : null);
 const BUILD_PATH = path.join(__dirname, '.electron');
@@ -33,17 +30,11 @@ function clean() {
 }
 
 function renderer(cb) {
-  runCli(
-    `cross-env TARGET=${platform} cross-env NODE_ENV=production npm run electron:renderer`,
-    cb,
-  );
+  runCli('webpack --config webpack.renderer.config.js', cb);
 }
 
 function main(cb) {
-  runCli(
-    `cross-env TARGET=${platform} cross-env NODE_ENV=production npm run electron:main`,
-    cb,
-  );
+  runCli('webpack --config ./webpack.main.config.js', cb);
 }
 
 async function packageJson(cb) {
@@ -89,12 +80,34 @@ async function packageJson(cb) {
 }
 
 function build(cb) {
-  runCli('npm run electron:build', cb);
+  runCli('electron-builder build --config ./electron-builder.js', cb);
 }
 
-module.exports.default = series(
+function electronDevServer(cb) {
+  const config = webpack(webpackConfig);
+  new WebpackDevServer(config, {
+    hot: true,
+  }).listen(webpackConfig.devServer.port, 'localhost', (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      cb();
+    }
+  });
+}
+
+function mainDev(cb) {
+  runCli('webpack --config ./webpack.main.config.js', cb);
+}
+
+function start(cb) {
+  runCli('electron .', cb);
+}
+
+module.exports.build = series(
   clean,
   parallel(renderer, main, packageJson),
   build,
 );
-// module.exports.default = renderer;
+
+module.exports.development = series(clean, electronDevServer, mainDev, start);
