@@ -15,7 +15,7 @@ import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Share from '../components/Share';
 import ColorContext from '../components/ColorContext';
-import Illustration from '../subComponents/illustration';
+import Illustration from '../subComponents/Illustration';
 
 type PasswordInput = {
   host: string;

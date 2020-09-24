@@ -1,8 +1,7 @@
 interface ConfigInterface {
   projectName: string;
   displayName: string;
-  logoRect: boolean;
-  logoSquare: boolean;
+  logo: string;
   AppID: string;
   primaryColor: string;
   frontEndURL: string;

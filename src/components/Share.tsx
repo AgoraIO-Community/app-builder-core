@@ -9,7 +9,7 @@ import {
 import ColorContext from '../components/ColorContext';
 import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
-import Illustration from '../subComponents/illustration';
+import Illustration from '../subComponents/Illustration';
 
 const Share = (props: any) => {
   const history = useHistory();

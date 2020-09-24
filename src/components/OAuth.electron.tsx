@@ -29,7 +29,6 @@ const Oauth = () => {
           console.log(data, origin);
           history.push(`/auth-token/${data.token}`);
         }
-        ;
       },
       false,
     );

@@ -4,6 +4,13 @@ const fs = require('fs').promises;
 const path = require('path');
 const del = require('del');
 const args = require('yargs').argv;
+const os = require('os');
+const platform =
+  os.platform() === 'win32'
+    ? 'windows'
+    : os.platform() === 'darwin'
+    ? 'mac'
+    : 'linux';
 
 const log = (x) => (args.info ? console.log(x) : null);
 const BUILD_PATH = path.join(__dirname, '.electron');
@@ -26,11 +33,17 @@ function clean() {
 }
 
 function renderer(cb) {
-  runCli('npm run electron:renderer', cb);
+  runCli(
+    `cross-env TARGET=${platform} cross-env NODE_ENV=production npm run electron:renderer`,
+    cb,
+  );
 }
 
 function main(cb) {
-  runCli('npm run electron:main', cb);
+  runCli(
+    `cross-env TARGET=${platform} cross-env NODE_ENV=production npm run electron:main`,
+    cb,
+  );
 }
 
 async function packageJson(cb) {
@@ -70,7 +83,7 @@ async function packageJson(cb) {
   };
   await fs.writeFile(
     path.join(BUILD_PATH, 'package.json'),
-    JSON.stringify(newPackage),
+    JSON.stringify(newPackage, null, 2),
   );
   return;
 }
@@ -84,3 +97,4 @@ module.exports.default = series(
   parallel(renderer, main, packageJson),
   build,
 );
+// module.exports.default = renderer;

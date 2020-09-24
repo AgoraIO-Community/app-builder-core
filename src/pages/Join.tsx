@@ -15,7 +15,7 @@ import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
-import Illustration from '../subComponents/illustration';
+import Illustration from '../subComponents/Illustration';
 
 // const joinFlag = 0;
 interface joinProps {
