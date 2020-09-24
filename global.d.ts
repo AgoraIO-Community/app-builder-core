@@ -18,5 +18,8 @@ interface ConfigInterface {
   platformWindows: boolean;
   platformMac: boolean;
   platformLinux: boolean;
+  CLIENT_ID: string;
+  landingHeading: string;
+  landingSubHeading: string;
 }
 declare var $config: ConfigInterface;

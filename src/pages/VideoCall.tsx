@@ -1,5 +1,5 @@
-import React, {useState, useContext, useEffect} from 'react';
-import {View, Platform, StyleSheet, Text} from 'react-native';
+import React, {useState, useContext} from 'react';
+import {View, StyleSheet, Text} from 'react-native';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
@@ -14,7 +14,7 @@ import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
-import Watermark from '../subComponents/Watermark';
+// import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 
@@ -76,7 +76,7 @@ const VideoCall: React.FC = () => {
   let isHost = true; //change to false by default after testing
   let title = null;
   let rtcProps = {
-    appId: 'b8c2ef0f986541a8992451c07d30fb4b',
+    appId: $config.AppID,
     channel: null,
     uid: null,
     token: null,
@@ -107,7 +107,7 @@ const VideoCall: React.FC = () => {
     console.log('token:', rtcProps.token);
     console.log('error', data.error);
     rtcProps = {
-      appId: 'b8c2ef0f986541a8992451c07d30fb4b',
+      appId: $config.AppID,
       channel: data.joinChannel.channel,
       uid: data.joinChannel.mainUser.uid,
       token: data.joinChannel.mainUser.rtc,
@@ -139,7 +139,7 @@ const VideoCall: React.FC = () => {
     <>
       {queryComplete || !callActive ? (
         <>
-          {$config.watermark && callActive ? <Watermark /> : <></>}
+          {/* {$config.watermark && callActive ? <Watermark /> : <></>} */}
           <PropsProvider
             value={{
               rtcProps,
@@ -168,7 +168,10 @@ const VideoCall: React.FC = () => {
                       />
                       <View style={style.videoView}>
                         {participantsView ? (
-                          <ParticipantsView isHost={isHost} />
+                          <ParticipantsView
+                            isHost={isHost}
+                            setParticipantsView={setParticipantsView}
+                          />
                         ) : (
                           <></>
                         )}

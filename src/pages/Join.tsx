@@ -49,7 +49,7 @@ const Join = (props: joinProps) => {
       onLayout={onLayout}
       source={{uri: images.background}}
       style={style.full}
-      resizeMode={'cover'}>
+      resizeMode={'repeat'}>
       <View style={style.main}>
         <View style={style.nav}>
           <Logo />
@@ -89,11 +89,8 @@ const Join = (props: joinProps) => {
         </View>
         <View style={style.content}>
           <View style={style.leftContent}>
-            <Text style={style.heading}>Agora.io</Text>
-            <Text style={style.headline}>
-              The Real-Time Engagement Platform for meaningful human
-              connections.
-            </Text>
+            <Text style={style.heading}>{$config.landingHeading}</Text>
+            <Text style={style.headline}>{$config.landingSubHeading}</Text>
             <View style={style.inputs}>
               <TextInput
                 style={[style.textInput, {borderColor: primaryColor}]}

@@ -33,8 +33,8 @@ const RemoteAudioMute = (props: {
 
 const style = StyleSheet.create({
   buttonIconMic: {
-    width: 22,
-    height: 20,
+    width: 25,
+    height: 24,
     tintColor: '#099DFD',
   },
 });

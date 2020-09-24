@@ -1,5 +1,12 @@
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Platform, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
@@ -13,6 +20,7 @@ import Clipboard from '../subComponents/Clipboard';
 import ColorContext from '../components/ColorContext';
 import {useParams} from './Router';
 import {gql, useQuery} from '@apollo/client';
+import icons from '../assets/icons';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -31,7 +39,7 @@ const SHARE = gql`
   }
 `;
 
-const ParticipantView = (props: {isHost: boolean}) => {
+const ParticipantView = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
   const {phrase} = useParams();
@@ -64,7 +72,16 @@ URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`,
           ? style.participantView
           : style.participantViewNative
       }>
-      <Text style={style.heading}>Participants</Text>
+      <TouchableOpacity
+        style={style.backButton}
+        onPress={() => props.setParticipantsView(false)}>
+        <Image
+          resizeMode={'contain'}
+          style={style.backIcon}
+          source={{uri: icons.backBtn}}
+        />
+        <Text style={style.heading}>Participants</Text>
+      </TouchableOpacity>
       <MinUidConsumer>
         {(minUsers) => (
           <MaxUidConsumer>
@@ -146,7 +163,7 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: '700',
-    textAlign: 'center',
+    // textAlign: 'center',
     color: '#333',
   },
   participantContainer: {
@@ -195,6 +212,19 @@ const style = StyleSheet.create({
     fontWeight: '500',
     textAlignVertical: 'center',
     color: '#099DFD',
+  },
+  backButton: {
+    // marginLeft: 5,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  backIcon: {
+    width: 20,
+    height: 12,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    tintColor: '#333',
   },
 });
 

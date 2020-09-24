@@ -21,8 +21,8 @@ function LocalAudioMute() {
       <Image
         style={[
           {
-            width: 22,
-            height: 20,
+            width: 24,
+            height: 24,
             tintColor: '#099DFD',
           },
           {tintColor: primaryColor},
