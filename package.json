@@ -24,7 +24,8 @@
     "linux:build": "cross-env TARGET=linux npm run electron:build",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "gulp": "cross-env TARGET=web gulp development"
+    "icons:android": "react-native set-icon --path ./build/icon.png",
+    "icons:ios": "react-native set-icon --path ./build/icon.png"
   },
   "dependencies": {
     "@apollo/client": "^3.1.3",
@@ -50,6 +51,7 @@
     "agora-electron-sdk": "^3.0.0-build.661"
   },
   "devDependencies": {
+    "@bam.tech/react-native-make": "3.0.0",
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
