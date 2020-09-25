@@ -12,7 +12,7 @@ const oauth = {
     'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
   ),
   state: encodeURIComponent(
-    'site=google&redirect=https://boring-sammet-7295da.netlify.app/mobile.html/',
+    `site=google&backend=${$config.backEndURL}&redirect=${$config.backEndURL}`,
   ),
 };
 

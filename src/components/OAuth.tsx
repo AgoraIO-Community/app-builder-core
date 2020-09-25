@@ -9,7 +9,7 @@ const oauth = {
     'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
   ),
   state: encodeURIComponent(
-    `site=google&redirect=${window.location.origin}/auth-token/`,
+    `site=google&backend=${$config.backEndURL}&redirect=${window.location.origin}/auth-token/`,
   ),
 };
 
