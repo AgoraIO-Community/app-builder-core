@@ -49,7 +49,7 @@ const Join = (props: joinProps) => {
       onLayout={onLayout}
       source={{uri: images.background}}
       style={style.full}
-      resizeMode={'repeat'}>
+      resizeMode={'cover'}>
       <View style={style.main}>
         <View style={style.nav}>
           <Logo />
