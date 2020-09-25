@@ -6,38 +6,44 @@ schema {
 }
 
 type Mutation {
-    createChannel(channel: String!, enableLink: Boolean = true, password: PasswordInput): ShareResponse!
+    createChannel(enablePSTN: Boolean = false, title: String!): ShareResponse!
+    logoutAllSessions: String
+    logoutSession(token: String!): [String!]
+    startRecordingSession(channel: String!): String!
+    stopRecordingSession(channel: String!): String!
     updateUserName(name: String!): User!
 }
 
-type Passphrase {
-    host: String!
-    view: String!
+type PSTN {
+    dtmf: String!
+    number: String!
 }
 
-type Password {
-    host: String!
+type Passphrase {
+    host: String
     view: String!
 }
 
 type Query {
+    getSessions: [String!]
     getUser: User!
-    joinChannel(channel: String!, password: String!): Session!
-    joinChannelWithPassphrase(passphrase: String!): Session!
-    share(channel: String!): ShareResponse!
+    joinChannel(passphrase: String!): Session!
+    share(passphrase: String!): ShareResponse!
 }
 
 type Session {
-    channel: String
+    channel: String!
     isHost: Boolean!
-    rtc: String!
-    rtm: String!
-    uid: Int!
+    mainUser: UserCredentials!
+    screenShare: UserCredentials!
+    title: String!
 }
 
 type ShareResponse {
-    passphrase: Passphrase
-    password: Password
+    channel: String!
+    passphrase: Passphrase!
+    pstn: PSTN
+    title: String!
 }
 
 type User {
@@ -45,7 +51,8 @@ type User {
     name: String!
 }
 
-input PasswordInput {
-    host: String!
-    view: String!
+type UserCredentials {
+    rtc: String!
+    rtm: String
+    uid: Int!
 }

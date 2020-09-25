@@ -17,10 +17,10 @@ interface SessionContextInterface {
 }
 
 interface joinSessionInterface {
-  channel?: string | null;
-  password?: string | null;
-  joinFlag: number | null;
-  phrase?: string | null;
+  // channel?: string | null;
+  // password?: string | null;
+  // joinFlag: number | null;
+  phrase: string | null;
 }
 
 // const initStoreValue: SessionStoreInterface = {
@@ -61,7 +61,7 @@ export const SessionProvider = (props: {children: React.ReactNode}) => {
   const joinSession = (data: joinSessionInterface) => {
     setJoinStore(data);
     // console.log({data});
-    history.push(`/${data.channel}`);
+    history.push(`/${data.phrase}`);
   };
   return (
     <SessionContext.Provider

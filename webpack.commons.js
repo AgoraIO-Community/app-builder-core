@@ -6,6 +6,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const configVars = require('./configTransform');
 
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 
@@ -59,6 +60,7 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             cacheDirectory: true, // enables caching in babel
+            configFile: false,
             presets: [
               '@babel/preset-react', // transforms tsx into normal ts
               [
@@ -72,6 +74,7 @@ module.exports = {
             ],
             plugins: [
               // Adds support for class properties
+              ['transform-define', configVars],
               '@babel/plugin-proposal-class-properties',
               isDevelopment && require.resolve('react-refresh/babel'),
             ].filter(Boolean),

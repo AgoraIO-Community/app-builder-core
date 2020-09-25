@@ -1,67 +1,92 @@
 import React, {useContext} from 'react';
-import {Image, TouchableOpacity} from 'react-native';
-import styles from '../components/styles';
-import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+import {Image, TouchableOpacity, StyleSheet} from 'react-native';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
+import ColorContext from '../components/ColorContext';
+import {gql, useMutation} from '@apollo/client';
+import {useParams} from '../components/Router';
 
-let data = {
-  resourceId: '',
-  sid: '',
-};
+const START_RECORDING = gql`
+  mutation startRecordingSession($passphrase: String!) {
+    startRecordingSession(passphrase: $passphrase)
+  }
+`;
 
-function startRecording(channel: string) {
-  // let formData = new FormData();
-  // formData.append("cname", channel);
-  fetch('https://peaceful-headland-25872.herokuapp.com/record', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `cname=${channel}`,
-  })
-    .then((response) => response.json())
-    .then((result) => {
-      console.log('started recording : ', result);
-      data = result.values;
-    })
-    .catch((error) => console.log('error', error));
-}
+const STOP_RECORDING = gql`
+  mutation stopRecordingSession($passphrase: String!) {
+    stopRecordingSession(passphrase: $passphrase)
+  }
+`;
 
-function stopRecording(channel: string) {
-  fetch('https://peaceful-headland-25872.herokuapp.com/stop_record', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `cname=${channel}&resourceId=${data.resourceId}&sid=${data.sid}`,
-  })
-    .then((response) => response.json())
-    .then((result) => {
-      console.log('stopped recording: ', result);
-    })
-    .catch((error) => console.log('error', error));
-}
-
-export default function Recording(props) {
+const Recording = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
-  const {rtcProps} = useContext(PropsContext);
+  const {phrase} = useParams();
+  const [startRecordingQuery] = useMutation(START_RECORDING);
+  const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   return (
     <TouchableOpacity
-      style={recordingActive ? styles.greenLocalButton : styles.localButton}
+      style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
-          startRecording(rtcProps.channel);
-          sendControlMessage(controlMessageEnum.cloudRecordingActive);
+          startRecordingQuery({variables: {passphrase: phrase}})
+            .then((res) => {
+              console.log(res.data);
+              if (res.data.startRecordingSession === 'success') {
+                sendControlMessage(controlMessageEnum.cloudRecordingActive);
+                setRecordingActive(true);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         } else {
-          stopRecording(rtcProps.channel);
-          sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+          stopRecordingQuery({variables: {passphrase: phrase}})
+            .then((res) => {
+              console.log(res.data);
+              if (res.data.stopRecordingSession === 'success') {
+                sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+                setRecordingActive(false);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }
-        setRecordingActive(!recordingActive);
       }}>
-      <Image source={{uri: icons.recordingIcon}} style={styles.buttonIcon} />
+      <Image
+        source={{
+          uri: recordingActive
+            ? icons.recordingActiveIcon
+            : icons.recordingIcon,
+        }}
+        style={[style.buttonIcon, {tintColor: primaryColor}]}
+        resizeMode={'contain'}
+      />
     </TouchableOpacity>
   );
-}
+};
+
+const style = StyleSheet.create({
+  localButton: {
+    backgroundColor: '#fff',
+    borderRadius: 2,
+    borderColor: '#099DFD',
+    borderWidth: 0,
+    width: 46,
+    height: 46,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    width: 45,
+    height: 35,
+    tintColor: '#099DFD',
+  },
+});
+
+export default Recording;

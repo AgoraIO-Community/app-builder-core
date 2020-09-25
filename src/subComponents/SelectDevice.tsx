@@ -1,22 +1,23 @@
 import React, {useContext} from 'react';
-import {Picker} from 'react-native';
+import {Picker, StyleSheet} from 'react-native';
 import DeviceContext from '../components/DeviceContext';
-import styles from '../components/styles';
+import ColorContext from '../components/ColorContext';
 
 const SelectDevice = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const {
     selectedCam,
     setSelectedCam,
     selectedMic,
     setSelectedMic,
-    deviceList
+    deviceList,
   } = useContext(DeviceContext);
 
   return (
     <>
       <Picker
         selectedValue={selectedCam}
-        style={styles.popupPicker}
+        style={[style.popupPicker, {borderColor: primaryColor}]}
         onValueChange={(itemValue) => setSelectedCam(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'videoinput') {
@@ -32,7 +33,7 @@ const SelectDevice = (props: any) => {
       </Picker>
       <Picker
         selectedValue={selectedMic}
-        style={styles.popupPicker}
+        style={[style.popupPicker, {borderColor: primaryColor}]}
         onValueChange={(itemValue) => setSelectedMic(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'audioinput') {
@@ -49,4 +50,19 @@ const SelectDevice = (props: any) => {
     </>
   );
 };
+
+const style = StyleSheet.create({
+  popupPicker: {
+    minHeight: 45,
+    paddingHorizontal: 6,
+    width: '100%',
+    alignSelf: 'center',
+    maxWidth: 400,
+    marginHorizontal: 10,
+    borderWidth: 2,
+    borderColor: '#099DFD',
+    marginBottom: 10,
+  },
+});
+
 export default SelectDevice;

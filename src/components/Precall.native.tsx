@@ -1,6 +1,12 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, {useContext} from 'react';
-import {View, TouchableOpacity, Text} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  TextInput,
+} from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {
@@ -10,60 +16,121 @@ import {
 } from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import styles from './styles';
+import images from '../assets/images';
+import ColorContext from '../components/ColorContext';
 
 const Precall = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.startPreview();
-  const {setCallActive, queryComplete} = props;
+  const {setCallActive, queryComplete, username, setUsername} = props;
   return (
-    <View style={{flex: 1}}>
-      <View style={{flex: 0.1, justifyContent: 'center'}}>
-        <Text
-          style={{
-            fontSize: 24,
-            color: '#fff',
-            fontWeight: '400',
-            alignSelf: 'center',
-          }}>
-          Precall
-        </Text>
+    <ImageBackground
+      source={{uri: images.background}}
+      style={style.full}
+      resizeMode={'cover'}>
+      <View style={style.heading}>
+        <Text style={style.headingText}>Precall </Text>
       </View>
-      <View style={{flex: 1}}>
+      <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
-      <View style={{flexDirection: 'row', alignSelf: 'center', padding: 10}}>
+      <View style={style.textInputHolder}>
+        <TextInput
+          style={[style.textInput, {borderColor: primaryColor}]}
+          value={username}
+          onChangeText={(text) => {
+            if (username !== 'Getting name...') {
+              setUsername(text);
+            }
+          }}
+          onSubmitEditing={() => {}}
+          placeholder="Display Name"
+          placeholderTextColor="#777"
+        />
+      </View>
+      <View style={style.controls}>
         <LocalUserContext>
           <LocalVideoMute />
-          <View style={{width: 50}} />
+          <View style={style.width50} />
           <LocalAudioMute />
-          <View style={{width: 50}} />
+          <View style={style.width50} />
           <SwitchCamera />
         </LocalUserContext>
       </View>
-      <TouchableOpacity onPress={() => setCallActive(true)} disabled={!queryComplete}>
-        <View
-          style={queryComplete ? {
-            backgroundColor: '#55aaff',
-            height: 50,
-            width: 180,
-            alignSelf: 'center',
-            alignContent: 'center',
-            justifyContent: 'center',
-            marginBottom: 10,
-          }: {backgroundColor: '#55aaff',
-          height: 50,
-          width: 180,
-          alignSelf: 'center',
-          alignContent: 'center',
-          justifyContent: 'center',
-          marginBottom: 10, opacity: .3}}>
-          <Text style={styles.buttonText}>Join Room</Text>
-        </View>
+      <TouchableOpacity
+        onPress={() => setCallActive(true)}
+        disabled={!queryComplete}
+        style={
+          queryComplete
+            ? [style.buttonActive, {backgroundColor: primaryColor}]
+            : [style.buttonDisabled, {backgroundColor: primaryColor + '80'}]
+        }>
+        <Text style={style.buttonText}>
+          {queryComplete ? 'Join Room' : 'Loading...'}
+        </Text>
       </TouchableOpacity>
-    </View>
+    </ImageBackground>
   );
 };
+
+const style = StyleSheet.create({
+  full: {flex: 1},
+  heading: {flex: 0.1, justifyContent: 'center'},
+  headingText: {
+    fontSize: 24,
+    color: '#333',
+    fontWeight: '700',
+    alignSelf: 'center',
+  },
+  textInputHolder: {
+    flex: 0.1,
+    alignSelf: 'center',
+    paddingTop: 20,
+    width: '100%',
+  },
+  textInput: {
+    width: '80%',
+    paddingLeft: 8,
+    borderColor: '#099DFD',
+    borderWidth: 2,
+    color: '#333',
+    fontSize: 16,
+    // marginBottom: 15,
+    // maxWidth: 400,
+    minHeight: 45,
+    alignSelf: 'center',
+  },
+  controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 5},
+  width50: {width: 50},
+  buttonActive: {
+    backgroundColor: '#099DFD',
+    height: 50,
+    width: 180,
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginBottom: 50,
+  },
+  buttonDisabled: {
+    backgroundColor: '#099DFD80',
+    height: 50,
+    width: 180,
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    marginBottom: 50,
+  },
+  buttonText: {
+    width: '100%',
+    height: 45,
+    lineHeight: 45,
+    fontSize: 20,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    color: '#fff',
+  },
+});
 
 export default Precall;

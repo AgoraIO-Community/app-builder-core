@@ -9,55 +9,55 @@ import Navigation from './components/Navigation';
 import StoreToken from './components/StoreToken';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
-import JoinPhrase from './components/JoinPhrase';
+// import JoinPhrase from './components/JoinPhrase';
 import {SessionProvider} from './components/SessionContext';
-import {SafeAreaView} from 'react-native';
+import {SafeAreaView, StatusBar} from 'react-native';
+import ColorConfigure from './components/ColorConfigure';
 
 const App: React.FC = () => {
-  const [channel, onChangeChannel] = useState('');
-  const [password, onChangePassword] = useState('');
-  
+  const [phrase, onChangePhrase] = useState('');
+
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={{flex: 1}}>
+      <StatusBar hidden={true} />
       <StorageProvider>
         <GraphQLProvider>
           <Router>
             <SessionProvider>
-              <Navigation />
-              <Switch>
-                <Route exact path={'/'}>
-                  <Redirect to={'/join'} />
-                </Route>
-                <Route exact path={'/authenticate'}>
-                  <OAuth />
-                </Route>
-                <Route path={'/auth-token/:token'}>
-                  <StoreToken />
-                </Route>
-                <Route exact path={'/join'}>
-                  <Join
-                    channel={channel}
-                    onChangeChannel={onChangeChannel}
-                    password={password}
-                    onChangePassword={onChangePassword}
-                  />
-                </Route>
-                <Route path={'/join/:phrase'}>
-                  <JoinPhrase />
-                </Route>
-                <PrivateRoute path={'/create'} failureRedirectTo={'/authenticate'}>
-                  <Create />
-                </PrivateRoute>
-                <Route path={'/:channel'}>
-                  <VideoCall />
-                </Route>
-              </Switch>
+              <ColorConfigure>
+                <Navigation />
+                <Switch>
+                  <Route exact path={'/'}>
+                    <Redirect to={'/join'} />
+                  </Route>
+                  <Route exact path={'/authenticate'}>
+                    <OAuth />
+                  </Route>
+                  <Route path={'/auth-token/:token'}>
+                    <StoreToken />
+                  </Route>
+                  <Route exact path={'/join'}>
+                    <Join phrase={phrase} onChangePhrase={onChangePhrase} />
+                  </Route>
+                  {/* <Route path={'/join/:phrase'}>
+                    <JoinPhrase />
+                  </Route> */}
+                  <PrivateRoute
+                    path={'/create'}
+                    failureRedirectTo={'/authenticate'}>
+                    <Create />
+                  </PrivateRoute>
+                  <Route path={'/:phrase'}>
+                    <VideoCall />
+                  </Route>
+                </Switch>
+              </ColorConfigure>
             </SessionProvider>
           </Router>
         </GraphQLProvider>
       </StorageProvider>
     </SafeAreaView>
   );
-  // return <div> hello world</div>;
+  // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
 export default App;

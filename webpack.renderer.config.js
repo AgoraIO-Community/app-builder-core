@@ -5,6 +5,7 @@
 const {merge} = require('webpack-merge');
 const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
+const webpack = require('webpack');
 
 const commons = require('./webpack.commons');
 module.exports = merge(commons, {
@@ -12,7 +13,6 @@ module.exports = merge(commons, {
   entry: {
     main: path.resolve(__dirname, 'electron/renderer/index.js'),
   },
-  target: 'node',
   node: {
     __dirname: false,
   },
@@ -23,9 +23,11 @@ module.exports = merge(commons, {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, '.electron'),
   },
+  // plugins: [
+  //   isDevelopment && new webpack.HotModuleReplacementPlugin(), // to enable HMR for webpack-dev-server
+  // ].filter(Boolean),
   devServer: {
     port: 9002,
-    hot: true,
-    writeToDisk: true,
+    // hot: true,
   },
 });

@@ -13,13 +13,17 @@ export interface messageStoreInterface {
   uid: string;
   msg: string;
 }
+
 interface chatContext {
   messageStore: messageStoreInterface | any;
+  privateMessageStore: any;
   sendMessage: (msg: string) => void;
+  sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
   engine: RtmEngine;
   localUid: string;
+  userList: any;
   // peersRTM: Array<string>;
 }
 

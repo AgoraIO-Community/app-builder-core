@@ -1,10 +1,18 @@
 import React, {useContext, useState} from 'react';
-import {Image, TouchableOpacity, View, Picker, Text} from 'react-native';
-import styles from '../components/styles';
+import {
+  Image,
+  TouchableOpacity,
+  View,
+  Picker,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import icons from '../assets/icons';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import ColorContext from '../components/ColorContext';
 
-export default function ScreenshareButton(props) {
+const ScreenshareButton = (props: any) => {
+  const {primaryColor} = useContext(ColorContext);
   const [screenListActive, setScreenListActive] = useState(false);
   const [selectedScreen, setSelectedScreen] = useState(0);
   const [screens, setScreens] = useState([]);
@@ -17,7 +25,11 @@ export default function ScreenshareButton(props) {
   return (
     <>
       <TouchableOpacity
-        style={screenshareActive ? styles.greenLocalButton : styles.localButton}
+        style={
+          screenshareActive
+            ? style.greenLocalButton
+            : [style.localButton, {borderColor: primaryColor}]
+        }
         disabled={buttonDisabled}
         onPress={() => {
           if (!screenshareActive) {
@@ -31,15 +43,15 @@ export default function ScreenshareButton(props) {
         }}>
         <Image
           source={{uri: icons.screenshareIcon}}
-          style={styles.buttonIcon}
+          style={[style.buttonIcon, {tintColor: primaryColor}]}
         />
       </TouchableOpacity>
       {screenListActive ? (
-        <View style={styles.popupView}>
-          <Text style={styles.popupText}>Please select a screen to share:</Text>
+        <View style={style.popupView}>
+          <Text style={style.popupText}>Please select a screen to share:</Text>
           <Picker
             selectedValue={selectedScreen}
-            style={styles.popupPicker}
+            style={style.popupPicker}
             onValueChange={(itemValue) => setSelectedScreen(itemValue)}>
             {screens.map((device: any, i) => {
               console.log(device, i);
@@ -55,8 +67,8 @@ export default function ScreenshareButton(props) {
               setScreenshareActive(true);
               setButtonDisabled(false);
             }}
-            style={styles.popupButton}>
-            <Text style={styles.buttonText}>Start Sharing</Text>
+            style={style.popupButton}>
+            <Text style={style.buttonText}>Start Sharing</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -64,4 +76,81 @@ export default function ScreenshareButton(props) {
       )}
     </>
   );
-}
+};
+
+const style = StyleSheet.create({
+  localButton: {
+    backgroundColor: '#fff',
+    borderRadius: 2,
+    borderColor: '#099DFD',
+    // borderWidth: 1,
+    width: 46,
+    height: 46,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  greenLocalButton: {
+    backgroundColor: '#4BEB5B',
+    borderRadius: 2,
+    borderColor: '#F86051',
+    width: 46,
+    height: 46,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonIcon: {
+    width: 35,
+    height: 35,
+    tintColor: '#099DFD',
+  },
+  popupView: {
+    position: 'absolute',
+    top: '-400%',
+    left: '20%',
+    width: '60%',
+    height: '350%',
+    backgroundColor: '#fff',
+    justifyContent: 'space-evenly',
+    alignContent: 'center',
+    paddingVertical: 5,
+  },
+  popupText: {
+    width: '100%',
+    fontSize: 24,
+    textAlign: 'center',
+    color: '#fff',
+  },
+  popupPicker: {
+    height: '40%',
+    width: '50vw',
+    alignSelf: 'center',
+    // paddingVertical: 2,
+    // marginVertical: 5,
+  },
+  popupButton: {
+    backgroundColor: '#6E757D',
+    height: '20%',
+    width: '50vw',
+    alignSelf: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
+  popupPickerHolder: {
+    // height: '40%',
+    justifyContent: 'space-around',
+  },
+  buttonText: {
+    width: '100%',
+    height: 45,
+    lineHeight: 45,
+    fontSize: 20,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    color: '#fff',
+  },
+});
+
+export default ScreenshareButton;

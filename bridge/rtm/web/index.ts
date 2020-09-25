@@ -157,7 +157,7 @@ export default class RtmEngine {
         this.channelEventsMap.get('channelMessageReceived')({uid, channelId, text, ts});
       });
     this.channelMap.get(channelId).on('MemberJoined', (uid: string) => {
-      this.channelEventsMap.get('channelMemberJoined')(uid);
+      this.channelEventsMap.get('channelMemberJoined')({uid, channelId});
     });
     this.channelMap.get(channelId).on('MemberLeft', (uid: string) => {
       this.channelEventsMap.get('channelMemberLeft')(uid);
@@ -265,7 +265,8 @@ export default class RtmEngine {
     attributes.map((attribute) => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
+      formattedAttributes = {[key]: value};
+      // console.log('!!!!formattedAttributes', formattedAttributes, key, value);
     });
     return this.client.setLocalUserAttributes({...formattedAttributes});
   }
