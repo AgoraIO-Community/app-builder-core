@@ -13,7 +13,6 @@ import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import SelectDevice from '../subComponents/SelectDevice';
-import images from '../assets/images';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from '../components/ColorContext';
@@ -35,7 +34,7 @@ const Precall = (props: any) => {
   return (
     <ImageBackground
       onLayout={onLayout}
-      source={{uri: images.background}}
+      source={{uri: $config.bg}}
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.main}>

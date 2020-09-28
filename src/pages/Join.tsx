@@ -8,7 +8,6 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import images from '../assets/images';
 import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
@@ -47,7 +46,7 @@ const Join = (props: joinProps) => {
   return (
     <ImageBackground
       onLayout={onLayout}
-      source={{uri: images.background}}
+      source={{uri: $config.bg}}
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.main}>

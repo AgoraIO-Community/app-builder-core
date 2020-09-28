@@ -16,7 +16,6 @@ import {
 } from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import images from '../assets/images';
 import ColorContext from '../components/ColorContext';
 
 const Precall = (props: any) => {
@@ -27,7 +26,7 @@ const Precall = (props: any) => {
   const {setCallActive, queryComplete, username, setUsername} = props;
   return (
     <ImageBackground
-      source={{uri: images.background}}
+      source={{uri: $config.bg}}
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.heading}>

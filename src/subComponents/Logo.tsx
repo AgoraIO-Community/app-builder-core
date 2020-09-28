@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import {Image, TouchableOpacity} from 'react-native';
-import images from '../assets/images';
 import {useHistory} from '../components/Router';
 import colorContext from '../components/ColorContext';
 

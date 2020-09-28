@@ -21,5 +21,7 @@ interface ConfigInterface {
   CLIENT_ID: string;
   landingHeading: string;
   landingSubHeading: string;
+  illustration: string;
+  bg: string;
 }
 declare var $config: ConfigInterface;

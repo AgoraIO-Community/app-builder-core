@@ -9,7 +9,6 @@ import {
   Dimensions,
 } from 'react-native';
 import Checkbox from '../subComponents/Checkbox';
-import images from '../assets/images';
 import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
@@ -93,7 +92,7 @@ const Create = () => {
 
   return (
     <ImageBackground
-      source={{uri: images.background}}
+      source={{uri: $config.bg}}
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.main}>
