@@ -17,7 +17,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: isElectron ? 'electron/index.html' : 'web/index.html',
     }),
-    isDevelopment && new ReactRefreshWebpackPlugin(),
+    isDevelopment && new ReactRefreshWebpackPlugin({
+      overlay: false,
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {

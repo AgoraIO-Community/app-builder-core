@@ -19,7 +19,7 @@ const oauth = {
 const url = `${oauth.auth_uri}?response_type=code&scope=${oauth.scope}&include_granted_scopes=true&state=${oauth.state}&client_id=${oauth.client_id}&redirect_uri=${oauth.redirect_uri}`;
 const processUrl = (url: string): string => {
   return url
-    .replace('my-scheme://my-host', '')
+    .replace(`${$config.projectName.toLowerCase()}://my-host`, '')
     .replace($config.frontEndURL, '');
 };
 

@@ -5,7 +5,7 @@ import {BackButton} from './Router.native';
 
 const processUrl = (url: string): string => {
   return url
-    .replace('my-scheme://my-host', '')
+    .replace(`${$config.projectName.toLowerCase()}://my-host`, '')
     .replace($config.frontEndURL, '');
 };
 
