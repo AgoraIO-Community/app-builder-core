@@ -2,7 +2,7 @@ const {app, BrowserWindow, session} = require('electron');
 const path = require('path');
 const isDevelopment = process.env.NODE_ENV === 'development';
 const {format} = require('url');
-const {devServer: {port} = {}} = require('../../webpack.renderer.config');
+const port = 9002;
 
 // isDevelopment && require('react-devtools-electron');
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
