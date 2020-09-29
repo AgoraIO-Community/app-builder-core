@@ -17,9 +17,10 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: isElectron ? 'electron/index.html' : 'web/index.html',
     }),
-    isDevelopment && new ReactRefreshWebpackPlugin({
-      overlay: false,
-    }),
+    isDevelopment &&
+      new ReactRefreshWebpackPlugin({
+        overlay: false,
+      }),
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -72,7 +73,14 @@ module.exports = {
                   isTSX: true,
                 },
               ],
-              '@babel/preset-env', // smartly transforms js into es5-es6
+              [
+                '@babel/preset-env', // smartly transforms js into es5-es6
+                isElectron && {
+                  targets: {
+                    node: 'current',
+                  },
+                },
+              ].filter(Boolean),
             ],
             plugins: [
               // Adds support for class properties
