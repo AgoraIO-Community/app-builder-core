@@ -21,6 +21,7 @@ import ColorContext from '../components/ColorContext';
 import {useParams} from './Router';
 import {gql, useQuery} from '@apollo/client';
 import icons from '../assets/icons';
+import platform from '../subComponents/Platform';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -47,21 +48,26 @@ const ParticipantView = (props: any) => {
     variables: {passphrase: phrase},
   });
   const copyToClipboard = () => {
-    console.log(data, loading, error);
     if (data && !loading) {
-      console.log(data.share);
-      Clipboard.setString(
-        data.share.pstn
-          ? `Meeting - ${data.share.title}
+      let stringToCopy = '';
+      $config.frontEndURL
+        ? (stringToCopy += `Meeting - ${data.share.title}
 URL for Attendee: ${$config.frontEndURL}/${data.share.passphrase.view}
-URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}
+URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`)
+        : platform === 'web'
+        ? (stringToCopy += `Meeting - ${data.share.title}
+URL for Attendee: ${window.location.origin}/${data.share.passphrase.view}
+URL for Host: ${window.location.origin}/${data.share.passphrase.host}`)
+        : (stringToCopy += `Meeting - ${data.share.title}
+Attendee Meeting ID: ${data.share.passphrase.view}
+Host Meeting ID: ${data.share.passphrase.host}`);
 
-PSTN Number: ${data.share.pstn.number}
-PSTN Pin: ${data.share.pstn.dtmf}`
-          : `Meeting - ${data.share.title}
-URL for Attendee: ${$config.frontEndURL}/${data.share.passphrase.view}
-URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`,
-      );
+      data.share.pstn
+        ? (stringToCopy += `PSTN Number: ${data.share.pstn.number}
+PSTN Pin: ${data.share.pstn.dtmf}`)
+        : '';
+      console.log(stringToCopy);
+      Clipboard.setString(stringToCopy);
     }
   };
 

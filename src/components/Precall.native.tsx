@@ -17,13 +17,15 @@ import {
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import ColorContext from '../components/ColorContext';
+import {useHistory} from './Router';
 
 const Precall = (props: any) => {
+  const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.startPreview();
-  const {setCallActive, queryComplete, username, setUsername} = props;
+  const {setCallActive, queryComplete, username, setUsername, error} = props;
   return (
     <ImageBackground
       source={{uri: $config.bg}}
@@ -32,6 +34,50 @@ const Precall = (props: any) => {
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
       </View>
+      {error ? (
+        <View
+          style={{
+            position: 'absolute',
+            borderWidth: 2,
+            borderColor: '#ff0000',
+            backgroundColor: '#ffffff80',
+            paddingHorizontal: 10,
+            paddingVertical: 2,
+            maxWidth: 250,
+            width: '65%',
+            left: 0,
+            right: 0,
+            top: '10%',
+            marginHorizontal: 'auto',
+            left: '20%',
+            zIndex: 55,
+          }}>
+          <Text style={{alignSelf: 'center'}}>
+            <Text
+              style={{
+                fontWeight: '500',
+                textAlign: 'center',
+                fontSize: 16,
+              }}>
+              {error.name + ' - '}
+            </Text>
+            <Text style={{}}>{error.message}</Text>
+          </Text>
+          <TouchableOpacity
+            style={{alignSelf: 'center'}}
+            onPress={() => history.replace('./')}>
+            <Text
+              style={{
+                fontWeight: '500',
+                textDecorationLine: 'underline',
+              }}>
+              {'Go back '}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <></>
+      )}
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>

@@ -10,7 +10,7 @@ import ColorContext from '../components/ColorContext';
 import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
 import Illustration from '../subComponents/Illustration';
-
+import platform from '../subComponents/Platform';
 const Share = (props: any) => {
   const history = useHistory();
   const {
@@ -30,27 +30,34 @@ const Share = (props: any) => {
   };
 
   const copyToClipboard = () => {
-    Clipboard.setString(
-      pstn
-        ? hostControlCheckbox
-          ? `Meeting - ${roomTitle}
-URL for Attendee: ${urlView}
-URL for Host: ${urlHost}
+    let stringToCopy = '';
 
-PSTN Number: ${pstn.number}
-PSTN Pin: ${pstn.dtmf}`
-          : `Meeting - ${roomTitle}
-Meeting URL: ${urlHost}
+    $config.frontEndURL
+      ? hostControlCheckbox
+        ? (stringToCopy += `Meeting - ${roomTitle}
+URL for Attendee: ${$config.frontEndURL}/${urlView}
+URL for Host: ${$config.frontEndURL}/${urlHost}`)
+        : (stringToCopy += `Meeting - ${roomTitle}
+Meeting URL: ${$config.frontEndURL}/${urlHost}`)
+      : platform === 'web'
+      ? hostControlCheckbox
+        ? (stringToCopy += `Meeting - ${roomTitle}
+URL for Attendee: ${window.location.origin}/${urlView}
+URL for Host: ${window.location.origin}/${urlHost}`)
+        : (stringToCopy += `Meeting - ${roomTitle}
+Meeting URL: ${window.location.origin}/${urlHost}`)
+      : hostControlCheckbox
+      ? (stringToCopy += `Meeting - ${roomTitle}
+Attendee Meeting ID: ${urlView}
+Host Meeting ID: ${urlHost}`)
+      : (stringToCopy += `Meeting - ${roomTitle}
+Meeting URL: ${urlHost}`);
 
-PSTN Number: ${pstn.number}
-PSTN Pin: ${pstn.dtmf}`
-        : hostControlCheckbox
-        ? `Meeting - ${roomTitle}
-URL for Attendee: ${urlView}
-URL for Host: ${urlHost}`
-        : `Meeting - ${roomTitle}
-Meeting URL: ${urlHost}`,
-    );
+    pstn
+      ? (stringToCopy += `PSTN Number: ${pstn.number}
+PSTN Pin: ${pstn.dtmf}`)
+      : '';
+    Clipboard.setString(stringToCopy);
   };
 
   const [dim, setDim] = useState([
@@ -68,19 +75,39 @@ Meeting URL: ${urlHost}`,
         <Text style={style.heading}>Meeting Created</Text>
         {hostControlCheckbox ? (
           <>
-            <Text style={style.urlTitle}>URL for Attendee:</Text>
+            <Text style={style.urlTitle}>
+              {!$config.frontEndURL && platform !== 'web'
+                ? 'Attendee Meeting ID:'
+                : 'URL for Attendee:'}
+            </Text>
             <View style={style.urlHolder}>
-              <Text style={style.url}>{urlView}</Text>
+              <Text style={style.url}>
+                {$config.frontEndURL
+                  ? `${$config.frontEndURL}/${urlView}`
+                  : platform === 'web'
+                  ? `${window.location.origin}/${urlView}`
+                  : urlView}
+              </Text>
             </View>
           </>
         ) : (
           <></>
         )}
         <Text style={style.urlTitle}>
-          {hostControlCheckbox ? 'URL for Host:' : 'Meeting URL'}
+          {hostControlCheckbox
+            ? !$config.frontEndURL && platform !== 'web'
+              ? 'Host Meeting ID:'
+              : 'URL for Host:'
+            : 'Meeting URL'}
         </Text>
         <View style={style.urlHolder}>
-          <Text style={style.url}>{urlHost}</Text>
+          <Text style={style.url}>
+            {$config.frontEndURL
+              ? `${$config.frontEndURL}/${urlHost}`
+              : platform === 'web'
+              ? `${window.location.origin}/${urlHost}`
+              : urlHost}
+          </Text>
         </View>
         {pstn ? (
           <View style={style.pstnHolder}>

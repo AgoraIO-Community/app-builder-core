@@ -84,7 +84,7 @@ const Join = (props: joinProps) => {
           ) : (
             <></>
           )}
-          <OpenInNativeButton />
+          {/* <OpenInNativeButton /> */}
         </View>
         <View style={style.content}>
           <View style={style.leftContent}>

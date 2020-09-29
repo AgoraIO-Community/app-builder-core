@@ -1,6 +1,4 @@
-import {Platform, Dimensions} from 'react-native';
-
-const {width} = Dimensions.get('window');
+import {Platform} from 'react-native';
 
 const styles = {
   temp: {
@@ -19,7 +17,7 @@ const styles = {
     bottom: 0,
   },
   localButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff00',
     borderRadius: 2,
     borderColor: $config.primaryColor,
     borderWidth: 0,
@@ -31,7 +29,7 @@ const styles = {
     justifyContent: 'center',
   },
   endCall: {
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff00',
     borderRadius: 2,
     borderColor: $config.primaryColor,
     borderWidth: 0,

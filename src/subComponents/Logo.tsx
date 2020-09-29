@@ -1,11 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import {Image, TouchableOpacity} from 'react-native';
 import {useHistory} from '../components/Router';
-import colorContext from '../components/ColorContext';
 
 export default function Logo() {
   const history = useHistory();
-  const {primaryColor} = useContext(colorContext);
 
   return (
     <TouchableOpacity onPress={() => history.replace('/')}>
@@ -14,7 +12,6 @@ export default function Logo() {
         style={{
           width: 90,
           height: 30,
-          tintColor: primaryColor,
         }}
         resizeMode="contain"
       />
