@@ -15,11 +15,13 @@ module.exports = {
   plugins: [
     // Using html webpack plugin to utilize our index.html
     new HtmlWebpackPlugin({
+      title: configVars['$config.displayName'],
       template: isElectron ? 'electron/index.html' : 'web/index.html',
     }),
-    isDevelopment && new ReactRefreshWebpackPlugin({
-      overlay: false,
-    }),
+    isDevelopment &&
+      new ReactRefreshWebpackPlugin({
+        overlay: false,
+      }),
   ].filter(Boolean),
   resolve: {
     alias: {
