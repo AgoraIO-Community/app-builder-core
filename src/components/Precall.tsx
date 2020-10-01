@@ -77,14 +77,14 @@ const Precall = (props: any) => {
                     textAlign: 'center',
                     textDecorationLine: 'underline',
                   }}>
-                  Try Again
+                  Go back
                 </Text>
               </TouchableOpacity>
             </View>
           ) : (
             <></>
           )}
-          <OpenInNativeButton />
+          {/* <OpenInNativeButton /> */}
         </View>
         <View style={style.content}>
           <View style={style.leftContent}>

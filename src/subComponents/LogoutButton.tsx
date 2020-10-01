@@ -18,14 +18,11 @@ const LogoutButton = (props: any) => {
   const [logoutQuery] = useMutation(LOGOUT);
 
   const logout = () => {
-    logoutQuery({variables: {token}})
-      .then(() => {
-        setStore({token: null});
-      })
-      .catch((e) => {
-        setError(e);
-        console.log(e);
-      });
+    setStore({token: null});
+    logoutQuery({variables: {token}}).catch((e) => {
+      // setError(e);
+      console.log(e);
+    });
   };
 
   const login = () => {

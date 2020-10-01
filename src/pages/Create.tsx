@@ -64,12 +64,8 @@ const Create = () => {
       })
         .then((res: any) => {
           console.log('promise data', res);
-          setUrlView(
-            `${$config.frontEndURL}/${res.data.createChannel.passphrase.view}`,
-          );
-          setUrlHost(
-            `${$config.frontEndURL}/${res.data.createChannel.passphrase.host}`,
-          );
+          setUrlView(res.data.createChannel.passphrase.view);
+          setUrlHost(res.data.createChannel.passphrase.host);
           setPstn(res.data.createChannel.pstn);
           setJoinPhrase(res.data.createChannel.passphrase.host);
           // setPstnPin(res.data.createChannel.pstn.)
@@ -126,7 +122,7 @@ const Create = () => {
           ) : (
             <></>
           )}
-          <OpenInNativeButton />
+          {/* <OpenInNativeButton /> */}
         </View>
         {!roomCreated ? (
           <View style={style.content} onLayout={onLayout}>
