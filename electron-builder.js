@@ -1,5 +1,7 @@
+const {projectName} = require('./config.json');
 module.exports = {
-  appId: 'io.agora.saas',
+  appId: `com.${projectName.toLowerCase()}`,
+  productName: projectName,
   directories: {
     output: './out',
     app: './.electron',
