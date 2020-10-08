@@ -1,4 +1,4 @@
-const {app, BrowserWindow, session} = require('electron');
+const {app, BrowserWindow, session, Menu} = require('electron');
 const path = require('path');
 const isDevelopment = process.env.NODE_ENV === 'development';
 const {format} = require('url');
@@ -12,6 +12,27 @@ if (require('electron-squirrel-startup')) {
 
 let mainWindow;
 const createWindow = () => {
+  let template = [];
+  const name = app.getName();
+  template.unshift({
+    label: name,
+    submenu: [
+      {
+        label: 'About ' + name,
+        role: 'about',
+      },
+      {
+        label: 'Quit',
+        accelerator: 'Command+Q',
+        click() {
+          app.quit();
+        },
+      },
+    ],
+  });
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+
   // Create the browser window.
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     details.requestHeaders['User-Agent'] = 'Chrome';

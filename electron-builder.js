@@ -11,6 +11,10 @@ module.exports = {
   },
   mac: {
     target: ['dmg'],
+    hardenedRuntime: true,
+    gatekeeperAssess: false,
+    entitlements: 'build/entitlements.mac.plist',
+    entitlementsInherit: 'build/entitlements.mac.plist',
   },
   win: {
     target: [
@@ -20,4 +24,5 @@ module.exports = {
       },
     ],
   },
+  afterSign: './notarize.js',
 };
