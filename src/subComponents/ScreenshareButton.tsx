@@ -9,7 +9,7 @@ const ScreenshareButton = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const rtc = useContext(RtcContext);
   const {screenshareActive, setScreenshareActive} = props;
-  const {channel, appId, screenShareUid, screenShareToken} = useContext(PropsContext).rtcProps;
+  const {channel, appId, screenShareUid, screenShareToken, encryption} = useContext(PropsContext).rtcProps;
 
   rtc.RtcEngine.addListener('ScreenshareStopped', () => {
     setScreenshareActive(false);
@@ -30,6 +30,7 @@ const ScreenshareButton = (props: any) => {
           screenShareUid,
           appId,
           rtc.RtcEngine,
+          encryption,
         );
       }}>
       <Image

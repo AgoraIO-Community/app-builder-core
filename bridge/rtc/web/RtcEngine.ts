@@ -242,6 +242,14 @@ export default class RtcEngine {
         console.log('!set fallback');
     }
 
+    setEncryptionSecret(secret: string) {
+        this.client.setEncryptionSecret(secret);
+    }
+
+    setEncryptionMode(encryptionMode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb') {
+        this.client.setEncryptionMode(encryptionMode);
+    }
+
     async destroy(): Promise<void> {
         if (this.inScreenshare) {
             (this.eventsMap.get('UserOffline') as callbackType)(1);
@@ -259,7 +267,7 @@ export default class RtcEngine {
             this.streams.clear();
         }
     }
-    async startScreenshare(token: string, channelName: string, optionalInfo: string, optionalUid: number, appId: string, engine: AgoraRTC): Promise<void> {
+    async startScreenshare(token: string, channelName: string, optionalInfo: string, optionalUid: number, appId: string, engine: AgoraRTC, encryption: {screenKey: string; mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb'}): Promise<void> {
         if (!this.inScreenshare) {
             let init = new Promise(((resolve, reject) => {
                 engine.screenClient.init(appId, function () {
@@ -280,6 +288,10 @@ export default class RtcEngine {
             await enable;
 
             let join = new Promise((resolve, reject) => {
+                if (encryption && encryption.screenKey && encryption.mode) {
+                    this.screenClient.setEncryptionSecret(encryption.screenKey);
+                    this.screenClient.setEncryptionMode(encryption.mode);
+                }
                 this.screenClient.join(token || null, channelName, optionalUid || null, (uid) => {
                     this.localScreenUid = uid as number;
                     this.screenClient.publish(this.streams.get(1) as AgoraRTC.Stream);

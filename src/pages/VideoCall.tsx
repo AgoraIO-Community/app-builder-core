@@ -28,11 +28,13 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         rtc
         rtm
         uid
+        secret
       }
       screenShare {
         rtc
         rtm
         uid
+        secret
       }
     }
     getUser {
@@ -52,11 +54,13 @@ const JOIN_CHANNEL_PHRASE = gql`
         rtc
         rtm
         uid
+        secret
       }
       screenShare {
         rtc
         rtm
         uid
+        secret
       }
     }
   }
@@ -84,6 +88,9 @@ const VideoCall: React.FC = () => {
     screenShareUid: null,
     screenShareToken: null,
     dual: true,
+    encryption: $config.encryption
+      ? {key: null, mode: 'aes-128-xts', screenKey: null}
+      : false,
   };
   let data, loading, error;
 
@@ -113,6 +120,13 @@ const VideoCall: React.FC = () => {
       token: data.joinChannel.mainUser.rtc,
       rtm: data.joinChannel.mainUser.rtm,
       dual: true,
+      encryption: $config.encryption
+        ? {
+            key: data.joinChannel.mainUser.secret,
+            mode: 'aes-128-xts',
+            screenKey: data.joinChannel.screenShare.secret,
+          }
+        : false,
       screenShareUid: data.joinChannel.screenShare.uid,
       screenShareToken: data.joinChannel.screenShare.rtc,
     };

@@ -23,5 +23,6 @@ interface ConfigInterface {
   landingSubHeading: string;
   illustration: string;
   bg: string;
+  encryption: boolean;
 }
 declare var $config: ConfigInterface;

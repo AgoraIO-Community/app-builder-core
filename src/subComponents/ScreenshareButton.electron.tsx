@@ -102,7 +102,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonIcon: {
-    width: 35,
+    width: 40,
     height: 35,
     tintColor: '#099DFD',
   },
