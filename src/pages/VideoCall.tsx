@@ -24,17 +24,16 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
       channel
       title
       isHost
+      secret
       mainUser {
         rtc
         rtm
         uid
-        secret
       }
       screenShare {
         rtc
         rtm
         uid
-        secret
       }
     }
     getUser {
@@ -50,17 +49,16 @@ const JOIN_CHANNEL_PHRASE = gql`
       channel
       title
       isHost
+      secret
       mainUser {
         rtc
         rtm
         uid
-        secret
       }
       screenShare {
         rtc
         rtm
         uid
-        secret
       }
     }
   }
@@ -122,9 +120,9 @@ const VideoCall: React.FC = () => {
       dual: true,
       encryption: $config.encryption
         ? {
-            key: data.joinChannel.mainUser.secret,
+            key: data.joinChannel.secret,
             mode: 'aes-128-xts',
-            screenKey: data.joinChannel.screenShare.secret,
+            screenKey: data.joinChannel.secret,
           }
         : false,
       screenShareUid: data.joinChannel.screenShare.uid,
