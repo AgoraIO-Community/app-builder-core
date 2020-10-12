@@ -1,5 +1,5 @@
 const {notarize} = require('electron-notarize');
-const {projectName, appleId} = require('./config.json');
+const {projectName} = require('./config.json');
 
 exports.default = async function notarizing(context) {
   const {electronPlatformName, appOutDir} = context;
@@ -12,7 +12,7 @@ exports.default = async function notarizing(context) {
   return await notarize({
     appBundleId: `com.${projectName.toLowerCase()}`,
     appPath: `${appOutDir}/${appName}.app`,
-    appleId,
+    appleId: process.env.APPLE_ID,
     appleIdPassword: '@keychain:AC_PASSWORD',
   });
 };

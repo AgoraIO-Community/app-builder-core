@@ -31,7 +31,7 @@ const App: React.FC = () => {
                     <Redirect to={'/join'} />
                   </Route>
                   <Route exact path={'/authenticate'}>
-                    <OAuth />
+                    {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />}
                   </Route>
                   <Route path={'/auth-token/:token'}>
                     <StoreToken />
@@ -42,11 +42,17 @@ const App: React.FC = () => {
                   {/* <Route path={'/join/:phrase'}>
                     <JoinPhrase />
                   </Route> */}
-                  <PrivateRoute
-                    path={'/create'}
-                    failureRedirectTo={'/authenticate'}>
-                    <Create />
-                  </PrivateRoute>
+                  {$config.ENABLE_OAUTH ? (
+                    <PrivateRoute
+                      path={'/create'}
+                      failureRedirectTo={'/authenticate'}>
+                      <Create />
+                    </PrivateRoute>
+                  ) : (
+                    <Route path={'/create'}>
+                      <Create />
+                    </Route>
+                  )}
                   <Route path={'/:phrase'}>
                     <VideoCall />
                   </Route>

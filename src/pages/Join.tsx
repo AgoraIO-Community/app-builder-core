@@ -68,7 +68,7 @@ const Join = (props: joinProps) => {
                 top: '30%',
                 marginHorizontal: 'auto',
                 zIndex: 55,
-            }}>
+              }}>
               <Text style={{alignSelf: 'center'}}>
                 <Text
                   style={{
@@ -120,7 +120,11 @@ const Join = (props: joinProps) => {
                   Create a meeting
                 </Text>
               </TouchableOpacity>
-              <LogoutButton setError={setError} />
+              {$config.ENABLE_OAUTH ? (
+                <LogoutButton setError={setError} />
+              ) : (
+                <></>
+              )}
             </View>
           </View>
           {dim[0] > dim[1] + 150 ? (

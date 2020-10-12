@@ -23,5 +23,6 @@ interface ConfigInterface {
   landingSubHeading: string;
   illustration: string;
   bg: string;
+  ENABLE_OAUTH: boolean;
 }
 declare var $config: ConfigInterface;

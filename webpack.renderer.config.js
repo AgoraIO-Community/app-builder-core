@@ -23,11 +23,11 @@ module.exports = merge(commons, {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, '.electron'),
   },
-  // plugins: [
-  //   isDevelopment && new webpack.HotModuleReplacementPlugin(), // to enable HMR for webpack-dev-server
-  // ].filter(Boolean),
+  plugins: [
+    isDevelopment && new webpack.HotModuleReplacementPlugin(), // to enable HMR for webpack-dev-server
+  ].filter(Boolean),
   devServer: {
     port: 9002,
-    // hot: true,
+    hot: true,
   },
 });
