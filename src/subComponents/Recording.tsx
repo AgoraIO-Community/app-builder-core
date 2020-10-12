@@ -5,10 +5,11 @@ import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
+import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 
 const START_RECORDING = gql`
-  mutation startRecordingSession($passphrase: String!) {
-    startRecordingSession(passphrase: $passphrase)
+  mutation startRecordingSession($passphrase: String!, $secret: String) {
+    startRecordingSession(passphrase: $passphrase, secret: $secret)
   }
 `;
 
@@ -19,6 +20,7 @@ const STOP_RECORDING = gql`
 `;
 
 const Recording = (props: any) => {
+  const {rtcProps} = useContext(PropsContext);
   const {primaryColor} = useContext(ColorContext);
   const setRecordingActive = props.setRecordingActive;
   const recordingActive = props.recordingActive;
@@ -31,7 +33,15 @@ const Recording = (props: any) => {
       style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
-          startRecordingQuery({variables: {passphrase: phrase}})
+          startRecordingQuery({
+            variables: {
+              passphrase: phrase,
+              secret:
+                rtcProps.encryption && rtcProps.encryption.key
+                  ? rtcProps.encryption.key
+                  : '',
+            },
+          })
             .then((res) => {
               console.log(res.data);
               if (res.data.startRecordingSession === 'success') {
