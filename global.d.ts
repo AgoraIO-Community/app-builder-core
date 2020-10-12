@@ -24,5 +24,6 @@ interface ConfigInterface {
   illustration: string;
   bg: string;
   ENABLE_OAUTH: boolean;
+  encryption: boolean;
 }
 declare var $config: ConfigInterface;
