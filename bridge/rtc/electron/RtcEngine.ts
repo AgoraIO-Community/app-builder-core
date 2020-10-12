@@ -210,6 +210,14 @@ export default class RtcEngine {
       this.agoraRtcEngine.setRemoteSubscribeFallbackOption(option) === 0 ? Promise.resolve() : Promise.reject('error in setremotefallback');
   }
 
+  async setEncryptionSecret(secret: string) {
+    this.agoraRtcEngine.setEncryptionSecret(secret);
+  }
+
+    async setEncryptionMode(encryptionMode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb') {
+      this.agoraRtcEngine.setEncryptionMode(encryptionMode);
+  }
+
   async destroy(): Promise<void> {
     this.agoraRtcEngine.release();
     this.eventsMap.clear();
