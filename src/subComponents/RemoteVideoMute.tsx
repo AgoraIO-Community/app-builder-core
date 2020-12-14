@@ -4,6 +4,11 @@ import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import icons from '../assets/icons';
 import ColorContext from '../components/ColorContext';
 
+/**
+ * Component to mute / unmute remote video.
+ * Sends a control message to another user over RTM if the local user is a host.
+ * If the local user is not a host, it simply renders an image
+ */
 const RemoteVideoMute = (props: {
   uid: number;
   video: boolean;

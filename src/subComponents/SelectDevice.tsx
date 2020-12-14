@@ -3,7 +3,11 @@ import {Picker, StyleSheet} from 'react-native';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 
-const SelectDevice = (props: any) => {
+/**
+ * A component to diplay a dropdown and select a device.
+ * It will add the selected device to the device context.
+ */
+const SelectDevice = () => {
   const {primaryColor} = useContext(ColorContext);
   const {
     selectedCam,

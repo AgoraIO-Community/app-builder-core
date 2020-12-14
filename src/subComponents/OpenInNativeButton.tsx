@@ -2,6 +2,11 @@ import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, Platform, StyleSheet} from 'react-native';
 import ColorContext from '../components/ColorContext';
 
+/**
+ * A component to open the meeting using a native application.
+ * This component will be rendered only on web
+ * WIP. Need to implement deeplinks on native apps.
+ */
 const OpenInNativeButton = () => {
   const {primaryColor} = useContext(ColorContext);
   const openInNative = () => {};

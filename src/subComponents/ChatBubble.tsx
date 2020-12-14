@@ -6,22 +6,22 @@ import ColorContext from '../components/ColorContext';
 const ChatBubble = (props: channelMessage) => {
   const {userList} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
-  let {type, msg, ts, uid} = props;
+  let {isLocal, msg, ts, uid} = props;
   let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
   return (
     <View>
-      <View style={type ? style.chatSenderViewLocal : style.chatSenderView}>
-        <Text style={type ? style.timestampTextLocal : style.timestampText}>
+      <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
+        <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
           {userList[uid] ? userList[uid].name : 'User'} | {time + ' '}
         </Text>
       </View>
       <View
         style={
-          type
+          isLocal
             ? [style.chatBubbleLocal, {backgroundColor: primaryColor}]
             : style.chatBubble
         }>
-        <Text style={type ? style.whiteText : style.blackText}>
+        <Text style={isLocal ? style.whiteText : style.blackText}>
           {msg.slice(1) + ' '}
         </Text>
       </View>

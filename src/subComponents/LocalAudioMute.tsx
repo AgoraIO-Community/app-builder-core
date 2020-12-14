@@ -1,10 +1,13 @@
 import React, {useContext} from 'react';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 import {LocalContext} from '../../agora-rn-uikit/src/LocalUserContext';
-import {Image, TouchableOpacity} from 'react-native';
+import {Image, StyleSheet, TouchableOpacity} from 'react-native';
 import icons from '../assets/icons';
 import ColorContext from '../components/ColorContext';
 
+/**
+ * A component to mute / unmute the local mute
+ */
 function LocalAudioMute() {
   const {primaryColor} = useContext(ColorContext);
   const {dispatch} = useContext(RtcContext);
@@ -19,18 +22,19 @@ function LocalAudioMute() {
         });
       }}>
       <Image
-        style={[
-          {
-            width: 24,
-            height: 24,
-            tintColor: '#099DFD',
-          },
-          {tintColor: primaryColor},
-        ]}
+        style={[styles.icon, {tintColor: primaryColor}]}
         source={{uri: local.audio ? icons.mic : icons.micOff}}
       />
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: '#099DFD',
+  },
+});
 
 export default LocalAudioMute;

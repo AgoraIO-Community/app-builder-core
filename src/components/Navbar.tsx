@@ -73,7 +73,9 @@ const Navbar = (props: any) => {
           />
           <MinUidConsumer>
             {(minUsers) => (
-              <Text style={[style.participantText, {color: primaryColor}]}>{minUsers.length + 1}</Text>
+              <Text style={[style.participantText, {color: primaryColor}]}>
+                {minUsers.length + 1}
+              </Text>
             )}
           </MinUidConsumer>
         </TouchableOpacity>

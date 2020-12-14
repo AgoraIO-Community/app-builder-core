@@ -1,10 +1,13 @@
 import React from 'react';
-import {Image} from 'react-native';
+import {Image, StyleSheet} from 'react-native';
 
+/**
+ * Displays the illustration.
+ */
 const Illustration = () => {
   return (
     <Image
-      style={{flex: 1}}
+      style={styles.illustration}
       resizeMode={'contain'}
       source={{
         uri:
@@ -16,4 +19,7 @@ const Illustration = () => {
   );
 };
 
+const styles = StyleSheet.create({
+  illustration: {flex: 1},
+});
 export default Illustration;

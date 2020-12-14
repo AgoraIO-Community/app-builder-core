@@ -19,6 +19,11 @@ const STOP_RECORDING = gql`
   }
 `;
 
+/**
+ * Component to start / stop Agora cloud recording.
+ * Sends a control message to all users in the channel over RTM to indicate that
+ * Cloud recording has started/stopped.
+ */
 const Recording = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const {primaryColor} = useContext(ColorContext);
@@ -33,6 +38,7 @@ const Recording = (props: any) => {
       style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
+          // If recording is not going on, start the recording by executing the graphql query
           startRecordingQuery({
             variables: {
               passphrase: phrase,
@@ -45,7 +51,10 @@ const Recording = (props: any) => {
             .then((res) => {
               console.log(res.data);
               if (res.data.startRecordingSession === 'success') {
+                // Once the backend sucessfuly starts recording,
+                // send a control message to everbody in the channel indicating that cloud recording is now active.
                 sendControlMessage(controlMessageEnum.cloudRecordingActive);
+                // set the local recording state to true to update the UI
                 setRecordingActive(true);
               }
             })
@@ -53,11 +62,15 @@ const Recording = (props: any) => {
               console.log(err);
             });
         } else {
+          // If recording is already going on, stop the recording by executing the graphql query.
           stopRecordingQuery({variables: {passphrase: phrase}})
             .then((res) => {
               console.log(res.data);
               if (res.data.stopRecordingSession === 'success') {
+                // Once the backend sucessfuly stops recording,
+                // send a control message to everbody in the channel indicating that cloud recording is now inactive.
                 sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+                // set the local recording state to false to update the UI
                 setRecordingActive(false);
               }
             })

@@ -2,7 +2,7 @@ import RtmEngine from 'agora-react-native-rtm';
 import {createContext} from 'react';
 
 export interface channelMessage {
-  type: string;
+  isLocal: boolean;
   msg: string;
   ts: string;
   uid: string;

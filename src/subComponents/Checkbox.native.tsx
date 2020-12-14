@@ -1,7 +1,10 @@
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 import CheckBox from '@react-native-community/checkbox';
 import ColorContext from '../components/ColorContext';
 
+/**
+ * A checkbox component for mobile
+ */
 const Checkbox = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const urlCheckbox = props.value;

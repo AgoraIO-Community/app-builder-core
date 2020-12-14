@@ -9,6 +9,9 @@ import {
 import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 
+/**
+ * Input component for the Chat interface
+ */
 const ChatInput = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');

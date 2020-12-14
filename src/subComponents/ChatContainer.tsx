@@ -12,8 +12,18 @@ import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
 import icons from '../assets/icons';
 
+/**
+ * Chat container is the component which renders all the chat messages
+ * It retrieves all the messages from the appropriate stores (Message store an provate message store)
+ * and maps it to a ChatBubble
+ */
 const ChatContainer = (props: any) => {
-  const {selectedUser, privateActive, setPrivateActive, selectedUsername} = props;
+  const {
+    selectedUser,
+    privateActive,
+    setPrivateActive,
+    selectedUsername,
+  } = props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
   return (
     <View style={style.containerView}>
@@ -38,7 +48,7 @@ const ChatContainer = (props: any) => {
           messageStore.map((message: any) => {
             return (
               <ChatBubble
-                type={localUid === message.uid ? 1 : 0}
+                isLocal={localUid === message.uid}
                 msg={message.msg}
                 ts={message.ts}
                 uid={message.uid}
@@ -50,7 +60,7 @@ const ChatContainer = (props: any) => {
           privateMessageStore[selectedUser.uid].map((message: any) => {
             return (
               <ChatBubble
-                type={localUid === message.uid ? 1 : 0}
+                isLocal={localUid === message.uid}
                 msg={message.msg}
                 ts={message.ts}
                 uid={message.uid}

@@ -9,18 +9,20 @@ const LOGOUT = gql`
     logoutSession(token: $token)
   }
 `;
-
-const LogoutButton = (props: any) => {
-  const {setError} = props;
+/**
+ * Sends a logout request to the backend and logs out the user from the frontend.
+ */
+const LogoutButton = () => {
   const {store, setStore} = useContext(StorageContext);
   const {token} = store;
   const history = useHistory();
   const [logoutQuery] = useMutation(LOGOUT);
 
   const logout = () => {
-    setStore({token: null});
+    if (setStore) {
+      setStore({token: null});
+    }
     logoutQuery({variables: {token}}).catch((e) => {
-      // setError(e);
       console.log(e);
     });
   };

@@ -11,7 +11,17 @@ import icons from '../assets/icons';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import ColorContext from '../components/ColorContext';
 
-const ScreenshareButton = (props: any) => {
+interface ScreenSharingProps {
+  screenshareActive: boolean;
+  setScreenshareActive: React.Dispatch<React.SetStateAction<boolean>>;
+}
+/**
+ * A component to start and stop screen sharing on Desktop clients.
+ * Screen sharing is not yet implemented on mobile platforms.
+ * Web has it's own screen sharing component
+ */
+
+const ScreenshareButton = (props: ScreenSharingProps) => {
   const {primaryColor} = useContext(ColorContext);
   const [screenListActive, setScreenListActive] = useState(false);
   const [selectedScreen, setSelectedScreen] = useState(0);
