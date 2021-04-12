@@ -85,6 +85,7 @@ const VideoCall: React.FC = () => {
     rtm: null,
     screenShareUid: null,
     screenShareToken: null,
+    profile: '480p_9',
     dual: true,
     encryption: $config.encryption
       ? {key: null, mode: 'aes-128-xts', screenKey: null}
@@ -98,7 +99,8 @@ const VideoCall: React.FC = () => {
       : JOIN_CHANNEL_PHRASE_AND_GET_USER,
     {
       variables: {passphrase: phrase},
-  }));
+    },
+  ));
 
   if (error) {
     console.log('error', error);
@@ -118,6 +120,7 @@ const VideoCall: React.FC = () => {
       token: data.joinChannel.mainUser.rtc,
       rtm: data.joinChannel.mainUser.rtm,
       dual: true,
+      profile: $config.profile,
       encryption: $config.encryption
         ? {
             key: data.joinChannel.secret,
@@ -132,7 +135,7 @@ const VideoCall: React.FC = () => {
     title = data.joinChannel.title;
     console.log('query done: ', data, queryComplete);
     if (username === 'Getting name...') {
-      if (data.getUser){
+      if (data.getUser) {
         setUsername(data.getUser.name);
       } else {
         setUsername('');

@@ -18,7 +18,12 @@ import AgoraRTC from 'agora-electron-sdk';
 import type {
   RtcEngineEvents,
   Subscription,
-} from 'react-native-agora/lib/RtcEvents';
+} from 'react-native-agora/lib/typescript/src/common/RtcEvents';
+import type {
+  VideoDimensions,
+  VideoEncoderConfiguration,
+} from 'react-native-agora/';
+import quality, {VideoProfile} from '../quality';
 
 type callbackType = (uid?: number) => void;
 type UidWithElapsedCallbackType = (
@@ -56,18 +61,35 @@ export default class RtcEngine {
       window.engine = engine.agoraRtcEngine;
       resolve();
     });
-    console.log("create invoked", engine);
+    console.log('create invoked', engine);
     await init;
     engine.agoraRtcEngine.startPreview();
     return engine;
   }
-
+  async setVideoProfile(profile: VideoProfile): Promise<void>{
+    const encoderConfig: VideoEncoderConfiguration = {
+      ...quality[profile],
+      bitrate: 0,
+    };
+    this.setVideoEncoderConfiguration(encoderConfig);
+  }
+  async setVideoEncoderConfiguration(config: VideoEncoderConfiguration): Promise<void> {
+    const {dimensions, bitrate, frameRate} = config;
+    const {height,width} = dimensions as VideoDimensions;
+    const encoderConfig = {
+      height,
+      width,
+      bitrate,
+      frameRate,
+    };
+    this.agoraRtcEngine.setVideoEncoderConfiguration(encoderConfig);
+  }
   async enableVideo(): Promise<void> {
     let enable = new Promise((resolve, reject) => {
       this.agoraRtcEngine.enableVideo() === 0 ? resolve() : reject();
     });
     await enable;
-    console.log("enabled video")
+    console.log('enabled video');
   }
 
   async joinChannel(
@@ -92,7 +114,7 @@ export default class RtcEngine {
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)([uid, state, reason, elapsed]);
       });
       this.agoraRtcEngine.on('joinedChannel', (channel, uid, elapsed) => {
-        if(this.eventsMap.get('JoinChannelSuccess')){
+        if (this.eventsMap.get('JoinChannelSuccess')){
           (this.eventsMap.get(
             'JoinChannelSuccess',
           ) as UidWithElapsedCallbackType)(channel, uid, elapsed);
@@ -125,7 +147,7 @@ export default class RtcEngine {
   ): Subscription {
     if (
       event === 'UserJoined' ||
-      event === 'UserOffline' || 
+      event === 'UserOffline' ||
       event === 'JoinChannelSuccess' ||
       event === 'ScreenshareStopped' ||
       event === 'RemoteAudioStateChanged' ||
@@ -179,10 +201,10 @@ export default class RtcEngine {
   }
 
   getDevices(callback: (devices: any) => void): void {
-    let vdevices = this.agoraRtcEngine.getVideoDevices()
-    vdevices = vdevices.map( d => ({ kind:'videoinput', deviceId:d.deviceid, label:d.devicename}))
-    let adevices = this.agoraRtcEngine.getAudioRecordingDevices()
-    adevices = adevices.map( d => ({kind:'audioinput', deviceId:d.deviceid, label:d.devicename}))
+    let vdevices = this.agoraRtcEngine.getVideoDevices();
+    vdevices = vdevices.map( d => ({ kind:'videoinput', deviceId:d.deviceid, label:d.devicename}));
+    let adevices = this.agoraRtcEngine.getAudioRecordingDevices();
+    adevices = adevices.map( d => ({kind:'audioinput', deviceId:d.deviceid, label:d.devicename}));
     let devices = [...adevices, ...vdevices];
     callback(devices);
   }

@@ -1,29 +1,46 @@
-/* const exec = require('child_process').exec;
-exec(
-  'git clone https://github.com/AgoraIO-Community/ReactNative-UIKit template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout app-builder',
-  (err, stdout, stderr)=> console.log(stdout || stderr || err)
-) */
 const path = require('path')
 const fs = require('fs/promises');
 const ROOT = path.join(process.cwd(),'template');
+
+console.log('\n\n\tConfiguring the project for dev environment')
 
 const dotFiles = [
   '_buckconfig',
   '_eslintrc.js',
   '_gitattributes',
-  '_gitignore',
   '_prettierrc.js',
   '_watchmanconfig',
 ]
 
 async function processDotfiles(){
   try{
+    let dotPromises = [];
     const files = await fs.readdir(ROOT);
-    files.forEach((file)=>{
+    files.forEach(async (file) => {
       if(dotFiles.includes(file)){
-        console.log(file);
+        const baseFileName = file.slice(1);
+        dotPromises.push(fs.copyFile(
+          path.join(ROOT,`_${baseFileName}`),
+          path.join(ROOT,`.${baseFileName}`),
+        ))
       }
     })
+    await Promise.all(dotPromises);
+    console.log('\t✓ Generated dot files\n')
+  }
+  catch(e){
+    console.error(e);
+  }
+}
+
+
+async function copyConfig(){
+  try{
+    await fs.copyFile(
+      path.join(process.cwd(),'config.json'),
+      path.join(ROOT,'config.json'),
+    )
+    console.log('\t✓ Added dev config in the template')
   }
   catch(e){
     console.error(e);
@@ -31,3 +48,4 @@ async function processDotfiles(){
 }
 
 processDotfiles();
+copyConfig();
