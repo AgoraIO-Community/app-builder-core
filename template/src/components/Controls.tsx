@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Image,
@@ -16,10 +16,25 @@ import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import ColorContext from './ColorContext';
+import ChatContext from '../components/ChatContext';
+
+
+const useChatNotification = (value: string | any[], chatDisplayed: boolean) => {
+  // store the last checked state from the messagestore, to identify unread messages
+  const [lastCheckedState, setLastCheckedState] = useState(0);
+  useEffect(() => {
+    if(chatDisplayed){
+      setLastCheckedState(value.length);
+    }
+  }, [value]);
+
+  return [lastCheckedState, setLastCheckedState]
+}
 
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
+  const {messageStore} = useContext(ChatContext);
   const {
     setRecordingActive,
     recordingActive,
@@ -27,6 +42,9 @@ const Controls = (props: any) => {
     chatDisplayed,
     isHost,
   } = props;
+  const [lastCheckedState, setLastCheckedState] = useChatNotification(messageStore, chatDisplayed)
+  const pendingMessageLength = messageStore.length - lastCheckedState;
+
   return (
     <LocalUserContext>
       <View style={style.controlsHolder}>
@@ -56,8 +74,10 @@ const Controls = (props: any) => {
           <TouchableOpacity
             style={[style.localButton, {borderColor: primaryColor}]}
             onPress={() => {
+              setLastCheckedState(messageStore.length);
               setChatDisplayed(!chatDisplayed);
             }}>
+              {!chatDisplayed && pendingMessageLength !== 0 ? <View style={style.chatNotification}>{pendingMessageLength}</View> : null}
             <Image
               source={{uri: icons.chatIcon}}
               style={[style.buttonIcon, {tintColor: primaryColor}]}
@@ -100,6 +120,19 @@ const style = StyleSheet.create({
     width: 35,
     height: 35,
     tintColor: '#099DFD',
+  },
+  chatNotification: {
+    width:25,
+    height: 25,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'red',
+    color:'#FFF',
+    borderRadius: '50%',
+    position:'absolute',
+    left: 25,
+    top: -15
   },
 });
 
