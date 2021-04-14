@@ -1,0 +1,9 @@
+{
+  "secondaryBtn": {
+    "width": "60%",
+    "borderColor": "#099DFD",
+    "borderWidth": 3,
+    "maxWidth": 400,
+    "minHeight": 45
+  }
+}
