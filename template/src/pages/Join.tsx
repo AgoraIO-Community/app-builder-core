@@ -15,6 +15,7 @@ import Logo from '../subComponents/Logo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 import Illustration from '../subComponents/Illustration';
+import {secondaryBtn} from '../../theme.json';
 
 // const joinFlag = 0;
 interface joinProps {
@@ -114,7 +115,7 @@ const Join = (props: joinProps) => {
               </TouchableOpacity>
               <View style={style.ruler} />
               <TouchableOpacity
-                style={[style.secondaryBtn, {borderColor: primaryColor}]}
+                style={[style.secondaryBtn]}
                 onPress={() => createMeeting()}>
                 <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
                   Create a meeting
@@ -220,13 +221,14 @@ const style = StyleSheet.create({
     width: '100%',
     maxWidth: 200,
   },
-  secondaryBtn: {
-    width: '60%',
-    borderColor: '#099DFD',
-    borderWidth: 3,
-    maxWidth: 400,
-    minHeight: 45,
-  },
+  // secondaryBtn: {
+  //   width: '60%',
+  //   borderColor: '#099DFD',
+  //   borderWidth: 3,
+  //   maxWidth: 400,
+  //   minHeight: 45,
+  // },
+  secondaryBtn,
   secondaryBtnText: {
     width: '100%',
     height: 45,
