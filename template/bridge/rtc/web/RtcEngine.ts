@@ -114,7 +114,6 @@ export default class RtcEngine {
 
 
     async joinChannel(token: string, channelName: string, optionalInfo: string, optionalUid: number): Promise<void> {
-        let self = this;
         let join = new Promise((resolve, reject) => {
             this.client.on('stream-added', (evt) => {
                 this.inScreenshare ?
@@ -286,14 +285,26 @@ export default class RtcEngine {
                 });
             }));
             await init;
-
-            let enable = new Promise(((resolve, reject) => {
-                this.streams.set(1, AgoraRTC.createStream(this.streamSpecScreenshare));
-                (this.streams.get(1) as AgoraRTC.Stream).init(() => {
-                    resolve();
-                }, reject);
-            }));
-            await enable;
+            try {
+                let enable = new Promise(((resolve, reject) => {
+                    try {
+                        console.log('[screenshare]: creating stream');
+                        this.streams.set(1, AgoraRTC.createStream(this.streamSpecScreenshare));
+                    }
+                    catch (e){
+                        console.error("[screenshare]: Couldn't createStream", e);
+                    }
+                    console.log('[screenshare]: Initalizing stream');
+                    (this.streams.get(1) as AgoraRTC.Stream).init(() => {
+                        console.log('[screenshare]: initalized stream');
+                        resolve();
+                    }, reject);
+                }));
+                await enable;
+            } catch (e){
+                console.log('[screenshare]: Error during intialization');
+                throw e;
+            }
 
             let join = new Promise((resolve, reject) => {
                 if (encryption && encryption.screenKey && encryption.mode) {

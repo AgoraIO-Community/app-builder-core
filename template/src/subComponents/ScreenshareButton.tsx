@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Image, TouchableOpacity, StyleSheet} from 'react-native';
 import icons from '../assets/icons';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
@@ -26,9 +26,12 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
     encryption,
   } = useContext(PropsContext).rtcProps;
 
-  rtc.RtcEngine.addListener('ScreenshareStopped', () => {
-    setScreenshareActive(false);
-  });
+  useEffect(() => {
+    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
+      setScreenshareActive(false);
+    });
+  }, []);
+
   return (
     <TouchableOpacity
       style={
@@ -36,17 +39,21 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
           ? style.greenLocalButton
           : [style.localButton, {borderColor: primaryColor}]
       }
-      onPress={() => {
-        setScreenshareActive(true);
-        rtc.RtcEngine.startScreenshare(
-          screenShareToken,
-          channel,
-          null,
-          screenShareUid,
-          appId,
-          rtc.RtcEngine,
-          encryption,
-        );
+      onPress={async () => {
+        try {
+          await rtc.RtcEngine.startScreenshare(
+            screenShareToken,
+            channel,
+            null,
+            screenShareUid,
+            appId,
+            rtc.RtcEngine,
+            encryption,
+          );
+          setScreenshareActive(true);
+        } catch (e) {
+          console.error("can't start the screen share", e);
+        }
       }}>
       <Image
         source={{
