@@ -9,7 +9,7 @@ export default class RtmEngine {
   public channelEventsMap = new Map<string, any>([
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
-    ['MemberLeft', () => null],
+    ['channelMemberLeft', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -141,7 +141,7 @@ export default class RtmEngine {
     });
   }
 
-  async login(loginParam: {uid: string, token?: string}): Promise<any> {
+  async login(loginParam: {uid: string; token?: string}): Promise<any> {
     return this.client.login(loginParam);
   }
 
@@ -151,16 +151,24 @@ export default class RtmEngine {
 
   async joinChannel(channelId: string): Promise<any> {
     this.channelMap.set(channelId, this.client.createChannel(channelId));
-    this.channelMap.get(channelId).on('ChannelMessage', (msg: {text: string}, uid: string, messagePros) => {
+    this.channelMap
+      .get(channelId)
+      .on('ChannelMessage', (msg: {text: string}, uid: string, messagePros) => {
         let text = msg.text;
         let ts = messagePros.serverReceivedTs;
-        this.channelEventsMap.get('channelMessageReceived')({uid, channelId, text, ts});
+        this.channelEventsMap.get('channelMessageReceived')({
+          uid,
+          channelId,
+          text,
+          ts,
+        });
       });
     this.channelMap.get(channelId).on('MemberJoined', (uid: string) => {
       this.channelEventsMap.get('channelMemberJoined')({uid, channelId});
     });
     this.channelMap.get(channelId).on('MemberLeft', (uid: string) => {
-      this.channelEventsMap.get('channelMemberLeft')(uid);
+      console.log('Member Left', this.channelEventsMap);
+      this.channelEventsMap.get('channelMemberLeft')({uid});
     });
     return this.channelMap.get(channelId).join();
   }

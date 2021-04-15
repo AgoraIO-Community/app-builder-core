@@ -59,24 +59,29 @@ const RtmConfigure = (props: any) => {
     });
     engine.current.on('channelMemberJoined', (data: any) => {
       engine.current.getUserAttributesByUid(data.uid).then((attr: any) => {
-        console.log({attr});
+        console.log('[user attributes]:', {attr});
         let arr = new Int32Array(1);
         arr[0] = parseInt(data.uid);
         setUserList((prevState) => {
           return {
             ...prevState,
             [Platform.OS === 'android' ? arr[0] : data.uid]: {
-              name: attr.attributes.name,
+              name: attr?.attributes?.name || 'User',
             },
           };
         });
       });
     });
-    // engine.current.on('channelMemberLeft', (uid: any) => {
-    //   setUserList((prevState) => {
-    //     return {...prevState};
-    //   });
-    // });
+    engine.current.on('channelMemberLeft', (data:any) => {
+      let arr = new Int32Array(1);
+      arr[0] = parseInt(data.uid);
+      setUserList((prevState) => {
+        return {
+          ...prevState,
+          [Platform.OS === 'android' ? arr[0] : data.uid]: undefined,
+        };
+      });
+    });
     engine.current.on('messageReceived', (evt: any) => {
       let {text} = evt;
       // console.log('messageReceived: ', evt);
@@ -163,7 +168,9 @@ const RtmConfigure = (props: any) => {
     if (name) {
       await engine.current.setLocalUserAttributes([{key: 'name', value: name}]);
     } else {
-      await engine.current.setLocalUserAttributes([{key: 'name', value: 'User'}]);
+      await engine.current.setLocalUserAttributes([
+        {key: 'name', value: 'User'},
+      ]);
     }
     await engine.current.joinChannel(rtcProps.channel);
     engine.current
@@ -177,7 +184,7 @@ const RtmConfigure = (props: any) => {
             return {
               ...prevState,
               [Platform.OS === 'android' ? arr[0] : member.uid]: {
-                name: attr.attributes.name,
+                name: attr?.attributes?.name || 'User',
               },
             };
           });
@@ -198,7 +205,7 @@ const RtmConfigure = (props: any) => {
   const sendMessageToUid = async (msg: string, uid: number) => {
     let adjustedUID = uid;
     if (adjustedUID < 0) {
-      adjustedUID = uid + parseInt(0xFFFFFFFF) + 1;
+      adjustedUID = uid + parseInt(0xffffffff) + 1;
     }
     let ts = new Date().getTime();
     await (engine.current as RtmEngine).sendMessageToPeer({
@@ -218,7 +225,7 @@ const RtmConfigure = (props: any) => {
   const sendControlMessageToUid = async (msg: string, uid: number) => {
     let adjustedUID = uid;
     if (adjustedUID < 0) {
-      adjustedUID = uid + parseInt(0xFFFFFFFF) + 1;
+      adjustedUID = uid + parseInt(0xffffffff) + 1;
     }
     await (engine.current as RtmEngine).sendMessageToPeer({
       peerId: adjustedUID.toString(),
@@ -230,7 +237,7 @@ const RtmConfigure = (props: any) => {
     callActive
       ? (await (engine.current as RtmEngine).logout(),
         await (engine.current as RtmEngine).destroyClient(),
-        setLogin(false),
+        // setLogin(false),
         console.log('RTM cleanup done'))
       : {};
   };

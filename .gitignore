@@ -62,30 +62,36 @@ template/*.jsbundle
 # CocoaPods
 template//ios/Pods/
 
-#UI Kit
+# UI Kit
 template/agora-rn-uikit/
 
-#built website
+# Built website
 template/dist/
 
-#Electron cache
+# Electron cache
 template/.electron/
 template/.webpack/
 template/out/
 
-#jetbrains
+# Jetbrains
 .idea/
 **/.idea/
 
-#dotfiles
+# Dotfiles
 template/.buckconfig
 template/.eslintrc.js
 template/.gitattributes
 template/.prettierrc.js
 template/.watchmanconfig
 
-#config
+# Config
 template/config.json
 
-#lock file
+# Lock file
 template/package-lock.json
+
+# vscode
+.vscode
+
+# logflies
+*.log
