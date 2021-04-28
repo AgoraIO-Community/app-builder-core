@@ -49,7 +49,6 @@ const useChatNotification = (
 
 const NotificationControl = ({children, chatDisplayed}) => {
   const {messageStore, privateMessageStore} = useContext(ChatContext);
-  console.log({privateMessageStore}, 'here', {messageStore});
   const [
     lastCheckedPublicState,
     setLastCheckedPublicState,

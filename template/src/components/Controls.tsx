@@ -18,21 +18,9 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 import ColorContext from './ColorContext';
 import ChatContext from '../components/ChatContext';
 
-const useChatNotification = (value: string | any[], chatDisplayed: boolean) => {
-  // store the last checked state from the messagestore, to identify unread messages
-  const [lastCheckedState, setLastCheckedState] = useState(0);
-  useEffect(() => {
-    if (chatDisplayed) {
-      setLastCheckedState(value.length);
-    }
-  }, [value]);
-
-  return [lastCheckedState, setLastCheckedState];
-};
-
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  const {messageStore, privateMessageStore} = useContext(ChatContext);
+  const {messageStore} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const {
     setRecordingActive,
