@@ -33,17 +33,17 @@ const useChatNotification = (value: string | any[], chatDisplayed: boolean) => {
 
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
+  const {messageStore, privateMessageStore} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
-  const {messageStore} = useContext(ChatContext);
   const {
     setRecordingActive,
     recordingActive,
     setChatDisplayed,
     chatDisplayed,
     isHost,
+    pendingMessageLength,
+    setLastCheckedPublicState
   } = props;
-  const [lastCheckedState, setLastCheckedState] = useChatNotification(messageStore, chatDisplayed)
-  const pendingMessageLength = messageStore.length - lastCheckedState;
 
   return (
     <LocalUserContext>
@@ -74,10 +74,10 @@ const Controls = (props: any) => {
           <TouchableOpacity
             style={[style.localButton, {borderColor: primaryColor}]}
             onPress={() => {
-              setLastCheckedState(messageStore.length);
+              setLastCheckedPublicState(messageStore.length);
               setChatDisplayed(!chatDisplayed);
             }}>
-              {!chatDisplayed && pendingMessageLength !== 0 ? <View style={style.chatNotification}>{pendingMessageLength}</View> : null}
+            {!chatDisplayed && pendingMessageLength !== 0 ? <View style={style.chatNotification}>{pendingMessageLength}</View> : null}
             <Image
               source={{uri: icons.chatIcon}}
               style={[style.buttonIcon, {tintColor: primaryColor}]}
@@ -122,12 +122,12 @@ const style = StyleSheet.create({
     tintColor: '#099DFD',
   },
   chatNotification: {
-    width:25,
-    height: 25,
+    width:20,
+    height: 20,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'red',
+    backgroundColor: '#099DFD',
     color:'#FFF',
     borderRadius: '50%',
     position:'absolute',
