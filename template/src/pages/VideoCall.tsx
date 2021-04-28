@@ -34,12 +34,10 @@ const useChatNotification = (
   }, [messageStore]);
 
   const setPrivateMessageLastSeen = ({userId, lastSeenCount}) => {
-    console.log({userId}, {lastSeenCount});
     setLastCheckedPrivateState((prevState) => {
       return {...prevState, [userId]: lastSeenCount || 0};
     });
   };
-  console.log({lastCheckedPrivateState});
   return [
     lastCheckedPublicState,
     setLastCheckedPublicState,
