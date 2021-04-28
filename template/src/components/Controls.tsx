@@ -18,18 +18,17 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 import ColorContext from './ColorContext';
 import ChatContext from '../components/ChatContext';
 
-
 const useChatNotification = (value: string | any[], chatDisplayed: boolean) => {
   // store the last checked state from the messagestore, to identify unread messages
   const [lastCheckedState, setLastCheckedState] = useState(0);
   useEffect(() => {
-    if(chatDisplayed){
+    if (chatDisplayed) {
       setLastCheckedState(value.length);
     }
   }, [value]);
 
-  return [lastCheckedState, setLastCheckedState]
-}
+  return [lastCheckedState, setLastCheckedState];
+};
 
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
@@ -42,7 +41,7 @@ const Controls = (props: any) => {
     chatDisplayed,
     isHost,
     pendingMessageLength,
-    setLastCheckedPublicState
+    setLastCheckedPublicState,
   } = props;
 
   return (
@@ -77,7 +76,9 @@ const Controls = (props: any) => {
               setLastCheckedPublicState(messageStore.length);
               setChatDisplayed(!chatDisplayed);
             }}>
-            {!chatDisplayed && pendingMessageLength !== 0 ? <View style={style.chatNotification}>{pendingMessageLength}</View> : null}
+            {!chatDisplayed && pendingMessageLength !== 0 ? (
+              <View style={style.chatNotification}>{pendingMessageLength}</View>
+            ) : null}
             <Image
               source={{uri: icons.chatIcon}}
               style={[style.buttonIcon, {tintColor: primaryColor}]}
@@ -122,17 +123,17 @@ const style = StyleSheet.create({
     tintColor: '#099DFD',
   },
   chatNotification: {
-    width:20,
+    width: 20,
     height: 20,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#099DFD',
-    color:'#FFF',
+    color: '#FFF',
     borderRadius: '50%',
-    position:'absolute',
+    position: 'absolute',
     left: 25,
-    top: -15
+    top: -15,
   },
 });
 
