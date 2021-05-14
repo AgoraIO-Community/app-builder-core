@@ -223,7 +223,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () => history.push('/'),
   };
-
+  throw new Error("My first Sentry error!");
   return (
     <>
       {queryComplete || !callActive ? (
