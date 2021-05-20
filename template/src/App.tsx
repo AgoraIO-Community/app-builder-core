@@ -28,7 +28,7 @@ const App: React.FC = () => {
                 <Navigation />
                 <Switch>
                   <Route exact path={'/'}>
-                    <Redirect to={'/join'} />
+                    <Redirect to={'/create'} />
                   </Route>
                   <Route exact path={'/authenticate'}>
                     {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />}

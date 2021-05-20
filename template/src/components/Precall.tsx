@@ -5,9 +5,10 @@ import {
   Text,
   ImageBackground,
   StyleSheet,
-  TextInput,
   Dimensions,
 } from 'react-native';
+import TextInput from '../atoms/TextInput';
+import PrimaryButton from '../atoms/PrimaryButton';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit/Components';
@@ -17,6 +18,7 @@ import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
 import {useHistory} from './Router';
+import {precallCard} from '../../theme.json';
 
 const Precall = (props: any) => {
   const history = useHistory();
@@ -100,9 +102,8 @@ const Precall = (props: any) => {
               </LocalUserContext>
             </View>
             {dim[0] < dim[1] + 150 ? (
-              <View style={style.margin5Btm}>
+              <View style={[style.margin5Btm, {alignItems: 'center'}]}>
                 <TextInput
-                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={username}
                   onChangeText={(text) => {
                     if (username !== 'Getting name...') {
@@ -111,36 +112,24 @@ const Precall = (props: any) => {
                   }}
                   onSubmitEditing={() => {}}
                   placeholder="Display Name"
-                  placeholderTextColor="#777"
                 />
                 <View style={style.margin5Btm} />
-                <TouchableOpacity
+                <PrimaryButton
                   onPress={() => setCallActive(true)}
                   disabled={!queryComplete}
-                  style={
-                    queryComplete
-                      ? [style.primaryBtn, {backgroundColor: primaryColor}]
-                      : [
-                          style.primaryBtnDisabled,
-                          {backgroundColor: primaryColor + '80'},
-                        ]
-                  }>
-                  <Text style={style.primaryBtnText}>
-                    {queryComplete ? 'Join Room' : 'Loading...'}
-                  </Text>
-                </TouchableOpacity>
+                  text={queryComplete ? 'Join Room' : 'Loading...'}
+                />
               </View>
             ) : (
               <></>
             )}
           </View>
           {dim[0] >= dim[1] + 150 ? (
-            <View style={style.full}>
-              <View style={[style.precallPickers, {shadowColor: primaryColor}]}>
+            <View style={[style.full]}>
+              <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
                 <Text style={style.subHeading}>Select Input Device</Text>
                 <SelectDevice />
                 <TextInput
-                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={username}
                   onChangeText={(text) => {
                     if (username !== 'Getting name...') {
@@ -149,25 +138,12 @@ const Precall = (props: any) => {
                   }}
                   onSubmitEditing={() => {}}
                   placeholder="Display Name"
-                  placeholderTextColor="#777"
                 />
-                <TouchableOpacity
+                <PrimaryButton
                   onPress={() => setCallActive(true)}
-                  disabled={!queryComplete}>
-                  <View
-                    style={
-                      queryComplete
-                        ? [style.primaryBtn, {backgroundColor: primaryColor}]
-                        : [
-                            style.primaryBtnDisabled,
-                            {backgroundColor: primaryColor + '80'},
-                          ]
-                    }>
-                    <Text style={style.primaryBtnText}>
-                      {queryComplete ? 'Join Room' : 'Loading...'}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                  disabled={!queryComplete}
+                  text={queryComplete ? 'Join Room' : 'Loading...'}
+                />
               </View>
             </View>
           ) : (
@@ -185,6 +161,7 @@ const style = StyleSheet.create({
     flex: 2,
     justifyContent: 'space-evenly',
     marginHorizontal: '10%',
+    minHeight: 500,
   },
   nav: {
     flex: 1,
@@ -201,16 +178,10 @@ const style = StyleSheet.create({
     marginBottom: '5%',
     marginRight: '5%',
   },
-  heading: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 20,
-  },
   subHeading: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
   },
   headline: {
     fontSize: 20,
@@ -275,17 +246,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-around',
     marginVertical: '5%',
   },
-  precallPickers: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'space-between',
-    padding: '5%',
-    marginBottom: '25%',
-    marginTop: '10%',
-    shadowColor: '#099DFD',
-    shadowRadius: 5,
-    borderRadius: 5,
-  },
+  precallPickers: precallCard,
   margin5Btm: {marginBottom: '5%'},
 });
 

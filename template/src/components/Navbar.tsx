@@ -12,6 +12,9 @@ import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import Settings from './Settings';
 import ColorContext from './ColorContext';
+import CopyJoinInfo from '../subComponents/CopyJoinInfo';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {navHolder} from '../../theme.json';
 
 const {
   participantIcon,
@@ -24,13 +27,15 @@ const Navbar = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {
-    participantsView,
-    setParticipantsView,
+    // participantsView,
+    // setParticipantsView,
+    sidePanel,
+    setSidePanel,
     layout,
     setLayout,
     recordingActive,
-    setChatDisplayed,
-    chatDisplayed,
+    // setChatDisplayed,
+    // chatDisplayed,
     isHost,
     title,
   } = props;
@@ -39,7 +44,15 @@ const Navbar = (props: any) => {
     <View
       style={Platform.OS === 'web' ? style.navHolder : style.navHolderNative}>
       <View style={style.roomNameContainer}>
-        <Text style={style.roomNameText}>{title + ' '}</Text>
+        {Platform.OS === 'web' ? (
+          <View
+            style={{flexDirection: 'row', transform: [{translateX: '50%'}]}}>
+            <Text style={style.roomNameText}>{title}</Text>
+            <CopyJoinInfo />
+          </View>
+        ) : (
+          <Text style={style.roomNameText}>{title}</Text>
+        )}
       </View>
       {/* {recordingActive ? (
         <View style={[style.recordingView, {backgroundColor: primaryColor}]}>
@@ -59,58 +72,73 @@ const Navbar = (props: any) => {
       ) : (
         <></>
       )} */}
-      <View style={[style.participantBtnHolder, {borderColor: primaryColor}]}>
-        <TouchableOpacity
-          onPress={() => {
-            chatDisplayed
-              ? (setChatDisplayed(false), setParticipantsView(true))
-              : setParticipantsView(!participantsView);
-          }}
-          style={style.participantBtn}>
-          <Image
-            source={{uri: participantIcon}}
-            style={[style.participantBtnIcon, {tintColor: primaryColor}]}
-          />
-          <MinUidConsumer>
-            {(minUsers) => (
-              <Text style={[style.participantText, {color: primaryColor}]}>
-                {minUsers.length + 1}
-              </Text>
-            )}
-          </MinUidConsumer>
-        </TouchableOpacity>
+      <View
+        style={{
+          width: '50%',
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          zIndex: 9,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#fff',
+            padding: 10,
+            borderTopLeftRadius: 10,
+            borderBottomLeftRadius: 10,
+            justifyContent: 'space-evenly',
+          }}>
+          <View
+            style={[style.participantBtnHolder, {borderColor: primaryColor}]}>
+            <TouchableOpacity
+              onPress={() => {
+                sidePanel === SidePanelType.Participants
+                  ? setSidePanel(SidePanelType.None)
+                  : setSidePanel(SidePanelType.Participants);
+              }}
+              style={style.participantBtn}>
+              <Image
+                source={{uri: participantIcon}}
+                style={[style.participantBtnIcon, {tintColor: primaryColor}]}
+              />
+              <MinUidConsumer>
+                {(minUsers) => (
+                  <Text style={[style.participantText, {color: primaryColor}]}>
+                    {minUsers.length + 1}
+                  </Text>
+                )}
+              </MinUidConsumer>
+            </TouchableOpacity>
+          </View>
+          <View style={style.layoutBtnHolder}>
+            <TouchableOpacity
+              onPress={() => {
+                setLayout(!layout);
+              }}
+              style={style.layoutBtn}>
+              <Image
+                source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
+                style={[style.layoutBtnIcon, {tintColor: primaryColor}]}
+              />
+            </TouchableOpacity>
+          </View>
+          {Platform.OS === 'web' ? (
+            <Settings
+              sidePanel={sidePanel}
+              setSidePanel={setSidePanel}
+              isHost={isHost}
+            />
+          ) : (
+            <></>
+          )}
+        </View>
       </View>
-      <View style={style.layoutBtnHolder}>
-        <TouchableOpacity
-          onPress={() => {
-            setLayout(!layout);
-          }}
-          style={style.layoutBtn}>
-          <Image
-            source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
-            style={[style.layoutBtnIcon, {tintColor: primaryColor}]}
-          />
-        </TouchableOpacity>
-      </View>
-      {Platform.OS === 'web' ? <Settings isHost={isHost} /> : <></>}
     </View>
   );
 };
 const style = StyleSheet.create({
-  navHolder: {
-    position: 'absolute',
-    zIndex: 50,
-    width: '20%', //recordingActive? '20%' : '15%',
-    height: '8%',
-    minHeight: 20,
-    minWidth: 200,
-    maxWidth: 400,
-    right: 0,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
+  navHolder: navHolder,
   navHolderNative: {
     position: 'relative',
     width: '100%',
@@ -145,11 +173,10 @@ const style = StyleSheet.create({
   participantBtnHolder: {
     backgroundColor: '#fff',
     flex: 0.5,
-    maxWidth: 65,
+    width: 90,
     paddingHorizontal: 5,
     // marginHorizontal: 5,
-    height: 35,
-    maxHeight: 30,
+    height: 30,
     // alignSelf: 'center',
     borderColor: '#099DFD',
     borderWidth: 2,
@@ -160,15 +187,15 @@ const style = StyleSheet.create({
   },
   participantBtn: {
     height: '80%',
-    width: 40,
+    width: '100%',
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
     flex: 1,
   },
   participantBtnIcon: {
-    flex: 1,
-    // width: 10,
+    height: 20,
+    width: 20,
     margin: 1,
     tintColor: '#099DFD',
     resizeMode: 'contain',
@@ -186,35 +213,35 @@ const style = StyleSheet.create({
     marginHorizontal: 1,
     height: 35,
     maxHeight: 30,
-    alignSelf: 'center',
     flexDirection: 'row',
+    width: '50%',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    alignContent: 'center',
+    zIndex: 10,
   },
   roomNameText: {
-    fontSize: 14,
+    fontSize: 20,
     // flex: 10,
     // width: 50,
-    color: '#333',
+    color: '#fff',
     fontWeight: '500',
-    alignSelf: 'center',
   },
   layoutBtnHolder: {
-    // width: 20,
-    height: '100%',
+    width: 30,
+    height: 30,
     flexDirection: 'row',
+    justifyContent: 'center',
     // marginLeft: 'auto',
     // marginRight: 1,
   },
   layoutBtn: {
-    height: '90%',
+    height: 20,
     alignSelf: 'center',
-    width: 40,
+    width: 20,
     // marginRight: 5,
   },
   layoutBtnIcon: {
     flex: 1,
-    margin: 6,
     resizeMode: 'contain',
     tintColor: '#099DFD',
   },

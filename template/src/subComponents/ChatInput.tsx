@@ -1,13 +1,17 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useRef} from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
   Text,
   StyleSheet,
+  Image,
+  TextInput as Ti,
+  UIManager,
 } from 'react-native';
 import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
+import TextInput from '../atoms/TextInput';
+import icons from '../assets/icons';
 
 /**
  * Input component for the Chat interface
@@ -20,30 +24,37 @@ const ChatInput = (props: any) => {
   return (
     <View style={[style.inputView, {borderColor: primaryColor}]}>
       <TextInput
-        style={style.chatInput}
         value={message}
         onChangeText={(text) => onChangeMessage(text)}
+        style={{color: 'black'}}
+        blurOnSubmit={false}
         onSubmitEditing={() => {
           !privateActive
             ? (sendMessage(message), onChangeMessage(''))
             : (sendMessageToUid(message, selectedUser.uid),
               onChangeMessage(''));
+
+          // UIManager.focus(inputRef.current);
         }}
         placeholder="Type your message.."
         placeholderTextColor="#000"
         autoCorrect={false}
       />
       <TouchableOpacity
-        style={style.chatInputButton}
+        style={[style.chatInputButton]}
         onPress={() => {
           !privateActive
             ? (sendMessage(message), onChangeMessage(''))
             : (sendMessageToUid(message, selectedUser.uid),
               onChangeMessage(''));
         }}>
-        <Text style={style.chatInputButtonText}>
-          {!privateActive ? 'G' : 'P'}
-        </Text>
+        <Image
+          source={{
+            uri: icons.send,
+          }}
+          style={[style.chatInputButtonIcon]}
+          resizeMode={'contain'}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -54,34 +65,33 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     marginHorizontal: 10,
-    marginBottom: 10,
-    backgroundColor: '#fff',
-    borderTopWidth: 2,
-    borderBottomWidth: 2,
-    borderColor: '#099DFD',
+    paddingVertical: 15,
   },
   chatInput: {
     flex: 1,
     width: '100%',
     backgroundColor: '#fff',
     color: '#000',
-    marginLeft: 10,
   },
   chatInputButton: {
     width: 30,
     height: 30,
-    borderRadius: 35,
-    marginVertical: 'auto',
+    borderRadius: 30,
     alignSelf: 'center',
     marginHorizontal: 10,
-    backgroundColor: '#343944',
+    backgroundColor: '#099DFD',
     display: 'flex',
     justifyContent: 'center',
   },
-  chatInputButtonText: {
-    color: '#fff',
-    justifyContent: 'center',
+  chatInputButtonIcon: {
+    width: '80%',
+    height: '80%',
     alignSelf: 'center',
+    transform: [
+      {
+        translateX: -2,
+      },
+    ],
   },
 });
 export default ChatInput;

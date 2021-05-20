@@ -18,58 +18,14 @@ import RemoteEndCall from '../subComponents/RemoteEndCall';
 import chatContext from './ChatContext';
 import Clipboard from '../subComponents/Clipboard';
 import ColorContext from './ColorContext';
-import {useParams} from './Router';
 import {gql, useQuery} from '@apollo/client';
 import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
-
-const SHARE = gql`
-  query share($passphrase: String!) {
-    share(passphrase: $passphrase) {
-      passphrase {
-        host
-        view
-      }
-      channel
-      title
-      pstn {
-        number
-        dtmf
-      }
-    }
-  }
-`;
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 const ParticipantView = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
-  const {phrase} = useParams();
-  const {data, loading, error} = useQuery(SHARE, {
-    variables: {passphrase: phrase},
-  });
-  const copyToClipboard = () => {
-    if (data && !loading) {
-      let stringToCopy = '';
-      $config.frontEndURL
-        ? (stringToCopy += `Meeting - ${data.share.title}
-URL for Attendee: ${$config.frontEndURL}/${data.share.passphrase.view}
-URL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`)
-        : platform === 'web'
-        ? (stringToCopy += `Meeting - ${data.share.title}
-URL for Attendee: ${window.location.origin}/${data.share.passphrase.view}
-URL for Host: ${window.location.origin}/${data.share.passphrase.host}`)
-        : (stringToCopy += `Meeting - ${data.share.title}
-Attendee Meeting ID: ${data.share.passphrase.view}
-Host Meeting ID: ${data.share.passphrase.host}`);
-
-      data.share.pstn
-        ? (stringToCopy += `PSTN Number: ${data.share.pstn.number}
-PSTN Pin: ${data.share.pstn.dtmf}`)
-        : '';
-      console.log(stringToCopy);
-      Clipboard.setString(stringToCopy);
-    }
-  };
 
   return (
     <View
@@ -80,7 +36,7 @@ PSTN Pin: ${data.share.pstn.dtmf}`)
       }>
       <TouchableOpacity
         style={style.backButton}
-        onPress={() => props.setParticipantsView(false)}>
+        onPress={() => props.setSidePanel(SidePanelType.None)}>
         <Image
           resizeMode={'contain'}
           style={style.backIcon}
@@ -134,28 +90,17 @@ PSTN Pin: ${data.share.pstn.dtmf}`)
           </MaxUidConsumer>
         )}
       </MinUidConsumer>
-      <TouchableOpacity
-        style={[style.secondaryBtn, {borderColor: primaryColor}]}
-        onPress={() => copyToClipboard()}>
-        <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
-          {!data ? 'Getting Data' : 'Copy joining details'}
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };
 
 const style = StyleSheet.create({
   participantView: {
-    position: 'absolute',
-    zIndex: 5,
     width: '20%',
-    height: '92%',
     minWidth: 200,
-    maxWidth: 400,
-    right: 0,
-    bottom: 0,
+    maxWidth: 300,
     backgroundColor: '#fff',
+    flex: 1,
   },
   participantViewNative: {
     position: 'absolute',

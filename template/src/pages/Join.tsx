@@ -1,7 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
   Text,
   ImageBackground,
@@ -16,7 +15,10 @@ import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 import Illustration from '../subComponents/Illustration';
 import {secondaryBtn} from '../../theme.json';
-
+import PrimaryButton from '../atoms/PrimaryButton';
+import SecondaryButton from '../atoms/SecondaryButton';
+import HorizontalRule from '../atoms/HorizontalRule';
+import TextInput from '../atoms/TextInput';
 // const joinFlag = 0;
 interface joinProps {
   phrase: string;
@@ -93,34 +95,22 @@ const Join = (props: joinProps) => {
             <Text style={style.headline}>{$config.landingSubHeading}</Text>
             <View style={style.inputs}>
               <TextInput
-                style={[style.textInput, {borderColor: primaryColor}]}
                 value={phrase}
                 onChangeText={(text) => onChangePhrase(text)}
                 onSubmitEditing={() => startCall()}
                 placeholder="Meeting ID"
-                placeholderTextColor="#777"
               />
-              <TouchableOpacity
-                style={
-                  phrase === ''
-                    ? [
-                        style.primaryBtnDisabled,
-                        {backgroundColor: primaryColor + '80'},
-                      ]
-                    : [style.primaryBtn, {backgroundColor: primaryColor}]
-                }
+
+              <PrimaryButton
                 disabled={phrase === ''}
-                onPress={() => startCall()}>
-                <Text style={style.primaryBtnText}>Enter</Text>
-              </TouchableOpacity>
-              <View style={style.ruler} />
-              <TouchableOpacity
-                style={[style.secondaryBtn]}
-                onPress={() => createMeeting()}>
-                <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
-                  Create a meeting
-                </Text>
-              </TouchableOpacity>
+                onPress={() => startCall()}
+                text={'Enter'}
+              />
+              <HorizontalRule />
+              <SecondaryButton
+                onPress={() => createMeeting()}
+                text={'Create a meeting'}
+              />
               {$config.ENABLE_OAUTH ? (
                 <LogoutButton setError={setError} />
               ) : (
@@ -167,13 +157,13 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 40,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 20,
   },
   headline: {
     fontSize: 20,
     fontWeight: '400',
-    color: '#777',
+    color: '#fff',
     marginBottom: 20,
   },
   inputs: {
@@ -182,62 +172,6 @@ const style = StyleSheet.create({
     alignSelf: 'flex-start',
     alignItems: 'center',
     justifyContent: 'space-evenly',
-  },
-  textInput: {
-    width: '100%',
-    paddingLeft: 8,
-    borderColor: '#099DFD',
-    borderWidth: 2,
-    color: '#333',
-    fontSize: 16,
-    marginBottom: 15,
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  primaryBtn: {
-    width: '60%',
-    backgroundColor: '#099DFD',
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  primaryBtnDisabled: {
-    width: '60%',
-    backgroundColor: '#099DFD80',
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  primaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#fff',
-  },
-  ruler: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    width: '100%',
-    maxWidth: 200,
-  },
-  // secondaryBtn: {
-  //   width: '60%',
-  //   borderColor: '#099DFD',
-  //   borderWidth: 3,
-  //   maxWidth: 400,
-  //   minHeight: 45,
-  // },
-  secondaryBtn,
-  secondaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-    textAlignVertical: 'center',
-    color: '#099DFD',
   },
 });
 

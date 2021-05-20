@@ -17,7 +17,6 @@ import chatContext from './ChatContext';
 
 const Chat = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
-  const {setChatDisplayed} = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
@@ -35,7 +34,7 @@ const Chat = (props: any) => {
   };
   return (
     <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
-      <View style={style.heading}>
+      {/* <View style={style.heading}>
         <TouchableOpacity
           style={style.backButton}
           onPress={() => setChatDisplayed(false)}>
@@ -46,7 +45,7 @@ const Chat = (props: any) => {
           />
           <Text style={style.headingText}>Chats</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View style={style.chatNav}>
         <TouchableOpacity
           onPress={selectGroup}
@@ -141,15 +140,11 @@ const Chat = (props: any) => {
 
 const style = StyleSheet.create({
   chatView: {
-    position: 'absolute',
-    zIndex: 5,
     width: '20%',
-    height: '92%',
     minWidth: 200,
-    maxWidth: 400,
-    right: 0,
-    bottom: 0,
+    maxWidth: 300,
     backgroundColor: '#fff',
+    flex: 1,
   },
   chatViewNative: {
     position: 'absolute',
@@ -185,49 +180,33 @@ const style = StyleSheet.create({
   groupActive: {
     backgroundColor: '#fff',
     flex: 1,
-    borderTopWidth: 2,
-    borderRightWidth: 2,
-    borderColor: '#099DFD',
     height: '100%',
     textAlign: 'center',
   },
   group: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f1f4f9',
     flex: 1,
-    borderTopWidth: 2,
-    borderBottomWidth: 2,
-    borderTopColor: '#B4E1FF',
-    borderRightWidth: 2,
-    borderColor: '#099DFD',
     height: '100%',
     textAlign: 'center',
+    borderBottomRightRadius: 10,
   },
   privateActive: {
     backgroundColor: '#fff',
-    // borderBottomWidth: 2,
-    borderTopWidth: 2,
-    // borderTopColor: '#B4E1FF',
-    borderColor: '#099DFD',
     flex: 1,
     height: '100%',
     textAlign: 'center',
   },
   private: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 2,
-    borderTopWidth: 2,
-    borderTopColor: '#B4E1FF',
-    borderColor: '#099DFD',
+    backgroundColor: '#f1f4f9',
     flex: 1,
     height: '100%',
-    // paddingLeft: 20,
     textAlign: 'center',
+    borderBottomLeftRadius: 10,
   },
   groupTextActive: {
     marginVertical: 'auto',
     fontWeight: '700',
     textAlign: 'center',
-    color: '#333',
     fontSize: 16,
     justifyContent: 'center',
     paddingVertical: 5,
@@ -236,10 +215,10 @@ const style = StyleSheet.create({
     marginVertical: 'auto',
     fontWeight: '700',
     textAlign: 'center',
-    color: '#C1C1C1',
     fontSize: 16,
     paddingVertical: 5,
     justifyContent: 'center',
+    color: '#B9B9B9',
   },
   participantContainer: {
     flexDirection: 'row',

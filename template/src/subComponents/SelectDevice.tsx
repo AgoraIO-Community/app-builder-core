@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {Picker, StyleSheet} from 'react-native';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
-
+import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
  * It will add the selected device to the device context.
@@ -21,7 +21,7 @@ const SelectDevice = () => {
     <>
       <Picker
         selectedValue={selectedCam}
-        style={[style.popupPicker, {borderColor: primaryColor}]}
+        style={[{borderColor: primaryColor}, style.popupPicker]}
         onValueChange={(itemValue) => setSelectedCam(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'videoinput') {
@@ -37,7 +37,7 @@ const SelectDevice = () => {
       </Picker>
       <Picker
         selectedValue={selectedMic}
-        style={[style.popupPicker, {borderColor: primaryColor}]}
+        style={[{borderColor: primaryColor}, style.popupPicker]}
         onValueChange={(itemValue) => setSelectedMic(itemValue)}>
         {deviceList.map((device: any) => {
           if (device.kind === 'audioinput') {
@@ -56,17 +56,7 @@ const SelectDevice = () => {
 };
 
 const style = StyleSheet.create({
-  popupPicker: {
-    minHeight: 45,
-    paddingHorizontal: 6,
-    width: '100%',
-    alignSelf: 'center',
-    maxWidth: 400,
-    marginHorizontal: 10,
-    borderWidth: 2,
-    borderColor: '#099DFD',
-    marginBottom: 10,
-  },
+  popupPicker: dropdown,
 });
 
 export default SelectDevice;

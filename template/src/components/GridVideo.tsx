@@ -1,9 +1,19 @@
 import React, {useMemo, useContext, useState} from 'react';
-import {View, Platform, StyleSheet, Text, Dimensions} from 'react-native';
+import {
+  View,
+  Platform,
+  StyleSheet,
+  Text,
+  Dimensions,
+  Image,
+} from 'react-native';
 import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import chatContext from './ChatContext';
+import icons from '../assets/icons';
+import styles from './styles';
+import ColorContext from './ColorContext';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -28,6 +38,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
 const GridVideo = () => {
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
+  const {primaryColor} = useContext(ColorContext);
   const {userList, localUid} = useContext(chatContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
@@ -63,21 +74,48 @@ const GridVideo = () => {
                   style={{
                     marginTop: -25,
                     backgroundColor: '#ffffffbb',
-                    alignSelf: 'flex-start',
+                    alignSelf: 'flex-end',
                     paddingHorizontal: 8,
                     height: 25,
+                    borderTopLeftRadius: 15,
+                    flexDirection: 'row',
                     // alignItems: 'flex-start',
                   }}>
-                  <Text textBreakStrategy={'simple'}
-                    style={{color: '#333', lineHeight: 25, fontWeight: '700',width: '100%',alignSelf: 'stretch',
-                    textAlign: 'center',}}>
+                  <View style={[style.MicBackdrop]}>
+                    <Image
+                      source={{
+                        uri: users[ridx * dims.c + cidx].audio
+                          ? icons.mic
+                          : icons.micOff,
+                      }}
+                      style={[
+                        style.MicIcon,
+                        {
+                          tintColor: users[ridx * dims.c + cidx].audio
+                            ? primaryColor
+                            : 'red',
+                        },
+                      ]}
+                      resizeMode={'contain'}
+                    />
+                  </View>
+                  <Text
+                    textBreakStrategy={'simple'}
+                    style={{
+                      color: '#333',
+                      lineHeight: 25,
+                      fontWeight: '700',
+                      width: '100%',
+                      alignSelf: 'stretch',
+                      textAlign: 'center',
+                    }}>
                     {users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
                         ? userList[localUid].name + ' '
-                        : "You "
+                        : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
                       ? userList[users[ridx * dims.c + cidx].uid].name + ' '
-                      : "User "}
+                      : 'User '}
                   </Text>
                   {/* {console.log(
                     '!nax',
@@ -99,17 +137,35 @@ const GridVideo = () => {
 const style = StyleSheet.create({
   full: {
     flex: 1,
+    padding: 40,
   },
   gridRow: {
     flex: 1,
     flexDirection: 'row',
     width: '100%',
+    paddingVertical: 10,
   },
   gridVideoContainerInner: {
     // borderColor: '#fff',
     // borderWidth:2,
     flex: 1,
     margin: 1,
+    paddingHorizontal: 10,
   },
-})
+  MicBackdrop: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginHorizontal: 10,
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  MicIcon: {
+    width: '80%',
+    height: '80%',
+    alignSelf: 'center',
+  },
+});
 export default GridVideo;

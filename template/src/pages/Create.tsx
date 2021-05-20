@@ -1,13 +1,13 @@
 import React, {useState, useContext} from 'react';
 import {
   View,
-  TextInput,
   TouchableOpacity,
   Text,
   ImageBackground,
   StyleSheet,
   Dimensions,
 } from 'react-native';
+import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
@@ -15,6 +15,11 @@ import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Share from '../components/Share';
 import ColorContext from '../components/ColorContext';
 import Illustration from '../subComponents/Illustration';
+import {textInput} from '../../theme.json';
+import PrimaryButton from '../atoms/PrimaryButton';
+import SecondaryButton from '../atoms/SecondaryButton';
+import HorizontalRule from '../atoms/HorizontalRule';
+import TextInput from '../atoms/TextInput';
 
 type PasswordInput = {
   host: string;
@@ -40,6 +45,7 @@ const CREATE_CHANNEL = gql`
 
 const Create = () => {
   const {primaryColor} = useContext(ColorContext);
+  const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
@@ -110,10 +116,14 @@ const Create = () => {
                 top: '30%',
                 marginHorizontal: 'auto',
                 zIndex: 55,
-            }}>
+              }}>
               <Text style={{alignSelf: 'center'}}>
                 <Text
-                  style={{fontWeight: '500', textAlign: 'center', fontSize: 16}}>
+                  style={{
+                    fontWeight: '500',
+                    textAlign: 'center',
+                    fontSize: 16,
+                  }}>
                   {error.name + ' - '}
                 </Text>
                 <Text style={{}}>{error.message}</Text>
@@ -127,20 +137,14 @@ const Create = () => {
         {!roomCreated ? (
           <View style={style.content} onLayout={onLayout}>
             <View style={style.leftContent}>
-              <Text style={style.heading}>Create Meeting</Text>
-              <Text style={style.headline}>
-                The Real-Time Engagement Platform for meaningful human
-                connections.
-              </Text>
+              <Text style={style.heading}>{$config.landingHeading}</Text>
+              <Text style={style.headline}>{$config.landingSubHeading}</Text>
               <View style={style.inputs}>
                 <TextInput
-                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={roomTitle}
                   onChangeText={(text) => onChangeRoomTitle(text)}
                   onSubmitEditing={() => createRoom()}
                   placeholder="Enter Room Name"
-                  placeholderTextColor="#777"
-                  autoCorrect={false}
                 />
                 {$config.pstn ? (
                   <View style={style.checkboxHolder}>
@@ -174,21 +178,16 @@ const Create = () => {
                     </Text>
                   </View>
                 </View>
-                <TouchableOpacity
+                <PrimaryButton
                   disabled={roomTitle === '' || loading}
-                  style={
-                    roomTitle === '' || loading
-                      ? [
-                          style.primaryBtnDisabled,
-                          {backgroundColor: primaryColor + '80'},
-                        ]
-                      : [style.primaryBtn, {backgroundColor: primaryColor}]
-                  }
-                  onPress={() => createRoom()}>
-                  <Text style={style.primaryBtnText}>
-                    {loading ? 'Loading...' : 'Create Meeting'}
-                  </Text>
-                </TouchableOpacity>
+                  onPress={() => createRoom()}
+                  text={loading ? 'Loading...' : 'Create Meeting'}
+                />
+                <HorizontalRule />
+                <SecondaryButton
+                  onPress={() => history.push('/join')}
+                  text={'Already have a code'}
+                />
               </View>
             </View>
             {dim[0] > dim[1] + 150 ? (
@@ -240,13 +239,13 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 38,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 20,
   },
   headline: {
     fontSize: 20,
     fontWeight: '400',
-    color: '#777',
+    color: '#fff',
     marginBottom: 20,
   },
   inputs: {
@@ -256,40 +255,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-evenly',
   },
-  textInput: {
-    width: '100%',
-    paddingLeft: 8,
-    borderColor: '#099DFD',
-    borderWidth: 2,
-    color: '#333',
-    fontSize: 16,
-    marginBottom: 15,
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  primaryBtn: {
-    width: '60%',
-    backgroundColor: '#099DFD',
-    maxWidth: 400,
-    minWidth: 200,
-    minHeight: 45,
-  },
-  primaryBtnDisabled: {
-    width: '60%',
-    backgroundColor: '#96D7FE',
-    maxWidth: 400,
-    minHeight: 45,
-    minWidth: 200,
-  },
-  primaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#fff',
-  },
+  textInput: textInput,
   checkboxHolder: {
     marginVertical: 0,
     flexDirection: 'row',
@@ -297,17 +263,17 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxTitle: {
-    color: '#333',
+    color: '#fff',
     paddingHorizontal: 5,
     fontWeight: '700',
   },
-  checkboxCaption: {color: '#333', paddingHorizontal: 5},
+  checkboxCaption: {color: '#fff', paddingHorizontal: 5},
   checkboxTextHolder: {
     marginVertical: 0, //check if 5
     flexDirection: 'column',
   },
   urlTitle: {
-    color: '#333',
+    color: '#fff',
     fontSize: 14,
   },
   urlHolder: {
@@ -319,7 +285,7 @@ const style = StyleSheet.create({
     minHeight: 45,
   },
   url: {
-    color: '#333',
+    color: '#fff',
     fontSize: 18,
     fontWeight: '700',
     textDecorationLine: 'underline',

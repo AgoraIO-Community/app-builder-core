@@ -11,6 +11,9 @@ import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
 import Illustration from '../subComponents/Illustration';
 import platform from '../subComponents/Platform';
+import PrimaryButton from '../atoms/PrimaryButton';
+import SecondaryButton from '../atoms/SecondaryButton';
+
 const Share = (props: any) => {
   const history = useHistory();
   const {
@@ -127,18 +130,14 @@ PSTN Pin: ${pstn.dtmf}`)
         ) : (
           <></>
         )}
-        <TouchableOpacity
-          style={[style.secondaryBtn, {borderColor: primaryColor}]}
-          onPress={() => copyToClipboard()}>
-          <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
-            Copy to clipboard
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[style.primaryBtn, {backgroundColor: primaryColor}]}
-          onPress={() => enterMeeting()}>
-          <Text style={style.primaryBtnText}>Enter Meeting (as host)</Text>
-        </TouchableOpacity>
+        <SecondaryButton
+          onPress={() => copyToClipboard()}
+          text={'Copy to clipboard'}
+        />
+        <PrimaryButton
+          onPress={() => enterMeeting()}
+          text={'Enter Meeting (as host)'}
+        />
       </View>
       {dim[0] > dim[1] + 150 ? (
         <View style={style.full}>

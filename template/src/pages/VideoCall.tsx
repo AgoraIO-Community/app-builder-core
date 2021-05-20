@@ -5,6 +5,7 @@ import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
+import SettingsView from '../components/SettingsView';
 import PinnedVideo from '../components/PinnedVideo';
 import Controls from '../components/Controls';
 import GridVideo from '../components/GridVideo';
@@ -17,6 +18,8 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {videoView} from '../../theme.json';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -73,6 +76,7 @@ const VideoCall: React.FC = () => {
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
+  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams();
   const [errorMessage, setErrorMessage] = useState(null);
   let isHost = true; //change to false by default after testing
@@ -170,10 +174,12 @@ const VideoCall: React.FC = () => {
                   {callActive ? (
                     <View style={style.full}>
                       <Navbar
-                        participantsView={participantsView}
-                        setParticipantsView={setParticipantsView}
-                        chatDisplayed={chatDisplayed}
-                        setChatDisplayed={setChatDisplayed}
+                        // participantsView={participantsView}
+                        // setParticipantsView={setParticipantsView}
+                        sidePanel={sidePanel}
+                        setSidePanel={setSidePanel}
+                        // chatDisplayed={chatDisplayed}
+                        // setChatDisplayed={setChatDisplayed}
                         layout={layout}
                         setLayout={setLayout}
                         recordingActive={recordingActive}
@@ -182,32 +188,46 @@ const VideoCall: React.FC = () => {
                         title={title}
                       />
                       <View style={style.videoView}>
-                        {participantsView ? (
+                        {layout ? <PinnedVideo /> : <GridVideo />}
+                        {sidePanel === SidePanelType.Participants ? (
                           <ParticipantsView
                             isHost={isHost}
-                            setParticipantsView={setParticipantsView}
+                            // setParticipantsView={setParticipantsView}
+                            setSidePanel={setSidePanel}
                           />
                         ) : (
                           <></>
                         )}
-                        {layout ? <PinnedVideo /> : <GridVideo />}
+                        {sidePanel === SidePanelType.Chat ? (
+                          $config.chat ? (
+                            <Chat />
+                          ) : (
+                            <></>
+                          )
+                        ) : (
+                          <></>
+                        )}
+                        {sidePanel === SidePanelType.Settings ? (
+                          <SettingsView
+                            isHost={isHost}
+                            // setParticipantsView={setParticipantsView}
+                            setSidePanel={setSidePanel}
+                          />
+                        ) : (
+                          <></>
+                        )}
                       </View>
                       <Controls
                         recordingActive={recordingActive}
                         setRecordingActive={setRecordingActive}
-                        chatDisplayed={chatDisplayed}
-                        setChatDisplayed={setChatDisplayed}
+                        // chatDisplayed={chatDisplayed}
+                        // setChatDisplayed={setChatDisplayed}
                         isHost={isHost}
+                        // participantsView={participantsView}
+                        // setParticipantsView={setParticipantsView}
+                        sidePanel={sidePanel}
+                        setSidePanel={setSidePanel}
                       />
-                      {chatDisplayed ? (
-                        $config.chat ? (
-                          <Chat setChatDisplayed={setChatDisplayed} />
-                        ) : (
-                          <></>
-                        )
-                      ) : (
-                        <></>
-                      )}
                     </View>
                   ) : $config.precall ? (
                     <Precall
@@ -264,11 +284,7 @@ const style = StyleSheet.create({
   full: {
     flex: 1,
   },
-  videoView: {
-    flex: 12,
-    backgroundColor: '#fff',
-    flexDirection: 'column',
-  },
+  videoView: videoView,
   loader: {
     flex: 1,
     alignSelf: 'center',

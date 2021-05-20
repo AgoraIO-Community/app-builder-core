@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   ImageBackground,
-  TextInput,
 } from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
@@ -17,6 +16,7 @@ import {
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import ColorContext from './ColorContext';
+import TextInput from '../atoms/TextInput';
 import {useHistory} from './Router';
 
 const Precall = (props: any) => {
@@ -83,7 +83,6 @@ const Precall = (props: any) => {
       </View>
       <View style={style.textInputHolder}>
         <TextInput
-          style={[style.textInput, {borderColor: primaryColor}]}
           value={username}
           onChangeText={(text) => {
             if (username !== 'Getting name...') {
@@ -92,7 +91,6 @@ const Precall = (props: any) => {
           }}
           onSubmitEditing={() => {}}
           placeholder="Display Name"
-          placeholderTextColor="#777"
         />
       </View>
       <View style={style.controls}>

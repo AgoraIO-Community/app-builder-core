@@ -17,8 +17,8 @@ const styles = {
     bottom: 0,
   },
   localButton: {
-    backgroundColor: '#ffffff00',
-    borderRadius: 2,
+    backgroundColor: '#fff',
+    borderRadius: 23,
     borderColor: $config.primaryColor,
     borderWidth: 0,
     width: 46,

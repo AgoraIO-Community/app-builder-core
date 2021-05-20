@@ -16,15 +16,21 @@ import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import ColorContext from './ColorContext';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {controlsHolder,localButton, buttonIcon} from '../../theme.json';
 
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const {
+    // participantsView,
+    // setParticipantsView,
     setRecordingActive,
     recordingActive,
-    setChatDisplayed,
-    chatDisplayed,
+    // setChatDisplayed,
+    // chatDisplayed,
+    sidePanel,
+    setSidePanel,
     isHost,
   } = props;
   return (
@@ -56,7 +62,9 @@ const Controls = (props: any) => {
           <TouchableOpacity
             style={[style.localButton, {borderColor: primaryColor}]}
             onPress={() => {
-              setChatDisplayed(!chatDisplayed);
+              sidePanel === SidePanelType.Chat
+                ? setSidePanel(SidePanelType.None)
+                : setSidePanel(SidePanelType.Chat);
             }}>
             <Image
               source={{uri: icons.chatIcon}}
@@ -75,32 +83,11 @@ const Controls = (props: any) => {
 const style = StyleSheet.create({
   controlsHolder: {
     flex: Platform.OS === 'web' ? 1.3 : 1.6,
-    maxHeight: '10%',
     paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    position: 'relative',
-    margin: 0,
-    bottom: 0,
+    ...controlsHolder
   },
-  localButton: {
-    backgroundColor: '#fff',
-    borderRadius: 2,
-    borderColor: '#099DFD',
-    // borderWidth: 1,
-    width: 46,
-    height: 46,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonIcon: {
-    width: 35,
-    height: 35,
-    tintColor: '#099DFD',
-  },
+  localButton: localButton,
+  buttonIcon: buttonIcon,
 });
 
 export default Controls;

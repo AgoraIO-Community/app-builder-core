@@ -2,6 +2,7 @@ import React, {useContext} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import chatContext, {controlMessageEnum} from './ChatContext';
 import ColorContext from './ColorContext';
+import SecondaryButton from '../atoms/SecondaryButton';
 
 const HostControlView = () => {
   const {sendControlMessage} = useContext(chatContext);
@@ -9,21 +10,19 @@ const HostControlView = () => {
   return (
     <>
       <Text style={style.heading}>Host Controls</Text>
-      <View style={style.btnContainer}>
-        <TouchableOpacity
-          style={[style.secondaryBtn, {borderColor: primaryColor}]}
-          onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}>
-          <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
-            Mute all audios
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[style.secondaryBtn, {borderColor: primaryColor}]}
-          onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}>
-          <Text style={[style.secondaryBtnText, {color: primaryColor}]}>
-            Mute all videos
-          </Text>
-        </TouchableOpacity>
+      <View>
+        <View style={style.btnContainer}>
+          <SecondaryButton
+            onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
+            text={'Mute all audios'}
+          />
+        </View>
+        <View style={style.btnContainer}>
+          <SecondaryButton
+            onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
+            text={'Mute all videos'}
+          />
+        </View>
       </View>
     </>
   );
@@ -31,36 +30,15 @@ const HostControlView = () => {
 
 const style = StyleSheet.create({
   heading: {
-    fontSize: 30,
+    fontSize: 20,
     fontWeight: '700',
     color: '#333',
     // marginBottom: 20,
     alignSelf: 'center',
   },
   btnContainer: {
-    paddingHorizontal: '5%',
-    flexDirection: 'row',
-    width: '100%',
-    alignSelf: 'center',
-    justifyContent: 'space-around',
-  },
-  secondaryBtn: {
-    width: '40%',
-    borderColor: '#099DFD',
-    borderWidth: 3,
-    // marginHorizontal: 20,
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  secondaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-    textAlignVertical: 'center',
-    color: '#099DFD',
+    alignItems: 'center',
+    marginVertical: 15,
   },
 });
 
