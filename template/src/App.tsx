@@ -31,7 +31,8 @@ const App: React.FC = () => {
                     <Redirect to={'/join'} />
                   </Route>
                   <Route exact path={'/authenticate'}>
-                    {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />}
+                    {/* {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />} */}
+                    <OAuth />
                   </Route>
                   <Route path={'/auth-token/:token'}>
                     <StoreToken />
