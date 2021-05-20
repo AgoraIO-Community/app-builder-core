@@ -89,7 +89,7 @@ const oAuthApple = {
 const url = `${oauth.auth_uri}?response_type=code&scope=${oauth.scope}&include_granted_scopes=true&state=${oauth.state}&client_id=${oauth.client_id}&redirect_uri=${oauth.redirect_uri}`;
 const microsoftUrl = `${oAuthMicrosoft.auth_uri}?response_type=code&scope=${oAuthMicrosoft.scope}&include_granted_scopes=true&state=${oAuthMicrosoft.state}&client_id=${oAuthMicrosoft.client_id}&redirect_uri=${oAuthMicrosoft.redirect_uri}`;
 const slackUrl = `${oAuthSlack.auth_uri}?response_type=code&scope=${oAuthSlack.scope}&include_granted_scopes=true&state=${oAuthSlack.state}&client_id=${oAuthSlack.client_id}&redirect_uri=${oAuthSlack.redirect_uri}`;
-const appleUrl = `${oAuthApple.auth_uri}?response_type=code&scope=${oAuthApple.scope}&include_granted_scopes=true&state=${oAuthApple.state}&client_id=${oAuthApple.client_id}&redirect_uri=${oAuthApple.redirect_uri}`;
+const appleUrl = `${oAuthApple.auth_uri}?response_type=code&scope=${oAuthApple.scope}&include_granted_scopes=true&state=${oAuthApple.state}&response_mode=form_post&client_id=${oAuthApple.client_id}&redirect_uri=${oAuthApple.redirect_uri}`;
 
 const Oauth = () => {
   // Linking.openURL(url);
