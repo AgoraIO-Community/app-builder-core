@@ -8,7 +8,7 @@ const Oauth = () => {
   const history = useHistory();
   const onSelectOAuthSystem = ({ oAuthSystemType }) => {
     console.log('electron OAuth');
-    const oAuthUrl = url[`${oAuthSystemType}Url`];
+    const oAuthUrl = url({ platform: 'desktop'})[`${oAuthSystemType}Url`];
     // @ts-ignore
     window.addEventListener(
       'message',

@@ -18,7 +18,7 @@ const Oauth = () => {
   const onSelectOAuthSystem = async ({ oAuthSystemType }) => {
     try {
       // const url = `https://deep-link-tester.netlify.app`;
-      const oAuthUrl = url[`${oAuthSystemType}Url`];
+      const oAuthUrl = url({ platform: 'mobile'})[`${oAuthSystemType}Url`];
       if (await InAppBrowser.isAvailable()) {
         const result = await InAppBrowser.openAuth(oAuthUrl, oAuthUrl);
         console.log(JSON.stringify(result));

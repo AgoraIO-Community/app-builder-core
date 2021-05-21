@@ -8,7 +8,7 @@ import { url } from './OAuthConfig';
 
 const Oauth = () => {
   const onSelectOAuthSystem = ({ oAuthSystemType }) => {
-    const oAuthUrl = url[`${oAuthSystemType}Url`];
+    const oAuthUrl = url({ platform: 'web'})[`${oAuthSystemType}Url`];
 
     Linking.openURL(oAuthUrl)
   }
