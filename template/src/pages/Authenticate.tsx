@@ -78,13 +78,14 @@ const style = StyleSheet.create({
     fontSize: 40,
     fontWeight: '700',
     color: '#333',
+    marginBottom: 20,
   },
   headline: {
     fontSize: 20,
     letterSpacing: 2,
     fontWeight: '400',
     color: '#777',
-    // marginTop: -40,
+    marginTop: -50,
     marginBottom: 20,
   },
   inputs: {
