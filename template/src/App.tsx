@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
+import Authenticate from './pages/Authenticate';
 import {Router, Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
@@ -32,7 +33,7 @@ const App: React.FC = () => {
                   </Route>
                   <Route exact path={'/authenticate'}>
                     {/* {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />} */}
-                    <OAuth />
+                    <Authenticate />
                   </Route>
                   <Route path={'/auth-token/:token'}>
                     <StoreToken />

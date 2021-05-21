@@ -1,25 +1,14 @@
 import React, {useEffect} from 'react';
 import {Text} from 'react-native';
 import {useHistory} from './Router';
-
-const oauth = {
-  client_id: $config.CLIENT_ID,
-  auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-  redirect_uri: `${$config.backEndURL}/oauth/desktop`,
-  scope: encodeURIComponent(
-    'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
-  ),
-  state: encodeURIComponent(
-    `site=google&backend=${$config.backEndURL}&redirect=${$config.backEndURL}`,
-  ),
-};
-
-const url = `${oauth.auth_uri}?response_type=code&scope=${oauth.scope}&include_granted_scopes=true&state=${oauth.state}&client_id=${oauth.client_id}&redirect_uri=${oauth.redirect_uri}`;
+import SelectOAuth from '../subComponents/SelectOAuth';
+import { url } from './OAuthConfig';
 
 const Oauth = () => {
   const history = useHistory();
-  useEffect(() => {
+  const onSelectOAuthSystem = ({ oAuthSystemType }) => {
     console.log('electron OAuth');
+    const oAuthUrl = url[`${oAuthSystemType}Url`];
     // @ts-ignore
     window.addEventListener(
       'message',
@@ -31,8 +20,8 @@ const Oauth = () => {
       },
       false,
     );
-    window.open(url, 'modal');
-  }, []);
-  return <Text>You are being authenticated. Please wait....</Text>;
+    window.open(oAuthUrl, 'modal');
+  };
+  return <SelectOAuth onSelectOAuth={onSelectOAuthSystem} />;
 };
 export default Oauth;
