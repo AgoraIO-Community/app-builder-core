@@ -19,6 +19,7 @@ import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
+import Error from '../subComponents/Error';
 // const joinFlag = 0;
 interface joinProps {
   phrase: string;
@@ -28,15 +29,15 @@ const Join = (props: joinProps) => {
   const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
-  const [error, setError] = useState(null);
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
+  const [error, setError] = useState<null | {name: string; message: string}>(null);
+  // const [dim, setDim] = useState([
+  //   Dimensions.get('window').width,
+  //   Dimensions.get('window').height,
+  //   Dimensions.get('window').width > Dimensions.get('window').height,
+  // ]);
+  // let onLayout = (e: any) => {
+  //   setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  // };
   const createMeeting = () => {
     history.push('/create');
   };
@@ -48,7 +49,7 @@ const Join = (props: joinProps) => {
   };
   return (
     <ImageBackground
-      onLayout={onLayout}
+      // onLayout={onLayout}
       source={{uri: $config.bg}}
       style={style.full}
       resizeMode={'cover'}>
@@ -56,34 +57,7 @@ const Join = (props: joinProps) => {
         <View style={style.nav}>
           <Logo />
           {error ? (
-            <View
-              style={{
-                position: 'absolute',
-                borderWidth: 2,
-                borderColor: '#ff0000',
-                backgroundColor: '#ffffff80',
-                paddingHorizontal: 10,
-                paddingVertical: 2,
-                maxWidth: 250,
-                width: '65%',
-                left: 0,
-                right: 0,
-                top: '30%',
-                marginHorizontal: 'auto',
-                zIndex: 55,
-              }}>
-              <Text style={{alignSelf: 'center'}}>
-                <Text
-                  style={{
-                    fontWeight: '500',
-                    textAlign: 'center',
-                    fontSize: 16,
-                  }}>
-                  {error.name + ' - '}
-                </Text>
-                <Text style={{}}>{error.message}</Text>
-              </Text>
-            </View>
+            <Error error={error} />
           ) : (
             <></>
           )}
@@ -104,7 +78,7 @@ const Join = (props: joinProps) => {
               <PrimaryButton
                 disabled={phrase === ''}
                 onPress={() => startCall()}
-                text={'Enter'}
+                text={'Enter Meeting'}
               />
               <HorizontalRule />
               <SecondaryButton
@@ -112,20 +86,19 @@ const Join = (props: joinProps) => {
                 text={'Create a meeting'}
               />
               {$config.ENABLE_OAUTH ? (
-                <LogoutButton setError={setError} />
+                <LogoutButton setError={setError} /> //setError not available in logout?
               ) : (
                 <></>
               )}
             </View>
           </View>
-          {dim[0] > dim[1] + 150 ? (
+          {/* {dim[0] > dim[1] + 150 ? (
             <View style={style.full}>
-              {/* <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} /> */}
               <Illustration />
             </View>
           ) : (
             <></>
-          )}
+          )} */}
         </View>
       </View>
     </ImageBackground>
@@ -138,7 +111,8 @@ const style = StyleSheet.create({
   main: {
     flex: 2,
     justifyContent: 'space-evenly',
-    marginHorizontal: '10%',
+    marginHorizontal: '8%',
+    marginVertical: '2%',
   },
   nav: {
     flex: 1,
@@ -151,19 +125,23 @@ const style = StyleSheet.create({
     width: '100%',
     flex: 1,
     justifyContent: 'space-evenly',
-    marginVertical: '5%',
-    marginRight: '5%',
+    marginBottom: '15%',
+    marginTop: '10%',
+    // marginRight: '5%',
+    marginHorizontal: 'auto',
   },
   heading: {
-    fontSize: 40,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#fff',
+    textAlign: 'center',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   headline: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '400',
-    color: '#fff',
+    textAlign: 'center',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   inputs: {

@@ -85,6 +85,7 @@ const Chat = (props: any) => {
       {groupActive ? (
         <>
           <ChatContainer privateActive={privateActive} />
+          <View style={{ backgroundColor: $config.primaryFontColor + '80', width: '100%', height: 1, marginHorizontal: -20, alignSelf: 'center', opacity: 0.5 }} />
           <ChatInput privateActive={privateActive} />
         </>
       ) : (
@@ -126,6 +127,7 @@ const Chat = (props: any) => {
                     : 'User '
                 }
               />
+              <View style={{ backgroundColor: $config.primaryFontColor + '80', width: '100%', height: 1, marginHorizontal: -20, alignSelf: 'center', opacity: 0.5 }} />
               <ChatInput
                 privateActive={privateActive}
                 selectedUser={selectedUser}
@@ -145,12 +147,17 @@ const style = StyleSheet.create({
     maxWidth: 300,
     backgroundColor: '#fff',
     flex: 1,
+    // paddingTop: 20,
+    shadowColor:  $config.tertiaryFontColor,
+    shadowOpacity: .5,
+    shadowOffset: {width:-2, height: 0},
+    shadowRadius: 3
   },
   chatViewNative: {
     position: 'absolute',
     zIndex: 5,
     width: '100%',
-    height: '90%',
+    height: '100%',
     right: 0,
     top: 0,
     backgroundColor: '#fff',
@@ -208,6 +215,7 @@ const style = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     fontSize: 16,
+    color: '#000',
     justifyContent: 'center',
     paddingVertical: 5,
   },

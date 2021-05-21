@@ -8,20 +8,20 @@ import {
   TextStyle,
 } from 'react-native';
 import {secondaryBtn, secondaryButtonText} from '../../theme.json';
-import ColorContext from '../components/ColorContext';
+// import ColorContext from '../components/ColorContext';
 
 export interface ButtonProps extends PressableProps {
   text?: string;
 }
 
 export default function SecondaryButton(props: ButtonProps) {
-  const {primaryColor} = useContext(ColorContext);
+  const primaryColor = $config.primaryFontColor; //useContext(ColorContext);
   const {children, ...otherProps} = props;
   return (
     <Pressable
       style={[
         styles.secondaryBtn,
-        {borderColor: props.disabled ? primaryColor + '80' : primaryColor},
+        // {borderColor: props.disabled ? primaryColor + '80' : primaryColor},
       ]}
       {...otherProps}>
       {props.text ? (

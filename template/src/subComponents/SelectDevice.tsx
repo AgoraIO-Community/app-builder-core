@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {Picker, StyleSheet} from 'react-native';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
-import {dropdown} from '../../theme.json';
+// import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
  * It will add the selected device to the device context.
@@ -56,7 +56,7 @@ const SelectDevice = () => {
 };
 
 const style = StyleSheet.create({
-  popupPicker: dropdown,
+  popupPicker: {height: 30, marginBottom: 10},
 });
 
 export default SelectDevice;

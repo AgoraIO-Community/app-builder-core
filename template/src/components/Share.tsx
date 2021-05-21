@@ -5,14 +5,16 @@ import {
   Text,
   StyleSheet,
   Dimensions,
+  Image,
 } from 'react-native';
-import ColorContext from './ColorContext';
+// import ColorContext from './ColorContext';
 import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
-import Illustration from '../subComponents/Illustration';
+// import Illustration from '../subComponents/Illustration';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
+import icons from '../assets/icons';
 
 const Share = (props: any) => {
   const history = useHistory();
@@ -24,8 +26,8 @@ const Share = (props: any) => {
     roomTitle,
     hostControlCheckbox,
   } = props;
-  const {primaryColor} = useContext(ColorContext);
-
+  // const {primaryColor} = useContext(ColorContext);
+  // const pstn = {number: '+123423241', dtmf: '2342'}
   const enterMeeting = () => {
     if (urlHost) {
       history.push(`/${joinPhrase}`);
@@ -63,6 +65,31 @@ PSTN Pin: ${pstn.dtmf}`)
     Clipboard.setString(stringToCopy);
   };
 
+  const copyHostUrl = () => {
+    let stringToCopy = '';
+    $config.frontEndURL
+      ? (stringToCopy += `${$config.frontEndURL}/${urlHost}`)
+      : platform === 'web'
+      ? (stringToCopy += `${window.location.origin}/${urlHost}`)
+      : (stringToCopy += `Meeting ID: ${urlHost}`)
+    Clipboard.setString(stringToCopy);
+  };
+
+  const copyAttendeeURL = () => {
+    let stringToCopy = '';
+    $config.frontEndURL
+      ? (stringToCopy += `${$config.frontEndURL}/${urlView}`)
+      : platform === 'web'
+      ? (stringToCopy += `${window.location.origin}/${urlView}`)
+      : (stringToCopy += `Meeting ID: ${urlView}`)
+    Clipboard.setString(stringToCopy);
+  };
+
+  const copyPstn = () => {
+    let stringToCopy = `PSTN Number: ${pstn?.number} PSTN Pin: ${pstn?.dtmf}`;
+    Clipboard.setString(stringToCopy);
+  }
+
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -75,78 +102,112 @@ PSTN Pin: ${pstn.dtmf}`)
   return (
     <View style={style.content} onLayout={onLayout}>
       <View style={style.leftContent}>
-        <Text style={style.heading}>Meeting Created</Text>
+        <View>
+        <Text style={style.heading}>{$config.landingHeading}</Text>
+        <Text style={style.headline}>{$config.landingSubHeading}</Text>
+        </View>
         {hostControlCheckbox ? (
-          <>
+            <View style={style.urlContainer}>
+              <View style={{width: '80%'}}>
+              <Text style={style.urlTitle}>
+                {$config.frontEndURL || platform === 'web'
+                ? "Attendee URL" : "Attendee ID"}
+              </Text>
+              <View style={style.urlHolder}>
+                <Text style={style.url}>
+                  {$config.frontEndURL
+                    ? `${$config.frontEndURL}/${urlView}`
+                    : platform === 'web'
+                      ? `${window.location.origin}/${urlView}`
+                      : urlView}
+                </Text>
+                
+              </View>
+              </View>
+            <View style={{ marginLeft: 'auto', flexDirection: 'row', alignSelf: 'center' }}>
+              <View style={{ backgroundColor: $config.primaryColor + '80', width: 1, height: 'auto', marginRight: 15 }} />
+              <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyHostUrl()}>
+                <Image resizeMode={'contain'}
+                  style={{ width: '100%', height: '100%', tintColor: $config.primaryColor, opacity: 0.5}}
+                  source={{ uri: icons.clipboard }}></Image>
+              </TouchableOpacity>
+            </View>
+            </View>
+        ) : (
+          <></>
+        )}
+        <View style={style.urlContainer}>
+          <View style={{ width: '80%' }}>
             <Text style={style.urlTitle}>
-              {!$config.frontEndURL && platform !== 'web'
-                ? 'Attendee Meeting ID:'
-                : 'URL for Attendee:'}
+            {$config.frontEndURL || platform === 'web' ? hostControlCheckbox
+                ? 'Host URL' : 'Meeting URL'
+                : hostControlCheckbox ? 'Host ID' : 'Meeting ID'}
             </Text>
             <View style={style.urlHolder}>
               <Text style={style.url}>
                 {$config.frontEndURL
-                  ? `${$config.frontEndURL}/${urlView}`
+                  ? `${$config.frontEndURL}/${urlHost}`
                   : platform === 'web'
-                  ? `${window.location.origin}/${urlView}`
-                  : urlView}
+                    ? `${window.location.origin}/${urlHost}`
+                    : urlHost}
               </Text>
+
             </View>
-          </>
-        ) : (
-          <></>
-        )}
-        <Text style={style.urlTitle}>
-          {hostControlCheckbox
-            ? !$config.frontEndURL && platform !== 'web'
-              ? 'Host Meeting ID:'
-              : 'URL for Host:'
-            : 'Meeting URL'}
-        </Text>
-        <View style={style.urlHolder}>
-          <Text style={style.url}>
-            {$config.frontEndURL
-              ? `${$config.frontEndURL}/${urlHost}`
-              : platform === 'web'
-              ? `${window.location.origin}/${urlHost}`
-              : urlHost}
-          </Text>
+          </View>
+          <View style={{ marginLeft: 'auto', flexDirection: 'row', alignSelf: 'center'  }}>
+            <View style={{ backgroundColor: $config.primaryColor + '80', width: 1, height: 'auto', marginRight: 15 }} />
+            <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyAttendeeURL()}>
+                <Image resizeMode={'contain'}
+                  style={{ width: '100%', height: '100%', tintColor: $config.primaryColor, opacity: 0.5}}
+                  source={{ uri: icons.clipboard }}></Image>
+              </TouchableOpacity>
+          </View>
         </View>
         {pstn ? (
-          <View style={style.pstnHolder}>
-            <View style={style.urlTitle}>
-              <Text style={style.urlTitle}>PSTN:</Text>
-              <View style={style.urlHolder}>
-                <Text style={style.url}>{pstn.number}</Text>
+          <View style={style.urlContainer}>
+            <View style={{ width: '80%' }}>
+              <Text style={style.urlTitle}>
+                PSTN
+          </Text>
+              <View>
+                <View style={style.pstnHolder}>
+                  <Text style={style.urlTitle}>Number: </Text>
+                  <Text style={style.url}>{pstn?.number}</Text>
+                </View>
+                <View style={style.pstnHolder}>
+                  <Text style={style.urlTitle}>Pin: </Text>
+                  <Text style={style.url}>{pstn?.dtmf}</Text>
+                </View>
               </View>
             </View>
-            <View>
-              <Text style={style.urlTitle}>Pin:</Text>
-              <View style={style.urlHolder}>
-                <Text style={style.url}>{pstn.dtmf}</Text>
-              </View>
+            <View style={{ marginLeft: 'auto', flexDirection: 'row' }}>
+            <View style={{ backgroundColor: $config.primaryColor + '80', width: 1, height: 'auto', marginRight: 15 }} />
+              <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={() => copyPstn()}>
+                <Image resizeMode={'contain'}
+                  style={{ width: '100%', height: '100%', tintColor: $config.primaryColor, opacity: 0.5 }}
+                  source={{ uri: icons.clipboard }}></Image>
+              </TouchableOpacity>
             </View>
           </View>
         ) : (
           <></>
         )}
-        <SecondaryButton
-          onPress={() => copyToClipboard()}
-          text={'Copy to clipboard'}
-        />
         <PrimaryButton
           onPress={() => enterMeeting()}
-          text={'Enter Meeting (as host)'}
+          text={'Start Meeting (as host)'}
+        />
+        <SecondaryButton
+          onPress={() => copyToClipboard()}
+          text={'Copy invite to clipboard'}
         />
       </View>
-      {dim[0] > dim[1] + 150 ? (
+      {/* {dim[0] > dim[1] + 150 ? (
         <View style={style.full}>
-          {/* <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} /> */}
           <Illustration />
         </View>
       ) : (
         <></>
-      )}
+      )} */}
     </View>
   );
 };
@@ -156,7 +217,8 @@ const style = StyleSheet.create({
   main: {
     flex: 2,
     justifyContent: 'space-evenly',
-    marginHorizontal: '10%',
+    marginHorizontal: '8%',
+    marginVertical: '2%',
   },
   nav: {
     flex: 1,
@@ -169,20 +231,24 @@ const style = StyleSheet.create({
     width: '100%',
     flex: 1,
     justifyContent: 'space-evenly',
-    marginBottom: '5%',
-    marginRight: '5%',
+    marginBottom: '12%',
+    marginTop: '2%',
+    // marginRight: '5%',
     marginHorizontal: 'auto',
+    alignItems: 'center',
   },
   heading: {
-    fontSize: 38,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#333',
+    textAlign: 'center',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   headline: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '400',
-    color: '#777',
+    textAlign: 'center',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   inputs: {
@@ -191,40 +257,6 @@ const style = StyleSheet.create({
     alignSelf: 'flex-start',
     alignItems: 'center',
     justifyContent: 'space-evenly',
-  },
-  primaryBtn: {
-    width: '60%',
-    backgroundColor: '#099DFD',
-    maxWidth: 400,
-    minWidth: 200,
-    minHeight: 45,
-  },
-  primaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#fff',
-  },
-  secondaryBtn: {
-    width: '60%',
-    borderColor: '#099DFD',
-    borderWidth: 3,
-    maxWidth: 400,
-    minHeight: 42,
-    minWidth: 200,
-  },
-  secondaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-    textAlignVertical: 'center',
-    color: '#099DFD',
   },
   checkboxHolder: {
     marginVertical: 0,
@@ -242,28 +274,48 @@ const style = StyleSheet.create({
     marginVertical: 0, //check if 5
     flexDirection: 'column',
   },
+  urlContainer: {
+    backgroundColor: $config.primaryColor + '22',
+    padding: 10, 
+    borderRadius: 10, 
+    width: '100%',
+    // minWidth: ''
+    maxWidth: 700,
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+  },
   urlTitle: {
     color: '#333',
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  pstnHolder: {
+    width: '100%',
+    // paddingHorizontal: 10,
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 10,
   },
   urlHolder: {
     width: '100%',
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    justifyContent: 'center',
-    maxWidth: 400,
-    minHeight: 45,
+    // paddingHorizontal: 10,
+    // marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    // justifyContent: 'center',
+    // maxWidth: 600,
+    minHeight: 30,
   },
   url: {
     color: '#333',
     fontSize: 18,
-    fontWeight: '700',
-    textDecorationLine: 'underline',
+    // textDecorationLine: 'underline',
   },
-  pstnHolder: {
-    flexDirection: 'row',
-    width: '80%',
-  },
+  // pstnHolder: {
+  //   flexDirection: 'row',
+  //   width: '80%',
+  // },
   pstnMargin: {
     marginRight: '10%',
   },

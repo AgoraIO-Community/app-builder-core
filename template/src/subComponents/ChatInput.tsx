@@ -1,4 +1,4 @@
-import React, {useState, useContext, useRef} from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -17,22 +17,33 @@ import icons from '../assets/icons';
  * Input component for the Chat interface
  */
 const ChatInput = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
+  const { primaryColor } = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
-  const {privateActive, selectedUser} = props;
-  const {sendMessage, sendMessageToUid} = useContext(ChatContext);
+  const [height, setHeight] = useState(0);
+  const { privateActive, selectedUser } = props;
+  const { sendMessage, sendMessageToUid } = useContext(ChatContext);
   return (
-    <View style={[style.inputView, {borderColor: primaryColor}]}>
+    <View style={[style.inputView, { borderColor: primaryColor, height: Math.max(40, height + 25) }]}>
       <TextInput
         value={message}
+        multiline={true}
+        onContentSizeChange={(event) => {
+          // console.log(height)
+          setHeight(event.nativeEvent.contentSize.height)
+        }}
         onChangeText={(text) => onChangeMessage(text)}
-        style={{color: 'black'}}
+        style={{
+          borderRadius: 10, backgroundColor: $config.tertiaryFontColor + '22',
+          borderWidth: 1, textAlign: 'left', height: Math.max(35, height),
+          paddingVertical: 10, alignSelf: 'center'
+        }}
         blurOnSubmit={false}
         onSubmitEditing={() => {
+          console.log('!click');
           !privateActive
-            ? (sendMessage(message), onChangeMessage(''))
+            ? (sendMessage(message), onChangeMessage(''))//, setHeight(35))
             : (sendMessageToUid(message, selectedUser.uid),
-              onChangeMessage(''));
+              onChangeMessage(''))//, setHeight(35));
 
           // UIManager.focus(inputRef.current);
         }}
@@ -41,18 +52,18 @@ const ChatInput = (props: any) => {
         autoCorrect={false}
       />
       <TouchableOpacity
-        style={[style.chatInputButton]}
+        style={style.chatInputButton}
         onPress={() => {
           !privateActive
-            ? (sendMessage(message), onChangeMessage(''))
-            : (sendMessageToUid(message, selectedUser.uid),
+            ? (sendMessage(message), onChangeMessage(''), setHeight(35))
+            : (sendMessageToUid(message, selectedUser.uid), setHeight(35),
               onChangeMessage(''));
         }}>
         <Image
           source={{
             uri: icons.send,
           }}
-          style={[style.chatInputButtonIcon]}
+          style={style.chatInputButtonIcon}
           resizeMode={'contain'}
         />
       </TouchableOpacity>
@@ -62,7 +73,7 @@ const ChatInput = (props: any) => {
 
 const style = StyleSheet.create({
   inputView: {
-    flex: 1,
+    // flex: 1/2,
     flexDirection: 'row',
     marginHorizontal: 10,
     paddingVertical: 15,

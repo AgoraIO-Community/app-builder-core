@@ -64,10 +64,10 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
 const style = StyleSheet.create({
   localButton: {
     backgroundColor: '#fff',
-    borderRadius: 23,
+    borderRadius: 20,
     borderColor: '#099DFD',
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',
@@ -75,17 +75,17 @@ const style = StyleSheet.create({
   },
   greenLocalButton: {
     backgroundColor: '#4BEB5B',
-    borderRadius: 23,
+    borderRadius: 20,
     borderColor: '#F86051',
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonIcon: {
-    width: '70%',
-    height: '70%',
+    width: '90%',
+    height: '90%',
     tintColor: '#099DFD',
   },
 });

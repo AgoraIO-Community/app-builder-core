@@ -19,9 +19,9 @@ import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
 import {useHistory} from './Router';
 import {precallCard} from '../../theme.json';
+import Error from '../subComponents/Error';
 
 const Precall = (props: any) => {
-  const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const {setCallActive, queryComplete, username, setUsername, error} = props;
   const [dim, setDim] = useState([
@@ -43,46 +43,7 @@ const Precall = (props: any) => {
         <View style={style.nav}>
           <Logo />
           {error ? (
-            <View
-              style={{
-                position: 'absolute',
-                borderWidth: 2,
-                borderColor: '#ff0000',
-                backgroundColor: '#ffffff80',
-                paddingHorizontal: 10,
-                paddingVertical: 2,
-                maxWidth: 250,
-                width: '65%',
-                left: 0,
-                right: 0,
-                top: '30%',
-                marginHorizontal: 'auto',
-                zIndex: 55,
-              }}>
-              <Text style={{alignSelf: 'center'}}>
-                <Text
-                  style={{
-                    fontWeight: '500',
-                    textAlign: 'center',
-                    fontSize: 16,
-                  }}>
-                  {error.name + ' - '}
-                </Text>
-                <Text style={{}}>{error.message}</Text>
-              </Text>
-              <TouchableOpacity
-                style={{alignSelf: 'center'}}
-                onPress={() => history.replace('./')}>
-                <Text
-                  style={{
-                    fontWeight: '500',
-                    textAlign: 'center',
-                    textDecorationLine: 'underline',
-                  }}>
-                  Go back
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <Error error={error} showBack={true}/>
           ) : (
             <></>
           )}
@@ -175,8 +136,8 @@ const style = StyleSheet.create({
     flex: 1.3,
     justifyContent: 'space-evenly',
     marginTop: '2.5%',
-    marginBottom: '5%',
-    marginRight: '5%',
+    // marginBottom: '5%',
+    // marginRight: '5%',
   },
   subHeading: {
     fontSize: 28,
@@ -246,7 +207,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-around',
     marginVertical: '5%',
   },
-  precallPickers: precallCard,
+  precallPickers: {},
   margin5Btm: {marginBottom: '5%'},
 });
 

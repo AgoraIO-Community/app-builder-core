@@ -1,10 +1,11 @@
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Image,
   TouchableOpacity,
   Platform,
   StyleSheet,
+  Text,
 } from 'react-native';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import {
@@ -16,11 +17,11 @@ import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import ColorContext from './ColorContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {controlsHolder,localButton, buttonIcon} from '../../theme.json';
+import { SidePanelType } from '../subComponents/SidePanelEnum';
+import { controlsHolder, localButton, buttonIcon } from '../../theme.json';
 
 const Controls = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
+  const { primaryColor } = useContext(ColorContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const {
     // participantsView,
@@ -36,45 +37,64 @@ const Controls = (props: any) => {
   return (
     <LocalUserContext>
       <View style={style.controlsHolder}>
-        <LocalAudioMute />
-        <LocalVideoMute />
+        <View style={{ alignSelf: 'center' }}>
+          <LocalAudioMute />
+          <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Audio</Text>
+        </View>
+        <View style={{ alignSelf: 'center' }}>
+          <LocalVideoMute />
+          <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Video</Text>
+        </View>
+        {$config.screenSharing ? (
+          <View style={{ alignSelf: 'center' }}>
+            <ScreenshareButton
+              screenshareActive={screenshareActive}
+              setScreenshareActive={setScreenshareActive}
+            />
+            <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Share</Text>
+          </View>
+        ) : (
+          <></>
+        )}
         {isHost ? (
           $config.cloudRecording ? (
-            <Recording
-              recordingActive={recordingActive}
-              setRecordingActive={setRecordingActive}
-            />
+            <View style={{ alignSelf: 'center' }}>
+              <Recording
+                recordingActive={recordingActive}
+                setRecordingActive={setRecordingActive}
+              />
+              <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Record</Text>
+            </View>
           ) : (
             <></>
           )
         ) : (
           <></>
         )}
-        {$config.screenSharing ? (
-          <ScreenshareButton
-            screenshareActive={screenshareActive}
-            setScreenshareActive={setScreenshareActive}
-          />
-        ) : (
-          <></>
-        )}
         {$config.chat ? (
-          <TouchableOpacity
-            style={[style.localButton, {borderColor: primaryColor}]}
-            onPress={() => {
-              sidePanel === SidePanelType.Chat
-                ? setSidePanel(SidePanelType.None)
-                : setSidePanel(SidePanelType.Chat);
-            }}>
-            <Image
-              source={{uri: icons.chatIcon}}
-              style={[style.buttonIcon, {tintColor: primaryColor}]}
-            />
-          </TouchableOpacity>
+          <View style={{ alignSelf: 'center' }}>
+            <TouchableOpacity
+              style={[style.localButton, { borderColor: primaryColor }]}
+              onPress={() => {
+                sidePanel === SidePanelType.Chat
+                  ? setSidePanel(SidePanelType.None)
+                  : setSidePanel(SidePanelType.Chat);
+              }}>
+              <Image
+                source={{ uri: icons.chatIcon }}
+                style={[style.buttonIcon, { tintColor: primaryColor }]}
+              />
+            </TouchableOpacity>
+            <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Chat</Text>
+          </View>
         ) : (
           <></>
         )}
-        <Endcall />
+        <View style={{ backgroundColor: $config.primaryFontColor + '80', width: 1, height: '70%', marginHorizontal: -20, alignSelf: 'center', opacity: 0.8 }} />
+        <View style={{ alignSelf: 'center' }}>
+          <Endcall />
+          <Text style={{ textAlign: 'center', marginTop: 5, color: '#f97365'}}>Hang Up</Text>
+        </View>
       </View>
     </LocalUserContext>
   );

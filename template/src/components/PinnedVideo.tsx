@@ -8,6 +8,7 @@ import {
   Platform,
   Text,
   Image,
+  Pressable,
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
@@ -53,7 +54,7 @@ const PinnedVideo = () => {
             <MinUidConsumer>
               {(minUsers) =>
                 minUsers.map((user) => (
-                  <TouchableOpacity
+                  <Pressable
                     style={
                       isSidePinnedlayout
                         ? {
@@ -105,7 +106,7 @@ const PinnedVideo = () => {
                         </Text>
                       </View>
                     </View>
-                  </TouchableOpacity>
+                  </Pressable>
                 ))
               }
             </MinUidConsumer>

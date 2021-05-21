@@ -59,5 +59,8 @@ interface ConfigInterface {
   ENABLE_OAUTH: boolean;
   encryption: boolean;
   profile: VideoProfile;
+  primaryFontColor: string;
+  secondaryFontColor: string;
+  tertiaryFontColor: string;
 }
 declare var $config: ConfigInterface;

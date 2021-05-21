@@ -80,7 +80,7 @@ const style = StyleSheet.create({
     height: 20,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: '#fff',
+    tintColor: $config.primaryFontColor,
   },
 });
 

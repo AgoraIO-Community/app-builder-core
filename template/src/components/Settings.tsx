@@ -58,8 +58,8 @@ const style = StyleSheet.create({
     paddingHorizontal: '8%',
   },
   buttonIcon: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
     tintColor: '#099DFD',
   },
   heading: {

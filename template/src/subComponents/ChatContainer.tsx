@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useRef} from 'react';
 import {
   View,
   ScrollView,
@@ -25,6 +25,7 @@ const ChatContainer = (props: any) => {
     selectedUsername,
   } = props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
+  const scrollViewRef = useRef<ScrollView>(null);
   return (
     <View style={style.containerView}>
       {privateActive ? (
@@ -43,7 +44,7 @@ const ChatContainer = (props: any) => {
       ) : (
         <></>
       )}
-      <ScrollView>
+      <ScrollView ref={scrollViewRef} onContentSizeChange={()=>{scrollViewRef.current?.scrollToEnd({ animated: true })}}>
         {!privateActive ? (
           messageStore.map((message: any) => {
             return (
@@ -80,7 +81,8 @@ const style = StyleSheet.create({
   containerView: {flex: 8},
   row: {flexDirection: 'row', marginTop: 5},
   backButton: {
-    marginLeft: 5,
+    paddingVertical: 10,
+    marginLeft: 10,
     justifyContent: 'center',
     alignSelf: 'center',
   },
@@ -89,6 +91,7 @@ const style = StyleSheet.create({
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     marginLeft: 10,
     color: '#333',
+    alignSelf: 'center',
   },
   backIcon: {
     width: 20,

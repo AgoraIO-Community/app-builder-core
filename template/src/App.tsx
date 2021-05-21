@@ -11,13 +11,17 @@ import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 // import JoinPhrase from './components/JoinPhrase';
 import {SessionProvider} from './components/SessionContext';
-import {SafeAreaView, StatusBar} from 'react-native';
+import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 
 const App: React.FC = () => {
   const [phrase, onChangePhrase] = useState('');
 
   return (
+    // <ImageBackground
+    //   source={{uri: $config.bg}}
+    //   style={{flex: 1}}
+    //   resizeMode={'cover'}>
     <SafeAreaView style={{flex: 1}}>
       <StatusBar hidden={true} />
       <StorageProvider>
@@ -39,9 +43,6 @@ const App: React.FC = () => {
                   <Route exact path={'/join'}>
                     <Join phrase={phrase} onChangePhrase={onChangePhrase} />
                   </Route>
-                  {/* <Route path={'/join/:phrase'}>
-                    <JoinPhrase />
-                  </Route> */}
                   {$config.ENABLE_OAUTH ? (
                     <PrivateRoute
                       path={'/create'}
@@ -63,6 +64,7 @@ const App: React.FC = () => {
         </GraphQLProvider>
       </StorageProvider>
     </SafeAreaView>
+    // </ImageBackground>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };

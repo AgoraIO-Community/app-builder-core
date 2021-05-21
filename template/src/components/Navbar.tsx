@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -7,14 +7,14 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
+import { MinUidConsumer } from '../../agora-rn-uikit/src/MinUidContext';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import icons from '../assets/icons';
 import Settings from './Settings';
 import ColorContext from './ColorContext';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {navHolder} from '../../theme.json';
+import { SidePanelType } from '../subComponents/SidePanelEnum';
+import { navHolder } from '../../theme.json';
 
 const {
   participantIcon,
@@ -24,8 +24,8 @@ const {
 } = icons;
 
 const Navbar = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
-  const {rtcProps} = useContext(PropsContext);
+  const { primaryColor } = useContext(ColorContext);
+  const { rtcProps } = useContext(PropsContext);
   const {
     // participantsView,
     // setParticipantsView,
@@ -46,8 +46,9 @@ const Navbar = (props: any) => {
       <View style={style.roomNameContainer}>
         {Platform.OS === 'web' ? (
           <View
-            style={{flexDirection: 'row', transform: [{translateX: '50%'}]}}>
+            style={{ flexDirection: 'row', transform: [{ translateX: '50%' }] }}>
             <Text style={style.roomNameText}>{title}</Text>
+            <View style={{ backgroundColor: $config.primaryFontColor + '80', width: 1, height: 'auto', marginHorizontal: 10 }} />
             <CopyJoinInfo />
           </View>
         ) : (
@@ -84,13 +85,15 @@ const Navbar = (props: any) => {
             flexDirection: 'row',
             alignItems: 'center',
             backgroundColor: '#fff',
-            padding: 10,
-            borderTopLeftRadius: 10,
-            borderBottomLeftRadius: 10,
+            padding: 4,
+            paddingHorizontal: 16,
+            borderRadius: 10,
+            // borderTopLeftRadius: 10,
+            // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
           }}>
           <View
-            style={[style.participantBtnHolder, {borderColor: primaryColor}]}>
+            style={[style.participantBtnHolder, { borderColor: primaryColor }]}>
             <TouchableOpacity
               onPress={() => {
                 sidePanel === SidePanelType.Participants
@@ -99,18 +102,44 @@ const Navbar = (props: any) => {
               }}
               style={style.participantBtn}>
               <Image
-                source={{uri: participantIcon}}
-                style={[style.participantBtnIcon, {tintColor: primaryColor}]}
+                source={{ uri: participantIcon }}
+                style={[style.participantBtnIcon, { tintColor: primaryColor }]}
               />
-              <MinUidConsumer>
+              {/* <MinUidConsumer>
                 {(minUsers) => (
                   <Text style={[style.participantText, {color: primaryColor}]}>
                     {minUsers.length + 1}
                   </Text>
                 )}
-              </MinUidConsumer>
+              </MinUidConsumer> */}
             </TouchableOpacity>
           </View>
+          {Platform.OS === 'web' &&
+            <View style={{ backgroundColor: $config.primaryFontColor + '80', width: 1, height: '100%', marginHorizontal: 20, alignSelf: 'center', opacity: 0.8 }} />
+          }
+          <View>
+            <View style={{ alignSelf: 'center' }}>
+              <TouchableOpacity
+                style={[style.localButton, { borderColor: primaryColor }]}
+                onPress={() => {
+                  sidePanel === SidePanelType.Chat
+                    ? setSidePanel(SidePanelType.None)
+                    : setSidePanel(SidePanelType.Chat);
+                }}>
+                <Image
+                  source={{ uri: icons.chatIcon }}
+                  style={[{
+                    width: 35,
+                    height: 35,
+                    tintColor: '#099DFD',
+                  }, { tintColor: primaryColor }]}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {Platform.OS === 'web' &&
+            <View style={{ backgroundColor: $config.primaryFontColor + '80', width: 1, height: '100%', marginHorizontal: 20, alignSelf: 'center', opacity: 0.8 }} />
+          }
           <View style={style.layoutBtnHolder}>
             <TouchableOpacity
               onPress={() => {
@@ -118,17 +147,19 @@ const Navbar = (props: any) => {
               }}
               style={style.layoutBtn}>
               <Image
-                source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
-                style={[style.layoutBtnIcon, {tintColor: primaryColor}]}
+                // source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
+                source={{ uri: gridLayoutIcon }}
+                style={[style.layoutBtnIcon, { tintColor: primaryColor }]}
               />
             </TouchableOpacity>
           </View>
-          {Platform.OS === 'web' ? (
+          {Platform.OS === 'web' ? (<>
+          <View style={{ backgroundColor: $config.primaryFontColor + '80', width: 1, height: '100%', marginHorizontal: 20, alignSelf: 'center', opacity: 0.8 }} />
             <Settings
               sidePanel={sidePanel}
               setSidePanel={setSidePanel}
               isHost={isHost}
-            />
+            /></>
           ) : (
             <></>
           )}
@@ -146,7 +177,8 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    marginHorizontal: 10,
+    justifyContent: 'space-between',
   },
   recordingView: {
     backgroundColor: '#099DFD',
@@ -177,26 +209,27 @@ const style = StyleSheet.create({
     paddingHorizontal: 5,
     // marginHorizontal: 5,
     height: 30,
-    // alignSelf: 'center',
-    borderColor: '#099DFD',
-    borderWidth: 2,
+    alignSelf: 'center',
+    // backgroundColor: '#099DFD',
+    // borderWidth: 2,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     borderRadius: 3,
   },
   participantBtn: {
-    height: '80%',
+    height: '100%',
     width: '100%',
     flexDirection: 'row',
     alignContent: 'center',
     justifyContent: 'center',
+    alignSelf: 'center',
     flex: 1,
   },
   participantBtnIcon: {
-    height: 20,
-    width: 20,
-    margin: 1,
+    height: 30,
+    width: 38,
+    // margin: 1,
     tintColor: '#099DFD',
     resizeMode: 'contain',
   },
@@ -214,7 +247,7 @@ const style = StyleSheet.create({
     height: 35,
     maxHeight: 30,
     flexDirection: 'row',
-    width: '50%',
+    // width: '50%',
     justifyContent: 'flex-end',
     alignItems: 'center',
     zIndex: 10,
@@ -223,7 +256,8 @@ const style = StyleSheet.create({
     fontSize: 20,
     // flex: 10,
     // width: 50,
-    color: '#fff',
+    // color: '#fff',
+    color: $config.primaryFontColor,
     fontWeight: '500',
   },
   layoutBtnHolder: {
@@ -235,9 +269,9 @@ const style = StyleSheet.create({
     // marginRight: 1,
   },
   layoutBtn: {
-    height: 20,
+    height: 30,
     alignSelf: 'center',
-    width: 20,
+    width: 30,
     // marginRight: 5,
   },
   layoutBtnIcon: {
@@ -246,4 +280,5 @@ const style = StyleSheet.create({
     tintColor: '#099DFD',
   },
 });
+
 export default Navbar;

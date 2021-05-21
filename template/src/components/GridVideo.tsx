@@ -55,7 +55,7 @@ const GridVideo = () => {
     isDesktop,
   ]);
   return (
-    <View style={style.full} onLayout={onLayout}>
+    <View style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]} onLayout={onLayout}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (
@@ -72,15 +72,20 @@ const GridVideo = () => {
                 />
                 <View
                   style={{
-                    marginTop: -25,
+                    marginTop: -30,
                     backgroundColor: '#ffffffbb',
                     alignSelf: 'flex-end',
                     paddingHorizontal: 8,
-                    height: 25,
+                    height: 30,
                     borderTopLeftRadius: 15,
+                    // marginHorizontal: 'auto',
+                    maxWidth: '100%',
                     flexDirection: 'row',
+                    // alignContent: 'flex-end',
+                    // width: '100%',
                     // alignItems: 'flex-start',
                   }}>
+                    {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
                   <View style={[style.MicBackdrop]}>
                     <Image
                       source={{
@@ -102,12 +107,13 @@ const GridVideo = () => {
                   <Text
                     textBreakStrategy={'simple'}
                     style={{
-                      color: '#333',
-                      lineHeight: 25,
-                      fontWeight: '700',
-                      width: '100%',
-                      alignSelf: 'stretch',
-                      textAlign: 'center',
+                      color: $config.primaryFontColor,
+                      lineHeight: 30,
+                      fontSize: 18,
+                      fontWeight: '600',
+                      maxWidth: '70%',
+                      // alignSelf: 'stretch',
+                      // textAlign: 'center',
                     }}>
                     {users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
@@ -117,6 +123,7 @@ const GridVideo = () => {
                       ? userList[users[ridx * dims.c + cidx].uid].name + ' '
                       : 'User '}
                   </Text>
+                  {/* </View> */}
                   {/* {console.log(
                     '!nax',
                     userList,
@@ -137,7 +144,7 @@ const GridVideo = () => {
 const style = StyleSheet.create({
   full: {
     flex: 1,
-    padding: 40,
+    // padding: 20,
   },
   gridRow: {
     flex: 1,
@@ -148,8 +155,10 @@ const style = StyleSheet.create({
   gridVideoContainerInner: {
     // borderColor: '#fff',
     // borderWidth:2,
+    // width: '100%',
+    borderRadius: 20,
     flex: 1,
-    margin: 1,
+    // margin: 1,
     paddingHorizontal: 10,
   },
   MicBackdrop: {
@@ -158,6 +167,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
     alignSelf: 'center',
     marginHorizontal: 10,
+    marginRight: 20,
     backgroundColor: '#ffffff',
     display: 'flex',
     justifyContent: 'center',

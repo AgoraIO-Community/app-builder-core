@@ -37,11 +37,16 @@ const style = StyleSheet.create({
     alignContent: 'center',
     paddingVertical: 5,
     flexGrow: 1,
+    shadowColor:  $config.tertiaryFontColor,
+    shadowOpacity: .5,
+    shadowOffset: {width:-2, height: 0},
+    shadowRadius: 3,
+    paddingHorizontal: 20,
   },
   popupPickerHolder: {
     // height: '40%',
     justifyContent: 'space-around',
-    paddingHorizontal: '8%',
+    // paddingHorizontal: '8%',
   },
   heading: {
     fontSize: 20,

@@ -37,11 +37,11 @@ const ParticipantView = (props: any) => {
       <TouchableOpacity
         style={style.backButton}
         onPress={() => props.setSidePanel(SidePanelType.None)}>
-        <Image
+        {/* <Image
           resizeMode={'contain'}
           style={style.backIcon}
           source={{uri: icons.backBtn}}
-        />
+        /> */}
         <Text style={style.heading}>Participants</Text>
       </TouchableOpacity>
       <MinUidConsumer>
@@ -101,6 +101,13 @@ const style = StyleSheet.create({
     maxWidth: 300,
     backgroundColor: '#fff',
     flex: 1,
+    paddingTop: 20,
+    shadowColor:  $config.tertiaryFontColor,
+    shadowOpacity: .5,
+    shadowOffset: {width:-2, height: 0},
+    shadowRadius: 3,
+    // borderLeftColor: $config.tertiaryFontColor,
+    // borderLeftWidth: 1
   },
   participantViewNative: {
     position: 'absolute',
