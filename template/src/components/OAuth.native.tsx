@@ -1,10 +1,10 @@
-import React, {useEffect} from 'react';
-import {Text, Platform, Linking} from 'react-native';
+import React from 'react';
+import {Linking} from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {useHistory} from './Router';
 import SelectOAuth from '../subComponents/SelectOAuth';
 
-import { oAuthGoogle, googleUrl, url } from './OAuthConfig';
+import {url, oAuthSystemType} from './OAuthConfig';
 
 const processUrl = (url: string): string => {
   return url
@@ -15,10 +15,14 @@ const processUrl = (url: string): string => {
 const Oauth = () => {
   let history = useHistory();
 
-  const onSelectOAuthSystem = async ({ oAuthSystemType }) => {
+  const onSelectOAuthSystem = async ({
+    oAuthSystem,
+  }: {
+    oAuthSystem: oAuthSystemType;
+  }) => {
     try {
       // const url = `https://deep-link-tester.netlify.app`;
-      const oAuthUrl = url({ platform: 'mobile'})[`${oAuthSystemType}Url`];
+      const oAuthUrl = url({platform: 'mobile'})[`${oAuthSystem}Url`];
       if (await InAppBrowser.isAvailable()) {
         const result = await InAppBrowser.openAuth(oAuthUrl, oAuthUrl);
         console.log(JSON.stringify(result));

@@ -1,18 +1,19 @@
 import React from 'react';
-import {
-  Linking
-} from 'react-native';
+import {Linking} from 'react-native';
 import SelectOAuth from '../subComponents/SelectOAuth';
-import { url } from './OAuthConfig';
-
+import {url, oAuthSystemType} from './OAuthConfig';
 
 const Oauth = () => {
-  const onSelectOAuthSystem = ({ oAuthSystemType }) => {
-    const oAuthUrl = url({ platform: 'web'})[`${oAuthSystemType}Url`];
+  const onSelectOAuthSystem = ({
+    oAuthSystem,
+  }: {
+    oAuthSystem: oAuthSystemType;
+  }) => {
+    const oAuthUrl = url({platform: 'web'})[`${oAuthSystem}Url`];
 
-    Linking.openURL(oAuthUrl)
-  }
-  return  <SelectOAuth onSelectOAuth={onSelectOAuthSystem}/>;
+    Linking.openURL(oAuthUrl);
+  };
+  return <SelectOAuth onSelectOAuth={onSelectOAuthSystem} />;
 };
 
 export default Oauth;

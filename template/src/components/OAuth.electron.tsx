@@ -1,14 +1,17 @@
-import React, {useEffect} from 'react';
-import {Text} from 'react-native';
+import React from 'react';
 import {useHistory} from './Router';
 import SelectOAuth from '../subComponents/SelectOAuth';
-import { url } from './OAuthConfig';
+import {url, oAuthSystemType} from './OAuthConfig';
 
 const Oauth = () => {
   const history = useHistory();
-  const onSelectOAuthSystem = ({ oAuthSystemType }) => {
+  const onSelectOAuthSystem = ({
+    oAuthSystem,
+  }: {
+    oAuthSystem: oAuthSystemType;
+  }) => {
     console.log('electron OAuth');
-    const oAuthUrl = url({ platform: 'desktop'})[`${oAuthSystemType}Url`];
+    const oAuthUrl = url({platform: 'desktop'})[`${oAuthSystem}Url`];
     // @ts-ignore
     window.addEventListener(
       'message',
