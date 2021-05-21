@@ -39,6 +39,7 @@ export default class RtcEngine {
     public eventsMap = new Map<string, callbackType>([
         ['UserJoined', () => null],
         ['UserOffline', () => null],
+        ['JoinChannelSuccess', () => null],
         ['ScreenshareStopped', () => null],
         ['RemoteAudioStateChanged', () => null],
         ['RemoteVideoStateChanged', () => null],
