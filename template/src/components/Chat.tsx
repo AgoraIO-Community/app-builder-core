@@ -17,7 +17,14 @@ import chatContext from './ChatContext';
 
 const Chat = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
-  const {setChatDisplayed} = props;
+  const {
+    setChatDisplayed,
+    pendingPrivateNotification,
+    pendingPublicNotification,
+    lastCheckedPrivateState,
+    privateMessageCountMap,
+    setPrivateMessageLastSeen,
+  } = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
@@ -61,6 +68,11 @@ const Chat = (props: any) => {
                   },
                 ]
           }>
+          {pendingPublicNotification !== 0 ? (
+            <View style={style.chatNotification}>
+              {pendingPublicNotification}
+            </View>
+          ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
             Group
           </Text>
@@ -78,6 +90,11 @@ const Chat = (props: any) => {
                   },
                 ]
           }>
+          {pendingPrivateNotification !== 0 ? (
+            <View style={style.chatNotification}>
+              {pendingPrivateNotification}
+            </View>
+          ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
             Private
           </Text>
@@ -101,7 +118,21 @@ const Chat = (props: any) => {
                           <TouchableOpacity
                             style={style.participantContainer}
                             key={user.uid}
-                            onPress={() => selectUser(user)}>
+                            onPress={() => {
+                              selectUser(user);
+                              setPrivateMessageLastSeen({
+                                userId: user.uid,
+                                lastSeenCount: privateMessageCountMap[user.uid],
+                              });
+                            }}>
+                            {(privateMessageCountMap[user.uid] || 0) -
+                              (lastCheckedPrivateState[user.uid] || 0) !==
+                            0 ? (
+                              <View style={style.chatNotification}>
+                                {(privateMessageCountMap[user.uid] || 0) -
+                                  (lastCheckedPrivateState[user.uid] || 0)}
+                              </View>
+                            ) : null}
                             <Text style={style.participantText}>
                               {userList[user.uid]
                                 ? userList[user.uid].name + ' '
@@ -274,6 +305,19 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     tintColor: '#333',
+  },
+  chatNotification: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#099DFD',
+    color: '#FFF',
+    borderRadius: '45%',
+    position: 'absolute',
+    left: 25,
+    top: -8,
   },
 });
 

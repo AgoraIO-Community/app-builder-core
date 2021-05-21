@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Image,
@@ -16,9 +16,11 @@ import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import ColorContext from './ColorContext';
+import ChatContext from '../components/ChatContext';
 
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
+  const {messageStore} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const {
     setRecordingActive,
@@ -26,7 +28,10 @@ const Controls = (props: any) => {
     setChatDisplayed,
     chatDisplayed,
     isHost,
+    pendingMessageLength,
+    setLastCheckedPublicState,
   } = props;
+
   return (
     <LocalUserContext>
       <View style={style.controlsHolder}>
@@ -56,8 +61,12 @@ const Controls = (props: any) => {
           <TouchableOpacity
             style={[style.localButton, {borderColor: primaryColor}]}
             onPress={() => {
+              setLastCheckedPublicState(messageStore.length);
               setChatDisplayed(!chatDisplayed);
             }}>
+            {!chatDisplayed && pendingMessageLength !== 0 ? (
+              <View style={style.chatNotification}>{pendingMessageLength}</View>
+            ) : null}
             <Image
               source={{uri: icons.chatIcon}}
               style={[style.buttonIcon, {tintColor: primaryColor}]}
@@ -100,6 +109,19 @@ const style = StyleSheet.create({
     width: 35,
     height: 35,
     tintColor: '#099DFD',
+  },
+  chatNotification: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#099DFD',
+    color: '#FFF',
+    borderRadius: '50%',
+    position: 'absolute',
+    left: 25,
+    top: -15,
   },
 });
 

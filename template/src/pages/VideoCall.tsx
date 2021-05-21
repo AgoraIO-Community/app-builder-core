@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
@@ -17,6 +17,80 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
+import ChatContext from '../components/ChatContext';
+
+const useChatNotification = (
+  messageStore: string | any[],
+  privateMessageStore: string | any[],
+  chatDisplayed: boolean,
+) => {
+  // store the last checked state from the messagestore, to identify unread messages
+  const [lastCheckedPublicState, setLastCheckedPublicState] = useState(0);
+  const [lastCheckedPrivateState, setLastCheckedPrivateState] = useState({});
+  useEffect(() => {
+    if (chatDisplayed) {
+      setLastCheckedPublicState(messageStore.length);
+    }
+  }, [messageStore]);
+
+  const setPrivateMessageLastSeen = ({userId, lastSeenCount}) => {
+    setLastCheckedPrivateState((prevState) => {
+      return {...prevState, [userId]: lastSeenCount || 0};
+    });
+  };
+  return [
+    lastCheckedPublicState,
+    setLastCheckedPublicState,
+    lastCheckedPrivateState,
+    setLastCheckedPrivateState,
+    setPrivateMessageLastSeen,
+  ];
+};
+
+const NotificationControl = ({children, chatDisplayed}) => {
+  const {messageStore, privateMessageStore} = useContext(ChatContext);
+  const [
+    lastCheckedPublicState,
+    setLastCheckedPublicState,
+    lastCheckedPrivateState,
+    setLastCheckedPrivateState,
+    setPrivateMessageLastSeen,
+  ] = useChatNotification(messageStore, privateMessageStore, chatDisplayed);
+  const pendingPublicNotification =
+    messageStore.length - lastCheckedPublicState;
+  const privateMessageCountMap = Object.keys(privateMessageStore).reduce(
+    (acc, curItem) => {
+      let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
+        (total, item) => {
+          return item.uid === curItem ? total + 1 : total;
+        },
+        0,
+      );
+      return {...acc, [curItem]: individualPrivateMessageCount};
+    },
+    {},
+  );
+  const totalPrivateMessage = Object.keys(privateMessageCountMap).reduce(
+    (acc, item) => acc + privateMessageCountMap[item],
+    0,
+  );
+  const totalPrivateLastSeen = Object.keys(lastCheckedPrivateState).reduce(
+    (acc, item) => acc + lastCheckedPrivateState[item],
+    0,
+  );
+  const pendingPrivateNotification = totalPrivateMessage - totalPrivateLastSeen;
+
+  return children({
+    pendingPublicNotification,
+    pendingPrivateNotification,
+    lastCheckedPublicState,
+    setLastCheckedPublicState,
+    lastCheckedPrivateState,
+    setLastCheckedPrivateState,
+    privateMessageCountMap,
+    setPrivateMessageLastSeen,
+  });
+};
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -149,7 +223,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () => history.push('/'),
   };
-
+  throw new Error("My first Sentry error!");
   return (
     <>
       {queryComplete || !callActive ? (
@@ -192,22 +266,61 @@ const VideoCall: React.FC = () => {
                         )}
                         {layout ? <PinnedVideo /> : <GridVideo />}
                       </View>
-                      <Controls
-                        recordingActive={recordingActive}
-                        setRecordingActive={setRecordingActive}
-                        chatDisplayed={chatDisplayed}
-                        setChatDisplayed={setChatDisplayed}
-                        isHost={isHost}
-                      />
-                      {chatDisplayed ? (
-                        $config.chat ? (
-                          <Chat setChatDisplayed={setChatDisplayed} />
-                        ) : (
-                          <></>
-                        )
-                      ) : (
-                        <></>
-                      )}
+                      <NotificationControl chatDisplayed={chatDisplayed}>
+                        {({
+                          pendingPublicNotification,
+                          pendingPrivateNotification,
+                          setLastCheckedPublicState,
+                          lastCheckedPublicState,
+                          lastCheckedPrivateState,
+                          setLastCheckedPrivateState,
+                          privateMessageCountMap,
+                          setPrivateMessageLastSeen,
+                        }) => (
+                          <>
+                            <Controls
+                              recordingActive={recordingActive}
+                              setRecordingActive={setRecordingActive}
+                              chatDisplayed={chatDisplayed}
+                              setChatDisplayed={setChatDisplayed}
+                              isHost={isHost}
+                              pendingMessageLength={
+                                pendingPublicNotification +
+                                pendingPrivateNotification
+                              }
+                              setLastCheckedPublicState={
+                                setLastCheckedPublicState
+                              }
+                            />
+                            {chatDisplayed ? (
+                              $config.chat ? (
+                                <Chat
+                                  setChatDisplayed={setChatDisplayed}
+                                  privateMessageCountMap={
+                                    privateMessageCountMap
+                                  }
+                                  pendingPublicNotification={
+                                    pendingPublicNotification
+                                  }
+                                  pendingPrivateNotification={
+                                    pendingPrivateNotification
+                                  }
+                                  setPrivateMessageLastSeen={
+                                    setPrivateMessageLastSeen
+                                  }
+                                  lastCheckedPrivateState={
+                                    lastCheckedPrivateState
+                                  }
+                                />
+                              ) : (
+                                <></>
+                              )
+                            ) : (
+                              <></>
+                            )}
+                          </>
+                        )}
+                      </NotificationControl>
                     </View>
                   ) : $config.precall ? (
                     <Precall

@@ -16,9 +16,9 @@ module.exports = merge(commons, {
   node: {
     __dirname: false,
   },
-  externals: {
-    'agora-electron-sdk': 'commonjs2 agora-electron-sdk',
-  },
+  // externals: {
+  //   'agora-electron-sdk': 'commonjs2 agora-electron-sdk',
+  // },
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, '.electron'),

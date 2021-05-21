@@ -43,6 +43,7 @@ const Join = (props: joinProps) => {
   const startCall = async () => {
     joinSession({phrase});
   };
+  // throw new Error("My first Sentry error!");
   return (
     <ImageBackground
       onLayout={onLayout}
