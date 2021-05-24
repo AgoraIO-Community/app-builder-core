@@ -39,56 +39,92 @@ const Precall = (props: any) => {
     //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
-      <View style={style.main} onLayout={onLayout}>
-        <View style={style.nav}>
-          <Logo />
-          {error ? <Error error={error} showBack={true} /> : <></>}
-          {/* <OpenInNativeButton /> */}
-        </View>
-        <View style={style.content}>
-          <View style={style.leftContent}>
-            <MaxUidConsumer>
-              {(maxUsers) => (
-                <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-              )}
-            </MaxUidConsumer>
-            <View style={style.precallControls}>
-              <LocalUserContext>
-                <LocalVideoMute />
-                <LocalAudioMute />
-              </LocalUserContext>
-            </View>
-            {dim[0] < dim[1] + 150 ? (
-              <View style={[style.margin5Btm, {alignItems: 'center'}]}>
-                <TextInput
-                  value={username}
-                  onChangeText={(text) => {
-                    if (username !== 'Getting name...') {
-                      setUsername(text);
-                    }
-                  }}
-                  onSubmitEditing={() => {}}
-                  placeholder="Display Name"
-                />
-                <View style={style.margin5Btm} />
-                <PrimaryButton
-                  onPress={() => setCallActive(true)}
-                  disabled={!queryComplete}
-                  text={queryComplete ? 'Join Room' : 'Loading...'}
-                />
-              </View>
-            ) : (
-              <></>
+    <View style={style.main} onLayout={onLayout}>
+      <View style={style.nav}>
+        <Logo />
+        {error ? <Error error={error} showBack={true} /> : <></>}
+        {/* <OpenInNativeButton /> */}
+      </View>
+      <View style={style.content}>
+        <View style={style.leftContent}>
+          <MaxUidConsumer>
+            {(maxUsers) => (
+              <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
             )}
+          </MaxUidConsumer>
+          <View style={style.precallControls}>
+            <LocalUserContext>
+              <View style={{alignSelf: 'center'}}>
+                <LocalVideoMute />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    marginTop: 5,
+                    color: $config.primaryColor,
+                  }}>
+                  Video
+                </Text>
+              </View>
+              <View style={{alignSelf: 'center'}}>
+                <LocalAudioMute />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    marginTop: 5,
+                    color: $config.primaryColor,
+                  }}>
+                  Audio
+                </Text>
+              </View>
+            </LocalUserContext>
           </View>
-          {dim[0] >= dim[1] + 150 ? (
-            // <View style={[style.full]}>
+          {dim[0] < dim[1] + 150 ? (
+            <View style={[style.margin5Btm, {alignItems: 'center'}]}>
+              <TextInput
+                value={username}
+                onChangeText={(text) => {
+                  if (username !== 'Getting name...') {
+                    setUsername(text);
+                  }
+                }}
+                onSubmitEditing={() => {}}
+                placeholder="Display Name"
+              />
+              <View style={style.margin5Btm} />
+              <PrimaryButton
+                onPress={() => setCallActive(true)}
+                disabled={!queryComplete}
+                text={queryComplete ? 'Join Room' : 'Loading...'}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
+        </View>
+        {dim[0] >= dim[1] + 150 ? (
+          // <View style={[style.full]}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: '#ffffff80',
+              marginLeft: 50,
+              padding: 20,
+              borderRadius: 10,
+              alignItems: 'center',
+              borderWidth: 1,
+              borderStartColor: 'solid',
+              borderColor: $config.primaryColor,
+              height: '70%',
+              alignSelf: 'center',
+              justifyContent: 'center',
+              marginBottom: '10%',
+            }}>
             <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
               {/* <View style={{flex: 1}}> */}
-                <Text
-                  style={[style.subHeading, {color: $config.primaryFontColor}]}>
-                  Select Input Device
-                </Text>
+              <Text
+                style={[style.subHeading, {color: $config.primaryFontColor}]}>
+                Select Input Device
+              </Text>
               {/* </View> */}
               <View style={{height: 20}} />
               <View style={{flex: 1}}>
@@ -120,12 +156,13 @@ const Precall = (props: any) => {
                 />
               </View>
             </View>
-          ) : (
-            // </View>
-            <></>
-          )}
-        </View>
+          </View>
+        ) : (
+          // </View>
+          <></>
+        )}
       </View>
+    </View>
     // </ImageBackground>
   );
 };
@@ -150,7 +187,7 @@ const style = StyleSheet.create({
     flex: 1.3,
     justifyContent: 'space-evenly',
     marginTop: '2.5%',
-    // marginBottom: '5%',
+    marginBottom: '1%',
     // marginRight: '5%',
   },
   subHeading: {
@@ -174,7 +211,7 @@ const style = StyleSheet.create({
   textInput: {
     width: '100%',
     paddingLeft: 8,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 2,
     color: '#333',
     fontSize: 16,
@@ -185,7 +222,7 @@ const style = StyleSheet.create({
   },
   primaryBtn: {
     width: '60%',
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     maxWidth: 400,
     minHeight: 45,
     alignSelf: 'center',
@@ -226,7 +263,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     // alignContent: 'space-around',
     justifyContent: 'space-around',
-    flex: 1,
+    // flex: 1,
     marginBottom: '10%',
     height: '35%',
     minHeight: 280,

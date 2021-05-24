@@ -97,7 +97,7 @@ const style = StyleSheet.create({
   localButton: {
     backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     // borderWidth: 1,
     width: 40,
     height: 40,
@@ -109,7 +109,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: 35,
     height: 35,
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
 });
 

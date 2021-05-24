@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, {useState, useContext, useRef} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -7,6 +7,7 @@ import {
   Image,
   TextInput as Ti,
   UIManager,
+  KeyboardAvoidingView,
 } from 'react-native';
 import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
@@ -17,34 +18,47 @@ import icons from '../assets/icons';
  * Input component for the Chat interface
  */
 const ChatInput = (props: any) => {
-  const { primaryColor } = useContext(ColorContext);
+  const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
   const [height, setHeight] = useState(0);
-  const { privateActive, selectedUser } = props;
-  const { sendMessage, sendMessageToUid } = useContext(ChatContext);
+  const {privateActive, selectedUser} = props;
+  const {sendMessage, sendMessageToUid} = useContext(ChatContext);
+
   return (
-    <View style={[style.inputView, { borderColor: primaryColor, height: Math.max(40, height + 25) }]}>
+    <View
+      style={[
+        style.inputView,
+        {borderColor: primaryColor, height: Math.max(40, height + 25)},
+      ]}>
       <TextInput
         value={message}
         multiline={true}
-        onContentSizeChange={(event) => {
-          // console.log(height)
-          setHeight(event.nativeEvent.contentSize.height)
-        }}
+        // onContentSizeChange={(event) => {
+        // causes infinite react state update on ctrl+A -> delete
+        // setHeight(event.nativeEvent.contentSize.height);
+        // }}
         onChangeText={(text) => onChangeMessage(text)}
         style={{
-          borderRadius: 10, backgroundColor: $config.tertiaryFontColor + '22',
-          borderWidth: 1, textAlign: 'left', height: Math.max(35, height),
-          paddingVertical: 10, alignSelf: 'center'
+          borderRadius: 10,
+          backgroundColor: $config.tertiaryFontColor + '22',
+          borderWidth: 1,
+          textAlign: 'left',
+          height: Math.max(35, height),
+          paddingVertical: 10,
+          alignSelf: 'center',
         }}
-        blurOnSubmit={false}
+        blurOnSubmit={true}
         onSubmitEditing={() => {
-          console.log('!click');
-          !privateActive
-            ? (sendMessage(message), onChangeMessage(''))//, setHeight(35))
-            : (sendMessageToUid(message, selectedUser.uid),
-              onChangeMessage(''))//, setHeight(35));
-
+          // console.log('!click');
+          if (!privateActive) {
+            sendMessage(message);
+            onChangeMessage('');
+            setHeight(40);
+          } else {
+            sendMessageToUid(message, selectedUser.uid);
+            onChangeMessage('');
+            setHeight(40);
+          }
           // UIManager.focus(inputRef.current);
         }}
         placeholder="Type your message.."
@@ -54,10 +68,15 @@ const ChatInput = (props: any) => {
       <TouchableOpacity
         style={style.chatInputButton}
         onPress={() => {
-          !privateActive
-            ? (sendMessage(message), onChangeMessage(''), setHeight(35))
-            : (sendMessageToUid(message, selectedUser.uid), setHeight(35),
-              onChangeMessage(''));
+          if (!privateActive) {
+            sendMessage(message);
+            onChangeMessage('');
+            setHeight(40);
+          } else {
+            sendMessageToUid(message, selectedUser.uid);
+            onChangeMessage('');
+            setHeight(40);
+          }
         }}>
         <Image
           source={{
@@ -73,7 +92,7 @@ const ChatInput = (props: any) => {
 
 const style = StyleSheet.create({
   inputView: {
-    // flex: 1/2,
+    width: '85%',
     flexDirection: 'row',
     marginHorizontal: 10,
     paddingVertical: 15,
@@ -90,7 +109,7 @@ const style = StyleSheet.create({
     borderRadius: 30,
     alignSelf: 'center',
     marginHorizontal: 10,
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     display: 'flex',
     justifyContent: 'center',
   },

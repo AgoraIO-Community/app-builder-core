@@ -90,7 +90,7 @@ const Navbar = (props: any) => {
           flexDirection: 'row',
           justifyContent: 'flex-end',
           zIndex: 9,
-          minWidth: 40,
+          minWidth: Platform.OS === 'web' ? 400 : 40,
           // backgroundColor: '#f00',
         }}>
         <View
@@ -234,7 +234,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   // recordingView: {
-  //   backgroundColor: '#099DFD',
+  //   backgroundColor: $config.primaryColor,
   //   flex: 0.25,
   //   // maxWidth: 150,
   //   // paddingHorizontal: 2,
@@ -264,7 +264,7 @@ const style = StyleSheet.create({
   //   // marginHorizontal: 5,
   //   height: 30,
   //   alignSelf: 'center',
-  //   // backgroundColor: '#099DFD',
+  //   // backgroundColor: $config.primaryColor,
   //   // borderWidth: 2,
   //   flexDirection: 'row',
   //   alignItems: 'center',
@@ -289,7 +289,7 @@ const style = StyleSheet.create({
   },
   // participantText: {
   //   fontSize: Platform.OS === 'web' ? 20 : 18,
-  //   color: '#099DFD',
+  //   color: $config.primaryColor,
   //   fontWeight: '400',
   //   alignSelf: 'center',
   //   textAlign: 'center',
@@ -341,7 +341,7 @@ const style = StyleSheet.create({
   //   alignSelf: 'center',
   //   width: 30,
   //   resizeMode: 'contain',
-  //   tintColor: '#099DFD',
+  //   tintColor: $config.primaryColor,
   // },
 });
 

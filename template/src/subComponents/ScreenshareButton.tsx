@@ -65,7 +65,7 @@ const style = StyleSheet.create({
   localButton: {
     backgroundColor: '#fff',
     borderRadius: 20,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     width: 40,
     height: 40,
     display: 'flex',
@@ -86,7 +86,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: '90%',
     height: '90%',
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
 });
 

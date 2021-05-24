@@ -60,7 +60,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: 30,
     height: 30,
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
   heading: {
     fontSize: 30,
@@ -72,7 +72,7 @@ const style = StyleSheet.create({
   primaryBtn: {
     width: '60%',
     alignSelf: 'center',
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     maxWidth: 400,
     minHeight: 45,
   },
@@ -87,7 +87,7 @@ const style = StyleSheet.create({
   },
   localButton: {
     borderRadius: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     // borderWidth: 1,
     width: 30,
     height: 30,

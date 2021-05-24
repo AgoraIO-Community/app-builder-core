@@ -5,6 +5,8 @@ import {
   Text,
   StyleSheet,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
@@ -38,18 +40,36 @@ const Precall = (props: any) => {
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
-      <View style={style.textInputHolder}>
-        <TextInput
-          value={username}
-          onChangeText={(text) => {
-            if (username !== 'Getting name...') {
-              setUsername(text);
-            }
-          }}
-          onSubmitEditing={() => {}}
-          placeholder="Display Name"
-        />
-      </View>
+      {Platform.OS === 'ios' ? (
+        <KeyboardAvoidingView
+          behavior={'padding'}
+          keyboardVerticalOffset={110}
+          style={style.textInputHolder}>
+          <TextInput
+            value={username}
+            onChangeText={(text) => {
+              if (username !== 'Getting name...') {
+                setUsername(text);
+              }
+            }}
+            onSubmitEditing={() => {}}
+            placeholder="Display Name"
+          />
+        </KeyboardAvoidingView>
+      ) : (
+        <View style={style.textInputHolder}>
+          <TextInput
+            value={username}
+            onChangeText={(text) => {
+              if (username !== 'Getting name...') {
+                setUsername(text);
+              }
+            }}
+            onSubmitEditing={() => {}}
+            placeholder="Display Name"
+          />
+        </View>
+      )}
       <View style={{height: 20}} />
       <View style={style.controls}>
         <LocalUserContext>
@@ -95,7 +115,7 @@ const style = StyleSheet.create({
   textInput: {
     width: '80%',
     paddingLeft: 8,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 2,
     color: '#333',
     fontSize: 16,
@@ -107,7 +127,7 @@ const style = StyleSheet.create({
   controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 5},
   width50: {width: 50},
   buttonActive: {
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     height: 50,
     width: 180,
     alignSelf: 'center',

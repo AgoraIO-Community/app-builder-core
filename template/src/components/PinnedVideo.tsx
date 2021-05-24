@@ -23,6 +23,7 @@ const {topPinned} = layoutProps;
 
 const PinnedVideo = () => {
   const {primaryColor} = useContext(ColorContext);
+  const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -39,81 +40,131 @@ const PinnedVideo = () => {
   const {userList, localUid} = useContext(chatContext);
   return (
     <View
-      style={{flexDirection: isSidePinnedlayout ? 'row' : 'column', flex: 1}}
+      style={{
+        flexDirection: isSidePinnedlayout ? 'row' : 'column',
+        flex: 1,
+        padding: 4,
+      }}
       onLayout={onLayout}>
-      <ScrollView
-        horizontal={!isSidePinnedlayout}
-        decelerationRate={0}
-        // snapToInterval={
-        //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
-        // }
-        // snapToAlignment={'center'}
-        style={isSidePinnedlayout ? {width: '20%'} : {flex: 1}}>
-        <RtcContext.Consumer>
-          {(data) => (
-            <MinUidConsumer>
-              {(minUsers) =>
-                minUsers.map((user) => (
-                  <Pressable
-                    style={
-                      isSidePinnedlayout
-                        ? {
-                            width: '100%',
-                            height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                            zIndex: 40,
-                          }
-                        : {
-                            width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                            height: '100%',
-                            zIndex: 40,
-                            paddingHorizontal: 20,
-                            paddingVertical: 5,
-                          }
-                    }
-                    key={user.uid}
-                    onPress={() => {
-                      data.dispatch({type: 'SwapVideo', value: [user]});
-                    }}>
-                    <View style={style.flex1}>
-                      <MaxVideoView
-                        user={user}
-                        key={user.uid}
-                        showOverlay={false}
-                      />
-                      <View style={style.nameHolder}>
-                        <View style={[style.MicBackdrop]}>
-                          <Image
-                            source={{
-                              uri: user.audio ? icons.mic : icons.micOff,
-                            }}
-                            style={[
-                              style.MicIcon,
-                              {
-                                tintColor: user.audio ? primaryColor : 'red',
-                              },
-                            ]}
-                            resizeMode={'contain'}
-                          />
+      {isSidePinnedlayout && (
+        <TouchableOpacity
+          onPress={() => setCollapse(!collapse)}
+          style={{
+            position: 'absolute',
+            zIndex: 50,
+            marginTop: 5,
+            width: 35,
+            height: 35,
+            marginLeft: collapse ? 5 : '20.1%',
+            backgroundColor: '#ffffffaa',
+            borderRadius: 50,
+            justifyContent: 'center',
+          }}>
+          {/* <Image
+            source={{
+              uri: icons.micOff,
+            }}
+            style={[style.MicIcon]}
+            resizeMode={'contain'}
+          /> */}
+          <Text
+            style={{
+              alignSelf: 'center',
+              justifyContent: 'center',
+              color: $config.primaryColor,
+              fontWeight: '500',
+              fontSize: 20,
+            }}>
+            {collapse ? '>' : '<'}
+          </Text>
+        </TouchableOpacity>
+      )}
+      {!collapse && (
+        <ScrollView
+          horizontal={!isSidePinnedlayout}
+          decelerationRate={0}
+          // snapToInterval={
+          //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
+          // }
+          // snapToAlignment={'center'}
+          style={
+            isSidePinnedlayout
+              ? {width: '20%', paddingHorizontal: 8}
+              : {flex: 1}
+          }>
+          <RtcContext.Consumer>
+            {(data) => (
+              <MinUidConsumer>
+                {(minUsers) =>
+                  minUsers.map((user) => (
+                    <Pressable
+                      style={
+                        isSidePinnedlayout
+                          ? {
+                              width: '100%',
+                              height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                              zIndex: 40,
+                            }
+                          : {
+                              width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                              height: '100%',
+                              zIndex: 40,
+                              paddingHorizontal: 20,
+                              paddingVertical: 5,
+                            }
+                      }
+                      key={user.uid}
+                      onPress={() => {
+                        data.dispatch({type: 'SwapVideo', value: [user]});
+                      }}>
+                      <View style={style.flex1}>
+                        <MaxVideoView
+                          user={user}
+                          key={user.uid}
+                          showOverlay={false}
+                        />
+                        <View style={style.nameHolder}>
+                          <View style={[style.MicBackdrop]}>
+                            <Image
+                              source={{
+                                uri: user.audio ? icons.mic : icons.micOff,
+                              }}
+                              style={[
+                                style.MicIcon,
+                                {
+                                  tintColor: user.audio ? primaryColor : 'red',
+                                },
+                              ]}
+                              resizeMode={'contain'}
+                            />
+                          </View>
+                          <Text style={style.name}>
+                            {user.uid === 'local'
+                              ? userList[localUid]
+                                ? userList[localUid].name + ' '
+                                : 'You '
+                              : userList[user.uid]
+                              ? userList[user.uid].name + ' '
+                              : 'User '}
+                          </Text>
                         </View>
-                        <Text style={style.name}>
-                          {user.uid === 'local'
-                            ? userList[localUid]
-                              ? userList[localUid].name + ' '
-                              : 'You '
-                            : userList[user.uid]
-                            ? userList[user.uid].name + ' '
-                            : 'User '}
-                        </Text>
                       </View>
-                    </View>
-                  </Pressable>
-                ))
-              }
-            </MinUidConsumer>
-          )}
-        </RtcContext.Consumer>
-      </ScrollView>
-      <View style={isSidePinnedlayout ? style.width80 : style.flex4}>
+                    </Pressable>
+                  ))
+                }
+              </MinUidConsumer>
+            )}
+          </RtcContext.Consumer>
+        </ScrollView>
+      )}
+      <View
+        style={
+          isSidePinnedlayout
+            ? collapse
+              ? style.width100
+              : style.width80
+            : style.flex4
+        }>
         <MaxUidConsumer>
           {(maxUsers) => (
             <View style={style.flex1}>
@@ -153,6 +204,7 @@ const PinnedVideo = () => {
 
 const style = StyleSheet.create({
   width80: {width: '80%'},
+  width100: {width: '100%'},
   flex2: {flex: 2},
   flex4: {flex: 4},
   flex1: {flex: 1},
@@ -170,10 +222,10 @@ const style = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    alignSelf: 'center',
     marginHorizontal: 10,
     backgroundColor: '#ffffff',
     display: 'flex',
+    alignSelf: 'center',
     justifyContent: 'center',
   },
   MicIcon: {

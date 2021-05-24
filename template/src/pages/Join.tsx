@@ -55,8 +55,8 @@ const Join = (props: joinProps) => {
     //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
-    // <View style={style.main}>
-    <KeyboardAvoidingView behavior={'height'} style={style.main}>
+    <View style={style.main}>
+      {/* <KeyboardAvoidingView behavior={'height'} style={style.main}> */}
       <View style={style.nav}>
         <Logo />
         {error ? <Error error={error} /> : <></>}
@@ -99,8 +99,8 @@ const Join = (props: joinProps) => {
             <></>
           )} */}
       </View>
-    {/* </View> */}
-    </KeyboardAvoidingView>
+      {/* </KeyboardAvoidingView> */}
+    </View>
     // </ImageBackground>
   );
 };

@@ -1,5 +1,5 @@
 import React, {useState, useContext} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, Platform} from 'react-native';
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
@@ -217,17 +217,22 @@ const VideoCall: React.FC = () => {
                           <></>
                         )}
                       </View>
-                      <Controls
-                        recordingActive={recordingActive}
-                        setRecordingActive={setRecordingActive}
-                        // chatDisplayed={chatDisplayed}
-                        // setChatDisplayed={setChatDisplayed}
-                        isHost={isHost}
-                        // participantsView={participantsView}
-                        // setParticipantsView={setParticipantsView}
-                        sidePanel={sidePanel}
-                        setSidePanel={setSidePanel}
-                      />
+                      {Platform.OS !== 'web' &&
+                      sidePanel === SidePanelType.Chat ? (
+                        <></>
+                      ) : (
+                        <Controls
+                          recordingActive={recordingActive}
+                          setRecordingActive={setRecordingActive}
+                          // chatDisplayed={chatDisplayed}
+                          // setChatDisplayed={setChatDisplayed}
+                          isHost={isHost}
+                          // participantsView={participantsView}
+                          // setParticipantsView={setParticipantsView}
+                          sidePanel={sidePanel}
+                          setSidePanel={setSidePanel}
+                        />
+                      )}
                     </View>
                   ) : $config.precall ? (
                     <Precall

@@ -21,7 +21,9 @@ const ChatBubble = (props: channelMessage) => {
             ? [style.chatBubbleLocal, {backgroundColor: primaryColor}]
             : style.chatBubble
         }>
-        <Text style={isLocal ? style.whiteText : style.blackText}>
+        <Text
+          style={isLocal ? style.whiteText : style.blackText}
+          selectable={true}>
           {msg.slice(1) + ' '}
         </Text>
       </View>
@@ -76,7 +78,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
   },
   chatBubbleLocal: {
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     maxWidth: '80%',
     flex: 1,
     display: 'flex',

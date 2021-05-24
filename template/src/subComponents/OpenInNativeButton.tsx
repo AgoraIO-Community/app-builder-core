@@ -30,7 +30,7 @@ const style = StyleSheet.create({
     width: 110,
     height: 30,
     borderWidth: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     // marginTop: 5,
     // marginRight: 10,
   },
@@ -38,7 +38,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
-    color: '#099DFD',
+    color: $config.primaryColor,
   },
 });
 

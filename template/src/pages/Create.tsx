@@ -96,7 +96,8 @@ const Create = () => {
     //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
-    <KeyboardAvoidingView behavior={'height'} style={style.main}>
+    // <KeyboardAvoidingView behavior={'height'} style={style.main}>
+    <View style={style.main}>
       <View style={style.nav}>
         <Logo />
         {error ? <Error error={error} /> : <></>}
@@ -164,8 +165,7 @@ const Create = () => {
           roomTitle={roomTitle}
         />
       )}
-    </KeyboardAvoidingView>
-    // </ImageBackground>
+    </View>
   );
 };
 

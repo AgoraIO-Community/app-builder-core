@@ -34,10 +34,7 @@ const Chat = (props: any) => {
     setPrivateActive(true);
   };
   return (
-    // <View 
-    <KeyboardAvoidingView
-      behavior={'padding'}
-    style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
+    <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
       {/* <View style={style.heading}>
         <TouchableOpacity
           style={style.backButton}
@@ -89,8 +86,51 @@ const Chat = (props: any) => {
       {groupActive ? (
         <>
           <ChatContainer privateActive={privateActive} />
-          <View style={{ backgroundColor: $config.primaryFontColor + '80', width: '100%', height: 1, marginHorizontal: -20, alignSelf: 'center', opacity: 0.5 }} />
-          <ChatInput privateActive={privateActive} />
+          <View
+            style={{
+              backgroundColor: $config.primaryFontColor + '80',
+              width: '100%',
+              height: 1,
+              marginHorizontal: -20,
+              alignSelf: 'center',
+              opacity: 0.5,
+            }}
+          />
+          {Platform.OS === 'ios' ? (
+            <KeyboardAvoidingView
+              behavior={'position'}
+              keyboardVerticalOffset={105}>
+              <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+                <View
+                  style={{
+                    backgroundColor: $config.primaryFontColor + '80',
+                    width: '100%',
+                    height: 1,
+                    marginHorizontal: -20,
+                    alignSelf: 'center',
+                    opacity: 0.5,
+                    marginBottom: 10,
+                  }}
+                />
+                <ChatInput privateActive={privateActive} />
+              </View>
+            </KeyboardAvoidingView>
+          ) : (
+            <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+              <View
+                style={{
+                  backgroundColor: $config.primaryFontColor + '80',
+                  width: '100%',
+                  height: 1,
+                  marginHorizontal: -20,
+                  alignSelf: 'center',
+                  opacity: 0.5,
+                  marginBottom: 10,
+                }}
+              />
+              <ChatInput privateActive={privateActive} />
+            </View>
+          )}
         </>
       ) : (
         <>
@@ -131,17 +171,33 @@ const Chat = (props: any) => {
                     : 'User '
                 }
               />
-              <View style={{ backgroundColor: $config.primaryFontColor + '80', width: '100%', height: 1, marginHorizontal: -20, alignSelf: 'center', opacity: 0.5 }} />
-              <ChatInput
-                privateActive={privateActive}
-                selectedUser={selectedUser}
-              />
+              <KeyboardAvoidingView
+                behavior={'position'}
+                keyboardVerticalOffset={105}>
+                <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+                  <View
+                    style={{
+                      backgroundColor: $config.primaryFontColor + '80',
+                      width: '100%',
+                      height: 1,
+                      marginHorizontal: -20,
+                      alignSelf: 'center',
+                      opacity: 0.5,
+                      marginBottom: 10,
+                    }}
+                  />
+                  <ChatInput
+                    privateActive={privateActive}
+                    selectedUser={selectedUser}
+                  />
+                </View>
+              </KeyboardAvoidingView>
             </>
           )}
         </>
       )}
-    {/* </View> */}
-    </KeyboardAvoidingView>
+    </View>
+    // </KeyboardAvoidingView>
   );
 };
 
@@ -153,10 +209,10 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     flex: 1,
     // paddingTop: 20,
-    shadowColor:  $config.tertiaryFontColor,
-    shadowOpacity: .5,
-    shadowOffset: {width:-2, height: 0},
-    shadowRadius: 3
+    shadowColor: $config.tertiaryFontColor,
+    shadowOpacity: 0.5,
+    shadowOffset: {width: -2, height: 0},
+    shadowRadius: 3,
   },
   chatViewNative: {
     position: 'absolute',
@@ -165,7 +221,8 @@ const style = StyleSheet.create({
     height: '100%',
     // flex: 1,
     right: 0,
-    top: 0,
+    // top: 0,
+    bottom: 0,
     backgroundColor: '#fff',
   },
   heading: {

@@ -154,7 +154,7 @@ const style = StyleSheet.create({
   secondaryBtn: {
     alignSelf: 'center',
     width: '60%',
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 3,
     maxWidth: 400,
     minHeight: 42,
@@ -169,7 +169,7 @@ const style = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
     textAlignVertical: 'center',
-    color: '#099DFD',
+    color: $config.primaryColor,
   },
   backButton: {
     // marginLeft: 5,
