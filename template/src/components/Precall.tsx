@@ -34,19 +34,15 @@ const Precall = (props: any) => {
   };
 
   return (
-    <ImageBackground
-      onLayout={onLayout}
-      source={{uri: $config.bg}}
-      style={style.full}
-      resizeMode={'cover'}>
-      <View style={style.main}>
+    // <ImageBackground
+    //   onLayout={onLayout}
+    //   source={{uri: $config.bg}}
+    //   style={style.full}
+    //   resizeMode={'cover'}>
+      <View style={style.main} onLayout={onLayout}>
         <View style={style.nav}>
           <Logo />
-          {error ? (
-            <Error error={error} showBack={true}/>
-          ) : (
-            <></>
-          )}
+          {error ? <Error error={error} showBack={true} /> : <></>}
           {/* <OpenInNativeButton /> */}
         </View>
         <View style={style.content}>
@@ -86,10 +82,26 @@ const Precall = (props: any) => {
             )}
           </View>
           {dim[0] >= dim[1] + 150 ? (
-            <View style={[style.full]}>
-              <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
-                <Text style={style.subHeading}>Select Input Device</Text>
+            // <View style={[style.full]}>
+            <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
+              {/* <View style={{flex: 1}}> */}
+                <Text
+                  style={[style.subHeading, {color: $config.primaryFontColor}]}>
+                  Select Input Device
+                </Text>
+              {/* </View> */}
+              <View style={{height: 20}} />
+              <View style={{flex: 1}}>
                 <SelectDevice />
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  width: 350,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 50,
+                }}>
                 <TextInput
                   value={username}
                   onChangeText={(text) => {
@@ -100,6 +112,7 @@ const Precall = (props: any) => {
                   onSubmitEditing={() => {}}
                   placeholder="Display Name"
                 />
+                <View style={{height: 20}} />
                 <PrimaryButton
                   onPress={() => setCallActive(true)}
                   disabled={!queryComplete}
@@ -108,11 +121,12 @@ const Precall = (props: any) => {
               </View>
             </View>
           ) : (
+            // </View>
             <></>
           )}
         </View>
       </View>
-    </ImageBackground>
+    // </ImageBackground>
   );
 };
 
@@ -207,7 +221,16 @@ const style = StyleSheet.create({
     justifyContent: 'space-around',
     marginVertical: '5%',
   },
-  precallPickers: {},
+  precallPickers: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    // alignContent: 'space-around',
+    justifyContent: 'space-around',
+    flex: 1,
+    marginBottom: '10%',
+    height: '35%',
+    minHeight: 280,
+  },
   margin5Btm: {marginBottom: '5%'},
 });
 

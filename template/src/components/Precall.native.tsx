@@ -26,18 +26,15 @@ const Precall = (props: any) => {
   rtc.RtcEngine.startPreview();
   const {setCallActive, queryComplete, username, setUsername, error} = props;
   return (
-    <ImageBackground
-      source={{uri: $config.bg}}
-      style={style.full}
-      resizeMode={'cover'}>
+    // <ImageBackground
+    //   source={{uri: $config.bg}}
+    //   style={style.full}
+    //   resizeMode={'cover'}>
+    <View style={style.full}>
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
       </View>
-      {error ? (
-        <Error error={error} showBack={true} />
-      ) : (
-        <></>
-      )}
+      {error ? <Error error={error} showBack={true} /> : <></>}
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
@@ -53,6 +50,7 @@ const Precall = (props: any) => {
           placeholder="Display Name"
         />
       </View>
+      <View style={{height: 20}} />
       <View style={style.controls}>
         <LocalUserContext>
           <LocalVideoMute />
@@ -74,7 +72,8 @@ const Precall = (props: any) => {
           {queryComplete ? 'Join Room' : 'Loading...'}
         </Text>
       </TouchableOpacity>
-    </ImageBackground>
+      {/* </ImageBackground> */}
+    </View>
   );
 };
 

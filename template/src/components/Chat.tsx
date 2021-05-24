@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
 } from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
@@ -33,7 +34,10 @@ const Chat = (props: any) => {
     setPrivateActive(true);
   };
   return (
-    <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
+    // <View 
+    <KeyboardAvoidingView
+      behavior={'padding'}
+    style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
       {/* <View style={style.heading}>
         <TouchableOpacity
           style={style.backButton}
@@ -136,7 +140,8 @@ const Chat = (props: any) => {
           )}
         </>
       )}
-    </View>
+    {/* </View> */}
+    </KeyboardAvoidingView>
   );
 };
 
@@ -158,6 +163,7 @@ const style = StyleSheet.create({
     zIndex: 5,
     width: '100%',
     height: '100%',
+    // flex: 1,
     right: 0,
     top: 0,
     backgroundColor: '#fff',

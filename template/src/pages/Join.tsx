@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StyleSheet,
   Dimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
@@ -29,7 +30,8 @@ const Join = (props: joinProps) => {
   const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
-  const [error, setError] = useState<null | {name: string; message: string}>(null);
+  const [error, setError] =
+    useState<null | {name: string; message: string}>(null);
   // const [dim, setDim] = useState([
   //   Dimensions.get('window').width,
   //   Dimensions.get('window').height,
@@ -48,60 +50,58 @@ const Join = (props: joinProps) => {
     joinSession({phrase});
   };
   return (
-    <ImageBackground
-      // onLayout={onLayout}
-      source={{uri: $config.bg}}
-      style={style.full}
-      resizeMode={'cover'}>
-      <View style={style.main}>
-        <View style={style.nav}>
-          <Logo />
-          {error ? (
-            <Error error={error} />
-          ) : (
-            <></>
-          )}
-          {/* <OpenInNativeButton /> */}
-        </View>
-        <View style={style.content}>
-          <View style={style.leftContent}>
-            <Text style={style.heading}>{$config.landingHeading}</Text>
-            <Text style={style.headline}>{$config.landingSubHeading}</Text>
-            <View style={style.inputs}>
-              <TextInput
-                value={phrase}
-                onChangeText={(text) => onChangePhrase(text)}
-                onSubmitEditing={() => startCall()}
-                placeholder="Meeting ID"
-              />
+    // <ImageBackground
+    //   // onLayout={onLayout}
+    //   source={{uri: $config.bg}}
+    //   style={style.full}
+    //   resizeMode={'cover'}>
+    // <View style={style.main}>
+    <KeyboardAvoidingView behavior={'height'} style={style.main}>
+      <View style={style.nav}>
+        <Logo />
+        {error ? <Error error={error} /> : <></>}
+        {/* <OpenInNativeButton /> */}
+      </View>
+      <View style={style.content}>
+        <View style={style.leftContent}>
+          <Text style={style.heading}>{$config.landingHeading}</Text>
+          <Text style={style.headline}>{$config.landingSubHeading}</Text>
+          <View style={style.inputs}>
+            <TextInput
+              value={phrase}
+              onChangeText={(text) => onChangePhrase(text)}
+              onSubmitEditing={() => startCall()}
+              placeholder="Meeting ID"
+            />
 
-              <PrimaryButton
-                disabled={phrase === ''}
-                onPress={() => startCall()}
-                text={'Enter Meeting'}
-              />
-              <HorizontalRule />
-              <SecondaryButton
-                onPress={() => createMeeting()}
-                text={'Create a meeting'}
-              />
-              {$config.ENABLE_OAUTH ? (
-                <LogoutButton setError={setError} /> //setError not available in logout?
-              ) : (
-                <></>
-              )}
-            </View>
+            <PrimaryButton
+              disabled={phrase === ''}
+              onPress={() => startCall()}
+              text={'Enter Meeting'}
+            />
+            <HorizontalRule />
+            <SecondaryButton
+              onPress={() => createMeeting()}
+              text={'Create a meeting'}
+            />
+            {$config.ENABLE_OAUTH ? (
+              <LogoutButton setError={setError} /> //setError not available in logout?
+            ) : (
+              <></>
+            )}
           </View>
-          {/* {dim[0] > dim[1] + 150 ? (
+        </View>
+        {/* {dim[0] > dim[1] + 150 ? (
             <View style={style.full}>
               <Illustration />
             </View>
           ) : (
             <></>
           )} */}
-        </View>
       </View>
-    </ImageBackground>
+    {/* </View> */}
+    </KeyboardAvoidingView>
+    // </ImageBackground>
   );
 };
 
@@ -123,6 +123,7 @@ const style = StyleSheet.create({
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {
     width: '100%',
+    minHeight: 300,
     flex: 1,
     justifyContent: 'space-evenly',
     marginBottom: '15%',

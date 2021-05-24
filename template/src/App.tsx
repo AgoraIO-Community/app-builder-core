@@ -18,53 +18,53 @@ const App: React.FC = () => {
   const [phrase, onChangePhrase] = useState('');
 
   return (
-    // <ImageBackground
-    //   source={{uri: $config.bg}}
-    //   style={{flex: 1}}
-    //   resizeMode={'cover'}>
-    <SafeAreaView style={{flex: 1}}>
-      <StatusBar hidden={true} />
-      <StorageProvider>
-        <GraphQLProvider>
-          <Router>
-            <SessionProvider>
-              <ColorConfigure>
-                <Navigation />
-                <Switch>
-                  <Route exact path={'/'}>
-                    <Redirect to={'/create'} />
-                  </Route>
-                  <Route exact path={'/authenticate'}>
-                    {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />}
-                  </Route>
-                  <Route path={'/auth-token/:token'}>
-                    <StoreToken />
-                  </Route>
-                  <Route exact path={'/join'}>
-                    <Join phrase={phrase} onChangePhrase={onChangePhrase} />
-                  </Route>
-                  {$config.ENABLE_OAUTH ? (
-                    <PrivateRoute
-                      path={'/create'}
-                      failureRedirectTo={'/authenticate'}>
-                      <Create />
-                    </PrivateRoute>
-                  ) : (
-                    <Route path={'/create'}>
-                      <Create />
+    <ImageBackground
+      source={{uri: $config.bg}}
+      style={{flex: 1}}
+      resizeMode={'cover'}>
+      <SafeAreaView style={{flex: 1}}>
+        <StatusBar hidden={true} />
+        <StorageProvider>
+          <GraphQLProvider>
+            <Router>
+              <SessionProvider>
+                <ColorConfigure>
+                  <Navigation />
+                  <Switch>
+                    <Route exact path={'/'}>
+                      <Redirect to={'/create'} />
                     </Route>
-                  )}
-                  <Route path={'/:phrase'}>
-                    <VideoCall />
-                  </Route>
-                </Switch>
-              </ColorConfigure>
-            </SessionProvider>
-          </Router>
-        </GraphQLProvider>
-      </StorageProvider>
-    </SafeAreaView>
-    // </ImageBackground>
+                    <Route exact path={'/authenticate'}>
+                      {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />}
+                    </Route>
+                    <Route path={'/auth-token/:token'}>
+                      <StoreToken />
+                    </Route>
+                    <Route exact path={'/join'}>
+                      <Join phrase={phrase} onChangePhrase={onChangePhrase} />
+                    </Route>
+                    {$config.ENABLE_OAUTH ? (
+                      <PrivateRoute
+                        path={'/create'}
+                        failureRedirectTo={'/authenticate'}>
+                        <Create />
+                      </PrivateRoute>
+                    ) : (
+                      <Route path={'/create'}>
+                        <Create />
+                      </Route>
+                    )}
+                    <Route path={'/:phrase'}>
+                      <VideoCall />
+                    </Route>
+                  </Switch>
+                </ColorConfigure>
+              </SessionProvider>
+            </Router>
+          </GraphQLProvider>
+        </StorageProvider>
+      </SafeAreaView>
+    </ImageBackground>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };

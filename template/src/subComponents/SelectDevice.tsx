@@ -9,13 +9,8 @@ import ColorContext from '../components/ColorContext';
  */
 const SelectDevice = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {
-    selectedCam,
-    setSelectedCam,
-    selectedMic,
-    setSelectedMic,
-    deviceList,
-  } = useContext(DeviceContext);
+  const {selectedCam, setSelectedCam, selectedMic, setSelectedMic, deviceList} =
+    useContext(DeviceContext);
 
   return (
     <>
@@ -56,7 +51,13 @@ const SelectDevice = () => {
 };
 
 const style = StyleSheet.create({
-  popupPicker: {height: 30, marginBottom: 10},
+  popupPicker: {
+    height: 30,
+    marginBottom: 10,
+    borderRadius: 50,
+    paddingLeft: 5,
+    minHeight: 35,
+  },
 });
 
 export default SelectDevice;
