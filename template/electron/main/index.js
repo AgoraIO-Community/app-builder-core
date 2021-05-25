@@ -105,23 +105,6 @@ if (isDevelopment && process.platform === 'win32') {
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
-console.log({gotTheLock}, 'got the lock')
-// if (!gotTheLock) {
-//   app.quit();
-//   return;
-// } else {
-//   app.on('second-instance', (e, argv) => {
-//     if (process.platform !== 'darwin') {
-//       // Find the arg that is our custom protocol url and store it
-//       deeplinkingUrl = argv.find((arg) => arg.startsWith('custom://'));
-//     }
-
-//     if (myWindow) {
-//       if (myWindow.isMinimized()) myWindow.restore();
-//       myWindow.focus();
-//     }
-//   });
-// }
 if (gotTheLock) {
   app.on('second-instance', (e, argv) => {
     // Someone tried to run a second instance, we should focus our window.
@@ -140,18 +123,6 @@ if (gotTheLock) {
     }
   })
 } 
-// else {
-//   app.quit()
-//   return
-// }
-// app.on('open-url', function (event, url) {
-//   event.preventDefault();
-//   deeplinkingUrl = url;
-// });
-// if (!app.isDefaultProtocolClient('myapp')) {
-//   // Define custom protocol handler. Deep linking works on packaged versions of the application!
-//   app.setAsDefaultProtocolClient('myapp')
-// }
 
 app.on('will-finish-launching', function() {
   // Protocol handler for osx
