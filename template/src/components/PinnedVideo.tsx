@@ -145,6 +145,8 @@ const PinnedVideo = () => {
                                 : 'You '
                               : userList[user.uid]
                               ? userList[user.uid].name + ' '
+                              : user.uid === 1
+                              ? userList[localUid].name + "'s screenshare "
                               : 'User '}
                           </Text>
                         </View>
@@ -191,6 +193,8 @@ const PinnedVideo = () => {
                       : 'You '
                     : userList[maxUsers[0].uid]
                     ? userList[maxUsers[0].uid].name + ' '
+                    : maxUsers[0].uid === 1
+                    ? userList[localUid].name + "'s screenshare "
                     : 'User '}
                 </Text>
               </View>

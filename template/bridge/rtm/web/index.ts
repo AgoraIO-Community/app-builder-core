@@ -273,7 +273,7 @@ export default class RtmEngine {
     attributes.map((attribute) => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
-      formattedAttributes = {[key]: value};
+      formattedAttributes[key] = value;
       // console.log('!!!!formattedAttributes', formattedAttributes, key, value);
     });
     return this.client.setLocalUserAttributes({...formattedAttributes});

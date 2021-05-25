@@ -62,7 +62,7 @@ const RtmConfigure = (props: any) => {
       const backoffAttributes = backOff(
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
-          if (attr && attr.attributes && attr.attributes.name) {
+          if (attr?.attributes?.name && attr?.attributes?.screenUid) {
             return attr;
           } else {
             throw attr;
@@ -89,6 +89,9 @@ const RtmConfigure = (props: any) => {
               ...prevState,
               [Platform.OS === 'android' ? arr[0] : data.uid]: {
                 name: attr?.attributes?.name || 'User',
+              },
+              [parseInt(attr?.attributes?.screenUid)]: {
+                name: `${attr?.attributes?.name || 'User'}'s screenshare`,
               },
             };
           });
@@ -192,7 +195,10 @@ const RtmConfigure = (props: any) => {
       token: rtcProps.rtm,
     });
     if (name) {
-      await engine.current.setLocalUserAttributes([{key: 'name', value: name}]);
+      await engine.current.setLocalUserAttributes([
+        {key: 'name', value: name},
+        {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+      ]);
     } else {
       await engine.current.setLocalUserAttributes([
         {key: 'name', value: 'User'},
@@ -208,7 +214,7 @@ const RtmConfigure = (props: any) => {
               const attr = await engine.current.getUserAttributesByUid(
                 member.uid,
               );
-              if (attr && attr.attributes && attr.attributes.name) {
+              if (attr?.attributes?.name && attr?.attributes?.screenUid) {
                 return attr;
               } else {
                 throw attr;
@@ -234,6 +240,9 @@ const RtmConfigure = (props: any) => {
                 ...prevState,
                 [Platform.OS === 'android' ? arr[0] : member.uid]: {
                   name: attr?.attributes?.name || 'User',
+                },
+                [parseInt(attr?.attributes?.screenUid)]: {
+                  name: `${attr?.attributes?.name || 'User'}'s screenshare`,
                 },
               };
             });
