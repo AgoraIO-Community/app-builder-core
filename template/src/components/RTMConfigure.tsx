@@ -202,16 +202,10 @@ const RtmConfigure = (props: any) => {
       uid: localUid.current,
       token: rtcProps.rtm,
     });
-    if (name) {
-      await engine.current.setLocalUserAttributes([
-        {key: 'name', value: name},
-        {key: 'screenUid', value: String(rtcProps.screenShareUid)},
-      ]);
-    } else {
-      await engine.current.setLocalUserAttributes([
-        {key: 'name', value: 'User'},
-      ]);
-    }
+    await engine.current.setLocalUserAttributes([
+      {key: 'name', value: name || 'User'},
+      {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+    ]);
     await engine.current.joinChannel(rtcProps.channel);
     engine.current
       .getChannelMembersBychannelId(rtcProps.channel)
