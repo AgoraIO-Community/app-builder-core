@@ -5,7 +5,8 @@ import {
   Text,
   StyleSheet,
   ImageBackground,
-  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
@@ -17,84 +18,59 @@ import {
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import ColorContext from './ColorContext';
-import {useHistory} from './Router';
+import TextInput from '../atoms/TextInput';
+import Error from '../subComponents/Error';
 
 const Precall = (props: any) => {
-  const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.startPreview();
   const {setCallActive, queryComplete, username, setUsername, error} = props;
   return (
-    <ImageBackground
-      source={{uri: $config.bg}}
-      style={style.full}
-      resizeMode={'cover'}>
+    // <ImageBackground
+    //   source={{uri: $config.bg}}
+    //   style={style.full}
+    //   resizeMode={'cover'}>
+    <View style={style.full}>
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
       </View>
-      {error ? (
-        <View
-          style={{
-            position: 'absolute',
-            borderWidth: 2,
-            borderColor: '#ff0000',
-            backgroundColor: '#ffffff80',
-            paddingHorizontal: 10,
-            paddingVertical: 2,
-            maxWidth: 250,
-            width: '65%',
-            left: 0,
-            right: 0,
-            top: '10%',
-            marginHorizontal: 'auto',
-            left: '20%',
-            zIndex: 55,
-          }}>
-          <Text style={{alignSelf: 'center'}}>
-            <Text
-              style={{
-                fontWeight: '500',
-                textAlign: 'center',
-                fontSize: 16,
-              }}>
-              {error.name + ' - '}
-            </Text>
-            <Text style={{}}>{error.message}</Text>
-          </Text>
-          <TouchableOpacity
-            style={{alignSelf: 'center'}}
-            onPress={() => history.replace('./')}>
-            <Text
-              style={{
-                fontWeight: '500',
-                textDecorationLine: 'underline',
-              }}>
-              {'Go back '}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <></>
-      )}
+      {error ? <Error error={error} showBack={true} /> : <></>}
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
-      <View style={style.textInputHolder}>
-        <TextInput
-          style={[style.textInput, {borderColor: primaryColor}]}
-          value={username}
-          onChangeText={(text) => {
-            if (username !== 'Getting name...') {
-              setUsername(text);
-            }
-          }}
-          onSubmitEditing={() => {}}
-          placeholder="Display Name"
-          placeholderTextColor="#777"
-        />
-      </View>
+      {Platform.OS === 'ios' ? (
+        <KeyboardAvoidingView
+          behavior={'padding'}
+          keyboardVerticalOffset={110}
+          style={style.textInputHolder}>
+          <TextInput
+            value={username}
+            onChangeText={(text) => {
+              if (username !== 'Getting name...') {
+                setUsername(text);
+              }
+            }}
+            onSubmitEditing={() => {}}
+            placeholder="Display Name"
+          />
+        </KeyboardAvoidingView>
+      ) : (
+        <View style={style.textInputHolder}>
+          <TextInput
+            value={username}
+            onChangeText={(text) => {
+              if (username !== 'Getting name...') {
+                setUsername(text);
+              }
+            }}
+            onSubmitEditing={() => {}}
+            placeholder="Display Name"
+          />
+        </View>
+      )}
+      <View style={{height: 20}} />
       <View style={style.controls}>
         <LocalUserContext>
           <LocalVideoMute />
@@ -116,7 +92,8 @@ const Precall = (props: any) => {
           {queryComplete ? 'Join Room' : 'Loading...'}
         </Text>
       </TouchableOpacity>
-    </ImageBackground>
+      {/* </ImageBackground> */}
+    </View>
   );
 };
 
@@ -138,7 +115,7 @@ const style = StyleSheet.create({
   textInput: {
     width: '80%',
     paddingLeft: 8,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 2,
     color: '#333',
     fontSize: 16,
@@ -150,7 +127,7 @@ const style = StyleSheet.create({
   controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 5},
   width50: {width: 50},
   buttonActive: {
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     height: 50,
     width: 180,
     alignSelf: 'center',

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "uikit": "git clone https://github.com/AgoraIO-Community/ReactNative-UIKit template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout app-builder",
-    "deps" : "cd template && npm i",
+    "deps": "cd template && npm i",
     "dev-setup": "npm run uikit && npm run deps && node devSetup.js"
   },
   "author": {

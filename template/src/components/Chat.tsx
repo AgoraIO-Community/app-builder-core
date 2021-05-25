@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
 } from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
@@ -42,7 +43,7 @@ const Chat = (props: any) => {
   };
   return (
     <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
-      <View style={style.heading}>
+      {/* <View style={style.heading}>
         <TouchableOpacity
           style={style.backButton}
           onPress={() => setChatDisplayed(false)}>
@@ -53,7 +54,7 @@ const Chat = (props: any) => {
           />
           <Text style={style.headingText}>Chats</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <View style={style.chatNav}>
         <TouchableOpacity
           onPress={selectGroup}
@@ -103,7 +104,51 @@ const Chat = (props: any) => {
       {groupActive ? (
         <>
           <ChatContainer privateActive={privateActive} />
-          <ChatInput privateActive={privateActive} />
+          <View
+            style={{
+              backgroundColor: $config.primaryFontColor + '80',
+              width: '100%',
+              height: 1,
+              marginHorizontal: -20,
+              alignSelf: 'center',
+              opacity: 0.5,
+            }}
+          />
+          {Platform.OS === 'ios' ? (
+            <KeyboardAvoidingView
+              behavior={'position'}
+              keyboardVerticalOffset={105}>
+              <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+                <View
+                  style={{
+                    backgroundColor: $config.primaryFontColor + '80',
+                    width: '100%',
+                    height: 1,
+                    marginHorizontal: -20,
+                    alignSelf: 'center',
+                    opacity: 0.5,
+                    marginBottom: 10,
+                  }}
+                />
+                <ChatInput privateActive={privateActive} />
+              </View>
+            </KeyboardAvoidingView>
+          ) : (
+            <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+              <View
+                style={{
+                  backgroundColor: $config.primaryFontColor + '80',
+                  width: '100%',
+                  height: 1,
+                  marginHorizontal: -20,
+                  alignSelf: 'center',
+                  opacity: 0.5,
+                  marginBottom: 10,
+                }}
+              />
+              <ChatInput privateActive={privateActive} />
+            </View>
+          )}
         </>
       ) : (
         <>
@@ -158,37 +203,58 @@ const Chat = (props: any) => {
                     : 'User '
                 }
               />
-              <ChatInput
-                privateActive={privateActive}
-                selectedUser={selectedUser}
-              />
+              <KeyboardAvoidingView
+                behavior={'position'}
+                keyboardVerticalOffset={105}>
+                <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+                  <View
+                    style={{
+                      backgroundColor: $config.primaryFontColor + '80',
+                      width: '100%',
+                      height: 1,
+                      marginHorizontal: -20,
+                      alignSelf: 'center',
+                      opacity: 0.5,
+                      marginBottom: 10,
+                    }}
+                  />
+                  <ChatInput
+                    privateActive={privateActive}
+                    selectedUser={selectedUser}
+                  />
+                </View>
+              </KeyboardAvoidingView>
             </>
           )}
         </>
       )}
     </View>
+    // </KeyboardAvoidingView>
   );
 };
 
 const style = StyleSheet.create({
   chatView: {
-    position: 'absolute',
-    zIndex: 5,
     width: '20%',
-    height: '92%',
     minWidth: 200,
-    maxWidth: 400,
-    right: 0,
-    bottom: 0,
+    maxWidth: 300,
     backgroundColor: '#fff',
+    flex: 1,
+    // paddingTop: 20,
+    shadowColor: $config.tertiaryFontColor,
+    shadowOpacity: 0.5,
+    shadowOffset: {width: -2, height: 0},
+    shadowRadius: 3,
   },
   chatViewNative: {
     position: 'absolute',
     zIndex: 5,
     width: '100%',
-    height: '90%',
+    height: '100%',
+    // flex: 1,
     right: 0,
-    top: 0,
+    // top: 0,
+    bottom: 0,
     backgroundColor: '#fff',
   },
   heading: {
@@ -216,50 +282,35 @@ const style = StyleSheet.create({
   groupActive: {
     backgroundColor: '#fff',
     flex: 1,
-    borderTopWidth: 2,
-    borderRightWidth: 2,
-    borderColor: '#099DFD',
     height: '100%',
     textAlign: 'center',
   },
   group: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f1f4f9',
     flex: 1,
-    borderTopWidth: 2,
-    borderBottomWidth: 2,
-    borderTopColor: '#B4E1FF',
-    borderRightWidth: 2,
-    borderColor: '#099DFD',
     height: '100%',
     textAlign: 'center',
+    borderBottomRightRadius: 10,
   },
   privateActive: {
     backgroundColor: '#fff',
-    // borderBottomWidth: 2,
-    borderTopWidth: 2,
-    // borderTopColor: '#B4E1FF',
-    borderColor: '#099DFD',
     flex: 1,
     height: '100%',
     textAlign: 'center',
   },
   private: {
-    backgroundColor: '#fff',
-    borderBottomWidth: 2,
-    borderTopWidth: 2,
-    borderTopColor: '#B4E1FF',
-    borderColor: '#099DFD',
+    backgroundColor: '#f1f4f9',
     flex: 1,
     height: '100%',
-    // paddingLeft: 20,
     textAlign: 'center',
+    borderBottomLeftRadius: 10,
   },
   groupTextActive: {
     marginVertical: 'auto',
     fontWeight: '700',
     textAlign: 'center',
-    color: '#333',
     fontSize: 16,
+    color: '#000',
     justifyContent: 'center',
     paddingVertical: 5,
   },
@@ -267,10 +318,10 @@ const style = StyleSheet.create({
     marginVertical: 'auto',
     fontWeight: '700',
     textAlign: 'center',
-    color: '#C1C1C1',
     fontSize: 16,
     paddingVertical: 5,
     justifyContent: 'center',
+    color: '#B9B9B9',
   },
   participantContainer: {
     flexDirection: 'row',

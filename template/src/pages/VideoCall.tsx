@@ -1,10 +1,12 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, Platform} from 'react-native';
+
 import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
 import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
+import SettingsView from '../components/SettingsView';
 import PinnedVideo from '../components/PinnedVideo';
 import Controls from '../components/Controls';
 import GridVideo from '../components/GridVideo';
@@ -18,6 +20,8 @@ import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import ChatContext from '../components/ChatContext';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {videoView} from '../../theme.json';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -147,6 +151,7 @@ const VideoCall: React.FC = () => {
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
+  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams();
   const [errorMessage, setErrorMessage] = useState(null);
   let isHost = true; //change to false by default after testing
@@ -223,7 +228,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () => history.push('/'),
   };
-  throw new Error("My first Sentry error!");
+  // throw new Error("My first Sentry error!");
   return (
     <>
       {queryComplete || !callActive ? (
@@ -244,10 +249,12 @@ const VideoCall: React.FC = () => {
                   {callActive ? (
                     <View style={style.full}>
                       <Navbar
-                        participantsView={participantsView}
-                        setParticipantsView={setParticipantsView}
-                        chatDisplayed={chatDisplayed}
-                        setChatDisplayed={setChatDisplayed}
+                        // participantsView={participantsView}
+                        // setParticipantsView={setParticipantsView}
+                        sidePanel={sidePanel}
+                        setSidePanel={setSidePanel}
+                        // chatDisplayed={chatDisplayed}
+                        // setChatDisplayed={setChatDisplayed}
                         layout={layout}
                         setLayout={setLayout}
                         recordingActive={recordingActive}
@@ -256,17 +263,19 @@ const VideoCall: React.FC = () => {
                         title={title}
                       />
                       <View style={style.videoView}>
-                        {participantsView ? (
+                        {layout ? <PinnedVideo /> : <GridVideo />}
+                        {sidePanel === SidePanelType.Participants ? (
                           <ParticipantsView
                             isHost={isHost}
-                            setParticipantsView={setParticipantsView}
+                            // setParticipantsView={setParticipantsView}
+                            setSidePanel={setSidePanel}
                           />
                         ) : (
                           <></>
                         )}
-                        {layout ? <PinnedVideo /> : <GridVideo />}
                       </View>
-                      <NotificationControl chatDisplayed={chatDisplayed}>
+                      <NotificationControl
+                        chatDisplayed={sidePanel === SidePanelType.Chat}>
                         {({
                           pendingPublicNotification,
                           pendingPrivateNotification,
@@ -278,24 +287,9 @@ const VideoCall: React.FC = () => {
                           setPrivateMessageLastSeen,
                         }) => (
                           <>
-                            <Controls
-                              recordingActive={recordingActive}
-                              setRecordingActive={setRecordingActive}
-                              chatDisplayed={chatDisplayed}
-                              setChatDisplayed={setChatDisplayed}
-                              isHost={isHost}
-                              pendingMessageLength={
-                                pendingPublicNotification +
-                                pendingPrivateNotification
-                              }
-                              setLastCheckedPublicState={
-                                setLastCheckedPublicState
-                              }
-                            />
-                            {chatDisplayed ? (
+                            {sidePanel === SidePanelType.Chat ? (
                               $config.chat ? (
                                 <Chat
-                                  setChatDisplayed={setChatDisplayed}
                                   privateMessageCountMap={
                                     privateMessageCountMap
                                   }
@@ -317,6 +311,39 @@ const VideoCall: React.FC = () => {
                               )
                             ) : (
                               <></>
+                            )}
+                            {sidePanel === SidePanelType.Settings ? (
+                              <SettingsView
+                                isHost={isHost}
+                                // setParticipantsView={setParticipantsView}
+                                setSidePanel={setSidePanel}
+                              />
+                            ) : (
+                              <></>
+                            )}
+
+                            {Platform.OS !== 'web' &&
+                            sidePanel === SidePanelType.Chat ? (
+                              <></>
+                            ) : (
+                              <Controls
+                                recordingActive={recordingActive}
+                                setRecordingActive={setRecordingActive}
+                                // chatDisplayed={chatDisplayed}
+                                // setChatDisplayed={setChatDisplayed}
+                                isHost={isHost}
+                                // participantsView={participantsView}
+                                // setParticipantsView={setParticipantsView}
+                                sidePanel={sidePanel}
+                                setSidePanel={setSidePanel}
+                                pendingMessageLength={
+                                  pendingPublicNotification +
+                                  pendingPrivateNotification
+                                }
+                                setLastCheckedPublicState={
+                                  setLastCheckedPublicState
+                                }
+                              />
                             )}
                           </>
                         )}
@@ -377,11 +404,7 @@ const style = StyleSheet.create({
   full: {
     flex: 1,
   },
-  videoView: {
-    flex: 12,
-    backgroundColor: '#fff',
-    flexDirection: 'column',
-  },
+  videoView: videoView,
   loader: {
     flex: 1,
     alignSelf: 'center',

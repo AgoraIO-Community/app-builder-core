@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
 });
 

@@ -22,40 +22,36 @@ interface SurfaceViewInterface
     StyleProps {}
 
 const SurfaceView = (props: SurfaceViewInterface) => {
-  //   console.log('Surface View props', props);
-  const stream: AgoraRTC.Stream = window.engine.streams.get(props.uid);
+  console.log('Surface View props', props);
   useEffect(
     function () {
-      if (stream) {
-        if (props.renderMode === 2) {
-          stream.play(String(props.uid), {fit: 'contain'});
-        } else {
-          stream.play(String(props.uid));
-        }
+      const stream: AgoraRTC.Stream = window.engine.streams.get(props.uid);
+      if (props.renderMode == 2) {
+        stream.play(String(props.uid), {fit: 'contain'});
+      } else {
+        stream.play(String(props.uid));
       }
+      // document.getElementById(props.uid).children[0].style.borderRadius = props.style?.borderRadius + "px";
       return () => {
         console.log(`unmounting stream ${props.uid}`, stream);
-        stream && stream.stop();
+        stream.stop();
       };
     },
-    [props.uid, props.renderMode, stream],
+    [props.uid, props.renderMode],
   );
 
-  return stream ? (
+  return (
     <div
       id={String(props.uid)}
       className={'video-container'}
-      style={{...style.full, ...(props.style as Object)}}
+      style={{
+        flex: 1,
+        borderRadius: props.style?.borderRadius,
+        overflow: 'hidden',
+        ...(props.style as Object),
+      }}
     />
-  ) : (
-    <></>
   );
 };
-
-const style = StyleSheet.create({
-  full: {
-    flex: 1,
-  },
-});
 
 export default SurfaceView;

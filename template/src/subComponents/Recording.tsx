@@ -95,20 +95,20 @@ const Recording = (props: any) => {
 const style = StyleSheet.create({
   localButton: {
     backgroundColor: '#fff',
-    borderRadius: 2,
-    borderColor: '#099DFD',
+    borderRadius: 23,
+    borderColor: $config.primaryColor,
     borderWidth: 0,
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonIcon: {
-    width: 45,
-    height: 35,
-    tintColor: '#099DFD',
+    width: '100%',
+    height: '100%',
+    tintColor: $config.primaryColor,
   },
 });
 

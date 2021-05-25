@@ -5,9 +5,10 @@ import {
   Text,
   ImageBackground,
   StyleSheet,
-  TextInput,
   Dimensions,
 } from 'react-native';
+import TextInput from '../atoms/TextInput';
+import PrimaryButton from '../atoms/PrimaryButton';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit/Components';
@@ -17,9 +18,10 @@ import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
 import {useHistory} from './Router';
+import {precallCard} from '../../theme.json';
+import Error from '../subComponents/Error';
 
 const Precall = (props: any) => {
-  const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const {setCallActive, queryComplete, username, setUsername, error} = props;
   const [dim, setDim] = useState([
@@ -32,77 +34,111 @@ const Precall = (props: any) => {
   };
 
   return (
-    <ImageBackground
-      onLayout={onLayout}
-      source={{uri: $config.bg}}
-      style={style.full}
-      resizeMode={'cover'}>
-      <View style={style.main}>
-        <View style={style.nav}>
-          <Logo />
-          {error ? (
-            <View
-              style={{
-                position: 'absolute',
-                borderWidth: 2,
-                borderColor: '#ff0000',
-                backgroundColor: '#ffffff80',
-                paddingHorizontal: 10,
-                paddingVertical: 2,
-                maxWidth: 250,
-                width: '65%',
-                left: 0,
-                right: 0,
-                top: '30%',
-                marginHorizontal: 'auto',
-                zIndex: 55,
-              }}>
-              <Text style={{alignSelf: 'center'}}>
+    // <ImageBackground
+    //   onLayout={onLayout}
+    //   source={{uri: $config.bg}}
+    //   style={style.full}
+    //   resizeMode={'cover'}>
+    <View style={style.main} onLayout={onLayout}>
+      <View style={style.nav}>
+        <Logo />
+        {error ? <Error error={error} showBack={true} /> : <></>}
+        {/* <OpenInNativeButton /> */}
+      </View>
+      <View style={style.content}>
+        <View style={style.leftContent}>
+          <MaxUidConsumer>
+            {(maxUsers) => (
+              <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+            )}
+          </MaxUidConsumer>
+          <View style={style.precallControls}>
+            <LocalUserContext>
+              <View style={{alignSelf: 'center'}}>
+                <LocalVideoMute />
                 <Text
                   style={{
-                    fontWeight: '500',
                     textAlign: 'center',
-                    fontSize: 16,
+                    marginTop: 5,
+                    color: $config.primaryColor,
                   }}>
-                  {error.name + ' - '}
+                  Video
                 </Text>
-                <Text style={{}}>{error.message}</Text>
-              </Text>
-              <TouchableOpacity
-                style={{alignSelf: 'center'}}
-                onPress={() => history.replace('./')}>
+              </View>
+              <View style={{alignSelf: 'center'}}>
+                <LocalAudioMute />
                 <Text
                   style={{
-                    fontWeight: '500',
                     textAlign: 'center',
-                    textDecorationLine: 'underline',
+                    marginTop: 5,
+                    color: $config.primaryColor,
                   }}>
-                  Go back
+                  Audio
                 </Text>
-              </TouchableOpacity>
+              </View>
+            </LocalUserContext>
+          </View>
+          {dim[0] < dim[1] + 150 ? (
+            <View style={[style.margin5Btm, {alignItems: 'center'}]}>
+              <TextInput
+                value={username}
+                onChangeText={(text) => {
+                  if (username !== 'Getting name...') {
+                    setUsername(text);
+                  }
+                }}
+                onSubmitEditing={() => {}}
+                placeholder="Display Name"
+              />
+              <View style={style.margin5Btm} />
+              <PrimaryButton
+                onPress={() => setCallActive(true)}
+                disabled={!queryComplete}
+                text={queryComplete ? 'Join Room' : 'Loading...'}
+              />
             </View>
           ) : (
             <></>
           )}
-          {/* <OpenInNativeButton /> */}
         </View>
-        <View style={style.content}>
-          <View style={style.leftContent}>
-            <MaxUidConsumer>
-              {(maxUsers) => (
-                <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-              )}
-            </MaxUidConsumer>
-            <View style={style.precallControls}>
-              <LocalUserContext>
-                <LocalVideoMute />
-                <LocalAudioMute />
-              </LocalUserContext>
-            </View>
-            {dim[0] < dim[1] + 150 ? (
-              <View style={style.margin5Btm}>
+        {dim[0] >= dim[1] + 150 ? (
+          // <View style={[style.full]}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: '#ffffff80',
+              marginLeft: 50,
+              padding: 20,
+              borderRadius: 10,
+              alignItems: 'center',
+              borderWidth: 1,
+              borderStartColor: 'solid',
+              borderColor: $config.primaryColor,
+              height: '70%',
+              alignSelf: 'center',
+              justifyContent: 'center',
+              marginBottom: '10%',
+            }}>
+            <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
+              {/* <View style={{flex: 1}}> */}
+              <Text
+                style={[style.subHeading, {color: $config.primaryFontColor}]}>
+                Select Input Device
+              </Text>
+              {/* </View> */}
+              <View style={{height: 20}} />
+              <View style={{flex: 1}}>
+                <SelectDevice />
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  width: 350,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 50,
+                }}>
                 <TextInput
-                  style={[style.textInput, {borderColor: primaryColor}]}
                   value={username}
                   onChangeText={(text) => {
                     if (username !== 'Getting name...') {
@@ -111,71 +147,23 @@ const Precall = (props: any) => {
                   }}
                   onSubmitEditing={() => {}}
                   placeholder="Display Name"
-                  placeholderTextColor="#777"
                 />
-                <View style={style.margin5Btm} />
-                <TouchableOpacity
+                <View style={{height: 20}} />
+                <PrimaryButton
                   onPress={() => setCallActive(true)}
                   disabled={!queryComplete}
-                  style={
-                    queryComplete
-                      ? [style.primaryBtn, {backgroundColor: primaryColor}]
-                      : [
-                          style.primaryBtnDisabled,
-                          {backgroundColor: primaryColor + '80'},
-                        ]
-                  }>
-                  <Text style={style.primaryBtnText}>
-                    {queryComplete ? 'Join Room' : 'Loading...'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <></>
-            )}
-          </View>
-          {dim[0] >= dim[1] + 150 ? (
-            <View style={style.full}>
-              <View style={[style.precallPickers, {shadowColor: primaryColor}]}>
-                <Text style={style.subHeading}>Select Input Device</Text>
-                <SelectDevice />
-                <TextInput
-                  style={[style.textInput, {borderColor: primaryColor}]}
-                  value={username}
-                  onChangeText={(text) => {
-                    if (username !== 'Getting name...') {
-                      setUsername(text);
-                    }
-                  }}
-                  onSubmitEditing={() => {}}
-                  placeholder="Display Name"
-                  placeholderTextColor="#777"
+                  text={queryComplete ? 'Join Room' : 'Loading...'}
                 />
-                <TouchableOpacity
-                  onPress={() => setCallActive(true)}
-                  disabled={!queryComplete}>
-                  <View
-                    style={
-                      queryComplete
-                        ? [style.primaryBtn, {backgroundColor: primaryColor}]
-                        : [
-                            style.primaryBtnDisabled,
-                            {backgroundColor: primaryColor + '80'},
-                          ]
-                    }>
-                    <Text style={style.primaryBtnText}>
-                      {queryComplete ? 'Join Room' : 'Loading...'}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
               </View>
             </View>
-          ) : (
-            <></>
-          )}
-        </View>
+          </View>
+        ) : (
+          // </View>
+          <></>
+        )}
       </View>
-    </ImageBackground>
+    </View>
+    // </ImageBackground>
   );
 };
 
@@ -185,6 +173,7 @@ const style = StyleSheet.create({
     flex: 2,
     justifyContent: 'space-evenly',
     marginHorizontal: '10%',
+    minHeight: 500,
   },
   nav: {
     flex: 1,
@@ -198,19 +187,13 @@ const style = StyleSheet.create({
     flex: 1.3,
     justifyContent: 'space-evenly',
     marginTop: '2.5%',
-    marginBottom: '5%',
-    marginRight: '5%',
-  },
-  heading: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 20,
+    marginBottom: '1%',
+    // marginRight: '5%',
   },
   subHeading: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
   },
   headline: {
     fontSize: 20,
@@ -228,7 +211,7 @@ const style = StyleSheet.create({
   textInput: {
     width: '100%',
     paddingLeft: 8,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 2,
     color: '#333',
     fontSize: 16,
@@ -239,7 +222,7 @@ const style = StyleSheet.create({
   },
   primaryBtn: {
     width: '60%',
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     maxWidth: 400,
     minHeight: 45,
     alignSelf: 'center',
@@ -276,15 +259,14 @@ const style = StyleSheet.create({
     marginVertical: '5%',
   },
   precallPickers: {
-    flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'space-between',
-    padding: '5%',
-    marginBottom: '25%',
-    marginTop: '10%',
-    shadowColor: '#099DFD',
-    shadowRadius: 5,
-    borderRadius: 5,
+    alignItems: 'center',
+    alignSelf: 'center',
+    // alignContent: 'space-around',
+    justifyContent: 'space-around',
+    // flex: 1,
+    marginBottom: '10%',
+    height: '35%',
+    minHeight: 280,
   },
   margin5Btm: {marginBottom: '5%'},
 });

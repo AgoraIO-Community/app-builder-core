@@ -1,20 +1,26 @@
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import {
   View,
-  TextInput,
-  TouchableOpacity,
   Text,
   ImageBackground,
   StyleSheet,
   Dimensions,
+  KeyboardAvoidingView,
 } from 'react-native';
+import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
 import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Share from '../components/Share';
 import ColorContext from '../components/ColorContext';
-import Illustration from '../subComponents/Illustration';
+// import Illustration from '../subComponents/Illustration';
+// import {textInput} from '../../theme.json';
+import PrimaryButton from '../atoms/PrimaryButton';
+import SecondaryButton from '../atoms/SecondaryButton';
+import HorizontalRule from '../atoms/HorizontalRule';
+import TextInput from '../atoms/TextInput';
+import Error from '../subComponents/Error';
 
 type PasswordInput = {
   host: string;
@@ -39,14 +45,14 @@ const CREATE_CHANNEL = gql`
 `;
 
 const Create = () => {
-  const {primaryColor} = useContext(ColorContext);
+  // const {primaryColor} = useContext(ColorContext);
+  const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
   const [urlView, setUrlView] = useState(null);
   const [urlHost, setUrlHost] = useState(null);
   const [pstn, setPstn] = useState(null);
-  // const [pstnPin, setPstnPin] = useState(null);
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
@@ -68,7 +74,6 @@ const Create = () => {
           setUrlHost(res.data.createChannel.passphrase.host);
           setPstn(res.data.createChannel.pstn);
           setJoinPhrase(res.data.createChannel.passphrase.host);
-          // setPstnPin(res.data.createChannel.pstn.)
           setRoomCreated(true);
         })
         .catch((e) => {
@@ -87,131 +92,80 @@ const Create = () => {
   };
 
   return (
-    <ImageBackground
-      source={{uri: $config.bg}}
-      style={style.full}
-      resizeMode={'cover'}>
-      <View style={style.main}>
-        <View style={style.nav}>
-          <Logo />
-          {error ? (
-            <View
-              style={{
-                position: 'absolute',
-                borderWidth: 2,
-                borderColor: '#ff0000',
-                backgroundColor: '#ffffff80',
-                paddingHorizontal: 10,
-                paddingVertical: 2,
-                maxWidth: 250,
-                width: '65%',
-                left: 0,
-                right: 0,
-                top: '30%',
-                marginHorizontal: 'auto',
-                zIndex: 55,
-            }}>
-              <Text style={{alignSelf: 'center'}}>
-                <Text
-                  style={{fontWeight: '500', textAlign: 'center', fontSize: 16}}>
-                  {error.name + ' - '}
-                </Text>
-                <Text style={{}}>{error.message}</Text>
-              </Text>
-            </View>
-          ) : (
-            <></>
-          )}
-          {/* <OpenInNativeButton /> */}
-        </View>
-        {!roomCreated ? (
-          <View style={style.content} onLayout={onLayout}>
-            <View style={style.leftContent}>
-              <Text style={style.heading}>Create Meeting</Text>
-              <Text style={style.headline}>
-                The Real-Time Engagement Platform for meaningful human
-                connections.
-              </Text>
-              <View style={style.inputs}>
-                <TextInput
-                  style={[style.textInput, {borderColor: primaryColor}]}
-                  value={roomTitle}
-                  onChangeText={(text) => onChangeRoomTitle(text)}
-                  onSubmitEditing={() => createRoom()}
-                  placeholder="Enter Room Name"
-                  placeholderTextColor="#777"
-                  autoCorrect={false}
-                />
+    // <ImageBackground
+    //   source={{uri: $config.bg}}
+    //   style={style.full}
+    //   resizeMode={'cover'}>
+    // <KeyboardAvoidingView behavior={'height'} style={style.main}>
+    <View style={style.main}>
+      <View style={style.nav}>
+        <Logo />
+        {error ? <Error error={error} /> : <></>}
+        {/* <OpenInNativeButton /> */}
+      </View>
+      {!roomCreated ? (
+        <View style={style.content} onLayout={onLayout}>
+          <View style={style.leftContent}>
+            <Text style={style.heading}>{$config.landingHeading}</Text>
+            <Text style={style.headline}>{$config.landingSubHeading}</Text>
+            <View style={style.inputs}>
+              <TextInput
+                value={roomTitle}
+                onChangeText={(text) => onChangeRoomTitle(text)}
+                onSubmitEditing={() => createRoom()}
+                placeholder="Name your meeting"
+              />
+              <View style={{}}>
+                <View style={style.checkboxHolder}>
+                  <Checkbox
+                    value={hostControlCheckbox}
+                    onValueChange={setHostControlCheckbox}
+                  />
+                  <Text style={style.checkboxTitle}>
+                    Restrict Host Controls{' '}
+                    {!hostControlCheckbox
+                      ? '(Everyone is a Host)'
+                      : '(Separate host link)'}
+                  </Text>
+                </View>
                 {$config.pstn ? (
                   <View style={style.checkboxHolder}>
                     <Checkbox
                       value={pstnCheckbox}
                       onValueChange={setPstnCheckbox}
                     />
-                    <View style={style.checkboxTextHolder}>
-                      <Text style={style.checkboxTitle}>Use PSTN</Text>
-                      <Text style={style.checkboxCaption}>
-                        Join by dialing a number
-                      </Text>
-                    </View>
+                    <Text style={style.checkboxTitle}>
+                      Use PSTN (Join by dialing a number)
+                    </Text>
                   </View>
                 ) : (
                   <></>
                 )}
-                <View style={style.checkboxHolder}>
-                  <Checkbox
-                    value={hostControlCheckbox}
-                    onValueChange={setHostControlCheckbox}
-                  />
-                  <View style={style.checkboxTextHolder}>
-                    <Text style={style.checkboxTitle}>
-                      Restrict Host Controls
-                    </Text>
-                    <Text style={style.checkboxCaption}>
-                      {!hostControlCheckbox
-                        ? 'Everyone is a Host'
-                        : 'Host uses a seperate link'}
-                    </Text>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  disabled={roomTitle === '' || loading}
-                  style={
-                    roomTitle === '' || loading
-                      ? [
-                          style.primaryBtnDisabled,
-                          {backgroundColor: primaryColor + '80'},
-                        ]
-                      : [style.primaryBtn, {backgroundColor: primaryColor}]
-                  }
-                  onPress={() => createRoom()}>
-                  <Text style={style.primaryBtnText}>
-                    {loading ? 'Loading...' : 'Create Meeting'}
-                  </Text>
-                </TouchableOpacity>
               </View>
+              <PrimaryButton
+                disabled={roomTitle === '' || loading}
+                onPress={() => createRoom()}
+                text={loading ? 'Loading...' : 'Create Meeting'}
+              />
+              <HorizontalRule />
+              <SecondaryButton
+                onPress={() => history.push('/join')}
+                text={'Meeting ID or URL'}
+              />
             </View>
-            {dim[0] > dim[1] + 150 ? (
-              <View style={style.full}>
-                {/* <View style={{flex: 1, backgroundColor: '#00ff00', opacity: 0}} /> */}
-                <Illustration />
-              </View>
-            ) : (
-              <></>
-            )}
           </View>
-        ) : (
-          <Share
-            urlView={urlView}
-            urlHost={urlHost}
-            pstn={pstn}
-            hostControlCheckbox={hostControlCheckbox}
-            joinPhrase={joinPhrase}
-            roomTitle={roomTitle}
-          />
-        )}
-      </View>
-    </ImageBackground>
+        </View>
+      ) : (
+        <Share
+          urlView={urlView}
+          urlHost={urlHost}
+          pstn={pstn}
+          hostControlCheckbox={hostControlCheckbox}
+          joinPhrase={joinPhrase}
+          roomTitle={roomTitle}
+        />
+      )}
+    </View>
   );
 };
 
@@ -220,7 +174,8 @@ const style = StyleSheet.create({
   main: {
     flex: 2,
     justifyContent: 'space-evenly',
-    marginHorizontal: '10%',
+    marginHorizontal: '8%',
+    marginVertical: '2%',
   },
   nav: {
     flex: 1,
@@ -233,83 +188,62 @@ const style = StyleSheet.create({
     width: '100%',
     flex: 1,
     justifyContent: 'space-evenly',
-    marginBottom: '5%',
-    marginRight: '5%',
+    marginBottom: '13%',
+    marginTop: '8%',
+    // marginRight: '5%',
     marginHorizontal: 'auto',
   },
   heading: {
-    fontSize: 38,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#333',
+    textAlign: 'center',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   headline: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '400',
-    color: '#777',
+    textAlign: 'center',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   inputs: {
     flex: 1,
+    // marginVertical: '2%',
     width: '100%',
     alignSelf: 'flex-start',
     alignItems: 'center',
     justifyContent: 'space-evenly',
   },
-  textInput: {
-    width: '100%',
-    paddingLeft: 8,
-    borderColor: '#099DFD',
-    borderWidth: 2,
-    color: '#333',
-    fontSize: 16,
-    marginBottom: 15,
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  primaryBtn: {
-    width: '60%',
-    backgroundColor: '#099DFD',
-    maxWidth: 400,
-    minWidth: 200,
-    minHeight: 45,
-  },
-  primaryBtnDisabled: {
-    width: '60%',
-    backgroundColor: '#96D7FE',
-    maxWidth: 400,
-    minHeight: 45,
-    minWidth: 200,
-  },
-  primaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#fff',
-  },
+  // textInput: textInput,
   checkboxHolder: {
     marginVertical: 0,
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginTop: 0,
+    marginBottom: 20,
+    // flex: .2,
+    // height: 10,
+    // justifyContent: 'center',
+    // alignContent: 'center',
+    justifyContent: 'flex-start',
+    // alignItems: 'flex-start',
   },
   checkboxTitle: {
-    color: '#333',
+    color: $config.tertiaryFontColor,
     paddingHorizontal: 5,
-    fontWeight: '700',
+    alignSelf: 'center',
+    // marginVertical: 'auto',
+    // fontWeight: '700',
   },
-  checkboxCaption: {color: '#333', paddingHorizontal: 5},
+  checkboxCaption: {color: $config.tertiaryFontColor, paddingHorizontal: 5},
   checkboxTextHolder: {
     marginVertical: 0, //check if 5
     flexDirection: 'column',
   },
-  urlTitle: {
-    color: '#333',
-    fontSize: 14,
-  },
+  // urlTitle: {
+  //   color: '#fff',
+  //   fontSize: 14,
+  // },
   urlHolder: {
     width: '100%',
     paddingHorizontal: 10,
@@ -318,12 +252,12 @@ const style = StyleSheet.create({
     maxWidth: 400,
     minHeight: 45,
   },
-  url: {
-    color: '#333',
-    fontSize: 18,
-    fontWeight: '700',
-    textDecorationLine: 'underline',
-  },
+  // url: {
+  //   color: '#fff',
+  //   fontSize: 18,
+  //   fontWeight: '700',
+  //   textDecorationLine: 'underline',
+  // },
   pstnHolder: {
     flexDirection: 'row',
     width: '80%',

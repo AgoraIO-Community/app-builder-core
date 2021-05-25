@@ -4,23 +4,20 @@ import icons from '../assets/icons';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import ColorContext from './ColorContext';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 const Settings = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  const [screenListActive, setScreenListActive] = useState(false);
-  const [buttonDisabled, setButtonDisabled] = useState(false);
-  const {isHost} = props;
+  const {isHost, sidePanel, setSidePanel} = props;
 
   return (
     <>
       <TouchableOpacity
         style={[style.localButton, {borderColor: primaryColor}]}
-        disabled={buttonDisabled}
         onPress={() => {
-          if (!screenListActive) {
-            setScreenListActive(true);
-            setButtonDisabled(true);
-          }
+          sidePanel === SidePanelType.Settings
+            ? setSidePanel(SidePanelType.None)
+            : setSidePanel(SidePanelType.Settings);
         }}>
         <Image
           source={{uri: icons.settings}}
@@ -28,27 +25,6 @@ const Settings = (props: any) => {
           resizeMode={'contain'}
         />
       </TouchableOpacity>
-      {screenListActive ? (
-        <View style={style.fullOverlay}>
-          <View style={style.main}>
-            <Text style={style.heading}>Select Input Device</Text>
-            <View style={style.popupPickerHolder}>
-              <SelectDevice />
-            </View>
-            {isHost ? <HostControlView /> : <></>}
-            <TouchableOpacity
-              style={[style.primaryBtn, {backgroundColor: primaryColor}]}
-              onPress={() => {
-                setScreenListActive(false);
-                setButtonDisabled(false);
-              }}>
-              <Text style={style.primaryBtnText}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : (
-        <></>
-      )}
     </>
   );
 };
@@ -84,7 +60,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: 30,
     height: 30,
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
   heading: {
     fontSize: 30,
@@ -96,7 +72,7 @@ const style = StyleSheet.create({
   primaryBtn: {
     width: '60%',
     alignSelf: 'center',
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
     maxWidth: 400,
     minHeight: 45,
   },
@@ -110,12 +86,11 @@ const style = StyleSheet.create({
     color: '#fff',
   },
   localButton: {
-    backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     // borderWidth: 1,
-    width: 46,
-    height: 46,
+    width: 30,
+    height: 30,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',

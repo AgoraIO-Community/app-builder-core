@@ -60,7 +60,7 @@ template/*/fastlane/screenshots
 template/*.jsbundle
 
 # CocoaPods
-template//ios/Pods/
+template/ios/Pods/
 
 # UI Kit
 template/agora-rn-uikit/
@@ -87,7 +87,10 @@ template/.watchmanconfig
 # Config
 template/config.json
 
-# Lock file
+#theme
+template/theme.json
+
+#lock file
 template/package-lock.json
 
 # vscode

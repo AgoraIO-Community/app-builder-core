@@ -92,10 +92,10 @@ const style = StyleSheet.create({
   localButton: {
     backgroundColor: '#fff',
     borderRadius: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     // borderWidth: 1,
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',
@@ -105,8 +105,8 @@ const style = StyleSheet.create({
     backgroundColor: '#4BEB5B',
     borderRadius: 2,
     borderColor: '#F86051',
-    width: 46,
-    height: 46,
+    width: 40,
+    height: 40,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
@@ -114,7 +114,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: 40,
     height: 35,
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
   popupView: {
     position: 'absolute',

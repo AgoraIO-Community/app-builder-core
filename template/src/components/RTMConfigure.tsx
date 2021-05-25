@@ -195,11 +195,13 @@ const RtmConfigure = (props: any) => {
   };
 
   const sendMessage = async (msg: string) => {
+    if(msg !== '')
     await (engine.current as RtmEngine).sendMessageByChannelId(
       rtcProps.channel,
       mType.Normal + msg,
-    );
-    let ts = new Date().getTime();
+      );
+      let ts = new Date().getTime();
+    if(msg !== '')
     addMessageToStore(localUid.current, mType.Normal + msg, ts);
   };
   const sendMessageToUid = async (msg: string, uid: number) => {
@@ -208,12 +210,14 @@ const RtmConfigure = (props: any) => {
       adjustedUID = uid + parseInt(0xffffffff) + 1;
     }
     let ts = new Date().getTime();
+    if(msg !== '')
     await (engine.current as RtmEngine).sendMessageToPeer({
       peerId: adjustedUID.toString(),
       offline: false,
       text: mType.Normal + '' + msg,
     });
     // console.log(ts);
+    if(msg !== '')
     addMessageToPrivateStore(uid, mType.Normal + msg, ts, true);
   };
   const sendControlMessage = async (msg: string) => {

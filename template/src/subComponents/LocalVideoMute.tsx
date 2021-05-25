@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 22,
     marginHorizontal: 3,
-    tintColor: '#099DFD',
+    tintColor: $config.primaryColor,
   },
 });
 

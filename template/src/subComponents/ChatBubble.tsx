@@ -21,7 +21,9 @@ const ChatBubble = (props: channelMessage) => {
             ? [style.chatBubbleLocal, {backgroundColor: primaryColor}]
             : style.chatBubble
         }>
-        <Text style={isLocal ? style.whiteText : style.blackText}>
+        <Text
+          style={isLocal ? style.whiteText : style.blackText}
+          selectable={true}>
           {msg.slice(1) + ' '}
         </Text>
       </View>
@@ -49,14 +51,14 @@ const style = StyleSheet.create({
     marginLeft: 15,
   },
   timestampText: {
-    color: '#C1C1C1',
+    color: '#999999',
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
     // textAlign: 'right',
   },
   timestampTextLocal: {
-    color: '#C1C1C1',
+    color: '#999999',
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
@@ -66,16 +68,18 @@ const style = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     flex: 1,
     // width: 'max-content',
-    // maxWidth: '90%',
+    maxWidth: '80%',
     alignSelf: 'flex-start',
     display: 'flex',
     marginVertical: 5,
     padding: 8,
     marginRight: 30,
     marginLeft: 15,
+    borderRadius: 10,
   },
   chatBubbleLocal: {
-    backgroundColor: '#099DFD',
+    backgroundColor: $config.primaryColor,
+    maxWidth: '80%',
     flex: 1,
     display: 'flex',
     alignSelf: 'flex-end',
@@ -83,6 +87,7 @@ const style = StyleSheet.create({
     padding: 8,
     marginRight: 15,
     marginLeft: 30,
+    borderRadius: 10,
   },
   whiteText: {
     color: '#fff',
