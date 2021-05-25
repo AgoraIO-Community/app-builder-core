@@ -31,10 +31,7 @@ module.exports = {
       'agora-react-native-rtm': path.join(__dirname, 'bridge/rtm/web/index.ts'),
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
-      'react-native-agora': path.join(__dirname, 'bridge/rtc/web/index.ts'),
-        // process.env.TARGET === 'linux' || process.env.TARGET === 'web'
-        //   ? path.join(__dirname, 'bridge/rtc/web/index.ts')
-        //   : path.join(__dirname, 'bridge/rtc/electron/index.ts'),
+      'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
     },
     // Adds platform specific extensions and OS specific extensions
     // .web.tsx works for web specific code
@@ -53,7 +50,7 @@ module.exports = {
     ].filter(Boolean),
   },
   // Enable source maps during development
-  devtool: isDevelopment ? 'eval-source-map' : undefined,
+  devtool: isDevelopment ? 'cheap-module-eval-source-map' : undefined,
   module: {
     rules: [
       {
@@ -76,7 +73,7 @@ module.exports = {
               ],
               [
                 '@babel/preset-env', // smartly transforms js into es5-es6
-                isElectron && {
+                {
                   targets: {
                     node: 'current',
                   },
@@ -91,14 +88,6 @@ module.exports = {
             ].filter(Boolean),
           },
         },
-      },
-      {
-        test: /\.(png|jpe?g|gif)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-          },
-        ],
       },
     ],
   },

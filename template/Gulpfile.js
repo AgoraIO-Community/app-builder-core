@@ -66,11 +66,11 @@ async function packageJson(cb) {
     private,
     author,
     description,
-    dependencies: natives,
-    agora_electron: {
-      electron_version: '5.0.8',
-      prebuilt: true,
-    },
+    // dependencies: natives,
+    // agora_electron: {
+    //   electron_version: '5.0.8',
+    //   prebuilt: true,
+    // },
   };
   await fs.writeFile(
     path.join(BUILD_PATH, 'package.json'),
