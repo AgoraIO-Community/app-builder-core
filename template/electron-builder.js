@@ -25,4 +25,12 @@ module.exports = {
     ],
   },
   afterSign: './notarize.js',
+  protocols: [
+    {
+      name: "custom",
+      schemes: [
+        "custom"
+      ]
+    }
+  ]
 };
