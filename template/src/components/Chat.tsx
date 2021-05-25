@@ -365,10 +365,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#099DFD',
     color: '#FFF',
-    borderRadius: '45%',
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
     position: 'absolute',
     left: 25,
-    top: -8,
+    top: -5,
   },
 });
 

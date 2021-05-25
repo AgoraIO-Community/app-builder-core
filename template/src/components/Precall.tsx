@@ -254,7 +254,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     padding: 10,
-    width: '60%',
+    width: '40%',
     justifyContent: 'space-around',
     marginVertical: '5%',
   },

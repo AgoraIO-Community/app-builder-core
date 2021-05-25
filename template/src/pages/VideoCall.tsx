@@ -262,18 +262,6 @@ const VideoCall: React.FC = () => {
                         isHost={isHost}
                         title={title}
                       />
-                      <View style={style.videoView}>
-                        {layout ? <PinnedVideo /> : <GridVideo />}
-                        {sidePanel === SidePanelType.Participants ? (
-                          <ParticipantsView
-                            isHost={isHost}
-                            // setParticipantsView={setParticipantsView}
-                            setSidePanel={setSidePanel}
-                          />
-                        ) : (
-                          <></>
-                        )}
-                      </View>
                       <NotificationControl
                         chatDisplayed={sidePanel === SidePanelType.Chat}>
                         {({
@@ -287,41 +275,52 @@ const VideoCall: React.FC = () => {
                           setPrivateMessageLastSeen,
                         }) => (
                           <>
-                            {sidePanel === SidePanelType.Chat ? (
-                              $config.chat ? (
-                                <Chat
-                                  privateMessageCountMap={
-                                    privateMessageCountMap
-                                  }
-                                  pendingPublicNotification={
-                                    pendingPublicNotification
-                                  }
-                                  pendingPrivateNotification={
-                                    pendingPrivateNotification
-                                  }
-                                  setPrivateMessageLastSeen={
-                                    setPrivateMessageLastSeen
-                                  }
-                                  lastCheckedPrivateState={
-                                    lastCheckedPrivateState
-                                  }
+                            <View style={style.videoView}>
+                              {layout ? <PinnedVideo /> : <GridVideo />}
+                              {sidePanel === SidePanelType.Participants ? (
+                                <ParticipantsView
+                                  isHost={isHost}
+                                  // setParticipantsView={setParticipantsView}
+                                  setSidePanel={setSidePanel}
                                 />
                               ) : (
                                 <></>
-                              )
-                            ) : (
-                              <></>
-                            )}
-                            {sidePanel === SidePanelType.Settings ? (
-                              <SettingsView
-                                isHost={isHost}
-                                // setParticipantsView={setParticipantsView}
-                                setSidePanel={setSidePanel}
-                              />
-                            ) : (
-                              <></>
-                            )}
-
+                              )}
+                              {sidePanel === SidePanelType.Chat ? (
+                                $config.chat ? (
+                                  <Chat
+                                    privateMessageCountMap={
+                                      privateMessageCountMap
+                                    }
+                                    pendingPublicNotification={
+                                      pendingPublicNotification
+                                    }
+                                    pendingPrivateNotification={
+                                      pendingPrivateNotification
+                                    }
+                                    setPrivateMessageLastSeen={
+                                      setPrivateMessageLastSeen
+                                    }
+                                    lastCheckedPrivateState={
+                                      lastCheckedPrivateState
+                                    }
+                                  />
+                                ) : (
+                                  <></>
+                                )
+                              ) : (
+                                <></>
+                              )}
+                              {sidePanel === SidePanelType.Settings ? (
+                                <SettingsView
+                                  isHost={isHost}
+                                  // setParticipantsView={setParticipantsView}
+                                  setSidePanel={setSidePanel}
+                                />
+                              ) : (
+                                <></>
+                              )}
+                            </View>
                             {Platform.OS !== 'web' &&
                             sidePanel === SidePanelType.Chat ? (
                               <></>
@@ -403,6 +402,7 @@ const styleProps = {
 const style = StyleSheet.create({
   full: {
     flex: 1,
+    flexDirection: 'column',
   },
   videoView: videoView,
   loader: {
