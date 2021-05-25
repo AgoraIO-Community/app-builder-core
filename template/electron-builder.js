@@ -27,9 +27,9 @@ module.exports = {
   afterSign: './notarize.js',
   protocols: [
     {
-      name: "custom",
+      name: "appbuilder",
       schemes: [
-        "custom"
+        "appbuilder"
       ]
     }
   ]

@@ -92,16 +92,16 @@ const createWindow = () => {
 };
 
 let deeplinkingUrl;
-app.setAsDefaultProtocolClient('custom');
+app.setAsDefaultProtocolClient('appbuilder');
 if (isDevelopment && process.platform === 'win32') {
   // Set the path of electron.exe and your app.
   // These two additional parameters are only available on windows.
   // Setting this is required to get this working in dev mode.
-  app.setAsDefaultProtocolClient('custom', process.execPath, [
+  app.setAsDefaultProtocolClient('appbuilder', process.execPath, [
     resolve(process.argv[1])
   ]);
 } else {
-  app.setAsDefaultProtocolClient('custom');
+  app.setAsDefaultProtocolClient('appbuilder');
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
