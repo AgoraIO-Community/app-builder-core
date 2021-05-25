@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   Dimensions,
+  TouchableOpacity,
   Image,
 } from 'react-native';
 import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
@@ -15,6 +16,8 @@ import icons from '../assets/icons';
 import styles from './styles';
 import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
+import Layout from '../subComponents/LayoutEnum';
+import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -36,7 +39,12 @@ const layout = (len: number, isDesktop: boolean = true) => {
 
 // const isDesktop = Platform.OS === 'web';
 
-const GridVideo = () => {
+interface GridVideoProps {
+  setLayout: React.Dispatch<React.SetStateAction<Layout>>;
+}
+
+const GridVideo = (props: GridVideoProps) => {
+  const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
   const {primaryColor} = useContext(ColorContext);
@@ -62,7 +70,16 @@ const GridVideo = () => {
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (
-            <View
+            <TouchableOpacity
+              onPress={() => {
+                if (!(ridx === 0 && cidx === 0)) {
+                  dispatch({
+                    type: 'SwapVideo',
+                    value: [users[ridx * dims.c + cidx]],
+                  });
+                }
+                props.setLayout(Layout.Pinned);
+              }}
               style={{
                 flex: Platform.OS === 'web' ? 1 / dims.c : 1,
                 marginHorizontal: 'auto',
@@ -139,7 +156,7 @@ const GridVideo = () => {
                   )} */}
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       ))}

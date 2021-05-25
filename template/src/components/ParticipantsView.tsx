@@ -79,7 +79,7 @@ const ParticipantView = (props: any) => {
                         ? userList[user.uid].name + ' '
                         : 'User '}
                     </Text>
-                    {userList[user.uid].type !== UserType.ScreenShare ? (
+                    {userList[user.uid]?.type !== UserType.ScreenShare ? (
                       <View style={style.participantButtonContainer}>
                         <RemoteAudioMute
                           uid={user.uid}

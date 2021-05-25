@@ -22,6 +22,7 @@ import Logo from '../subComponents/Logo';
 import ChatContext from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
+import Layout from '../subComponents/LayoutEnum';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -147,7 +148,7 @@ const VideoCall: React.FC = () => {
   const [username, setUsername] = useState('Getting name...');
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.precall ? false : true);
-  const [layout, setLayout] = useState(false);
+  const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
@@ -276,7 +277,11 @@ const VideoCall: React.FC = () => {
                         }) => (
                           <>
                             <View style={style.videoView}>
-                              {layout ? <PinnedVideo /> : <GridVideo />}
+                              {layout === Layout.Pinned ? (
+                                <PinnedVideo />
+                              ) : (
+                                <GridVideo setLayout={setLayout} />
+                              )}
                               {sidePanel === SidePanelType.Participants ? (
                                 <ParticipantsView
                                   isHost={isHost}

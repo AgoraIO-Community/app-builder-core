@@ -16,6 +16,7 @@ import ColorContext from './ColorContext';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
+import Layout from '../subComponents/LayoutEnum';
 
 const {participantIcon, gridLayoutIcon, pinnedLayoutIcon, recordingIcon} =
   icons;
@@ -178,7 +179,9 @@ const Navbar = (props: any) => {
               <TouchableOpacity
                 style={style.btnHolder}
                 onPress={() => {
-                  setLayout(!layout);
+                  setLayout((l: Layout) =>
+                    l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
+                  );
                 }}>
                 <Image
                   // source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
