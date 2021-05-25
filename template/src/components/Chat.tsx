@@ -15,6 +15,7 @@ import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import icons from '../assets/icons';
 import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
+import {UserType} from './RTMConfigure';
 
 const Chat = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
@@ -158,7 +159,11 @@ const Chat = (props: any) => {
                 <MaxUidConsumer>
                   {(maxUser) =>
                     [...minUsers, ...maxUser].map((user) => {
-                      if (user.uid !== 'local') {
+                      if (
+                        user.uid !== 'local' &&
+                        user.uid !== 1 &&
+                        userList[user.uid].type !== UserType.ScreenShare
+                      ) {
                         return (
                           <TouchableOpacity
                             style={style.participantContainer}
