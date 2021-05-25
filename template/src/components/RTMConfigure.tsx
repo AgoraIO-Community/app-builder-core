@@ -7,9 +7,14 @@ import {messageStoreInterface} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 
-enum mType {
+export enum mType {
   Control = '0',
   Normal = '1',
+}
+
+export enum UserType {
+  Normal,
+  ScreenShare,
 }
 
 const RtmConfigure = (props: any) => {
@@ -89,9 +94,12 @@ const RtmConfigure = (props: any) => {
               ...prevState,
               [Platform.OS === 'android' ? arr[0] : data.uid]: {
                 name: attr?.attributes?.name || 'User',
+                type: UserType.Normal,
+                screenUid: parseInt(attr?.attributes?.screenUid),
               },
               [parseInt(attr?.attributes?.screenUid)]: {
                 name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                type: UserType.ScreenShare,
               },
             };
           });
@@ -105,10 +113,10 @@ const RtmConfigure = (props: any) => {
       let arr = new Int32Array(1);
       arr[0] = parseInt(data.uid);
       setUserList((prevState) => {
-        return {
-          ...prevState,
-          [Platform.OS === 'android' ? arr[0] : data.uid]: undefined,
-        };
+        const uid: number = Platform.OS === 'android' ? arr[0] : data.uid;
+        const screenuid: number = prevState[uid].screenUid;
+        const {[uid]: _user, [screenuid]: _screen, ...newState} = prevState;
+        return newState;
       });
     });
     engine.current.on('messageReceived', (evt: any) => {
@@ -240,9 +248,12 @@ const RtmConfigure = (props: any) => {
                 ...prevState,
                 [Platform.OS === 'android' ? arr[0] : member.uid]: {
                   name: attr?.attributes?.name || 'User',
+                  type: UserType.Normal,
+                  screenUid: parseInt(attr?.attributes?.screenUid),
                 },
                 [parseInt(attr?.attributes?.screenUid)]: {
                   name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                  type: UserType.ScreenShare,
                 },
               };
             });

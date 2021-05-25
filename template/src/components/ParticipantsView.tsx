@@ -22,6 +22,7 @@ import {gql, useQuery} from '@apollo/client';
 import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {UserType} from './RTMConfigure';
 
 const ParticipantView = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
@@ -49,28 +50,7 @@ const ParticipantView = (props: any) => {
           <MaxUidConsumer>
             {(maxUser) =>
               [...minUsers, ...maxUser].map((user) =>
-                user.uid !== 'local' ? (
-                  <View style={style.participantContainer} key={user.uid}>
-                    <Text style={style.participantText}>
-                      {userList[user.uid]
-                        ? userList[user.uid].name + ' '
-                        : 'User '}
-                    </Text>
-                    <View style={style.participantButtonContainer}>
-                      <RemoteAudioMute
-                        uid={user.uid}
-                        audio={user.audio}
-                        isHost={props.isHost}
-                      />
-                      <RemoteVideoMute
-                        uid={user.uid}
-                        video={user.video}
-                        isHost={props.isHost}
-                      />
-                      <RemoteEndCall uid={user.uid} isHost={props.isHost} />
-                    </View>
-                  </View>
-                ) : (
+                user.uid === 'local' ? (
                   <View style={style.participantContainer} key={user.uid}>
                     <Text style={style.participantText}>
                       {userList[localUid]
@@ -83,6 +63,39 @@ const ParticipantView = (props: any) => {
                         <LocalVideoMute />
                       </LocalUserContext>
                     </View>
+                  </View>
+                ) : user.uid === 1 ? (
+                  <View style={style.participantContainer} key={user.uid}>
+                    <Text style={style.participantText}>
+                      {userList[localUid]
+                        ? userList[localUid].name + "'s screenshare "
+                        : 'Your screenshare '}
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={style.participantContainer} key={user.uid}>
+                    <Text style={style.participantText}>
+                      {userList[user.uid]
+                        ? userList[user.uid].name + ' '
+                        : 'User '}
+                    </Text>
+                    {userList[user.uid].type !== UserType.ScreenShare ? (
+                      <View style={style.participantButtonContainer}>
+                        <RemoteAudioMute
+                          uid={user.uid}
+                          audio={user.audio}
+                          isHost={props.isHost}
+                        />
+                        <RemoteVideoMute
+                          uid={user.uid}
+                          video={user.video}
+                          isHost={props.isHost}
+                        />
+                        <RemoteEndCall uid={user.uid} isHost={props.isHost} />
+                      </View>
+                    ) : (
+                      <></>
+                    )}
                   </View>
                 ),
               )
@@ -102,9 +115,9 @@ const style = StyleSheet.create({
     backgroundColor: '#fff',
     flex: 1,
     paddingTop: 20,
-    shadowColor:  $config.tertiaryFontColor,
-    shadowOpacity: .5,
-    shadowOffset: {width:-2, height: 0},
+    shadowColor: $config.tertiaryFontColor,
+    shadowOpacity: 0.5,
+    shadowOffset: {width: -2, height: 0},
     shadowRadius: 3,
     // borderLeftColor: $config.tertiaryFontColor,
     // borderLeftWidth: 1
