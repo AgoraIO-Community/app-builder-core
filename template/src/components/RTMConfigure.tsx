@@ -110,14 +110,17 @@ const RtmConfigure = (props: any) => {
       getname();
     });
     engine.current.on('channelMemberLeft', (data: any) => {
-      let arr = new Int32Array(1);
-      arr[0] = parseInt(data.uid);
-      setUserList((prevState) => {
-        const uid: number = Platform.OS === 'android' ? arr[0] : data.uid;
-        const screenuid: number = prevState[uid].screenUid;
-        const {[uid]: _user, [screenuid]: _screen, ...newState} = prevState;
-        return newState;
-      });
+      console.log('user left', data);
+      // Chat of left user becomes undefined. So don't cleanup
+      //
+      // let arr = new Int32Array(1);
+      // arr[0] = parseInt(data.uid);
+      // setUserList((prevState) => {
+      //   const uid: number = Platform.OS === 'android' ? arr[0] : data.uid;
+      //   const screenuid: number = prevState[uid].screenUid;
+      //   const {[uid]: _user, [screenuid]: _screen, ...newState} = prevState;
+      //   return newState;
+      // });
     });
     engine.current.on('messageReceived', (evt: any) => {
       let {text} = evt;
