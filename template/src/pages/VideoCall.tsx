@@ -164,7 +164,7 @@ const VideoCall: React.FC = () => {
     rtm: null,
     screenShareUid: null,
     screenShareToken: null,
-    profile: '480p_9',
+    profile: $config.profile,
     dual: true,
     encryption: $config.encryption
       ? {key: null, mode: 'aes-128-xts', screenKey: null}
