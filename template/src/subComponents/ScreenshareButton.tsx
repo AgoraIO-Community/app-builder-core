@@ -18,13 +18,8 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
   const {primaryColor} = useContext(ColorContext);
   const rtc = useContext(RtcContext);
   const {screenshareActive, setScreenshareActive} = props;
-  const {
-    channel,
-    appId,
-    screenShareUid,
-    screenShareToken,
-    encryption,
-  } = useContext(PropsContext).rtcProps;
+  const {channel, appId, screenShareUid, screenShareToken, encryption} =
+    useContext(PropsContext).rtcProps;
 
   useEffect(() => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
@@ -40,6 +35,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
           : [style.localButton, {borderColor: primaryColor}]
       }
       onPress={async () => {
+        const isScreenActive = screenshareActive;
         try {
           await rtc.RtcEngine.startScreenshare(
             screenShareToken,
@@ -50,7 +46,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
             rtc.RtcEngine,
             encryption,
           );
-          setScreenshareActive(true);
+          !isScreenActive && setScreenshareActive(true);
         } catch (e) {
           console.error("can't start the screen share", e);
         }
