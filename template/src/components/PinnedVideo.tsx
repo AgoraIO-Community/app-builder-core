@@ -18,6 +18,7 @@ import chatContext from './ChatContext';
 import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
+import FallbackLogo from '../subComponents/FallbackLogo';
 
 const {topPinned} = layoutProps;
 
@@ -119,9 +120,9 @@ const PinnedVideo = () => {
                       }}>
                       <View style={style.flex1}>
                         <MaxVideoView
+                          fallback={FallbackLogo}
                           user={user}
                           key={user.uid}
-                          showOverlay={false}
                         />
                         <View style={style.nameHolder}>
                           <View style={[style.MicBackdrop]}>
@@ -170,7 +171,11 @@ const PinnedVideo = () => {
         <MaxUidConsumer>
           {(maxUsers) => (
             <View style={style.flex1}>
-              <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+              <MaxVideoView
+                fallback={FallbackLogo}
+                user={maxUsers[0]}
+                key={maxUsers[0].uid}
+              />
               <View style={style.nameHolder}>
                 <View style={[style.MicBackdrop]}>
                   <Image

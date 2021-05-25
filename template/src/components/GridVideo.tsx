@@ -14,6 +14,7 @@ import chatContext from './ChatContext';
 import icons from '../assets/icons';
 import styles from './styles';
 import ColorContext from './ColorContext';
+import FallbackLogo from '../subComponents/FallbackLogo';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -50,12 +51,14 @@ const GridVideo = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > dim[1] + 100;
-  let {matrix, dims} = useMemo(() => layout(users.length, isDesktop), [
-    users.length,
-    isDesktop,
-  ]);
+  let {matrix, dims} = useMemo(
+    () => layout(users.length, isDesktop),
+    [users.length, isDesktop],
+  );
   return (
-    <View style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]} onLayout={onLayout}>
+    <View
+      style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
+      onLayout={onLayout}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (
@@ -67,6 +70,7 @@ const GridVideo = () => {
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
                 <MaxVideoView
+                  fallback={FallbackLogo}
                   user={users[ridx * dims.c + cidx]}
                   key={users[ridx * dims.c + cidx].uid}
                 />
@@ -85,7 +89,7 @@ const GridVideo = () => {
                     // width: '100%',
                     // alignItems: 'flex-start',
                   }}>
-                    {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
+                  {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
                   <View style={[style.MicBackdrop]}>
                     <Image
                       source={{
