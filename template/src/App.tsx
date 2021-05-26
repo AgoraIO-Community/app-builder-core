@@ -14,6 +14,8 @@ import GraphQLProvider from './components/GraphQLProvider';
 import {SessionProvider} from './components/SessionContext';
 import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
+import Toast from '../react-native-toast-message';
+import ToastConfig from './subComponents/toastConfig';
 
 const App: React.FC = () => {
   const [phrase, onChangePhrase] = useState('');
@@ -25,6 +27,7 @@ const App: React.FC = () => {
       resizeMode={'cover'}>
       <SafeAreaView style={{flex: 1}}>
         <StatusBar hidden={true} />
+        <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig}/>
         <StorageProvider>
           <GraphQLProvider>
             <Router>

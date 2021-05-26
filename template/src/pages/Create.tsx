@@ -21,6 +21,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
+import Toast from '../../react-native-toast-message'
 
 type PasswordInput = {
   host: string;
@@ -69,6 +70,7 @@ const Create = () => {
         },
       })
         .then((res: any) => {
+          Toast.show({ text1: 'Room created - ' + roomTitle, visibilityTime: 2 });
           console.log('promise data', res);
           setUrlView(res.data.createChannel.passphrase.view);
           setUrlHost(res.data.createChannel.passphrase.host);

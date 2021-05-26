@@ -15,19 +15,20 @@ import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import icons from '../assets/icons';
+import Toast from '../../react-native-toast-message';
 
 const Share = (props: any) => {
   const history = useHistory();
   const {
     urlView,
     urlHost,
-    // pstn,
+    pstn,
     joinPhrase,
     roomTitle,
     hostControlCheckbox,
   } = props;
   // const {primaryColor} = useContext(ColorContext);
-  const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
+  // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
     if (urlHost) {
       history.push(`/${joinPhrase}`);
@@ -35,6 +36,7 @@ const Share = (props: any) => {
   };
 
   const copyToClipboard = () => {
+    Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1 });
     let stringToCopy = '';
 
     $config.frontEndURL
@@ -66,6 +68,7 @@ PSTN Pin: ${pstn.dtmf}`)
   };
 
   const copyHostUrl = () => {
+    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1});
     let stringToCopy = '';
     $config.frontEndURL
       ? (stringToCopy += `${$config.frontEndURL}/${urlHost}`)
@@ -76,6 +79,7 @@ PSTN Pin: ${pstn.dtmf}`)
   };
 
   const copyAttendeeURL = () => {
+    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1});
     let stringToCopy = '';
     $config.frontEndURL
       ? (stringToCopy += `${$config.frontEndURL}/${urlView}`)
@@ -86,6 +90,7 @@ PSTN Pin: ${pstn.dtmf}`)
   };
 
   const copyPstn = () => {
+    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1});
     let stringToCopy = `PSTN Number: ${pstn?.number} PSTN Pin: ${pstn?.dtmf}`;
     Clipboard.setString(stringToCopy);
   }
