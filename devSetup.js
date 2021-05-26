@@ -47,5 +47,19 @@ async function copyConfig(){
   }
 }
 
+async function copyTheme(){
+  try{
+    await fs.copyFile(
+      path.join(process.cwd(),'theme.json'),
+      path.join(ROOT,'theme.json'),
+    )
+    console.log('\t✓ Added theme in the template')
+  }
+  catch(e){
+    console.error(e);
+  }
+}
+
 processDotfiles();
 copyConfig();
+copyTheme();
