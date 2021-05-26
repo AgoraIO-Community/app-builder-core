@@ -5,8 +5,8 @@ import {
   StyleSheet,
   Text,
   Dimensions,
-  TouchableOpacity,
   Image,
+  Pressable,
 } from 'react-native';
 import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
@@ -70,7 +70,7 @@ const GridVideo = (props: GridVideoProps) => {
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (
-            <TouchableOpacity
+            <Pressable
               onPress={() => {
                 if (!(ridx === 0 && cidx === 0)) {
                   dispatch({
@@ -87,18 +87,27 @@ const GridVideo = (props: GridVideoProps) => {
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
                 <MaxVideoView
-                  fallback={FallbackLogo}
+                  fallback={() => {
+                    if (users[ridx * dims.c + cidx].uid === 'local') {
+                      return FallbackLogo(userList[localUid]?.name);
+                    } else {
+                      return FallbackLogo(
+                        userList[users[ridx * dims.c + cidx]?.uid]?.name,
+                      );
+                    }
+                  }}
                   user={users[ridx * dims.c + cidx]}
                   key={users[ridx * dims.c + cidx].uid}
                 />
                 <View
                   style={{
                     marginTop: -30,
-                    backgroundColor: '#ffffffbb',
+                    backgroundColor: $config.secondaryFontColor + 'bb',
                     alignSelf: 'flex-end',
                     paddingHorizontal: 8,
                     height: 30,
                     borderTopLeftRadius: 15,
+                    borderBottomRightRadius: 15,
                     // marginHorizontal: 'auto',
                     maxWidth: '100%',
                     flexDirection: 'row',
@@ -132,7 +141,7 @@ const GridVideo = (props: GridVideoProps) => {
                       lineHeight: 30,
                       fontSize: 18,
                       fontWeight: '600',
-                      maxWidth: '70%',
+                      width: '100%',
                       // alignSelf: 'stretch',
                       // textAlign: 'center',
                     }}>
@@ -156,7 +165,7 @@ const GridVideo = (props: GridVideoProps) => {
                   )} */}
                 </View>
               </View>
-            </TouchableOpacity>
+            </Pressable>
           ))}
         </View>
       ))}
@@ -179,7 +188,7 @@ const style = StyleSheet.create({
     // borderColor: '#fff',
     // borderWidth:2,
     // width: '100%',
-    borderRadius: 20,
+    borderRadius: 15,
     flex: 1,
     // margin: 1,
     paddingHorizontal: 10,
@@ -191,7 +200,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     marginHorizontal: 10,
     marginRight: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: $config.secondaryFontColor,
     display: 'flex',
     justifyContent: 'center',
   },

@@ -90,7 +90,7 @@ const style = StyleSheet.create({
     fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     marginLeft: 10,
-    color: '#333',
+    color: $config.primaryFontColor,
     alignSelf: 'center',
   },
   backIcon: {

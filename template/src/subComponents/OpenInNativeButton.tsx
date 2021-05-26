@@ -26,7 +26,7 @@ const OpenInNativeButton = () => {
 
 const style = StyleSheet.create({
   btn: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     width: 110,
     height: 30,
     borderWidth: 2,

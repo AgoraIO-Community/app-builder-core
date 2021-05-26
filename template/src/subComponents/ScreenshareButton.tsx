@@ -66,7 +66,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
 
 const style = StyleSheet.create({
   localButton: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     borderRadius: 20,
     borderColor: $config.primaryColor,
     width: 40,

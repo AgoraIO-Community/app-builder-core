@@ -151,7 +151,7 @@ const Controls = (props: any) => {
         />
         <View style={{alignSelf: 'center'}}>
           <Endcall />
-          <Text style={{textAlign: 'center', marginTop: 5, color: '#f97365'}}>
+          <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
             Hang Up
           </Text>
         </View>
@@ -172,8 +172,8 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#099DFD',
-    color: '#FFF',
+    backgroundColor: $config.primaryColor,
+    color: $config.secondaryFontColor,
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',

@@ -21,13 +21,13 @@ const Share = (props: any) => {
   const {
     urlView,
     urlHost,
-    pstn,
+    // pstn,
     joinPhrase,
     roomTitle,
     hostControlCheckbox,
   } = props;
   // const {primaryColor} = useContext(ColorContext);
-  // const pstn = {number: '+123423241', dtmf: '2342'}
+  const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
     if (urlHost) {
       history.push(`/${joinPhrase}`);
@@ -265,7 +265,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxTitle: {
-    color: '#333',
+    color: $config.primaryFontColor,
     paddingHorizontal: 5,
     fontWeight: '700',
   },
@@ -285,7 +285,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
   },
   urlTitle: {
-    color: '#333',
+    color: $config.primaryFontColor,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -308,7 +308,7 @@ const style = StyleSheet.create({
     minHeight: 30,
   },
   url: {
-    color: '#333',
+    color: $config.primaryFontColor,
     fontSize: 18,
     // textDecorationLine: 'underline',
   },

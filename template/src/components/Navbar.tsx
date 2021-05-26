@@ -98,7 +98,7 @@ const Navbar = (props: any) => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: '#fff',
+            backgroundColor: $config.secondaryFontColor,
             padding: 4,
             // backgroundColor: '#f0f',
             paddingHorizontal: 16,
@@ -229,7 +229,7 @@ const style = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: '8%',
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     flexDirection: 'row',
     alignItems: 'center',
     // marginHorizontal: 10,

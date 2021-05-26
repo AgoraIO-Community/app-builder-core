@@ -76,7 +76,7 @@ const Controls = (props: any) => {
         </View>
         <View style={{ alignSelf: 'center' }}>
           <Endcall />
-          <Text style={{ textAlign: 'center', marginTop: 5, color: '#f97365' }}>End</Text>
+          <Text style={{ textAlign: 'center', marginTop: 5, color: '#FD0845' }}>Hang Up</Text>
         </View>
       </View>
     </LocalUserContext>
@@ -87,7 +87,7 @@ const style = StyleSheet.create({
   bottomBar: {
     flex: 1.6,
     paddingHorizontal: '1%',
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -95,7 +95,7 @@ const style = StyleSheet.create({
     bottom: 0,
   },
   localButton: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     borderRadius: 2,
     borderColor: $config.primaryColor,
     // borderWidth: 1,

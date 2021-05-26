@@ -51,21 +51,21 @@ const style = StyleSheet.create({
     marginLeft: 15,
   },
   timestampText: {
-    color: '#999999',
+    color: $config.tertiaryFontColor,
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
     // textAlign: 'right',
   },
   timestampTextLocal: {
-    color: '#999999',
+    color: $config.tertiaryFontColor,
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
     textAlign: 'right',
   },
   chatBubble: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: $config.primaryFontColor + '80',
     flex: 1,
     // width: 'max-content',
     maxWidth: '80%',
@@ -90,11 +90,11 @@ const style = StyleSheet.create({
     borderRadius: 10,
   },
   whiteText: {
-    color: '#fff',
+    color: $config.secondaryFontColor,
     fontWeight: '500',
   },
   blackText: {
-    color: '#000',
+    color: $config.primaryFontColor,
     fontWeight: '500',
   },
 });

@@ -1,7 +1,6 @@
 import React, {useState, useContext} from 'react';
 import {
   ScrollView,
-  TouchableOpacity,
   View,
   Dimensions,
   StyleSheet,
@@ -48,7 +47,7 @@ const PinnedVideo = () => {
       }}
       onLayout={onLayout}>
       {isSidePinnedlayout && (
-        <TouchableOpacity
+        <Pressable
           onPress={() => setCollapse(!collapse)}
           style={{
             position: 'absolute',
@@ -57,7 +56,7 @@ const PinnedVideo = () => {
             width: 35,
             height: 35,
             marginLeft: collapse ? 5 : '20.1%',
-            backgroundColor: '#ffffffaa',
+            backgroundColor: $config.secondaryFontColor + 'aa',
             borderRadius: 50,
             justifyContent: 'center',
           }}>
@@ -78,7 +77,7 @@ const PinnedVideo = () => {
             }}>
             {collapse ? '>' : '<'}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
       {!collapse && (
         <ScrollView
@@ -120,7 +119,13 @@ const PinnedVideo = () => {
                       }}>
                       <View style={style.flex1}>
                         <MaxVideoView
-                          fallback={FallbackLogo}
+                          fallback={() => {
+                            if (user.uid === 'local') {
+                              return FallbackLogo(userList[localUid]?.name);
+                            } else {
+                              return FallbackLogo(userList[user.uid]?.name);
+                            }
+                          }}
                           user={user}
                           key={user.uid}
                         />
@@ -172,7 +177,13 @@ const PinnedVideo = () => {
           {(maxUsers) => (
             <View style={style.flex1}>
               <MaxVideoView
-                fallback={FallbackLogo}
+                fallback={() => {
+                  if (maxUsers[0].uid === 'local') {
+                    return FallbackLogo(userList[localUid]?.name);
+                  } else {
+                    return FallbackLogo(userList[maxUsers[0].uid]?.name);
+                  }
+                }}
                 user={maxUsers[0]}
                 key={maxUsers[0].uid}
               />
@@ -219,20 +230,21 @@ const style = StyleSheet.create({
   flex1: {flex: 1},
   nameHolder: {
     marginTop: -25,
-    backgroundColor: '#ffffffbb',
+    backgroundColor: $config.secondaryFontColor + 'aa',
     alignSelf: 'flex-end',
     paddingHorizontal: 8,
     height: 25,
     borderTopLeftRadius: 15,
+    borderBottomRightRadius: 15,
     flexDirection: 'row',
   },
-  name: {color: '#333', lineHeight: 25, fontWeight: '700'},
+  name: {color: $config.primaryFontColor, lineHeight: 25, fontWeight: '700'},
   MicBackdrop: {
     width: 20,
     height: 20,
-    borderRadius: 10,
+    borderRadius: 15,
     marginHorizontal: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: $config.secondaryFontColor,
     display: 'flex',
     alignSelf: 'center',
     justifyContent: 'center',

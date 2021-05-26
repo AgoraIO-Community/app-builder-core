@@ -49,7 +49,9 @@ const Precall = (props: any) => {
         <View style={style.leftContent}>
           <MaxUidConsumer>
             {(maxUsers) => (
-              <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+              <View style={{borderRadius: 10, flex: 1}}>
+                <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+              </View>
             )}
           </MaxUidConsumer>
           <View style={style.precallControls}>
@@ -106,7 +108,7 @@ const Precall = (props: any) => {
           <View
             style={{
               flex: 1,
-              backgroundColor: '#ffffff80',
+              backgroundColor: $config.secondaryFontColor + '25',
               marginLeft: 50,
               padding: 20,
               borderRadius: 10,
@@ -193,12 +195,12 @@ const style = StyleSheet.create({
   subHeading: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#fff',
+    color: $config.secondaryFontColor,
   },
   headline: {
     fontSize: 20,
     fontWeight: '400',
-    color: '#777',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   inputs: {
@@ -213,7 +215,7 @@ const style = StyleSheet.create({
     paddingLeft: 8,
     borderColor: $config.primaryColor,
     borderWidth: 2,
-    color: '#333',
+    color: $config.primaryFontColor,
     fontSize: 16,
     marginBottom: 15,
     maxWidth: 400,
@@ -229,7 +231,7 @@ const style = StyleSheet.create({
   },
   primaryBtnDisabled: {
     width: '60%',
-    backgroundColor: '#099DFD80',
+    backgroundColor: $config.primaryFontColor + '80',
     maxWidth: 400,
     minHeight: 45,
     minWidth: 200,
@@ -242,7 +244,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: '#fff',
+    color: $config.secondaryFontColor,
   },
   ruler: {
     borderBottomColor: '#ccc',

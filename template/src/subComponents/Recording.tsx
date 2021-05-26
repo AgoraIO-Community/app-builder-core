@@ -94,7 +94,7 @@ const Recording = (props: any) => {
 
 const style = StyleSheet.create({
   localButton: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     borderRadius: 23,
     borderColor: $config.primaryColor,
     borderWidth: 0,

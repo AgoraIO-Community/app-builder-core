@@ -119,7 +119,7 @@ const Chat = (props: any) => {
             <KeyboardAvoidingView
               behavior={'position'}
               keyboardVerticalOffset={105}>
-              <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+              <View style={{backgroundColor: $config.secondaryFontColor, paddingBottom: 10}}>
                 <View
                   style={{
                     backgroundColor: $config.primaryFontColor + '80',
@@ -135,7 +135,7 @@ const Chat = (props: any) => {
               </View>
             </KeyboardAvoidingView>
           ) : (
-            <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+            <View style={{backgroundColor: $config.secondaryFontColor, paddingBottom: 10}}>
               <View
                 style={{
                   backgroundColor: $config.primaryFontColor + '80',
@@ -211,7 +211,7 @@ const Chat = (props: any) => {
               <KeyboardAvoidingView
                 behavior={'position'}
                 keyboardVerticalOffset={105}>
-                <View style={{backgroundColor: '#fff', paddingBottom: 10}}>
+                <View style={{backgroundColor: $config.secondaryFontColor, paddingBottom: 10}}>
                   <View
                     style={{
                       backgroundColor: $config.primaryFontColor + '80',
@@ -243,7 +243,7 @@ const style = StyleSheet.create({
     width: '20%',
     minWidth: 200,
     maxWidth: 300,
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     flex: 1,
     // paddingTop: 20,
     shadowColor: $config.tertiaryFontColor,
@@ -260,10 +260,10 @@ const style = StyleSheet.create({
     right: 0,
     // top: 0,
     bottom: 0,
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
   },
   heading: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     width: 150,
     height: '7%',
     paddingLeft: 20,
@@ -274,7 +274,7 @@ const style = StyleSheet.create({
     paddingLeft: 5,
     marginVertical: 'auto',
     fontWeight: '700',
-    color: '#333',
+    color: $config.primaryFontColor,
     fontSize: 25,
     alignSelf: 'center',
     justifyContent: 'center',
@@ -285,26 +285,26 @@ const style = StyleSheet.create({
     // marginBottom: 15,
   },
   groupActive: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     flex: 1,
     height: '100%',
     textAlign: 'center',
   },
   group: {
-    backgroundColor: '#f1f4f9',
+    backgroundColor: $config.primaryFontColor + 22,
     flex: 1,
     height: '100%',
     textAlign: 'center',
     borderBottomRightRadius: 10,
   },
   privateActive: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     flex: 1,
     height: '100%',
     textAlign: 'center',
   },
   private: {
-    backgroundColor: '#f1f4f9',
+    backgroundColor: $config.primaryFontColor + 22,
     flex: 1,
     height: '100%',
     textAlign: 'center',
@@ -315,7 +315,7 @@ const style = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     fontSize: 16,
-    color: '#000',
+    color: $config.primaryFontColor,
     justifyContent: 'center',
     paddingVertical: 5,
   },
@@ -326,13 +326,13 @@ const style = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 5,
     justifyContent: 'center',
-    color: '#B9B9B9',
+    color: $config.tertiaryFontColor,
   },
   participantContainer: {
     flexDirection: 'row',
     flex: 0.07,
     // marginTop: 5,
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     height: '15%',
     width: '90%',
     alignSelf: 'center',
@@ -344,7 +344,7 @@ const style = StyleSheet.create({
     fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     flexDirection: 'row',
-    color: '#333',
+    color: $config.primaryFontColor,
     lineHeight: 20,
     paddingLeft: 10,
     alignSelf: 'center',
@@ -360,7 +360,7 @@ const style = StyleSheet.create({
     height: 12,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: '#333',
+    tintColor: $config.primaryFontColor,
   },
   chatNotification: {
     width: 20,
@@ -368,8 +368,8 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#099DFD',
-    color: '#FFF',
+    backgroundColor: $config.primaryColor,
+    color: $config.secondaryFontColor,
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',

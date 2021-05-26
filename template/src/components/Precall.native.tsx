@@ -102,7 +102,7 @@ const style = StyleSheet.create({
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {
     fontSize: 24,
-    color: '#333',
+    color: $config.primaryFontColor,
     fontWeight: '700',
     alignSelf: 'center',
   },
@@ -117,7 +117,7 @@ const style = StyleSheet.create({
     paddingLeft: 8,
     borderColor: $config.primaryColor,
     borderWidth: 2,
-    color: '#333',
+    color: $config.primaryFontColor,
     fontSize: 16,
     // marginBottom: 15,
     // maxWidth: 400,
@@ -136,7 +136,7 @@ const style = StyleSheet.create({
     marginBottom: 50,
   },
   buttonDisabled: {
-    backgroundColor: '#099DFD80',
+    backgroundColor: $config.primaryFontColor + '80',
     height: 50,
     width: 180,
     alignSelf: 'center',
@@ -151,7 +151,7 @@ const style = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: '#fff',
+    color: $config.secondaryFontColor,
   },
 });
 

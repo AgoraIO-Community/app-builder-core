@@ -1,7 +1,8 @@
 import React from 'react';
-import {Image, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 
-export default function FallbackLogo() {
+export default function FallbackLogo(name: string) {
+  console.log('!', name);
   return (
     <View
       style={{
@@ -9,14 +10,37 @@ export default function FallbackLogo() {
         backgroundColor: '#000',
         justifyContent: 'center',
         alignContent: 'center',
+        borderRadius: 15,
       }}>
-      <Image
+      {/* <Image
         source={{uri: $config.logo}}
         style={{
           height: '15%',
         }}
         resizeMode="contain"
-      />
+      /> */}
+      <View
+        style={{
+          width: '25%',
+          height: '25%',
+          backgroundColor: $config.primaryColor,
+          alignSelf: 'center',
+          alignContent: 'center',
+          justifyContent: 'center',
+          borderRadius: 10,
+          shadowColor: $config.primaryColor,
+          shadowRadius: 20,
+        }}>
+        <Text
+          style={{
+            color: $config.secondaryFontColor,
+            fontSize: 20,
+            alignSelf: 'center',
+            textAlign: 'center',
+          }}>
+          {name ? name[0] : 'U'}
+        </Text>
+      </View>
     </View>
   );
 }

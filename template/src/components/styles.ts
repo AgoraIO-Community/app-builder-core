@@ -4,13 +4,13 @@ const styles = {
   temp: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 20,
+    backgroundColor: $config.secondaryFontColor,
+    borderRadius: 15,
   },
   bottomBar: {
     flex: Platform.OS === 'web' ? 1.3 : 1.6,
     paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor + 80,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -18,7 +18,7 @@ const styles = {
     bottom: 0,
   },
   localButton: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor, //'#fff',
     borderRadius: 23,
     borderColor: $config.primaryColor,
     borderWidth: 0,
@@ -30,7 +30,7 @@ const styles = {
     justifyContent: 'center',
   },
   endCall: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor, //'#fff',
     borderRadius: 23,
     borderColor: $config.primaryColor,
     borderWidth: 0,
@@ -51,7 +51,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor, //'#fff',
   },
   minCloseBtn: {
     alignItems: 'center',

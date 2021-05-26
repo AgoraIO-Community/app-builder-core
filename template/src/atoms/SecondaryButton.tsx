@@ -28,7 +28,7 @@ export default function SecondaryButton(props: ButtonProps) {
         <Text
           style={[
             styles.secondaryButtonText as StyleProp<TextStyle>,
-            {color: props.disabled ? primaryColor + '80' : primaryColor},
+            {color: props.disabled ? $config.primaryColor + '80' : $config.primaryColor},
           ]}>
           {props.text}
         </Text>

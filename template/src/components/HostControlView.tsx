@@ -32,7 +32,7 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
+    color: $config.primaryFontColor,
     // marginBottom: 20,
     alignSelf: 'center',
   },

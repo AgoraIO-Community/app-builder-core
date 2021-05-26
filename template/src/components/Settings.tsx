@@ -46,7 +46,7 @@ const style = StyleSheet.create({
     width: '50%',
     height: '80%',
     left: '25%',
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     justifyContent: 'space-evenly',
     alignContent: 'center',
     paddingVertical: 5,
@@ -65,7 +65,7 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 30,
     fontWeight: '700',
-    color: '#333',
+    color: $config.primaryFontColor,
     // marginBottom: 20,
     alignSelf: 'center',
   },
@@ -83,7 +83,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: '#fff',
+    color: $config.secondaryFontColor,
   },
   localButton: {
     borderRadius: 2,

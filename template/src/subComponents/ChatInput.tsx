@@ -32,7 +32,7 @@ const ChatInput = (props: any) => {
       ]}>
       <TextInput
         value={message}
-        multiline={true}
+        multiline={false}
         // onContentSizeChange={(event) => {
         // causes infinite react state update on ctrl+A -> delete
         // setHeight(event.nativeEvent.contentSize.height);
@@ -42,12 +42,13 @@ const ChatInput = (props: any) => {
           borderRadius: 10,
           backgroundColor: $config.tertiaryFontColor + '22',
           borderWidth: 1,
+          color: $config.primaryFontColor,
           textAlign: 'left',
           height: Math.max(35, height),
           paddingVertical: 10,
           alignSelf: 'center',
         }}
-        blurOnSubmit={true}
+        blurOnSubmit={false}
         onSubmitEditing={() => {
           // console.log('!click');
           if (!privateActive) {
@@ -62,7 +63,7 @@ const ChatInput = (props: any) => {
           // UIManager.focus(inputRef.current);
         }}
         placeholder="Type your message.."
-        placeholderTextColor="#000"
+        placeholderTextColor={$config.primaryFontColor}
         autoCorrect={false}
       />
       <TouchableOpacity
@@ -100,8 +101,8 @@ const style = StyleSheet.create({
   chatInput: {
     flex: 1,
     width: '100%',
-    backgroundColor: '#fff',
-    color: '#000',
+    backgroundColor: $config.primaryFontColor,
+    color: $config.primaryFontColor,
   },
   chatInputButton: {
     width: 30,

@@ -90,7 +90,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
 
 const style = StyleSheet.create({
   localButton: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     borderRadius: 2,
     borderColor: $config.primaryColor,
     // borderWidth: 1,
@@ -122,7 +122,7 @@ const style = StyleSheet.create({
     left: '20%',
     width: '60%',
     height: '350%',
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     justifyContent: 'space-evenly',
     alignContent: 'center',
     paddingVertical: 5,
@@ -131,7 +131,7 @@ const style = StyleSheet.create({
     width: '100%',
     fontSize: 24,
     textAlign: 'center',
-    color: '#fff',
+    color: $config.secondaryFontColor,
   },
   popupPicker: {
     height: '40%',
@@ -159,7 +159,7 @@ const style = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: '#fff',
+    color: $config.secondaryFontColor,
   },
 });
 

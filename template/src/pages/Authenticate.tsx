@@ -72,14 +72,14 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 40,
     fontWeight: '700',
-    color: '#333',
+    color: $config.primaryFontColor,
     marginBottom: 20,
   },
   headline: {
     fontSize: 20,
     letterSpacing: 2,
     fontWeight: '400',
-    color: '#777',
+    color: $config.primaryFontColor,
     marginTop: -50,
     marginBottom: 20,
   },

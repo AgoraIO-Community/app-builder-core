@@ -53,7 +53,7 @@ const SurfaceView = (props: SurfaceViewInterface) => {
     <div
       id={String(props.uid)}
       className={'video-container'}
-      style={{...style.full, ...(props.style as Object)}}
+      style={{...style.full, ...(props.style as Object), overflow: 'hidden'}}
     />
   ) : (
     <div style={{...style.full, backgroundColor: 'black'}} />

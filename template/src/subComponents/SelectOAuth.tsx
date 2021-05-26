@@ -69,7 +69,7 @@ const style = StyleSheet.create({
   },
   secondaryBtn: {
     minWidth: 200,
-    borderColor: '#099DFD',
+    borderColor: $config.primaryColor,
     borderWidth: 1,
     display: 'flex',
     justifyContent: 'center',
@@ -77,7 +77,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'space-around',
     // paddingTop: 20,
-    backgroundColor: '#fff',
+    backgroundColor: $config.secondaryFontColor,
     paddingHorizontal: 30,
     margin: 10,
     borderRadius: 100,
