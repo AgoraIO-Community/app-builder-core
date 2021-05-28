@@ -59,9 +59,9 @@ const Controls = (props: any) => {
           <SwitchCamera />
           <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Switch</Text>
         </View>
-        <View style={{ alignSelf: 'center' }}>
+        {/* <View style={{ alignSelf: 'center' }}>
           <TouchableOpacity
-            style={[style.localButton, { borderColor: primaryColor }]}
+            style={[style.localButton, { borderColor: primaryColor, borderRadius: 50 }]}
             onPress={() => {
               sidePanel === SidePanelType.Chat
                 ? setSidePanel(SidePanelType.None)
@@ -73,7 +73,7 @@ const Controls = (props: any) => {
             />
           </TouchableOpacity>
           <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Chat</Text>
-        </View>
+        </View> */}
         <View style={{ alignSelf: 'center' }}>
           <Endcall />
           <Text style={{ textAlign: 'center', marginTop: 5, color: '#FD0845' }}>Hang Up</Text>
@@ -85,13 +85,14 @@ const Controls = (props: any) => {
 
 const style = StyleSheet.create({
   bottomBar: {
-    flex: 1.6,
+    flex: 1,
     paddingHorizontal: '1%',
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.secondaryFontColor + '80',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
     margin: 0,
+    minHeight: 40,
     bottom: 0,
   },
   localButton: {

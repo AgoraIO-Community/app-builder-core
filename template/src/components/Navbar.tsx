@@ -98,16 +98,19 @@ const Navbar = (props: any) => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: $config.secondaryFontColor,
+            backgroundColor: Platform.OS === 'web' ? $config.secondaryFontColor : $config.secondaryFontColor + '00',
+            // backgroundColor: $config.secondaryFontColor,
             padding: 4,
+            // height: 40,
             // backgroundColor: '#f0f',
-            paddingHorizontal: 16,
+            // paddingHorizontal: 16,
             borderRadius: 10,
+            minWidth: Platform.OS === 'web' ? 300 : 200,
             // borderTopLeftRadius: 10,
             // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
           }}>
-          <View>
+          <View style={{width:'20%', height: '100%'}}>
             <TouchableOpacity
               onPress={() => {
                 sidePanel === SidePanelType.Participants
@@ -128,54 +131,60 @@ const Navbar = (props: any) => {
               </MinUidConsumer> */}
             </TouchableOpacity>
           </View>
-          {Platform.OS === 'web' && (
-            <View
-              style={{
-                backgroundColor: $config.primaryFontColor + '80',
-                width: 1,
-                height: '100%',
-                marginHorizontal: 20,
-                alignSelf: 'center',
-                opacity: 0.8,
-              }}
-            />
-          )}
-          <View>
-            <View style={{alignSelf: 'center'}}>
-              <TouchableOpacity
-                style={style.btnHolder}
-                onPress={() => {
-                  sidePanel === SidePanelType.Chat
-                    ? setSidePanel(SidePanelType.None)
-                    : setSidePanel(SidePanelType.Chat);
-                }}>
-                <Image
-                  source={{uri: icons.chatIcon}}
-                  style={[
-                    {
-                      width: 35,
-                      height: 35,
-                      tintColor: $config.primaryColor,
-                    },
-                  ]}
+          {$config.chat ?
+            <>
+              {Platform.OS === 'web' && (
+                <View
+                  style={{
+                    backgroundColor: $config.primaryFontColor + '80',
+                    width: 1,
+                    height: '100%',
+                    marginHorizontal: 10,
+                    alignSelf: 'center',
+                    opacity: 0.8,
+                  }}
                 />
-              </TouchableOpacity>
-            </View>
-          </View>
+              )}
+              <View style={{ width: '25%', height: '120%' }}>
+                <View style={{ alignSelf: 'center', width: '100%', height: '110%' }}>
+                  <TouchableOpacity
+                    style={style.btnHolder}
+                    onPress={() => {
+                      sidePanel === SidePanelType.Chat
+                        ? setSidePanel(SidePanelType.None)
+                        : setSidePanel(SidePanelType.Chat);
+                    }}>
+                    <Image
+                      source={{ uri: icons.chatIcon }}
+                      resizeMode={'contain'}
+                      style={[
+                        {
+                          width: '100%',
+                          height: '100%',
+                          tintColor: $config.primaryColor,
+                        },
+                      ]}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+            : <></>
+          }
           {Platform.OS === 'web' && (
             <View
               style={{
                 backgroundColor: $config.primaryFontColor + '80',
                 width: 1,
                 height: '100%',
-                marginHorizontal: 20,
+                marginHorizontal: 10,
                 alignSelf: 'center',
                 opacity: 0.8,
               }}
             />
           )}
-          <View>
-            <View style={{alignSelf: 'center'}}>
+          <View style={{width:'18%', height: '105%'}}>
+            <View style={{alignSelf: 'center', width:'100%', height: '105%'}}>
               <TouchableOpacity
                 style={style.btnHolder}
                 onPress={() => {
@@ -186,13 +195,12 @@ const Navbar = (props: any) => {
                 <Image
                   // source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
                   source={{uri: gridLayoutIcon}}
-                  style={[
-                    {
-                      width: 30,
-                      height: 30,
+                  resizeMode={'contain'}
+                  style={{
+                      width: '100%',
+                      height: '100%',
                       tintColor: $config.primaryColor,
-                    },
-                  ]}
+                    }}
                 />
               </TouchableOpacity>
             </View>
@@ -204,16 +212,18 @@ const Navbar = (props: any) => {
                   backgroundColor: $config.primaryFontColor + '80',
                   width: 1,
                   height: '100%',
-                  marginHorizontal: 20,
+                  marginHorizontal: 10,
                   alignSelf: 'center',
                   opacity: 0.8,
                 }}
               />
+              <View style={{width:'20%', height: '100%'}}>
               <Settings
                 sidePanel={sidePanel}
                 setSidePanel={setSidePanel}
                 isHost={isHost}
               />
+              </View>
             </>
           ) : (
             <></>
@@ -229,7 +239,7 @@ const style = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: '8%',
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.secondaryFontColor + '80',
     flexDirection: 'row',
     alignItems: 'center',
     // marginHorizontal: 10,
@@ -258,7 +268,7 @@ const style = StyleSheet.create({
   //   margin: 1,
   //   resizeMode: 'contain',
   // },
-  btnHolder: {padding: 5},
+  btnHolder: {padding: 5, width:'100%', height:'100%'},
   // participantBtnHolder: {
   //   backgroundColor: '#fff',
   //   // flex: 0.5,
@@ -284,8 +294,8 @@ const style = StyleSheet.create({
   //   flex: 1,
   // },
   participantBtnIcon: {
-    height: 30,
-    width: 38,
+    height: '100%',
+    width: '100%',
     // margin: 1,
     tintColor: $config.primaryColor,
     resizeMode: 'contain',

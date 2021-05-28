@@ -93,7 +93,7 @@ const ChatInput = (props: any) => {
 
 const style = StyleSheet.create({
   inputView: {
-    width: '85%',
+    // width: '100%',
     flexDirection: 'row',
     marginHorizontal: 10,
     paddingVertical: 15,
@@ -106,6 +106,8 @@ const style = StyleSheet.create({
   },
   chatInputButton: {
     width: 30,
+    // width: '10%',
+    marginRight: 0,
     height: 30,
     borderRadius: 30,
     alignSelf: 'center',

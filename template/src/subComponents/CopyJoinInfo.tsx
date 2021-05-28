@@ -5,8 +5,8 @@ import ColorContext from '../components/ColorContext';
 import {gql, useQuery} from '@apollo/client';
 import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
-
 import {useParams} from '../components/Router';
+import Toast from '../../react-native-toast-message';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -31,6 +31,7 @@ const ParticipantView = (props: any) => {
     variables: {passphrase: phrase},
   });
   const copyToClipboard = () => {
+    Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1000 });
     if (data && !loading) {
       let stringToCopy = '';
       if ($config.frontEndURL) {

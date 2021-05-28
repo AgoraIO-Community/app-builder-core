@@ -36,7 +36,7 @@ const Share = (props: any) => {
   };
 
   const copyToClipboard = () => {
-    Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1 });
+    Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1000 });
     let stringToCopy = '';
 
     $config.frontEndURL
@@ -68,7 +68,7 @@ PSTN Pin: ${pstn.dtmf}`)
   };
 
   const copyHostUrl = () => {
-    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1});
+    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1000});
     let stringToCopy = '';
     $config.frontEndURL
       ? (stringToCopy += `${$config.frontEndURL}/${urlHost}`)
@@ -79,7 +79,7 @@ PSTN Pin: ${pstn.dtmf}`)
   };
 
   const copyAttendeeURL = () => {
-    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1});
+    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1000});
     let stringToCopy = '';
     $config.frontEndURL
       ? (stringToCopy += `${$config.frontEndURL}/${urlView}`)
@@ -90,7 +90,7 @@ PSTN Pin: ${pstn.dtmf}`)
   };
 
   const copyPstn = () => {
-    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1});
+    Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1000});
     let stringToCopy = `PSTN Number: ${pstn?.number} PSTN Pin: ${pstn?.dtmf}`;
     Clipboard.setString(stringToCopy);
   }
@@ -201,6 +201,7 @@ PSTN Pin: ${pstn.dtmf}`)
           onPress={() => enterMeeting()}
           text={'Start Meeting (as host)'}
         />
+        <View style={{height: 10}} />
         <SecondaryButton
           onPress={() => copyToClipboard()}
           text={'Copy invite to clipboard'}
@@ -282,6 +283,7 @@ const style = StyleSheet.create({
   urlContainer: {
     backgroundColor: $config.primaryColor + '22',
     padding: 10, 
+    marginBottom: 10,
     borderRadius: 10, 
     width: '100%',
     // minWidth: ''

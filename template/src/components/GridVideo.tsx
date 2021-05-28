@@ -141,18 +141,18 @@ const GridVideo = (props: GridVideoProps) => {
                       lineHeight: 30,
                       fontSize: 18,
                       fontWeight: '600',
-                      width: '100%',
+                      // width: '100%',
                       // alignSelf: 'stretch',
                       // textAlign: 'center',
                     }}>
                     {users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
-                        ? userList[localUid].name + ' '
+                        ? userList[localUid].name.slice(0,20) + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                      ? userList[users[ridx * dims.c + cidx].uid].name + ' '
+                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(0,20) + ' '
                       : users[ridx * dims.c + cidx].uid === 1
-                      ? userList[localUid]?.name + "'s screenshare "
+                      ? (userList[localUid]?.name + "'s screen ").slice(0,20)
                       : 'User '}
                   </Text>
                   {/* </View> */}

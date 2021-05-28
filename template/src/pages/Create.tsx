@@ -70,7 +70,7 @@ const Create = () => {
         },
       })
         .then((res: any) => {
-          Toast.show({ text1: 'Room created - ' + roomTitle, visibilityTime: 2 });
+          Toast.show({ text1: 'Room created - ' + roomTitle, visibilityTime: 1000 });
           console.log('promise data', res);
           setUrlView(res.data.createChannel.passphrase.view);
           setUrlHost(res.data.createChannel.passphrase.host);
@@ -117,7 +117,7 @@ const Create = () => {
                 onSubmitEditing={() => createRoom()}
                 placeholder="Name your meeting"
               />
-              <View style={{}}>
+              <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
                   <Checkbox
                     value={hostControlCheckbox}
@@ -191,7 +191,8 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-evenly',
     marginBottom: '13%',
-    marginTop: '8%',
+    marginTop: '7%',
+    minHeight: 350,
     // marginRight: '5%',
     marginHorizontal: 'auto',
   },
@@ -207,7 +208,7 @@ const style = StyleSheet.create({
     fontWeight: '400',
     textAlign: 'center',
     color: $config.primaryFontColor,
-    marginBottom: 20,
+    marginBottom: 40,
   },
   inputs: {
     flex: 1,

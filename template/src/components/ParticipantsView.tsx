@@ -6,6 +6,7 @@ import {
   Platform,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
@@ -36,8 +37,8 @@ const ParticipantView = (props: any) => {
           : style.participantViewNative
       }>
       <TouchableOpacity
-        style={style.backButton}
-        onPress={() => props.setSidePanel(SidePanelType.None)}>
+        style={style.backButton}>
+        {/* onPress={() => props.setSidePanel(SidePanelType.None)}> */}
         {/* <Image
           resizeMode={'contain'}
           style={style.backIcon}
@@ -45,6 +46,7 @@ const ParticipantView = (props: any) => {
         /> */}
         <Text style={style.heading}>Participants</Text>
       </TouchableOpacity>
+      <ScrollView style={{flex: 1}}>
       <MinUidConsumer>
         {(minUsers) => (
           <MaxUidConsumer>
@@ -103,6 +105,7 @@ const ParticipantView = (props: any) => {
           </MaxUidConsumer>
         )}
       </MinUidConsumer>
+      </ScrollView>
     </View>
   );
 };
@@ -134,14 +137,15 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: '700',
-    // textAlign: 'center',
+    textAlign: 'center',
     color: $config.primaryFontColor,
   },
   participantContainer: {
     flexDirection: 'row',
-    flex: 0.07,
+    flex: 1,
+    marginVertical: 2,
     backgroundColor: $config.secondaryFontColor,
-    height: '15%',
+    // height: 10,
     width: '90%',
     alignSelf: 'center',
     justifyContent: 'center',
@@ -149,7 +153,7 @@ const style = StyleSheet.create({
   },
   participantText: {
     flex: 1,
-    fontSize: Platform.OS === 'web' ? 20 : 16,
+    fontSize: Platform.OS === 'web' ? 18 : 16,
     fontWeight: '500',
     flexDirection: 'row',
     color: $config.primaryFontColor,

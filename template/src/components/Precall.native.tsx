@@ -17,12 +17,13 @@ import {
 } from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import ColorContext from './ColorContext';
+// import ColorContext from './ColorContext';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
+import PrimaryButton from '../atoms/PrimaryButton';
 
 const Precall = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
+  // const {primaryColor} = useContext(ColorContext);
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   rtc.RtcEngine.startPreview();
@@ -80,18 +81,16 @@ const Precall = (props: any) => {
           <SwitchCamera />
         </LocalUserContext>
       </View>
-      <TouchableOpacity
-        onPress={() => setCallActive(true)}
-        disabled={!queryComplete}
-        style={
-          queryComplete
-            ? [style.buttonActive, {backgroundColor: primaryColor}]
-            : [style.buttonDisabled, {backgroundColor: primaryColor + '80'}]
-        }>
-        <Text style={style.buttonText}>
-          {queryComplete ? 'Join Room' : 'Loading...'}
-        </Text>
-      </TouchableOpacity>
+      <View
+        // onPress={() => setCallActive(true)}
+        // disabled={!queryComplete}
+        style={{marginBottom: 50}}>
+        {/* <Text style={style.buttonText}> */}
+          {/* {queryComplete ? 'Join Room' : 'Loading...'} */}
+        {/* </Text> */}
+      {/* </TouchableOpacity> */}
+      <PrimaryButton text={"Join Room"} disabled={!queryComplete} onPress={() => setCallActive(true)} />
+      </View>
       {/* </ImageBackground> */}
     </View>
   );

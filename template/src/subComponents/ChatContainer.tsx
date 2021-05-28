@@ -79,7 +79,7 @@ const ChatContainer = (props: any) => {
 
 const style = StyleSheet.create({
   containerView: {flex: 8},
-  row: {flexDirection: 'row', marginTop: 5},
+  row: {flexDirection: 'row', marginTop: 2},
   backButton: {
     paddingVertical: 10,
     marginLeft: 10,
@@ -98,7 +98,7 @@ const style = StyleSheet.create({
     height: 12,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: '#333',
+    tintColor: $config.primaryFontColor,
   },
 });
 export default ChatContainer;

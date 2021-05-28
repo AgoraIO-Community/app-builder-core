@@ -74,7 +74,7 @@ const Join = (props: joinProps) => {
               onSubmitEditing={() => startCall()}
               placeholder="Meeting ID"
             />
-
+            <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
@@ -128,7 +128,7 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-evenly',
     marginBottom: '15%',
-    marginTop: '10%',
+    marginTop: '8%',
     // marginRight: '5%',
     marginHorizontal: 'auto',
   },

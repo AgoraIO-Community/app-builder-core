@@ -104,13 +104,14 @@ const PinnedVideo = () => {
                               width: '100%',
                               height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                               zIndex: 40,
+                              paddingBottom: 8,
                             }
                           : {
                               width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
                               height: '100%',
                               zIndex: 40,
-                              paddingHorizontal: 20,
-                              paddingVertical: 5,
+                              paddingRight: 8,
+                              paddingVertical: 4,
                             }
                       }
                       key={user.uid}
@@ -147,12 +148,12 @@ const PinnedVideo = () => {
                           <Text style={style.name}>
                             {user.uid === 'local'
                               ? userList[localUid]
-                                ? userList[localUid].name + ' '
+                                ? userList[localUid].name.slice(0,20) + ' '
                                 : 'You '
                               : userList[user.uid]
-                              ? userList[user.uid].name + ' '
+                              ? userList[user.uid].name.slice(0,20) + ' '
                               : user.uid === 1
-                              ? userList[localUid].name + "'s screenshare "
+                              ? (userList[localUid].name + "'s screen ").slice(0,20)
                               : 'User '}
                           </Text>
                         </View>
@@ -205,12 +206,12 @@ const PinnedVideo = () => {
                 <Text style={style.name}>
                   {maxUsers[0].uid === 'local'
                     ? userList[localUid]
-                      ? userList[localUid].name + ' '
+                      ? userList[localUid].name.slice(0,20) + ' '
                       : 'You '
                     : userList[maxUsers[0].uid]
-                    ? userList[maxUsers[0].uid].name + ' '
+                    ? userList[maxUsers[0].uid].name.slice(0,20) + ' '
                     : maxUsers[0].uid === 1
-                    ? userList[localUid].name + "'s screenshare "
+                    ? (userList[localUid].name + "'s screen ").slice(0,20)
                     : 'User '}
                 </Text>
               </View>
@@ -226,7 +227,7 @@ const style = StyleSheet.create({
   width80: {width: '80%'},
   width100: {width: '100%'},
   flex2: {flex: 2},
-  flex4: {flex: 4},
+  flex4: {flex: 4, backgroundColor: '#ffffff00'},
   flex1: {flex: 1},
   nameHolder: {
     marginTop: -25,

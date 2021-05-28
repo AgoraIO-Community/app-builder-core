@@ -21,8 +21,8 @@ export default function FallbackLogo(name: string) {
       /> */}
       <View
         style={{
-          width: '25%',
-          height: '25%',
+          width: 80,
+          height: 80,
           backgroundColor: $config.primaryColor,
           alignSelf: 'center',
           alignContent: 'center',

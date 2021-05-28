@@ -24,6 +24,7 @@ const styles = {
     borderWidth: 0,
     width: 40,
     height: 40,
+    padding: 3,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
@@ -72,7 +73,7 @@ const Chat = (props: any) => {
           }>
           {pendingPublicNotification !== 0 ? (
             <View style={style.chatNotification}>
-              {pendingPublicNotification}
+              <Text>{pendingPublicNotification}</Text>
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
@@ -127,7 +128,7 @@ const Chat = (props: any) => {
                     height: 1,
                     marginHorizontal: -20,
                     alignSelf: 'center',
-                    opacity: 0.5,
+                    opacity: 0.3,
                     marginBottom: 10,
                   }}
                 />
@@ -154,6 +155,7 @@ const Chat = (props: any) => {
       ) : (
         <>
           {!privateActive ? (
+            <ScrollView>
             <MinUidConsumer>
               {(minUsers) => (
                 <MaxUidConsumer>
@@ -188,6 +190,7 @@ const Chat = (props: any) => {
                                 ? userList[user.uid].name + ' '
                                 : 'User '}
                             </Text>
+                            <Text style={{color: $config.primaryFontColor}}>{`>`}</Text>
                           </TouchableOpacity>
                         );
                       }
@@ -196,6 +199,7 @@ const Chat = (props: any) => {
                 </MaxUidConsumer>
               )}
             </MinUidConsumer>
+            </ScrollView>
           ) : (
             <>
               <ChatContainer
@@ -219,7 +223,7 @@ const Chat = (props: any) => {
                       height: 1,
                       marginHorizontal: -20,
                       alignSelf: 'center',
-                      opacity: 0.5,
+                      opacity: 0.3,
                       marginBottom: 10,
                     }}
                   />
@@ -248,7 +252,7 @@ const style = StyleSheet.create({
     // paddingTop: 20,
     shadowColor: $config.tertiaryFontColor,
     shadowOpacity: 0.5,
-    shadowOffset: {width: -2, height: 0},
+    shadowOffset: {width: -2, height: 2},
     shadowRadius: 3,
   },
   chatViewNative: {
@@ -330,10 +334,11 @@ const style = StyleSheet.create({
   },
   participantContainer: {
     flexDirection: 'row',
-    flex: 0.07,
-    // marginTop: 5,
+    // flex: 1,
+    height: 20,
+    marginTop: 10,
     backgroundColor: $config.secondaryFontColor,
-    height: '15%',
+    // height: '15%',
     width: '90%',
     alignSelf: 'center',
     justifyContent: 'center',

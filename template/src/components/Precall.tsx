@@ -117,6 +117,8 @@ const Precall = (props: any) => {
               borderStartColor: 'solid',
               borderColor: $config.primaryColor,
               height: '70%',
+              minHeight: 340,
+              minWidth: 380,
               alignSelf: 'center',
               justifyContent: 'center',
               marginBottom: '10%',
