@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Platform,
@@ -32,6 +32,15 @@ const Chat = (props: any) => {
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
   const [selectedUser, setSelectedUser] = useState({uid: null});
+  useEffect(() => {
+    if (privateActive) {
+      setPrivateMessageLastSeen({
+        userId: selectedUser.uid,
+        lastSeenCount: privateMessageCountMap[selectedUser.uid],
+      });
+    }
+  }, [pendingPrivateNotification]);
+
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
