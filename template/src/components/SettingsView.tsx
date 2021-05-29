@@ -37,7 +37,7 @@ const style = StyleSheet.create({
     alignContent: 'center',
     paddingVertical: 5,
     flexGrow: 1,
-    shadowColor:  $config.tertiaryFontColor,
+    shadowColor: $config.primaryFontColor + '80',
     shadowOpacity: .5,
     shadowOffset: {width:-2, height: 0},
     shadowRadius: 3,

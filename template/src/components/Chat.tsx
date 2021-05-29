@@ -259,7 +259,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.secondaryFontColor,
     flex: 1,
     // paddingTop: 20,
-    shadowColor: $config.tertiaryFontColor,
+    shadowColor: $config.primaryFontColor + '80',
     shadowOpacity: 0.5,
     shadowOffset: {width: -2, height: 2},
     shadowRadius: 3,
@@ -339,7 +339,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 5,
     justifyContent: 'center',
-    color: $config.tertiaryFontColor,
+    color: $config.primaryFontColor + 50,
   },
   participantContainer: {
     flexDirection: 'row',

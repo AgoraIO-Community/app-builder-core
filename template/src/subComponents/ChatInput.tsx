@@ -20,7 +20,7 @@ import icons from '../assets/icons';
 const ChatInput = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
-  const [height, setHeight] = useState(0);
+  // const [height, setHeight] = useState(0);
   const {privateActive, selectedUser} = props;
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
 
@@ -28,7 +28,7 @@ const ChatInput = (props: any) => {
     <View
       style={[
         style.inputView,
-        {borderColor: primaryColor, height: Math.max(40, height + 25)},
+        {borderColor: primaryColor, height: 40}
       ]}>
       <TextInput
         value={message}
@@ -40,12 +40,13 @@ const ChatInput = (props: any) => {
         onChangeText={(text) => onChangeMessage(text)}
         style={{
           borderRadius: 10,
-          backgroundColor: $config.tertiaryFontColor + '22',
+          backgroundColor: $config.primaryFontColor + '10',
           borderWidth: 1,
           color: $config.primaryFontColor,
           textAlign: 'left',
-          height: Math.max(35, height),
+          height: 40,
           paddingVertical: 10,
+          flex: 1,
           alignSelf: 'center',
         }}
         blurOnSubmit={false}
@@ -54,11 +55,11 @@ const ChatInput = (props: any) => {
           if (!privateActive) {
             sendMessage(message);
             onChangeMessage('');
-            setHeight(40);
+            // setHeight(40);
           } else {
             sendMessageToUid(message, selectedUser.uid);
             onChangeMessage('');
-            setHeight(40);
+            // setHeight(40);
           }
           // UIManager.focus(inputRef.current);
         }}
@@ -72,11 +73,11 @@ const ChatInput = (props: any) => {
           if (!privateActive) {
             sendMessage(message);
             onChangeMessage('');
-            setHeight(40);
+            // setHeight(40);
           } else {
             sendMessageToUid(message, selectedUser.uid);
             onChangeMessage('');
-            setHeight(40);
+            // setHeight(40);
           }
         }}>
         <Image
@@ -93,7 +94,7 @@ const ChatInput = (props: any) => {
 
 const style = StyleSheet.create({
   inputView: {
-    // width: '100%',
+    width: '95%',
     flexDirection: 'row',
     marginHorizontal: 10,
     paddingVertical: 15,

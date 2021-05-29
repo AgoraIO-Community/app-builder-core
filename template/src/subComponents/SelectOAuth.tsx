@@ -156,13 +156,13 @@ const style = StyleSheet.create({
     // alignItems: 'flex-start',
   },
   checkboxTitle: {
-    color: $config.tertiaryFontColor,
+    color: $config.primaryFontColor + 80,
     paddingHorizontal: 5,
     alignSelf: 'center',
     // marginVertical: 'auto',
     // fontWeight: '700',
   },
-  checkboxCaption: {color: $config.tertiaryFontColor, paddingHorizontal: 5},
+  checkboxCaption: {color: $config.primaryFontColor + 80, paddingHorizontal: 5},
   checkboxTextHolder: {
     marginVertical: 0, //check if 5
     flexDirection: 'column',

@@ -51,14 +51,14 @@ const style = StyleSheet.create({
     marginLeft: 15,
   },
   timestampText: {
-    color: $config.tertiaryFontColor,
+    color: $config.primaryFontColor + '60',
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
     // textAlign: 'right',
   },
   timestampTextLocal: {
-    color: $config.tertiaryFontColor,
+    color: $config.primaryFontColor + '60',
     fontWeight: '500',
     fontSize: 12,
     flex: 1,

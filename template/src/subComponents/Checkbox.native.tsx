@@ -15,9 +15,9 @@ const Checkbox = (props: any) => {
       onValueChange={setUrlCheckbox}
       tintColors={{
         true: $config.primaryColor,
-        false: $config.tertiaryFontColor,
+        false: $config.primaryFontColor + 80,
       }}
-      tintColor={$config.tertiaryFontColor}
+      tintColor={$config.primaryFontColor + 80}
       onCheckColor={$config.primaryColor}
       onTintColor={$config.primaryColor}
     />

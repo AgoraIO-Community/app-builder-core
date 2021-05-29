@@ -118,11 +118,10 @@ const style = StyleSheet.create({
     backgroundColor: $config.secondaryFontColor,
     flex: 1,
     paddingTop: 20,
-    shadowColor: $config.tertiaryFontColor,
+    shadowColor: $config.primaryFontColor + '80',
     shadowOpacity: 0.5,
     shadowOffset: {width: -2, height: 0},
     shadowRadius: 3,
-    // borderLeftColor: $config.tertiaryFontColor,
     // borderLeftWidth: 1
   },
   participantViewNative: {
