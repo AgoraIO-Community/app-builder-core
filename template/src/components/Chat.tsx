@@ -173,7 +173,7 @@ const Chat = (props: any) => {
                       if (
                         user.uid !== 'local' &&
                         user.uid !== 1 &&
-                        userList[user.uid].type !== UserType.ScreenShare
+                        userList[user.uid]?.type !== UserType.ScreenShare
                       ) {
                         return (
                           <TouchableOpacity

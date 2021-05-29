@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "React Native template for RTE app builder",
   "main": "index.js",
+  "files": [
+    "template",
+    "template.config.js"
+  ],
   "scripts": {
     "uikit": "git clone https://github.com/AgoraIO-Community/ReactNative-UIKit template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout ab-dev-auto",
     "deps": "cd template && npm i",
