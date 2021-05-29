@@ -408,6 +408,7 @@ const style = StyleSheet.create({
   full: {
     flex: 1,
     flexDirection: 'column',
+    overflow: 'hidden',
   },
   videoView: videoView,
   loader: {

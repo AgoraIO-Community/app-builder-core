@@ -147,12 +147,15 @@ const GridVideo = (props: GridVideoProps) => {
                     }}>
                     {users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
-                        ? userList[localUid].name.slice(0,20) + ' '
+                        ? userList[localUid].name.slice(0, 20) + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(0,20) + ' '
+                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(
+                          0,
+                          20,
+                        ) + ' '
                       : users[ridx * dims.c + cidx].uid === 1
-                      ? (userList[localUid]?.name + "'s screen ").slice(0,20)
+                      ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
                       : 'User '}
                   </Text>
                   {/* </View> */}
@@ -190,6 +193,7 @@ const style = StyleSheet.create({
     // width: '100%',
     borderRadius: 15,
     flex: 1,
+    overflow: 'hidden',
     // margin: 1,
     paddingHorizontal: 10,
   },

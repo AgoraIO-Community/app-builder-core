@@ -57,14 +57,14 @@
   "navHolder": {
     "width": "100%",
     "height": "6%",
-    "minHeight": 20,
+    "minHeight": 40,
     "backgroundColor": "#f1f4f9",
     "flexDirection": "row",
     "alignItems": "center",
     "justifyContent": "flex-end"
   },
   "controlsHolder": {
-    "minHeight": 50,
+    "minHeight": 68,
     "maxHeight": "8%",
     "backgroundColor": "#f1f4f9",
     "flexDirection": "row",
@@ -76,8 +76,8 @@
   "localButton": {
     "backgroundColor": "#fff",
     "borderRadius": 23,
-    "width": 46,
-    "height": 46,
+    "width": 40,
+    "height": 40,
     "display": "flex",
     "alignSelf": "center",
     "alignItems": "center",

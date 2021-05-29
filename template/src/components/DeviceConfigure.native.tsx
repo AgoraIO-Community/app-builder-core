@@ -7,7 +7,7 @@ const DeviceConfigure: React.FC = (props: any) => {
       {props.children}
       <KeepAwake />
     </>
-  )
+  );
 };
 
 export default DeviceConfigure;
