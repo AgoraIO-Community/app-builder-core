@@ -2,6 +2,7 @@ import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
   Image,
+  Dimensions,
   TouchableOpacity,
   Platform,
   StyleSheet,
@@ -22,6 +23,16 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {controlsHolder, localButton, buttonIcon} from '../../theme.json';
 
 const Controls = (props: any) => {
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isDesktop = dim[0] > 1224;
+
   const {primaryColor} = useContext(ColorContext);
   const {messageStore} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
@@ -41,7 +52,7 @@ const Controls = (props: any) => {
 
   return (
     <LocalUserContext>
-      <View style={style.controlsHolder}>
+      <View style={[style.controlsHolder, { paddingHorizontal: isDesktop ? '20%' : '1%'}]} onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
           <Text
@@ -64,12 +75,13 @@ const Controls = (props: any) => {
             Video
           </Text>
         </View>
-        {$config.screenSharing ? (
+        {$config.screenSharing ? isDesktop ? (
           <View style={{alignSelf: 'center'}}>
             <ScreenshareButton
               screenshareActive={screenshareActive}
               setScreenshareActive={setScreenshareActive}
             />
+            {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
             <Text
               style={{
                 textAlign: 'center',
@@ -79,7 +91,7 @@ const Controls = (props: any) => {
               Share
             </Text>
           </View>
-        ) : (
+        ) : <></> : (
           <></>
         )}
         {isHost ? (
@@ -139,7 +151,7 @@ const Controls = (props: any) => {
         ) : (
           <></>
         )}
-        <View
+        {isDesktop ? <View
           style={{
             backgroundColor: $config.primaryFontColor + '80',
             width: 1,
@@ -148,7 +160,7 @@ const Controls = (props: any) => {
             alignSelf: 'center',
             opacity: 0.8,
           }}
-        />
+        />:<></>}
         <View style={{alignSelf: 'center'}}>
           <Endcall />
           <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
@@ -163,7 +175,6 @@ const Controls = (props: any) => {
 const style = StyleSheet.create({
   controlsHolder: {
     flex: Platform.OS === 'web' ? 1.3 : 1.6,
-    paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
     ...controlsHolder,
   },
   chatNotification: {

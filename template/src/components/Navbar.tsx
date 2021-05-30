@@ -36,17 +36,18 @@ const Navbar = (props: any) => {
     isHost,
     title,
   } = props;
-  // const [dim, setDim] = useState([
-  //   Dimensions.get('window').width,
-  //   Dimensions.get('window').height,
-  //   Dimensions.get('window').width > Dimensions.get('window').height,
-  // ]);
-  // let onLayout = (e: any) => {
-  //   setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  // };
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const isDesktop = dim[0] > 1224;
   return (
     <View
-      // onLayout={onLayout}
+      onLayout={onLayout}
       style={Platform.OS === 'web' ? style.navHolder : style.navHolderNative}>
       <View style={style.roomNameContainer}>
         {Platform.OS === 'web' ? (
@@ -91,7 +92,7 @@ const Navbar = (props: any) => {
           flexDirection: 'row',
           justifyContent: 'flex-end',
           zIndex: 9,
-          minWidth: Platform.OS === 'web' ? 400 : 40,
+          minWidth: Platform.OS === 'web' ?  isDesktop ? 400 : 280 : 40,
           // backgroundColor: '#f00',
         }}>
         <View
@@ -101,11 +102,12 @@ const Navbar = (props: any) => {
             backgroundColor: Platform.OS === 'web' ? $config.secondaryFontColor : $config.secondaryFontColor + '00',
             // backgroundColor: $config.secondaryFontColor,
             padding: 4,
+            minHeight: 35,
             // height: 40,
             // backgroundColor: '#f0f',
             // paddingHorizontal: 16,
             borderRadius: 10,
-            minWidth: Platform.OS === 'web' ? 300 : 200,
+            minWidth: Platform.OS === 'web' && isDesktop ? 300 : 200,
             // borderTopLeftRadius: 10,
             // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
@@ -133,7 +135,7 @@ const Navbar = (props: any) => {
           </View>
           {$config.chat ?
             <>
-              {Platform.OS === 'web' && (
+              {Platform.OS === 'web' && isDesktop ? (
                 <View
                   style={{
                     backgroundColor: $config.primaryFontColor + '80',
@@ -144,7 +146,7 @@ const Navbar = (props: any) => {
                     opacity: 0.8,
                   }}
                 />
-              )}
+              ):<></>}
               <View style={{ width: '25%', height: '120%' }}>
                 <View style={{ alignSelf: 'center', width: '100%', height: '110%' }}>
                   <TouchableOpacity
@@ -171,7 +173,7 @@ const Navbar = (props: any) => {
             </>
             : <></>
           }
-          {Platform.OS === 'web' && (
+          {Platform.OS === 'web' && isDesktop ? (
             <View
               style={{
                 backgroundColor: $config.primaryFontColor + '80',
@@ -182,7 +184,7 @@ const Navbar = (props: any) => {
                 opacity: 0.8,
               }}
             />
-          )}
+          ): <></>}
           <View style={{width:'18%', height: '105%'}}>
             <View style={{alignSelf: 'center', width:'100%', height: '105%'}}>
               <TouchableOpacity
@@ -205,7 +207,7 @@ const Navbar = (props: any) => {
               </TouchableOpacity>
             </View>
           </View>
-          {Platform.OS === 'web' ? (
+          {Platform.OS === 'web' && isDesktop ? (
             <>
               <View
                 style={{
