@@ -1,10 +1,14 @@
 {
-  "name": "app-builder-core",
-  "version": "1.0.0",
+  "name": "appbuilder-core",
+  "version": "0.0.3",
   "description": "React Native template for RTE app builder",
   "main": "index.js",
+  "files": [
+    "template",
+    "template.config.js"
+  ],
   "scripts": {
-    "uikit": "git clone https://github.com/AgoraIO-Community/ReactNative-UIKit template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout ab-dev-auto",
+    "uikit": "rm -rf template/agora-rn-uikit && git clone https://github.com/AgoraIO-Community/ReactNative-UIKit template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout ab-dev-auto",
     "deps": "cd template && npm i",
     "dev-setup": "npm run uikit && npm run deps && node devSetup.js"
   },

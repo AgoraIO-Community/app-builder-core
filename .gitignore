@@ -23,11 +23,11 @@ template/*.xcuserstate
 
 # Android/IntelliJ
 #
-template/build/
-template/.idea
-template/.gradle
-template/local.properties
-template/*.iml
+template/android/**/build/
+template/android/**/.idea
+template/android/**/.gradle
+template/android/**/local.properties
+template/android/**/*.iml
 
 # Visual Studio Code
 #

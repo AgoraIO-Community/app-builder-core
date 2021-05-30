@@ -1,4 +1,3 @@
-import {MediaDeviceInfo} from 'agora-rtc-sdk';
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -20,10 +19,12 @@ import type {
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 import {VideoProfile} from '../quality';
-//
-// export interface StreamsInterface {
-//     [uid: number]: AgoraRTC.Stream;
-// }
+
+interface MediaDeviceInfo {
+  readonly deviceId: string;
+  readonly label: string;
+  readonly kind: string;
+}
 
 type callbackType = (uid?: UID) => void;
 
@@ -154,13 +155,11 @@ export default class RtcEngine {
 
   async enableVideo(): Promise<void> {
     try {
-      let [
-        localAudio,
-        localVideo,
-      ] = await AgoraRTC.createMicrophoneAndCameraTracks(
-        {},
-        {encoderConfig: this.videoProfile},
-      );
+      let [localAudio, localVideo] =
+        await AgoraRTC.createMicrophoneAndCameraTracks(
+          {},
+          {encoderConfig: this.videoProfile},
+        );
       // localVideo.setEncoderConfiguration(this.videoProfile);
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
@@ -617,7 +616,7 @@ export default class RtcEngine {
   ): Promise<void> {
     return this.client.setRemoteVideoStreamType(
       uid,
-      (streamType as unknown) as RemoteStreamType,
+      streamType as unknown as RemoteStreamType,
     );
   }
 

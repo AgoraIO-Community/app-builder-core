@@ -1,5 +1,5 @@
 const {series, parallel} = require('gulp');
-const {exec} = require('child_process');
+const {spawn} = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const del = require('del');
@@ -9,20 +9,16 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
 
-const log = (x) => (args.info ? console.log(x) : null);
+const log = (x) => console.log(x);
 const BUILD_PATH = path.join(__dirname, '.electron');
 
 const runCli = (cmd, cb) => {
-  exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-      log(`error: ${error.message}`);
-    } else if (stderr) {
-      log(`stderr: ${stderr}`);
-    } else {
-      log(`stdout: ${stdout}`);
-    }
-    cb();
+  const [arg1, ...arg2] = cmd.split(' ');
+  const proc = spawn(arg1, arg2, {
+    stdio: 'inherit',
+    shell: true,
   });
+  proc.on('exit', cb);
 };
 
 function clean() {

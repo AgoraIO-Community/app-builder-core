@@ -32,7 +32,6 @@ const ChatInput = (props: any) => {
       ]}>
       <TextInput
         value={message}
-        multiline={false}
         // onContentSizeChange={(event) => {
         // causes infinite react state update on ctrl+A -> delete
         // setHeight(event.nativeEvent.contentSize.height);
