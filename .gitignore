@@ -1,6 +1,6 @@
 # OSX
 #
-template/.DS_Store
+.DS_Store
 
 # Xcode
 #
@@ -86,9 +86,14 @@ template/.watchmanconfig
 
 # Config
 template/config.json
+template/config-light.json
+template/config-dark.json
 
 #theme
 template/theme.json
+template/theme-light.json
+template/theme-transparent.json
+template/theme-dark.json
 
 #lock file
 template/package-lock.json
