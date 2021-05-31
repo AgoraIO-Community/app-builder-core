@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
@@ -28,12 +29,18 @@ import {UserType} from './RTMConfigure';
 const ParticipantView = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
-
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isSmall = dim[0] < 700;
+  
   return (
     <View
       style={
         Platform.OS === 'web'
-          ? style.participantView
+          ? isSmall ? style.participantViewNative : style.participantView
           : style.participantViewNative
       }>
       <TouchableOpacity style={style.backButton}>

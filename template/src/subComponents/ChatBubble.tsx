@@ -95,6 +95,7 @@ const style = StyleSheet.create({
   },
   blackText: {
     color: $config.PRIMARY_FONT_COLOR,
+    opacity: 0.9,
     fontWeight: '500',
   },
 });
