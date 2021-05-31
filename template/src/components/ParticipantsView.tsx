@@ -118,7 +118,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
     paddingTop: 20,
-    shadowColor: $config.primaryFontColor + '80',
+    shadowColor: $config.PRIMARY_FONT_COLOR + '80',
     shadowOpacity: 0.5,
     shadowOffset: {width: -2, height: 0},
     shadowRadius: 3,

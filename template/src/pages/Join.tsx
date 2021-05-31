@@ -21,6 +21,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
+import shouldAuthenticate from '../utils/shouldAuthenticate';
 // const joinFlag = 0;
 interface joinProps {
   phrase: string;
@@ -53,7 +54,6 @@ const Join = (props: joinProps) => {
   return (
     // <ImageBackground
     //   // onLayout={onLayout}
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     <View style={style.main}>
@@ -85,7 +85,7 @@ const Join = (props: joinProps) => {
               onPress={() => createMeeting()}
               text={'Create a meeting'}
             />
-            {$config.ENABLE_OAUTH ? (
+            {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?
             ) : (
               <></>

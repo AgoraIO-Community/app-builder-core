@@ -21,7 +21,9 @@ const SelectOAuth = ({onSelectOAuth}) => {
           <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
           <View style={style.inputs}>
             <View style={style.oAuthContainer}>
-              <Text style={{fontSize: 16, fontWeight: '500', marginBottom: 20,}}>Login using OAuth</Text>
+              <Text style={{fontSize: 16, fontWeight: '500', marginBottom: 20}}>
+                Login using OAuth
+              </Text>
               <TouchableOpacity
                 style={[style.secondaryBtn, {borderColor: primaryColor}]}
                 onPress={() => onSelectOAuth({oAuthSystem: 'google'})}>
@@ -156,13 +158,16 @@ const style = StyleSheet.create({
     // alignItems: 'flex-start',
   },
   checkboxTitle: {
-    color: $config.primaryFontColor + 80,
+    color: $config.PRIMARY_FONT_COLOR + 80,
     paddingHorizontal: 5,
     alignSelf: 'center',
     // marginVertical: 'auto',
     // fontWeight: '700',
   },
-  checkboxCaption: {color: $config.primaryFontColor + 80, paddingHorizontal: 5},
+  checkboxCaption: {
+    color: $config.PRIMARY_FONT_COLOR + 80,
+    paddingHorizontal: 5,
+  },
   checkboxTextHolder: {
     marginVertical: 0, //check if 5
     flexDirection: 'column',

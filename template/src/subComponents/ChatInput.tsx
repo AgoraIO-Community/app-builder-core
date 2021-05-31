@@ -39,7 +39,7 @@ const ChatInput = (props: any) => {
         onChangeText={(text) => onChangeMessage(text)}
         style={{
           borderRadius: 10,
-          backgroundColor: $config.primaryFontColor + '10',
+          backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
           borderWidth: 1,
           color: $config.PRIMARY_FONT_COLOR,
           textAlign: 'left',

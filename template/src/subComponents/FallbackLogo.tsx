@@ -13,7 +13,7 @@ export default function FallbackLogo(name: string) {
         borderRadius: 15,
       }}>
       {/* <Image
-        source={{uri: $config.logo}}
+        source={{uri: $config.LOGO}}
         style={{
           height: '15%',
         }}

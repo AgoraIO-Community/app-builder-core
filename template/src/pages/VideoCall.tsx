@@ -165,7 +165,7 @@ const VideoCall: React.FC = () => {
     rtm: null,
     screenShareUid: null,
     screenShareToken: null,
-    profile: $config.profile,
+    profile: $config.PROFILE,
     dual: true,
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: 'aes-128-xts', screenKey: null}
@@ -200,7 +200,7 @@ const VideoCall: React.FC = () => {
       token: data.joinChannel.mainUser.rtc,
       rtm: data.joinChannel.mainUser.rtm,
       dual: true,
-      profile: $config.profile,
+      profile: $config.PROFILE,
       encryption: $config.ENCRYPTION_ENABLED
         ? {
             key: data.joinChannel.secret,
@@ -234,7 +234,6 @@ const VideoCall: React.FC = () => {
     <>
       {queryComplete || !callActive ? (
         <>
-          {/* {$config.watermark && callActive ? <Watermark /> : <></>} */}
           <PropsProvider
             value={{
               rtcProps,

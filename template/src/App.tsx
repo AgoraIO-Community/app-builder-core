@@ -16,6 +16,7 @@ import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
+import shouldAuthenticate from './utils/shouldAuthenticate';
 
 const App: React.FC = () => {
   const [phrase, onChangePhrase] = useState('');
@@ -27,7 +28,7 @@ const App: React.FC = () => {
       resizeMode={'cover'}>
       <SafeAreaView style={{flex: 1}}>
         <StatusBar hidden={true} />
-        <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig}/>
+        <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
         <StorageProvider>
           <GraphQLProvider>
             <Router>
@@ -39,7 +40,7 @@ const App: React.FC = () => {
                       <Redirect to={'/create'} />
                     </Route>
                     <Route exact path={'/authenticate'}>
-                      {$config.ENABLE_OAUTH ? <OAuth /> : <Redirect to={'/'} />}
+                      {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
                     </Route>
                     <Route path={'/auth-token/:token'}>
                       <StoreToken />
@@ -47,7 +48,7 @@ const App: React.FC = () => {
                     <Route exact path={'/join'}>
                       <Join phrase={phrase} onChangePhrase={onChangePhrase} />
                     </Route>
-                    {$config.ENABLE_OAUTH ? (
+                    {shouldAuthenticate ? (
                       <PrivateRoute
                         path={'/create'}
                         failureRedirectTo={'/authenticate'}>

@@ -30,7 +30,6 @@ const Precall = (props: any) => {
   const {setCallActive, queryComplete, username, setUsername, error} = props;
   return (
     // <ImageBackground
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     <View style={style.full}>

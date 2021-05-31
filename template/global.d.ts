@@ -47,9 +47,8 @@ interface ConfigInterface {
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;
   BG: string;
-  ENABLE_OAUTH: boolean;
   ENCRYPTION_ENABLED: boolean;
-  profile: VideoProfile;
+  PROFILE: VideoProfile;
   PRIMARY_FONT_COLOR: string;
   SECONDARY_FONT_COLOR: string;
   SENTRY_DSN: string;

@@ -36,7 +36,6 @@ const Precall = (props: any) => {
   return (
     // <ImageBackground
     //   onLayout={onLayout}
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     <View style={style.main} onLayout={onLayout}>
