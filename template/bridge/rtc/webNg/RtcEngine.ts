@@ -13,7 +13,6 @@ import AgoraRTC, {
   EncryptionMode,
   ILocalTrack,
 } from 'agora-rtc-sdk-ng';
-import {EncryptionConfig} from 'react-native-agora';
 import type {
   RtcEngineEvents,
   Subscription,
@@ -33,8 +32,54 @@ declare global {
     engine: RtcEngine;
   }
 }
+export enum AREAS {
+  /**
+   * China.
+   */
+  CHINA = 'CHINA',
+  /**
+   * Asia, excluding Mainland China.
+   */
+  ASIA = 'ASIA',
+  /**
+   * North America.
+   */
+  NORTH_AMERICA = 'NORTH_AMERICA',
+  /**
+   * Europe.
+   */
+  EUROPE = 'EUROPE',
+  /**
+   * Japan.
+   */
+  JAPAN = 'JAPAN',
+  /**
+   * India.
+   */
+  INDIA = 'INDIA',
+  /**
+   * @ignore
+   */
+  OCEANIA = 'OCEANIA',
+  /**
+   * @ignore
+   */
+  SOUTH_AMERICA = 'SOUTH_AMERICA',
+  /**
+   * @ignore
+   */
+  AFRICA = 'AFRICA',
+  /**
+   * @ignore
+   */
+  OVERSEA = 'OVERSEA',
+  /**
+   * Global.
+   */
+  GLOBAL = 'GLOBAL',
+}
 
-export declare enum RnEncryptionEnum {
+export enum RnEncryptionEnum {
   /**
    * @deprecated
    * 0: This mode is deprecated.
@@ -77,6 +122,10 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
+AgoraRTC.setArea({
+  areaCode: AREAS.GLOBAL,
+  excludedArea: AREAS.CHINA,
+});
 
 export default class RtcEngine {
   public appId: string;
@@ -531,6 +580,7 @@ export default class RtcEngine {
     enabled: boolean,
     config: {
       encryptionMode: RnEncryptionEnum;
+      encryptionKey: string;
     },
   ): Promise<void> {
     let mode: EncryptionMode;

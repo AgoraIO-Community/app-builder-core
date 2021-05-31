@@ -142,6 +142,31 @@ const JOIN_CHANNEL_PHRASE = gql`
     }
   }
 `;
+enum RnEncryptionEnum {
+  /**
+   * @deprecated
+   * 0: This mode is deprecated.
+   */
+  None = 0,
+  /**
+   * 1: (Default) 128-bit AES encryption, XTS mode.
+   */
+  AES128XTS = 1,
+  /**
+   * 2: 128-bit AES encryption, ECB mode.
+   */
+  AES128ECB = 2,
+  /**
+   * 3: 256-bit AES encryption, XTS mode.
+   */
+  AES256XTS = 3,
+  /**
+   * 4: 128-bit SM4 encryption, ECB mode.
+   *
+   * @since v3.1.2.
+   */
+  SM4128ECB = 4,
+}
 
 const VideoCall: React.FC = () => {
   const {store} = useContext(StorageContext);
@@ -168,7 +193,7 @@ const VideoCall: React.FC = () => {
     profile: $config.PROFILE,
     dual: true,
     encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: 'aes-128-xts', screenKey: null}
+      ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
   };
   let data, loading, error;
@@ -204,7 +229,7 @@ const VideoCall: React.FC = () => {
       encryption: $config.ENCRYPTION_ENABLED
         ? {
             key: data.joinChannel.secret,
-            mode: 'aes-128-xts',
+            mode: RnEncryptionEnum.AES128XTS,
             screenKey: data.joinChannel.secret,
           }
         : false,
@@ -227,7 +252,10 @@ const VideoCall: React.FC = () => {
 
   const history = useHistory();
   const callbacks = {
-    EndCall: () => history.push('/'),
+    EndCall: () =>
+      setTimeout(() => {
+        history.push('/');
+      }, 0),
   };
   // throw new Error("My first Sentry error!");
   return (

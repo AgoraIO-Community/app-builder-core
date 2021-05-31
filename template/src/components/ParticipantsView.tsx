@@ -36,8 +36,7 @@ const ParticipantView = (props: any) => {
           ? style.participantView
           : style.participantViewNative
       }>
-      <TouchableOpacity
-        style={style.backButton}>
+      <TouchableOpacity style={style.backButton}>
         {/* onPress={() => props.setSidePanel(SidePanelType.None)}> */}
         {/* <Image
           resizeMode={'contain'}
@@ -47,64 +46,64 @@ const ParticipantView = (props: any) => {
         <Text style={style.heading}>Participants</Text>
       </TouchableOpacity>
       <ScrollView style={{flex: 1}}>
-      <MinUidConsumer>
-        {(minUsers) => (
-          <MaxUidConsumer>
-            {(maxUser) =>
-              [...minUsers, ...maxUser].map((user) =>
-                user.uid === 'local' ? (
-                  <View style={style.participantContainer} key={user.uid}>
-                    <Text style={style.participantText}>
-                      {userList[localUid]
-                        ? userList[localUid].name + ' '
-                        : 'You '}
-                    </Text>
-                    <View style={style.participantButtonContainer}>
-                      <LocalUserContext>
-                        <LocalAudioMute />
-                        <LocalVideoMute />
-                      </LocalUserContext>
-                    </View>
-                  </View>
-                ) : user.uid === 1 ? (
-                  <View style={style.participantContainer} key={user.uid}>
-                    <Text style={style.participantText}>
-                      {userList[localUid]
-                        ? userList[localUid].name + "'s screenshare "
-                        : 'Your screenshare '}
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={style.participantContainer} key={user.uid}>
-                    <Text style={style.participantText}>
-                      {userList[user.uid]
-                        ? userList[user.uid].name + ' '
-                        : 'User '}
-                    </Text>
-                    {userList[user.uid]?.type !== UserType.ScreenShare ? (
+        <MinUidConsumer>
+          {(minUsers) => (
+            <MaxUidConsumer>
+              {(maxUser) =>
+                [...minUsers, ...maxUser].map((user) =>
+                  user.uid === 'local' ? (
+                    <View style={style.participantContainer} key={user.uid}>
+                      <Text style={style.participantText}>
+                        {userList[localUid]
+                          ? userList[localUid].name + ' '
+                          : 'You '}
+                      </Text>
                       <View style={style.participantButtonContainer}>
-                        <RemoteAudioMute
-                          uid={user.uid}
-                          audio={user.audio}
-                          isHost={props.isHost}
-                        />
-                        <RemoteVideoMute
-                          uid={user.uid}
-                          video={user.video}
-                          isHost={props.isHost}
-                        />
-                        <RemoteEndCall uid={user.uid} isHost={props.isHost} />
+                        <LocalUserContext>
+                          <LocalAudioMute />
+                          <LocalVideoMute />
+                        </LocalUserContext>
                       </View>
-                    ) : (
-                      <></>
-                    )}
-                  </View>
-                ),
-              )
-            }
-          </MaxUidConsumer>
-        )}
-      </MinUidConsumer>
+                    </View>
+                  ) : user.uid === 1 ? (
+                    <View style={style.participantContainer} key={user.uid}>
+                      <Text style={style.participantText}>
+                        {userList[localUid]
+                          ? userList[localUid].name + "'s screenshare "
+                          : 'Your screenshare '}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={style.participantContainer} key={user.uid}>
+                      <Text style={style.participantText}>
+                        {userList[user.uid]
+                          ? userList[user.uid].name + ' '
+                          : 'User '}
+                      </Text>
+                      {userList[user.uid]?.type !== UserType.ScreenShare ? (
+                        <View style={style.participantButtonContainer}>
+                          <RemoteAudioMute
+                            uid={user.uid}
+                            audio={user.audio}
+                            isHost={props.isHost}
+                          />
+                          <RemoteVideoMute
+                            uid={user.uid}
+                            video={user.video}
+                            isHost={props.isHost}
+                          />
+                          <RemoteEndCall uid={user.uid} isHost={props.isHost} />
+                        </View>
+                      ) : (
+                        <></>
+                      )}
+                    </View>
+                  ),
+                )
+              }
+            </MaxUidConsumer>
+          )}
+        </MinUidConsumer>
       </ScrollView>
     </View>
   );
