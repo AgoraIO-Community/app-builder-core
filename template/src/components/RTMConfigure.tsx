@@ -87,12 +87,12 @@ const RtmConfigure = (props: any) => {
         try {
           const attr = await backoffAttributes;
           console.log('[user attributes]:', {attr});
-          let arr = new Int32Array(1);
-          arr[0] = parseInt(data.uid);
+          // let arr = new Int32Array(1);
+          // arr[0] = parseInt(data.uid);
           setUserList((prevState) => {
             return {
               ...prevState,
-              [Platform.OS === 'android' ? arr[0] : data.uid]: {
+              [data.uid]: {
                 name: attr?.attributes?.name || 'User',
                 type: UserType.Normal,
                 screenUid: parseInt(attr?.attributes?.screenUid),
@@ -238,12 +238,12 @@ const RtmConfigure = (props: any) => {
           try {
             const attr = await backoffAttributes;
             console.log('[user attributes]:', {attr});
-            let arr = new Int32Array(1);
-            arr[0] = parseInt(data.uid);
+            // let arr = new Int32Array(1);
+            // arr[0] = parseInt(data.uid);
             setUserList((prevState) => {
               return {
                 ...prevState,
-                [Platform.OS === 'android' ? arr[0] : member.uid]: {
+                [member.uid]: {
                   name: attr?.attributes?.name || 'User',
                   type: UserType.Normal,
                   screenUid: parseInt(attr?.attributes?.screenUid),
