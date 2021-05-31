@@ -7,7 +7,7 @@ export default function HorizontalRule(props: ViewProps) {
 
 const styles = StyleSheet.create({
   ruler: {
-    borderBottomColor: $config.primaryColor + '80',
+    borderBottomColor: $config.PRIMARY_COLOR + '80',
     borderBottomWidth: 1,
     margin: '2%',
     width: '100%',

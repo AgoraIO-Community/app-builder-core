@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -17,37 +17,53 @@ import {
 import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ColorContext from './ColorContext';
-import { SidePanelType } from '../subComponents/SidePanelEnum';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 const Controls = (props: any) => {
-  const {
-    setRecordingActive,
-    recordingActive,
-    sidePanel,
-    setSidePanel,
-    isHost
-  } = props;
-  const { primaryColor } = useContext(ColorContext);
+  const {setRecordingActive, recordingActive, sidePanel, setSidePanel, isHost} =
+    props;
+  const {primaryColor} = useContext(ColorContext);
 
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
-        <View style={{ alignSelf: 'center' }}>
+        <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
-          <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Audio</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 5,
+              color: $config.PRIMARY_COLOR,
+            }}>
+            Audio
+          </Text>
         </View>
-        <View style={{ alignSelf: 'center' }}>
+        <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
-          <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Video</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 5,
+              color: $config.PRIMARY_COLOR,
+            }}>
+            Video
+          </Text>
         </View>
         {isHost ? (
-          $config.cloudRecording ? (
-            <View style={{ alignSelf: 'center' }}>
+          $config.CLOUD_RECORDING ? (
+            <View style={{alignSelf: 'center'}}>
               <Recording
                 recordingActive={recordingActive}
                 setRecordingActive={setRecordingActive}
               />
-              <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Record</Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  marginTop: 5,
+                  color: $config.PRIMARY_COLOR,
+                }}>
+                Record
+              </Text>
             </View>
           ) : (
             <></>
@@ -55,9 +71,16 @@ const Controls = (props: any) => {
         ) : (
           <></>
         )}
-        <View style={{ alignSelf: 'center' }}>
+        <View style={{alignSelf: 'center'}}>
           <SwitchCamera />
-          <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Switch</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 5,
+              color: $config.PRIMARY_COLOR,
+            }}>
+            Switch
+          </Text>
         </View>
         {/* <View style={{ alignSelf: 'center' }}>
           <TouchableOpacity
@@ -72,11 +95,12 @@ const Controls = (props: any) => {
               style={[style.buttonIcon, { tintColor: primaryColor }]}
             />
           </TouchableOpacity>
-          <Text style={{ textAlign: 'center', marginTop: 5, color: $config.primaryColor }}>Chat</Text>
         </View> */}
-        <View style={{ alignSelf: 'center' }}>
+        <View style={{alignSelf: 'center'}}>
           <Endcall />
-          <Text style={{ textAlign: 'center', marginTop: 5, color: '#FD0845' }}>Hang Up</Text>
+          <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
+            Hang Up
+          </Text>
         </View>
       </View>
     </LocalUserContext>
@@ -87,7 +111,7 @@ const style = StyleSheet.create({
   bottomBar: {
     flex: 1,
     paddingHorizontal: '1%',
-    backgroundColor: $config.secondaryFontColor + '80',
+    backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -96,9 +120,9 @@ const style = StyleSheet.create({
     bottom: 0,
   },
   localButton: {
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     borderRadius: 2,
-    borderColor: $config.primaryColor,
+    borderColor: $config.PRIMARY_COLOR,
     // borderWidth: 1,
     width: 40,
     height: 40,
@@ -110,7 +134,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: 35,
     height: 35,
-    tintColor: $config.primaryColor,
+    tintColor: $config.PRIMARY_COLOR,
   },
 });
 

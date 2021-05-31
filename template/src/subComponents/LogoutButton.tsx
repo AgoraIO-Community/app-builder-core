@@ -61,7 +61,7 @@ const style = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     textDecorationLine: 'underline',
   },
 });

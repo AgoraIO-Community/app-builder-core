@@ -52,14 +52,19 @@ const Controls = (props: any) => {
 
   return (
     <LocalUserContext>
-      <View style={[style.controlsHolder, { paddingHorizontal: isDesktop ? '25%' : '1%'}]} onLayout={onLayout}>
+      <View
+        style={[
+          style.controlsHolder,
+          {paddingHorizontal: isDesktop ? '25%' : '1%'},
+        ]}
+        onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
           <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
-              color: $config.primaryColor,
+              color: $config.PRIMARY_COLOR,
             }}>
             Audio
           </Text>
@@ -70,32 +75,36 @@ const Controls = (props: any) => {
             style={{
               textAlign: 'center',
               marginTop: 5,
-              color: $config.primaryColor,
+              color: $config.PRIMARY_COLOR,
             }}>
             Video
           </Text>
         </View>
-        {$config.screenSharing ? isDesktop ? (
-          <View style={{alignSelf: 'center'}}>
-            <ScreenshareButton
-              screenshareActive={screenshareActive}
-              setScreenshareActive={setScreenshareActive}
-            />
-            {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
-            <Text
-              style={{
-                textAlign: 'center',
-                marginTop: 5,
-                color: $config.primaryColor,
-              }}>
-              Share
-            </Text>
-          </View>
-        ) : <></> : (
+        {$config.SCREEN_SHARING ? (
+          isDesktop ? (
+            <View style={{alignSelf: 'center'}}>
+              <ScreenshareButton
+                screenshareActive={screenshareActive}
+                setScreenshareActive={setScreenshareActive}
+              />
+              {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
+              <Text
+                style={{
+                  textAlign: 'center',
+                  marginTop: 5,
+                  color: $config.PRIMARY_COLOR,
+                }}>
+                Share
+              </Text>
+            </View>
+          ) : (
+            <></>
+          )
+        ) : (
           <></>
         )}
         {isHost ? (
-          $config.cloudRecording ? (
+          $config.CLOUD_RECORDING ? (
             <View style={{alignSelf: 'center'}}>
               <Recording
                 recordingActive={recordingActive}
@@ -105,7 +114,7 @@ const Controls = (props: any) => {
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
-                  color: $config.primaryColor,
+                  color: $config.PRIMARY_COLOR,
                 }}>
                 Record
               </Text>
@@ -116,7 +125,7 @@ const Controls = (props: any) => {
         ) : (
           <></>
         )}
-        {/* {$config.chat ? (
+        {/* {$config.CHAT ? (
           <View style={{alignSelf: 'center'}}>
             <TouchableOpacity
               style={[style.localButton, {borderColor: primaryColor}]}
@@ -143,7 +152,7 @@ const Controls = (props: any) => {
               style={{
                 textAlign: 'center',
                 marginTop: 5,
-                color: $config.primaryColor,
+                color: $config.PRIMARY_COLOR,
               }}>
               Chat
             </Text>
@@ -153,7 +162,7 @@ const Controls = (props: any) => {
         )} */}
         {/* {isDesktop ? <View
           style={{
-            backgroundColor: $config.primaryFontColor + '80',
+            backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
             width: 1,
             height: '70%',
             marginHorizontal: -20,
@@ -183,8 +192,8 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: $config.primaryColor,
-    color: $config.secondaryFontColor,
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',

@@ -1,12 +1,10 @@
 import React, {useContext} from 'react';
 import CheckBox from '@react-native-community/checkbox';
-import ColorContext from '../components/ColorContext';
 
 /**
  * A checkbox component for mobile
  */
 const Checkbox = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
   const urlCheckbox = props.value;
   const setUrlCheckbox = props.onValueChange;
   return (
@@ -14,12 +12,12 @@ const Checkbox = (props: any) => {
       value={urlCheckbox}
       onValueChange={setUrlCheckbox}
       tintColors={{
-        true: $config.primaryColor,
-        false: $config.primaryFontColor + 80,
+        true: $config.PRIMARY_COLOR,
+        false: $config.PRIMARY_FONT_COLOR + 80,
       }}
-      tintColor={$config.primaryFontColor + 80}
-      onCheckColor={$config.primaryColor}
-      onTintColor={$config.primaryColor}
+      tintColor={$config.PRIMARY_FONT_COLOR + 80}
+      onCheckColor={$config.PRIMARY_COLOR}
+      onTintColor={$config.PRIMARY_COLOR}
     />
   );
 };

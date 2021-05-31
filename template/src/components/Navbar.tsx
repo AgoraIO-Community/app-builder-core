@@ -59,7 +59,7 @@ const Navbar = (props: any) => {
             <Text style={style.roomNameText}>{title}</Text>
             <View
               style={{
-                backgroundColor: $config.primaryFontColor + '80',
+                backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                 width: 1,
                 height: 'auto',
                 marginHorizontal: 10,
@@ -95,15 +95,17 @@ const Navbar = (props: any) => {
           flexDirection: 'row',
           justifyContent: 'flex-end',
           zIndex: 9,
-          minWidth: Platform.OS === 'web' ?  isDesktop ? 400 : 280 : 40,
+          minWidth: Platform.OS === 'web' ? (isDesktop ? 400 : 280) : 40,
           // backgroundColor: '#f00',
         }}>
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: Platform.OS === 'web' ? $config.secondaryFontColor : $config.secondaryFontColor + '00',
-            // backgroundColor: $config.secondaryFontColor,
+            backgroundColor:
+              Platform.OS === 'web'
+                ? $config.SECONDARY_FONT_COLOR
+                : $config.SECONDARY_FONT_COLOR + '00',
             padding: 4,
             minHeight: 35,
             // height: 40,
@@ -115,7 +117,7 @@ const Navbar = (props: any) => {
             // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
           }}>
-          <View style={{width:'20%', height: '100%'}}>
+          <View style={{width: '20%', height: '100%'}}>
             <TouchableOpacity
               onPress={() => {
                 sidePanel === SidePanelType.Participants
@@ -136,12 +138,12 @@ const Navbar = (props: any) => {
               </MinUidConsumer> */}
             </TouchableOpacity>
           </View>
-          {$config.chat ?
+          {$config.CHAT ? (
             <>
               {Platform.OS === 'web' && isDesktop ? (
                 <View
                   style={{
-                    backgroundColor: $config.primaryFontColor + '80',
+                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                     width: 1,
                     height: '100%',
                     marginHorizontal: 10,
@@ -149,9 +151,12 @@ const Navbar = (props: any) => {
                     opacity: 0.8,
                   }}
                 />
-              ):<></>}
-              <View style={{ width: '25%', height: '120%' }}>
-                <View style={{ alignSelf: 'center', width: '100%', height: '110%' }}>
+              ) : (
+                <></>
+              )}
+              <View style={{width: '25%', height: '120%'}}>
+                <View
+                  style={{alignSelf: 'center', width: '100%', height: '110%'}}>
                   <TouchableOpacity
                     style={style.btnHolder}
                     onPress={() => {
@@ -169,13 +174,13 @@ const Navbar = (props: any) => {
                       <></>
                     )}
                     <Image
-                      source={{ uri: icons.chatIcon }}
+                      source={{uri: icons.chatIcon}}
                       resizeMode={'contain'}
                       style={[
                         {
                           width: '100%',
                           height: '100%',
-                          tintColor: $config.primaryColor,
+                          tintColor: $config.PRIMARY_COLOR,
                         },
                       ]}
                     />
@@ -183,12 +188,13 @@ const Navbar = (props: any) => {
                 </View>
               </View>
             </>
-            : <></>
-          }
+          ) : (
+            <></>
+          )}
           {Platform.OS === 'web' && isDesktop ? (
             <View
               style={{
-                backgroundColor: $config.primaryFontColor + '80',
+                backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                 width: 1,
                 height: '100%',
                 marginHorizontal: 10,
@@ -196,9 +202,11 @@ const Navbar = (props: any) => {
                 opacity: 0.8,
               }}
             />
-          ): <></>}
-          <View style={{width:'18%', height: '105%'}}>
-            <View style={{alignSelf: 'center', width:'100%', height: '105%'}}>
+          ) : (
+            <></>
+          )}
+          <View style={{width: '18%', height: '105%'}}>
+            <View style={{alignSelf: 'center', width: '100%', height: '105%'}}>
               <TouchableOpacity
                 style={style.btnHolder}
                 onPress={() => {
@@ -211,10 +219,10 @@ const Navbar = (props: any) => {
                   source={{uri: gridLayoutIcon}}
                   resizeMode={'contain'}
                   style={{
-                      width: '100%',
-                      height: '100%',
-                      tintColor: $config.primaryColor,
-                    }}
+                    width: '100%',
+                    height: '100%',
+                    tintColor: $config.PRIMARY_COLOR,
+                  }}
                 />
               </TouchableOpacity>
             </View>
@@ -223,7 +231,7 @@ const Navbar = (props: any) => {
             <>
               <View
                 style={{
-                  backgroundColor: $config.primaryFontColor + '80',
+                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                   width: 1,
                   height: '100%',
                   marginHorizontal: 10,
@@ -231,12 +239,12 @@ const Navbar = (props: any) => {
                   opacity: 0.8,
                 }}
               />
-              <View style={{width:'20%', height: '100%'}}>
-              <Settings
-                sidePanel={sidePanel}
-                setSidePanel={setSidePanel}
-                isHost={isHost}
-              />
+              <View style={{width: '20%', height: '100%'}}>
+                <Settings
+                  sidePanel={sidePanel}
+                  setSidePanel={setSidePanel}
+                  isHost={isHost}
+                />
               </View>
             </>
           ) : (
@@ -253,7 +261,7 @@ const style = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: '8%',
-    backgroundColor: $config.secondaryFontColor + '80',
+    backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
     flexDirection: 'row',
     alignItems: 'center',
     // marginHorizontal: 10,
@@ -261,7 +269,6 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   // recordingView: {
-  //   backgroundColor: $config.primaryColor,
   //   flex: 0.25,
   //   // maxWidth: 150,
   //   // paddingHorizontal: 2,
@@ -282,7 +289,7 @@ const style = StyleSheet.create({
   //   margin: 1,
   //   resizeMode: 'contain',
   // },
-  btnHolder: {padding: 5, width:'100%', height:'100%'},
+  btnHolder: {padding: 5, width: '100%', height: '100%'},
   // participantBtnHolder: {
   //   backgroundColor: '#fff',
   //   // flex: 0.5,
@@ -291,7 +298,6 @@ const style = StyleSheet.create({
   //   // marginHorizontal: 5,
   //   height: 30,
   //   alignSelf: 'center',
-  //   // backgroundColor: $config.primaryColor,
   //   // borderWidth: 2,
   //   flexDirection: 'row',
   //   alignItems: 'center',
@@ -311,12 +317,11 @@ const style = StyleSheet.create({
     height: '100%',
     width: '100%',
     // margin: 1,
-    tintColor: $config.primaryColor,
+    tintColor: $config.PRIMARY_COLOR,
     resizeMode: 'contain',
   },
   // participantText: {
   //   fontSize: Platform.OS === 'web' ? 20 : 18,
-  //   color: $config.primaryColor,
   //   fontWeight: '400',
   //   alignSelf: 'center',
   //   textAlign: 'center',
@@ -338,7 +343,7 @@ const style = StyleSheet.create({
     // flex: 10,
     // width: 50,
     // color: '#fff',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '500',
   },
   // layoutBtnHolder: {
@@ -368,7 +373,6 @@ const style = StyleSheet.create({
   //   alignSelf: 'center',
   //   width: 30,
   //   resizeMode: 'contain',
-  //   tintColor: $config.primaryColor,
   // },
   chatNotification: {
     width: 20,

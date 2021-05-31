@@ -15,7 +15,7 @@ module.exports = {
   plugins: [
     // Using html webpack plugin to utilize our index.html
     new HtmlWebpackPlugin({
-      title: configVars['$config.displayName'],
+      title: configVars['$config.APP_NAME'],
       template: isElectron ? 'electron/index.html' : 'web/index.html',
     }),
     isDevelopment &&

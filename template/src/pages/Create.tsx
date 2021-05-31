@@ -21,7 +21,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
-import Toast from '../../react-native-toast-message'
+import Toast from '../../react-native-toast-message';
 
 type PasswordInput = {
   host: string;
@@ -70,7 +70,10 @@ const Create = () => {
         },
       })
         .then((res: any) => {
-          Toast.show({ text1: 'Room created - ' + roomTitle, visibilityTime: 1000 });
+          Toast.show({
+            text1: 'Room created - ' + roomTitle,
+            visibilityTime: 1000,
+          });
           console.log('promise data', res);
           setUrlView(res.data.createChannel.passphrase.view);
           setUrlHost(res.data.createChannel.passphrase.host);
@@ -95,7 +98,6 @@ const Create = () => {
 
   return (
     // <ImageBackground
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     // <KeyboardAvoidingView behavior={'height'} style={style.main}>
@@ -108,8 +110,8 @@ const Create = () => {
       {!roomCreated ? (
         <View style={style.content} onLayout={onLayout}>
           <View style={style.leftContent}>
-            <Text style={style.heading}>{$config.landingHeading}</Text>
-            <Text style={style.headline}>{$config.landingSubHeading}</Text>
+            <Text style={style.heading}>{$config.APP_NAME}</Text>
+            <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
             <View style={style.inputs}>
               <TextInput
                 value={roomTitle}
@@ -130,7 +132,7 @@ const Create = () => {
                       : '(Separate host link)'}
                   </Text>
                 </View>
-                {$config.pstn ? (
+                {$config.PSTN ? (
                   <View style={style.checkboxHolder}>
                     <Checkbox
                       value={pstnCheckbox}
@@ -200,14 +202,14 @@ const style = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   headline: {
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 40,
   },
   inputs: {
@@ -232,13 +234,16 @@ const style = StyleSheet.create({
     // alignItems: 'flex-start',
   },
   checkboxTitle: {
-    color: $config.primaryFontColor + '60',
+    color: $config.PRIMARY_FONT_COLOR + '60',
     paddingHorizontal: 5,
     alignSelf: 'center',
     // marginVertical: 'auto',
     // fontWeight: '700',
   },
-  checkboxCaption: {color: $config.primaryFontColor + '60', paddingHorizontal: 5},
+  checkboxCaption: {
+    color: $config.PRIMARY_FONT_COLOR + '60',
+    paddingHorizontal: 5,
+  },
   checkboxTextHolder: {
     marginVertical: 0, //check if 5
     flexDirection: 'column',

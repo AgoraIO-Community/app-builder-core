@@ -34,10 +34,10 @@ const ParticipantView = (props: any) => {
     Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1000 });
     if (data && !loading) {
       let stringToCopy = '';
-      if ($config.frontEndURL) {
-        stringToCopy += `Meeting - ${data.share.title}\nURL for Attendee: ${$config.frontEndURL}/${data.share.passphrase.view}`;
+      if ($config.FRONTEND_ENDPOINT) {
+        stringToCopy += `Meeting - ${data.share.title}\nURL for Attendee: ${$config.FRONTEND_ENDPOINT}/${data.share.passphrase.view}`;
         if (data.share.passphrase.host) {
-          stringToCopy += `\nURL for Host: ${$config.frontEndURL}/${data.share.passphrase.host}`;
+          stringToCopy += `\nURL for Host: ${$config.FRONTEND_ENDPOINT}/${data.share.passphrase.host}`;
         }
       } else {
         if (platform === 'web') {
@@ -86,7 +86,7 @@ const style = StyleSheet.create({
     height: 20,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: $config.primaryFontColor,
+    tintColor: $config.PRIMARY_FONT_COLOR,
   },
 });
 

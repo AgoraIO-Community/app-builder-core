@@ -147,7 +147,7 @@ const VideoCall: React.FC = () => {
   const {store} = useContext(StorageContext);
   const [username, setUsername] = useState('Getting name...');
   const [participantsView, setParticipantsView] = useState(false);
-  const [callActive, setCallActive] = useState($config.precall ? false : true);
+  const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
@@ -158,16 +158,16 @@ const VideoCall: React.FC = () => {
   let isHost = true; //change to false by default after testing
   let title = null;
   let rtcProps = {
-    appId: $config.AppID,
+    appId: $config.APP_ID,
     channel: null,
     uid: null,
     token: null,
     rtm: null,
     screenShareUid: null,
     screenShareToken: null,
-    profile: $config.profile,
+    profile: $config.PROFILE,
     dual: true,
-    encryption: $config.encryption
+    encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: 'aes-128-xts', screenKey: null}
       : false,
   };
@@ -194,14 +194,14 @@ const VideoCall: React.FC = () => {
     console.log('token:', rtcProps.token);
     console.log('error', data.error);
     rtcProps = {
-      appId: $config.AppID,
+      appId: $config.APP_ID,
       channel: data.joinChannel.channel,
       uid: data.joinChannel.mainUser.uid,
       token: data.joinChannel.mainUser.rtc,
       rtm: data.joinChannel.mainUser.rtm,
       dual: true,
-      profile: $config.profile,
-      encryption: $config.encryption
+      profile: $config.PROFILE,
+      encryption: $config.ENCRYPTION_ENABLED
         ? {
             key: data.joinChannel.secret,
             mode: 'aes-128-xts',
@@ -234,7 +234,6 @@ const VideoCall: React.FC = () => {
     <>
       {queryComplete || !callActive ? (
         <>
-          {/* {$config.watermark && callActive ? <Watermark /> : <></>} */}
           <PropsProvider
             value={{
               rtcProps,
@@ -295,7 +294,7 @@ const VideoCall: React.FC = () => {
                                 <></>
                               )}
                               {sidePanel === SidePanelType.Chat ? (
-                                $config.chat ? (
+                                $config.CHAT ? (
                                   <Chat
                                     privateMessageCountMap={
                                       privateMessageCountMap
@@ -356,7 +355,7 @@ const VideoCall: React.FC = () => {
                         )}
                       </NotificationControl>
                     </View>
-                  ) : $config.precall ? (
+                  ) : $config.PRECALL ? (
                     <Precall
                       error={errorMessage}
                       username={username}
@@ -397,7 +396,7 @@ const styleProps = {
     recording: styles.localButton,
     screenshare: styles.localButton,
   },
-  theme: $config.primaryColor,
+  theme: $config.PRIMARY_COLOR,
   remoteBtnStyles: {
     muteRemoteAudio: styles.remoteButton,
     muteRemoteVideo: styles.remoteButton,

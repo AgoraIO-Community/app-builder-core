@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 const GraphQLProvider = (props: {children: React.ReactNode}) => {
   const httpLink = createHttpLink({
-    uri: `${$config.backEndURL}/query`,
+    uri: `${$config.BACKEND_ENDPOINT}/query`,
   });
   const {store} = useContext(StorageContext);
   const authLink = setContext(async (_, {headers}) => {

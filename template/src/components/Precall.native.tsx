@@ -30,7 +30,6 @@ const Precall = (props: any) => {
   const {setCallActive, queryComplete, username, setUsername, error} = props;
   return (
     // <ImageBackground
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     <View style={style.full}>
@@ -101,7 +100,7 @@ const style = StyleSheet.create({
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {
     fontSize: 24,
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '700',
     alignSelf: 'center',
   },
@@ -114,9 +113,9 @@ const style = StyleSheet.create({
   textInput: {
     width: '80%',
     paddingLeft: 8,
-    borderColor: $config.primaryColor,
+    borderColor: $config.PRIMARY_COLOR,
     borderWidth: 2,
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontSize: 16,
     // marginBottom: 15,
     // maxWidth: 400,
@@ -126,7 +125,7 @@ const style = StyleSheet.create({
   controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 5},
   width50: {width: 50},
   buttonActive: {
-    backgroundColor: $config.primaryColor,
+    backgroundColor: $config.PRIMARY_COLOR,
     height: 50,
     width: 180,
     alignSelf: 'center',
@@ -135,7 +134,7 @@ const style = StyleSheet.create({
     marginBottom: 50,
   },
   buttonDisabled: {
-    backgroundColor: $config.primaryFontColor + '80',
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
     height: 50,
     width: 180,
     alignSelf: 'center',
@@ -150,7 +149,7 @@ const style = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: $config.secondaryFontColor,
+    color: $config.SECONDARY_FONT_COLOR,
   },
 });
 

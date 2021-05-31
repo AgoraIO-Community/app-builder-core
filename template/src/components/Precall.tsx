@@ -36,7 +36,6 @@ const Precall = (props: any) => {
   return (
     // <ImageBackground
     //   onLayout={onLayout}
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     <View style={style.main} onLayout={onLayout}>
@@ -62,7 +61,7 @@ const Precall = (props: any) => {
                   style={{
                     textAlign: 'center',
                     marginTop: 5,
-                    color: $config.primaryColor,
+                    color: $config.PRIMARY_COLOR,
                   }}>
                   Video
                 </Text>
@@ -73,7 +72,7 @@ const Precall = (props: any) => {
                   style={{
                     textAlign: 'center',
                     marginTop: 5,
-                    color: $config.primaryColor,
+                    color: $config.PRIMARY_COLOR,
                   }}>
                   Audio
                 </Text>
@@ -108,14 +107,14 @@ const Precall = (props: any) => {
           <View
             style={{
               flex: 1,
-              backgroundColor: $config.secondaryFontColor + '25',
+              backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
               marginLeft: 50,
               padding: 20,
               borderRadius: 10,
               alignItems: 'center',
               borderWidth: 1,
               borderStartColor: 'solid',
-              borderColor: $config.primaryColor,
+              borderColor: $config.PRIMARY_COLOR,
               height: '70%',
               minHeight: 340,
               minWidth: 380,
@@ -126,7 +125,7 @@ const Precall = (props: any) => {
             <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
               {/* <View style={{flex: 1}}> */}
               <Text
-                style={[style.subHeading, {color: $config.primaryFontColor}]}>
+                style={[style.subHeading, {color: $config.PRIMARY_FONT_COLOR}]}>
                 Select Input Device
               </Text>
               {/* </View> */}
@@ -197,12 +196,12 @@ const style = StyleSheet.create({
   subHeading: {
     fontSize: 28,
     fontWeight: '700',
-    color: $config.secondaryFontColor,
+    color: $config.SECONDARY_FONT_COLOR,
   },
   headline: {
     fontSize: 20,
     fontWeight: '400',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   inputs: {
@@ -215,9 +214,9 @@ const style = StyleSheet.create({
   textInput: {
     width: '100%',
     paddingLeft: 8,
-    borderColor: $config.primaryColor,
+    borderColor: $config.PRIMARY_COLOR,
     borderWidth: 2,
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontSize: 16,
     marginBottom: 15,
     maxWidth: 400,
@@ -226,14 +225,14 @@ const style = StyleSheet.create({
   },
   primaryBtn: {
     width: '60%',
-    backgroundColor: $config.primaryColor,
+    backgroundColor: $config.PRIMARY_COLOR,
     maxWidth: 400,
     minHeight: 45,
     alignSelf: 'center',
   },
   primaryBtnDisabled: {
     width: '60%',
-    backgroundColor: $config.primaryFontColor + '80',
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
     maxWidth: 400,
     minHeight: 45,
     minWidth: 200,
@@ -246,7 +245,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: $config.secondaryFontColor,
+    color: $config.SECONDARY_FONT_COLOR,
   },
   ruler: {
     borderBottomColor: '#ccc',

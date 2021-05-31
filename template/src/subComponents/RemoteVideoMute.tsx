@@ -43,7 +43,7 @@ const style = StyleSheet.create({
     width: 30,
     height: 25,
     marginHorizontal: 3,
-    tintColor: $config.primaryColor,
+    tintColor: $config.PRIMARY_COLOR,
   },
 });
 

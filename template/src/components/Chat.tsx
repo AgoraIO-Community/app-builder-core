@@ -126,7 +126,7 @@ const Chat = (props: any) => {
           <ChatContainer privateActive={privateActive} />
           <View
             style={{
-              backgroundColor: $config.primaryFontColor + '80',
+              backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
               width: '100%',
               height: 1,
               marginHorizontal: -20,
@@ -138,10 +138,10 @@ const Chat = (props: any) => {
             <KeyboardAvoidingView
               behavior={'position'}
               keyboardVerticalOffset={105}>
-              <View style={{backgroundColor: $config.secondaryFontColor, paddingBottom: 10}}>
+              <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
                 <View
                   style={{
-                    backgroundColor: $config.primaryFontColor + '80',
+                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                     width: '100%',
                     height: 1,
                     marginHorizontal: -20,
@@ -154,10 +154,10 @@ const Chat = (props: any) => {
               </View>
             </KeyboardAvoidingView>
           ) : (
-            <View style={{backgroundColor: $config.secondaryFontColor, paddingBottom: 10}}>
+            <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
               <View
                 style={{
-                  backgroundColor: $config.primaryFontColor + '80',
+                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                   width: '100%',
                   height: 1,
                   marginHorizontal: -20,
@@ -208,7 +208,7 @@ const Chat = (props: any) => {
                                 ? userList[user.uid].name + ' '
                                 : 'User '}
                             </Text>
-                            <Text style={{color: $config.primaryFontColor}}>{`>`}</Text>
+                            <Text style={{color: $config.PRIMARY_FONT_COLOR}}>{`>`}</Text>
                           </TouchableOpacity>
                         );
                       }
@@ -233,10 +233,10 @@ const Chat = (props: any) => {
               <KeyboardAvoidingView
                 behavior={'position'}
                 keyboardVerticalOffset={105}>
-                <View style={{backgroundColor: $config.secondaryFontColor, paddingBottom: 10}}>
+                <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
                   <View
                     style={{
-                      backgroundColor: $config.primaryFontColor + '80',
+                      backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                       width: '100%',
                       height: 1,
                       marginHorizontal: -20,
@@ -265,10 +265,10 @@ const style = StyleSheet.create({
     width: '20%',
     minWidth: 200,
     maxWidth: 300,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
     // paddingTop: 20,
-    shadowColor: $config.primaryFontColor + '80',
+    shadowColor: $config.PRIMARY_FONT_COLOR + '80',
     shadowOpacity: 0.5,
     shadowOffset: {width: -2, height: 1},
     shadowRadius: 3,
@@ -282,10 +282,10 @@ const style = StyleSheet.create({
     right: 0,
     // top: 0,
     bottom: 0,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
   heading: {
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     width: 150,
     height: '7%',
     paddingLeft: 20,
@@ -296,7 +296,7 @@ const style = StyleSheet.create({
     paddingLeft: 5,
     marginVertical: 'auto',
     fontWeight: '700',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontSize: 25,
     alignSelf: 'center',
     justifyContent: 'center',
@@ -307,26 +307,26 @@ const style = StyleSheet.create({
     // marginBottom: 15,
   },
   groupActive: {
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
     height: '100%',
     textAlign: 'center',
   },
   group: {
-    backgroundColor: $config.primaryFontColor + 22,
+    backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
     flex: 1,
     height: '100%',
     textAlign: 'center',
     borderBottomRightRadius: 10,
   },
   privateActive: {
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
     height: '100%',
     textAlign: 'center',
   },
   private: {
-    backgroundColor: $config.primaryFontColor + 22,
+    backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
     flex: 1,
     height: '100%',
     textAlign: 'center',
@@ -337,7 +337,7 @@ const style = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     fontSize: 16,
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     justifyContent: 'center',
     paddingVertical: 5,
   },
@@ -348,14 +348,14 @@ const style = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 5,
     justifyContent: 'center',
-    color: $config.primaryFontColor + 50,
+    color: $config.PRIMARY_FONT_COLOR + 50,
   },
   participantContainer: {
     flexDirection: 'row',
     // flex: 1,
     height: 20,
     marginTop: 10,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     // height: '15%',
     width: '90%',
     alignSelf: 'center',
@@ -367,7 +367,7 @@ const style = StyleSheet.create({
     fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     flexDirection: 'row',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     lineHeight: 20,
     paddingLeft: 10,
     alignSelf: 'center',
@@ -383,7 +383,7 @@ const style = StyleSheet.create({
     height: 12,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: $config.primaryFontColor,
+    tintColor: $config.PRIMARY_FONT_COLOR,
   },
   chatNotification: {
     width: 20,
@@ -391,8 +391,8 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: $config.primaryColor,
-    color: $config.secondaryFontColor,
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',

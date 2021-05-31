@@ -21,6 +21,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
+import shouldAuthenticate from '../utils/shouldAuthenticate';
 // const joinFlag = 0;
 interface joinProps {
   phrase: string;
@@ -53,7 +54,6 @@ const Join = (props: joinProps) => {
   return (
     // <ImageBackground
     //   // onLayout={onLayout}
-    //   source={{uri: $config.bg}}
     //   style={style.full}
     //   resizeMode={'cover'}>
     <View style={style.main}>
@@ -65,8 +65,8 @@ const Join = (props: joinProps) => {
       </View>
       <View style={style.content}>
         <View style={style.leftContent}>
-          <Text style={style.heading}>{$config.landingHeading}</Text>
-          <Text style={style.headline}>{$config.landingSubHeading}</Text>
+          <Text style={style.heading}>{$config.APP_NAME}</Text>
+          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
           <View style={style.inputs}>
             <TextInput
               value={phrase}
@@ -85,7 +85,7 @@ const Join = (props: joinProps) => {
               onPress={() => createMeeting()}
               text={'Create a meeting'}
             />
-            {$config.ENABLE_OAUTH ? (
+            {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?
             ) : (
               <></>
@@ -136,14 +136,14 @@ const style = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   headline: {
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   inputs: {

@@ -5,8 +5,8 @@ import {BackButton} from './Router.native';
 
 const processUrl = (url: string): string => {
   return url
-    .replace(`${$config.projectName.toLowerCase()}://my-host`, '')
-    .replace($config.frontEndURL, '');
+    .replace(`${$config.PRODUCT_ID.toLowerCase()}://my-host`, '')
+    .replace($config.FRONTEND_ENDPOINT, '');
 };
 
 const Navigation = () => {
