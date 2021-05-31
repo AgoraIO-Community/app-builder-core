@@ -155,6 +155,7 @@ export default class RtcEngine {
   private isVideoEnabled = true;
   private isAudioPublished = false;
   private isVideoPublished = false;
+  private isJoined = false;
 
   constructor(appId: string) {
     this.appId = appId;
@@ -266,28 +267,6 @@ export default class RtcEngine {
     optionalInfo: string,
     optionalUid: number,
   ): Promise<void> {
-    // let self = this;
-    // let join = new Promise<void>((resolve, reject) => {
-    // this.client.on('stream-added', (evt) => {
-    //   this.inScreenshare
-    //     ? evt.stream.getId() !== this.streams.get(1).getId()
-    //       ? this.client.subscribe(evt.stream)
-    //       : (this.eventsMap.get('UserJoined') as callbackType)(1)
-    //     : this.client.subscribe(evt.stream);
-    // });
-    // this.client.on('stream-subscribed', (evt) => {
-    //   this.streams.set(evt.stream.getId(), evt.stream);
-    //   (this.eventsMap.get('UserJoined') as callbackType)(evt.stream.getId());
-    // });
-    // this.client.on('stream-removed', (evt) => {
-    //   console.log('triggered');
-    //   this.removeStream(evt);
-    // });
-    // this.client.on('peer-leave', (evt) => {
-    //   console.log('triggered');
-    //   this.removeStream(evt);
-    // });
-
     this.client.on('user-joined', (user) => {
       const uid = this.inScreenshare
         ? user.uid !== this.screenClient.uid
@@ -398,49 +377,13 @@ export default class RtcEngine {
     this.client.on('stream-type-changed', function (uid, streamType) {
       console.log('[fallback]: ', uid, streamType);
     });
-    // this.client.on('stream-published', (evt) => {
-    //   (this.eventsMap.get('JoinChannelSuccess') as callbackType)();
-    // });
-    // this.client.on('mute-audio', (evt) => {
-    //   (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
-    //     evt.uid,
-    //     0,
-    //     0,
-    //     0,
-    //   );
-    // });
-    // this.client.on('unmute-audio', (evt) => {
-    //   (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
-    //     evt.uid,
-    //     2,
-    //     0,
-    //     0,
-    //   );
-    // });
-    // this.client.on('mute-video', (evt) => {
-    //   (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
-    //     evt.uid,
-    //     0,
-    //     0,
-    //     0,
-    //   );
-    // });
-    // this.client.on('unmute-video', (evt) => {
-    //   (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
-    //     evt.uid,
-    //     2,
-    //     0,
-    //     0,
-    //   );
-    // });
-    // });
-    // await join;
     await this.client.join(
       this.appId,
       channelName,
       token || null,
       optionalUid || null,
     );
+    this.isJoined = true;
     await this.publish();
   }
 
@@ -478,9 +421,13 @@ export default class RtcEngine {
 
   async muteLocalAudioStream(muted: boolean): Promise<void> {
     try {
-      await this.localStream.audio?.setEnabled(!muted);
+      // await this.localStream.audio?.setEnabled(!muted);
+      if (muted) {
+        await this.client.unpublish(this.localStream.audio);
+        this.isAudioPublished = false;
+      }
       this.isAudioEnabled = !muted;
-      if (!muted && !this.isAudioPublished) {
+      if (!muted && !this.isAudioPublished && this.isJoined) {
         await this.publish();
       }
     } catch (e) {
@@ -686,7 +633,7 @@ export default class RtcEngine {
     optionalInfo: string,
     optionalUid: number,
     appId: string,
-    engine: AgoraRTC,
+    engine: typeof AgoraRTC,
     encryption: {
       screenKey: string;
       mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb';
@@ -695,38 +642,7 @@ export default class RtcEngine {
     audio: 'enable' | 'disable' | 'auto' = 'auto',
   ): Promise<void> {
     if (!this.inScreenshare) {
-      // let init = new Promise((resolve, reject) => {
-      //   engine.screenClient.init(
-      //     appId,
-      //     function () {
-      //       resolve();
-      //     },
-      //     function (err) {
-      //       console.error(err);
-      //       reject();
-      //     },
-      //   );
-      // });
-      // await init;
       try {
-        // let enable = new Promise((resolve, reject) => {
-        // try {
-        //   console.log('[screenshare]: creating stream');
-        //   this.streams.set(
-        //     1,
-        //     AgoraRTC.createStream(this.streamSpecScreenshare),
-        //   );
-        // } catch (e) {
-        //   console.error("[screenshare]: Couldn't createStream", e);
-        // }
-        // console.log('[screenshare]: Initalizing stream');
-        // (this.streams.get(1) as AgoraRTC.Stream).init(() => {
-        //   console.log('[screenshare]: initalized stream');
-        //   resolve();
-        // }, reject);
-
-        // });
-        // await enable;
         console.log('[screenshare]: creating stream');
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
           config,
@@ -743,21 +659,13 @@ export default class RtcEngine {
         throw e;
       }
 
-      // let join = new Promise((resolve, reject) => {
-      //   if (encryption && encryption.screenKey && encryption.mode) {
-      //     this.screenClient.setEncryptionSecret(encryption.screenKey);
-      //     this.screenClient.setEncryptionMode(encryption.mode);
-      //   }
-
-      // });
-      // await join;
       await this.screenClient.join(
         this.appId,
         channelName,
         token || null,
         optionalUid || null,
       );
-      // this.localScreenUid = uid as number;
+
       this.inScreenshare = true;
       await this.screenClient.publish(
         this.screenStream.audio
@@ -767,7 +675,7 @@ export default class RtcEngine {
 
       this.screenStream.video.on('track-ended', () => {
         (this.eventsMap.get('UserOffline') as callbackType)(1);
-        // (this.streams.get(1) as AgoraRTC.Stream).close();
+
         this.screenClient.leave();
 
         this.screenStream.audio?.close();
