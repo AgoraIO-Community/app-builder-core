@@ -249,20 +249,6 @@ const VideoCall: React.FC = () => {
                   callActive={callActive}>
                   {callActive ? (
                     <View style={style.full}>
-                      <Navbar
-                        // participantsView={participantsView}
-                        // setParticipantsView={setParticipantsView}
-                        sidePanel={sidePanel}
-                        setSidePanel={setSidePanel}
-                        // chatDisplayed={chatDisplayed}
-                        // setChatDisplayed={setChatDisplayed}
-                        layout={layout}
-                        setLayout={setLayout}
-                        recordingActive={recordingActive}
-                        setRecordingActive={setRecordingActive}
-                        isHost={isHost}
-                        title={title}
-                      />
                       <NotificationControl
                         chatDisplayed={sidePanel === SidePanelType.Chat}>
                         {({
@@ -276,6 +262,23 @@ const VideoCall: React.FC = () => {
                           setPrivateMessageLastSeen,
                         }) => (
                           <>
+                            <Navbar
+                              sidePanel={sidePanel}
+                              setSidePanel={setSidePanel}
+                              layout={layout}
+                              setLayout={setLayout}
+                              recordingActive={recordingActive}
+                              setRecordingActive={setRecordingActive}
+                              isHost={isHost}
+                              title={title}
+                              pendingMessageLength={
+                                pendingPublicNotification +
+                                pendingPrivateNotification
+                              }
+                              setLastCheckedPublicState={
+                                setLastCheckedPublicState
+                              }
+                            />
                             <View style={style.videoView}>
                               {layout === Layout.Pinned ? (
                                 <PinnedVideo />

@@ -15,11 +15,11 @@ import {
   Endcall,
 } from '../../agora-rn-uikit/Components';
 import Recording from '../subComponents/Recording';
-import icons from '../assets/icons';
+// import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
-import ColorContext from './ColorContext';
-import ChatContext from '../components/ChatContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
+// import ColorContext from './ColorContext';
+// import ChatContext from '../components/ChatContext';
+// import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {controlsHolder, localButton, buttonIcon} from '../../theme.json';
 
 const Controls = (props: any) => {
@@ -33,8 +33,8 @@ const Controls = (props: any) => {
   ]);
   const isDesktop = dim[0] > 1224;
 
-  const {primaryColor} = useContext(ColorContext);
-  const {messageStore} = useContext(ChatContext);
+  // const {primaryColor} = useContext(ColorContext);
+  // const {messageStore} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const {
     // participantsView,
@@ -52,7 +52,7 @@ const Controls = (props: any) => {
 
   return (
     <LocalUserContext>
-      <View style={[style.controlsHolder, { paddingHorizontal: isDesktop ? '20%' : '1%'}]} onLayout={onLayout}>
+      <View style={[style.controlsHolder, { paddingHorizontal: isDesktop ? '25%' : '1%'}]} onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
           <Text
@@ -116,7 +116,7 @@ const Controls = (props: any) => {
         ) : (
           <></>
         )}
-        {$config.chat ? (
+        {/* {$config.chat ? (
           <View style={{alignSelf: 'center'}}>
             <TouchableOpacity
               style={[style.localButton, {borderColor: primaryColor}]}
@@ -150,8 +150,8 @@ const Controls = (props: any) => {
           </View>
         ) : (
           <></>
-        )}
-        {isDesktop ? <View
+        )} */}
+        {/* {isDesktop ? <View
           style={{
             backgroundColor: $config.primaryFontColor + '80',
             width: 1,
@@ -160,7 +160,7 @@ const Controls = (props: any) => {
             alignSelf: 'center',
             opacity: 0.8,
           }}
-        />:<></>}
+        />:<></>} */}
         <View style={{alignSelf: 'center'}}>
           <Endcall />
           <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>

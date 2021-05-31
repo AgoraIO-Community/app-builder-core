@@ -8,6 +8,7 @@ import {
   Image,
   KeyboardAvoidingView,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
@@ -19,6 +20,13 @@ import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 
 const Chat = (props: any) => {
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isSmall = dim[0] < 700;
+
   const {userList, localUid} = useContext(chatContext);
   const {
     setChatDisplayed,
@@ -53,7 +61,8 @@ const Chat = (props: any) => {
     setPrivateActive(true);
   };
   return (
-    <View style={Platform.OS === 'web' ? style.chatView : style.chatViewNative}>
+    <View
+    style={Platform.OS === 'web' ? !isSmall ? style.chatView : style.chatViewNative: style.chatViewNative}>
       {/* <View style={style.heading}>
         <TouchableOpacity
           style={style.backButton}
@@ -261,7 +270,7 @@ const style = StyleSheet.create({
     // paddingTop: 20,
     shadowColor: $config.primaryFontColor + '80',
     shadowOpacity: 0.5,
-    shadowOffset: {width: -2, height: 2},
+    shadowOffset: {width: -2, height: 1},
     shadowRadius: 3,
   },
   chatViewNative: {

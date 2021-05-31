@@ -17,13 +17,14 @@ import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
+import ChatContext from '../components/ChatContext';
 
 const {participantIcon, gridLayoutIcon, pinnedLayoutIcon, recordingIcon} =
   icons;
 
 const Navbar = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  // const {rtcProps} = useContext(PropsContext);
+  const {messageStore} = useContext(ChatContext);
   const {
     // participantsView,
     // setParticipantsView,
@@ -31,6 +32,8 @@ const Navbar = (props: any) => {
     setSidePanel,
     layout,
     setLayout,
+    pendingMessageLength,
+    setLastCheckedPublicState,
     // setChatDisplayed,
     // chatDisplayed,
     isHost,
@@ -152,10 +155,19 @@ const Navbar = (props: any) => {
                   <TouchableOpacity
                     style={style.btnHolder}
                     onPress={() => {
+                      setLastCheckedPublicState(messageStore.length);
                       sidePanel === SidePanelType.Chat
                         ? setSidePanel(SidePanelType.None)
                         : setSidePanel(SidePanelType.Chat);
                     }}>
+                    {sidePanel !== SidePanelType.Chat &&
+                      pendingMessageLength !== 0 ? (
+                      <View style={style.chatNotification}>
+                        {pendingMessageLength}
+                      </View>
+                    ) : (
+                      <></>
+                    )}
                     <Image
                       source={{ uri: icons.chatIcon }}
                       resizeMode={'contain'}
@@ -358,6 +370,20 @@ const style = StyleSheet.create({
   //   resizeMode: 'contain',
   //   tintColor: $config.primaryColor,
   // },
+  chatNotification: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.primaryColor,
+    color: $config.secondaryFontColor,
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    left: 20,
+    top: -8,
+  },
 });
 
 export default Navbar;
