@@ -23,17 +23,17 @@ export default function FallbackLogo(name: string) {
         style={{
           width: 80,
           height: 80,
-          backgroundColor: $config.primaryColor,
+          backgroundColor: $config.PRIMARY_COLOR,
           alignSelf: 'center',
           alignContent: 'center',
           justifyContent: 'center',
           borderRadius: 10,
-          shadowColor: $config.primaryColor,
+          shadowColor: $config.PRIMARY_COLOR,
           shadowRadius: 20,
         }}>
         <Text
           style={{
-            color: $config.secondaryFontColor,
+            color: $config.SECONDARY_FONT_COLOR,
             fontSize: 20,
             alignSelf: 'center',
             textAlign: 'center',

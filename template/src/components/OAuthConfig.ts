@@ -10,42 +10,42 @@ type oAuthUrlType = {
 export const oAuthGoogle = ({platform}: {platform: platformType}) => ({
   client_id: $config.GOOGLE_CLIENT_ID,
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-  redirect_uri: `${$config.backEndURL}/oauth`,
+  redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: encodeURIComponent(
     'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
   ),
   state: encodeURIComponent(
-    `site=google&platform=${platform}&backend=${$config.backEndURL}&redirect=${window.location.origin}/auth-token/`,
+    `site=google&platform=${platform}&backend=${$config.BACKEND_ENDPOINT}&redirect=${window.location.origin}/auth-token/`,
   ),
 });
 
 export const oAuthMicrosoft = ({platform}: {platform: platformType}) => ({
   client_id: $config.MICROSOFT_CLIENT_ID,
   auth_uri: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-  redirect_uri: `${$config.backEndURL}/oauth`,
+  redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: 'openid',
   state: encodeURIComponent(
-    `site=microsoft&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.backEndURL}`,
+    `site=microsoft&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
   ),
 });
 
 export const oAuthSlack = ({platform}: {platform: platformType}) => ({
   client_id: $config.SLACK_CLIENT_ID,
   auth_uri: 'https://slack.com/oauth/authorize',
-  redirect_uri: `${$config.backEndURL}/oauth`,
+  redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: 'users.profile:read',
   state: encodeURIComponent(
-    `site=slack&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.backEndURL}`,
+    `site=slack&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
   ),
 });
 
 export const oAuthApple = ({platform}: {platform: platformType}) => ({
   client_id: $config.APPLE_CLIENT_ID,
   auth_uri: 'https://appleid.apple.com/auth/authorize',
-  redirect_uri: `${$config.backEndURL}/oauth`,
+  redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: 'name email',
   state: encodeURIComponent(
-    `site=apple&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.backEndURL}`,
+    `site=apple&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
   ),
 });
 

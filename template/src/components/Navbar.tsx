@@ -56,7 +56,7 @@ const Navbar = (props: any) => {
             <Text style={style.roomNameText}>{title}</Text>
             <View
               style={{
-                backgroundColor: $config.primaryFontColor + '80',
+                backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                 width: 1,
                 height: 'auto',
                 marginHorizontal: 10,
@@ -99,7 +99,7 @@ const Navbar = (props: any) => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: Platform.OS === 'web' ? $config.secondaryFontColor : $config.secondaryFontColor + '00',
+            backgroundColor: Platform.OS === 'web' ? $config.SECONDARY_FONT_COLOR : $config.SECONDARY_FONT_COLOR + '00',
             // backgroundColor: $config.secondaryFontColor,
             padding: 4,
             minHeight: 35,
@@ -133,12 +133,12 @@ const Navbar = (props: any) => {
               </MinUidConsumer> */}
             </TouchableOpacity>
           </View>
-          {$config.chat ?
+          {$config.CHAT ?
             <>
               {Platform.OS === 'web' && isDesktop ? (
                 <View
                   style={{
-                    backgroundColor: $config.primaryFontColor + '80',
+                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                     width: 1,
                     height: '100%',
                     marginHorizontal: 10,
@@ -163,7 +163,7 @@ const Navbar = (props: any) => {
                         {
                           width: '100%',
                           height: '100%',
-                          tintColor: $config.primaryColor,
+                          tintColor: $config.PRIMARY_COLOR,
                         },
                       ]}
                     />
@@ -176,7 +176,7 @@ const Navbar = (props: any) => {
           {Platform.OS === 'web' && isDesktop ? (
             <View
               style={{
-                backgroundColor: $config.primaryFontColor + '80',
+                backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                 width: 1,
                 height: '100%',
                 marginHorizontal: 10,
@@ -201,7 +201,7 @@ const Navbar = (props: any) => {
                   style={{
                       width: '100%',
                       height: '100%',
-                      tintColor: $config.primaryColor,
+                      tintColor: $config.PRIMARY_COLOR,
                     }}
                 />
               </TouchableOpacity>
@@ -211,7 +211,7 @@ const Navbar = (props: any) => {
             <>
               <View
                 style={{
-                  backgroundColor: $config.primaryFontColor + '80',
+                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
                   width: 1,
                   height: '100%',
                   marginHorizontal: 10,
@@ -241,7 +241,7 @@ const style = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: '8%',
-    backgroundColor: $config.secondaryFontColor + '80',
+    backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
     flexDirection: 'row',
     alignItems: 'center',
     // marginHorizontal: 10,
@@ -299,7 +299,7 @@ const style = StyleSheet.create({
     height: '100%',
     width: '100%',
     // margin: 1,
-    tintColor: $config.primaryColor,
+    tintColor: $config.PRIMARY_COLOR,
     resizeMode: 'contain',
   },
   // participantText: {
@@ -326,7 +326,7 @@ const style = StyleSheet.create({
     // flex: 10,
     // width: 50,
     // color: '#fff',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '500',
   },
   // layoutBtnHolder: {

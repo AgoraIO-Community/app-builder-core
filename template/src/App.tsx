@@ -22,7 +22,7 @@ const App: React.FC = () => {
 
   return (
     <ImageBackground
-      source={{uri: $config.bg}}
+      source={{uri: $config.BG}}
       style={{flex: 1}}
       resizeMode={'cover'}>
       <SafeAreaView style={{flex: 1}}>

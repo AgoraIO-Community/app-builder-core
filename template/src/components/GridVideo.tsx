@@ -102,7 +102,7 @@ const GridVideo = (props: GridVideoProps) => {
                 <View
                   style={{
                     marginTop: -30,
-                    backgroundColor: $config.secondaryFontColor + 'bb',
+                    backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
                     alignSelf: 'flex-end',
                     paddingHorizontal: 8,
                     height: 30,
@@ -137,7 +137,7 @@ const GridVideo = (props: GridVideoProps) => {
                   <Text
                     textBreakStrategy={'simple'}
                     style={{
-                      color: $config.primaryFontColor,
+                      color: $config.PRIMARY_FONT_COLOR,
                       lineHeight: 30,
                       fontSize: 18,
                       fontWeight: '600',
@@ -204,7 +204,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     marginHorizontal: 10,
     marginRight: 20,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     display: 'flex',
     justifyContent: 'center',
   },

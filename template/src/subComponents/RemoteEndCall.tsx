@@ -33,7 +33,7 @@ const style = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
   buttonIconEnd: {
     width: 30,

@@ -9,7 +9,7 @@ const Watermark = () => {
   return (
     // <View>
     <Image
-      source={{uri: $config.logo}}
+      source={{uri: $config.LOGO}}
       style={styles.image}
       resizeMode="contain"
     />

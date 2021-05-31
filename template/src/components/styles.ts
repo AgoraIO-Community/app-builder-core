@@ -4,13 +4,13 @@ const styles = {
   temp: {
     width: '100%',
     height: '100%',
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     borderRadius: 15,
   },
   bottomBar: {
     flex: Platform.OS === 'web' ? 1.3 : 1.6,
     paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
-    backgroundColor: $config.secondaryFontColor + 80,
+    backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -18,9 +18,9 @@ const styles = {
     bottom: 0,
   },
   localButton: {
-    backgroundColor: $config.secondaryFontColor, //'#fff',
+    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
     borderRadius: 23,
-    borderColor: $config.primaryColor,
+    borderColor: $config.PRIMARY_COLOR,
     borderWidth: 0,
     width: 40,
     height: 40,
@@ -31,9 +31,9 @@ const styles = {
     justifyContent: 'center',
   },
   endCall: {
-    backgroundColor: $config.secondaryFontColor, //'#fff',
+    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
     borderRadius: 23,
-    borderColor: $config.primaryColor,
+    borderColor: $config.PRIMARY_COLOR,
     borderWidth: 0,
     width: 40,
     height: 40,
@@ -52,7 +52,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.secondaryFontColor, //'#fff',
+    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
   },
   minCloseBtn: {
     alignItems: 'center',

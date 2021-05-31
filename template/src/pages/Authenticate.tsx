@@ -22,7 +22,7 @@ const Authenticate = () => {
   return (
     <ImageBackground
       onLayout={onLayout}
-      source={{uri: $config.bg}}
+      source={{uri: $config.BG}}
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.main}>
@@ -72,14 +72,14 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 40,
     fontWeight: '700',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   headline: {
     fontSize: 20,
     letterSpacing: 2,
     fontWeight: '400',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginTop: -50,
     marginBottom: 20,
   },

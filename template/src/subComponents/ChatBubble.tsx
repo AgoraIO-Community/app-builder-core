@@ -65,7 +65,7 @@ const style = StyleSheet.create({
     textAlign: 'right',
   },
   chatBubble: {
-    backgroundColor: $config.primaryFontColor + '80',
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
     flex: 1,
     // width: 'max-content',
     maxWidth: '80%',
@@ -78,7 +78,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
   },
   chatBubbleLocal: {
-    backgroundColor: $config.primaryColor,
+    backgroundColor: $config.PRIMARY_COLOR,
     maxWidth: '80%',
     flex: 1,
     display: 'flex',
@@ -90,11 +90,11 @@ const style = StyleSheet.create({
     borderRadius: 10,
   },
   whiteText: {
-    color: $config.secondaryFontColor,
+    color: $config.SECONDARY_FONT_COLOR,
     fontWeight: '500',
   },
   blackText: {
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '500',
   },
 });

@@ -17,8 +17,8 @@ const SelectOAuth = ({onSelectOAuth}) => {
       </View>
       <View style={style.content}>
         <View style={style.leftContent}>
-          <Text style={style.heading}>{$config.landingHeading}</Text>
-          <Text style={style.headline}>{$config.landingSubHeading}</Text>
+          <Text style={style.heading}>{$config.APP_NAME}</Text>
+          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
           <View style={style.inputs}>
             <View style={style.oAuthContainer}>
               <Text style={{fontSize: 16, fontWeight: '500', marginBottom: 20,}}>Login using OAuth</Text>
@@ -69,7 +69,7 @@ const style = StyleSheet.create({
   },
   secondaryBtn: {
     minWidth: 200,
-    borderColor: $config.primaryColor,
+    borderColor: $config.PRIMARY_COLOR,
     borderWidth: 1,
     display: 'flex',
     justifyContent: 'center',
@@ -77,7 +77,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'space-around',
     // paddingTop: 20,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     paddingHorizontal: 30,
     margin: 10,
     borderRadius: 100,
@@ -87,7 +87,7 @@ const style = StyleSheet.create({
     height: 45,
     lineHeight: 45,
     fontSize: 16,
-    color: $config.primaryColor,
+    color: $config.PRIMARY_COLOR,
     textAlign: 'center',
     fontWeight: '500',
     textAlignVertical: 'center',
@@ -124,14 +124,14 @@ const style = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   headline: {
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   inputs: {

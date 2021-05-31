@@ -32,7 +32,7 @@ const SettingsView = (props: any) => {
 
 const style = StyleSheet.create({
   main: {
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     justifyContent: 'space-evenly',
     alignContent: 'center',
     paddingVertical: 5,
@@ -51,7 +51,7 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: '700',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     // marginBottom: 20,
     alignSelf: 'center',
   },
@@ -59,7 +59,7 @@ const style = StyleSheet.create({
     width: '20%',
     minWidth: 200,
     maxWidth: 300,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
   },
   settingsViewNative: {
@@ -69,7 +69,7 @@ const style = StyleSheet.create({
     height: '100%',
     right: 0,
     top: 0,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
 });
 

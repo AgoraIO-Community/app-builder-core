@@ -40,7 +40,7 @@ const style = StyleSheet.create({
   buttonIconMic: {
     width: 25,
     height: 24,
-    tintColor: $config.primaryColor,
+    tintColor: $config.PRIMARY_COLOR,
   },
 });
 

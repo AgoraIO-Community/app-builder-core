@@ -90,7 +90,7 @@ const style = StyleSheet.create({
     fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     marginLeft: 10,
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     alignSelf: 'center',
   },
   backIcon: {
@@ -98,7 +98,7 @@ const style = StyleSheet.create({
     height: 12,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: $config.primaryFontColor,
+    tintColor: $config.PRIMARY_FONT_COLOR,
   },
 });
 export default ChatContainer;

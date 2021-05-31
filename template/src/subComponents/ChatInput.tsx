@@ -41,7 +41,7 @@ const ChatInput = (props: any) => {
           borderRadius: 10,
           backgroundColor: $config.primaryFontColor + '10',
           borderWidth: 1,
-          color: $config.primaryFontColor,
+          color: $config.PRIMARY_FONT_COLOR,
           textAlign: 'left',
           height: 40,
           paddingVertical: 10,
@@ -63,7 +63,7 @@ const ChatInput = (props: any) => {
           // UIManager.focus(inputRef.current);
         }}
         placeholder="Type your message.."
-        placeholderTextColor={$config.primaryFontColor}
+        placeholderTextColor={$config.PRIMARY_FONT_COLOR}
         autoCorrect={false}
       />
       <TouchableOpacity
@@ -101,8 +101,8 @@ const style = StyleSheet.create({
   chatInput: {
     flex: 1,
     width: '100%',
-    backgroundColor: $config.primaryFontColor,
-    color: $config.primaryFontColor,
+    backgroundColor: $config.PRIMARY_FONT_COLOR,
+    color: $config.PRIMARY_FONT_COLOR,
   },
   chatInputButton: {
     width: 30,
@@ -112,7 +112,7 @@ const style = StyleSheet.create({
     borderRadius: 30,
     alignSelf: 'center',
     marginHorizontal: 10,
-    backgroundColor: $config.primaryColor,
+    backgroundColor: $config.PRIMARY_COLOR,
     display: 'flex',
     justifyContent: 'center',
   },

@@ -39,13 +39,13 @@ const Share = (props: any) => {
     Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1000 });
     let stringToCopy = '';
 
-    $config.frontEndURL
+    $config.FRONTEND_ENDPOINT
       ? hostControlCheckbox
         ? (stringToCopy += `Meeting - ${roomTitle}
-URL for Attendee: ${$config.frontEndURL}/${urlView}
-URL for Host: ${$config.frontEndURL}/${urlHost}`)
+URL for Attendee: ${$config.FRONTEND_ENDPOINT}/${urlView}
+URL for Host: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
         : (stringToCopy += `Meeting - ${roomTitle}
-Meeting URL: ${$config.frontEndURL}/${urlHost}`)
+Meeting URL: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
       : platform === 'web'
       ? hostControlCheckbox
         ? (stringToCopy += `Meeting - ${roomTitle}
@@ -70,8 +70,8 @@ PSTN Pin: ${pstn.dtmf}`)
   const copyHostUrl = () => {
     Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1000});
     let stringToCopy = '';
-    $config.frontEndURL
-      ? (stringToCopy += `${$config.frontEndURL}/${urlHost}`)
+    $config.FRONTEND_ENDPOINT
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${urlHost}`)
       : platform === 'web'
       ? (stringToCopy += `${window.location.origin}/${urlHost}`)
       : (stringToCopy += `Meeting ID: ${urlHost}`)
@@ -81,8 +81,8 @@ PSTN Pin: ${pstn.dtmf}`)
   const copyAttendeeURL = () => {
     Toast.show({ text1: 'Copied to Clipboard',  visibilityTime: 1000});
     let stringToCopy = '';
-    $config.frontEndURL
-      ? (stringToCopy += `${$config.frontEndURL}/${urlView}`)
+    $config.FRONTEND_ENDPOINT
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${urlView}`)
       : platform === 'web'
       ? (stringToCopy += `${window.location.origin}/${urlView}`)
       : (stringToCopy += `Meeting ID: ${urlView}`)
@@ -108,20 +108,20 @@ PSTN Pin: ${pstn.dtmf}`)
     <View style={style.content} onLayout={onLayout}>
       <View style={style.leftContent}>
         <View>
-        <Text style={style.heading}>{$config.landingHeading}</Text>
-        <Text style={style.headline}>{$config.landingSubHeading}</Text>
+        <Text style={style.heading}>{$config.APP_NAME}</Text>
+        <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
         </View>
         {hostControlCheckbox ? (
             <View style={style.urlContainer}>
               <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
-                {$config.frontEndURL || platform === 'web'
+                {$config.FRONTEND_ENDPOINT || platform === 'web'
                 ? "Attendee URL" : "Attendee ID"}
               </Text>
               <View style={style.urlHolder}>
                 <Text style={style.url}>
-                  {$config.frontEndURL
-                    ? `${$config.frontEndURL}/${urlView}`
+                  {$config.FRONTEND_ENDPOINT
+                    ? `${$config.FRONTEND_ENDPOINT}/${urlView}`
                     : platform === 'web'
                       ? `${window.location.origin}/${urlView}`
                       : urlView}
@@ -130,10 +130,10 @@ PSTN Pin: ${pstn.dtmf}`)
               </View>
               </View>
             <View style={{ marginLeft: 'auto', flexDirection: 'row', alignSelf: 'center' }}>
-              <View style={{ backgroundColor: $config.primaryColor + '80', width: 1, height: 'auto', marginRight: 15 }} />
+              <View style={{ backgroundColor: $config.PRIMARY_COLOR + '80', width: 1, height: 'auto', marginRight: 15 }} />
               <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyHostUrl()}>
                 <Image resizeMode={'contain'}
-                  style={{ width: '100%', height: '100%', tintColor: $config.primaryColor, opacity: 0.5}}
+                  style={{ width: '100%', height: '100%', tintColor: $config.PRIMARY_COLOR, opacity: 0.5}}
                   source={{ uri: icons.clipboard }}></Image>
               </TouchableOpacity>
             </View>
@@ -144,14 +144,14 @@ PSTN Pin: ${pstn.dtmf}`)
         <View style={style.urlContainer}>
           <View style={{ width: '80%' }}>
             <Text style={style.urlTitle}>
-            {$config.frontEndURL || platform === 'web' ? hostControlCheckbox
+            {$config.FRONTEND_ENDPOINT || platform === 'web' ? hostControlCheckbox
                 ? 'Host URL' : 'Meeting URL'
                 : hostControlCheckbox ? 'Host ID' : 'Meeting ID'}
             </Text>
             <View style={style.urlHolder}>
               <Text style={style.url}>
-                {$config.frontEndURL
-                  ? `${$config.frontEndURL}/${urlHost}`
+                {$config.FRONTEND_ENDPOINT
+                  ? `${$config.FRONTEND_ENDPOINT}/${urlHost}`
                   : platform === 'web'
                     ? `${window.location.origin}/${urlHost}`
                     : urlHost}
@@ -160,10 +160,10 @@ PSTN Pin: ${pstn.dtmf}`)
             </View>
           </View>
           <View style={{ marginLeft: 'auto', flexDirection: 'row', alignSelf: 'center'  }}>
-            <View style={{ backgroundColor: $config.primaryColor + '80', width: 1, height: 'auto', marginRight: 15 }} />
+            <View style={{ backgroundColor: $config.PRIMARY_COLOR + '80', width: 1, height: 'auto', marginRight: 15 }} />
             <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyAttendeeURL()}>
                 <Image resizeMode={'contain'}
-                  style={{ width: '100%', height: '100%', tintColor: $config.primaryColor, opacity: 0.5}}
+                  style={{ width: '100%', height: '100%', tintColor: $config.PRIMARY_COLOR, opacity: 0.5}}
                   source={{ uri: icons.clipboard }}></Image>
               </TouchableOpacity>
           </View>
@@ -186,10 +186,10 @@ PSTN Pin: ${pstn.dtmf}`)
               </View>
             </View>
             <View style={{ marginLeft: 'auto', flexDirection: 'row' }}>
-            <View style={{ backgroundColor: $config.primaryColor + '80', width: 1, height: 'auto', marginRight: 15 }} />
+            <View style={{ backgroundColor: $config.PRIMARY_COLOR + '80', width: 1, height: 'auto', marginRight: 15 }} />
               <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={() => copyPstn()}>
                 <Image resizeMode={'contain'}
-                  style={{ width: '100%', height: '100%', tintColor: $config.primaryColor, opacity: 0.5 }}
+                  style={{ width: '100%', height: '100%', tintColor: $config.PRIMARY_COLOR, opacity: 0.5 }}
                   source={{ uri: icons.clipboard }}></Image>
               </TouchableOpacity>
             </View>
@@ -247,14 +247,14 @@ const style = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   headline: {
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 20,
   },
   inputs: {
@@ -271,7 +271,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxTitle: {
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     paddingHorizontal: 5,
     fontWeight: '700',
   },
@@ -281,7 +281,7 @@ const style = StyleSheet.create({
     flexDirection: 'column',
   },
   urlContainer: {
-    backgroundColor: $config.primaryColor + '22',
+    backgroundColor: $config.PRIMARY_COLOR + '22',
     padding: 10, 
     marginBottom: 10,
     borderRadius: 10, 
@@ -292,7 +292,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
   },
   urlTitle: {
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -315,7 +315,7 @@ const style = StyleSheet.create({
     minHeight: 30,
   },
   url: {
-    color: $config.primaryFontColor,
+    color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     // textDecorationLine: 'underline',
   },

@@ -3,7 +3,7 @@ const {projectName} = require('./config.json');
 
 exports.default = async function notarizing(context) {
   const {electronPlatformName, appOutDir} = context;
-  if (electronPlatformName !== 'darwin' && process.env.APPLE_ID) {
+  if (electronPlatformName !== 'darwin' && Boolean(process.env.APPLE_ID)) {
     return;
   }
 

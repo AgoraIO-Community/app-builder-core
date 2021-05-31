@@ -56,7 +56,7 @@ const PinnedVideo = () => {
             width: 35,
             height: 35,
             marginLeft: collapse ? 5 : '20.1%',
-            backgroundColor: $config.secondaryFontColor + 'aa',
+            backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
             borderRadius: 50,
             justifyContent: 'center',
           }}>
@@ -71,7 +71,7 @@ const PinnedVideo = () => {
             style={{
               alignSelf: 'center',
               justifyContent: 'center',
-              color: $config.primaryColor,
+              color: $config.PRIMARY_COLOR,
               fontWeight: '500',
               fontSize: 20,
             }}>
@@ -231,7 +231,7 @@ const style = StyleSheet.create({
   flex1: {flex: 1},
   nameHolder: {
     marginTop: -25,
-    backgroundColor: $config.secondaryFontColor + 'aa',
+    backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
     alignSelf: 'flex-end',
     paddingHorizontal: 8,
     height: 25,
@@ -239,13 +239,13 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 15,
     flexDirection: 'row',
   },
-  name: {color: $config.primaryFontColor, lineHeight: 25, fontWeight: '700'},
+  name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
   MicBackdrop: {
     width: 20,
     height: 20,
     borderRadius: 15,
     marginHorizontal: 10,
-    backgroundColor: $config.secondaryFontColor,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     display: 'flex',
     alignSelf: 'center',
     justifyContent: 'center',
