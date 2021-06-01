@@ -88,6 +88,7 @@ const Controls = (props: any) => {
                 screenshareActive={screenshareActive}
                 setScreenshareActive={setScreenshareActive}
                 setLayout={setLayout}
+                recordingActive={recordingActive}
               />
               {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
               <Text
