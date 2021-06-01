@@ -306,7 +306,7 @@ const VideoCall: React.FC = () => {
                                 setLastCheckedPublicState
                               }
                             />
-                            <View style={style.videoView}>
+                            <View style={[style.videoView, {backgroundColor: '#ffffff00'}]}>
                               {layout === Layout.Pinned ? (
                                 <PinnedVideo />
                               ) : (

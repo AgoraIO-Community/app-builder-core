@@ -8,8 +8,8 @@ const PrimaryButton = (props: TextInputProps) => {
   const {style, ...otherProps} = props;
   return (
     <TextInput
-      style={[{borderColor: primaryColor}, styles.textInput, style, styles.noOutline]}
-      placeholderTextColor={textInput.color + '70'}
+      style={[styles.textInput, style, styles.noOutline, {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR}]}
+      placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
       {...otherProps}
       autoCorrect={false}
     />

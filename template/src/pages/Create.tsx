@@ -2,18 +2,16 @@ import React, {useState} from 'react';
 import {
   View,
   Text,
-  ImageBackground,
   StyleSheet,
   Dimensions,
-  KeyboardAvoidingView,
 } from 'react-native';
 import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
 import Logo from '../subComponents/Logo';
-import OpenInNativeButton from '../subComponents/OpenInNativeButton';
+// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Share from '../components/Share';
-import ColorContext from '../components/ColorContext';
+// import ColorContext from '../components/ColorContext';
 // import Illustration from '../subComponents/Illustration';
 // import {textInput} from '../../theme.json';
 import PrimaryButton from '../atoms/PrimaryButton';

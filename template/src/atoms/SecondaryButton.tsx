@@ -15,13 +15,13 @@ export interface ButtonProps extends PressableProps {
 }
 
 export default function SecondaryButton(props: ButtonProps) {
-  const primaryColor = $config.PRIMARY_FONT_COLOR; //useContext(ColorContext);
+  // const primaryColor = $config.PRIMARY_FONT_COLOR; //useContext(ColorContext);
   const {children, ...otherProps} = props;
   return (
     <Pressable
       style={[
         styles.secondaryBtn,
-        // {borderColor: props.disabled ? primaryColor + '80' : primaryColor},
+        {borderColor: props.disabled ? $config.PRIMARY_COLOR + '80' : $config.PRIMARY_COLOR},
       ]}
       {...otherProps}>
       {props.text ? (

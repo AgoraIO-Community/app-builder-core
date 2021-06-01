@@ -1,9 +1,7 @@
 import React, {useState, useContext} from 'react';
 import {
   View,
-  TouchableOpacity,
   Text,
-  ImageBackground,
   StyleSheet,
   Dimensions,
 } from 'react-native';
@@ -15,10 +13,10 @@ import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit/Components';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
-import OpenInNativeButton from '../subComponents/OpenInNativeButton';
+// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
-import {useHistory} from './Router';
-import {precallCard} from '../../theme.json';
+// import {useHistory} from './Router';
+// import {precallCard} from '../../theme.json';
 import Error from '../subComponents/Error';
 
 const Precall = (props: any) => {

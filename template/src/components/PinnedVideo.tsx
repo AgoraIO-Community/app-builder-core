@@ -4,7 +4,6 @@ import {
   View,
   Dimensions,
   StyleSheet,
-  Platform,
   Text,
   Image,
   Pressable,

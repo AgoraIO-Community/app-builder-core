@@ -25,7 +25,8 @@ export default function PrimaryButton(props: ButtonProps) {
       ]}
       {...otherProps}>
       {props.text ? (
-        <Text style={styles.primaryButtonText as StyleProp<TextStyle>}>
+        <Text style={[styles.primaryButtonText as StyleProp<TextStyle>,
+          {color: $config.SECONDARY_FONT_COLOR}]}>
           {props.text}
         </Text>
       ) : (

@@ -51,7 +51,7 @@ const Navbar = (props: any) => {
   return (
     <View
       onLayout={onLayout}
-      style={Platform.OS === 'web' ? style.navHolder : style.navHolderNative}>
+      style={[Platform.OS === 'web' ? style.navHolder : style.navHolderNative, {backgroundColor: $config.SECONDARY_FONT_COLOR + 80}]}>
       <View style={style.roomNameContainer}>
         {Platform.OS === 'web' ? (
           <View

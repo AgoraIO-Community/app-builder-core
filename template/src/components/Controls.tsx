@@ -1,9 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
-  Image,
   Dimensions,
-  TouchableOpacity,
   Platform,
   StyleSheet,
   Text,
@@ -20,7 +18,7 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 // import ColorContext from './ColorContext';
 // import ChatContext from '../components/ChatContext';
 // import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {controlsHolder, localButton, buttonIcon} from '../../theme.json';
+import {controlsHolder} from '../../theme.json';
 
 const Controls = (props: any) => {
   let onLayout = (e: any) => {
@@ -56,7 +54,7 @@ const Controls = (props: any) => {
       <View
         style={[
           style.controlsHolder,
-          {paddingHorizontal: isDesktop ? '25%' : '1%'},
+          {paddingHorizontal: isDesktop ? '25%' : '1%', backgroundColor: $config.SECONDARY_FONT_COLOR},
         ]}
         onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
@@ -203,8 +201,8 @@ const style = StyleSheet.create({
     left: 25,
     top: -10,
   },
-  localButton: localButton,
-  buttonIcon: buttonIcon,
+  // localButton: localButton,
+  // buttonIcon: buttonIcon,
 });
 
 export default Controls;

@@ -1,21 +1,17 @@
 import React, {useContext, useState} from 'react';
 import {
   View,
-  TouchableOpacity,
   Text,
-  ImageBackground,
   StyleSheet,
-  Dimensions,
-  KeyboardAvoidingView,
 } from 'react-native';
 import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
-import OpenInNativeButton from '../subComponents/OpenInNativeButton';
+// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
-import Illustration from '../subComponents/Illustration';
-import {secondaryBtn} from '../../theme.json';
+// import Illustration from '../subComponents/Illustration';
+// import {secondaryBtn} from '../../theme.json';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
