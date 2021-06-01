@@ -91,6 +91,56 @@ const createWindow = () => {
   });
 };
 
+let deeplinkingUrl;
+app.setAsDefaultProtocolClient('appbuilder');
+if (isDevelopment && process.platform === 'win32') {
+  // Set the path of electron.exe and your app.
+  // These two additional parameters are only available on windows.
+  // Setting this is required to get this working in dev mode.
+  app.setAsDefaultProtocolClient('appbuilder', process.execPath, [
+    resolve(process.argv[1])
+  ]);
+} else {
+  app.setAsDefaultProtocolClient('appbuilder');
+}
+
+const gotTheLock = app.requestSingleInstanceLock();
+if (gotTheLock) {
+  app.on('second-instance', (e, argv) => {
+    // Someone tried to run a second instance, we should focus our window.
+
+    // Protocol handler for win32
+    // argv: An array of the second instance’s (command line / deep linked) arguments
+    if (process.platform == 'win32') {
+      // Keep only command line / deep linked arguments
+      deeplinkingUrl = argv.slice(1)
+    }
+    logEverywhere('app.makeSingleInstance# ' + deeplinkingUrl)
+
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  })
+} 
+
+app.on('will-finish-launching', function() {
+  // Protocol handler for osx
+  app.on('open-url', function(event, url) {
+    event.preventDefault()
+    deeplinkingUrl = url
+    logEverywhere('open-url# ' + deeplinkingUrl)
+  })
+})
+
+// Log both at dev console and at running node console instance
+function logEverywhere(s) {
+  console.log(s)
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.executeJavaScript(`console.log("${s}")`)
+  }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
