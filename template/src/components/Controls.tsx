@@ -48,6 +48,7 @@ const Controls = (props: any) => {
     isHost,
     pendingMessageLength,
     setLastCheckedPublicState,
+    setLayout,
   } = props;
 
   return (
@@ -86,6 +87,8 @@ const Controls = (props: any) => {
               <ScreenshareButton
                 screenshareActive={screenshareActive}
                 setScreenshareActive={setScreenshareActive}
+                setLayout={setLayout}
+                recordingActive={recordingActive}
               />
               {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
               <Text
