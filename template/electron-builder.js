@@ -24,5 +24,5 @@ module.exports = {
       },
     ],
   },
-  afterSign: './notarize.js',
+  // afterSign: './notarize.js',
 };

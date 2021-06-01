@@ -1,13 +1,27 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {Image, TouchableOpacity, StyleSheet} from 'react-native';
+import chatContext from '../components/ChatContext';
+import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import icons from '../assets/icons';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import ColorContext from '../components/ColorContext';
+import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
+import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
+import Layout from '../subComponents/LayoutEnum';
+
 
 interface ScreenSharingProps {
   screenshareActive: boolean;
   setScreenshareActive: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }
 /**
  * A component to start and stop screen sharing on web clients.
@@ -16,8 +30,16 @@ interface ScreenSharingProps {
  */
 const ScreenshareButton = (props: ScreenSharingProps) => {
   const {primaryColor} = useContext(ColorContext);
+  const {userList} = useContext(chatContext);
   const rtc = useContext(RtcContext);
-  const {screenshareActive, setScreenshareActive} = props;
+  const {dispatch} = rtc;
+  const {sendControlMessage} = useContext(ChatContext);
+  const max = useContext(MaxUidContext);
+  const min = useContext(MinUidContext);
+  const users = [...max, ...min];
+  const prevUsers = usePrevious({users});
+  const prevUserList = usePrevious({userList});
+  const {screenshareActive, setScreenshareActive, setLayout} = props;
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
@@ -26,7 +48,21 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
       setScreenshareActive(false);
     });
   }, []);
-
+  useEffect(() => {
+    if(prevUsers !== undefined){
+      let result = users.filter(person => prevUsers.users.every(person2 => !(person2.uid === person.uid)))
+      if(result.length === 1){
+        const newUserUid = result[0].uid;
+        if(userList[newUserUid] && userList[newUserUid].type === 1){
+            dispatch({
+              type: 'SwapVideo',
+              value: [result[0]],
+            });
+            setLayout(Layout.Pinned);
+        }
+      }
+  }
+}, [users, userList])
   return (
     <TouchableOpacity
       style={
@@ -36,6 +72,8 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
       }
       onPress={async () => {
         const isScreenActive = screenshareActive;
+        // send a control message to everbody in the channel indicating that screen share is now active.
+        sendControlMessage(controlMessageEnum.screenShareActive);
         try {
           await rtc.RtcEngine.startScreenshare(
             screenShareToken,

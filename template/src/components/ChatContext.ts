@@ -35,6 +35,7 @@ export enum controlMessageEnum {
   kickUser = '5',
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
+  screenShareActive= '8',
 }
 
 const ChatContext = createContext((null as unknown) as chatContext);

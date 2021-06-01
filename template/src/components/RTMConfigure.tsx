@@ -18,7 +18,7 @@ export enum UserType {
 }
 
 const RtmConfigure = (props: any) => {
-  const {setRecordingActive, callActive, name} = props;
+  const {setRecordingActive, callActive, name, setScreenshareActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
@@ -161,6 +161,7 @@ const RtmConfigure = (props: any) => {
       }
     });
     engine.current.on('channelMessageReceived', (evt) => {
+      console.log('channel message received')
       let {uid, channelId, text, ts} = evt;
       // if (uid < 0) {
       //   uid = uid + parseInt(0xFFFFFFFF) + 1;
@@ -194,6 +195,10 @@ const RtmConfigure = (props: any) => {
             text.slice(1) === controlMessageEnum.cloudRecordingUnactive
           ) {
             setRecordingActive(false);
+          } else if(text.slice(1) === controlMessageEnum.screenShareActive){
+            console.log('screen share channel message')
+            console.log('screen share active channel message', uid, text, ts)
+            setScreenshareActive(true)
           }
         } else if (text[0] === mType.Normal) {
           addMessageToStore(uid, text, ts);

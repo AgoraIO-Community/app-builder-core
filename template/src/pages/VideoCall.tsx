@@ -150,6 +150,7 @@ const VideoCall: React.FC = () => {
   const [callActive, setCallActive] = useState($config.precall ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
+  const [screenshareActive, setScreenshareActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
@@ -245,6 +246,7 @@ const VideoCall: React.FC = () => {
               <DeviceConfigure>
                 <RtmConfigure
                   setRecordingActive={setRecordingActive}
+                  setScreenshareActive={setScreenshareActive}
                   name={username}
                   callActive={callActive}>
                   {callActive ? (
@@ -331,6 +333,7 @@ const VideoCall: React.FC = () => {
                               <></>
                             ) : (
                               <Controls
+                                setLayout={setLayout}
                                 recordingActive={recordingActive}
                                 setRecordingActive={setRecordingActive}
                                 // chatDisplayed={chatDisplayed}

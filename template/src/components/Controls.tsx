@@ -24,7 +24,7 @@ import {controlsHolder, localButton, buttonIcon} from '../../theme.json';
 const Controls = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {messageStore} = useContext(ChatContext);
-  const [screenshareActive, setScreenshareActive] = useState(false);
+  // const [screenshareActive, setScreenshareActive] = useState(false);
   const {
     // participantsView,
     // setParticipantsView,
@@ -32,11 +32,14 @@ const Controls = (props: any) => {
     recordingActive,
     // setChatDisplayed,
     // chatDisplayed,
+    screenshareActive,
+    setScreenshareActive,
     sidePanel,
     setSidePanel,
     isHost,
     pendingMessageLength,
     setLastCheckedPublicState,
+    setLayout,
   } = props;
 
   return (
@@ -69,6 +72,7 @@ const Controls = (props: any) => {
             <ScreenshareButton
               screenshareActive={screenshareActive}
               setScreenshareActive={setScreenshareActive}
+              setLayout={setLayout}
             />
             <Text
               style={{

@@ -152,7 +152,7 @@ const GridVideo = (props: GridVideoProps) => {
                       : userList[users[ridx * dims.c + cidx].uid]
                       ? userList[users[ridx * dims.c + cidx].uid].name.slice(0,20) + ' '
                       : users[ridx * dims.c + cidx].uid === 1
-                      ? (userList[localUid]?.name + "'s screen ").slice(0,20)
+                      ? (userList[localUid]?.name + "'s").slice(0,20)
                       : 'User '}
                   </Text>
                   {/* </View> */}
