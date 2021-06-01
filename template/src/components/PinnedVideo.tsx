@@ -122,7 +122,7 @@ const PinnedVideo = () => {
                           fallback={() => {
                             if (user.uid === 'local') {
                               return FallbackLogo(userList[localUid]?.name);
-                            } else if (String(userList[user.uid])[0] === '1') {
+                            } else if (String(user.uid)[0] === '1') {
                               return FallbackLogo(
                                 'PSTN User'
                               );
@@ -187,7 +187,7 @@ const PinnedVideo = () => {
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
                     return FallbackLogo(userList[localUid]?.name);
-                  } else if (String(userList[maxUsers[0].uid])[0] === '1') {
+                  } else if (String(maxUsers[0].uid)[0] === '1') {
                     return FallbackLogo('PSTN User');
                   } else {
                     return FallbackLogo(userList[maxUsers[0].uid]?.name);
