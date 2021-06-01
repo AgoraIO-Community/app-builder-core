@@ -452,7 +452,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 30,
   },
-  loaderText: {fontWeight: '500'},
+  loaderText: {fontWeight: '500', color: $config.PRIMARY_FONT_COLOR},
 });
 
 export default VideoCall;

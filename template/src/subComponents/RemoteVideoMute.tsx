@@ -16,26 +16,30 @@ const RemoteVideoMute = (props: {
 }) => {
   const {primaryColor} = useContext(ColorContext);
   const {sendControlMessageToUid} = useContext(ChatContext);
-  return props.isHost ? (
-    <TouchableOpacity
-      onPress={() => {
-        sendControlMessageToUid(controlMessageEnum.muteVideo, props.uid);
-      }}>
-      <Image
-        style={[style.buttonIconCam, {tintColor: primaryColor}]}
-        source={{uri: props.video ? icons.videocam : icons.videocamOff}}
-        resizeMode={'contain'}
-      />
-    </TouchableOpacity>
-  ) : (
-    <View>
-      <Image
-        style={[style.buttonIconCam, {tintColor: primaryColor}]}
-        source={{uri: props.video ? icons.videocam : icons.videocamOff}}
-        resizeMode={'contain'}
-      />
-    </View>
-  );
+  return String(props.uid)[0] !== '1'
+    ? props.isHost
+      ? (
+        <TouchableOpacity
+          onPress={() => {
+            sendControlMessageToUid(controlMessageEnum.muteVideo, props.uid);
+          }}>
+          <Image
+            style={[style.buttonIconCam, {tintColor: primaryColor}]}
+            source={{uri: props.video ? icons.videocam : icons.videocamOff}}
+            resizeMode={'contain'}
+          />
+        </TouchableOpacity>
+      ) : (
+        <View>
+          <Image
+            style={[style.buttonIconCam, {tintColor: primaryColor}]}
+            source={{uri: props.video ? icons.videocam : icons.videocamOff}}
+            resizeMode={'contain'}
+          />
+        </View>
+      )
+    :
+    (<></>);
 };
 
 const style = StyleSheet.create({

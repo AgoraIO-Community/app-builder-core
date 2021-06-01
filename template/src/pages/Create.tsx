@@ -27,8 +27,8 @@ type PasswordInput = {
 };
 
 const CREATE_CHANNEL = gql`
-  mutation CreateChannel($title: String!, $enablePSTN: Boolean) {
-    createChannel(title: $title, enablePSTN: $enablePSTN) {
+  mutation CreateChannel($title: String!, $backendURL: String!, $enablePSTN: Boolean) {
+    createChannel(title: $title, backendURL: $backendURL, enablePSTN: $enablePSTN) {
       passphrase {
         host
         view
@@ -64,6 +64,7 @@ const Create = () => {
       createChannel({
         variables: {
           title: roomTitle,
+          backendURL: $config.BACKEND_ENDPOINT,
           enablePSTN: pstnCheckbox,
         },
       })

@@ -122,8 +122,14 @@ const PinnedVideo = () => {
                           fallback={() => {
                             if (user.uid === 'local') {
                               return FallbackLogo(userList[localUid]?.name);
+                            } else if (String(userList[user.uid])[0] === '1') {
+                              return FallbackLogo(
+                                'PSTN User'
+                              );
                             } else {
-                              return FallbackLogo(userList[user.uid]?.name);
+                              return FallbackLogo(
+                                userList[user.uid]?.name,
+                              );
                             }
                           }}
                           user={user}
@@ -147,13 +153,14 @@ const PinnedVideo = () => {
                           <Text style={style.name}>
                             {user.uid === 'local'
                               ? userList[localUid]
-                                ? userList[localUid].name.slice(0,20) + ' '
+                                ? userList[localUid].name.slice(0, 20) + ' '
                                 : 'You '
                               : userList[user.uid]
-                              ? userList[user.uid].name.slice(0,20) + ' '
-                              : user.uid === 1
-                              ? (userList[localUid].name + "'s screen ").slice(0,20)
-                              : 'User '}
+                                ? userList[user.uid].name.slice(0, 20) + ' '
+                                : user.uid === 1
+                                  ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
+                                  : String(user.uid) === '1' ?
+                                    'PSTN User ' : 'User '}
                           </Text>
                         </View>
                       </View>
@@ -180,6 +187,8 @@ const PinnedVideo = () => {
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
                     return FallbackLogo(userList[localUid]?.name);
+                  } else if (String(userList[maxUsers[0].uid]) === '1') {
+                    return FallbackLogo('PSTN User');
                   } else {
                     return FallbackLogo(userList[maxUsers[0].uid]?.name);
                   }
