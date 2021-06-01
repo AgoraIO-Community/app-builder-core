@@ -159,7 +159,7 @@ const PinnedVideo = () => {
                                 ? userList[user.uid].name.slice(0, 20) + ' '
                                 : user.uid === 1
                                   ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                                  : String(user.uid) === '1' ?
+                                  : String(user.uid)[0] === '1' ?
                                     'PSTN User ' : 'User '}
                           </Text>
                         </View>
@@ -187,7 +187,7 @@ const PinnedVideo = () => {
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
                     return FallbackLogo(userList[localUid]?.name);
-                  } else if (String(userList[maxUsers[0].uid]) === '1') {
+                  } else if (String(userList[maxUsers[0].uid])[0] === '1') {
                     return FallbackLogo('PSTN User');
                   } else {
                     return FallbackLogo(userList[maxUsers[0].uid]?.name);
