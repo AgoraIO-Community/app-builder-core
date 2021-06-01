@@ -9,10 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-const {projectName} = require('./config.json');
+const {PRODUCT_ID} = require('./config.json');
 module.exports = {
-  appId: `com.${projectName.toLowerCase()}`,
-  productName: projectName,
+  appId: `com.${PRODUCT_ID.toLowerCase()}`,
+  productName: PRODUCT_ID,
   directories: {
     output: './out',
     app: './.electron',
@@ -24,8 +24,12 @@ module.exports = {
     target: ['dmg'],
     hardenedRuntime: true,
     gatekeeperAssess: false,
-    entitlements: 'build/entitlements.mac.plist',
-    entitlementsInherit: 'build/entitlements.mac.plist',
+    entitlements: './electron/entitlements.mac.plist',
+    entitlementsInherit: './electron/entitlements.mac.plist',
+    extendInfo: {
+      "NSMicrophoneUsageDescription": "Mic access",
+      "NSCameraUsageDescription": "Camera access"
+    }
   },
   win: {
     target: [
