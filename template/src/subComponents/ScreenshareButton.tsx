@@ -63,7 +63,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
   useEffect(() => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
-      console.log('STOPPED')
+      console.log('STOPPED SHARING')
       setLayout((l: Layout) =>
         l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
       );
@@ -72,22 +72,21 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
 
   useEffect(() => {
     if(prevUsers !== undefined){
-      let result = users.filter(person => prevUsers.users.every(person2 => !(person2.uid === person.uid)))
+      let joinedUser = users.filter(person => prevUsers.users.every(person2 => !(person2.uid === person.uid)))
       let leftUser = prevUsers.users.filter(person => users.every(person2 => !(person2.uid === person.uid)))
 
-      console.log({result}, {leftUser})
-      if(result.length === 1){
-        const newUserUid = result[0].uid;
+      if(joinedUser.length === 1){
+        const newUserUid = joinedUser[0].uid;
         if(userList[newUserUid] && userList[newUserUid].type === 1){
             dispatch({
               type: 'SwapVideo',
-              value: [result[0]],
+              value: [joinedUser[0]],
             });
             setLayout(Layout.Pinned);
         }else if(newUserUid ===  1){
           dispatch({
             type: 'SwapVideo',
-            value: [result[0]],
+            value: [joinedUser[0]],
           });
           setLayout(Layout.Pinned);
         }
@@ -103,7 +102,6 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
       }
   }
 }, [users, userList])
-  console.log({screenshareActive});
   return (
     <TouchableOpacity
       style={
@@ -122,7 +120,6 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
             },
           })
             .then((res) => {
-              console.log(res.data);
               if (res.data.setPresenter === 'success') {
                 // Once the backend sucessfuly starts screnshare,
                 // send a control message to everbody in the channel indicating that screen sharing is now active.
