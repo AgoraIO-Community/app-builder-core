@@ -82,7 +82,7 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  isDevelopment && mainWindow.webContents.openDevTools();
+  // isDevelopment && mainWindow.webContents.openDevTools();
   mainWindow.once('ready-to-show', () => {
     if (process.platform === 'win32' && isDevelopment) {
       mainWindow.reload();
