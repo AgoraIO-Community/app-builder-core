@@ -361,6 +361,7 @@ const VideoCall: React.FC = () => {
                               <></>
                             ) : (
                               <Controls
+                                setLayout={setLayout}
                                 recordingActive={recordingActive}
                                 setRecordingActive={setRecordingActive}
                                 // chatDisplayed={chatDisplayed}
