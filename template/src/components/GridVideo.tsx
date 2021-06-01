@@ -101,6 +101,8 @@ const GridVideo = (props: GridVideoProps) => {
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
                       return FallbackLogo(userList[localUid]?.name);
+                    } else if (String(users[ridx * dims.c + cidx].uid)[0] === '1') {
+                      return FallbackLogo('PSTN User');
                     } else {
                       return FallbackLogo(
                         userList[users[ridx * dims.c + cidx]?.uid]?.name,
@@ -161,13 +163,14 @@ const GridVideo = (props: GridVideoProps) => {
                         ? userList[localUid].name.slice(0, 20) + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(
+                        ? userList[users[ridx * dims.c + cidx].uid].name.slice(
                           0,
                           20,
                         ) + ' '
-                      : users[ridx * dims.c + cidx].uid === 1
-                      ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                      : 'User '}
+                        : users[ridx * dims.c + cidx].uid === 1
+                          ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
+                          : String(users[ridx * dims.c + cidx].uid)[0] === '1' ?
+                            'PSTN User ' : 'User '}
                   </Text>
                   {/* </View> */}
                   {/* {console.log(

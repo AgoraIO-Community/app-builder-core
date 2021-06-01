@@ -16,7 +16,7 @@ import icons from '../assets/icons';
 
 const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
   const {sendControlMessageToUid} = useContext(ChatContext);
-  return props.isHost ? (
+  return props.isHost && String(props.uid)[0] !== '1' ? (
     <TouchableOpacity
       style={style.remoteButton}
       onPress={() => {

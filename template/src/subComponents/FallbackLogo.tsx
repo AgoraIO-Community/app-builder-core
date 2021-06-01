@@ -49,7 +49,7 @@ export default function FallbackLogo(name: string) {
             alignSelf: 'center',
             textAlign: 'center',
           }}>
-          {name ? name[0] : 'U'}
+          {name ? name[0]?.toUpperCase() : 'U'}
         </Text>
       </View>
     </View>
