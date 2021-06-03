@@ -65,7 +65,7 @@ const Controls = (props: any) => {
       <View
         style={[
           style.controlsHolder,
-          {paddingHorizontal: isDesktop ? '25%' : '1%', backgroundColor: $config.SECONDARY_FONT_COLOR},
+          {paddingHorizontal: isDesktop ? '25%' : '1%', backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
         ]}
         onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
