@@ -1,0 +1,170 @@
+name: Build for Platforms
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  setup-project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+
+  linux-build-web:
+    needs: setup-project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build for Web
+        run: |
+          cd template && npm run web:build
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: linux-web-build
+          path: template/dist/
+
+  linux-build-android:
+    needs: setup-project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build Android Release
+        run: |
+          cd template && cd android && ./gradlew assembleDebug
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: app-linux-debug.apk
+          path: template/android/app/build/outputs/apk/debug/
+
+  mac-build-web:
+    needs: setup-project
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build for Web
+        run: |
+          cd template && npm run web:build
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: mac-web-build
+          path: template/dist/
+
+  mac-build-android:
+    needs: setup-project
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build Android Release
+        run: |
+          cd template && cd android && ./gradlew assembleDebug
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: app-mac-debug.apk
+          path: template/android/app/build/outputs/apk/debug/
+
+  mac-build-ios:
+    needs: setup-project
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Install pod dependencies
+        run: |
+          cd template && cd ios && pod install
+      - name: Build IOS app
+        run: |
+          cd template && xcodebuild clean archive -workspace ios/HelloWorld.xcworkspace -scheme HelloWorld -sdk iphoneos -configuration Debug archive -archivePath $PWD/ios/build/HelloWorld.xcarchive CODE_SIGNING_ALLOWED=NO
+          xcodebuild -exportArchive -archivePath $PWD/ios/build/HelloWorld.xcarchive -exportPath $PWD/build -exportOptionsPlist ios/HelloWorld/Info.plist
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: hello-world.ipa
+          path: template/ios/build/
+      
+  mac-buid-macOS:
+    needs: setup-project
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build macOS app
+        run: |
+          cd template && mkdir .electron && npm run mac:build
+      - name: Upload macOS Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: mac-build
+          path: template/out/
+
+  windows-build-web:
+    needs: setup-project
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build for Web
+        run: |
+          cd template && npm run web:build
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: windows-web-build
+          path: template/dist/
+
+  windows-build-android:
+    needs: setup-project
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build Android Release
+        run: |
+          cd template && cd android && ./gradlew assembleDebug
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: app-windows-debug.apk
+          path: template/android/app/build/outputs/apk/debug/
+
+  buid-windows:
+    needs: setup-project
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup project dependencies
+        run: |
+          npm run dev-setup
+      - name: Build windows app
+        run: |
+          cd template && mkdir .electron && npm run windows:build
+      - name: Upload windows Artifact
+        uses: actions/upload-artifact@v2
+        with: 
+          name: windows-build
+          path: template/out/
