@@ -24,6 +24,7 @@ import {
   Endcall,
 } from '../../agora-rn-uikit/Components';
 import Recording from '../subComponents/Recording';
+import SwitchCamera from '../subComponents/SwitchCamera';
 // import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 // import ColorContext from './ColorContext';
@@ -94,6 +95,19 @@ const Controls = (props: any) => {
             Video
           </Text>
         </View>
+        {mobileAndTabletCheck() ? (
+        <View style={{alignSelf: 'center'}}>
+          <SwitchCamera />
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 5,
+              color: $config.PRIMARY_COLOR,
+            }}>
+            Switch
+          </Text>
+        </View>
+        ) : (<></>)}
         {$config.SCREEN_SHARING ? (
           !mobileAndTabletCheck() ? (
             <View style={{alignSelf: 'center'}}>

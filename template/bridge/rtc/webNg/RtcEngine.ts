@@ -167,6 +167,7 @@ export default class RtcEngine {
   private isAudioPublished = false;
   private isVideoPublished = false;
   private isJoined = false;
+  private deviceId = '';
 
   constructor(appId: string) {
     this.appId = appId;
@@ -491,9 +492,30 @@ export default class RtcEngine {
   async changeCamera(cameraId, callback, error): Promise<void> {
     try {
       await this.localStream.video?.setDevice(cameraId);
+      this.deviceId = cameraId;
       callback(cameraId);
     } catch (e) {
       error(e);
+    }
+  }
+  
+  async switchCamera(): Promise<void> {
+    try {
+      const devices = await AgoraRTC.getDevices(true);
+      // console.log(devices);
+      for(let i=0; i< devices.length;i++){
+        let d = devices[i];
+        console.log('!',d.label);
+        if(d.kind === 'videoinput' && d.deviceId !== this.deviceId){
+          console.log('!this',this.deviceId, '!new', d.deviceId);
+          await this.localStream.video?.setDevice(d.deviceId);
+          this.deviceId = d.deviceId;
+          // await this.changeCamera(d.deviceId, ()=>{}, ()=>{});
+          break;
+        }
+      }
+    } catch (e) {
+      throw (e);
     }
   }
 
