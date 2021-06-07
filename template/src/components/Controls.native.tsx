@@ -71,9 +71,9 @@ const Controls = (props: any) => {
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
-                  color: $config.PRIMARY_COLOR,
+                  color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
                 }}>
-                Record
+                {recordingActive ? 'Recording' : 'Record'}
               </Text>
             </View>
           ) : (

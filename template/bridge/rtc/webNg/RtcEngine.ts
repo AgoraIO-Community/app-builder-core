@@ -505,7 +505,7 @@ export default class RtcEngine {
       // console.log(devices);
       for(let i=0; i< devices.length;i++){
         let d = devices[i];
-        console.log('!',d.label);
+        // console.log('!',d.label);
         if(d.kind === 'videoinput' && d.deviceId !== this.deviceId){
           console.log('!this',this.deviceId, '!new', d.deviceId);
           await this.localStream.video?.setDevice(d.deviceId);

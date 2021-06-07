@@ -17,6 +17,7 @@ import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import {messageStoreInterface} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
+import Toast from '../../react-native-toast-message';
 
 export enum mType {
   Control = '0',
@@ -169,6 +170,11 @@ const RtmConfigure = (props: any) => {
           evt.ts,
           false,
         );
+        Toast.show({
+          text1: 'New Private Message',
+          text2: evt.text.slice(1),
+          visibilityTime: 1000
+        });
       }
     });
     engine.current.on('channelMessageReceived', (evt) => {
@@ -208,6 +214,12 @@ const RtmConfigure = (props: any) => {
           }
         } else if (text[0] === mType.Normal) {
           addMessageToStore(uid, text, ts);
+          console.log('!', uid, userList);
+          Toast.show({
+            text1: 'New Message',
+            text2: text.slice(1),
+            visibilityTime: 1000
+          });
         }
       }
     });

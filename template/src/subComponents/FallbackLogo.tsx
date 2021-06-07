@@ -13,7 +13,7 @@ import React from 'react';
 import {Image, Text, View} from 'react-native';
 
 export default function FallbackLogo(name: string) {
-  console.log('!', name);
+  // console.log('!', name);
   return (
     <View
       style={{
