@@ -11,6 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import Linkify from 'react-linkify';
 import ChatContext, {channelMessage} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 
@@ -35,7 +36,7 @@ const ChatBubble = (props: channelMessage) => {
         <Text
           style={isLocal ? style.whiteText : style.blackText}
           selectable={true}>
-          {msg.slice(1) + ' '}
+          <Linkify properties={{target: '_blank', style: {color: 'red', fontWeight: 'bold'}}}>{msg.slice(1) + ' '}</Linkify>
         </Text>
       </View>
     </View>

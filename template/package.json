@@ -40,6 +40,7 @@
     "graphql": "^15.3.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
+    "react-linkify": "^1.0.0-alpha",
     "react-native": "0.63.3",
     "react-native-agora": "3.1.7-appbuilder.0",
     "react-native-inappbrowser-reborn": "^3.4.0",
