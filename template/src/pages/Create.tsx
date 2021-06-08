@@ -81,7 +81,7 @@ const Create = () => {
       })
         .then((res: any) => {
           Toast.show({
-            text1: 'Room created - ' + roomTitle,
+            text1: 'Created: ' + roomTitle,
             visibilityTime: 1000,
           });
           console.log('promise data', res);
