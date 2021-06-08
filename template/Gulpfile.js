@@ -103,6 +103,10 @@ function electronDevServer(cb) {
   });
 }
 
+function directory(){
+  return fs.mkdir(BUILD_PATH, {recursive: true});
+}
+
 function mainDev(cb) {
   runCli('webpack --config ./webpack.main.config.js', cb);
 }
@@ -113,8 +117,9 @@ function start(cb) {
 
 module.exports.build = series(
   clean,
+  directory,
   parallel(renderer, main, packageJson),
   build,
 );
 
-module.exports.development = series(clean, electronDevServer, mainDev, start);
+module.exports.development = series(clean, directory , electronDevServer, mainDev, start);

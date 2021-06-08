@@ -78,6 +78,21 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
       setLayout((l: Layout) =>
         l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
       );
+      setNormalQuery({variables: {passphrase: phrase}})
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.stopRecordingSession === 'success') {
+          // Once the backend sucessfuly stops recording,
+          // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+          // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+          // set the local recording state to false to update the UI
+          // setScreenshareActive(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
     });
   }, []);
 
@@ -172,6 +187,20 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
           !isScreenActive && setScreenshareActive(true);
         } catch (e) {
           console.error("can't start the screen share", e);
+          setNormalQuery({variables: {passphrase: phrase}})
+          .then((res) => {
+            console.log(res.data);
+            if (res.data.stopRecordingSession === 'success') {
+              // Once the backend sucessfuly stops recording,
+              // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+              // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+              // set the local recording state to false to update the UI
+              // setScreenshareActive(false);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
         }
       }}>
       <Image

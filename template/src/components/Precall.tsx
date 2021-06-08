@@ -122,7 +122,7 @@ const Precall = (props: any) => {
               borderRadius: 10,
               alignItems: 'center',
               borderWidth: 1,
-              borderStartColor: 'solid',
+              borderStyle: 'solid',
               borderColor: $config.PRIMARY_COLOR,
               height: '70%',
               minHeight: 340,
