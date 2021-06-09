@@ -6,7 +6,7 @@
     "APP_ID": "b8c2ef0f986541a8992451c07d30fb4b",
     "PRIMARY_COLOR": "#00AEFC",
     "FRONTEND_ENDPOINT": "",
-    "BACKEND_ENDPOINT": "https://fathomless-ravine-77137.herokuapp.com",
+    "BACKEND_ENDPOINT": "https://cryptic-dawn-34132.herokuapp.com",
     "PSTN": false,
     "PRECALL": true,
     "CHAT": true,
