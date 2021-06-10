@@ -92,13 +92,16 @@ const createWindow = () => {
 };
 
 let deeplinkingUrl;
-app.setAsDefaultProtocolClient('appbuilder');
+// if (!app.isDefaultProtocolClient('myapp')) {
+//   // Define custom protocol handler. Deep linking works on packaged versions of the application!
+//   app.setAsDefaultProtocolClient('appbuilder');
+// }
 if (isDevelopment && process.platform === 'win32') {
   // Set the path of electron.exe and your app.
   // These two additional parameters are only available on windows.
   // Setting this is required to get this working in dev mode.
   app.setAsDefaultProtocolClient('appbuilder', process.execPath, [
-    resolve(process.argv[1])
+    path.resolve(process.argv[1])
   ]);
 } else {
   app.setAsDefaultProtocolClient('appbuilder');
