@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect} from 'react';
-import {Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
@@ -55,7 +55,6 @@ const Recording = (props: any) => {
 
   return (
     <TouchableOpacity
-      style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
           // If recording is not going on, start the recording by executing the graphql query
@@ -99,15 +98,25 @@ const Recording = (props: any) => {
             });
         }
       }}>
-      <Image
-        source={{
-          uri: recordingActive
-            ? icons.recordingActiveIcon
-            : icons.recordingIcon,
-        }}
-        style={[style.buttonIcon, {tintColor: recordingActive ? '#FD0845': primaryColor}]}
-        resizeMode={'contain'}
-      />
+      <View style={[style.localButton, { borderColor: primaryColor }]}>
+        <Image
+          source={{
+            uri: recordingActive
+              ? icons.recordingActiveIcon
+              : icons.recordingIcon,
+          }}
+          style={[style.buttonIcon, { tintColor: recordingActive ? '#FD0845' : primaryColor }]}
+          resizeMode={'contain'}
+        />
+      </View>
+      <Text
+        style={{
+          textAlign: 'center',
+          marginTop: 5,
+          color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
+        }}>
+        {recordingActive ? 'Recording' : 'Record'}
+      </Text>
     </TouchableOpacity>
   );
 };

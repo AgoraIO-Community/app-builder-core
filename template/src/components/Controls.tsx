@@ -71,37 +71,37 @@ const Controls = (props: any) => {
         onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Audio
-          </Text>
+          </Text> */}
         </View>
         <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Video
-          </Text>
+          </Text> */}
         </View>
         {mobileAndTabletCheck() ? (
         <View style={{alignSelf: 'center'}}>
           <SwitchCamera />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Switch
-          </Text>
+          </Text> */}
         </View>
         ) : (<></>)}
         {$config.SCREEN_SHARING ? (
@@ -114,14 +114,14 @@ const Controls = (props: any) => {
                 recordingActive={recordingActive}
               />
               {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
-              <Text
+              {/* <Text
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
                   color: $config.PRIMARY_COLOR,
                 }}>
                 Share
-              </Text>
+              </Text> */}
             </View>
           ) : (
             <></>
@@ -136,14 +136,14 @@ const Controls = (props: any) => {
                 recordingActive={recordingActive}
                 setRecordingActive={setRecordingActive}
               />
-              <Text
+              {/* <Text
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
                   color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
                 }}>
                 {recordingActive ? 'Recording' : 'Record'}
-              </Text>
+              </Text> */}
             </View>
           ) : (
             <></>
@@ -198,9 +198,9 @@ const Controls = (props: any) => {
         />:<></>} */}
         <View style={{alignSelf: 'center'}}>
           <Endcall />
-          <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
+          {/* <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
             Hang Up
-          </Text>
+          </Text> */}
         </View>
       </View>
     </LocalUserContext>

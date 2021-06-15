@@ -40,25 +40,25 @@ const Controls = (props: any) => {
       <View style={style.bottomBar}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Audio
-          </Text>
+          </Text> */}
         </View>
         <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Video
-          </Text>
+          </Text> */}
         </View>
         {isHost ? (
           $config.CLOUD_RECORDING ? (
@@ -67,14 +67,14 @@ const Controls = (props: any) => {
                 recordingActive={recordingActive}
                 setRecordingActive={setRecordingActive}
               />
-              <Text
+              {/* <Text
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
                   color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
                 }}>
                 {recordingActive ? 'Recording' : 'Record'}
-              </Text>
+              </Text> */}
             </View>
           ) : (
             <></>
@@ -84,14 +84,14 @@ const Controls = (props: any) => {
         )}
         <View style={{alignSelf: 'center'}}>
           <SwitchCamera />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Switch
-          </Text>
+          </Text> */}
         </View>
         {/* <View style={{ alignSelf: 'center' }}>
           <TouchableOpacity
@@ -109,9 +109,9 @@ const Controls = (props: any) => {
         </View> */}
         <View style={{alignSelf: 'center'}}>
           <Endcall />
-          <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
+          {/* <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
             Hang Up
-          </Text>
+          </Text> */}
         </View>
       </View>
     </LocalUserContext>

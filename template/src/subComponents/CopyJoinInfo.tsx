@@ -36,7 +36,7 @@ const SHARE = gql`
   }
 `;
 
-const ParticipantView = (props: any) => {
+const ParticipantView = (props: {showText?: boolean}) => {
   const {phrase} = useParams<{phrase: string}>();
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
@@ -67,7 +67,8 @@ const ParticipantView = (props: any) => {
         stringToCopy += `\nPSTN Number: ${data.share.pstn.number}\nPSTN Pin: ${data.share.pstn.dtmf}`;
       }
       console.log('Copying string to clipboard:', stringToCopy);
-      Clipboard.setString(stringToCopy);
+      // Clipboard.setString(stringToCopy);
+      Clipboard.setString(JSON.stringify(data));
     }
   };
 
@@ -81,6 +82,9 @@ const ParticipantView = (props: any) => {
         style={!data ? [style.backIcon] : style.backIcon}
         source={{uri: icons.clipboard}}
       />
+      {props.showText ?
+      <Text style={{color: $config.PRIMARY_FONT_COLOR}}>Copy Meeting Invite</Text>
+      :<></>}
     </TouchableOpacity>
   );
 };

@@ -79,7 +79,7 @@ const Join = (props: joinProps) => {
               value={phrase}
               onChangeText={(text) => onChangePhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder="Meeting ID"
+              placeholder="Enter Meeting ID"
             />
             <View style={{height: 10}} />
             <PrimaryButton
@@ -124,9 +124,11 @@ const style = StyleSheet.create({
   },
   nav: {
     flex: 1,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {

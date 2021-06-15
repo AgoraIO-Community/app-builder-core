@@ -15,6 +15,7 @@ import {
   Text,
   StyleSheet,
   Dimensions,
+  Platform,
 } from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -66,25 +67,25 @@ const Precall = (props: any) => {
             <LocalUserContext>
               <View style={{alignSelf: 'center'}}>
                 <LocalVideoMute />
-                <Text
+                {/* <Text
                   style={{
                     textAlign: 'center',
                     marginTop: 5,
                     color: $config.PRIMARY_COLOR,
                   }}>
                   Video
-                </Text>
+                </Text> */}
               </View>
               <View style={{alignSelf: 'center'}}>
                 <LocalAudioMute />
-                <Text
+                {/* <Text
                   style={{
                     textAlign: 'center',
                     marginTop: 5,
                     color: $config.PRIMARY_COLOR,
                   }}>
                   Audio
-                </Text>
+                </Text> */}
               </View>
             </LocalUserContext>
           </View>
@@ -139,7 +140,7 @@ const Precall = (props: any) => {
               </Text>
               {/* </View> */}
               <View style={{height: 20}} />
-              <View style={{flex: 1}}>
+              <View style={{flex: 1, maxWidth: Platform.OS === 'web'? '25vw' : 'auto'}}>
                 <SelectDevice />
               </View>
               <View
@@ -189,9 +190,10 @@ const style = StyleSheet.create({
   },
   nav: {
     flex: 1,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {

@@ -239,12 +239,6 @@ const style = StyleSheet.create({
     marginHorizontal: '8%',
     marginVertical: '2%',
   },
-  nav: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {
     width: '100%',
