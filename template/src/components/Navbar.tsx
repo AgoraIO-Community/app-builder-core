@@ -187,7 +187,7 @@ const Navbar = (props: any) => {
                     {sidePanel !== SidePanelType.Chat &&
                       pendingMessageLength !== 0 ? (
                       <View style={style.chatNotification}>
-                        {pendingMessageLength}
+                        <Text>{pendingMessageLength}</Text>
                       </View>
                     ) : (
                       <></>
@@ -412,7 +412,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
     position: 'absolute',
     left: 20,
-    top: -8,
+    top: Platform.OS === 'web' ? -8 : 18,
   },
 });
 

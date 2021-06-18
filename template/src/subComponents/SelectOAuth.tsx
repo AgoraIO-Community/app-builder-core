@@ -32,33 +32,41 @@ const SelectOAuth = ({onSelectOAuth}) => {
           <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
           <View style={style.inputs}>
             <View style={style.oAuthContainer}>
-              <Text style={{fontSize: 16, fontWeight: '500', marginBottom: 20}}>
+              <Text style={{fontSize: 16, fontWeight: '500', marginBottom: 20, color: $config.PRIMARY_FONT_COLOR}}>
                 Login using OAuth
               </Text>
-              <TouchableOpacity
-                style={[style.secondaryBtn, {borderColor: primaryColor}]}
-                onPress={() => onSelectOAuth({oAuthSystem: 'google'})}>
-                <Image source={google} style={style.logo} />
-                <Text style={[style.secondaryBtnText]}>Google</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[style.secondaryBtn, {borderColor: primaryColor}]}
-                onPress={() => onSelectOAuth({oAuthSystem: 'microsoft'})}>
-                <Image source={microsoft} style={style.logo} />
-                <Text style={[style.secondaryBtnText]}>Microsoft</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[style.secondaryBtn, {borderColor: primaryColor}]}
-                onPress={() => onSelectOAuth({oAuthSystem: 'slack'})}>
-                <Image source={slack} style={style.logo} />
-                <Text style={[style.secondaryBtnText]}>Slack</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[style.secondaryBtn, {borderColor: primaryColor}]}
-                onPress={() => onSelectOAuth({oAuthSystem: 'apple'})}>
-                <Image source={apple} style={style.logo} />
-                <Text style={[style.secondaryBtnText]}>Apple</Text>
-              </TouchableOpacity>
+              {$config.ENABLE_GOOGLE_OAUTH ?
+                <TouchableOpacity
+                  style={[style.secondaryBtn, {borderColor: primaryColor}]}
+                  onPress={() => onSelectOAuth({oAuthSystem: 'google'})}>
+                  <Image source={google} style={style.logo} />
+                  <Text style={[style.secondaryBtnText]}>Google</Text>
+                </TouchableOpacity>
+                : <></>}
+              {$config.ENABLE_MICROSOFT_OAUTH ?
+                <TouchableOpacity
+                  style={[style.secondaryBtn, {borderColor: primaryColor}]}
+                  onPress={() => onSelectOAuth({oAuthSystem: 'microsoft'})}>
+                  <Image source={microsoft} style={style.logo} />
+                  <Text style={[style.secondaryBtnText]}>Microsoft</Text>
+                </TouchableOpacity>
+                : <></>}
+              {$config.ENABLE_SLACK_OAUTH ?
+                <TouchableOpacity
+                  style={[style.secondaryBtn, {borderColor: primaryColor}]}
+                  onPress={() => onSelectOAuth({oAuthSystem: 'slack'})}>
+                  <Image source={slack} style={style.logo} />
+                  <Text style={[style.secondaryBtnText]}>Slack</Text>
+                </TouchableOpacity>
+                : <></>}
+              {$config.ENABLE_APPLE_OAUTH ?
+                <TouchableOpacity
+                  style={[style.secondaryBtn, {borderColor: primaryColor}]}
+                  onPress={() => onSelectOAuth({oAuthSystem: 'apple'})}>
+                  <Image source={apple} style={style.logo} />
+                  <Text style={[style.secondaryBtnText]}>Apple</Text>
+                </TouchableOpacity>
+                : <></>}
             </View>
           </View>
         </View>
@@ -70,14 +78,16 @@ const SelectOAuth = ({onSelectOAuth}) => {
 const style = StyleSheet.create({
   oAuthContainer: {
     display: 'flex',
-    flexDirection: 'column',
+    flex: 1,
+    marginTop: 50,
+    // flexDirection: 'column',
     // flexBasis: '33.333333%',
     alignItems: 'center',
-    alignSelf: 'center',
-    margin: 'auto',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignContent: 'space-between',
+    // alignSelf: 'center',
+    // margin: 'auto',
+    // flexWrap: 'wrap',
+    // justifyContent: 'space-between',
+    // alignContent: 'space-between',
     // marginBottom: 200,
   },
   secondaryBtn: {
