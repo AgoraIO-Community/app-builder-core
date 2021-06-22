@@ -9,7 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+// import {ipcRenderer} from "electron";
+// import { useHistory } from "react-router-dom";
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';

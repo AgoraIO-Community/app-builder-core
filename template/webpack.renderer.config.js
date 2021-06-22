@@ -36,6 +36,9 @@ module.exports = merge(commons, {
   },
   plugins: [
     isDevelopment && new webpack.HotModuleReplacementPlugin(), // to enable HMR for webpack-dev-server
+    true && new webpack.ExternalsPlugin('commonjs', [
+      'electron'
+  ])
   ].filter(Boolean),
   devServer: {
     port: 9002,

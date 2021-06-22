@@ -75,14 +75,14 @@ const createWindow = () => {
     mainWindow.loadURL(
       format({
         pathname: path.join(__dirname, 'index.html'),
-        protocol: 'file',
+        protocol: 'file:',
         slashes: true,
       }),
     );
   }
 
   // Open the DevTools.
-  // isDevelopment && mainWindow.webContents.openDevTools();
+  isDevelopment && mainWindow.webContents.openDevTools();
   mainWindow.once('ready-to-show', () => {
     if (process.platform === 'win32' && isDevelopment) {
       mainWindow.reload();
@@ -118,6 +118,10 @@ if (gotTheLock) {
       // Keep only command line / deep linked arguments
       deeplinkingUrl = argv.slice(1)
     }
+    if (process.platform !== 'darwin') {
+      // Find the arg that is our custom protocol url and store it
+      deeplinkingUrl = argv.find((arg) => arg.startsWith('appbuilder://'));
+    }
     logEverywhere('app.makeSingleInstance# ' + deeplinkingUrl)
 
     if (mainWindow) {
@@ -133,6 +137,7 @@ app.on('will-finish-launching', function() {
     event.preventDefault()
     deeplinkingUrl = url
     logEverywhere('open-url# ' + deeplinkingUrl)
+    mainWindow.webContents.send('ping', deeplinkingUrl)
   })
 })
 

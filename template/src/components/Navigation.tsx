@@ -9,9 +9,24 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useEffect} from 'react';
+import {ipcRenderer} from "electron";
+import { useHistory } from "react-router-dom";
+
 
 const Navigation = () => {
+  const history = useHistory();
+  useEffect( () => {
+
+    ipcRenderer.on('ping', (event, message) => { 
+        console.log(message, 'something') 
+        let route = message.split('//')[1];
+        console.log(history, route)
+        history.push(`/${route}`);
+    });
+
+}, []);
+
   return <></>;
 };
 
