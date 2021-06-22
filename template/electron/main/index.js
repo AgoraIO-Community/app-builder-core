@@ -19,7 +19,11 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
-
+setInterval(() => {
+  logEverywhere('interval before wow')
+  autoUpdater.checkForUpdates()
+  logEverywhere('update interval after wow')
+}, 30000)
 
 let mainWindow;
 
@@ -122,7 +126,7 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  // isDevelopment && mainWindow.webContents.openDevTools();
+  isDevelopment && mainWindow.webContents.openDevTools();
   mainWindow.once('ready-to-show', () => {
     if (process.platform === 'win32' && isDevelopment) {
       mainWindow.reload();
