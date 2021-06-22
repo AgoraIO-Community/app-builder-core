@@ -136,7 +136,7 @@ const Create = () => {
                     onValueChange={setHostControlCheckbox}
                   />
                   <Text style={style.checkboxTitle}>
-                    updated Restrict Host Controls{' '}
+                    Restrict Host Controls{' '}
                     {!hostControlCheckbox
                       ? '(Everyone is a Host)'
                       : '(Separate host link)'}
