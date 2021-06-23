@@ -102,6 +102,7 @@ const ParticipantView = (props: any) => {
                       </Text>
                       {userList[user.uid]?.type !== UserType.ScreenShare ? (
                         <View style={style.participantButtonContainer}>
+                          <RemoteEndCall uid={user.uid} isHost={props.isHost} />
                           <RemoteAudioMute
                             uid={user.uid}
                             audio={user.audio}
@@ -112,7 +113,6 @@ const ParticipantView = (props: any) => {
                             video={user.video}
                             isHost={props.isHost}
                           />
-                          <RemoteEndCall uid={user.uid} isHost={props.isHost} />
                         </View>
                       ) : (
                         <></>

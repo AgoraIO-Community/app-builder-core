@@ -185,9 +185,11 @@ const Navbar = (props: any) => {
                         : setSidePanel(SidePanelType.Chat);
                     }}>
                     {sidePanel !== SidePanelType.Chat &&
-                      pendingMessageLength !== 0 ? (
+                    pendingMessageLength !== 0 ? (
                       <View style={style.chatNotification}>
-                        <Text>{pendingMessageLength}</Text>
+                        <Text style={{color: $config.SECONDARY_FONT_COLOR}}>
+                          {pendingMessageLength}
+                        </Text>
                       </View>
                     ) : (
                       <></>
