@@ -25,7 +25,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "icons:android": "react-native set-icon --path ./build/icon.png",
     "icons:ios": "react-native set-icon --path ./build/icon.png",
-    "package:mac": "npm run mac:build && electron-builder --publish=always"
+    "package:mac": "npm run mac:build && electron-builder --publish=always",
+    "release": "electron-builder --mac --windows --linux --publish always"
   },
   "publish": [
     {
