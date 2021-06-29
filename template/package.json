@@ -1,6 +1,6 @@
 {
   "name": "HelloWorld",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "main": ".electron/index.js",
   "scripts": {
@@ -26,11 +26,12 @@
     "icons:android": "react-native set-icon --path ./build/icon.png",
     "icons:ios": "react-native set-icon --path ./build/icon.png",
     "package:mac": "npm run mac:build && electron-builder --publish=always",
-    "release": "electron-builder --mac --windows --linux --publish always"
+    "release": "electron-builder --mac --windows --linux --publish always --config ./electron-builder.js "
   },
   "publish": [
     {
       "provider": "github",
+      "token": "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",
       "owner": "AgoraIO-Community",
       "repo": "app-builder-core"
     }
