@@ -16,7 +16,7 @@ const path = require('path');
 const webpack = require('webpack');
 module.exports = {
   // Main entry point for the web application
-  mode: isDevelopment ? 'development' : 'production',
+  mode:  'development', //isDevelopment ? 'development' : 'production',
   entry: {
     main: path.resolve(__dirname, 'electron/main/index.js'),
   },
@@ -27,6 +27,15 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, '.electron'),
+  },
+  devtool: "source-map",
+  externals: {
+    'agora-electron-sdk': 'commonjs2 electron',
+    'agora-electron-sdk': 'commonjs2 electron-log',
+    'agora-electron-sdk': 'commonjs2 electron-updater',
+    'agora-electron-sdk': 'commonjs2 path',
+    'agora-electron-sdk': 'commonjs2 url',
+    'agora-electron-sdk': 'commonjs2 electron-squirrel-startup',
   },
   plugins: [
     new webpack.DefinePlugin({
