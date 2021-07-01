@@ -30,12 +30,12 @@ module.exports = {
   },
   devtool: "source-map",
   externals: {
-    'agora-electron-sdk': 'commonjs2 electron',
-    'agora-electron-sdk': 'commonjs2 electron-log',
-    'agora-electron-sdk': 'commonjs2 electron-updater',
-    'agora-electron-sdk': 'commonjs2 path',
-    'agora-electron-sdk': 'commonjs2 url',
-    'agora-electron-sdk': 'commonjs2 electron-squirrel-startup',
+    'electron': 'commonjs2 electron',
+    'electron-log': 'commonjs2 electron-log',
+    'electron-updater': 'commonjs2 electron-updater',
+    'path': 'commonjs2 path',
+    'url': 'commonjs2 url',
+    'electron-squirrel-startup': 'commonjs2 electron-squirrel-startup',
   },
   plugins: [
     new webpack.DefinePlugin({

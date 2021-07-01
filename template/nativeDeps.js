@@ -14,10 +14,10 @@ const os = require('os');
 // module.exports.default = [];
 module.exports.default = [
 // os.platform() !== 'linux' ? 'agora-electron-sdk' : false,
-'agora-electron-sdk',
-'agora-electron-sdk',
-'agora-electron-sdk',
-'agora-electron-sdk',
-'agora-electron-sdk',
-'agora-electron-sdk'
+'electron',
+'electron-log',
+'electron-updater',
+'path',
+'url',
+'electron-squirrel-startup'
 ].filter(Boolean);
