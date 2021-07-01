@@ -451,11 +451,17 @@ export default class RtcEngine {
 
   async muteLocalVideoStream(muted: boolean): Promise<void> {
     try {
+      console.log("mute local video -0", muted)
       await this.localStream.video?.setEnabled(!muted);
+      console.log("mute local video -1", muted)
       this.isVideoEnabled = !muted;
+      console.log("mute local video -2", {muted}, {ispublished: this.isVideoPublished}, {isVideoEnabled: this.isVideoEnabled})
       if (!muted && !this.isVideoPublished) {
+        console.log("mute local video -3", {muted}, {ispublished: this.isVideoPublished}, {isVideoEnabled: this.isVideoEnabled})
         await this.publish();
+        console.log("mute local video -4", {muted}, {ispublished: this.isVideoPublished}, {isVideoEnabled: this.isVideoEnabled})
       }
+      console.log("mute local video -5", muted)
     } catch (e) {
       console.error(
         e,

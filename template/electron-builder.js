@@ -44,7 +44,7 @@ module.exports = {
         target: 'nsis',
         arch: ['ia32'],
       },
-    ],
+    ]  
   },
   afterSign: './notarize.js',
   protocols: [

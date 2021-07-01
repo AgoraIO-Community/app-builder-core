@@ -11,6 +11,13 @@
 */
 const os = require('os');
 
-module.exports.default = [];
-//   os.platform() !== 'linux' ? 'agora-electron-sdk' : false,
-// ].filter(Boolean);
+// module.exports.default = [];
+module.exports.default = [
+// os.platform() !== 'linux' ? 'agora-electron-sdk' : false,
+'agora-electron-sdk',
+'agora-electron-sdk',
+'agora-electron-sdk',
+'agora-electron-sdk',
+'agora-electron-sdk',
+'agora-electron-sdk'
+].filter(Boolean);
