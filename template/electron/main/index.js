@@ -1,4 +1,9 @@
-const {app, BrowserWindow, session, Menu} = require('electron');
+const {app, BrowserWindow, session, Menu, Notification } = require('electron');
+
+const log = require('electron-log');
+const {autoUpdater} = require("electron-updater");
+
+
 const path = require('path');
 const isDevelopment = process.env.NODE_ENV === 'development';
 const {format} = require('url');
@@ -10,7 +15,52 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+log.info('App starting...');
+
+const intr = setInterval(() => {
+  autoUpdater.checkForUpdates()
+}, 30000)
+
 let mainWindow;
+
+function sendStatusToWindow(text) {
+  log.info(text);
+  mainWindow.webContents.send('message', text);
+}
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...');
+})
+autoUpdater.on('update-available', (info) => {
+  sendStatusToWindow('Update available.');
+})
+autoUpdater.on('update-not-available', (info) => {
+  sendStatusToWindow('Update not available.');
+})
+autoUpdater.on('error', (err) => {
+  sendStatusToWindow('Error in auto-updater. ' + err);
+})
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  sendStatusToWindow(log_message);
+})
+autoUpdater.on('update-downloaded', (info) => {
+  sendStatusToWindow('Update downloaded');
+  // autoUpdater.quitAndInstall();
+
+  const NOTIFICATION_TITLE = 'An update is ready'
+  const NOTIFICATION_BODY = 'Please restart your app to complete the update'
+
+  function showNotification () {
+    new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
+  }
+  showNotification();
+
+});
+
 const createWindow = () => {
   let template = [];
   const name = app.getName();
@@ -30,6 +80,7 @@ const createWindow = () => {
       },
     ],
   });
+  autoUpdater.checkForUpdatesAndNotify();
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
@@ -82,7 +133,7 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  // isDevelopment && mainWindow.webContents.openDevTools();
+  isDevelopment && mainWindow.webContents.openDevTools();
   mainWindow.once('ready-to-show', () => {
     if (process.platform === 'win32' && isDevelopment) {
       mainWindow.reload();
@@ -147,7 +198,9 @@ function logEverywhere(s) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', ()=> {
+  createWindow();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -156,6 +209,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+  clearInterval(intr);
 });
 
 app.on('activate', () => {

@@ -21,7 +21,7 @@ module.exports = {
     target: ['AppImage'],
   },
   mac: {
-    target: ['dmg'],
+    target: ['dmg', 'zip'],
     hardenedRuntime: true,
     gatekeeperAssess: false,
     entitlements: './electron/entitlements.mac.plist',
@@ -29,7 +29,14 @@ module.exports = {
     extendInfo: {
       "NSMicrophoneUsageDescription": "Mic access",
       "NSCameraUsageDescription": "Camera access"
-    }
+    },
+    publish: [
+      {
+        provider: "github",
+        owner: "AgoraIO-Community",
+        repo: "app-builder-core"
+      }
+    ]  
   },
   win: {
     target: [
