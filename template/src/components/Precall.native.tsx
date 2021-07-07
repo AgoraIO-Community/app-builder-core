@@ -46,7 +46,9 @@ const Precall = (props: any) => {
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
       </View>
-      {error ? <Error error={error} showBack={true} /> : <></>}
+      <View style={{zIndex: 50, position: 'absolute', width: '100%', left: '18%', top: 10, alignSelf: 'center'}}>
+        {error ? <Error error={error} showBack={true} /> : <></>}
+      </View>
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>

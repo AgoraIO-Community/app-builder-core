@@ -18,6 +18,8 @@ type oAuthUrlType = {
   appleUrl: string;
 };
 
+const getRedirectFrontEndUrl = ({ platform}: {platform: platformType}) => platform === 'web' ? `${window.location.origin}`: `${$config.BACKEND_ENDPOINT}`
+
 export const oAuthGoogle = ({platform}: {platform: platformType}) => ({
   client_id: $config.GOOGLE_CLIENT_ID,
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
@@ -26,7 +28,7 @@ export const oAuthGoogle = ({platform}: {platform: platformType}) => ({
     'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
   ),
   state: encodeURIComponent(
-    `site=google&platform=${platform}&backend=${$config.BACKEND_ENDPOINT}&redirect=${window.location.origin}/auth-token/`,
+    `site=google&platform=${platform}&backend=${$config.BACKEND_ENDPOINT}&redirect=${getRedirectFrontEndUrl({platform})}/auth-token/`,
   ),
 });
 
@@ -36,7 +38,7 @@ export const oAuthMicrosoft = ({platform}: {platform: platformType}) => ({
   redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: 'openid',
   state: encodeURIComponent(
-    `site=microsoft&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
+    `site=microsoft&platform=${platform}&redirect=${getRedirectFrontEndUrl({platform})}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
   ),
 });
 
@@ -46,7 +48,7 @@ export const oAuthSlack = ({platform}: {platform: platformType}) => ({
   redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: 'users.profile:read',
   state: encodeURIComponent(
-    `site=slack&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
+    `site=slack&platform=${platform}&redirect=${getRedirectFrontEndUrl({platform})}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
   ),
 });
 
@@ -56,7 +58,7 @@ export const oAuthApple = ({platform}: {platform: platformType}) => ({
   redirect_uri: `${$config.BACKEND_ENDPOINT}/oauth`,
   scope: 'name email',
   state: encodeURIComponent(
-    `site=apple&platform=${platform}&redirect=${window.location.origin}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
+    `site=apple&platform=${platform}&redirect=${getRedirectFrontEndUrl({platform})}/auth-token/&backend=${$config.BACKEND_ENDPOINT}`,
   ),
 });
 

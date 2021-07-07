@@ -40,7 +40,14 @@ const ChatBubble = (props: channelMessage) => {
             ? [style.chatBubbleLocal, {backgroundColor: primaryColor}]
             : style.chatBubble
         }>
-        <Hyperlink onPress={handleUrl} linkStyle={ { color: '#2980b9', textDecorationLine: 'underline' } }>
+        <Hyperlink
+          onPress={handleUrl}
+          linkStyle={{
+            color: !isLocal
+              ? $config.PRIMARY_FONT_COLOR
+              : $config.SECONDARY_FONT_COLOR,
+            textDecorationLine: 'underline',
+          }}>
           <Text
             style={isLocal ? style.whiteText : style.blackText}
             selectable={true}>
@@ -86,7 +93,7 @@ const style = StyleSheet.create({
     textAlign: 'right',
   },
   chatBubble: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '20',
     flex: 1,
     // width: 'max-content',
     maxWidth: '80%',
@@ -116,7 +123,7 @@ const style = StyleSheet.create({
   },
   blackText: {
     color: $config.PRIMARY_FONT_COLOR,
-    opacity: 0.9,
+    opacity: 1,
     fontWeight: '500',
   },
 });

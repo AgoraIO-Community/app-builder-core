@@ -55,9 +55,9 @@ const RemoteVideoMute = (props: {
 
 const style = StyleSheet.create({
   buttonIconCam: {
-    width: 30,
+    width: 28,
     height: 25,
-    marginHorizontal: 3,
+    marginHorizontal: 2,
     tintColor: $config.PRIMARY_COLOR,
   },
 });

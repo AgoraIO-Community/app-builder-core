@@ -34,6 +34,7 @@ import ChatContext from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
+import Toast from '../../react-native-toast-message';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -63,8 +64,8 @@ const useChatNotification = (
   ];
 };
 
-const NotificationControl = ({children, chatDisplayed}) => {
-  const {messageStore, privateMessageStore} = useContext(ChatContext);
+const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
+  const {messageStore, privateMessageStore, userList, localUid} = useContext(ChatContext);
   const [
     lastCheckedPublicState,
     setLastCheckedPublicState,
@@ -95,6 +96,37 @@ const NotificationControl = ({children, chatDisplayed}) => {
     0,
   );
   const pendingPrivateNotification = totalPrivateMessage - totalPrivateLastSeen;
+
+  // const oldMessageStore = useRef<messageStoreInterface[]>([]);
+  // useEffect(() => {
+  //   if (messageStore.length > oldMessageStore.current.length && messageStore[messageStore.length - 1].uid !== localUid) {
+  //     Toast.show({
+  //       text1: messageStore[messageStore.length - 1]?.msg.length > 50 ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...' : messageStore[messageStore.length - 1]?.msg.slice(1),
+  //       text2: userList[messageStore[messageStore.length - 1]?.uid] ? userList[messageStore[messageStore.length - 1]?.uid].name : 'User',
+  //       visibilityTime: 1000,
+  //       onPress: () => setSidePanel(SidePanelType.Chat),
+  //     });
+  //     oldMessageStore.current = messageStore;
+  //   }
+  // }, [messageStore, userList]);
+
+  useEffect(() => {
+    if (
+      messageStore.length !== 0 &&
+      messageStore[messageStore.length - 1]?.uid !== localUid
+    ) {
+      Toast.show({
+        text1: messageStore[messageStore.length - 1]?.msg.length > 50 ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...' : messageStore[messageStore.length - 1]?.msg.slice(1),
+        text2: userList[messageStore[messageStore.length - 1]?.uid] ? 'From: ' + userList[messageStore[messageStore.length - 1]?.uid].name : '',
+        visibilityTime: 1000,
+        onPress: () => {
+          setSidePanel(SidePanelType.Chat);
+          setLastCheckedPublicState(messageStore.length);
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageStore]);
 
   return children({
     pendingPublicNotification,
@@ -288,6 +320,7 @@ const VideoCall: React.FC = () => {
                   {callActive ? (
                     <View style={style.full}>
                       <NotificationControl
+                        setSidePanel={setSidePanel}
                         chatDisplayed={sidePanel === SidePanelType.Chat}>
                         {({
                           pendingPublicNotification,

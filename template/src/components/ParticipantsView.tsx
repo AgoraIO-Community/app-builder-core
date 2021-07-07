@@ -25,6 +25,7 @@ import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
 import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
+import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import RemoteAudioMute from '../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../subComponents/RemoteVideoMute';
 import RemoteEndCall from '../subComponents/RemoteEndCall';
@@ -101,6 +102,7 @@ const ParticipantView = (props: any) => {
                       </Text>
                       {userList[user.uid]?.type !== UserType.ScreenShare ? (
                         <View style={style.participantButtonContainer}>
+                          <RemoteEndCall uid={user.uid} isHost={props.isHost} />
                           <RemoteAudioMute
                             uid={user.uid}
                             audio={user.audio}
@@ -111,7 +113,6 @@ const ParticipantView = (props: any) => {
                             video={user.video}
                             isHost={props.isHost}
                           />
-                          <RemoteEndCall uid={user.uid} isHost={props.isHost} />
                         </View>
                       ) : (
                         <></>
@@ -124,6 +125,9 @@ const ParticipantView = (props: any) => {
           )}
         </MinUidConsumer>
       </ScrollView>
+      <View style={{width: '100%', height: 50, alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+        <CopyJoinInfo showText={true}/>
+      </View>
     </View>
   );
 };
