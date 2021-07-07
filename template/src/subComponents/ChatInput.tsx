@@ -18,7 +18,6 @@ import {
   Image,
   TextInput as Ti,
   UIManager,
-  KeyboardAvoidingView,
 } from 'react-native';
 import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';

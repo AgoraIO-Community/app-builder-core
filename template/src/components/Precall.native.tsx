@@ -16,7 +16,6 @@ import {
   Text,
   StyleSheet,
   ImageBackground,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
@@ -52,9 +51,7 @@ const Precall = (props: any) => {
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
       {Platform.OS === 'ios' ? (
-        <KeyboardAvoidingView
-          behavior={'padding'}
-          keyboardVerticalOffset={110}
+        <View 
           style={style.textInputHolder}>
           <TextInput
             value={username}
@@ -66,7 +63,7 @@ const Precall = (props: any) => {
             onSubmitEditing={() => {}}
             placeholder="Display Name"
           />
-        </KeyboardAvoidingView>
+        </View>
       ) : (
         <View style={style.textInputHolder}>
           <TextInput

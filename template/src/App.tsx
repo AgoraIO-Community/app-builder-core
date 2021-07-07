@@ -23,11 +23,20 @@ import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 // import JoinPhrase from './components/JoinPhrase';
 import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
+import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
 import shouldAuthenticate from './utils/shouldAuthenticate';
+import KeyboardManager from 'react-native-keyboard-manager';
+
+
+if (Platform.OS === 'ios') {
+  KeyboardManager.setEnable(true);
+  KeyboardManager.setEnableAutoToolbar(false);
+  KeyboardManager.setShouldShowToolbarPlaceholder(false);
+  KeyboardManager.setShouldResignOnTouchOutside(true);
+}
 
 const App: React.FC = () => {
   const [phrase, onChangePhrase] = useState('');
