@@ -9,14 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {Image, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import icons from '../assets/icons';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+import Toast from '../../react-native-toast-message';
 
 const START_RECORDING = gql`
   mutation startRecordingSession($passphrase: String!, $secret: String) {
@@ -44,9 +45,16 @@ const Recording = (props: any) => {
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
+
+  useEffect(()=>{
+    if(recordingActive)
+      Toast.show({text1: 'Recording Started', visibilityTime: 1000})
+    // else if(!recordingActive)
+      // Toast.show({text1: 'Recording Finished', visibilityTime: 1000})
+  },[recordingActive])
+
   return (
     <TouchableOpacity
-      style={[style.localButton, {borderColor: primaryColor}]}
       onPress={() => {
         if (!recordingActive) {
           // If recording is not going on, start the recording by executing the graphql query
@@ -90,15 +98,25 @@ const Recording = (props: any) => {
             });
         }
       }}>
-      <Image
-        source={{
-          uri: recordingActive
-            ? icons.recordingActiveIcon
-            : icons.recordingIcon,
-        }}
-        style={[style.buttonIcon, {tintColor: primaryColor}]}
-        resizeMode={'contain'}
-      />
+      <View style={[style.localButton, { borderColor: primaryColor }]}>
+        <Image
+          source={{
+            uri: recordingActive
+              ? icons.recordingActiveIcon
+              : icons.recordingIcon,
+          }}
+          style={[style.buttonIcon, { tintColor: recordingActive ? '#FD0845' : primaryColor }]}
+          resizeMode={'contain'}
+        />
+      </View>
+      <Text
+        style={{
+          textAlign: 'center',
+          marginTop: 5,
+          color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
+        }}>
+        {recordingActive ? 'Recording' : 'Record'}
+      </Text>
     </TouchableOpacity>
   );
 };

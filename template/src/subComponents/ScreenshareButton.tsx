@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import icons from '../assets/icons';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
@@ -130,11 +130,6 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
 }, [users, userList])
   return (
     <TouchableOpacity
-      style={
-        screenshareActive
-          ? style.greenLocalButton
-          : [style.localButton, {borderColor: primaryColor}]
-      }
       onPress={async () => {
         const isScreenActive = screenshareActive;
         if (!isScreenActive && recordingActive) {
@@ -203,6 +198,11 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
           });
         }
       }}>
+        <View style={
+        screenshareActive
+          ? style.greenLocalButton
+          : [style.localButton, {borderColor: primaryColor}]
+      }>
       <Image
         source={{
           uri: screenshareActive
@@ -212,6 +212,14 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
         style={[style.buttonIcon, {tintColor: primaryColor}]}
         resizeMode={'contain'}
       />
+      </View>
+      <Text style={{
+        textAlign: 'center',
+        marginTop: 5,
+        color: $config.PRIMARY_COLOR,
+      }}>
+        Share
+      </Text>
     </TouchableOpacity>
   );
 };

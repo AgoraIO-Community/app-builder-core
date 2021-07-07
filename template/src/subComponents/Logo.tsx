@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   marginAuto: {
-    width: '20%',
-    height: '20%',
+    width: '30%',
+    height: '30%',
     minWidth: 60,
     minHeight: 30,
     // height: 'auto',

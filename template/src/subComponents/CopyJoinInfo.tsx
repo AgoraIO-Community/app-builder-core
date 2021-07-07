@@ -9,10 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import Clipboard from './Clipboard';
-import ColorContext from '../components/ColorContext';
 import {gql, useQuery} from '@apollo/client';
 import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
@@ -36,13 +35,13 @@ const SHARE = gql`
   }
 `;
 
-const ParticipantView = (props: any) => {
+const ParticipantView = (props: {showText?: boolean}) => {
   const {phrase} = useParams<{phrase: string}>();
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
   });
   const copyToClipboard = () => {
-    Toast.show({ text1: 'Copied to Clipboard', visibilityTime: 1000 });
+    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
     if (data && !loading) {
       let stringToCopy = '';
       if ($config.FRONTEND_ENDPOINT) {
@@ -68,6 +67,7 @@ const ParticipantView = (props: any) => {
       }
       console.log('Copying string to clipboard:', stringToCopy);
       Clipboard.setString(stringToCopy);
+      // Clipboard.setString(JSON.stringify(data));
     }
   };
 
@@ -81,6 +81,9 @@ const ParticipantView = (props: any) => {
         style={!data ? [style.backIcon] : style.backIcon}
         source={{uri: icons.clipboard}}
       />
+      {props.showText ?
+        <Text style={{color: $config.PRIMARY_FONT_COLOR}}>Copy Meeting Invite</Text>
+        :<></>}
     </TouchableOpacity>
   );
 };

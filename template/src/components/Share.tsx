@@ -17,6 +17,7 @@ import {
   StyleSheet,
   Dimensions,
   Image,
+  Platform,
 } from 'react-native';
 // import ColorContext from './ColorContext';
 import {useHistory} from './Router';
@@ -130,7 +131,7 @@ PSTN Pin: ${pstn.dtmf}`)
                 ? "Attendee URL" : "Attendee ID"}
               </Text>
               <View style={style.urlHolder}>
-                <Text style={style.url}>
+                <Text style={[style.url, Platform.OS === 'web' ? urlWeb : {opacity: 1}]}>
                   {$config.FRONTEND_ENDPOINT
                     ? `${$config.FRONTEND_ENDPOINT}/${urlView}`
                     : platform === 'web'
@@ -160,7 +161,7 @@ PSTN Pin: ${pstn.dtmf}`)
                 : hostControlCheckbox ? 'Host ID' : 'Meeting ID'}
             </Text>
             <View style={style.urlHolder}>
-              <Text style={style.url}>
+              <Text style={[style.url, Platform.OS === 'web' ? urlWeb : {opacity: 1}]}>
                 {$config.FRONTEND_ENDPOINT
                   ? `${$config.FRONTEND_ENDPOINT}/${urlHost}`
                   : platform === 'web'
@@ -188,11 +189,11 @@ PSTN Pin: ${pstn.dtmf}`)
               <View>
                 <View style={style.pstnHolder}>
                   <Text style={style.urlTitle}>Number: </Text>
-                  <Text style={style.url}>{pstn?.number}</Text>
+                  <Text style={[style.url, Platform.OS === 'web' ? urlWeb : {opacity: 1}]}>{pstn?.number}</Text>
                 </View>
                 <View style={style.pstnHolder}>
                   <Text style={style.urlTitle}>Pin: </Text>
-                  <Text style={style.url}>{pstn?.dtmf}</Text>
+                  <Text style={[style.url, Platform.OS === 'web' ? urlWeb : {opacity: 1}]}>{pstn?.dtmf}</Text>
                 </View>
               </View>
             </View>
@@ -228,6 +229,7 @@ PSTN Pin: ${pstn.dtmf}`)
     </View>
   );
 };
+const urlWeb = {wordBreak: 'break-all'};
 
 const style = StyleSheet.create({
   full: {flex: 1},
@@ -236,12 +238,6 @@ const style = StyleSheet.create({
     justifyContent: 'space-evenly',
     marginHorizontal: '8%',
     marginVertical: '2%',
-  },
-  nav: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {

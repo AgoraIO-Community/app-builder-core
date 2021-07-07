@@ -29,6 +29,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
 
 const {participantIcon, gridLayoutIcon, pinnedLayoutIcon, recordingIcon} =
   icons;
@@ -39,6 +40,7 @@ const Navbar = (props: any) => {
   const {
     // participantsView,
     // setParticipantsView,
+    recordingActive,
     sidePanel,
     setSidePanel,
     layout,
@@ -62,12 +64,34 @@ const Navbar = (props: any) => {
   return (
     <View
       onLayout={onLayout}
-      style={[Platform.OS === 'web' ? style.navHolder : style.navHolderNative, {backgroundColor: $config.SECONDARY_FONT_COLOR + 80}]}>
-      <View style={style.roomNameContainer}>
+      style={[Platform.OS === 'web' ? style.navHolder : style.navHolderNative, {backgroundColor: $config.SECONDARY_FONT_COLOR + 80}, Platform.OS === 'web' ? {justifyContent: mobileAndTabletCheck() ? 'space-between' : 'flex-end'} : {}]}>
+      {recordingActive && !mobileAndTabletCheck() ? (
+        <View style={[style.recordingView, {backgroundColor: $config.SECONDARY_FONT_COLOR}]}>
+          <Image source={{uri: icons.recordingActiveIcon}} style={{
+            width: 20,
+            height: 20,
+            margin: 1,
+            resizeMode: 'contain', tintColor: '#FD0845'}} />
+          <Text
+              style={{
+                fontSize: Platform.OS === 'web' ? 16 : 12,
+                color: '#FD0845',
+                fontWeight: '400',
+                alignSelf: 'center',
+                textAlign: 'center',
+                flex: 1,
+              }}>
+              Recording
+            </Text>
+        </View>
+      ) : (
+        <></>
+      )}
+      <View style={[style.roomNameContainer, Platform.OS === 'web' && !mobileAndTabletCheck() ? {transform: [{translateX: '50%'}]} : {}]}>
         {Platform.OS === 'web' ? (
           <View
-            style={{flexDirection: 'row', transform: [{translateX: '50%'}]}}>
-            <Text style={style.roomNameText}>{title}</Text>
+            style={{flexDirection: 'row', justifyContent: 'flex-start', paddingLeft: 5}}>
+            <Text style={style.roomNameText}>{mobileAndTabletCheck() ? title.length > 13 ? title.slice(0,13) + '..' : title : title}</Text>
             <View
               style={{
                 backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
@@ -80,33 +104,17 @@ const Navbar = (props: any) => {
           </View>
         ) : (
           <Text style={style.roomNameText}>{title}</Text>
-        )}
+        )}  
+        
       </View>
-      {/* {recordingActive ? (
-        <View style={[style.recordingView, {backgroundColor: primaryColor}]}>
-          <Image source={{uri: recordingIcon}} style={style.recordingIcon} />
-          <Text
-              style={{
-                fontSize: Platform.OS === 'web' ? 16 : 12,
-                color: '#fff',
-                fontWeight: '400',
-                alignSelf: 'center',
-                textAlign: 'center',
-                flex: 1,
-              }}>
-              Recording
-            </Text>
-        </View>
-      ) : (
-        <></>
-      )} */}
       <View
         style={{
           width: '50%',
           flexDirection: 'row',
           justifyContent: 'flex-end',
           zIndex: 9,
-          minWidth: Platform.OS === 'web' ? (isDesktop ? 400 : 280) : 40,
+          // flex: 1,
+          // minWidth: Platform.OS === 'web' ? (isDesktop ? 400 : 280) : 40,
           // backgroundColor: '#f00',
         }}>
         <View
@@ -123,7 +131,7 @@ const Navbar = (props: any) => {
             // backgroundColor: '#f0f',
             // paddingHorizontal: 16,
             borderRadius: 10,
-            minWidth: Platform.OS === 'web' && isDesktop ? 300 : 200,
+            minWidth: Platform.OS === 'web' && isDesktop ? 300 : mobileAndTabletCheck() ? 150 : 200,
             // borderTopLeftRadius: 10,
             // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
@@ -177,15 +185,20 @@ const Navbar = (props: any) => {
                         : setSidePanel(SidePanelType.Chat);
                     }}>
                     {sidePanel !== SidePanelType.Chat &&
-                      pendingMessageLength !== 0 ? (
+                    pendingMessageLength !== 0 ? (
                       <View style={style.chatNotification}>
-                        {pendingMessageLength}
+                        <Text style={{color: $config.SECONDARY_FONT_COLOR}}>
+                          {pendingMessageLength}
+                        </Text>
                       </View>
                     ) : (
                       <></>
                     )}
                     <Image
-                      source={{uri: icons.chatIcon}}
+                      source={{
+                        uri: sidePanel !== SidePanelType.Chat &&
+                          pendingMessageLength !== 0 ? icons.chatIconFilled : icons.chatIcon
+                      }}
                       resizeMode={'contain'}
                       style={[
                         {
@@ -279,28 +292,31 @@ const style = StyleSheet.create({
     paddingHorizontal: 10,
     justifyContent: 'space-between',
   },
-  // recordingView: {
-  //   flex: 0.25,
-  //   // maxWidth: 150,
-  //   // paddingHorizontal: 2,
-  //   height: 35,
-  //   maxHeight: 30,
-  //   alignSelf: 'center',
-  //   // marginVertical: 'auto',
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   alignContent: 'center',
-  //   justifyContent: 'center',
-  //   borderRadius: 3,
-  //   // marginHorizontal: 5,
-  // },
-  // recordingIcon: {
-  //   width: 20,
-  //   height: 20,
-  //   margin: 1,
-  //   resizeMode: 'contain',
-  // },
-  btnHolder: {padding: 5, width: '100%', height: '100%'},
+  recordingView: {
+    // flex: 0.25,
+    // maxWidth: 150,
+    // paddingHorizontal: 2,
+    height: 35,
+    maxHeight: 30,
+    position: 'absolute',
+    left: 10,
+    // alignSelf: 'center',
+    paddingHorizontal: 5,
+    // marginVertical: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    // marginHorizontal: 5,
+  },
+  recordingIcon: {
+    width: 20,
+    height: 20,
+    margin: 1,
+    resizeMode: 'contain',
+  },
+  btnHolder: {padding: mobileAndTabletCheck() ? 2 : 5, width: '100%', height: '100%'},
   // participantBtnHolder: {
   //   backgroundColor: '#fff',
   //   // flex: 0.5,
@@ -348,9 +364,10 @@ const style = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     zIndex: 10,
+    maxWidth: '50%',
   },
   roomNameText: {
-    fontSize: 20,
+    fontSize: 18,
     // flex: 10,
     // width: 50,
     // color: '#fff',
@@ -397,7 +414,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
     position: 'absolute',
     left: 20,
-    top: -8,
+    top: Platform.OS === 'web' ? -8 : 18,
   },
 });
 

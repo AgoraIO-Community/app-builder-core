@@ -81,7 +81,7 @@ const Create = () => {
       })
         .then((res: any) => {
           Toast.show({
-            text1: 'Room created - ' + roomTitle,
+            text1: 'Created: ' + roomTitle,
             visibilityTime: 1000,
           });
           console.log('promise data', res);
@@ -164,7 +164,7 @@ const Create = () => {
               <HorizontalRule />
               <SecondaryButton
                 onPress={() => history.push('/join')}
-                text={'Meeting ID or URL'}
+                text={'Have a Meeting ID?'}
               />
             </View>
           </View>
@@ -193,9 +193,11 @@ const style = StyleSheet.create({
   },
   nav: {
     flex: 1,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {

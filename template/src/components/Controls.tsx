@@ -24,12 +24,14 @@ import {
   Endcall,
 } from '../../agora-rn-uikit/Components';
 import Recording from '../subComponents/Recording';
+import SwitchCamera from '../subComponents/SwitchCamera';
 // import icons from '../assets/icons';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 // import ColorContext from './ColorContext';
 // import ChatContext from '../components/ChatContext';
 // import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {controlsHolder} from '../../theme.json';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
 
 const Controls = (props: any) => {
   let onLayout = (e: any) => {
@@ -41,7 +43,6 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-
   // const {primaryColor} = useContext(ColorContext);
   // const {messageStore} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
@@ -52,11 +53,11 @@ const Controls = (props: any) => {
     recordingActive,
     // setChatDisplayed,
     // chatDisplayed,
-    sidePanel,
-    setSidePanel,
+    // sidePanel,
+    // setSidePanel,
     isHost,
-    pendingMessageLength,
-    setLastCheckedPublicState,
+    // pendingMessageLength,
+    // setLastCheckedPublicState,
     setLayout,
   } = props;
 
@@ -70,28 +71,41 @@ const Controls = (props: any) => {
         onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Audio
-          </Text>
+          </Text> */}
         </View>
         <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
-          <Text
+          {/* <Text
             style={{
               textAlign: 'center',
               marginTop: 5,
               color: $config.PRIMARY_COLOR,
             }}>
             Video
-          </Text>
+          </Text> */}
         </View>
+        {mobileAndTabletCheck() ? (
+        <View style={{alignSelf: 'center'}}>
+          <SwitchCamera />
+          {/* <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 5,
+              color: $config.PRIMARY_COLOR,
+            }}>
+            Switch
+          </Text> */}
+        </View>
+        ) : (<></>)}
         {$config.SCREEN_SHARING ? (
-          isDesktop ? (
+          !mobileAndTabletCheck() ? (
             <View style={{alignSelf: 'center'}}>
               <ScreenshareButton
                 screenshareActive={screenshareActive}
@@ -100,14 +114,14 @@ const Controls = (props: any) => {
                 recordingActive={recordingActive}
               />
               {/* <Text style={{color: '#fff'}}>{(dim[0] +":"+ dim[1]) + ''}</Text> */}
-              <Text
+              {/* <Text
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
                   color: $config.PRIMARY_COLOR,
                 }}>
                 Share
-              </Text>
+              </Text> */}
             </View>
           ) : (
             <></>
@@ -122,14 +136,14 @@ const Controls = (props: any) => {
                 recordingActive={recordingActive}
                 setRecordingActive={setRecordingActive}
               />
-              <Text
+              {/* <Text
                 style={{
                   textAlign: 'center',
                   marginTop: 5,
-                  color: $config.PRIMARY_COLOR,
+                  color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
                 }}>
-                Record
-              </Text>
+                {recordingActive ? 'Recording' : 'Record'}
+              </Text> */}
             </View>
           ) : (
             <></>
@@ -184,9 +198,9 @@ const Controls = (props: any) => {
         />:<></>} */}
         <View style={{alignSelf: 'center'}}>
           <Endcall />
-          <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
+          {/* <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
             Hang Up
-          </Text>
+          </Text> */}
         </View>
       </View>
     </LocalUserContext>
