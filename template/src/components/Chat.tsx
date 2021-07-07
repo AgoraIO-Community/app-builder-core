@@ -16,8 +16,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
-  KeyboardAvoidingView,
   ScrollView,
   Dimensions,
 } from 'react-native';
@@ -146,9 +144,7 @@ const Chat = (props: any) => {
             }}
           />
           {Platform.OS === 'ios' ? (
-            <KeyboardAvoidingView
-              behavior={'position'}
-              keyboardVerticalOffset={105}>
+            <View>
               <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
                 <View
                   style={{
@@ -163,7 +159,7 @@ const Chat = (props: any) => {
                 />
                 <ChatInput privateActive={privateActive} />
               </View>
-            </KeyboardAvoidingView>
+            </View>
           ) : (
             <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
               <View
@@ -241,9 +237,7 @@ const Chat = (props: any) => {
                     : 'User '
                 }
               />
-              <KeyboardAvoidingView
-                behavior={'position'}
-                keyboardVerticalOffset={105}>
+                <View>
                 <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
                   <View
                     style={{
@@ -261,7 +255,7 @@ const Chat = (props: any) => {
                     selectedUser={selectedUser}
                   />
                 </View>
-              </KeyboardAvoidingView>
+              </View>
             </>
           )}
         </>
