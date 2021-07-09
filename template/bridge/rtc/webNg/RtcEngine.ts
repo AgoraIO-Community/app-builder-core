@@ -1,12 +1,12 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 import AgoraRTC, {
@@ -168,6 +168,7 @@ export default class RtcEngine {
   private isVideoPublished = false;
   private isJoined = false;
   private deviceId = '';
+  private muteLocalVideoMutex = false;
 
   constructor(appId: string) {
     this.appId = appId;
@@ -451,13 +452,27 @@ export default class RtcEngine {
   }
 
   async muteLocalVideoStream(muted: boolean): Promise<void> {
+    let didProcureMutexLock = false;
     try {
-      await this.localStream.video?.setEnabled(!muted);
-      this.isVideoEnabled = !muted;
-      if (!muted && !this.isVideoPublished) {
-        await this.publish();
+      if (!this.muteLocalVideoMutex) {
+        // If there no mutex lock, procure a lock
+        this.muteLocalVideoMutex = true;
+        didProcureMutexLock = true;
+        await this.localStream.video?.setEnabled(!muted);
+        // Release the lock once done
+        this.muteLocalVideoMutex = false;
+
+        this.isVideoEnabled = !muted;
+        if (!muted && !this.isVideoPublished) {
+          await this.publish();
+        }
       }
     } catch (e) {
+      // If the function procures the mutex,
+      // but if mute throws an error, the lock won't be released
+      if (didProcureMutexLock) {
+        this.muteLocalVideoMutex = false;
+      }
       console.error(
         e,
         '\n Be sure to invoke the enableVideo method before using this method.',
@@ -498,24 +513,20 @@ export default class RtcEngine {
       error(e);
     }
   }
-  
+
   async switchCamera(): Promise<void> {
     try {
       const devices = await AgoraRTC.getDevices(true);
-      // console.log(devices);
-      for(let i=0; i< devices.length;i++){
+      for (let i = 0; i < devices.length; i++) {
         let d = devices[i];
-        // console.log('!',d.label);
-        if(d.kind === 'videoinput' && d.deviceId !== this.deviceId){
-          console.log('!this',this.deviceId, '!new', d.deviceId);
+        if (d.kind === 'videoinput' && d.deviceId !== this.deviceId) {
           await this.localStream.video?.setDevice(d.deviceId);
           this.deviceId = d.deviceId;
-          // await this.changeCamera(d.deviceId, ()=>{}, ()=>{});
           break;
         }
       }
     } catch (e) {
-      throw (e);
+      throw e;
     }
   }
 
