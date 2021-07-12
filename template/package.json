@@ -21,7 +21,9 @@
     "mac:build": "cross-env TARGET=mac npm run electron:build",
     "linux": "cross-env TARGET=linux npm run electron:start",
     "linux:build": "cross-env TARGET=linux npm run electron:build",
-    "test": "jest",
+    "test:web": "jest --config jest.web.config.js --watch",
+    "test:native": "jest --config jest.native.config.js --watch",
+    "jest-clear-cache": "jest --clearCache",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "icons:android": "react-native set-icon --path ./build/icon.png",
     "icons:ios": "react-native set-icon --path ./build/icon.png",
@@ -77,6 +79,9 @@
     "@bam.tech/react-native-make": "3.0.0",
     "@pmmmwh/react-refresh-webpack-plugin": "0.3.3",
     "@react-native-community/eslint-config": "1.1.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/jest-native": "^4.0.1",
+    "@testing-library/react-native": "^7.2.0",
     "@types/jest": "25.2.3",
     "@types/react-native": "0.63.52",
     "@types/react-native-keep-awake": "2.0.2",
@@ -100,6 +105,7 @@
     "html-webpack-plugin": "4.5.2",
     "jest": "25.5.4",
     "metro-react-native-babel-preset": "0.59.0",
+    "mock-async-storage": "^2.2.0",
     "prettier": "2.3.1",
     "react-devtools-electron": "4.7.0",
     "react-refresh": "0.8.3",
@@ -110,16 +116,5 @@
     "webpack-dev-server": "3.11.2",
     "webpack-merge": "5.8.0",
     "yargs": "15.4.1"
-  },
-  "jest": {
-    "preset": "react-native",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
   }
 }
