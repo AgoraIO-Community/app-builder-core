@@ -143,7 +143,7 @@ PSTN Pin: ${pstn.dtmf}`)
               </View>
             <View style={{ marginLeft: 'auto', flexDirection: 'row', alignSelf: 'center' }}>
               <View style={{ backgroundColor: $config.PRIMARY_COLOR + '80', width: 1, height: 'auto', marginRight: 15 }} />
-              <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyHostUrl()}>
+              <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyAttendeeURL()}>
                 <Image resizeMode={'contain'}
                   style={{ width: '100%', height: '100%', tintColor: $config.PRIMARY_COLOR, opacity: 0.5}}
                   source={{ uri: icons.clipboard }}></Image>
@@ -173,7 +173,7 @@ PSTN Pin: ${pstn.dtmf}`)
           </View>
           <View style={{ marginLeft: 'auto', flexDirection: 'row', alignSelf: 'center'  }}>
             <View style={{ backgroundColor: $config.PRIMARY_COLOR + '80', width: 1, height: 'auto', marginRight: 15 }} />
-            <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyAttendeeURL()}>
+            <TouchableOpacity style={{ width: 40, height: 40, marginVertical: 'auto' }} onPress={()=>copyHostUrl()}>
                 <Image resizeMode={'contain'}
                   style={{ width: '100%', height: '100%', tintColor: $config.PRIMARY_COLOR, opacity: 0.5}}
                   source={{ uri: icons.clipboard }}></Image>
