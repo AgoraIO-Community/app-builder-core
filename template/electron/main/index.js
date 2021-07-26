@@ -62,24 +62,42 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 const createWindow = () => {
-  let template = [];
   const name = app.getName();
-  template.unshift({
-    label: name,
-    submenu: [
-      {
-        label: 'About ' + name,
-        role: 'about',
-      },
-      {
-        label: 'Quit',
-        accelerator: 'Command+Q',
-        click() {
-          app.quit();
+  const template = [
+    {
+      label: name,
+      submenu: [
+        {
+          label: 'About ' + name,
+          role: 'about',
         },
-      },
-    ],
-  });
+        {type: 'separator'},
+        {
+          label: 'Quit',
+          accelerator: 'Command+Q',
+          click() {
+            app.quit();
+          },
+        },
+      ],
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        {label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:'},
+        {label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:'},
+        {type: 'separator'},
+        {label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:'},
+        {label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:'},
+        {label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:'},
+        {
+          label: 'Select All',
+          accelerator: 'CmdOrCtrl+A',
+          selector: 'selectAll:',
+        },
+      ],
+    },
+  ];
   autoUpdater.checkForUpdatesAndNotify();
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
