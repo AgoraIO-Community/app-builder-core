@@ -9,14 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-export {
-  NativeRouter as Router,
-  Switch,
-  Route,
-  Link,
-  Redirect,
-  Prompt,
-  useHistory,
-  useParams,
-  BackButton,
-} from 'react-router-native';
+import React from "react";
+
+interface PreventNavigationProps {
+  message: string;
+}
+
+const PreventNavigation: React.FC<PreventNavigationProps> = ({ message }) => {
+  return <></>;
+};
+
+export default PreventNavigation;

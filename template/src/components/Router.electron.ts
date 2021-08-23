@@ -15,6 +15,7 @@ export {
   Route,
   Link,
   Redirect,
+  Prompt,
   useHistory,
   useParams,
 } from 'react-router-dom';
