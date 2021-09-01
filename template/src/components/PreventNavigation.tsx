@@ -9,13 +9,28 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from "react";
+import React, { useEffect } from "react";
 
 interface PreventNavigationProps {
   message: string;
 }
 
 const PreventNavigation: React.FC<PreventNavigationProps> = ({ message }) => {
+  useEffect(() => {
+    function stopTabClose(e: BeforeUnloadEvent) {
+      //Prevents redirect/tab close
+      e.preventDefault();
+      //Necessary for some older browsers
+      e.returnValue = message;
+    }
+
+    window.addEventListener("beforeunload", stopTabClose);
+
+    return () => {
+      window.removeEventListener("beforeunload", stopTabClose);
+    };
+  }, []);
+
   return <></>;
 };
 
