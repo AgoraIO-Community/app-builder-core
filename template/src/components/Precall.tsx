@@ -10,13 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Platform,
-} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
 import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
@@ -39,6 +33,7 @@ const Precall = (props: any) => {
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
+
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -94,17 +89,18 @@ const Precall = (props: any) => {
               <TextInput
                 value={username}
                 onChangeText={(text) => {
-                  if (username !== 'Getting name...') {
-                    setUsername(text);
-                  }
+                  setUsername(text);
                 }}
                 onSubmitEditing={() => {}}
-                placeholder="Display Name"
+                placeholder={
+                  queryComplete ? 'Display name*' : 'Getting name...'
+                }
+                editable={queryComplete}
               />
               <View style={style.margin5Btm} />
               <PrimaryButton
                 onPress={() => setCallActive(true)}
-                disabled={!queryComplete}
+                disabled={!queryComplete || username.trim() == ''}
                 text={queryComplete ? 'Join Room' : 'Loading...'}
               />
             </View>
@@ -140,7 +136,11 @@ const Precall = (props: any) => {
               </Text>
               {/* </View> */}
               <View style={{height: 20}} />
-              <View style={{flex: 1, maxWidth: Platform.OS === 'web'? '25vw' : 'auto'}}>
+              <View
+                style={{
+                  flex: 1,
+                  maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
+                }}>
                 <SelectDevice />
               </View>
               <View
@@ -154,17 +154,18 @@ const Precall = (props: any) => {
                 <TextInput
                   value={username}
                   onChangeText={(text) => {
-                    if (username !== 'Getting name...') {
-                      setUsername(text);
-                    }
+                    setUsername(text);
                   }}
                   onSubmitEditing={() => {}}
-                  placeholder="Display Name"
+                  placeholder={
+                    queryComplete ? 'Display name*' : 'Getting name...'
+                  }
+                  editable={queryComplete}
                 />
                 <View style={{height: 20}} />
                 <PrimaryButton
                   onPress={() => setCallActive(true)}
-                  disabled={!queryComplete}
+                  disabled={!queryComplete || username.trim() == ''}
                   text={queryComplete ? 'Join Room' : 'Loading...'}
                 />
               </View>

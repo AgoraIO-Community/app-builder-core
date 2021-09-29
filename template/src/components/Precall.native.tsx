@@ -46,24 +46,29 @@ const Precall = (props: any) => {
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
       </View>
-      <View style={{zIndex: 50, position: 'absolute', width: '100%', left: '18%', top: 10, alignSelf: 'center'}}>
+      <View
+        style={{
+          zIndex: 50,
+          position: 'absolute',
+          width: '100%',
+          left: '18%',
+          top: 10,
+          alignSelf: 'center',
+        }}>
         {error ? <Error error={error} showBack={true} /> : <></>}
       </View>
       <View style={style.full}>
         <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
       </View>
       {Platform.OS === 'ios' ? (
-        <View 
-          style={style.textInputHolder}>
+        <View style={style.textInputHolder}>
           <TextInput
             value={username}
             onChangeText={(text) => {
-              if (username !== 'Getting name...') {
-                setUsername(text);
-              }
+              setUsername(text);
             }}
             onSubmitEditing={() => {}}
-            placeholder="Display Name"
+            placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
           />
         </View>
       ) : (
@@ -71,12 +76,11 @@ const Precall = (props: any) => {
           <TextInput
             value={username}
             onChangeText={(text) => {
-              if (username !== 'Getting name...') {
-                setUsername(text);
-              }
+              setUsername(text);
             }}
             onSubmitEditing={() => {}}
-            placeholder="Display Name"
+            placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
+            editable={queryComplete}
           />
         </View>
       )}
@@ -95,10 +99,14 @@ const Precall = (props: any) => {
         // disabled={!queryComplete}
         style={{marginBottom: 50}}>
         {/* <Text style={style.buttonText}> */}
-          {/* {queryComplete ? 'Join Room' : 'Loading...'} */}
+        {/* {queryComplete ? 'Join Room' : 'Loading...'} */}
         {/* </Text> */}
-      {/* </TouchableOpacity> */}
-      <PrimaryButton text={"Join Room"} disabled={!queryComplete} onPress={() => setCallActive(true)} />
+        {/* </TouchableOpacity> */}
+        <PrimaryButton
+          text={'Join Room'}
+          disabled={!queryComplete || username.trim() == ''}
+          onPress={() => setCallActive(true)}
+        />
       </View>
       {/* </ImageBackground> */}
     </View>
