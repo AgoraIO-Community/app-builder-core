@@ -100,7 +100,7 @@ const Precall = (props: any) => {
               <View style={style.margin5Btm} />
               <PrimaryButton
                 onPress={() => setCallActive(true)}
-                disabled={!queryComplete || username.trim() == ''}
+                disabled={!queryComplete || username.trim() === ''}
                 text={queryComplete ? 'Join Room' : 'Loading...'}
               />
             </View>
@@ -165,7 +165,7 @@ const Precall = (props: any) => {
                 <View style={{height: 20}} />
                 <PrimaryButton
                   onPress={() => setCallActive(true)}
-                  disabled={!queryComplete || username.trim() == ''}
+                  disabled={!queryComplete || username.trim() === ''}
                   text={queryComplete ? 'Join Room' : 'Loading...'}
                 />
               </View>

@@ -104,7 +104,7 @@ const Precall = (props: any) => {
         {/* </TouchableOpacity> */}
         <PrimaryButton
           text={'Join Room'}
-          disabled={!queryComplete || username.trim() == ''}
+          disabled={!queryComplete || username.trim() === ''}
           onPress={() => setCallActive(true)}
         />
       </View>
