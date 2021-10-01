@@ -219,9 +219,9 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {store, setStore} = useContext(StorageContext);
-  const [username, setUsername] = useState(
-    store?.displayName ? store.displayName : '',
-  );
+  const getInitialUsername = () =>
+    store?.displayName ? store.displayName : '';
+  const [username, setUsername] = useState(getInitialUsername);
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
