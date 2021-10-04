@@ -28,11 +28,15 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
+import NetworkQualityContext from './NetworkQualityContext';
 
 const {topPinned} = layoutProps;
 
 const PinnedVideo = () => {
   const {primaryColor} = useContext(ColorContext);
+  const {networkQualityStat, networkIconsObject} = useContext(
+    NetworkQualityContext,
+  );
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -134,13 +138,9 @@ const PinnedVideo = () => {
                             if (user.uid === 'local') {
                               return FallbackLogo(userList[localUid]?.name);
                             } else if (String(user.uid)[0] === '1') {
-                              return FallbackLogo(
-                                'PSTN User'
-                              );
+                              return FallbackLogo('PSTN User');
                             } else {
-                              return FallbackLogo(
-                                userList[user.uid]?.name,
-                              );
+                              return FallbackLogo(userList[user.uid]?.name);
                             }
                           }}
                           user={user}
@@ -161,17 +161,44 @@ const PinnedVideo = () => {
                               resizeMode={'contain'}
                             />
                           </View>
+                          <View style={[style.NetworkIndicatorBackdrop]}>
+                            <Image
+                              source={{
+                                uri: networkIconsObject[
+                                  networkQualityStat[user.uid] || 0
+                                ].icon,
+                              }}
+                              style={[
+                                style.MicIcon,
+                                {
+                                  tintColor:
+                                    networkIconsObject[
+                                      networkQualityStat[user.uid] || 0
+                                    ].tint === 'primary'
+                                      ? primaryColor
+                                      : networkIconsObject[
+                                          networkQualityStat[user.uid] || 0
+                                        ].tint,
+                                },
+                              ]}
+                              resizeMode={'contain'}
+                            />
+                          </View>
                           <Text style={style.name}>
                             {user.uid === 'local'
                               ? userList[localUid]
                                 ? userList[localUid].name.slice(0, 20) + ' '
                                 : 'You '
                               : userList[user.uid]
-                                ? userList[user.uid].name.slice(0, 20) + ' '
-                                : user.uid === 1
-                                  ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                                  : String(user.uid)[0] === '1' ?
-                                    'PSTN User ' : 'User '}
+                              ? userList[user.uid].name.slice(0, 20) + ' '
+                              : user.uid === 1
+                              ? (userList[localUid]?.name + "'s screen ").slice(
+                                  0,
+                                  20,
+                                )
+                              : String(user.uid)[0] === '1'
+                              ? 'PSTN User '
+                              : 'User '}
                           </Text>
                         </View>
                       </View>
@@ -222,15 +249,38 @@ const PinnedVideo = () => {
                     resizeMode={'contain'}
                   />
                 </View>
+                <View style={[style.NetworkIndicatorBackdrop]}>
+                  <Image
+                    source={{
+                      uri: networkIconsObject[
+                        networkQualityStat[maxUsers[0].uid] || 0
+                      ].icon,
+                    }}
+                    style={[
+                      style.MicIcon,
+                      {
+                        tintColor:
+                          networkIconsObject[
+                            networkQualityStat[maxUsers[0].uid] || 0
+                          ].tint === 'primary'
+                            ? primaryColor
+                            : networkIconsObject[
+                                networkQualityStat[maxUsers[0].uid] || 0
+                              ].tint,
+                      },
+                    ]}
+                    resizeMode={'contain'}
+                  />
+                </View>
                 <Text style={style.name}>
                   {maxUsers[0].uid === 'local'
                     ? userList[localUid]
-                      ? userList[localUid].name.slice(0,20) + ' '
+                      ? userList[localUid].name.slice(0, 20) + ' '
                       : 'You '
                     : userList[maxUsers[0].uid]
-                    ? userList[maxUsers[0].uid].name.slice(0,20) + ' '
+                    ? userList[maxUsers[0].uid].name.slice(0, 20) + ' '
                     : maxUsers[0].uid === 1
-                    ? (userList[localUid].name + "'s screen ").slice(0,20)
+                    ? (userList[localUid].name + "'s screen ").slice(0, 20)
                     : 'User '}
                 </Text>
               </View>
@@ -263,7 +313,6 @@ const style = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 15,
-    marginHorizontal: 10,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     display: 'flex',
     alignSelf: 'center',
@@ -273,6 +322,15 @@ const style = StyleSheet.create({
     width: '80%',
     height: '80%',
     alignSelf: 'center',
+  },
+  NetworkIndicatorBackdrop: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginHorizontal: 10,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    justifyContent: 'center',
   },
 });
 
