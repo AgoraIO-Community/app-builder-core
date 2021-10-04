@@ -65,7 +65,8 @@ const useChatNotification = (
 };
 
 const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
-  const {messageStore, privateMessageStore, userList, localUid} = useContext(ChatContext);
+  const {messageStore, privateMessageStore, userList, localUid} =
+    useContext(ChatContext);
   const [
     lastCheckedPublicState,
     setLastCheckedPublicState,
@@ -116,8 +117,13 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       messageStore[messageStore.length - 1]?.uid !== localUid
     ) {
       Toast.show({
-        text1: messageStore[messageStore.length - 1]?.msg.length > 50 ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...' : messageStore[messageStore.length - 1]?.msg.slice(1),
-        text2: userList[messageStore[messageStore.length - 1]?.uid] ? 'From: ' + userList[messageStore[messageStore.length - 1]?.uid].name : '',
+        text1:
+          messageStore[messageStore.length - 1]?.msg.length > 50
+            ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...'
+            : messageStore[messageStore.length - 1]?.msg.slice(1),
+        text2: userList[messageStore[messageStore.length - 1]?.uid]
+          ? 'From: ' + userList[messageStore[messageStore.length - 1]?.uid].name
+          : '',
         visibilityTime: 1000,
         onPress: () => {
           setSidePanel(SidePanelType.Chat);
@@ -212,8 +218,10 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const {store} = useContext(StorageContext);
-  const [username, setUsername] = useState('Getting name...');
+  const {store, setStore} = useContext(StorageContext);
+  const getInitialUsername = () =>
+    store?.displayName ? store.displayName : '';
+  const [username, setUsername] = useState(getInitialUsername);
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
@@ -239,59 +247,58 @@ const VideoCall: React.FC = () => {
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
   };
-  let data, loading, error;
 
-  ({data, loading, error} = useQuery(
+  const {data, loading, error} = useQuery(
     store.token === null
       ? JOIN_CHANNEL_PHRASE
       : JOIN_CHANNEL_PHRASE_AND_GET_USER,
     {
       variables: {passphrase: phrase},
     },
-  ));
+  );
 
-  if (error) {
-    console.log('error', error);
-    // console.log('error data', data);
-    if (!errorMessage) {
-      setErrorMessage(error);
+  React.useEffect(() => {
+    if (error) {
+      console.log('error', error);
+      // console.log('error data', data);
+      if (!errorMessage) {
+        setErrorMessage(error);
+      }
+      return;
     }
-  }
 
-  if (!loading && data) {
-    console.log('token:', rtcProps.token);
-    console.log('error', data.error);
-    rtcProps = {
-      appId: $config.APP_ID,
-      channel: data.joinChannel.channel,
-      uid: data.joinChannel.mainUser.uid,
-      token: data.joinChannel.mainUser.rtc,
-      rtm: data.joinChannel.mainUser.rtm,
-      dual: true,
-      profile: $config.PROFILE,
-      encryption: $config.ENCRYPTION_ENABLED
-        ? {
-            key: data.joinChannel.secret,
-            mode: RnEncryptionEnum.AES128XTS,
-            screenKey: data.joinChannel.secret,
-          }
-        : false,
-      screenShareUid: data.joinChannel.screenShare.uid,
-      screenShareToken: data.joinChannel.screenShare.rtc,
-    };
-    isHost = data.joinChannel.isHost;
-    title = data.joinChannel.title;
-    console.log('query done: ', data, queryComplete);
-    if (username === 'Getting name...') {
+    if (!loading && data) {
+      console.log('token:', rtcProps.token);
+      console.log('error', data.error);
+      rtcProps = {
+        appId: $config.APP_ID,
+        channel: data.joinChannel.channel,
+        uid: data.joinChannel.mainUser.uid,
+        token: data.joinChannel.mainUser.rtc,
+        rtm: data.joinChannel.mainUser.rtm,
+        dual: true,
+        profile: $config.PROFILE,
+        encryption: $config.ENCRYPTION_ENABLED
+          ? {
+              key: data.joinChannel.secret,
+              mode: RnEncryptionEnum.AES128XTS,
+              screenKey: data.joinChannel.secret,
+            }
+          : false,
+        screenShareUid: data.joinChannel.screenShare.uid,
+        screenShareToken: data.joinChannel.screenShare.rtc,
+      };
+      isHost = data.joinChannel.isHost;
+      title = data.joinChannel.title;
+      console.log('query done: ', data, queryComplete);
+      // 1. Store the display name from API
       if (data.getUser) {
         setUsername(data.getUser.name);
-      } else {
-        setUsername('');
       }
+      console.log('token:', rtcProps.token);
+      queryComplete ? {} : setQueryComplete(true);
     }
-    console.log('token:', rtcProps.token);
-    queryComplete ? {} : setQueryComplete(true);
-  }
+  }, [error, loading, data]);
 
   const history = useHistory();
   const callbacks = {
@@ -300,6 +307,14 @@ const VideoCall: React.FC = () => {
         history.push('/');
       }, 0),
   };
+
+  React.useEffect(() => {
+    // Update the username in localstorage when username changes
+    if (setStore) {
+      setStore({token: store?.token || null, displayName: username});
+    }
+  }, [username]);
+
   // throw new Error("My first Sentry error!");
   return (
     <>
@@ -350,7 +365,11 @@ const VideoCall: React.FC = () => {
                                 setLastCheckedPublicState
                               }
                             />
-                            <View style={[style.videoView, {backgroundColor: '#ffffff00'}]}>
+                            <View
+                              style={[
+                                style.videoView,
+                                {backgroundColor: '#ffffff00'},
+                              ]}>
                               {layout === Layout.Pinned ? (
                                 <PinnedVideo />
                               ) : (
