@@ -35,6 +35,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
+import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -65,7 +66,8 @@ const useChatNotification = (
 };
 
 const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
-  const {messageStore, privateMessageStore, userList, localUid} = useContext(ChatContext);
+  const {messageStore, privateMessageStore, userList, localUid} =
+    useContext(ChatContext);
   const [
     lastCheckedPublicState,
     setLastCheckedPublicState,
@@ -116,8 +118,13 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       messageStore[messageStore.length - 1]?.uid !== localUid
     ) {
       Toast.show({
-        text1: messageStore[messageStore.length - 1]?.msg.length > 50 ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...' : messageStore[messageStore.length - 1]?.msg.slice(1),
-        text2: userList[messageStore[messageStore.length - 1]?.uid] ? 'From: ' + userList[messageStore[messageStore.length - 1]?.uid].name : '',
+        text1:
+          messageStore[messageStore.length - 1]?.msg.length > 50
+            ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...'
+            : messageStore[messageStore.length - 1]?.msg.slice(1),
+        text2: userList[messageStore[messageStore.length - 1]?.uid]
+          ? 'From: ' + userList[messageStore[messageStore.length - 1]?.uid].name
+          : '',
         visibilityTime: 1000,
         onPress: () => {
           setSidePanel(SidePanelType.Chat);
@@ -350,56 +357,62 @@ const VideoCall: React.FC = () => {
                                 setLastCheckedPublicState
                               }
                             />
-                            <View style={[style.videoView, {backgroundColor: '#ffffff00'}]}>
-                              {layout === Layout.Pinned ? (
-                                <PinnedVideo />
-                              ) : (
-                                <GridVideo setLayout={setLayout} />
-                              )}
-                              {sidePanel === SidePanelType.Participants ? (
-                                <ParticipantsView
-                                  isHost={isHost}
-                                  // setParticipantsView={setParticipantsView}
-                                  setSidePanel={setSidePanel}
-                                />
-                              ) : (
-                                <></>
-                              )}
-                              {sidePanel === SidePanelType.Chat ? (
-                                $config.CHAT ? (
-                                  <Chat
-                                    privateMessageCountMap={
-                                      privateMessageCountMap
-                                    }
-                                    pendingPublicNotification={
-                                      pendingPublicNotification
-                                    }
-                                    pendingPrivateNotification={
-                                      pendingPrivateNotification
-                                    }
-                                    setPrivateMessageLastSeen={
-                                      setPrivateMessageLastSeen
-                                    }
-                                    lastCheckedPrivateState={
-                                      lastCheckedPrivateState
-                                    }
+                            <NetworkQualityProvider>
+                              <View
+                                style={[
+                                  style.videoView,
+                                  {backgroundColor: '#ffffff00'},
+                                ]}>
+                                {layout === Layout.Pinned ? (
+                                  <PinnedVideo />
+                                ) : (
+                                  <GridVideo setLayout={setLayout} />
+                                )}
+                                {sidePanel === SidePanelType.Participants ? (
+                                  <ParticipantsView
+                                    isHost={isHost}
+                                    // setParticipantsView={setParticipantsView}
+                                    setSidePanel={setSidePanel}
                                   />
                                 ) : (
                                   <></>
-                                )
-                              ) : (
-                                <></>
-                              )}
-                              {sidePanel === SidePanelType.Settings ? (
-                                <SettingsView
-                                  isHost={isHost}
-                                  // setParticipantsView={setParticipantsView}
-                                  setSidePanel={setSidePanel}
-                                />
-                              ) : (
-                                <></>
-                              )}
-                            </View>
+                                )}
+                                {sidePanel === SidePanelType.Chat ? (
+                                  $config.CHAT ? (
+                                    <Chat
+                                      privateMessageCountMap={
+                                        privateMessageCountMap
+                                      }
+                                      pendingPublicNotification={
+                                        pendingPublicNotification
+                                      }
+                                      pendingPrivateNotification={
+                                        pendingPrivateNotification
+                                      }
+                                      setPrivateMessageLastSeen={
+                                        setPrivateMessageLastSeen
+                                      }
+                                      lastCheckedPrivateState={
+                                        lastCheckedPrivateState
+                                      }
+                                    />
+                                  ) : (
+                                    <></>
+                                  )
+                                ) : (
+                                  <></>
+                                )}
+                                {sidePanel === SidePanelType.Settings ? (
+                                  <SettingsView
+                                    isHost={isHost}
+                                    // setParticipantsView={setParticipantsView}
+                                    setSidePanel={setSidePanel}
+                                  />
+                                ) : (
+                                  <></>
+                                )}
+                              </View>
+                            </NetworkQualityProvider>
                             {Platform.OS !== 'web' &&
                             sidePanel === SidePanelType.Chat ? (
                               <></>
