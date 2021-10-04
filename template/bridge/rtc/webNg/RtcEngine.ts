@@ -150,6 +150,7 @@ export default class RtcEngine {
     ['ScreenshareStopped', () => null],
     ['RemoteAudioStateChanged', () => null],
     ['RemoteVideoStateChanged', () => null],
+    ['NetworkQuality', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -390,6 +391,33 @@ export default class RtcEngine {
     this.client.on('stream-type-changed', function (uid, streamType) {
       console.log('[fallback]: ', uid, streamType);
     });
+
+    this.client.on(
+      'network-quality',
+      async ({downlinkNetworkQuality, uplinkNetworkQuality}) => {
+        const networkQualityIndicatorCallback = this.eventsMap.get(
+          'NetworkQuality',
+        ) as callbackType;
+
+        networkQualityIndicatorCallback(
+          0,
+          downlinkNetworkQuality,
+          uplinkNetworkQuality,
+        );
+
+        const remoteUserNetworkQualities =
+          this.client.getRemoteNetworkQuality();
+
+        Object.keys(remoteUserNetworkQualities).forEach((uid) => {
+          networkQualityIndicatorCallback(
+            uid,
+            remoteUserNetworkQualities[uid].downlinkNetworkQuality,
+            remoteUserNetworkQualities[uid].uplinkNetworkQuality,
+          );
+        });
+      },
+    );
+
     await this.client.join(
       this.appId,
       channelName,
@@ -419,7 +447,8 @@ export default class RtcEngine {
       event === 'JoinChannelSuccess' ||
       event === 'ScreenshareStopped' ||
       event === 'RemoteAudioStateChanged' ||
-      event === 'RemoteVideoStateChanged'
+      event === 'RemoteVideoStateChanged' ||
+      event === 'NetworkQuality'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }
