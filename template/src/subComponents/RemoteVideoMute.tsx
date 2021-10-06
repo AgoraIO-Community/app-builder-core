@@ -10,11 +10,10 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {TouchableOpacity, Image, View, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import icons from '../assets/icons';
 import ColorContext from '../components/ColorContext';
-
+import {BtnTemplate} from '../../agora-rn-uikit/Components';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
@@ -26,31 +25,20 @@ const RemoteVideoMute = (props: {
   isHost: boolean;
 }) => {
   const {primaryColor} = useContext(ColorContext);
+  const {isHost = false} = props;
   const {sendControlMessageToUid} = useContext(ChatContext);
-  return String(props.uid)[0] !== '1'
-    ? props.isHost
-      ? (
-        <TouchableOpacity
-          onPress={() => {
-            sendControlMessageToUid(controlMessageEnum.muteVideo, props.uid);
-          }}>
-          <Image
-            style={[style.buttonIconCam, {tintColor: primaryColor}]}
-            source={{uri: props.video ? icons.videocam : icons.videocamOff}}
-            resizeMode={'contain'}
-          />
-        </TouchableOpacity>
-      ) : (
-        <View>
-          <Image
-            style={[style.buttonIconCam, {tintColor: primaryColor}]}
-            source={{uri: props.video ? icons.videocam : icons.videocamOff}}
-            resizeMode={'contain'}
-          />
-        </View>
-      )
-    :
-    (<></>);
+  return String(props.uid)[0] !== '1' ? (
+    <BtnTemplate
+      disabled={!isHost}
+      onPress={() => {
+        sendControlMessageToUid(controlMessageEnum.muteVideo, props.uid);
+      }}
+      style={style.buttonIconCam}
+      name={props.video ? 'videocam' : 'videocamOff'}
+    />
+  ) : (
+    <></>
+  );
 };
 
 const style = StyleSheet.create({
@@ -58,7 +46,6 @@ const style = StyleSheet.create({
     width: 28,
     height: 25,
     marginHorizontal: 2,
-    tintColor: $config.PRIMARY_COLOR,
   },
 });
 

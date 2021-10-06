@@ -10,20 +10,20 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {TouchableOpacity, Image, View, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import icons from '../assets/icons';
 import ColorContext from '../components/ColorContext';
-import { gql, useMutation } from '@apollo/client';
-import { useParams } from '../components/Router';
+import {gql, useMutation} from '@apollo/client';
+import {useParams} from '../components/Router';
+import {BtnTemplate} from '../../agora-rn-uikit/Components';
 
 const MUTE_PSTN = gql`
-mutation mutePSTN ($uid: Int!, $passphrase: String!, $mute: Boolean!) {
-  mutePSTN (uid: $uid, passphrase: $passphrase, mute: $mute) {
+  mutation mutePSTN($uid: Int!, $passphrase: String!, $mute: Boolean!) {
+    mutePSTN(uid: $uid, passphrase: $passphrase, mute: $mute) {
       uid
       mute
+    }
   }
-}
 `;
 
 /**
@@ -36,32 +36,29 @@ const RemoteAudioMute = (props: {
   audio: boolean;
   isHost: boolean;
 }) => {
+  const {isHost = false} = props;
   const {primaryColor} = useContext(ColorContext);
   const {sendControlMessageToUid} = useContext(ChatContext);
   const [mutePSTN, {data, loading, error}] = useMutation(MUTE_PSTN);
   const {phrase} = useParams<{phrase: string}>();
 
-  return props.isHost ? (
-    <TouchableOpacity
+  return (
+    <BtnTemplate
+      disabled={!isHost}
       onPress={() => {
-        if(String(props.uid)[0] === '1')
-          mutePSTN({variables: {
-            uid: props.uid, passphrase: phrase, mute: props.audio
-          }})
+        if (String(props.uid)[0] === '1')
+          mutePSTN({
+            variables: {
+              uid: props.uid,
+              passphrase: phrase,
+              mute: props.audio,
+            },
+          });
         else sendControlMessageToUid(controlMessageEnum.muteAudio, props.uid);
-      }}>
-      <Image
-        style={[style.buttonIconMic, {tintColor: primaryColor}]}
-        source={{uri: props.audio ? icons.mic : icons.micOff}}
-      />
-    </TouchableOpacity>
-  ) : (
-    <View>
-      <Image
-        style={[style.buttonIconMic, {tintColor: primaryColor}]}
-        source={{uri: props.audio ? icons.mic : icons.micOff}}
-      />
-    </View>
+      }}
+      style={style.buttonIconMic}
+      name={props.audio ? 'mic' : 'micOff'}
+    />
   );
 };
 
@@ -69,7 +66,6 @@ const style = StyleSheet.create({
   buttonIconMic: {
     width: 25,
     height: 24,
-    tintColor: $config.PRIMARY_COLOR,
   },
 });
 
