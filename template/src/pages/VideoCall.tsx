@@ -222,6 +222,8 @@ const VideoCall: React.FC = () => {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
+  const [title, setTitle] = React.useState<string>('');
+  const [isHost, setIsHost] = React.useState<boolean>(false);
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
@@ -231,8 +233,8 @@ const VideoCall: React.FC = () => {
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams();
   const [errorMessage, setErrorMessage] = useState(null);
-  let isHost = true; //change to false by default after testing
-  let title = null;
+  // let isHost = true; //change to false by default after testing
+  // let title = null;
   let rtcProps = {
     appId: $config.APP_ID,
     channel: null,
@@ -288,9 +290,9 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
       };
-      isHost = data.joinChannel.isHost;
-      title = data.joinChannel.title;
       console.log('query done: ', data, queryComplete);
+      setIsHost(data.joinChannel.isHost);
+      setTitle(data.joinChannel.title);
       // 1. Store the display name from API
       if (data.getUser) {
         setUsername(data.getUser.name);
