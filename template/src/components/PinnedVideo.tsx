@@ -28,6 +28,7 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
+import ImageIcon from '../../agora-rn-uikit/src/Controls/ImageIcon';
 
 const {topPinned} = layoutProps;
 
@@ -134,13 +135,9 @@ const PinnedVideo = () => {
                             if (user.uid === 'local') {
                               return FallbackLogo(userList[localUid]?.name);
                             } else if (String(user.uid)[0] === '1') {
-                              return FallbackLogo(
-                                'PSTN User'
-                              );
+                              return FallbackLogo('PSTN User');
                             } else {
-                              return FallbackLogo(
-                                userList[user.uid]?.name,
-                              );
+                              return FallbackLogo(userList[user.uid]?.name);
                             }
                           }}
                           user={user}
@@ -148,17 +145,10 @@ const PinnedVideo = () => {
                         />
                         <View style={style.nameHolder}>
                           <View style={[style.MicBackdrop]}>
-                            <Image
-                              source={{
-                                uri: user.audio ? icons.mic : icons.micOff,
-                              }}
-                              style={[
-                                style.MicIcon,
-                                {
-                                  tintColor: user.audio ? primaryColor : 'red',
-                                },
-                              ]}
-                              resizeMode={'contain'}
+                            <ImageIcon
+                              name={user.audio ? 'mic' : 'micOff'}
+                              color={user.audio ? primaryColor : 'red'}
+                              style={style.MicIcon}
                             />
                           </View>
                           <Text style={style.name}>
@@ -167,11 +157,15 @@ const PinnedVideo = () => {
                                 ? userList[localUid].name.slice(0, 20) + ' '
                                 : 'You '
                               : userList[user.uid]
-                                ? userList[user.uid].name.slice(0, 20) + ' '
-                                : user.uid === 1
-                                  ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                                  : String(user.uid)[0] === '1' ?
-                                    'PSTN User ' : 'User '}
+                              ? userList[user.uid].name.slice(0, 20) + ' '
+                              : user.uid === 1
+                              ? (userList[localUid]?.name + "'s screen ").slice(
+                                  0,
+                                  20,
+                                )
+                              : String(user.uid)[0] === '1'
+                              ? 'PSTN User '
+                              : 'User '}
                           </Text>
                         </View>
                       </View>
@@ -209,28 +203,21 @@ const PinnedVideo = () => {
               />
               <View style={style.nameHolder}>
                 <View style={[style.MicBackdrop]}>
-                  <Image
-                    source={{
-                      uri: maxUsers[0].audio ? icons.mic : icons.micOff,
-                    }}
-                    style={[
-                      style.MicIcon,
-                      {
-                        tintColor: maxUsers[0].audio ? primaryColor : 'red',
-                      },
-                    ]}
-                    resizeMode={'contain'}
+                  <ImageIcon
+                    name={maxUsers[0].audio ? 'mic' : 'micOff'}
+                    color={maxUsers[0].audio ? primaryColor : 'red'}
+                    style={style.MicIcon}
                   />
                 </View>
                 <Text style={style.name}>
                   {maxUsers[0].uid === 'local'
                     ? userList[localUid]
-                      ? userList[localUid].name.slice(0,20) + ' '
+                      ? userList[localUid].name.slice(0, 20) + ' '
                       : 'You '
                     : userList[maxUsers[0].uid]
-                    ? userList[maxUsers[0].uid].name.slice(0,20) + ' '
+                    ? userList[maxUsers[0].uid].name.slice(0, 20) + ' '
                     : maxUsers[0].uid === 1
-                    ? (userList[localUid].name + "'s screen ").slice(0,20)
+                    ? (userList[localUid].name + "'s screen ").slice(0, 20)
                     : 'User '}
                 </Text>
               </View>

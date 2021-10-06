@@ -23,12 +23,12 @@ import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import {MaxVideoView} from '../../agora-rn-uikit/Components';
 import chatContext from './ChatContext';
-import icons from '../assets/icons';
 import styles from './styles';
 import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
+import ImageIcon from '../../agora-rn-uikit/src/Controls/ImageIcon';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -101,7 +101,9 @@ const GridVideo = (props: GridVideoProps) => {
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
                       return FallbackLogo(userList[localUid]?.name);
-                    } else if (String(users[ridx * dims.c + cidx].uid)[0] === '1') {
+                    } else if (
+                      String(users[ridx * dims.c + cidx].uid)[0] === '1'
+                    ) {
                       return FallbackLogo('PSTN User');
                     } else {
                       return FallbackLogo(
@@ -130,7 +132,16 @@ const GridVideo = (props: GridVideoProps) => {
                   }}>
                   {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
                   <View style={[style.MicBackdrop]}>
-                    <Image
+                    <ImageIcon
+                      name={
+                        users[ridx * dims.c + cidx].audio ? 'mic' : 'micOff'
+                      }
+                      color={
+                        users[ridx * dims.c + cidx].audio ? primaryColor : 'red'
+                      }
+                      style={style.MicIcon}
+                    />
+                    {/* <Image
                       source={{
                         uri: users[ridx * dims.c + cidx].audio
                           ? icons.mic
@@ -145,7 +156,7 @@ const GridVideo = (props: GridVideoProps) => {
                         },
                       ]}
                       resizeMode={'contain'}
-                    />
+                    /> */}
                   </View>
                   <Text
                     textBreakStrategy={'simple'}
@@ -163,14 +174,15 @@ const GridVideo = (props: GridVideoProps) => {
                         ? userList[localUid].name.slice(0, 20) + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                        ? userList[users[ridx * dims.c + cidx].uid].name.slice(
+                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(
                           0,
                           20,
                         ) + ' '
-                        : users[ridx * dims.c + cidx].uid === 1
-                          ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                          : String(users[ridx * dims.c + cidx].uid)[0] === '1' ?
-                            'PSTN User ' : 'User '}
+                      : users[ridx * dims.c + cidx].uid === 1
+                      ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
+                      : String(users[ridx * dims.c + cidx].uid)[0] === '1'
+                      ? 'PSTN User '
+                      : 'User '}
                   </Text>
                   {/* </View> */}
                   {/* {console.log(
