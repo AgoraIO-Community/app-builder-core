@@ -155,12 +155,14 @@ PSTN Pin: ${pstn.dtmf}`)
                   marginRight: 15,
                 }}
               />
-              <BtnTemplate
-                style={style.clipboardIcon}
-                color={$config.PRIMARY_COLOR}
-                name={'clipboard'}
-                onPress={() => copyAttendeeURL()}
-              />
+              <View style={style.clipboardIconHolder}>
+                <BtnTemplate
+                  style={style.clipboardIcon}
+                  color={$config.PRIMARY_COLOR}
+                  name={'clipboard'}
+                  onPress={() => copyAttendeeURL()}
+                />
+              </View>
             </View>
           </View>
         ) : (
@@ -205,12 +207,14 @@ PSTN Pin: ${pstn.dtmf}`)
                 marginRight: 15,
               }}
             />
-            <BtnTemplate
-              style={style.clipboardIcon}
-              color={$config.PRIMARY_COLOR}
-              name={'clipboard'}
-              onPress={() => copyHostUrl()}
-            />
+            <View style={style.clipboardIconHolder}>
+              <BtnTemplate
+                style={style.clipboardIcon}
+                color={$config.PRIMARY_COLOR}
+                name={'clipboard'}
+                onPress={() => copyHostUrl()}
+              />
+            </View>
           </View>
         </View>
         {pstn ? (
@@ -249,11 +253,14 @@ PSTN Pin: ${pstn.dtmf}`)
                   marginRight: 15,
                 }}
               />
-              <BtnTemplate
-                style={style.clipboardIcon}
-                name={'clipboard'}
-                onPress={() => copyPstn()}
-              />
+              <View style={style.clipboardIconHolder}>
+                <BtnTemplate
+                  style={style.clipboardIcon}
+                  color={$config.PRIMARY_COLOR}
+                  name={'clipboard'}
+                  onPress={() => copyPstn()}
+                />
+              </View>
             </View>
           </View>
         ) : (
@@ -383,11 +390,17 @@ const style = StyleSheet.create({
   pstnMargin: {
     marginRight: '10%',
   },
+  clipboardIconHolder: {
+    width: 40,
+    height: 40,
+    marginVertical: 'auto',
+  },
   clipboardIcon: {
     width: 40,
     height: 40,
     marginVertical: 'auto',
     opacity: 0.5,
+    backgroundColor: 'transparent',
   },
 });
 
