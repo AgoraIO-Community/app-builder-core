@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
-import icons from '../assets/icons';
+import {BtnTemplate} from '../../agora-rn-uikit/Components';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -29,33 +29,31 @@ import icons from '../assets/icons';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
-  const {
-    selectedUser,
-    privateActive,
-    setPrivateActive,
-    selectedUsername,
-  } = props;
+  const {selectedUser, privateActive, setPrivateActive, selectedUsername} =
+    props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
   const scrollViewRef = useRef<ScrollView>(null);
   return (
     <View style={style.containerView}>
       {privateActive ? (
         <View style={style.row}>
-          <TouchableOpacity
-            style={style.backButton}
-            onPress={() => setPrivateActive(false)}>
-            <Image
-              resizeMode={'contain'}
-              style={style.backIcon}
-              source={{uri: icons.backBtn}}
+          <View style={style.backButton}>
+            <BtnTemplate
+              style={[style.backIcon]}
+              onPress={() => setPrivateActive(false)}
+              name={'backBtn'}
             />
-          </TouchableOpacity>
-          <Text style={style.name}>{selectedUsername}</Text>
+          </View>
+          <Text style={style.name}>hey{selectedUsername}</Text>
         </View>
       ) : (
         <></>
       )}
-      <ScrollView ref={scrollViewRef} onContentSizeChange={()=>{scrollViewRef.current?.scrollToEnd({ animated: true })}}>
+      <ScrollView
+        ref={scrollViewRef}
+        onContentSizeChange={() => {
+          scrollViewRef.current?.scrollToEnd({animated: true});
+        }}>
         {!privateActive ? (
           messageStore.map((message: any) => {
             return (
@@ -90,26 +88,26 @@ const ChatContainer = (props: any) => {
 
 const style = StyleSheet.create({
   containerView: {flex: 8},
-  row: {flexDirection: 'row', marginTop: 2},
-  backButton: {
+  row: {
+    flexDirection: 'row',
+    marginTop: 2,
+    alignItems: 'center',
     paddingVertical: 10,
-    marginLeft: 10,
+  },
+  backButton: {
+    marginHorizontal: 10,
     justifyContent: 'center',
-    alignSelf: 'center',
+    alignSelf: 'flex-end',
   },
   name: {
     fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
-    marginLeft: 10,
     color: $config.PRIMARY_FONT_COLOR,
     alignSelf: 'center',
   },
   backIcon: {
     width: 20,
     height: 12,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    tintColor: $config.PRIMARY_FONT_COLOR,
   },
 });
 export default ChatContainer;
