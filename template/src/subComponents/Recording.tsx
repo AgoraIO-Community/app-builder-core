@@ -18,6 +18,7 @@ import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import Toast from '../../react-native-toast-message';
+import ImageIcon from '../../agora-rn-uikit/src/Controls/ImageIcon';
 
 const START_RECORDING = gql`
   mutation startRecordingSession($passphrase: String!, $secret: String) {
@@ -46,12 +47,12 @@ const Recording = (props: any) => {
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
 
-  useEffect(()=>{
-    if(recordingActive)
-      Toast.show({text1: 'Recording Started', visibilityTime: 1000})
+  useEffect(() => {
+    if (recordingActive)
+      Toast.show({text1: 'Recording Started', visibilityTime: 1000});
     // else if(!recordingActive)
-      // Toast.show({text1: 'Recording Finished', visibilityTime: 1000})
-  },[recordingActive])
+    // Toast.show({text1: 'Recording Finished', visibilityTime: 1000})
+  }, [recordingActive]);
 
   return (
     <TouchableOpacity
@@ -98,15 +99,10 @@ const Recording = (props: any) => {
             });
         }
       }}>
-      <View style={[style.localButton, { borderColor: primaryColor }]}>
-        <Image
-          source={{
-            uri: recordingActive
-              ? icons.recordingActiveIcon
-              : icons.recordingIcon,
-          }}
-          style={[style.buttonIcon, { tintColor: recordingActive ? '#FD0845' : primaryColor }]}
-          resizeMode={'contain'}
+      <View style={[style.localButton, {borderColor: primaryColor}]}>
+        <ImageIcon
+          name={recordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
+          style={[style.buttonIcon]}
         />
       </View>
       <Text
@@ -137,7 +133,6 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: '100%',
     height: '100%',
-    tintColor: $config.PRIMARY_COLOR,
   },
 });
 
