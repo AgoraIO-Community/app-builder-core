@@ -157,26 +157,25 @@ const GridVideo = (props: GridVideoProps) => {
                         resizeMode={'contain'}
                       />
                     </View>
-                      <View style={[style.NetworkIndicatorBackdrop]}>
-                        <Image
-                          source={{
-                            uri: networkIconsObject[userNetworkQualityStat]
-                              .icon,
-                          }}
-                          style={[
-                            style.MicIcon,
-                            {
-                              tintColor:
-                                networkIconsObject[userNetworkQualityStat]
-                                  .tint === 'primary'
-                                  ? primaryColor
-                                  : networkIconsObject[userNetworkQualityStat]
-                                      .tint,
-                            },
-                          ]}
-                          resizeMode={'contain'}
-                        />
-                      </View>
+                    <View style={[style.NetworkIndicatorBackdrop]}>
+                      <Image
+                        source={{
+                          uri: networkIconsObject[userNetworkQualityStat].icon,
+                        }}
+                        style={[
+                          style.MicIcon,
+                          {
+                            tintColor:
+                              networkIconsObject[userNetworkQualityStat]
+                                .tint === 'primary'
+                                ? primaryColor
+                                : networkIconsObject[userNetworkQualityStat]
+                                    .tint,
+                          },
+                        ]}
+                        resizeMode={'contain'}
+                      />
+                    </View>
                     <Text
                       textBreakStrategy={'simple'}
                       style={{
