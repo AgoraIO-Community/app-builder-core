@@ -15,6 +15,7 @@ import useMount from './useMount';
 
 interface StoreInterface {
   token: null | string;
+  displayName: null | string;
 }
 
 interface StorageContextInterface {
@@ -24,6 +25,7 @@ interface StorageContextInterface {
 
 const initStoreValue: StoreInterface = {
   token: null,
+  displayName: '',
 };
 
 const initStorageContextValue = {
