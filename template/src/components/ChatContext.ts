@@ -25,9 +25,14 @@ export interface messageStoreInterface {
   msg: string;
 }
 
+export interface IPrivateNotification extends messageStoreInterface {
+  currentuid: string;
+}
+
 interface chatContext {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
+  privateMessageNotificationList: IPrivateNotification | any;
   sendMessage: (msg: string) => void;
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
@@ -35,6 +40,8 @@ interface chatContext {
   engine: RtmEngine;
   localUid: string;
   userList: any;
+  isUserSharingScreen: boolean;
+  setUserSharingScreenState: (value: boolean) => void;
   // peersRTM: Array<string>;
 }
 
@@ -48,6 +55,6 @@ export enum controlMessageEnum {
   cloudRecordingUnactive = '7',
 }
 
-const ChatContext = createContext((null as unknown) as chatContext);
+const ChatContext = createContext(null as unknown as chatContext);
 
 export default ChatContext;
