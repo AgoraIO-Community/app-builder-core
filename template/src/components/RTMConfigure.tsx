@@ -14,7 +14,7 @@ import RtmEngine from 'agora-react-native-rtm';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import {messageStoreInterface} from './ChatContext';
+import {messageStoreInterface, IPrivateNotification} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 
@@ -34,6 +34,10 @@ const RtmConfigure = (props: any) => {
   const {dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [privateMessageStore, setPrivateMessageStore] = useState({});
+  const [privateMessageNotificationList, setPrivateMessageNotificationList] =
+    useState<IPrivateNotification[]>([]);
+  const [isUserSharingScreen, setUserSharingScreenState] =
+    React.useState<boolean>(false);
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState({});
   let engine = useRef<RtmEngine>(null!);
@@ -64,6 +68,18 @@ const RtmConfigure = (props: any) => {
       return {...newState};
     });
     // console.log(privateMessageStore);
+    // To populate a list of private notications and store in flat array
+    setPrivateMessageNotificationList((m: IPrivateNotification[]) => {
+      return [
+        ...m,
+        {
+          ts: ts,
+          uid: uid,
+          msg: text,
+          currentuid: local ? localUid.current : uid,
+        },
+      ];
+    });
   };
 
   const init = async () => {
@@ -343,6 +359,7 @@ const RtmConfigure = (props: any) => {
       value={{
         messageStore,
         privateMessageStore,
+        privateMessageNotificationList,
         sendControlMessage,
         sendControlMessageToUid,
         sendMessage,
@@ -350,6 +367,8 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,
+        isUserSharingScreen,
+        setUserSharingScreenState,
       }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>
