@@ -62,11 +62,11 @@ const initNewtorkQualityContextValue: {[key: string | number]: number} = {
   local: 0,
 };
 
-const NetworkQualityContext = createContext(initNewtorkQualityContextValue);
+const networkQualityContext = createContext(initNewtorkQualityContextValue);
 
-export default NetworkQualityContext;
+export default networkQualityContext;
 
-export const NetworkQualityConsumer = NetworkQualityContext.Consumer;
+export const NetworkQualityConsumer = networkQualityContext.Consumer;
 
 export const NetworkQualityProvider = (props) => {
   const [networkQualityStat, setNetworkQualityStats] = useState(
@@ -95,8 +95,8 @@ export const NetworkQualityProvider = (props) => {
   });
 
   return (
-    <NetworkQualityContext.Provider value={networkQualityStat}>
+    <networkQualityContext.Provider value={networkQualityStat}>
       {props.children}
-    </NetworkQualityContext.Provider>
+    </networkQualityContext.Provider>
   );
 };

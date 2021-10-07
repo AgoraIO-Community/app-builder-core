@@ -28,7 +28,7 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
-import NetworkQualityContext, {
+import networkQualityContext, {
   networkIconsObject,
 } from './NetworkQualityContext';
 
@@ -36,9 +36,7 @@ const {topPinned} = layoutProps;
 
 const PinnedVideo = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {networkQualityStat, networkIconsObject} = useContext(
-    NetworkQualityContext,
-  );
+  const networkQualityStat = useContext(networkQualityContext);
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
