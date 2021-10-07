@@ -65,8 +65,14 @@ const useChatNotification = (
 };
 
 const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
-  const {messageStore, privateMessageStore, userList, localUid} =
-    useContext(ChatContext);
+  const {
+    messageStore,
+    privateMessageStore,
+    userList,
+    localUid,
+    privateMessageNotificationList,
+    isUserSharingScreen,
+  } = useContext(ChatContext);
   const [
     lastCheckedPublicState,
     setLastCheckedPublicState,
@@ -133,6 +139,49 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageStore]);
+
+  // The following block shows notification for peivate messages received
+  useEffect(() => {
+    if (
+      privateMessageNotificationList.length !== 0 &&
+      privateMessageNotificationList[privateMessageNotificationList.length - 1]
+        ?.currentuid !== localUid
+    ) {
+      const text1 = isUserSharingScreen
+        ? '<<...content hidden...>>'
+        : privateMessageNotificationList[
+            privateMessageNotificationList.length - 1
+          ]?.msg.length > 50
+        ? privateMessageNotificationList[
+            privateMessageNotificationList.length - 1
+          ]?.msg.slice(1, 50) + '...'
+        : privateMessageNotificationList[
+            privateMessageNotificationList.length - 1
+          ]?.msg.slice(1);
+
+      Toast.show({
+        type: 'success',
+        text1,
+        text2: userList[
+          privateMessageNotificationList[
+            privateMessageNotificationList.length - 1
+          ]?.uid
+        ]
+          ? 'From: ' +
+            userList[
+              privateMessageNotificationList[
+                privateMessageNotificationList.length - 1
+              ]?.uid
+            ].name
+          : '',
+        visibilityTime: 1000,
+        onPress: () => {
+          setSidePanel(SidePanelType.Chat);
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [privateMessageNotificationList]);
 
   return children({
     pendingPublicNotification,
