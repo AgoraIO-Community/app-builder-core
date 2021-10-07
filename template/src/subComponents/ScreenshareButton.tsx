@@ -22,7 +22,6 @@ import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
 import Layout from '../subComponents/LayoutEnum';
 
-
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
     setPresenter(uid: $uid, passphrase: $passphrase)
@@ -34,7 +33,6 @@ const SET_NORMAL = gql`
     setNormal(passphrase: $passphrase)
   }
 `;
-
 
 interface ScreenSharingProps {
   screenshareActive: boolean;
@@ -54,7 +52,7 @@ function usePrevious(value) {
  * Electron has it's own screen sharing component
  */
 const ScreenshareButton = (props: ScreenSharingProps) => {
-  const {userList} = useContext(ChatContext);
+  const {userList, setUserSharingScreenState} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
   const rtc = useContext(RtcContext);
   const {dispatch} = rtc;
@@ -64,52 +62,56 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
   const prevUsers = usePrevious({users});
   const prevUserList = usePrevious({userList});
   const {phrase} = useParams();
-  const {screenshareActive, setScreenshareActive, setLayout, recordingActive} = props;
+  const {screenshareActive, setScreenshareActive, setLayout, recordingActive} =
+    props;
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
   const [setPresenterQuery] = useMutation(SET_PRESENTER);
   const [setNormalQuery] = useMutation(SET_NORMAL);
-  
+
   useEffect(() => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
-      console.log('STOPPED SHARING')
+      console.log('STOPPED SHARING');
       setLayout((l: Layout) =>
         l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
       );
       setNormalQuery({variables: {passphrase: phrase}})
-      .then((res) => {
-        console.log(res.data);
-        if (res.data.stopRecordingSession === 'success') {
-          // Once the backend sucessfuly stops recording,
-          // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-          // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-          // set the local recording state to false to update the UI
-          // setScreenshareActive(false);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.stopRecordingSession === 'success') {
+            // Once the backend sucessfuly stops recording,
+            // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+            // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+            // set the local recording state to false to update the UI
+            // setScreenshareActive(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   }, []);
 
   useEffect(() => {
-    if(prevUsers !== undefined){
-      let joinedUser = users.filter(person => prevUsers.users.every(person2 => !(person2.uid === person.uid)))
-      let leftUser = prevUsers.users.filter(person => users.every(person2 => !(person2.uid === person.uid)))
+    if (prevUsers !== undefined) {
+      let joinedUser = users.filter((person) =>
+        prevUsers.users.every((person2) => !(person2.uid === person.uid)),
+      );
+      let leftUser = prevUsers.users.filter((person) =>
+        users.every((person2) => !(person2.uid === person.uid)),
+      );
 
-      if(joinedUser.length === 1){
+      if (joinedUser.length === 1) {
         const newUserUid = joinedUser[0].uid;
-        if(userList[newUserUid] && userList[newUserUid].type === 1){
-            dispatch({
-              type: 'SwapVideo',
-              value: [joinedUser[0]],
-            });
-            setLayout(Layout.Pinned);
-        }else if(newUserUid ===  1){
+        if (userList[newUserUid] && userList[newUserUid].type === 1) {
+          dispatch({
+            type: 'SwapVideo',
+            value: [joinedUser[0]],
+          });
+          setLayout(Layout.Pinned);
+        } else if (newUserUid === 1) {
           dispatch({
             type: 'SwapVideo',
             value: [joinedUser[0]],
@@ -118,16 +120,21 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
         }
       }
 
-      if(leftUser.length === 1){
+      if (leftUser.length === 1) {
         const leftUserUid = leftUser[0].uid;
-        if(userList[leftUserUid] && userList[leftUserUid].type === 1){
-            setLayout((l: Layout) =>
-              l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-            );    
+        if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
+          setLayout((l: Layout) =>
+            l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
+          );
         }
       }
-  }
-}, [users, userList])
+    }
+  }, [users, userList]);
+
+  useEffect(() => {
+    setUserSharingScreenState(screenshareActive);
+  }, [screenshareActive]);
+
   return (
     <TouchableOpacity
       onPress={async () => {
@@ -152,7 +159,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
             .catch((err) => {
               console.log(err);
             });
-        } else if(isScreenActive && recordingActive){
+        } else if (isScreenActive && recordingActive) {
           // If recording is already going on, stop the recording by executing the graphql query.
           setNormalQuery({variables: {passphrase: phrase}})
             .then((res) => {
@@ -183,41 +190,43 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
         } catch (e) {
           console.error("can't start the screen share", e);
           setNormalQuery({variables: {passphrase: phrase}})
-          .then((res) => {
-            console.log(res.data);
-            if (res.data.stopRecordingSession === 'success') {
-              // Once the backend sucessfuly stops recording,
-              // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-              // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-              // set the local recording state to false to update the UI
-              // setScreenshareActive(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+            .then((res) => {
+              console.log(res.data);
+              if (res.data.stopRecordingSession === 'success') {
+                // Once the backend sucessfuly stops recording,
+                // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+                // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+                // set the local recording state to false to update the UI
+                // setScreenshareActive(false);
+              }
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         }
       }}>
-        <View style={
-        screenshareActive
-          ? style.greenLocalButton
-          : [style.localButton, {borderColor: primaryColor}]
-      }>
-      <Image
-        source={{
-          uri: screenshareActive
-            ? icons.screenshareOffIcon
-            : icons.screenshareIcon,
-        }}
-        style={[style.buttonIcon, {tintColor: primaryColor}]}
-        resizeMode={'contain'}
-      />
+      <View
+        style={
+          screenshareActive
+            ? style.greenLocalButton
+            : [style.localButton, {borderColor: primaryColor}]
+        }>
+        <Image
+          source={{
+            uri: screenshareActive
+              ? icons.screenshareOffIcon
+              : icons.screenshareIcon,
+          }}
+          style={[style.buttonIcon, {tintColor: primaryColor}]}
+          resizeMode={'contain'}
+        />
       </View>
-      <Text style={{
-        textAlign: 'center',
-        marginTop: 5,
-        color: $config.PRIMARY_COLOR,
-      }}>
+      <Text
+        style={{
+          textAlign: 'center',
+          marginTop: 5,
+          color: $config.PRIMARY_COLOR,
+        }}>
         Share
       </Text>
     </TouchableOpacity>
