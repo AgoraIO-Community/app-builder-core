@@ -28,7 +28,9 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
-import NetworkQualityContext from './NetworkQualityContext';
+import NetworkQualityContext, {
+  networkIconsObject,
+} from './NetworkQualityContext';
 
 const {topPinned} = layoutProps;
 
@@ -328,7 +330,8 @@ const style = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     alignSelf: 'center',
-    marginHorizontal: 10,
+    marginLeft: 5,
+    marginRight: 10,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     justifyContent: 'center',
   },

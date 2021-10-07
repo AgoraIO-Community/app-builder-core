@@ -29,7 +29,9 @@ import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
-import NetworkQualityContext from './NetworkQualityContext';
+import NetworkQualityContext, {
+  networkIconsObject,
+} from './NetworkQualityContext';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -60,9 +62,7 @@ const GridVideo = (props: GridVideoProps) => {
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
   const {primaryColor} = useContext(ColorContext);
-  const {networkQualityStat, networkIconsObject} = useContext(
-    NetworkQualityContext,
-  );
+  const networkQualityStat = useContext(NetworkQualityContext);
   const {userList, localUid} = useContext(chatContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
@@ -157,7 +157,6 @@ const GridVideo = (props: GridVideoProps) => {
                         resizeMode={'contain'}
                       />
                     </View>
-                    {
                       <View style={[style.NetworkIndicatorBackdrop]}>
                         <Image
                           source={{
@@ -178,8 +177,6 @@ const GridVideo = (props: GridVideoProps) => {
                           resizeMode={'contain'}
                         />
                       </View>
-                      // )
-                    }
                     <Text
                       textBreakStrategy={'simple'}
                       style={{
@@ -261,7 +258,8 @@ const style = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     alignSelf: 'center',
-    marginHorizontal: 10,
+    marginLeft: 5,
+    marginRight: 10,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     justifyContent: 'center',
   },

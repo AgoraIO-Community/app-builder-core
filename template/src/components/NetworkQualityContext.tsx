@@ -14,7 +14,12 @@ import RtcContext from '../../agora-rn-uikit/src/RtcContext';
 import useMount from './useMount';
 import icons from '../assets/icons';
 
-const networkIconsObject = {
+export const networkIconsObject: {
+  [key: number]: {
+    icon: string;
+    tint: string;
+  };
+} = {
   0: {
     icon: icons.networkIcons['Loading'],
     tint: 'primary',
@@ -25,7 +30,7 @@ const networkIconsObject = {
   },
   2: {
     icon: icons.networkIcons['Good'],
-    tint: 'yellow',
+    tint: '#FFEE00',
   },
   3: {
     icon: icons.networkIcons['Bad'],
@@ -53,25 +58,8 @@ const networkIconsObject = {
   },
 };
 
-interface networkQualityObjectInterface {
-  networkQualityStat: networkQualityStatsInterface;
-  networkIconsObject: {
-    [key: number]: {
-      icon: string;
-      tint: string;
-    };
-  };
-}
-
-interface networkQualityStatsInterface {
-  [key: string | number]: number;
-}
-
-const initNewtorkQualityContextValue: networkQualityObjectInterface = {
-  networkQualityStat: {
-    local: 0,
-  },
-  networkIconsObject,
+const initNewtorkQualityContextValue: {[key: string | number]: number} = {
+  local: 0,
 };
 
 const NetworkQualityContext = createContext(initNewtorkQualityContextValue);
@@ -81,9 +69,9 @@ export default NetworkQualityContext;
 export const NetworkQualityConsumer = NetworkQualityContext.Consumer;
 
 export const NetworkQualityProvider = (props) => {
-  const [networkQualityStat, setNetworkQualityStats] = useState({
-    local: 0,
-  } as networkQualityStatsInterface);
+  const [networkQualityStat, setNetworkQualityStats] = useState(
+    initNewtorkQualityContextValue,
+  );
   const {RtcEngine} = useContext(RtcContext);
 
   useMount(() => {
@@ -107,8 +95,7 @@ export const NetworkQualityProvider = (props) => {
   });
 
   return (
-    <NetworkQualityContext.Provider
-      value={{networkQualityStat, networkIconsObject}}>
+    <NetworkQualityContext.Provider value={networkQualityStat}>
       {props.children}
     </NetworkQualityContext.Provider>
   );
