@@ -231,9 +231,9 @@ const VideoCall: React.FC = () => {
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams();
   const [errorMessage, setErrorMessage] = useState(null);
-  let isHost = true; //change to false by default after testing
-  let title = null;
-  let rtcProps = {
+  const [isHost, setIsHost] = React.useState(false);
+  const [title, setTitle] = React.useState('');
+  const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
     uid: null,
@@ -246,7 +246,7 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
-  };
+  });
 
   const {data, loading, error} = useQuery(
     store.token === null
@@ -270,7 +270,7 @@ const VideoCall: React.FC = () => {
     if (!loading && data) {
       console.log('token:', rtcProps.token);
       console.log('error', data.error);
-      rtcProps = {
+      setRtcProps({
         appId: $config.APP_ID,
         channel: data.joinChannel.channel,
         uid: data.joinChannel.mainUser.uid,
@@ -287,9 +287,9 @@ const VideoCall: React.FC = () => {
           : false,
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
-      };
-      isHost = data.joinChannel.isHost;
-      title = data.joinChannel.title;
+      });
+      setIsHost(data.joinChannel.isHost);
+      setTitle(data.joinChannel.title);
       console.log('query done: ', data, queryComplete);
       // 1. Store the display name from API
       if (data.getUser) {
