@@ -11,7 +11,6 @@
 */
 import RtmEngine from 'agora-react-native-rtm';
 import {createContext} from 'react';
-import {mType} from './RTMConfigure';
 import {rtmEventsInterface} from './RTMEvents';
 
 export interface channelMessage {
@@ -28,17 +27,22 @@ export interface messageStoreInterface {
 }
 
 export interface messageEventInterface extends messageStoreInterface {
-  type: mType;
-  source: mSourceType;
+  type: messageActionType;
+  source: messageSourceType;
 }
 
-export enum mSourceType {
+export enum messageSourceType {
   Core = 'core',
 }
 
-export enum mChannelType {
+export enum messageChannelType {
   Private = 'private',
   Public = 'public',
+}
+
+export enum messageActionType {
+  Control = '0',
+  Normal = '1',
 }
 
 interface chatContext {
