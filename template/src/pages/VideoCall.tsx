@@ -30,7 +30,7 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import ChatContext, {mChannelType} from '../components/ChatContext';
+import ChatContext, {messageChannelType} from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
@@ -114,7 +114,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       });
     };
     events.on(
-      mChannelType.Public,
+      messageChannelType.Public,
       'onPublicMessageReceived',
       (data: any, error: any) => {
         if (!data) return;
@@ -122,7 +122,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       },
     );
     events.on(
-      mChannelType.Private,
+      messageChannelType.Private,
       'onPrivateMessageReceived',
       (data: any, error: any) => {
         if (!data) return;
@@ -132,8 +132,8 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
     );
     return () => {
       // Cleanup the listeners
-      events.off(mChannelType.Public, 'onPublicMessageReceived');
-      events.off(mChannelType.Private, 'onPrivateMessageReceived');
+      events.off(messageChannelType.Public, 'onPublicMessageReceived');
+      events.off(messageChannelType.Private, 'onPrivateMessageReceived');
     };
   }, [userList, messageStore]);
 
