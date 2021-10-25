@@ -14,15 +14,15 @@ import RtmEngine from 'agora-react-native-rtm';
 import PropsContext from '../../agora-rn-uikit/src/PropsContext';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import {messageStoreInterface, mChannelType, mSourceType} from './ChatContext';
+import {
+  messageStoreInterface,
+  messageChannelType,
+  messageSourceType,
+  messageActionType,
+} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
-
-export enum mType {
-  Control = '0',
-  Normal = '1',
-}
 
 export enum UserType {
   Normal,
@@ -36,7 +36,11 @@ const adjustUID = (number: number) => {
   return number;
 };
 
-const stringifyPayload = (source: mSourceType, type: mType, msg: string) => {
+const stringifyPayload = (
+  source: messageSourceType,
+  type: messageActionType,
+  msg: string,
+) => {
   return JSON.stringify({
     source,
     type,
@@ -61,16 +65,18 @@ const RtmConfigure = (props: any) => {
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
 
-  const addMessageToStore = (uid: string, text: string, ts: string) => {
+  const addMessageToStore = (uid: string, msg: {body: string; ts: string}) => {
     setMessageStore((m: messageStoreInterface[]) => {
-      return [...m, {ts: ts, uid: uid, msg: text}];
+      return [...m, {ts: msg.ts, uid: uid, msg: msg.body}];
     });
   };
 
   const addMessageToPrivateStore = (
     uid: string,
-    text: string,
-    ts: string,
+    msg: {
+      body: string;
+      ts: string;
+    },
     local: boolean,
   ) => {
     setPrivateMessageStore((state: any) => {
@@ -78,11 +84,13 @@ const RtmConfigure = (props: any) => {
       newState[uid] !== undefined
         ? (newState[uid] = [
             ...newState[uid],
-            {ts: ts, uid: local ? localUid.current : uid, msg: text},
+            {ts: msg.ts, uid: local ? localUid.current : uid, msg: msg.body},
           ])
         : (newState = {
             ...newState,
-            [uid]: [{ts: ts, uid: local ? localUid.current : uid, msg: text}],
+            [uid]: [
+              {ts: msg.ts, uid: local ? localUid.current : uid, msg: msg.body},
+            ],
           });
       return {...newState};
     });
@@ -152,11 +160,11 @@ const RtmConfigure = (props: any) => {
       let arr = new Int32Array(1);
       arr[0] = parseInt(peerId);
 
-      const inHours = new Date(ts).getHours();
-      const timestamp = isNaN(inHours) ? timeNow() : inHours;
+      const timestamp = timeNow();
+
       const userUID = Platform.OS === 'android' ? arr[0] : peerId;
 
-      if (type === mType.Control) {
+      if (type === messageActionType.Control) {
         try {
           switch (msg) {
             case controlMessageEnum.muteVideo:
@@ -178,34 +186,36 @@ const RtmConfigure = (props: any) => {
               });
               break;
             default:
-              break;
+              throw new Error('Unsupported message type');
           }
         } catch (e) {
-          events.emit(mChannelType.Private, null, {
-            msg: `Error while dispatching ${mChannelType.Private} control message`,
+          events.emit(messageChannelType.Private, null, {
+            msg: `Error while dispatching ${messageChannelType.Private} control message`,
             cause: e,
           });
           return;
         }
-      } else if (type === mType.Normal) {
+      } else if (type === messageActionType.Normal) {
         try {
           addMessageToPrivateStore(
             userUID,
-            `${type}${msg}`,
-            timestamp.toString(),
+            {
+              body: `${type}${msg}`,
+              ts: timestamp,
+            },
             false,
           );
         } catch (e) {
-          events.emit(mChannelType.Private, null, {
-            msg: `Error while adding ${mChannelType.Private} message to store`,
+          events.emit(messageChannelType.Private, null, {
+            msg: `Error while adding ${messageChannelType.Private} message to store`,
             cause: e,
           });
           return;
         }
       }
-      events.emit(mChannelType.Private, {
+      events.emit(messageChannelType.Private, {
         uid: userUID,
-        ts: timestamp.toString(),
+        ts: timestamp,
         ...textObj,
       });
     });
@@ -223,7 +233,7 @@ const RtmConfigure = (props: any) => {
       const timestamp = ts === 0 ? timeNow() : ts;
 
       if (channelId === rtcProps.channel) {
-        if (type === mType.Control) {
+        if (type === messageActionType.Control) {
           try {
             switch (msg) {
               case controlMessageEnum.muteVideo:
@@ -245,28 +255,28 @@ const RtmConfigure = (props: any) => {
                 setRecordingActive(false);
                 break;
               default:
-                break;
+                throw new Error('Unsupported message type');
             }
           } catch (e) {
-            events.emit(mChannelType.Public, null, {
-              msg: `Error while dispatching ${mChannelType.Public} control message`,
+            events.emit(messageChannelType.Public, null, {
+              msg: `Error while dispatching ${messageChannelType.Public} control message`,
               cause: e,
             });
             return;
           }
-        } else if (type === mType.Normal) {
+        } else if (type === messageActionType.Normal) {
           try {
-            addMessageToStore(userUID, `${type}${msg}`, timestamp);
+            addMessageToStore(userUID, {body: `${type}${msg}`, ts: timestamp});
           } catch (e) {
-            events.emit(mChannelType.Public, null, {
-              msg: `Error while adding ${mChannelType.Public}  message to store`,
+            events.emit(messageChannelType.Public, null, {
+              msg: `Error while adding ${messageChannelType.Public}  message to store`,
               cause: e,
             });
             return;
           }
         }
       }
-      events.emit(mChannelType.Public, {
+      events.emit(messageChannelType.Public, {
         uid: userUID,
         ts: timestamp,
         ...textObj,
@@ -336,12 +346,19 @@ const RtmConfigure = (props: any) => {
 
   const sendMessage = async (msg: string) => {
     if (msg.trim() === '') return;
-    const text = stringifyPayload(mSourceType.Core, mType.Normal, msg);
+    const text = stringifyPayload(
+      messageSourceType.Core,
+      messageActionType.Normal,
+      msg,
+    );
     await (engine.current as RtmEngine).sendMessageByChannelId(
       rtcProps.channel,
       text,
     );
-    addMessageToStore(localUid.current, mType.Normal + msg, timeNow());
+    addMessageToStore(localUid.current, {
+      body: messageActionType.Normal + msg,
+      ts: timeNow(),
+    });
   };
   const sendMessageToUid = async (msg: string, uid: number) => {
     if (msg.trim() === '') return;
@@ -349,17 +366,32 @@ const RtmConfigure = (props: any) => {
     if (adjustedUID < 0) {
       adjustedUID = adjustUID(uid);
     }
-    const text = stringifyPayload(mSourceType.Core, mType.Normal, msg);
+    const text = stringifyPayload(
+      messageSourceType.Core,
+      messageActionType.Normal,
+      msg,
+    );
     await (engine.current as RtmEngine).sendMessageToPeer({
       peerId: adjustedUID.toString(),
       offline: false,
       text,
     });
-    addMessageToPrivateStore(uid, mType.Normal + msg, timeNow(), true);
+    addMessageToPrivateStore(
+      uid,
+      {
+        body: messageActionType.Normal + msg,
+        ts: timeNow(),
+      },
+      true,
+    );
   };
 
   const sendControlMessage = async (msg: string) => {
-    const text = stringifyPayload(mSourceType.Core, mType.Control, msg);
+    const text = stringifyPayload(
+      messageSourceType.Core,
+      messageActionType.Control,
+      msg,
+    );
     await (engine.current as RtmEngine).sendMessageByChannelId(
       rtcProps.channel,
       text,
@@ -370,7 +402,11 @@ const RtmConfigure = (props: any) => {
     if (uid < 0) {
       uid = adjustUID(uid);
     }
-    const text = stringifyPayload(mSourceType.Core, mType.Control, msg);
+    const text = stringifyPayload(
+      messageSourceType.Core,
+      messageActionType.Control,
+      msg,
+    );
     await (engine.current as RtmEngine).sendMessageToPeer({
       peerId: uid.toString(),
       offline: false,
