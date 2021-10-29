@@ -20,6 +20,7 @@ import {
 import Logo from '../subComponents/Logo';
 import OAuth from '../components/OAuth';
 import Illustration from '../subComponents/Illustration';
+import hasBrandLogo from '../utils/hasBrandLogo';
 
 const Authenticate = () => {
   const [dim, setDim] = useState([
@@ -37,13 +38,13 @@ const Authenticate = () => {
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.main}>
-        <View style={style.nav}>
-          <Logo />
-        </View>
+        <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
         <View style={style.content}>
           <View style={style.leftContent}>
             <Text style={style.heading}>Login using OAuth</Text>
-            <Text style={style.headline}>Please select an OAuth provider to login.</Text>
+            <Text style={style.headline}>
+              Please select an OAuth provider to login.
+            </Text>
             <OAuth />
           </View>
           {dim[0] > dim[1] + 150 ? (
