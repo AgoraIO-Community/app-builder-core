@@ -20,11 +20,11 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
-import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import {MinUidConsumer} from '../../agora-rn-uikit';
+import {MaxUidConsumer} from '../../agora-rn-uikit';
 import LocalAudioMute from '../subComponents/LocalAudioMute';
 import LocalVideoMute from '../subComponents/LocalVideoMute';
-import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
+import {LocalUserContext} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import RemoteAudioMute from '../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../subComponents/RemoteVideoMute';

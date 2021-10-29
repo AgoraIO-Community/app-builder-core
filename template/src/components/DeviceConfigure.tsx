@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import {RtcContext} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 
 const DeviceConfigure: React.FC = (props: any) => {

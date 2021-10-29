@@ -19,10 +19,10 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
-import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import {MinUidConsumer} from '../../agora-rn-uikit';
+import {RtcContext} from '../../agora-rn-uikit';
+import {MaxVideoView} from '../../agora-rn-uikit';
+import {MaxUidConsumer} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import ColorContext from './ColorContext';
 import icons from '../assets/icons';

@@ -19,16 +19,15 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
-import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
+import {MinUidContext} from '../../agora-rn-uikit';
+import {MaxUidContext} from '../../agora-rn-uikit';
+import {MaxVideoView} from '../../agora-rn-uikit';
+import {RtcContext} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import icons from '../assets/icons';
-import styles from './styles';
 import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
-import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
