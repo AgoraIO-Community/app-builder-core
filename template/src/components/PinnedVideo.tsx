@@ -34,6 +34,8 @@ import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 
 const {topPinned} = layoutProps;
 
+const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
+
 const PinnedVideo = () => {
   const {primaryColor} = useContext(ColorContext);
   const networkQualityStat = useContext(networkQualityContext);
@@ -210,7 +212,11 @@ const PinnedVideo = () => {
               <NetworkQualityPill
                 networkStat={networkQualityStat[maxUsers[0].uid]}
                 primaryColor={primaryColor}
-                rootStyle={{marginLeft: 25, top: 8, left: 'unset', right: 10}}
+                rootStyle={{
+                  marginLeft: 25,
+                  top: 8,
+                  [isMobile ? 'left' : 'right']: isMobile ? -20 : 5,
+                }}
                 small
               />
               <MaxVideoView
@@ -274,7 +280,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 6,
     height: 25,
     borderTopLeftRadius: 12,
-    borderBottomRightRadius: 15,
+    borderBottomRightRadius: isMobile ? 0 : 15,
     flexDirection: 'row',
   },
   name: {

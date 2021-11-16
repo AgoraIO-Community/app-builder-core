@@ -107,6 +107,7 @@ const GridVideo = (props: GridVideoProps) => {
                     networkQualityStat[users[ridx * dims.c + cidx].uid]
                   }
                   primaryColor={primaryColor}
+                  rootStyle={{top: 10, left: 20}}
                 />
                 <MaxVideoView
                   fallback={() => {
@@ -133,7 +134,10 @@ const GridVideo = (props: GridVideoProps) => {
                     paddingHorizontal: 8,
                     height: 30,
                     borderTopLeftRadius: 15,
-                    borderBottomRightRadius: 15,
+                    borderBottomRightRadius:
+                      Platform.OS === 'ios' || Platform.OS === 'android'
+                        ? 0
+                        : 15,
                     // marginHorizontal: 'auto',
                     maxWidth: '100%',
                     flexDirection: 'row',
