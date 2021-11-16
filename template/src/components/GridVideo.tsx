@@ -29,9 +29,8 @@ import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
-import networkQualityContext, {
-  networkIconsObject,
-} from './NetworkQualityContext';
+import networkQualityContext from './NetworkQualityContext';
+import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -78,6 +77,7 @@ const GridVideo = (props: GridVideoProps) => {
     () => layout(users.length, isDesktop),
     [users.length, isDesktop],
   );
+  const [networkTextVisible, setNetworkTextVisible] = useState(-1);
 
   return (
     <View
@@ -102,6 +102,12 @@ const GridVideo = (props: GridVideoProps) => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
+                <NetworkQualityPill
+                  networkStat={
+                    networkQualityStat[users[ridx * dims.c + cidx].uid]
+                  }
+                  primaryColor={primaryColor}
+                />
                 <MaxVideoView
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
@@ -149,34 +155,6 @@ const GridVideo = (props: GridVideoProps) => {
                           tintColor: users[ridx * dims.c + cidx].audio
                             ? primaryColor
                             : 'red',
-                        },
-                      ]}
-                      resizeMode={'contain'}
-                    />
-                  </View>
-                  <View style={[style.NetworkIndicatorBackdrop]}>
-                    <Image
-                      source={{
-                        uri: networkIconsObject[
-                          networkQualityStat[users[ridx * dims.c + cidx].uid] ||
-                            0
-                        ].icon,
-                      }}
-                      style={[
-                        style.MicIcon,
-                        {
-                          tintColor:
-                            networkIconsObject[
-                              networkQualityStat[
-                                users[ridx * dims.c + cidx].uid
-                              ] || 0
-                            ].tint === 'primary'
-                              ? primaryColor
-                              : networkIconsObject[
-                                  networkQualityStat[
-                                    users[ridx * dims.c + cidx].uid
-                                  ] || 0
-                                ].tint,
                         },
                       ]}
                       resizeMode={'contain'}
@@ -255,16 +233,6 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     display: 'flex',
-    justifyContent: 'center',
-  },
-  NetworkIndicatorBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginLeft: 5,
-    marginRight: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
     justifyContent: 'center',
   },
   MicIcon: {

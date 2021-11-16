@@ -18,43 +18,53 @@ export const networkIconsObject: {
   [key: number]: {
     icon: string;
     tint: string;
+    text: string;
   };
 } = {
   0: {
     icon: icons.networkIcons['Loading'],
     tint: 'primary',
+    text: 'Loading',
   },
   1: {
     icon: icons.networkIcons['Excellent'],
     tint: 'primary',
+    text: 'Excellent',
   },
   2: {
     icon: icons.networkIcons['Good'],
     tint: '#FFEE00',
+    text: 'Good',
   },
   3: {
     icon: icons.networkIcons['Bad'],
     tint: 'orange',
+    text: 'Bad',
   },
   4: {
     icon: icons.networkIcons['Bad'],
     tint: 'orange',
+    text: 'Bad',
   },
   5: {
     icon: icons.networkIcons['VeryBad'],
     tint: 'red',
+    text: 'VeryBad',
   },
   6: {
     icon: icons.networkIcons['VeryBad'],
     tint: 'red',
+    text: 'VeryBad',
   },
   7: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
+    text: 'Unknown',
   },
   8: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
+    text: 'Unknown',
   },
 };
 

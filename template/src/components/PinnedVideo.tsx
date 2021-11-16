@@ -18,6 +18,7 @@ import {
   Text,
   Image,
   Pressable,
+  Platform,
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
 import RtcContext from '../../agora-rn-uikit/src/RtcContext';
@@ -28,9 +29,8 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
-import networkQualityContext, {
-  networkIconsObject,
-} from './NetworkQualityContext';
+import networkQualityContext from './NetworkQualityContext';
+import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 
 const {topPinned} = layoutProps;
 
@@ -52,6 +52,9 @@ const PinnedVideo = () => {
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
   const {userList, localUid} = useContext(chatContext);
+  const [networkTextVisible, setNetworkTextVisible] = useState<String | Number>(
+    -1,
+  );
   return (
     <View
       style={{
@@ -133,6 +136,12 @@ const PinnedVideo = () => {
                         data.dispatch({type: 'SwapVideo', value: [user]});
                       }}>
                       <View style={style.flex1}>
+                        <NetworkQualityPill
+                          networkStat={networkQualityStat[user.uid]}
+                          primaryColor={primaryColor}
+                          rootStyle={{left: 5, top: 5}}
+                          small
+                        />
                         <MaxVideoView
                           fallback={() => {
                             if (user.uid === 'local') {
@@ -156,29 +165,6 @@ const PinnedVideo = () => {
                                 style.MicIcon,
                                 {
                                   tintColor: user.audio ? primaryColor : 'red',
-                                },
-                              ]}
-                              resizeMode={'contain'}
-                            />
-                          </View>
-                          <View style={[style.NetworkIndicatorBackdrop]}>
-                            <Image
-                              source={{
-                                uri: networkIconsObject[
-                                  networkQualityStat[user.uid] || 0
-                                ].icon,
-                              }}
-                              style={[
-                                style.MicIcon,
-                                {
-                                  tintColor:
-                                    networkIconsObject[
-                                      networkQualityStat[user.uid] || 0
-                                    ].tint === 'primary'
-                                      ? primaryColor
-                                      : networkIconsObject[
-                                          networkQualityStat[user.uid] || 0
-                                        ].tint,
                                 },
                               ]}
                               resizeMode={'contain'}
@@ -221,6 +207,12 @@ const PinnedVideo = () => {
         <MaxUidConsumer>
           {(maxUsers) => (
             <View style={style.flex1}>
+              <NetworkQualityPill
+                networkStat={networkQualityStat[maxUsers[0].uid]}
+                primaryColor={primaryColor}
+                rootStyle={{marginLeft: 25, top: 8, left: 'unset', right: 10}}
+                small
+              />
               <MaxVideoView
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
@@ -244,29 +236,6 @@ const PinnedVideo = () => {
                       style.MicIcon,
                       {
                         tintColor: maxUsers[0].audio ? primaryColor : 'red',
-                      },
-                    ]}
-                    resizeMode={'contain'}
-                  />
-                </View>
-                <View style={[style.NetworkIndicatorBackdrop]}>
-                  <Image
-                    source={{
-                      uri: networkIconsObject[
-                        networkQualityStat[maxUsers[0].uid] || 0
-                      ].icon,
-                    }}
-                    style={[
-                      style.MicIcon,
-                      {
-                        tintColor:
-                          networkIconsObject[
-                            networkQualityStat[maxUsers[0].uid] || 0
-                          ].tint === 'primary'
-                            ? primaryColor
-                            : networkIconsObject[
-                                networkQualityStat[maxUsers[0].uid] || 0
-                              ].tint,
                       },
                     ]}
                     resizeMode={'contain'}
@@ -302,16 +271,21 @@ const style = StyleSheet.create({
     marginTop: -25,
     backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
     alignSelf: 'flex-end',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     height: 25,
-    borderTopLeftRadius: 15,
+    borderTopLeftRadius: 12,
     borderBottomRightRadius: 15,
     flexDirection: 'row',
   },
-  name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
+  name: {
+    color: $config.PRIMARY_FONT_COLOR,
+    lineHeight: 25,
+    fontWeight: '700',
+    marginLeft: 8,
+  },
   MicBackdrop: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     borderRadius: 15,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     display: 'flex',
@@ -323,13 +297,36 @@ const style = StyleSheet.create({
     height: '80%',
     alignSelf: 'center',
   },
+  networkPill: {
+    height: 30,
+    backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
+    position: 'absolute',
+    top: 10,
+    left: 20,
+    zIndex: 2,
+    paddingHorizontal: 0,
+    borderRadius: 15,
+  },
+  networkPillContent: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  networkPillText: {
+    color: $config.PRIMARY_FONT_COLOR,
+    lineHeight: 30,
+    fontSize: 15,
+    fontWeight: '600',
+    marginLeft: 5,
+    marginRight: 15,
+  },
   NetworkIndicatorBackdrop: {
     width: 20,
     height: 20,
     borderRadius: 10,
     alignSelf: 'center',
     marginLeft: 5,
-    marginRight: 10,
+    marginRight: 5,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     justifyContent: 'center',
   },
