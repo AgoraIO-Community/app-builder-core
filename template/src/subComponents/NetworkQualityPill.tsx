@@ -29,7 +29,7 @@ export const NetworkQualityPill = ({
       style={[
         style.networkPill,
         {
-          opacity: networkTextVisible ? 1 : 0.5,
+          opacity: networkTextVisible ? 1 : 0.8,
         },
         rootStyle,
       ]}>

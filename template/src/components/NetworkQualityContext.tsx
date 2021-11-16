@@ -28,7 +28,7 @@ export const networkIconsObject: {
   },
   1: {
     icon: icons.networkIcons['Excellent'],
-    tint: 'primary',
+    tint: '#2BD900',
     text: 'Excellent',
   },
   2: {
@@ -38,12 +38,12 @@ export const networkIconsObject: {
   },
   3: {
     icon: icons.networkIcons['Bad'],
-    tint: 'orange',
+    tint: '#F8AA00',
     text: 'Bad',
   },
   4: {
     icon: icons.networkIcons['Bad'],
-    tint: 'orange',
+    tint: '#F8AA00',
     text: 'Bad',
   },
   5: {

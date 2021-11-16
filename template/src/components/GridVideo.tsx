@@ -107,7 +107,7 @@ const GridVideo = (props: GridVideoProps) => {
                     networkQualityStat[users[ridx * dims.c + cidx].uid]
                   }
                   primaryColor={primaryColor}
-                  rootStyle={{top: 10, left: 20}}
+                  rootStyle={{top: 5, left: 15}}
                 />
                 <MaxVideoView
                   fallback={() => {
