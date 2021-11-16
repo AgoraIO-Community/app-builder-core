@@ -71,31 +71,27 @@ const PinnedVideo = () => {
           style={{
             position: 'absolute',
             zIndex: 50,
-            marginTop: 5,
-            width: 35,
-            height: 35,
-            marginLeft: collapse ? 5 : '20.1%',
+            top: 12,
+            width: 30,
+            height: 30,
+            marginLeft: collapse ? 10 : '20.4%',
             backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
             borderRadius: 50,
             justifyContent: 'center',
           }}>
-          {/* <Image
+          <Image
             source={{
-              uri: icons.micOff,
+              uri: icons.collapseBtn,
             }}
-            style={[style.MicIcon]}
+            style={[
+              style.CollapseIcon,
+              {
+                tintColor: primaryColor,
+                transform: collapse ? 'scaleX(-1)' : 'scaleX(1)',
+              },
+            ]}
             resizeMode={'contain'}
-          /> */}
-          <Text
-            style={{
-              alignSelf: 'center',
-              justifyContent: 'center',
-              color: $config.PRIMARY_COLOR,
-              fontWeight: '500',
-              fontSize: 20,
-            }}>
-            {collapse ? '>' : '<'}
-          </Text>
+          />
         </Pressable>
       )}
       {!collapse && (
@@ -215,7 +211,7 @@ const PinnedVideo = () => {
                 rootStyle={{
                   marginLeft: 25,
                   top: 8,
-                  [isMobile ? 'left' : 'right']: isMobile ? -20 : 5,
+                  [isMobile ? 'left' : 'right']: isMobile ? -20 : 10,
                 }}
                 small
               />
@@ -303,38 +299,10 @@ const style = StyleSheet.create({
     height: '80%',
     alignSelf: 'center',
   },
-  networkPill: {
-    height: 30,
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
-    position: 'absolute',
-    top: 10,
-    left: 20,
-    zIndex: 2,
-    paddingHorizontal: 0,
-    borderRadius: 15,
-  },
-  networkPillContent: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  networkPillText: {
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 30,
-    fontSize: 15,
-    fontWeight: '600',
-    marginLeft: 5,
-    marginRight: 15,
-  },
-  NetworkIndicatorBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+  CollapseIcon: {
+    width: '60%',
+    height: '60%',
     alignSelf: 'center',
-    marginLeft: 5,
-    marginRight: 5,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    justifyContent: 'center',
   },
 });
 
