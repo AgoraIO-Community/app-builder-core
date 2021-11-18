@@ -20,6 +20,11 @@ import { StyleSheet, View, Text } from 'react-native';
  * 
  */
 function ScreenShareNotice({ uid }: any) {
+    /**
+     * In a meeting a and b are there
+        if a user sharing the screen - then that screenshare user uid is 1 for a’user end and its having xxx uid in another end
+        if b user sharing the screen - then that screenshare user uid is 1 for b’user end and its having xxx uid in another end
+     */
     return uid === 1
         ?
         <View style={styles.screenSharingMessageContainer}>
