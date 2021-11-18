@@ -29,6 +29,7 @@ import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
+import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -96,6 +97,7 @@ const GridVideo = (props: GridVideoProps) => {
                 marginHorizontal: 'auto',
               }}
               key={cidx}>
+              <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
               <View style={style.gridVideoContainerInner}>
                 <MaxVideoView
                   fallback={() => {
