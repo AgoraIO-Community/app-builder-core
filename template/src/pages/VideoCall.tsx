@@ -30,6 +30,7 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 import ChatContext from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
@@ -465,9 +466,7 @@ const VideoCall: React.FC = () => {
         </>
       ) : (
         <View style={style.loader}>
-          <View style={style.loaderLogo}>
-            <Logo />
-          </View>
+          <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
           <Text style={style.loaderText}>Starting Call. Just a second.</Text>
         </View>
       )}
