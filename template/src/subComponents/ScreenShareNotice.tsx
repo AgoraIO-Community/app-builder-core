@@ -10,8 +10,9 @@
 *********************************************
 */
 
-import React from 'react';
+import React, {useContext} from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+import chatContext from '../components/ChatContext';
 /**
  *
  * @param uid - uid of the user 
@@ -20,6 +21,7 @@ import { StyleSheet, View, Text } from 'react-native';
  * 
  */
 function ScreenShareNotice({ uid }: any) {
+    const {userList, localUid} = useContext(chatContext);
     /**
      * In a meeting a and b are there
         if a user sharing the screen - then that screenshare user uid is 1 for a’user end and its having xxx uid in another end
@@ -29,7 +31,7 @@ function ScreenShareNotice({ uid }: any) {
         ?
         <View style={styles.screenSharingMessageContainer}>
             <Text style={styles.screensharingMessage}>
-                Screen sharing is active now.
+            {userList[localUid]?.name + "'s screen share is active."} 
             </Text>
         </View>
         : null
