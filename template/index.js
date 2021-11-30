@@ -13,6 +13,8 @@
  * @format
  */
 
+
+// edited for testing 
 import {AppRegistry} from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import App from './src/App';
