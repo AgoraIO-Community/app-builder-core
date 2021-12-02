@@ -30,6 +30,7 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 import ChatContext from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
@@ -222,8 +223,6 @@ const VideoCall: React.FC = () => {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
-  const [title, setTitle] = React.useState<string>('');
-  const [isHost, setIsHost] = React.useState<boolean>(false);
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
@@ -233,9 +232,9 @@ const VideoCall: React.FC = () => {
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams();
   const [errorMessage, setErrorMessage] = useState(null);
-  // let isHost = true; //change to false by default after testing
-  // let title = null;
-  let rtcProps = {
+  const [isHost, setIsHost] = React.useState(false);
+  const [title, setTitle] = React.useState('');
+  const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
     uid: null,
@@ -248,7 +247,7 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
-  };
+  });
 
   const {data, loading, error} = useQuery(
     store.token === null
@@ -272,7 +271,7 @@ const VideoCall: React.FC = () => {
     if (!loading && data) {
       console.log('token:', rtcProps.token);
       console.log('error', data.error);
-      rtcProps = {
+      setRtcProps({
         appId: $config.APP_ID,
         channel: data.joinChannel.channel,
         uid: data.joinChannel.mainUser.uid,
@@ -289,10 +288,10 @@ const VideoCall: React.FC = () => {
           : false,
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
-      };
-      console.log('query done: ', data, queryComplete);
+      });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);
+      console.log('query done: ', data, queryComplete);
       // 1. Store the display name from API
       if (data.getUser) {
         setUsername(data.getUser.name);
@@ -467,9 +466,7 @@ const VideoCall: React.FC = () => {
         </>
       ) : (
         <View style={style.loader}>
-          <View style={style.loaderLogo}>
-            <Logo />
-          </View>
+          <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
           <Text style={style.loaderText}>Starting Call. Just a second.</Text>
         </View>
       )}

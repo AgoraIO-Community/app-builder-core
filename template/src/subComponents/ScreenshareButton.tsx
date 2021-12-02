@@ -112,10 +112,12 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
           });
           setLayout(Layout.Pinned);
         } else if (newUserUid === 1) {
-          dispatch({
-            type: 'SwapVideo',
-            value: [joinedUser[0]],
-          });
+          if (newUserUid !== users[0].uid) {
+            dispatch({
+              type: 'SwapVideo',
+              value: [joinedUser[0]],
+            });
+          }
           setLayout(Layout.Pinned);
         }
       }

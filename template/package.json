@@ -1,6 +1,6 @@
 {
   "name": "HelloWorld",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "main": ".electron/index.js",
   "scripts": {
@@ -71,6 +71,7 @@
   "devDependencies": {
     "@babel/core": "7.14.3",
     "@babel/plugin-proposal-class-properties": "7.14.5",
+    "@babel/plugin-proposal-optional-chaining": "^7.16.0",
     "@babel/preset-env": "7.14.4",
     "@babel/preset-react": "7.13.13",
     "@babel/preset-typescript": "7.13.0",
@@ -92,7 +93,7 @@
     "babel-plugin-transform-define": "2.0.0",
     "cross-env": "7.0.3",
     "del": "5.1.0",
-    "electron": "5.0.8",
+    "electron": "16.0.1",
     "electron-builder": "22.10.5",
     "electron-notarize": "1.0.0",
     "eslint": "6.8.0",
