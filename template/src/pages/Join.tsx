@@ -15,6 +15,7 @@ import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
 // import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 // import Illustration from '../subComponents/Illustration';
@@ -58,7 +59,7 @@ const Join = (props: joinProps) => {
   return (
     <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        <Logo />
+        {hasBrandLogo && <Logo />}
         {error ? <Error error={error} /> : <></>}
       </View>
       <View style={style.content}>

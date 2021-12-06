@@ -17,56 +17,69 @@ import apple from '../assets/apple.png';
 import slack from '../assets/slack.png';
 import microsoft from '../assets/microsoft.png';
 import Logo from './Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 
 const SelectOAuth = ({onSelectOAuth}) => {
   // Linking.openURL(url);
   const {primaryColor} = useContext(ColorContext);
   return (
     <View style={style.main}>
-      <View style={style.nav}>
-        <Logo />
-      </View>
+      <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
       <View style={style.content}>
         <View style={style.leftContent}>
           <Text style={style.heading}>{$config.APP_NAME}</Text>
           <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
           <View style={style.inputs}>
             <View style={style.oAuthContainer}>
-              <Text style={{fontSize: 16, fontWeight: '500', marginBottom: 20, color: $config.PRIMARY_FONT_COLOR}}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '500',
+                  marginBottom: 20,
+                  color: $config.PRIMARY_FONT_COLOR,
+                }}>
                 Login using OAuth
               </Text>
-              {$config.ENABLE_GOOGLE_OAUTH ?
+              {$config.ENABLE_GOOGLE_OAUTH ? (
                 <TouchableOpacity
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'google'})}>
                   <Image source={google} style={style.logo} />
                   <Text style={[style.secondaryBtnText]}>Google</Text>
                 </TouchableOpacity>
-                : <></>}
-              {$config.ENABLE_MICROSOFT_OAUTH ?
+              ) : (
+                <></>
+              )}
+              {$config.ENABLE_MICROSOFT_OAUTH ? (
                 <TouchableOpacity
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'microsoft'})}>
                   <Image source={microsoft} style={style.logo} />
                   <Text style={[style.secondaryBtnText]}>Microsoft</Text>
                 </TouchableOpacity>
-                : <></>}
-              {$config.ENABLE_SLACK_OAUTH ?
+              ) : (
+                <></>
+              )}
+              {$config.ENABLE_SLACK_OAUTH ? (
                 <TouchableOpacity
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'slack'})}>
                   <Image source={slack} style={style.logo} />
                   <Text style={[style.secondaryBtnText]}>Slack</Text>
                 </TouchableOpacity>
-                : <></>}
-              {$config.ENABLE_APPLE_OAUTH ?
+              ) : (
+                <></>
+              )}
+              {$config.ENABLE_APPLE_OAUTH ? (
                 <TouchableOpacity
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'apple'})}>
                   <Image source={apple} style={style.logo} />
                   <Text style={[style.secondaryBtnText]}>Apple</Text>
                 </TouchableOpacity>
-                : <></>}
+              ) : (
+                <></>
+              )}
             </View>
           </View>
         </View>

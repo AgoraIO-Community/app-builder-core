@@ -26,6 +26,7 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import Toast from '../../react-native-toast-message';
+import hasBrandLogo from '../utils/hasBrandLogo';
 
 type PasswordInput = {
   host: string;
@@ -116,7 +117,7 @@ const Create = () => {
     // <KeyboardAvoidingView behavior={'height'} style={style.main}>
     <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        <Logo />
+        {hasBrandLogo && <Logo />}
         {error ? <Error error={error} /> : <></>}
         {/* <OpenInNativeButton /> */}
       </View>
