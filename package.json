@@ -1,6 +1,6 @@
 {
   "name": "test-core-nitesh",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "React Native template for RTE app builder",
   "main": "index.js",
   "files": [
