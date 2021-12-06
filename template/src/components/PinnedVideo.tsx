@@ -28,6 +28,7 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
+import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 
 const {topPinned} = layoutProps;
 
@@ -193,6 +194,8 @@ const PinnedVideo = () => {
         }>
         <MaxUidConsumer>
           {(maxUsers) => (
+            <>
+            <ScreenShareNotice uid={maxUsers[0].uid} />
             <View style={style.flex1}>
               <MaxVideoView
                 fallback={() => {
@@ -235,6 +238,7 @@ const PinnedVideo = () => {
                 </Text>
               </View>
             </View>
+            </>
           )}
         </MaxUidConsumer>
       </View>
