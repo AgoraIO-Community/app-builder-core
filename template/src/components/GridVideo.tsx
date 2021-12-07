@@ -97,8 +97,8 @@ const GridVideo = (props: GridVideoProps) => {
                 marginHorizontal: 'auto',
               }}
               key={cidx}>
-              <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
               <View style={style.gridVideoContainerInner}>
+                <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
                 <MaxVideoView
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
@@ -116,6 +116,7 @@ const GridVideo = (props: GridVideoProps) => {
                 />
                 <View
                   style={{
+                    zIndex:5,
                     marginTop: -30,
                     backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
                     alignSelf: 'flex-end',
@@ -211,7 +212,7 @@ const style = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
     // margin: 1,
-    paddingHorizontal: 10,
+    marginHorizontal: 10,
   },
   MicBackdrop: {
     width: 20,
