@@ -194,9 +194,9 @@ const PinnedVideo = () => {
         }>
         <MaxUidConsumer>
           {(maxUsers) => (
-            <>
-            <ScreenShareNotice uid={maxUsers[0].uid} />
+            <>            
             <View style={style.flex1}>
+              <ScreenShareNotice uid={maxUsers[0].uid} />
               <MaxVideoView
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
@@ -261,6 +261,7 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderBottomRightRadius: 15,
     flexDirection: 'row',
+    zIndex: 5
   },
   name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
   MicBackdrop: {
