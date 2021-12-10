@@ -31,7 +31,7 @@ import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 
-const {participantIcon, gridLayoutIcon, pinnedLayoutIcon, recordingIcon} =
+const {participantIcon, participantFilledIcon, gridLayoutIcon, gridLayoutFilledIcon, pinnedLayoutIcon, recordingIcon} =
   icons;
 
 const Navbar = (props: any) => {
@@ -145,7 +145,7 @@ const Navbar = (props: any) => {
               }}
               style={style.btnHolder}>
               <Image
-                source={{uri: participantIcon}}
+                source={{uri:  sidePanel === SidePanelType.Participants ? participantFilledIcon : participantIcon}}
                 style={[style.participantBtnIcon, {tintColor: primaryColor}]}
               />
               {/* <MinUidConsumer>
@@ -196,8 +196,8 @@ const Navbar = (props: any) => {
                     )}
                     <Image
                       source={{
-                        uri: sidePanel !== SidePanelType.Chat &&
-                          pendingMessageLength !== 0 ? icons.chatIconFilled : icons.chatIcon
+                        uri: (sidePanel !== SidePanelType.Chat &&
+                          pendingMessageLength !== 0) || (sidePanel === SidePanelType.Chat) ? icons.chatIconFilled : icons.chatIcon
                       }}
                       resizeMode={'contain'}
                       style={[
@@ -239,8 +239,8 @@ const Navbar = (props: any) => {
                   );
                 }}>
                 <Image
-                  // source={{uri: layout ? gridLayoutIcon : pinnedLayoutIcon}}
-                  source={{uri: gridLayoutIcon}}
+                  source={{uri: layout ? gridLayoutFilledIcon : pinnedLayoutIcon}}
+                  //source={{uri:  gridLayoutIcon}}
                   resizeMode={'contain'}
                   style={{
                     width: '100%',
