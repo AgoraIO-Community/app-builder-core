@@ -247,6 +247,7 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
+    geoFencing: $config.GEO_FENCING
   });
 
   const {data, loading, error} = useQuery(
@@ -288,6 +289,7 @@ const VideoCall: React.FC = () => {
           : false,
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
+        geoFencing: $config.GEO_FENCING
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);
