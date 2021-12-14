@@ -64,6 +64,7 @@
     "react-native-inappbrowser-reborn": "3.5.1",
     "react-native-keep-awake": "4.0.0",
     "react-native-keyboard-manager": "6.5.4-1",
+    "react-native-responsive-fontsize": "^0.5.1",
     "react-native-web": "0.14.13",
     "react-router-dom": "5.2.0",
     "react-router-native": "5.2.0"
