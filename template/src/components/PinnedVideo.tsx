@@ -28,6 +28,7 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
+import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 
 const {topPinned} = layoutProps;
 
@@ -193,7 +194,9 @@ const PinnedVideo = () => {
         }>
         <MaxUidConsumer>
           {(maxUsers) => (
+            <>            
             <View style={style.flex1}>
+              <ScreenShareNotice uid={maxUsers[0].uid} />
               <MaxVideoView
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
@@ -235,6 +238,7 @@ const PinnedVideo = () => {
                 </Text>
               </View>
             </View>
+            </>
           )}
         </MaxUidConsumer>
       </View>
@@ -257,6 +261,7 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderBottomRightRadius: 15,
     flexDirection: 'row',
+    zIndex: 5
   },
   name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
   MicBackdrop: {

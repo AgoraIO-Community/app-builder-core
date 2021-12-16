@@ -24,6 +24,7 @@ import {
 
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 // import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
 // import {useHistory} from './Router';
@@ -50,7 +51,7 @@ const Precall = (props: any) => {
     //   resizeMode={'cover'}>
     <View style={style.main} onLayout={onLayout}>
       <View style={style.nav}>
-        <Logo />
+        {hasBrandLogo && <Logo />}
         {error ? <Error error={error} showBack={true} /> : <></>}
         {/* <OpenInNativeButton /> */}
       </View>

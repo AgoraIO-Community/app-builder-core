@@ -10,15 +10,12 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
 // import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 // import Illustration from '../subComponents/Illustration';
@@ -38,8 +35,9 @@ const Join = (props: joinProps) => {
   const history = useHistory();
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
-  const [error, setError] =
-    useState<null | {name: string; message: string}>(null);
+  const [error, setError] = useState<null | {name: string; message: string}>(
+    null,
+  );
   // const [dim, setDim] = useState([
   //   Dimensions.get('window').width,
   //   Dimensions.get('window').height,
@@ -57,18 +55,12 @@ const Join = (props: joinProps) => {
   const startCall = async () => {
     joinSession({phrase});
   };
-  // throw new Error("My first Sentry error!");
+
   return (
-    // <ImageBackground
-    //   // onLayout={onLayout}
-    //   style={style.full}
-    //   resizeMode={'cover'}>
-    <View style={style.main}>
-      {/* <KeyboardAvoidingView behavior={'height'} style={style.main}> */}
+    <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        <Logo />
+        {hasBrandLogo && <Logo />}
         {error ? <Error error={error} /> : <></>}
-        {/* <OpenInNativeButton /> */}
       </View>
       <View style={style.content}>
         <View style={style.leftContent}>
@@ -99,28 +91,19 @@ const Join = (props: joinProps) => {
             )}
           </View>
         </View>
-        {/* {dim[0] > dim[1] + 150 ? (
-            <View style={style.full}>
-              <Illustration />
-            </View>
-          ) : (
-            <></>
-          )} */}
       </View>
-      {/* </KeyboardAvoidingView> */}
-    </View>
-    // </ImageBackground>
+    </ScrollView>
   );
 };
 
 const style = StyleSheet.create({
-  full: {flex: 1},
   illustration: {flex: 1, alignSelf: 'flex-end'},
   main: {
-    flex: 2,
-    justifyContent: 'space-evenly',
+    paddingVertical: '8%',
     marginHorizontal: '8%',
-    marginVertical: '2%',
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
   },
   nav: {
     flex: 1,
