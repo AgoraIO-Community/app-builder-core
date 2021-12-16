@@ -11,7 +11,9 @@
 */
 let jsonFile = require('./config.json');
 let PREFIX = '$config';
-let config = {};
+let config = {
+  __DEV__: process.env.NODE_ENV === 'development',
+};
 Object.keys(jsonFile).map((key) => {
   config[`${PREFIX}.${key}`] = jsonFile[key];
 });
