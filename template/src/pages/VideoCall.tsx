@@ -322,11 +322,14 @@ const VideoCall: React.FC = () => {
         <>
           <PropsProvider
             value={{
-              rtcProps,
+              rtcProps:{
+                ...rtcProps,
+                callActive
+              },
               callbacks,
               styleProps,
             }}>
-            <RtcConfigure callActive={callActive}>
+            <RtcConfigure>
               <DeviceConfigure>
                 <RtmConfigure
                   setRecordingActive={setRecordingActive}
