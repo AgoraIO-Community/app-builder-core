@@ -136,7 +136,7 @@ const Navbar = (props: any) => {
             // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
           }}>
-          <View style={{width: '20%', height: '100%'}}>
+          <View style={{width: '20%', height: '130%'}}>
             <TouchableOpacity
               onPress={() => {
                 sidePanel === SidePanelType.Participants
@@ -173,9 +173,9 @@ const Navbar = (props: any) => {
               ) : (
                 <></>
               )}
-              <View style={{width: '25%', height: '120%'}}>
+              <View style={{width: '20%', height: '125%'}}>
                 <View
-                  style={{alignSelf: 'center', width: '100%', height: '110%'}}>
+                  style={{alignSelf: 'center', width: '100%', height: '100%'}}>
                   <TouchableOpacity
                     style={style.btnHolder}
                     onPress={() => {
@@ -229,7 +229,7 @@ const Navbar = (props: any) => {
           ) : (
             <></>
           )}
-          <View style={{width: '18%', height: '105%'}}>
+          <View style={{width: '20%', height: '120%'}}>
             <View style={{alignSelf: 'center', width: '100%', height: '105%'}}>
               <TouchableOpacity
                 style={style.btnHolder}

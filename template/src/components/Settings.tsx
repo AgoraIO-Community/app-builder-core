@@ -72,7 +72,7 @@ const style = StyleSheet.create({
     // width: 30,
     // height: 30,
     width: '100%',
-    height: '90%',
+    height: '100%',
     tintColor: $config.PRIMARY_COLOR,
   },
   heading: {
