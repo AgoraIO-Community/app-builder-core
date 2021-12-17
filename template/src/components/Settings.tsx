@@ -31,7 +31,7 @@ const Settings = (props: any) => {
             : setSidePanel(SidePanelType.Settings);
         }}>
         <Image
-          source={{uri: icons.settings}}
+          source={{uri: sidePanel === SidePanelType.Settings ? icons.settingsFilled : icons.settings}}
           style={[style.buttonIcon, {tintColor: primaryColor}]}
           resizeMode={'contain'}
         />
@@ -72,7 +72,7 @@ const style = StyleSheet.create({
     // width: 30,
     // height: 30,
     width: '100%',
-    height: '90%',
+    height: '100%',
     tintColor: $config.PRIMARY_COLOR,
   },
   heading: {
