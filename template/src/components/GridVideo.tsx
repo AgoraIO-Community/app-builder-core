@@ -18,6 +18,7 @@ import {
   Dimensions,
   Image,
   Pressable,
+  useWindowDimensions
 } from 'react-native';
 import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
 import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
@@ -30,6 +31,7 @@ import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
+import { RFValue } from "react-native-responsive-fontsize";
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -56,6 +58,7 @@ interface GridVideoProps {
 }
 
 const GridVideo = (props: GridVideoProps) => {
+  const { height, width } = useWindowDimensions();
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
@@ -151,12 +154,13 @@ const GridVideo = (props: GridVideoProps) => {
                     />
                   </View>
                   <Text
+                    numberOfLines={1}
                     textBreakStrategy={'simple'}
                     style={{
                       color: $config.PRIMARY_FONT_COLOR,
                       lineHeight: 30,
-                      fontSize: 18,
-                      fontWeight: '600',
+                      fontSize: RFValue(14, height > width ? height : width),
+                      fontWeight: '700',
                       // width: '100%',
                       // alignSelf: 'stretch',
                       // textAlign: 'center',
