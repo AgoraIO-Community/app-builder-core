@@ -251,18 +251,24 @@ const Navbar = (props: any) => {
               </TouchableOpacity>
             </View>
           </View>
-          {Platform.OS === 'web' && isDesktop ? (
+          {/** Show setting icon only in non native apps 
+           * show in web/electron/mobile web
+           * hide in android/ios  */}
+          {(Platform.OS !== 'android' && Platform.OS !== 'ios') ? (
             <>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                  width: 1,
-                  height: '100%',
-                  marginHorizontal: 10,
-                  alignSelf: 'center',
-                  opacity: 0.8,
-                }}
-              />
+              { 
+                (Platform.OS === 'web' && isDesktop) &&
+                <View
+                  style={{
+                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+                    width: 1,
+                    height: '100%',
+                    marginHorizontal: 10,
+                    alignSelf: 'center',
+                    opacity: 0.8,
+                  }}
+                />
+              }
               <View style={{width: '20%', height: '100%'}}>
                 <Settings
                   sidePanel={sidePanel}
