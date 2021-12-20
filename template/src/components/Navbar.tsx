@@ -19,8 +19,8 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-// import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
-// import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+// import {MinUidConsumer} from '../../agora-rn-uikit';
+// import {PropsContext} from '../../agora-rn-uikit';
 import icons from '../assets/icons';
 import Settings from './Settings';
 import ColorContext from './ColorContext';

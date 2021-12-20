@@ -16,7 +16,7 @@ import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
-import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+import {PropsContext} from '../../agora-rn-uikit';
 import Toast from '../../react-native-toast-message';
 
 const START_RECORDING = gql`
