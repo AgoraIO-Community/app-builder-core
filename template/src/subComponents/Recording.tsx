@@ -18,7 +18,7 @@ import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
 import {PropsContext} from '../../agora-rn-uikit';
 import Toast from '../../react-native-toast-message';
-import ImageIcon from '../../agora-rn-uikit/src/Controls/ImageIcon';
+import {ImageIcon} from '../../agora-rn-uikit';
 
 const START_RECORDING = gql`
   mutation startRecordingSession($passphrase: String!, $secret: String) {

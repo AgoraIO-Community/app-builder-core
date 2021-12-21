@@ -31,7 +31,7 @@ import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 import {RFValue} from 'react-native-responsive-fontsize';
-import ImageIcon from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));

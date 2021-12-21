@@ -21,7 +21,7 @@ import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import {MinUidContext} from '../../agora-rn-uikit';
 import {MaxUidContext} from '../../agora-rn-uikit';
 import Layout from '../subComponents/LayoutEnum';
-import ImageIcon from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {

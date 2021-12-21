@@ -29,7 +29,7 @@ import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
-import ImageIcon from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 import {RFValue} from 'react-native-responsive-fontsize';
 const {topPinned} = layoutProps;

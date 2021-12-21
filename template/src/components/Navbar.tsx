@@ -31,7 +31,7 @@ import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
-import ImageIcon from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 
 const Navbar = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
