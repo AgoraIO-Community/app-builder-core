@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useMemo, useContext, useState} from 'react';
+import React, { useMemo, useContext, useState } from 'react';
 import {
   View,
   Platform,
@@ -20,10 +20,10 @@ import {
   Pressable,
   useWindowDimensions
 } from 'react-native';
-import {MinUidContext} from '../../agora-rn-uikit';
-import {MaxUidContext} from '../../agora-rn-uikit';
-import {MaxVideoView} from '../../agora-rn-uikit';
-import {RtcContext} from '../../agora-rn-uikit';
+import { MinUidContext } from '../../agora-rn-uikit';
+import { MaxUidContext } from '../../agora-rn-uikit';
+import { MaxVideoView } from '../../agora-rn-uikit';
+import { RtcContext } from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import icons from '../assets/icons';
 import ColorContext from './ColorContext';
@@ -31,6 +31,8 @@ import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 import { RFValue } from "react-native-responsive-fontsize";
+import networkQualityContext from './NetworkQualityContext';
+import { NetworkQualityPill } from '../subComponents/NetworkQualityPill';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -40,13 +42,13 @@ const layout = (len: number, isDesktop: boolean = true) => {
     matrix:
       len > 0
         ? [
-            ...Array(r - 1)
-              .fill(null)
-              .map(() => Array(c).fill('X')),
-            Array(len - (r - 1) * c).fill('X'),
-          ]
+          ...Array(r - 1)
+            .fill(null)
+            .map(() => Array(c).fill('X')),
+          Array(len - (r - 1) * c).fill('X'),
+        ]
         : [],
-    dims: {r, c},
+    dims: { r, c },
   };
 };
 
@@ -58,11 +60,12 @@ interface GridVideoProps {
 
 const GridVideo = (props: GridVideoProps) => {
   const { height, width } = useWindowDimensions();
-  const {dispatch} = useContext(RtcContext);
+  const { dispatch } = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
-  const {primaryColor} = useContext(ColorContext);
-  const {userList, localUid} = useContext(chatContext);
+  const { primaryColor } = useContext(ColorContext);
+  const networkQualityStat = useContext(networkQualityContext);
+  const { userList, localUid } = useContext(chatContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
@@ -73,13 +76,14 @@ const GridVideo = (props: GridVideoProps) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > dim[1] + 100;
-  let {matrix, dims} = useMemo(
+
+  let { matrix, dims } = useMemo(
     () => layout(users.length, isDesktop),
     [users.length, isDesktop],
   );
   return (
     <View
-      style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
+      style={[style.full, { paddingHorizontal: isDesktop ? 50 : 0 }]}
       onLayout={onLayout}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
@@ -100,6 +104,13 @@ const GridVideo = (props: GridVideoProps) => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
+                <NetworkQualityPill
+                  networkStat={
+                    networkQualityStat[users[ridx * dims.c + cidx].uid]
+                  }
+                  primaryColor={primaryColor}
+                  rootStyle={{ top: 5, left: 5 }}
+                />
                 <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
                 <MaxVideoView
                   fallback={() => {
@@ -118,7 +129,7 @@ const GridVideo = (props: GridVideoProps) => {
                 />
                 <View
                   style={{
-                    zIndex:5,
+                    zIndex: 5,
                     marginTop: -30,
                     backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
                     alignSelf: 'flex-end',

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import {
   ScrollView,
   View,
@@ -20,22 +20,25 @@ import {
   Pressable,
   useWindowDimensions
 } from 'react-native';
-import {MinUidConsumer} from '../../agora-rn-uikit';
-import {RtcContext} from '../../agora-rn-uikit';
-import {MaxVideoView} from '../../agora-rn-uikit';
-import {MaxUidConsumer} from '../../agora-rn-uikit';
+import { MinUidConsumer } from '../../agora-rn-uikit';
+import { RtcContext } from '../../agora-rn-uikit';
+import { MaxVideoView } from '../../agora-rn-uikit';
+import { MaxUidConsumer } from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import ColorContext from './ColorContext';
 import icons from '../assets/icons';
-import {layoutProps} from '../../theme.json';
+import { layoutProps } from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 import { RFValue } from "react-native-responsive-fontsize";
-const {topPinned} = layoutProps;
+const { topPinned } = layoutProps;
+import networkQualityContext from './NetworkQualityContext';
+import { NetworkQualityPill } from '../subComponents/NetworkQualityPill';
 
 const PinnedVideo = () => {
   const { height, width } = useWindowDimensions();
-  const {primaryColor} = useContext(ColorContext);
+  const { primaryColor } = useContext(ColorContext);
+  const networkQualityStat = useContext(networkQualityContext);
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -44,13 +47,13 @@ const PinnedVideo = () => {
   ]);
   let onLayout = () => {
     setTimeout(() => {
-      let {height, width} = Dimensions.get('window');
+      let { height, width } = Dimensions.get('window');
       let isLandscape = width > height;
       setDim([width, height, isLandscape]);
     }, 20);
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const {userList, localUid} = useContext(chatContext);
+  const { userList, localUid } = useContext(chatContext);
   return (
     <View
       style={{
@@ -102,8 +105,8 @@ const PinnedVideo = () => {
           // snapToAlignment={'center'}
           style={
             isSidePinnedlayout
-              ? {width: '20%', paddingHorizontal: 8}
-              : {flex: 1}
+              ? { width: '20%', paddingHorizontal: 8 }
+              : { flex: 1 }
           }>
           <RtcContext.Consumer>
             {(data) => (
@@ -114,24 +117,30 @@ const PinnedVideo = () => {
                       style={
                         isSidePinnedlayout
                           ? {
-                              width: '100%',
-                              height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                              zIndex: 40,
-                              paddingBottom: 8,
-                            }
+                            width: '100%',
+                            height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                            zIndex: 40,
+                            paddingBottom: 8,
+                          }
                           : {
-                              width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                              height: '100%',
-                              zIndex: 40,
-                              paddingRight: 8,
-                              paddingVertical: 4,
-                            }
+                            width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                            height: '100%',
+                            zIndex: 40,
+                            paddingRight: 8,
+                            paddingVertical: 4,
+                          }
                       }
                       key={user.uid}
                       onPress={() => {
-                        data.dispatch({type: 'SwapVideo', value: [user]});
+                        data.dispatch({ type: 'SwapVideo', value: [user] });
                       }}>
                       <View style={style.flex1}>
+                        <NetworkQualityPill
+                          networkStat={networkQualityStat[user.uid]}
+                          primaryColor={primaryColor}
+                          rootStyle={{ left: 5, top: 5 }}
+                          small
+                        />
                         <MaxVideoView
                           fallback={() => {
                             if (user.uid === 'local') {
@@ -164,7 +173,7 @@ const PinnedVideo = () => {
                               resizeMode={'contain'}
                             />
                           </View>
-                          <Text numberOfLines={1} style={[style.name,{fontSize: RFValue(14, height > width ? height : width)}]}>
+                          <Text numberOfLines={1} style={[style.name, { fontSize: RFValue(14, height > width ? height : width) }]}>
                             {user.uid === 'local'
                               ? userList[localUid]
                                 ? userList[localUid].name.slice(0, 20) + ' '
@@ -196,50 +205,60 @@ const PinnedVideo = () => {
         }>
         <MaxUidConsumer>
           {(maxUsers) => (
-            <>            
-            <View style={style.flex1}>
-              <ScreenShareNotice uid={maxUsers[0].uid} />
-              <MaxVideoView
-                fallback={() => {
-                  if (maxUsers[0].uid === 'local') {
-                    return FallbackLogo(userList[localUid]?.name);
-                  } else if (String(maxUsers[0].uid)[0] === '1') {
-                    return FallbackLogo('PSTN User');
-                  } else {
-                    return FallbackLogo(userList[maxUsers[0].uid]?.name);
-                  }
-                }}
-                user={maxUsers[0]}
-                key={maxUsers[0].uid}
-              />
-              <View style={style.nameHolder}>
-                <View style={[style.MicBackdrop]}>
-                  <Image
-                    source={{
-                      uri: maxUsers[0].audio ? icons.mic : icons.micOff,
-                    }}
-                    style={[
-                      style.MicIcon,
-                      {
-                        tintColor: maxUsers[0].audio ? primaryColor : 'red',
-                      },
-                    ]}
-                    resizeMode={'contain'}
-                  />
+            <>
+              <View style={style.flex1}>
+                <ScreenShareNotice uid={maxUsers[0].uid} />
+                <NetworkQualityPill
+                  networkStat={networkQualityStat[maxUsers[0].uid]}
+                  primaryColor={primaryColor}
+                  rootStyle={{
+                    marginLeft: 25,
+                    top: 8,
+                    right: 10,
+                  }}
+                  small
+                />
+                <MaxVideoView
+                  fallback={() => {
+                    if (maxUsers[0].uid === 'local') {
+                      return FallbackLogo(userList[localUid]?.name);
+                    } else if (String(maxUsers[0].uid)[0] === '1') {
+                      return FallbackLogo('PSTN User');
+                    } else {
+                      return FallbackLogo(userList[maxUsers[0].uid]?.name);
+                    }
+                  }}
+                  user={maxUsers[0]}
+                  key={maxUsers[0].uid}
+                />
+                <View style={style.nameHolder}>
+                  <View style={[style.MicBackdrop]}>
+                    <Image
+                      source={{
+                        uri: maxUsers[0].audio ? icons.mic : icons.micOff,
+                      }}
+                      style={[
+                        style.MicIcon,
+                        {
+                          tintColor: maxUsers[0].audio ? primaryColor : 'red',
+                        },
+                      ]}
+                      resizeMode={'contain'}
+                    />
+                  </View>
+                  <Text numberOfLines={1} style={[style.name, { fontSize: RFValue(14, height > width ? height : width) }]}>
+                    {maxUsers[0].uid === 'local'
+                      ? userList[localUid]
+                        ? userList[localUid].name.slice(0, 20) + ' '
+                        : 'You '
+                      : userList[maxUsers[0].uid]
+                        ? userList[maxUsers[0].uid].name.slice(0, 20) + ' '
+                        : maxUsers[0].uid === 1
+                          ? (userList[localUid].name + "'s screen ").slice(0, 20)
+                          : 'User '}
+                  </Text>
                 </View>
-                <Text numberOfLines={1} style={[style.name, {fontSize: RFValue(14, height > width ? height : width)}]}>
-                  {maxUsers[0].uid === 'local'
-                    ? userList[localUid]
-                      ? userList[localUid].name.slice(0,20) + ' '
-                      : 'You '
-                    : userList[maxUsers[0].uid]
-                    ? userList[maxUsers[0].uid].name.slice(0,20) + ' '
-                    : maxUsers[0].uid === 1
-                    ? (userList[localUid].name + "'s screen ").slice(0,20)
-                    : 'User '}
-                </Text>
               </View>
-            </View>
             </>
           )}
         </MaxUidConsumer>
@@ -249,11 +268,11 @@ const PinnedVideo = () => {
 };
 
 const style = StyleSheet.create({
-  width80: {width: '80%'},
-  width100: {width: '100%'},
-  flex2: {flex: 2},
-  flex4: {flex: 4, backgroundColor: '#ffffff00'},
-  flex1: {flex: 1},
+  width80: { width: '80%' },
+  width100: { width: '100%' },
+  flex2: { flex: 2 },
+  flex4: { flex: 4, backgroundColor: '#ffffff00' },
+  flex1: { flex: 1 },
   nameHolder: {
     marginTop: -25,
     backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
@@ -266,7 +285,7 @@ const style = StyleSheet.create({
     zIndex: 5,
     maxWidth: '100%'
   },
-  name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
+  name: { color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700' },
   MicBackdrop: {
     width: 20,
     height: 20,
