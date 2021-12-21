@@ -46,7 +46,9 @@ const Precall = (props: any) => {
 
   useEffect(()=>{
     if(Platform.OS === 'web'){
-      document.title = title + ' | ' + $config.APP_NAME
+      if(title){
+        document.title = title + ' | ' + $config.APP_NAME
+      }
     }
   })
 
