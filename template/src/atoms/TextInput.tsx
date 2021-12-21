@@ -19,7 +19,7 @@ const PrimaryButton = (props: TextInputProps) => {
   const {style, ...otherProps} = props;
   return (
     <TextInput
-      style={[styles.textInput, style, styles.noOutline, {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR}]}
+      style={[styles.textInput, styles.textWrapFix, style, styles.noOutline, {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR}]}
       placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
       {...otherProps}
       autoCorrect={false}
@@ -32,4 +32,9 @@ export default PrimaryButton;
 const styles = StyleSheet.create({
   textInput,
   noOutline: Platform.OS === 'web' ? { outlineStyle: "none" } : {},
+  textWrapFix: Platform.select({
+    ios: {
+      paddingVertical: 5
+    }
+  })
 });
