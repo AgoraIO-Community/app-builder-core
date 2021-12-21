@@ -10,23 +10,20 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {TouchableOpacity, Image, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import icons from '../assets/icons';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
   const {sendControlMessageToUid} = useContext(ChatContext);
   return props.isHost && String(props.uid)[0] !== '1' ? (
-    <TouchableOpacity
+    <BtnTemplate
       style={style.remoteButton}
       onPress={() => {
         sendControlMessageToUid(controlMessageEnum.kickUser, props.uid);
-      }}>
-      <Image
-        style={style.buttonIconEnd}
-        source={{uri: icons.endCall}}
-        resizeMode={'contain'}/>
-    </TouchableOpacity>
+      }}
+      name={'remoteEndCall'} // earlier was endCall, added remoteEndCall
+    />
   ) : (
     <></>
   );
@@ -45,12 +42,6 @@ const style = StyleSheet.create({
     borderLeftWidth: 0,
     marginHorizontal: 0,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
-  },
-  buttonIconEnd: {
-    width: 30,
-    height: 25,
-    // marginLeft: 3,
-    tintColor: '#f86051',
   },
 });
 

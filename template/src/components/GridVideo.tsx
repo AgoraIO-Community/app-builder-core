@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { useMemo, useContext, useState } from 'react';
+import React, {useMemo, useContext, useState} from 'react';
 import {
   View,
   Platform,
@@ -18,21 +18,22 @@ import {
   Dimensions,
   Image,
   Pressable,
-  useWindowDimensions
+  useWindowDimensions,
 } from 'react-native';
-import { MinUidContext } from '../../agora-rn-uikit';
-import { MaxUidContext } from '../../agora-rn-uikit';
-import { MaxVideoView } from '../../agora-rn-uikit';
-import { RtcContext } from '../../agora-rn-uikit';
+import {MinUidContext} from '../../agora-rn-uikit';
+import {MaxUidContext} from '../../agora-rn-uikit';
+import {MaxVideoView} from '../../agora-rn-uikit';
+import {RtcContext} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import icons from '../assets/icons';
 import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
-import { RFValue } from "react-native-responsive-fontsize";
+import {RFValue} from 'react-native-responsive-fontsize';
 import networkQualityContext from './NetworkQualityContext';
-import { NetworkQualityPill } from '../subComponents/NetworkQualityPill';
+import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
+import {ImageIcon} from '../../agora-rn-uikit';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -42,13 +43,13 @@ const layout = (len: number, isDesktop: boolean = true) => {
     matrix:
       len > 0
         ? [
-          ...Array(r - 1)
-            .fill(null)
-            .map(() => Array(c).fill('X')),
-          Array(len - (r - 1) * c).fill('X'),
-        ]
+            ...Array(r - 1)
+              .fill(null)
+              .map(() => Array(c).fill('X')),
+            Array(len - (r - 1) * c).fill('X'),
+          ]
         : [],
-    dims: { r, c },
+    dims: {r, c},
   };
 };
 
@@ -59,13 +60,13 @@ interface GridVideoProps {
 }
 
 const GridVideo = (props: GridVideoProps) => {
-  const { height, width } = useWindowDimensions();
-  const { dispatch } = useContext(RtcContext);
+  const {height, width} = useWindowDimensions();
+  const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
-  const { primaryColor } = useContext(ColorContext);
+  const {primaryColor} = useContext(ColorContext);
   const networkQualityStat = useContext(networkQualityContext);
-  const { userList, localUid } = useContext(chatContext);
+  const {userList, localUid} = useContext(chatContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
@@ -77,13 +78,13 @@ const GridVideo = (props: GridVideoProps) => {
   ]);
   const isDesktop = dim[0] > dim[1] + 100;
 
-  let { matrix, dims } = useMemo(
+  let {matrix, dims} = useMemo(
     () => layout(users.length, isDesktop),
     [users.length, isDesktop],
   );
   return (
     <View
-      style={[style.full, { paddingHorizontal: isDesktop ? 50 : 0 }]}
+      style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
       onLayout={onLayout}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
@@ -109,14 +110,16 @@ const GridVideo = (props: GridVideoProps) => {
                     networkQualityStat[users[ridx * dims.c + cidx].uid]
                   }
                   primaryColor={primaryColor}
-                  rootStyle={{ top: 5, left: 5 }}
+                  rootStyle={{top: 5, left: 5}}
                 />
                 <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
                 <MaxVideoView
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
                       return FallbackLogo(userList[localUid]?.name);
-                    } else if (String(users[ridx * dims.c + cidx].uid)[0] === '1') {
+                    } else if (
+                      String(users[ridx * dims.c + cidx].uid)[0] === '1'
+                    ) {
                       return FallbackLogo('PSTN User');
                     } else {
                       return FallbackLogo(
@@ -146,7 +149,16 @@ const GridVideo = (props: GridVideoProps) => {
                   }}>
                   {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
                   <View style={[style.MicBackdrop]}>
-                    <Image
+                    <ImageIcon
+                      name={
+                        users[ridx * dims.c + cidx].audio ? 'mic' : 'micOff'
+                      }
+                      color={
+                        users[ridx * dims.c + cidx].audio ? primaryColor : 'red'
+                      }
+                      style={style.MicIcon}
+                    />
+                    {/* <Image
                       source={{
                         uri: users[ridx * dims.c + cidx].audio
                           ? icons.mic
@@ -161,7 +173,7 @@ const GridVideo = (props: GridVideoProps) => {
                         },
                       ]}
                       resizeMode={'contain'}
-                    />
+                    /> */}
                   </View>
                   <Text
                     numberOfLines={1}
@@ -180,14 +192,15 @@ const GridVideo = (props: GridVideoProps) => {
                         ? userList[localUid].name.slice(0, 20) + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                        ? userList[users[ridx * dims.c + cidx].uid].name.slice(
+                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(
                           0,
                           20,
                         ) + ' '
-                        : users[ridx * dims.c + cidx].uid === 1
-                          ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                          : String(users[ridx * dims.c + cidx].uid)[0] === '1' ?
-                            'PSTN User ' : 'User '}
+                      : users[ridx * dims.c + cidx].uid === 1
+                      ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
+                      : String(users[ridx * dims.c + cidx].uid)[0] === '1'
+                      ? 'PSTN User '
+                      : 'User '}
                   </Text>
                   {/* </View> */}
                   {/* {console.log(

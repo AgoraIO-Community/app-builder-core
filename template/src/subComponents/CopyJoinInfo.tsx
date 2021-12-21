@@ -17,6 +17,7 @@ import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
 import {useParams} from '../components/Router';
 import Toast from '../../react-native-toast-message';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -72,19 +73,13 @@ const ParticipantView = (props: {showText?: boolean}) => {
   };
 
   return (
-    <TouchableOpacity
+    <BtnTemplate
       disabled={!data}
       style={style.backButton}
-      onPress={() => copyToClipboard()}>
-      <Image
-        resizeMode={'contain'}
-        style={!data ? [style.backIcon] : style.backIcon}
-        source={{uri: icons.clipboard}}
-      />
-      {props.showText ?
-        <Text style={{color: $config.PRIMARY_FONT_COLOR}}>Copy Meeting Invite</Text>
-        :<></>}
-    </TouchableOpacity>
+      onPress={() => copyToClipboard()}
+      name={'clipboard'}
+      btnText={props.showText ? 'Copy Meeting Invite' : ''}
+    />
   );
 };
 
@@ -94,13 +89,14 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignSelf: 'center',
+    width: 28,
+    height: 20,
   },
   backIcon: {
     width: 28,
     height: 20,
     alignSelf: 'center',
     justifyContent: 'center',
-    tintColor: $config.PRIMARY_FONT_COLOR,
   },
 });
 

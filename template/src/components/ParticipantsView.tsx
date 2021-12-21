@@ -22,8 +22,7 @@ import {
 } from 'react-native';
 import {MinUidConsumer} from '../../agora-rn-uikit';
 import {MaxUidConsumer} from '../../agora-rn-uikit';
-import LocalAudioMute from '../subComponents/LocalAudioMute';
-import LocalVideoMute from '../subComponents/LocalVideoMute';
+import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import RemoteAudioMute from '../subComponents/RemoteAudioMute';
@@ -37,6 +36,7 @@ import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {UserType} from './RTMConfigure';
+import styles from './styles';
 
 const ParticipantView = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
@@ -47,12 +47,14 @@ const ParticipantView = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  
+
   return (
     <View
       style={
         Platform.OS === 'web'
-          ? isSmall ? style.participantViewNative : style.participantView
+          ? isSmall
+            ? style.participantViewNative
+            : style.participantView
           : style.participantViewNative
       }>
       <TouchableOpacity style={style.backButton}>
@@ -72,15 +74,22 @@ const ParticipantView = (props: any) => {
                 [...minUsers, ...maxUser].map((user) =>
                   user.uid === 'local' ? (
                     <View style={style.participantContainer} key={user.uid}>
-                      <Text style={style.participantText}>
-                        {userList[localUid]
-                          ? userList[localUid].name + ' '
-                          : 'You '}
-                      </Text>
+                      <View>
+                        <Text style={style.participantText}>
+                          {userList[localUid]
+                            ? userList[localUid].name + ' '
+                            : 'You '}
+                        </Text>
+                      </View>
                       <View style={style.participantButtonContainer}>
                         <LocalUserContext>
-                          <LocalAudioMute />
-                          <LocalVideoMute />
+                          <View
+                            style={[style.actionBtnIcon, {marginRight: 10}]}>
+                            <LocalAudioMute btnText=" " variant="text" />
+                          </View>
+                          <View style={style.actionBtnIcon}>
+                            <LocalVideoMute btnText=" " variant="text" />
+                          </View>
                         </LocalUserContext>
                       </View>
                     </View>
@@ -98,21 +107,35 @@ const ParticipantView = (props: any) => {
                         {userList[user.uid]
                           ? userList[user.uid].name + ' '
                           : String(user.uid)[0] === '1'
-                            ? 'PSTN User ' : 'User '}
+                          ? 'PSTN User '
+                          : 'User '}
                       </Text>
                       {userList[user.uid]?.type !== UserType.ScreenShare ? (
                         <View style={style.participantButtonContainer}>
-                          <RemoteEndCall uid={user.uid} isHost={props.isHost} />
-                          <RemoteAudioMute
-                            uid={user.uid}
-                            audio={user.audio}
-                            isHost={props.isHost}
-                          />
-                          <RemoteVideoMute
-                            uid={user.uid}
-                            video={user.video}
-                            isHost={props.isHost}
-                          />
+                          <View style={style.actionBtnIcon}>
+                            <RemoteEndCall
+                              uid={user.uid}
+                              isHost={props.isHost}
+                            />
+                          </View>
+                          <View
+                            style={[
+                              style.actionBtnIcon,
+                              {marginLeft: 10, marginRight: 5},
+                            ]}>
+                            <RemoteAudioMute
+                              uid={user.uid}
+                              audio={user.audio}
+                              isHost={props.isHost}
+                            />
+                          </View>
+                          <View style={style.actionBtnIcon}>
+                            <RemoteVideoMute
+                              uid={user.uid}
+                              video={user.video}
+                              isHost={props.isHost}
+                            />
+                          </View>
                         </View>
                       ) : (
                         <></>
@@ -125,8 +148,16 @@ const ParticipantView = (props: any) => {
           )}
         </MinUidConsumer>
       </ScrollView>
-      <View style={{width: '100%', height: 50, alignSelf: 'flex-end', flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-        <CopyJoinInfo showText={true}/>
+      <View
+        style={{
+          width: '100%',
+          height: 50,
+          alignSelf: 'flex-end',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <CopyJoinInfo showText={true} />
       </View>
     </View>
   );
@@ -162,15 +193,18 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
   },
   participantContainer: {
+    width: '100%',
+    display: 'flex',
     flexDirection: 'row',
     flex: 1,
     marginVertical: 2,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     // height: 10,
-    width: '90%',
+    paddingLeft: 10,
+    paddingRight: 10,
     alignSelf: 'center',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   participantText: {
     flex: 1,
@@ -221,6 +255,10 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     tintColor: $config.PRIMARY_FONT_COLOR,
+  },
+  actionBtnIcon: {
+    width: 25,
+    height: 25,
   },
 });
 
