@@ -31,7 +31,7 @@ import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
-import ChatContext from '../components/ChatContext';
+import ChatContext, {messageChannelType} from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
@@ -66,7 +66,7 @@ const useChatNotification = (
 };
 
 const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
-  const {messageStore, privateMessageStore, userList, localUid} =
+  const {messageStore, privateMessageStore, userList, localUid, events} =
     useContext(ChatContext);
   const [
     lastCheckedPublicState,
@@ -75,6 +75,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
     setLastCheckedPrivateState,
     setPrivateMessageLastSeen,
   ] = useChatNotification(messageStore, privateMessageStore, chatDisplayed);
+
   const pendingPublicNotification =
     messageStore.length - lastCheckedPublicState;
   const privateMessageCountMap = Object.keys(privateMessageStore).reduce(
@@ -99,41 +100,43 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
   );
   const pendingPrivateNotification = totalPrivateMessage - totalPrivateLastSeen;
 
-  // const oldMessageStore = useRef<messageStoreInterface[]>([]);
-  // useEffect(() => {
-  //   if (messageStore.length > oldMessageStore.current.length && messageStore[messageStore.length - 1].uid !== localUid) {
-  //     Toast.show({
-  //       text1: messageStore[messageStore.length - 1]?.msg.length > 50 ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...' : messageStore[messageStore.length - 1]?.msg.slice(1),
-  //       text2: userList[messageStore[messageStore.length - 1]?.uid] ? userList[messageStore[messageStore.length - 1]?.uid].name : 'User',
-  //       visibilityTime: 1000,
-  //       onPress: () => setSidePanel(SidePanelType.Chat),
-  //     });
-  //     oldMessageStore.current = messageStore;
-  //   }
-  // }, [messageStore, userList]);
-
-  useEffect(() => {
-    if (
-      messageStore.length !== 0 &&
-      messageStore[messageStore.length - 1]?.uid !== localUid
-    ) {
+  React.useEffect(() => {
+    const showMessageNotification = (data: any) => {
+      const {uid, msg} = data;
       Toast.show({
-        text1:
-          messageStore[messageStore.length - 1]?.msg.length > 50
-            ? messageStore[messageStore.length - 1]?.msg.slice(1, 50) + '...'
-            : messageStore[messageStore.length - 1]?.msg.slice(1),
-        text2: userList[messageStore[messageStore.length - 1]?.uid]
-          ? 'From: ' + userList[messageStore[messageStore.length - 1]?.uid].name
-          : '',
+        type: 'success',
+        text1: msg.length > 50 ? msg.slice(0, 50) + '...' : msg,
+        text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
         visibilityTime: 1000,
         onPress: () => {
           setSidePanel(SidePanelType.Chat);
           setLastCheckedPublicState(messageStore.length);
         },
       });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageStore]);
+    };
+    events.on(
+      messageChannelType.Public,
+      'onPublicMessageReceived',
+      (data: any, error: any) => {
+        if (!data) return;
+        showMessageNotification(data);
+      },
+    );
+    events.on(
+      messageChannelType.Private,
+      'onPrivateMessageReceived',
+      (data: any, error: any) => {
+        if (!data) return;
+        if (data.uid === localUid) return;
+        showMessageNotification(data);
+      },
+    );
+    return () => {
+      // Cleanup the listeners
+      events.off(messageChannelType.Public, 'onPublicMessageReceived');
+      events.off(messageChannelType.Private, 'onPrivateMessageReceived');
+    };
+  }, [userList, messageStore]);
 
   return children({
     pendingPublicNotification,
@@ -323,9 +326,9 @@ const VideoCall: React.FC = () => {
         <>
           <PropsProvider
             value={{
-              rtcProps:{
+              rtcProps: {
                 ...rtcProps,
-                callActive
+                callActive,
               },
               callbacks,
               styleProps,
