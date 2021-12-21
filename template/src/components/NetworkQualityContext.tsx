@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, { createContext, useContext, useState } from 'react';
-import {RtcContext} from '../../agora-rn-uikit';
+import { RtcContext } from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
 
@@ -27,61 +27,61 @@ import icons from '../assets/icons';
  * 8 - Unsupported
  */
 export const networkIconsObject: {
-	[key: number]: {
-		icon: string;
-		tint: string;
-		text: string;
-	};
+  [key: number]: {
+    icon: string;
+    tint: string;
+    text: string;
+  };
 } = {
-	0: {
-		icon: icons.networkIcons['Loading'],
-		tint: 'primary',
-		text: 'Loading',
-	},
-	1: {
-		icon: icons.networkIcons['Excellent'],
-		tint: '#2BD900',
-		text: 'Excellent',
-	},
-	2: {
-		icon: icons.networkIcons['Good'],
-		tint: '#FFEE00',
-		text: 'Good',
-	},
-	3: {
-		icon: icons.networkIcons['Bad'],
-		tint: '#F8AA00',
-		text: 'Bad',
-	},
-	4: {
-		icon: icons.networkIcons['Bad'],
-		tint: '#F8AA00',
-		text: 'Bad',
-	},
-	5: {
-		icon: icons.networkIcons['VeryBad'],
-		tint: 'red',
-		text: 'VeryBad',
-	},
-	6: {
-		icon: icons.networkIcons['VeryBad'],
-		tint: 'red',
-		text: 'VeryBad',
-	},
-	7: {
-		icon: icons.networkIcons['Unsupported'],
-		tint: 'primary',
-		text: 'Unknown',
-	},
-	8: {
-		icon: icons.networkIcons['Unsupported'],
-		tint: 'primary',
-		text: 'Unknown',
-	},
+  0: {
+    icon: icons.networkIcons['Loading'],
+    tint: 'primary',
+    text: 'Loading',
+  },
+  1: {
+    icon: icons.networkIcons['Excellent'],
+    tint: '#2BD900',
+    text: 'Excellent',
+  },
+  2: {
+    icon: icons.networkIcons['Good'],
+    tint: '#FFEE00',
+    text: 'Good',
+  },
+  3: {
+    icon: icons.networkIcons['Bad'],
+    tint: '#F8AA00',
+    text: 'Bad',
+  },
+  4: {
+    icon: icons.networkIcons['Bad'],
+    tint: '#F8AA00',
+    text: 'Bad',
+  },
+  5: {
+    icon: icons.networkIcons['VeryBad'],
+    tint: 'red',
+    text: 'VeryBad',
+  },
+  6: {
+    icon: icons.networkIcons['VeryBad'],
+    tint: 'red',
+    text: 'VeryBad',
+  },
+  7: {
+    icon: icons.networkIcons['Unsupported'],
+    tint: 'primary',
+    text: 'Unknown',
+  },
+  8: {
+    icon: icons.networkIcons['Unsupported'],
+    tint: 'primary',
+    text: 'Unknown',
+  },
 };
 
 const initNewtorkQualityStats: { [key in string | number]: number } = {
-	local: 0,
+  local: 0,
 };
 
 const NetworkQualityContext = createContext(initNewtorkQualityStats);
@@ -91,32 +91,32 @@ export default NetworkQualityContext;
 export const NetworkQualityConsumer = NetworkQualityContext.Consumer;
 
 export const NetworkQualityProvider: React.FC = (props) => {
-	const [networkQualityStats, setNetworkQualityStats] = useState(
-		initNewtorkQualityStats,
-	);
-	const { RtcEngine } = useContext(RtcContext);
+  const [networkQualityStats, setNetworkQualityStats] = useState(
+    initNewtorkQualityStats,
+  );
+  const { RtcEngine } = useContext(RtcContext);
 
-	useMount(() => {
-		function handleNetworkQuality(
-			uid: number | string,
-			downlinkQuality: number,
-			// Currently unused , potential use might be to take weighted average
-			// of this alongside the downlink quality.
-			uplinkQuality: number,
-		) {
-			setNetworkQualityStats((prevNetworkQualityStats) => {
-				const updatedNetworkQualityStats = { ...prevNetworkQualityStats };
-				updatedNetworkQualityStats[uid === 0 ? 'local' : uid] = downlinkQuality;
-				return updatedNetworkQualityStats;
-			});
-		}
+  useMount(() => {
+    function handleNetworkQuality(
+      uid: number | string,
+      downlinkQuality: number,
+      // Currently unused , potential use might be to take weighted average
+      // of this alongside the downlink quality.
+      uplinkQuality: number,
+    ) {
+      setNetworkQualityStats((prevNetworkQualityStats) => {
+        const updatedNetworkQualityStats = { ...prevNetworkQualityStats };
+        updatedNetworkQualityStats[uid === 0 ? 'local' : uid] = downlinkQuality;
+        return updatedNetworkQualityStats;
+      });
+    }
 
-		RtcEngine.addListener('NetworkQuality', handleNetworkQuality);
-	});
+    RtcEngine.addListener('NetworkQuality', handleNetworkQuality);
+  });
 
-	return (
-		<NetworkQualityContext.Provider value={networkQualityStats}>
-			{props.children}
-		</NetworkQualityContext.Provider>
-	);
+  return (
+    <NetworkQualityContext.Provider value={networkQualityStats}>
+      {props.children}
+    </NetworkQualityContext.Provider>
+  );
 };

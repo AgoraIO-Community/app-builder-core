@@ -11,14 +11,14 @@
 */
 import React, { useMemo, useContext, useState } from 'react';
 import {
-	View,
-	Platform,
-	StyleSheet,
-	Text,
-	Dimensions,
-	Image,
-	Pressable,
-	useWindowDimensions
+  View,
+  Platform,
+  StyleSheet,
+  Text,
+  Dimensions,
+  Image,
+  Pressable,
+  useWindowDimensions
 } from 'react-native';
 import { MinUidContext } from '../../agora-rn-uikit';
 import { MaxUidContext } from '../../agora-rn-uikit';
@@ -35,215 +35,215 @@ import networkQualityContext from './NetworkQualityContext';
 import { NetworkQualityPill } from '../subComponents/NetworkQualityPill';
 
 const layout = (len: number, isDesktop: boolean = true) => {
-	const rows = Math.round(Math.sqrt(len));
-	const cols = Math.ceil(len / rows);
-	let [r, c] = isDesktop ? [rows, cols] : [cols, rows];
-	return {
-		matrix:
-			len > 0
-				? [
-					...Array(r - 1)
-						.fill(null)
-						.map(() => Array(c).fill('X')),
-					Array(len - (r - 1) * c).fill('X'),
-				]
-				: [],
-		dims: { r, c },
-	};
+  const rows = Math.round(Math.sqrt(len));
+  const cols = Math.ceil(len / rows);
+  let [r, c] = isDesktop ? [rows, cols] : [cols, rows];
+  return {
+    matrix:
+      len > 0
+        ? [
+          ...Array(r - 1)
+            .fill(null)
+            .map(() => Array(c).fill('X')),
+          Array(len - (r - 1) * c).fill('X'),
+        ]
+        : [],
+    dims: { r, c },
+  };
 };
 
 // const isDesktop = Platform.OS === 'web';
 
 interface GridVideoProps {
-	setLayout: React.Dispatch<React.SetStateAction<Layout>>;
+  setLayout: React.Dispatch<React.SetStateAction<Layout>>;
 }
 
 const GridVideo = (props: GridVideoProps) => {
-	const { height, width } = useWindowDimensions();
-	const { dispatch } = useContext(RtcContext);
-	const max = useContext(MaxUidContext);
-	const min = useContext(MinUidContext);
-	const { primaryColor } = useContext(ColorContext);
-	const networkQualityStat = useContext(networkQualityContext);
-	const { userList, localUid } = useContext(chatContext);
-	const users = [...max, ...min];
-	let onLayout = (e: any) => {
-		setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-	};
-	const [dim, setDim] = useState([
-		Dimensions.get('window').width,
-		Dimensions.get('window').height,
-		Dimensions.get('window').width > Dimensions.get('window').height,
-	]);
-	const isDesktop = dim[0] > dim[1] + 100;
-	const [networkTextVisible, setNetworkTextVisible] = useState(-1);
+  const { height, width } = useWindowDimensions();
+  const { dispatch } = useContext(RtcContext);
+  const max = useContext(MaxUidContext);
+  const min = useContext(MinUidContext);
+  const { primaryColor } = useContext(ColorContext);
+  const networkQualityStat = useContext(networkQualityContext);
+  const { userList, localUid } = useContext(chatContext);
+  const users = [...max, ...min];
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isDesktop = dim[0] > dim[1] + 100;
+  const [networkTextVisible, setNetworkTextVisible] = useState(-1);
 
-	let { matrix, dims } = useMemo(
-		() => layout(users.length, isDesktop),
-		[users.length, isDesktop],
-	);
-	return (
-		<View
-			style={[style.full, { paddingHorizontal: isDesktop ? 50 : 0 }]}
-			onLayout={onLayout}>
-			{matrix.map((r, ridx) => (
-				<View style={style.gridRow} key={ridx}>
-					{r.map((c, cidx) => (
-						<Pressable
-							onPress={() => {
-								if (!(ridx === 0 && cidx === 0)) {
-									dispatch({
-										type: 'SwapVideo',
-										value: [users[ridx * dims.c + cidx]],
-									});
-								}
-								props.setLayout(Layout.Pinned);
-							}}
-							style={{
-								flex: Platform.OS === 'web' ? 1 / dims.c : 1,
-								marginHorizontal: 'auto',
-							}}
-							key={cidx}>
-							<View style={style.gridVideoContainerInner}>
-								<NetworkQualityPill
-									networkStat={
-										networkQualityStat[users[ridx * dims.c + cidx].uid]
-									}
-									primaryColor={primaryColor}
-									rootStyle={{ top: 5, left: 5 }}
-								/>
-								<ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
-								<MaxVideoView
-									fallback={() => {
-										if (users[ridx * dims.c + cidx].uid === 'local') {
-											return FallbackLogo(userList[localUid]?.name);
-										} else if (String(users[ridx * dims.c + cidx].uid)[0] === '1') {
-											return FallbackLogo('PSTN User');
-										} else {
-											return FallbackLogo(
-												userList[users[ridx * dims.c + cidx]?.uid]?.name,
-											);
-										}
-									}}
-									user={users[ridx * dims.c + cidx]}
-									key={users[ridx * dims.c + cidx].uid}
-								/>
-								<View
-									style={{
-										zIndex: 5,
-										marginTop: -30,
-										backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
-										alignSelf: 'flex-end',
-										paddingHorizontal: 8,
-										height: 30,
-										borderTopLeftRadius: 15,
-										borderBottomRightRadius: 15,
-										// marginHorizontal: 'auto',
-										maxWidth: '100%',
-										flexDirection: 'row',
-										// alignContent: 'flex-end',
-										// width: '100%',
-										// alignItems: 'flex-start',
-									}}>
-									{/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
-									<View style={[style.MicBackdrop]}>
-										<Image
-											source={{
-												uri: users[ridx * dims.c + cidx].audio
-													? icons.mic
-													: icons.micOff,
-											}}
-											style={[
-												style.MicIcon,
-												{
-													tintColor: users[ridx * dims.c + cidx].audio
-														? primaryColor
-														: 'red',
-												},
-											]}
-											resizeMode={'contain'}
-										/>
-									</View>
-									<Text
-										numberOfLines={1}
-										textBreakStrategy={'simple'}
-										style={{
-											color: $config.PRIMARY_FONT_COLOR,
-											lineHeight: 30,
-											fontSize: RFValue(14, height > width ? height : width),
-											fontWeight: '700',
-											// width: '100%',
-											// alignSelf: 'stretch',
-											// textAlign: 'center',
-										}}>
-										{users[ridx * dims.c + cidx].uid === 'local'
-											? userList[localUid]
-												? userList[localUid].name.slice(0, 20) + ' '
-												: 'You '
-											: userList[users[ridx * dims.c + cidx].uid]
-												? userList[users[ridx * dims.c + cidx].uid].name.slice(
-													0,
-													20,
-												) + ' '
-												: users[ridx * dims.c + cidx].uid === 1
-													? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-													: String(users[ridx * dims.c + cidx].uid)[0] === '1' ?
-														'PSTN User ' : 'User '}
-									</Text>
-									{/* </View> */}
-									{/* {console.log(
+  let { matrix, dims } = useMemo(
+    () => layout(users.length, isDesktop),
+    [users.length, isDesktop],
+  );
+  return (
+    <View
+      style={[style.full, { paddingHorizontal: isDesktop ? 50 : 0 }]}
+      onLayout={onLayout}>
+      {matrix.map((r, ridx) => (
+        <View style={style.gridRow} key={ridx}>
+          {r.map((c, cidx) => (
+            <Pressable
+              onPress={() => {
+                if (!(ridx === 0 && cidx === 0)) {
+                  dispatch({
+                    type: 'SwapVideo',
+                    value: [users[ridx * dims.c + cidx]],
+                  });
+                }
+                props.setLayout(Layout.Pinned);
+              }}
+              style={{
+                flex: Platform.OS === 'web' ? 1 / dims.c : 1,
+                marginHorizontal: 'auto',
+              }}
+              key={cidx}>
+              <View style={style.gridVideoContainerInner}>
+                <NetworkQualityPill
+                  networkStat={
+                    networkQualityStat[users[ridx * dims.c + cidx].uid]
+                  }
+                  primaryColor={primaryColor}
+                  rootStyle={{ top: 5, left: 5 }}
+                />
+                <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
+                <MaxVideoView
+                  fallback={() => {
+                    if (users[ridx * dims.c + cidx].uid === 'local') {
+                      return FallbackLogo(userList[localUid]?.name);
+                    } else if (String(users[ridx * dims.c + cidx].uid)[0] === '1') {
+                      return FallbackLogo('PSTN User');
+                    } else {
+                      return FallbackLogo(
+                        userList[users[ridx * dims.c + cidx]?.uid]?.name,
+                      );
+                    }
+                  }}
+                  user={users[ridx * dims.c + cidx]}
+                  key={users[ridx * dims.c + cidx].uid}
+                />
+                <View
+                  style={{
+                    zIndex: 5,
+                    marginTop: -30,
+                    backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
+                    alignSelf: 'flex-end',
+                    paddingHorizontal: 8,
+                    height: 30,
+                    borderTopLeftRadius: 15,
+                    borderBottomRightRadius: 15,
+                    // marginHorizontal: 'auto',
+                    maxWidth: '100%',
+                    flexDirection: 'row',
+                    // alignContent: 'flex-end',
+                    // width: '100%',
+                    // alignItems: 'flex-start',
+                  }}>
+                  {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
+                  <View style={[style.MicBackdrop]}>
+                    <Image
+                      source={{
+                        uri: users[ridx * dims.c + cidx].audio
+                          ? icons.mic
+                          : icons.micOff,
+                      }}
+                      style={[
+                        style.MicIcon,
+                        {
+                          tintColor: users[ridx * dims.c + cidx].audio
+                            ? primaryColor
+                            : 'red',
+                        },
+                      ]}
+                      resizeMode={'contain'}
+                    />
+                  </View>
+                  <Text
+                    numberOfLines={1}
+                    textBreakStrategy={'simple'}
+                    style={{
+                      color: $config.PRIMARY_FONT_COLOR,
+                      lineHeight: 30,
+                      fontSize: RFValue(14, height > width ? height : width),
+                      fontWeight: '700',
+                      // width: '100%',
+                      // alignSelf: 'stretch',
+                      // textAlign: 'center',
+                    }}>
+                    {users[ridx * dims.c + cidx].uid === 'local'
+                      ? userList[localUid]
+                        ? userList[localUid].name.slice(0, 20) + ' '
+                        : 'You '
+                      : userList[users[ridx * dims.c + cidx].uid]
+                        ? userList[users[ridx * dims.c + cidx].uid].name.slice(
+                          0,
+                          20,
+                        ) + ' '
+                        : users[ridx * dims.c + cidx].uid === 1
+                          ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
+                          : String(users[ridx * dims.c + cidx].uid)[0] === '1' ?
+                            'PSTN User ' : 'User '}
+                  </Text>
+                  {/* </View> */}
+                  {/* {console.log(
                     '!nax',
                     userList,
                     userList[users[ridx * dims.c + cidx].uid],
                     userList[localUid],
                     users[ridx * dims.c + cidx].uid,
                   )} */}
-								</View>
-							</View>
-						</Pressable>
-					))}
-				</View>
-			))}
-		</View>
-	);
+                </View>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
 };
 
 const style = StyleSheet.create({
-	full: {
-		flex: 1,
-		// padding: 20,
-	},
-	gridRow: {
-		flex: 1,
-		flexDirection: 'row',
-		width: '100%',
-		paddingVertical: 10,
-	},
-	gridVideoContainerInner: {
-		// borderColor: '#fff',
-		// borderWidth:2,
-		// width: '100%',
-		borderRadius: 15,
-		flex: 1,
-		overflow: 'hidden',
-		// margin: 1,
-		marginHorizontal: 10,
-	},
-	MicBackdrop: {
-		width: 20,
-		height: 20,
-		borderRadius: 10,
-		alignSelf: 'center',
-		marginHorizontal: 10,
-		marginRight: 20,
-		backgroundColor: $config.SECONDARY_FONT_COLOR,
-		display: 'flex',
-		justifyContent: 'center',
-	},
-	MicIcon: {
-		width: '80%',
-		height: '80%',
-		alignSelf: 'center',
-	},
+  full: {
+    flex: 1,
+    // padding: 20,
+  },
+  gridRow: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    paddingVertical: 10,
+  },
+  gridVideoContainerInner: {
+    // borderColor: '#fff',
+    // borderWidth:2,
+    // width: '100%',
+    borderRadius: 15,
+    flex: 1,
+    overflow: 'hidden',
+    // margin: 1,
+    marginHorizontal: 10,
+  },
+  MicBackdrop: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginHorizontal: 10,
+    marginRight: 20,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  MicIcon: {
+    width: '80%',
+    height: '80%',
+    alignSelf: 'center',
+  },
 });
 export default GridVideo;
