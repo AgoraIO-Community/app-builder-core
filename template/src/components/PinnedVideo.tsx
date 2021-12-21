@@ -26,17 +26,19 @@ import {MaxVideoView} from '../../agora-rn-uikit';
 import {MaxUidConsumer} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import ColorContext from './ColorContext';
-import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import {ImageIcon} from '../../agora-rn-uikit';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 import {RFValue} from 'react-native-responsive-fontsize';
 const {topPinned} = layoutProps;
+import networkQualityContext from './NetworkQualityContext';
+import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 
 const PinnedVideo = () => {
   const {height, width} = useWindowDimensions();
   const {primaryColor} = useContext(ColorContext);
+  const networkQualityStat = useContext(networkQualityContext);
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -133,6 +135,12 @@ const PinnedVideo = () => {
                         data.dispatch({type: 'SwapVideo', value: [user]});
                       }}>
                       <View style={style.flex1}>
+                        <NetworkQualityPill
+                          networkStat={networkQualityStat[user.uid]}
+                          primaryColor={primaryColor}
+                          rootStyle={{left: 5, top: 5}}
+                          small
+                        />
                         <MaxVideoView
                           fallback={() => {
                             if (user.uid === 'local') {
@@ -203,6 +211,16 @@ const PinnedVideo = () => {
             <>
               <View style={style.flex1}>
                 <ScreenShareNotice uid={maxUsers[0].uid} />
+                <NetworkQualityPill
+                  networkStat={networkQualityStat[maxUsers[0].uid]}
+                  primaryColor={primaryColor}
+                  rootStyle={{
+                    marginLeft: 25,
+                    top: 8,
+                    right: 10,
+                  }}
+                  small
+                />
                 <MaxVideoView
                   fallback={() => {
                     if (maxUsers[0].uid === 'local') {
@@ -283,6 +301,7 @@ const style = StyleSheet.create({
     width: '80%',
     height: '80%',
     alignSelf: 'center',
+    resizeMode: 'contain',
   },
 });
 

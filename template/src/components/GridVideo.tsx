@@ -31,6 +31,8 @@ import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
 import {RFValue} from 'react-native-responsive-fontsize';
+import networkQualityContext from './NetworkQualityContext';
+import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 import {ImageIcon} from '../../agora-rn-uikit';
 
 const layout = (len: number, isDesktop: boolean = true) => {
@@ -63,6 +65,7 @@ const GridVideo = (props: GridVideoProps) => {
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
   const {primaryColor} = useContext(ColorContext);
+  const networkQualityStat = useContext(networkQualityContext);
   const {userList, localUid} = useContext(chatContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
@@ -74,6 +77,7 @@ const GridVideo = (props: GridVideoProps) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > dim[1] + 100;
+
   let {matrix, dims} = useMemo(
     () => layout(users.length, isDesktop),
     [users.length, isDesktop],
@@ -101,6 +105,13 @@ const GridVideo = (props: GridVideoProps) => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
+                <NetworkQualityPill
+                  networkStat={
+                    networkQualityStat[users[ridx * dims.c + cidx].uid]
+                  }
+                  primaryColor={primaryColor}
+                  rootStyle={{top: 5, left: 5}}
+                />
                 <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
                 <MaxVideoView
                   fallback={() => {
