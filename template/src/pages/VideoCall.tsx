@@ -458,6 +458,7 @@ const VideoCall: React.FC = () => {
                       setUsername={setUsername}
                       setCallActive={setCallActive}
                       queryComplete={queryComplete}
+                      title={title}
                     />
                   ) : (
                     <></>

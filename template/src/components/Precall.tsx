@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -33,7 +33,7 @@ import Error from '../subComponents/Error';
 
 const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  const {setCallActive, queryComplete, username, setUsername, error} = props;
+  const {setCallActive, queryComplete, username, setUsername, error, title} = props;
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -43,6 +43,12 @@ const Precall = (props: any) => {
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
+
+  useEffect(()=>{
+    if(Platform.OS === 'web'){
+      document.title = title + ' | ' + $config.APP_NAME
+    }
+  })
 
   return (
     // <ImageBackground
@@ -134,6 +140,10 @@ const Precall = (props: any) => {
               justifyContent: 'center',
               marginBottom: '10%',
             }}>
+            <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
+              {title}
+            </Text>
+            <View style={{height: 20}} />
             <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
               {/* <View style={{flex: 1}}> */}
               <Text
@@ -211,8 +221,13 @@ const style = StyleSheet.create({
     marginBottom: '1%',
     // marginRight: '5%',
   },
-  subHeading: {
+  titleHeading: {
     fontSize: 28,
+    fontWeight: '700',
+    color: $config.SECONDARY_FONT_COLOR,
+  },
+  subHeading: {
+    fontSize: 18,
     fontWeight: '700',
     color: $config.SECONDARY_FONT_COLOR,
   },
