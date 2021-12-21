@@ -53,9 +53,6 @@ const PinnedVideo = () => {
     }, 20);
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const [networkTextVisible, setNetworkTextVisible] = useState<String | Number>(
-    -1,
-  );
   const { userList, localUid } = useContext(chatContext);
   return (
     <View

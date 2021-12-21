@@ -76,7 +76,6 @@ const GridVideo = (props: GridVideoProps) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > dim[1] + 100;
-  const [networkTextVisible, setNetworkTextVisible] = useState(-1);
 
   let { matrix, dims } = useMemo(
     () => layout(users.length, isDesktop),
