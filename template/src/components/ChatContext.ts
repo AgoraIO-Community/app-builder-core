@@ -11,6 +11,7 @@
 */
 import RtmEngine from 'agora-react-native-rtm';
 import {createContext} from 'react';
+import {rtmEventsInterface} from './RTMEvents';
 
 export interface channelMessage {
   isLocal: boolean;
@@ -25,6 +26,25 @@ export interface messageStoreInterface {
   msg: string;
 }
 
+export interface messageEventInterface extends messageStoreInterface {
+  type: messageActionType;
+  source: messageSourceType;
+}
+
+export enum messageSourceType {
+  Core = 'core',
+}
+
+export enum messageChannelType {
+  Private = 'private',
+  Public = 'public',
+}
+
+export enum messageActionType {
+  Control = '0',
+  Normal = '1',
+}
+
 interface chatContext {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
@@ -35,6 +55,7 @@ interface chatContext {
   engine: RtmEngine;
   localUid: string;
   userList: any;
+  events: rtmEventsInterface;
   // peersRTM: Array<string>;
 }
 
@@ -48,6 +69,6 @@ export enum controlMessageEnum {
   cloudRecordingUnactive = '7',
 }
 
-const ChatContext = createContext((null as unknown) as chatContext);
+const ChatContext = createContext(null as unknown as chatContext);
 
 export default ChatContext;
