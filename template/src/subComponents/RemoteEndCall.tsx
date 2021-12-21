@@ -12,7 +12,7 @@
 import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
   const {sendControlMessageToUid} = useContext(ChatContext);

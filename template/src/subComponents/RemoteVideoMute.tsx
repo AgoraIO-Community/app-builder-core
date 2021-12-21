@@ -13,7 +13,7 @@ import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.

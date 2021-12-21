@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 /**
  * Chat container is the component which renders all the chat messages

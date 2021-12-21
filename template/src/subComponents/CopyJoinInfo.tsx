@@ -17,7 +17,7 @@ import icons from '../assets/icons';
 import platform from '../subComponents/Platform';
 import {useParams} from '../components/Router';
 import Toast from '../../react-native-toast-message';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const SHARE = gql`
   query share($passphrase: String!) {

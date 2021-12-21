@@ -15,7 +15,7 @@ import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const MUTE_PSTN = gql`
   mutation mutePSTN($uid: Int!, $passphrase: String!, $mute: Boolean!) {

@@ -28,7 +28,7 @@ import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import icons from '../assets/icons';
 import Toast from '../../react-native-toast-message';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
 
 const Share = (props: any) => {
