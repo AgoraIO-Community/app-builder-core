@@ -21,8 +21,8 @@ import {
 } from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
-import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
-import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import {MinUidConsumer} from '../../agora-rn-uikit';
+import {MaxUidConsumer} from '../../agora-rn-uikit';
 import icons from '../assets/icons';
 import ColorContext from './ColorContext';
 import chatContext from './ChatContext';

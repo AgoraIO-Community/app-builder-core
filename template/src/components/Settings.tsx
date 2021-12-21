@@ -16,7 +16,7 @@ import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const Settings = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
@@ -30,7 +30,9 @@ const Settings = (props: any) => {
           ? setSidePanel(SidePanelType.None)
           : setSidePanel(SidePanelType.Settings);
       }}
-      name={'settings'}
+      name={
+        sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings'
+      }
     />
   );
 };
@@ -67,7 +69,7 @@ const style = StyleSheet.create({
     // width: 30,
     // height: 30,
     width: '100%',
-    height: '90%',
+    height: '100%',
     tintColor: $config.PRIMARY_COLOR,
   },
   heading: {
@@ -103,6 +105,7 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    resizeMode: 'contain',
   },
 });
 

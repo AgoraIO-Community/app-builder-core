@@ -19,8 +19,8 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-// import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
-// import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+// import {MinUidConsumer} from '../../agora-rn-uikit';
+// import {PropsContext} from '../../agora-rn-uikit';
 import icons from '../assets/icons';
 import Settings from './Settings';
 import ColorContext from './ColorContext';
@@ -30,8 +30,8 @@ import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
-import {BtnTemplate} from '../../agora-rn-uikit/Components';
-import ImageIcon from '../../agora-rn-uikit/src/Controls/ImageIcon';
+import {BtnTemplate} from '../../agora-rn-uikit';
+import ImageIcon from '../../agora-rn-uikit';
 
 const Navbar = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
@@ -182,7 +182,11 @@ const Navbar = (props: any) => {
                   : setSidePanel(SidePanelType.Participants);
               }}
               style={style.btnHolder}
-              name={'participantIcon'}
+              name={
+                sidePanel === SidePanelType.Participants
+                  ? 'participantFilledIcon'
+                  : 'participantIcon'
+              }
             />
           </View>
           {$config.CHAT ? (
@@ -219,8 +223,9 @@ const Navbar = (props: any) => {
                           : setSidePanel(SidePanelType.Chat);
                       }}
                       name={
-                        sidePanel !== SidePanelType.Chat &&
-                        pendingMessageLength !== 0
+                        (sidePanel !== SidePanelType.Chat &&
+                          pendingMessageLength !== 0) ||
+                        sidePanel === SidePanelType.Chat
                           ? 'chatIconFilled'
                           : 'chatIcon'
                       }
@@ -258,7 +263,7 @@ const Navbar = (props: any) => {
           ) : (
             <></>
           )}
-          <View style={{width: '18%', height: '105%'}}>
+          <View style={{width: '20%', height: '120%'}}>
             <View style={{alignSelf: 'center', width: '100%', height: '105%'}}>
               <BtnTemplate
                 style={style.btnHolder}
@@ -267,22 +272,27 @@ const Navbar = (props: any) => {
                     l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
                   );
                 }}
-                name={'gridLayoutIcon'}
+                name={layout ? 'gridLayoutFilledIcon' : 'pinnedLayoutIcon'}
               />
             </View>
           </View>
-          {Platform.OS === 'web' && isDesktop ? (
+          {/** Show setting icon only in non native apps
+           * show in web/electron/mobile web
+           * hide in android/ios  */}
+          {Platform.OS !== 'android' && Platform.OS !== 'ios' ? (
             <>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                  width: 1,
-                  height: '100%',
-                  marginHorizontal: 10,
-                  alignSelf: 'center',
-                  opacity: 0.8,
-                }}
-              />
+              {Platform.OS === 'web' && isDesktop && (
+                <View
+                  style={{
+                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+                    width: 1,
+                    height: '100%',
+                    marginHorizontal: 10,
+                    alignSelf: 'center',
+                    opacity: 0.8,
+                  }}
+                />
+              )}
               <View style={{width: '20%', height: '100%'}}>
                 <Settings
                   sidePanel={sidePanel}
@@ -340,6 +350,7 @@ const style = StyleSheet.create({
     padding: mobileAndTabletCheck() ? 2 : 5,
     width: '100%',
     height: '100%',
+    resizeMode: 'contain',
   },
   // participantBtnHolder: {
   //   backgroundColor: '#fff',

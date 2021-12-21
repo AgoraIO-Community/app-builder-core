@@ -12,8 +12,8 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text, Platform} from 'react-native';
 
-import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
-import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
+import {RtcConfigure} from '../../agora-rn-uikit';
+import {PropsProvider} from '../../agora-rn-uikit';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
@@ -323,11 +323,14 @@ const VideoCall: React.FC = () => {
         <>
           <PropsProvider
             value={{
-              rtcProps,
+              rtcProps:{
+                ...rtcProps,
+                callActive
+              },
               callbacks,
               styleProps,
             }}>
-            <RtcConfigure callActive={callActive}>
+            <RtcConfigure>
               <DeviceConfigure>
                 <RtmConfigure
                   setRecordingActive={setRecordingActive}

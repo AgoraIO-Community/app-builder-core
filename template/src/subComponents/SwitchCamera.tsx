@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
-import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
-import BtnTemplate from '../../agora-rn-uikit/src/Controls/BtnTemplate';
+import {RtcContext} from '../../agora-rn-uikit';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 function SwitchCamera() {
   const {RtcEngine} = useContext(RtcContext);

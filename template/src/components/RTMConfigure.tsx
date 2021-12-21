@@ -11,9 +11,9 @@
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
-import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+import {PropsContext} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+import {RtcContext} from '../../agora-rn-uikit';
 import {messageStoreInterface} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';

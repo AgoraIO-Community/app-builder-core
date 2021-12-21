@@ -10,17 +10,18 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
+import icons from '../assets/icons';
+import {RtcContext} from '../../agora-rn-uikit';
+import {PropsContext} from '../../agora-rn-uikit';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
-import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
+import {MinUidContext} from '../../agora-rn-uikit';
+import {MaxUidContext} from '../../agora-rn-uikit';
 import Layout from '../subComponents/LayoutEnum';
-import ImageIcon from '../../agora-rn-uikit/src/Controls/ImageIcon';
+import ImageIcon from '../../agora-rn-uikit';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
