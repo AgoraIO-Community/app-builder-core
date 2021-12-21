@@ -12,8 +12,8 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text, Platform} from 'react-native';
 
-import RtcConfigure from '../../agora-rn-uikit/src/RTCConfigure';
-import {PropsProvider} from '../../agora-rn-uikit/src/PropsContext';
+import {RtcConfigure} from '../../agora-rn-uikit';
+import {PropsProvider} from '../../agora-rn-uikit';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
@@ -30,6 +30,7 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 import ChatContext, {messageChannelType} from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
@@ -325,11 +326,14 @@ const VideoCall: React.FC = () => {
         <>
           <PropsProvider
             value={{
-              rtcProps,
+              rtcProps: {
+                ...rtcProps,
+                callActive,
+              },
               callbacks,
               styleProps,
             }}>
-            <RtcConfigure callActive={callActive}>
+            <RtcConfigure>
               <DeviceConfigure>
                 <RtmConfigure
                   setRecordingActive={setRecordingActive}
@@ -468,9 +472,7 @@ const VideoCall: React.FC = () => {
         </>
       ) : (
         <View style={style.loader}>
-          <View style={style.loaderLogo}>
-            <Logo />
-          </View>
+          <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
           <Text style={style.loaderText}>Starting Call. Just a second.</Text>
         </View>
       )}

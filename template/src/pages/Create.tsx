@@ -10,12 +10,7 @@
 *********************************************
 */
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
@@ -31,6 +26,7 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import Toast from '../../react-native-toast-message';
+import hasBrandLogo from '../utils/hasBrandLogo';
 
 type PasswordInput = {
   host: string;
@@ -38,8 +34,16 @@ type PasswordInput = {
 };
 
 const CREATE_CHANNEL = gql`
-  mutation CreateChannel($title: String!, $backendURL: String!, $enablePSTN: Boolean) {
-    createChannel(title: $title, backendURL: $backendURL, enablePSTN: $enablePSTN) {
+  mutation CreateChannel(
+    $title: String!
+    $backendURL: String!
+    $enablePSTN: Boolean
+  ) {
+    createChannel(
+      title: $title
+      backendURL: $backendURL
+      enablePSTN: $enablePSTN
+    ) {
       passphrase {
         host
         view
@@ -111,9 +115,9 @@ const Create = () => {
     //   style={style.full}
     //   resizeMode={'cover'}>
     // <KeyboardAvoidingView behavior={'height'} style={style.main}>
-    <View style={style.main}>
+    <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        <Logo />
+        {hasBrandLogo && <Logo />}
         {error ? <Error error={error} /> : <></>}
         {/* <OpenInNativeButton /> */}
       </View>
@@ -179,17 +183,17 @@ const Create = () => {
           roomTitle={roomTitle}
         />
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 const style = StyleSheet.create({
-  full: {flex: 1},
   main: {
-    flex: 2,
-    justifyContent: 'space-evenly',
+    paddingVertical: '8%',
     marginHorizontal: '8%',
-    marginVertical: '2%',
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
   },
   nav: {
     flex: 1,

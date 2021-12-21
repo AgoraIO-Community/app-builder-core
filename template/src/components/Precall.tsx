@@ -1,24 +1,30 @@
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
- AppBuilder and all associated components, source code, APIs, services, and documentation 
- (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
- accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
- Use without a license or in violation of any license terms and conditions (including use for 
- any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
- information visit https://appbuilder.agora.io. 
+ AppBuilder and all associated components, source code, APIs, services, and documentation
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.
+ Use without a license or in violation of any license terms and conditions (including use for
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more
+ information visit https://appbuilder.agora.io.
 *********************************************
 */
 import React, {useState, useContext} from 'react';
 import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
-import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit/Components';
-import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
+
+import {
+  MaxUidConsumer,
+  MaxVideoView,
+  LocalAudioMute,
+  LocalVideoMute,
+  LocalUserContext,
+} from '../../agora-rn-uikit';
+
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
+import hasBrandLogo from '../utils/hasBrandLogo';
 // import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
 // import {useHistory} from './Router';
@@ -45,7 +51,7 @@ const Precall = (props: any) => {
     //   resizeMode={'cover'}>
     <View style={style.main} onLayout={onLayout}>
       <View style={style.nav}>
-        <Logo />
+        {hasBrandLogo && <Logo />}
         {error ? <Error error={error} showBack={true} /> : <></>}
         {/* <OpenInNativeButton /> */}
       </View>

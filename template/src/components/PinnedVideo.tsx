@@ -18,20 +18,23 @@ import {
   Text,
   Image,
   Pressable,
+  useWindowDimensions
 } from 'react-native';
-import {MinUidConsumer} from '../../agora-rn-uikit/src/MinUidContext';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
-import {MaxUidConsumer} from '../../agora-rn-uikit/src/MaxUidContext';
+import {MinUidConsumer} from '../../agora-rn-uikit';
+import {RtcContext} from '../../agora-rn-uikit';
+import {MaxVideoView} from '../../agora-rn-uikit';
+import {MaxUidConsumer} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import ColorContext from './ColorContext';
 import icons from '../assets/icons';
 import {layoutProps} from '../../theme.json';
 import FallbackLogo from '../subComponents/FallbackLogo';
-
+import ScreenShareNotice from '../subComponents/ScreenShareNotice';
+import { RFValue } from "react-native-responsive-fontsize";
 const {topPinned} = layoutProps;
 
 const PinnedVideo = () => {
+  const { height, width } = useWindowDimensions();
   const {primaryColor} = useContext(ColorContext);
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
@@ -161,7 +164,7 @@ const PinnedVideo = () => {
                               resizeMode={'contain'}
                             />
                           </View>
-                          <Text style={style.name}>
+                          <Text numberOfLines={1} style={[style.name,{fontSize: RFValue(14, height > width ? height : width)}]}>
                             {user.uid === 'local'
                               ? userList[localUid]
                                 ? userList[localUid].name.slice(0, 20) + ' '
@@ -193,7 +196,9 @@ const PinnedVideo = () => {
         }>
         <MaxUidConsumer>
           {(maxUsers) => (
+            <>            
             <View style={style.flex1}>
+              <ScreenShareNotice uid={maxUsers[0].uid} />
               <MaxVideoView
                 fallback={() => {
                   if (maxUsers[0].uid === 'local') {
@@ -222,7 +227,7 @@ const PinnedVideo = () => {
                     resizeMode={'contain'}
                   />
                 </View>
-                <Text style={style.name}>
+                <Text numberOfLines={1} style={[style.name, {fontSize: RFValue(14, height > width ? height : width)}]}>
                   {maxUsers[0].uid === 'local'
                     ? userList[localUid]
                       ? userList[localUid].name.slice(0,20) + ' '
@@ -235,6 +240,7 @@ const PinnedVideo = () => {
                 </Text>
               </View>
             </View>
+            </>
           )}
         </MaxUidConsumer>
       </View>
@@ -257,6 +263,8 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderBottomRightRadius: 15,
     flexDirection: 'row',
+    zIndex: 5,
+    maxWidth: '100%'
   },
   name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
   MicBackdrop: {

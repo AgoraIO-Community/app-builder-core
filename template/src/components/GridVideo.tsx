@@ -18,17 +18,19 @@ import {
   Dimensions,
   Image,
   Pressable,
+  useWindowDimensions
 } from 'react-native';
-import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
-import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
+import {MinUidContext} from '../../agora-rn-uikit';
+import {MaxUidContext} from '../../agora-rn-uikit';
+import {MaxVideoView} from '../../agora-rn-uikit';
+import {RtcContext} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import icons from '../assets/icons';
-import styles from './styles';
 import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
-import RtcContext, {DispatchType} from '../../agora-rn-uikit/src/RtcContext';
+import ScreenShareNotice from '../subComponents/ScreenShareNotice';
+import { RFValue } from "react-native-responsive-fontsize";
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -55,6 +57,7 @@ interface GridVideoProps {
 }
 
 const GridVideo = (props: GridVideoProps) => {
+  const { height, width } = useWindowDimensions();
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
@@ -97,6 +100,7 @@ const GridVideo = (props: GridVideoProps) => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
+                <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
                 <MaxVideoView
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
@@ -114,6 +118,7 @@ const GridVideo = (props: GridVideoProps) => {
                 />
                 <View
                   style={{
+                    zIndex:5,
                     marginTop: -30,
                     backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
                     alignSelf: 'flex-end',
@@ -148,12 +153,13 @@ const GridVideo = (props: GridVideoProps) => {
                     />
                   </View>
                   <Text
+                    numberOfLines={1}
                     textBreakStrategy={'simple'}
                     style={{
                       color: $config.PRIMARY_FONT_COLOR,
                       lineHeight: 30,
-                      fontSize: 18,
-                      fontWeight: '600',
+                      fontSize: RFValue(14, height > width ? height : width),
+                      fontWeight: '700',
                       // width: '100%',
                       // alignSelf: 'stretch',
                       // textAlign: 'center',
@@ -209,7 +215,7 @@ const style = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
     // margin: 1,
-    paddingHorizontal: 10,
+    marginHorizontal: 10,
   },
   MicBackdrop: {
     width: 20,

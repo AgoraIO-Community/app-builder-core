@@ -12,14 +12,14 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import icons from '../assets/icons';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
-import PropsContext from '../../agora-rn-uikit/src/PropsContext';
+import {RtcContext} from '../../agora-rn-uikit';
+import {PropsContext} from '../../agora-rn-uikit';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../components/Router';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import MinUidContext from '../../agora-rn-uikit/src/MinUidContext';
-import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
+import {MinUidContext} from '../../agora-rn-uikit';
+import {MaxUidContext} from '../../agora-rn-uikit';
 import Layout from '../subComponents/LayoutEnum';
 
 
@@ -109,11 +109,13 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
               value: [joinedUser[0]],
             });
             setLayout(Layout.Pinned);
-        }else if(newUserUid ===  1){
-          dispatch({
-            type: 'SwapVideo',
-            value: [joinedUser[0]],
-          });
+        } else if (newUserUid === 1) {
+          if (newUserUid !== users[0].uid){
+            dispatch({
+              type: 'SwapVideo',
+              value: [joinedUser[0]],
+            });
+          }
           setLayout(Layout.Pinned);
         }
       }

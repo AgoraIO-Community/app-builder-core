@@ -18,15 +18,15 @@ import {
   ImageBackground,
   Platform,
 } from 'react-native';
-import MaxUidContext from '../../agora-rn-uikit/src/MaxUidContext';
-import {MaxVideoView} from '../../agora-rn-uikit/Components';
+import {MaxUidContext} from '../../agora-rn-uikit';
+import {MaxVideoView} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
   LocalVideoMute,
   SwitchCamera,
-} from '../../agora-rn-uikit/Components';
-import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
-import RtcContext from '../../agora-rn-uikit/src/RtcContext';
+} from '../../agora-rn-uikit';
+import {LocalUserContext} from '../../agora-rn-uikit';
+import {RtcContext} from '../../agora-rn-uikit';
 // import ColorContext from './ColorContext';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';

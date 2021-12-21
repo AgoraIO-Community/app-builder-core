@@ -1,6 +1,6 @@
 {
   "name": "HelloWorld",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "main": ".electron/index.js",
   "scripts": {
@@ -51,9 +51,9 @@
     "agora-react-native-rtm": "1.2.2-alpha.3",
     "agora-rtc-sdk-ng": "4.6.3",
     "agora-rtm-sdk": "1.4.3",
-    "electron-log": "^4.3.5",
+    "electron-log": "4.3.5",
     "electron-squirrel-startup": "1.0.0",
-    "electron-updater": "^4.3.9",
+    "electron-updater": "4.3.9",
     "exponential-backoff": "3.1.0",
     "graphql": "15.5.0",
     "react": "16.13.1",
@@ -63,7 +63,8 @@
     "react-native-hyperlink": "0.0.19",
     "react-native-inappbrowser-reborn": "3.5.1",
     "react-native-keep-awake": "4.0.0",
-    "react-native-keyboard-manager": "^6.5.4-1",
+    "react-native-keyboard-manager": "6.5.4-1",
+    "react-native-responsive-fontsize": "0.5.1",
     "react-native-web": "0.14.13",
     "react-router-dom": "5.2.0",
     "react-router-native": "5.2.0"
@@ -71,6 +72,7 @@
   "devDependencies": {
     "@babel/core": "7.14.3",
     "@babel/plugin-proposal-class-properties": "7.14.5",
+    "@babel/plugin-proposal-optional-chaining": "7.16.0",
     "@babel/preset-env": "7.14.4",
     "@babel/preset-react": "7.13.13",
     "@babel/preset-typescript": "7.13.0",

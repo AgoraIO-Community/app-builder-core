@@ -18,13 +18,13 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
-import LocalUserContext from '../../agora-rn-uikit/src/LocalUserContext';
+import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
   LocalVideoMute,
   SwitchCamera,
   Endcall,
-} from '../../agora-rn-uikit/Components';
+} from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import icons from '../assets/icons';
 import ColorContext from './ColorContext';
