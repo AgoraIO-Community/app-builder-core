@@ -183,21 +183,19 @@ const GridVideo = (props: GridVideoProps) => {
                       lineHeight: 30,
                       fontSize: RFValue(14, height > width ? height : width),
                       fontWeight: '700',
+                      flexShrink: 1,
                       // width: '100%',
                       // alignSelf: 'stretch',
                       // textAlign: 'center',
                     }}>
                     {users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
-                        ? userList[localUid].name.slice(0, 20) + ' '
+                        ? userList[localUid].name + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                      ? userList[users[ridx * dims.c + cidx].uid].name.slice(
-                          0,
-                          20,
-                        ) + ' '
+                      ? userList[users[ridx * dims.c + cidx].uid].name + ' '
                       : users[ridx * dims.c + cidx].uid === 1
-                      ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
+                      ? (userList[localUid]?.name + "'s screen ")
                       : String(users[ridx * dims.c + cidx].uid)[0] === '1'
                       ? 'PSTN User '
                       : 'User '}
