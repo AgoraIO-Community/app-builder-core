@@ -34,6 +34,7 @@ import {RFValue} from 'react-native-responsive-fontsize';
 import networkQualityContext from './NetworkQualityContext';
 import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 import {ImageIcon} from '../../agora-rn-uikit';
+import TextWithTooltip from '../subComponents/TextWithTooltip';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -175,20 +176,9 @@ const GridVideo = (props: GridVideoProps) => {
                       resizeMode={'contain'}
                     /> */}
                   </View>
-                  <Text
-                    numberOfLines={1}
-                    textBreakStrategy={'simple'}
-                    style={{
-                      color: $config.PRIMARY_FONT_COLOR,
-                      lineHeight: 30,
-                      fontSize: RFValue(14, height > width ? height : width),
-                      fontWeight: '700',
-                      flexShrink: 1,
-                      // width: '100%',
-                      // alignSelf: 'stretch',
-                      // textAlign: 'center',
-                    }}>
-                    {users[ridx * dims.c + cidx].uid === 'local'
+                  <View style={{flex:1}}>
+                    <TextWithTooltip 
+                      value={users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
                         ? userList[localUid].name + ' '
                         : 'You '
@@ -199,7 +189,20 @@ const GridVideo = (props: GridVideoProps) => {
                       : String(users[ridx * dims.c + cidx].uid)[0] === '1'
                       ? 'PSTN User '
                       : 'User '}
-                  </Text>
+                      style={
+                        {
+                          color: $config.PRIMARY_FONT_COLOR,
+                          lineHeight: 30,
+                          fontSize: RFValue(14, height > width ? height : width),
+                          fontWeight: '700',
+                          flexShrink: 1,
+                          // width: '100%',
+                          // alignSelf: 'stretch',
+                          // textAlign: 'center',
+                        }
+                      }
+                    />
+                  </View>
                   {/* </View> */}
                   {/* {console.log(
                     '!nax',

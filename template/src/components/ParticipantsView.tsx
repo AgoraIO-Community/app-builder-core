@@ -39,6 +39,7 @@ import platform from '../subComponents/Platform';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {UserType} from './RTMConfigure';
 import styles from './styles';
+import TextWithToolTip from '../subComponents/TextWithTooltip'
 
 const ParticipantView = (props: any) => {
   const {height, width} = useWindowDimensions();
@@ -50,7 +51,7 @@ const ParticipantView = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-
+  let fontSize = Platform.OS === 'web' ? 14 : 16
   return (
     <View
       style={
@@ -78,14 +79,10 @@ const ParticipantView = (props: any) => {
                   user.uid === 'local' ? (
                     <View style={style.participantContainer} key={user.uid}>
                       <View style={{flex:1}}>
-                        <Text style={[style.participantText, { fontSize: RFValue(14, height > width ? height : width) }]} 
-                          textBreakStrategy='simple' 
-                          numberOfLines={1}
-                        >
-                        {userList[localUid]
-                            ? userList[localUid].name + ' '
-                            : 'You '}
-                        </Text>
+                        <TextWithToolTip 
+                          value={userList[localUid] ? userList[localUid].name + ' ' : 'You '} 
+                          style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
+                        />
                       </View>
                       <View style={style.participantButtonContainer}>
                         <LocalUserContext>
@@ -102,14 +99,12 @@ const ParticipantView = (props: any) => {
                   ) : user.uid === 1 ? (
                     <View style={style.participantContainer} key={user.uid}>
                       <View style={{flex:1}}>
-                        <Text style={[style.participantText, { fontSize: RFValue(14, height > width ? height : width) }]} 
-                          numberOfLines={1} 
-                          textBreakStrategy='simple'
-                        >
-                          {userList[localUid]
+                        <TextWithToolTip 
+                          value={userList[localUid]
                             ? userList[localUid].name + "'s screenshare "
-                            : 'Your screenshare '}
-                        </Text>
+                            : 'Your screenshare '} 
+                          style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
+                        />
                       </View>
                       <View style={style.dummyView}>
                           {/** its just the placeholder to adjust the UI. if no icon option to be shown */}
@@ -117,18 +112,16 @@ const ParticipantView = (props: any) => {
                       </View>
                     </View>
                   ) : (
-                    <View style={style.participantContainer} key={user.uid}>
+                    <View style={style.participantContainer} key={user.uid} >
                       <View style={{flex:1}}>
-                        <Text style={[style.participantText, { fontSize: RFValue(14, height > width ? height : width) }]} 
-                          numberOfLines={1} 
-                          textBreakStrategy='simple'
-                        >
-                          {userList[user.uid]
+                        <TextWithToolTip 
+                          value={userList[user.uid]
                             ? userList[user.uid].name + ' '
                             : String(user.uid)[0] === '1'
                             ? 'PSTN User '
-                            : 'User '}
-                        </Text>
+                            : 'User '} 
+                          style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
+                        />
                       </View>
                       {userList[user.uid]?.type !== UserType.ScreenShare ? (
                         <View style={style.participantButtonContainer}>
