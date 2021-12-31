@@ -25,10 +25,7 @@ import {
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
-// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import ColorContext from './ColorContext';
-// import {useHistory} from './Router';
-// import {precallCard} from '../../theme.json';
 import Error from '../subComponents/Error';
 
 const Precall = (props: any) => {
@@ -76,25 +73,9 @@ const Precall = (props: any) => {
             <LocalUserContext>
               <View style={{alignSelf: 'center'}}>
                 <LocalVideoMute />
-                {/* <Text
-                  style={{
-                    textAlign: 'center',
-                    marginTop: 5,
-                    color: $config.PRIMARY_COLOR,
-                  }}>
-                  Video
-                </Text> */}
               </View>
               <View style={{alignSelf: 'center'}}>
                 <LocalAudioMute />
-                {/* <Text
-                  style={{
-                    textAlign: 'center',
-                    marginTop: 5,
-                    color: $config.PRIMARY_COLOR,
-                  }}>
-                  Audio
-                </Text> */}
               </View>
             </LocalUserContext>
           </View>

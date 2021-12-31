@@ -18,7 +18,7 @@ import {
   Dimensions,
   Image,
   Pressable,
-  useWindowDimensions
+  useWindowDimensions,
 } from 'react-native';
 import {MinUidContext} from '../../agora-rn-uikit';
 import {MaxUidContext} from '../../agora-rn-uikit';
@@ -30,7 +30,11 @@ import ColorContext from './ColorContext';
 import FallbackLogo from '../subComponents/FallbackLogo';
 import Layout from '../subComponents/LayoutEnum';
 import ScreenShareNotice from '../subComponents/ScreenShareNotice';
-import { RFValue } from "react-native-responsive-fontsize";
+import {RFValue} from 'react-native-responsive-fontsize';
+import networkQualityContext from './NetworkQualityContext';
+import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
+import {ImageIcon} from '../../agora-rn-uikit';
+import TextWithTooltip from '../subComponents/TextWithTooltip';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -57,11 +61,12 @@ interface GridVideoProps {
 }
 
 const GridVideo = (props: GridVideoProps) => {
-  const { height, width } = useWindowDimensions();
+  const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
   const {primaryColor} = useContext(ColorContext);
+  const networkQualityStat = useContext(networkQualityContext);
   const {userList, localUid} = useContext(chatContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
@@ -73,6 +78,7 @@ const GridVideo = (props: GridVideoProps) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > dim[1] + 100;
+
   let {matrix, dims} = useMemo(
     () => layout(users.length, isDesktop),
     [users.length, isDesktop],
@@ -100,12 +106,21 @@ const GridVideo = (props: GridVideoProps) => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
+                <NetworkQualityPill
+                  networkStat={
+                    networkQualityStat[users[ridx * dims.c + cidx].uid]
+                  }
+                  primaryColor={primaryColor}
+                  rootStyle={{top: 5, left: 5}}
+                />
                 <ScreenShareNotice uid={users[ridx * dims.c + cidx].uid} />
                 <MaxVideoView
                   fallback={() => {
                     if (users[ridx * dims.c + cidx].uid === 'local') {
                       return FallbackLogo(userList[localUid]?.name);
-                    } else if (String(users[ridx * dims.c + cidx].uid)[0] === '1') {
+                    } else if (
+                      String(users[ridx * dims.c + cidx].uid)[0] === '1'
+                    ) {
                       return FallbackLogo('PSTN User');
                     } else {
                       return FallbackLogo(
@@ -118,7 +133,7 @@ const GridVideo = (props: GridVideoProps) => {
                 />
                 <View
                   style={{
-                    zIndex:5,
+                    zIndex: 5,
                     marginTop: -30,
                     backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
                     alignSelf: 'flex-end',
@@ -135,7 +150,16 @@ const GridVideo = (props: GridVideoProps) => {
                   }}>
                   {/* <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}> */}
                   <View style={[style.MicBackdrop]}>
-                    <Image
+                    <ImageIcon
+                      name={
+                        users[ridx * dims.c + cidx].audio ? 'mic' : 'micOff'
+                      }
+                      color={
+                        users[ridx * dims.c + cidx].audio ? primaryColor : 'red'
+                      }
+                      style={style.MicIcon}
+                    />
+                    {/* <Image
                       source={{
                         uri: users[ridx * dims.c + cidx].audio
                           ? icons.mic
@@ -150,34 +174,35 @@ const GridVideo = (props: GridVideoProps) => {
                         },
                       ]}
                       resizeMode={'contain'}
-                    />
+                    /> */}
                   </View>
-                  <Text
-                    numberOfLines={1}
-                    textBreakStrategy={'simple'}
-                    style={{
-                      color: $config.PRIMARY_FONT_COLOR,
-                      lineHeight: 30,
-                      fontSize: RFValue(14, height > width ? height : width),
-                      fontWeight: '700',
-                      // width: '100%',
-                      // alignSelf: 'stretch',
-                      // textAlign: 'center',
-                    }}>
-                    {users[ridx * dims.c + cidx].uid === 'local'
+                  <View style={{flex:1}}>
+                    <TextWithTooltip 
+                      value={users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
-                        ? userList[localUid].name.slice(0, 20) + ' '
+                        ? userList[localUid].name + ' '
                         : 'You '
                       : userList[users[ridx * dims.c + cidx].uid]
-                        ? userList[users[ridx * dims.c + cidx].uid].name.slice(
-                          0,
-                          20,
-                        ) + ' '
-                        : users[ridx * dims.c + cidx].uid === 1
-                          ? (userList[localUid]?.name + "'s screen ").slice(0, 20)
-                          : String(users[ridx * dims.c + cidx].uid)[0] === '1' ?
-                            'PSTN User ' : 'User '}
-                  </Text>
+                      ? userList[users[ridx * dims.c + cidx].uid].name + ' '
+                      : users[ridx * dims.c + cidx].uid === 1
+                      ? (userList[localUid]?.name + "'s screen ")
+                      : String(users[ridx * dims.c + cidx].uid)[0] === '1'
+                      ? 'PSTN User '
+                      : 'User '}
+                      style={
+                        {
+                          color: $config.PRIMARY_FONT_COLOR,
+                          lineHeight: 30,
+                          fontSize: RFValue(14, height > width ? height : width),
+                          fontWeight: '700',
+                          flexShrink: 1,
+                          // width: '100%',
+                          // alignSelf: 'stretch',
+                          // textAlign: 'center',
+                        }
+                      }
+                    />
+                  </View>
                   {/* </View> */}
                   {/* {console.log(
                     '!nax',

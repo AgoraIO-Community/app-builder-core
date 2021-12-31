@@ -16,27 +16,24 @@ import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {BtnTemplate} from '../../agora-rn-uikit';
 
 const Settings = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {isHost, sidePanel, setSidePanel} = props;
 
   return (
-    <>
-      <TouchableOpacity
-        style={[style.localButton, {borderColor: primaryColor}]}
-        onPress={() => {
-          sidePanel === SidePanelType.Settings
-            ? setSidePanel(SidePanelType.None)
-            : setSidePanel(SidePanelType.Settings);
-        }}>
-        <Image
-          source={{uri: sidePanel === SidePanelType.Settings ? icons.settingsFilled : icons.settings}}
-          style={[style.buttonIcon, {tintColor: primaryColor}]}
-          resizeMode={'contain'}
-        />
-      </TouchableOpacity>
-    </>
+    <BtnTemplate
+      style={[style.localButtonWithMatchingStyle, {borderColor: primaryColor}]}
+      onPress={() => {
+        sidePanel === SidePanelType.Settings
+          ? setSidePanel(SidePanelType.None)
+          : setSidePanel(SidePanelType.Settings);
+      }}
+      name={
+        sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings'
+      }
+    />
   );
 };
 
@@ -108,7 +105,13 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    resizeMode: 'contain',
   },
+  localButtonWithMatchingStyle:{    
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  }
 });
 
 export default Settings;

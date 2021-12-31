@@ -30,9 +30,8 @@ import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
-
-const {participantIcon, participantFilledIcon, gridLayoutIcon, gridLayoutFilledIcon, pinnedLayoutIcon, recordingIcon} =
-  icons;
+import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 
 const Navbar = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
@@ -64,34 +63,67 @@ const Navbar = (props: any) => {
   return (
     <View
       onLayout={onLayout}
-      style={[Platform.OS === 'web' ? style.navHolder : style.navHolderNative, {backgroundColor: $config.SECONDARY_FONT_COLOR + 80}, Platform.OS === 'web' ? {justifyContent: mobileAndTabletCheck() ? 'space-between' : 'flex-end'} : {}]}>
+      style={[
+        Platform.OS === 'web' ? style.navHolder : style.navHolderNative,
+        {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
+        Platform.OS === 'web'
+          ? {
+              justifyContent: mobileAndTabletCheck()
+                ? 'space-between'
+                : 'flex-end',
+            }
+          : {},
+      ]}>
       {recordingActive && !mobileAndTabletCheck() ? (
-        <View style={[style.recordingView, {backgroundColor: $config.SECONDARY_FONT_COLOR}]}>
-          <Image source={{uri: icons.recordingActiveIcon}} style={{
-            width: 20,
-            height: 20,
-            margin: 1,
-            resizeMode: 'contain', tintColor: '#FD0845'}} />
+        <View
+          style={[
+            style.recordingView,
+            {backgroundColor: $config.SECONDARY_FONT_COLOR},
+          ]}>
+          <ImageIcon
+            name={'recordingActiveIcon'}
+            style={{
+              width: 20,
+              height: 20,
+              margin: 1,
+            }}
+          />
           <Text
-              style={{
-                fontSize: Platform.OS === 'web' ? 16 : 12,
-                color: '#FD0845',
-                fontWeight: '400',
-                alignSelf: 'center',
-                textAlign: 'center',
-                flex: 1,
-              }}>
-              Recording
-            </Text>
+            style={{
+              fontSize: Platform.OS === 'web' ? 16 : 12,
+              color: '#FD0845',
+              fontWeight: '400',
+              alignSelf: 'center',
+              textAlign: 'center',
+              flex: 1,
+            }}>
+            Recording
+          </Text>
         </View>
       ) : (
         <></>
       )}
-      <View style={[style.roomNameContainer, Platform.OS === 'web' && !mobileAndTabletCheck() ? {transform: [{translateX: '50%'}]} : {}]}>
+      <View
+        style={[
+          style.roomNameContainer,
+          Platform.OS === 'web' && !mobileAndTabletCheck()
+            ? {transform: [{translateX: '50%'}]}
+            : {},
+        ]}>
         {Platform.OS === 'web' ? (
           <View
-            style={{flexDirection: 'row', justifyContent: 'flex-start', paddingLeft: 5}}>
-            <Text style={style.roomNameText}>{mobileAndTabletCheck() ? title.length > 13 ? title.slice(0,13) + '..' : title : title}</Text>
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              paddingLeft: 5,
+            }}>
+            <Text style={style.roomNameText}>
+              {mobileAndTabletCheck()
+                ? title.length > 13
+                  ? title.slice(0, 13) + '..'
+                  : title
+                : title}
+            </Text>
             <View
               style={{
                 backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
@@ -100,12 +132,13 @@ const Navbar = (props: any) => {
                 marginHorizontal: 10,
               }}
             />
-            <CopyJoinInfo />
+            <View style={{width: 30}}>
+              <CopyJoinInfo />
+            </View>
           </View>
         ) : (
           <Text style={style.roomNameText}>{title}</Text>
-        )}  
-        
+        )}
       </View>
       <View
         style={{
@@ -125,37 +158,37 @@ const Navbar = (props: any) => {
               Platform.OS === 'web'
                 ? $config.SECONDARY_FONT_COLOR
                 : $config.SECONDARY_FONT_COLOR + '00',
-            padding: 4,
+            paddingVertical: 4,
+            paddingHorizontal: mobileAndTabletCheck() ? 0 : 4,
             minHeight: 35,
             // height: 40,
             // backgroundColor: '#f0f',
             // paddingHorizontal: 16,
             borderRadius: 10,
-            minWidth: Platform.OS === 'web' && isDesktop ? 300 : mobileAndTabletCheck() ? 150 : 200,
+            minWidth:
+              Platform.OS === 'web' && isDesktop
+                ? 300
+                : mobileAndTabletCheck()
+                ? 160
+                : 200,
             // borderTopLeftRadius: 10,
             // borderBottomLeftRadius: 10,
             justifyContent: 'space-evenly',
           }}>
-          <View style={{width: '20%', height: '130%'}}>
-            <TouchableOpacity
+          <View style={{width: '20%', height: '100%'}}>
+            <BtnTemplate
               onPress={() => {
                 sidePanel === SidePanelType.Participants
                   ? setSidePanel(SidePanelType.None)
                   : setSidePanel(SidePanelType.Participants);
               }}
-              style={style.btnHolder}>
-              <Image
-                source={{uri:  sidePanel === SidePanelType.Participants ? participantFilledIcon : participantIcon}}
-                style={[style.participantBtnIcon, {tintColor: primaryColor}]}
-              />
-              {/* <MinUidConsumer>
-                {(minUsers) => (
-                  <Text style={[style.participantText, {color: primaryColor}]}>
-                    {minUsers.length + 1}
-                  </Text>
-                )}
-              </MinUidConsumer> */}
-            </TouchableOpacity>
+              style={style.btnHolder}
+              name={
+                sidePanel === SidePanelType.Participants
+                  ? 'participantFilledIcon'
+                  : 'participantIcon'
+              }
+            />
           </View>
           {$config.CHAT ? (
             <>
@@ -173,44 +206,36 @@ const Navbar = (props: any) => {
               ) : (
                 <></>
               )}
-              <View style={{width: '20%', height: '125%'}}>
-                <View
-                  style={{alignSelf: 'center', width: '100%', height: '100%'}}>
-                  <TouchableOpacity
-                    style={style.btnHolder}
-                    onPress={() => {
-                      setLastCheckedPublicState(messageStore.length);
-                      sidePanel === SidePanelType.Chat
-                        ? setSidePanel(SidePanelType.None)
-                        : setSidePanel(SidePanelType.Chat);
-                    }}>
-                    {sidePanel !== SidePanelType.Chat &&
-                    pendingMessageLength !== 0 ? (
-                      <View style={style.chatNotification}>
-                        <Text style={{color: $config.SECONDARY_FONT_COLOR}}>
-                          {pendingMessageLength}
-                        </Text>
-                      </View>
-                    ) : (
-                      <></>
-                    )}
-                    <Image
-                      source={{
-                        uri: (sidePanel !== SidePanelType.Chat &&
-                          pendingMessageLength !== 0) || (sidePanel === SidePanelType.Chat) ? icons.chatIconFilled : icons.chatIcon
+              <View style={{width: '20%', height: '100%', position: 'relative'}}>
+                    <BtnTemplate
+                      style={style.btnHolder}
+                      onPress={() => {
+                        setLastCheckedPublicState(messageStore.length);
+                        sidePanel === SidePanelType.Chat
+                          ? setSidePanel(SidePanelType.None)
+                          : setSidePanel(SidePanelType.Chat);
                       }}
-                      resizeMode={'contain'}
-                      style={[
-                        {
-                          width: '100%',
-                          height: '100%',
-                          tintColor: $config.PRIMARY_COLOR,
-                        },
-                      ]}
+                      name={
+                        (sidePanel !== SidePanelType.Chat &&
+                          pendingMessageLength !== 0) ||
+                        sidePanel === SidePanelType.Chat
+                          ? 'chatIconFilled'
+                          : 'chatIcon'
+                      }
                     />
-                  </TouchableOpacity>
-                </View>
-              </View>
+                    <View style={{position: 'absolute', top: Platform.OS === 'web' ? 1 : -15, left: ( Platform.OS === 'web' && isDesktop) ? 10 : 1 }}>
+                      {sidePanel !== SidePanelType.Chat &&
+                      pendingMessageLength !== 0 ? (
+                        <View style={style.chatNotification}>
+                          <Text style={{color: $config.SECONDARY_FONT_COLOR}}>
+                            {pendingMessageLength}
+                          </Text>
+                        </View>
+                      ) : (
+                        <></>
+                      )}
+                    </View>
+                  </View>
             </>
           ) : (
             <></>
@@ -229,35 +254,23 @@ const Navbar = (props: any) => {
           ) : (
             <></>
           )}
-          <View style={{width: '20%', height: '120%'}}>
-            <View style={{alignSelf: 'center', width: '100%', height: '105%'}}>
-              <TouchableOpacity
+          <View style={{width: '20%', height: '100%'}}>
+              <BtnTemplate
                 style={style.btnHolder}
                 onPress={() => {
                   setLayout((l: Layout) =>
                     l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
                   );
-                }}>
-                <Image
-                  source={{uri: layout ? gridLayoutFilledIcon : pinnedLayoutIcon}}
-                  //source={{uri:  gridLayoutIcon}}
-                  resizeMode={'contain'}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    tintColor: $config.PRIMARY_COLOR,
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
+                }}
+                name={layout ? 'gridLayoutFilledIcon' : 'pinnedLayoutIcon'}
+              />
           </View>
-          {/** Show setting icon only in non native apps 
+          {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
            * hide in android/ios  */}
-          {(Platform.OS !== 'android' && Platform.OS !== 'ios') ? (
+          {Platform.OS !== 'android' && Platform.OS !== 'ios' ? (
             <>
-              { 
-                (Platform.OS === 'web' && isDesktop) &&
+              {Platform.OS === 'web' && isDesktop && (
                 <View
                   style={{
                     backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
@@ -268,7 +281,7 @@ const Navbar = (props: any) => {
                     opacity: 0.8,
                   }}
                 />
-              }
+              )}
               <View style={{width: '20%', height: '100%'}}>
                 <Settings
                   sidePanel={sidePanel}
@@ -322,7 +335,12 @@ const style = StyleSheet.create({
     margin: 1,
     resizeMode: 'contain',
   },
-  btnHolder: {padding: mobileAndTabletCheck() ? 2 : 5, width: '100%', height: '100%'},
+  btnHolder: {   
+    marginHorizontal: mobileAndTabletCheck() ? 2 : 0, 
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
   // participantBtnHolder: {
   //   backgroundColor: '#fff',
   //   // flex: 0.5,
@@ -346,13 +364,13 @@ const style = StyleSheet.create({
   //   alignSelf: 'center',
   //   flex: 1,
   // },
-  participantBtnIcon: {
-    height: '100%',
-    width: '100%',
-    // margin: 1,
-    tintColor: $config.PRIMARY_COLOR,
-    resizeMode: 'contain',
-  },
+  // participantBtnIcon: {
+  //   height: '100%',
+  //   width: '100%',
+  //   // margin: 1,
+  //   tintColor: $config.PRIMARY_COLOR,
+  //   resizeMode: 'contain',
+  // },
   // participantText: {
   //   fontSize: Platform.OS === 'web' ? 20 : 18,
   //   fontWeight: '400',
