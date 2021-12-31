@@ -24,7 +24,7 @@ const Settings = (props: any) => {
 
   return (
     <BtnTemplate
-      style={[style.localButton, {borderColor: primaryColor}]}
+      style={[style.localButtonWithMatchingStyle, {borderColor: primaryColor}]}
       onPress={() => {
         sidePanel === SidePanelType.Settings
           ? setSidePanel(SidePanelType.None)
@@ -107,6 +107,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     resizeMode: 'contain',
   },
+  localButtonWithMatchingStyle:{    
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  }
 });
 
 export default Settings;
