@@ -44,7 +44,7 @@ const ChatContainer = (props: any) => {
               name={'backBtn'}
             />
           </View>
-          <Text style={style.name}>hey{selectedUsername}</Text>
+          <Text style={style.name}>{selectedUsername}</Text>
         </View>
       ) : (
         <></>
