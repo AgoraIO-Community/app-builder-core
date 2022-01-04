@@ -128,12 +128,14 @@ const RtmConfigure = (props: any) => {
         try {
           const attr = await backoffAttributes;
           console.log('[user attributes]:', {attr});
+          console.log('SUPRIYA setting user list while getting name channel');
           setUserList((prevState) => {
             return {
               ...prevState,
               [data.uid]: {
                 name: attr?.attributes?.name || 'User',
                 type: UserType.Normal,
+                role: attr?.attributes?.role,
                 screenUid: parseInt(attr?.attributes?.screenUid),
               },
               [parseInt(attr?.attributes?.screenUid)]: {
@@ -152,6 +154,7 @@ const RtmConfigure = (props: any) => {
       console.log('user left', data);
       // Chat of left user becomes undefined. So don't cleanup
     });
+
     engine.current.on('messageReceived', (evt: any) => {
       const {peerId, ts, text} = evt;
       const textObj = parsePayload(text);
@@ -221,10 +224,12 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMessageReceived', (evt) => {
+      console.log('TEST I received channel message', evt);
       const {uid, channelId, text, ts} = evt;
       const textObj = parsePayload(text);
       const {type, msg} = textObj;
-
+      console.log('RTM TEST type', type);
+      console.log('RTM TEST msg', msg);
       let arr = new Int32Array(1);
       arr[0] = parseInt(uid);
 
@@ -253,6 +258,8 @@ const RtmConfigure = (props: any) => {
                 break;
               case controlMessageEnum.cloudRecordingUnactive:
                 setRecordingActive(false);
+                break;
+              case controlMessageEnum.raiseHandRequest:
                 break;
               default:
                 throw new Error('Unsupported message type');
@@ -290,18 +297,21 @@ const RtmConfigure = (props: any) => {
     });
     await engine.current.setLocalUserAttributes([
       {key: 'name', value: name || 'User'},
+      {key: 'role', value: rtcProps?.role},
       {key: 'screenUid', value: String(rtcProps.screenShareUid)},
     ]);
     await engine.current.joinChannel(rtcProps.channel);
     engine.current
       .getChannelMembersBychannelId(rtcProps.channel)
       .then((data) => {
+        console.log('SUPRIYA channel members by channel id joined', data);
         data.members.map(async (member: any) => {
           const backoffAttributes = backOff(
             async () => {
               const attr = await engine.current.getUserAttributesByUid(
                 member.uid,
               );
+              console.log('SUPRIYA attr', attr);
               if (attr?.attributes?.name && attr?.attributes?.screenUid) {
                 return attr;
               } else {
@@ -321,12 +331,14 @@ const RtmConfigure = (props: any) => {
           try {
             const attr = await backoffAttributes;
             console.log('[user attributes]:', {attr});
+            console.log('SUPRIYA setting user list while joining channel');
             setUserList((prevState) => {
               return {
                 ...prevState,
                 [member.uid]: {
                   name: attr?.attributes?.name || 'User',
                   type: UserType.Normal,
+                  role: attr?.attributes?.role,
                   screenUid: parseInt(attr?.attributes?.screenUid),
                 },
                 [parseInt(attr?.attributes?.screenUid)]: {
@@ -360,6 +372,7 @@ const RtmConfigure = (props: any) => {
       ts: timeNow(),
     });
   };
+
   const sendMessageToUid = async (msg: string, uid: number) => {
     if (msg.trim() === '') return;
     let adjustedUID = uid;
