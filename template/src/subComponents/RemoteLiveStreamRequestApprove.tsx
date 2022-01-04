@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import {View} from 'react-native';
 import {BtnTemplate, PropsContext, UidInterface} from '../../agora-rn-uikit';
+import liveStreamContext from '../components/LiveStreamRequestContext';
 
 interface RemoteAudioMuteInterface {
   user: UidInterface;
@@ -10,6 +11,7 @@ const RemoteLiveStreamRequestApprove: React.FC<RemoteAudioMuteInterface> = (
   props,
 ) => {
   const {user} = props;
+  const {rejectRequestOfUID} = useContext(liveStreamContext);
   const {styleProps} = useContext(PropsContext);
   const {remoteBtnStyles} = styleProps || {};
   const {liveStreamHostControlBtns} = remoteBtnStyles || {};
@@ -20,7 +22,7 @@ const RemoteLiveStreamRequestApprove: React.FC<RemoteAudioMuteInterface> = (
         name={'checkCircleIcon'}
         style={{...(liveStreamHostControlBtns as object)}}
         onPress={() => {
-          console.log('approved click');
+          rejectRequestOfUID(user.uid);
         }}
       />
     </View>

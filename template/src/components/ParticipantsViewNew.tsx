@@ -23,11 +23,11 @@ import {MaxUidConsumer} from '../../agora-rn-uikit';
 import {LocalUserContext, PropsContext} from '../../agora-rn-uikit';
 import chatContext from './ChatContext';
 import {LiveStreamRequest} from '../subComponents/LiveStreamRequest';
-import liveStreamingContext from '../components/LiveStreamRequestContext';
+import liveStreamContext from '../components/LiveStreamRequestContext';
 
 const ParticipantViewNew = (props: any) => {
   const {userList, localUid} = useContext(chatContext);
-  const liveStreamRequests = useContext(liveStreamingContext);
+  const {currLiveStreamRequest} = useContext(liveStreamContext);
   const {rtcProps} = useContext(PropsContext);
 
   const [dim, setDim] = useState([
@@ -67,14 +67,14 @@ const ParticipantViewNew = (props: any) => {
           <View style={style.participantsection}>
             <Text style={style.subheading}>Streaming request</Text>
             <View style={style.participantContainer}>
-              {liveStreamRequests.map((user: any, index: number) => (
+              {currLiveStreamRequest.map((user: any, index: number) => (
                 <LiveStreamRequest
                   participantStyles={style}
                   key={index}
-                  user={userList[user]}
+                  user={{...userList[user], uid: user}}
                 />
               ))}
-              {liveStreamRequests.length == 0 && (
+              {currLiveStreamRequest.length == 0 && (
                 <Text style={style.infoText}>No streaming request</Text>
               )}
             </View>

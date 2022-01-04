@@ -67,7 +67,8 @@ export enum controlMessageEnum {
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
   raiseHandRequest = '8',
-  raiseHandActive = '9',
+  raiseHandRequestAccepted = '9',
+  raiseHandRequestRejected = '10',
   raiseHandInactive = '10',
 }
 
