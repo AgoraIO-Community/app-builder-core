@@ -66,10 +66,9 @@ export enum controlMessageEnum {
   kickUser = '5',
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
-  raiseHandRequest = '8',
-  raiseHandRequestAccepted = '9',
-  raiseHandRequestRejected = '10',
-  raiseHandInactive = '10',
+  raiseHandRequest = 'RAISE_HAND_REQUEST',
+  raiseHandRequestAccepted = 'RAISE_HAND_ACCEPTED',
+  raiseHandRequestRejected = 'RAISE_HAND_REJECTED',
 }
 
 const ChatContext = createContext(null as unknown as chatContext);

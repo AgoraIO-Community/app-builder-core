@@ -188,6 +188,12 @@ const RtmConfigure = (props: any) => {
                 value: [],
               });
               break;
+            case controlMessageEnum.raiseHandRequest:
+              break;
+            case controlMessageEnum.raiseHandRequestAccepted:
+              break;
+            case controlMessageEnum.raiseHandRequestRejected:
+              break;
             default:
               throw new Error('Unsupported message type');
           }
@@ -224,7 +230,6 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMessageReceived', (evt) => {
-      console.log('TEST I received channel message', evt);
       const {uid, channelId, text, ts} = evt;
       const textObj = parsePayload(text);
       const {type, msg} = textObj;
@@ -260,6 +265,10 @@ const RtmConfigure = (props: any) => {
                 setRecordingActive(false);
                 break;
               case controlMessageEnum.raiseHandRequest:
+                break;
+              case controlMessageEnum.raiseHandRequestAccepted:
+                break;
+              case controlMessageEnum.raiseHandRequestRejected:
                 break;
               default:
                 throw new Error('Unsupported message type');
