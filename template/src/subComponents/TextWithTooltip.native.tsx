@@ -10,15 +10,15 @@
 *********************************************
 */
 import React, {useState, useRef} from 'react';
-import {View, Text, Modal, TouchableOpacity, TouchableWithoutFeedback, StyleSheet} from 'react-native';
+import {View, Text, Modal, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, useWindowDimensions} from 'react-native';
 /**
  * Component showing text with tooltip on mobile native
  */
 const TextWithToolTip = (props: any) => {
-    const [toolTipVisible, setToolTipVisible] = useState(false)
-    const [top, setTop] = useState(0)
-    const [left, setLeft] = useState(0)
-    const ref = useRef(null)
+    const {width:globalWidth, height:globalHeight} = useWindowDimensions();
+    const [toolTipVisible, setToolTipVisible] = useState(false);
+    const [position, setPosition] = useState({})
+    const ref = useRef(null);
     return(
         <View style={{flex: 1}}>
             <Modal
@@ -34,21 +34,52 @@ const TextWithToolTip = (props: any) => {
                         style={style.backDrop} 
                     />
                 </TouchableWithoutFeedback>
-                <View style={[style.textContainer, {top: top,left: left}]}>
+                <View style={[style.textContainer, position]}>
                     <Text style={style.textStyle}>{props.value}</Text>
                 </View>
             </Modal>
             <TouchableOpacity ref={ref} onPress={() => {
-                    ref?.current?.measure( (fx, fy, width, height, px, py) => {
-                        // console.log('Component width is: ' + width)
+                    ref?.current?.measure( (fx, fy, localWidth, localHeight, px, py) => {
+                        // console.log('Component width is: ' + width2)
                         // console.log('Component height is: ' + height)
                         // console.log('X offset to frame: ' + fx)
                         // console.log('Y offset to frame: ' + fy)
                         // console.log('X offset to page: ' + px)
                         // console.log('Y offset to page: ' + py)
-                        setTop(py + height)
-                        setLeft(px)
-                        setToolTipVisible(!toolTipVisible)
+                        const rightPos = (globalWidth - (px + localWidth)) - 20 < 0 ? 10 : (globalWidth - (px + localWidth)) - 20
+                        const leftPos = px < 0 ? 10 : px
+                        if(px > globalWidth/2){
+                            if(py > globalHeight/2){
+                                setPosition({
+                                    top: py - localHeight,
+                                    right: rightPos,
+                                    maxWidth: (globalWidth - rightPos) - 30,
+                                })
+                            }else{
+                                setPosition({
+                                    top: py+localHeight,
+                                    right: rightPos,
+                                    maxWidth: (globalWidth - rightPos) - 30,
+                                })
+                            }
+                        }else{
+                            if(py > globalHeight/2){
+                                setPosition({
+                                    top: py - localHeight,
+                                    left: leftPos,
+                                    maxWidth: (globalWidth - leftPos - 5),
+                                })
+                            }else{
+                                setPosition({
+                                    top: py+localHeight,
+                                    left: leftPos,
+                                    maxWidth: (globalWidth - leftPos - 5),
+                                })
+                            }
+                        }
+                        setTimeout(() =>{
+                            setToolTipVisible(!toolTipVisible)
+                        })
                     })     
                 }}>
                 <Text style={props.style} numberOfLines={1}>{props.value}</Text>
@@ -72,7 +103,7 @@ const style = StyleSheet.create({
         marginRight: 20
     },
     textStyle:{
-        backgroundColor:'white', padding: 5, margin: 5
+        backgroundColor:'white', padding: 5, margin: 5        
     }
 })
 
