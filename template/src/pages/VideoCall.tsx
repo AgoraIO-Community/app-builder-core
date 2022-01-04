@@ -11,13 +11,12 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text, Platform} from 'react-native';
-
-import {RtcConfigure} from '../../agora-rn-uikit';
-import {PropsProvider} from '../../agora-rn-uikit';
+import {RtcConfigure, PropsProvider} from '../../agora-rn-uikit';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
 import PrecallNew from '../components/PrecallNew';
-import ParticipantsView from '../components/ParticipantsView';
+import ParticipantViewNew from '../components/ParticipantsViewNew';
+// import ParticipantsView from '../components/ParticipantsView';
 import SettingsView from '../components/SettingsView';
 import PinnedVideo from '../components/PinnedVideo';
 import Controls from '../components/Controls';
@@ -28,7 +27,6 @@ import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
-// import Watermark from '../subComponents/Watermark';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
@@ -38,6 +36,9 @@ import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
+import {LiveStreamRequestProvider} from '../components/LiveStreamRequestContext';
+import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import isLiveStreamingEnabled from '../utils/isLiveStreamingEnabled';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -232,7 +233,7 @@ const VideoCall: React.FC = () => {
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
-  const [chatDisplayed, setChatDisplayed] = useState(false);
+  const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams();
@@ -252,6 +253,8 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
+    mode: isLiveStreamingEnabled ? mode.Live : mode.Communication,
+    role: role.Host,
   });
 
   const {data, loading, error} = useQuery(
@@ -274,8 +277,7 @@ const VideoCall: React.FC = () => {
     }
 
     if (!loading && data) {
-      console.log('token:', rtcProps.token);
-      console.log('error', data.error);
+      console.log('TIMER data received');
       setRtcProps({
         appId: $config.APP_ID,
         channel: data.joinChannel.channel,
@@ -293,10 +295,11 @@ const VideoCall: React.FC = () => {
           : false,
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
+        role: data.joinChannel.isHost ? role.Host : role.Audience,
+        mode: isLiveStreamingEnabled ? mode.Live : mode.Communication,
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);
-      console.log('query done: ', data, queryComplete);
       // 1. Store the display name from API
       if (data.getUser) {
         setUsername(data.getUser.name);
@@ -324,8 +327,8 @@ const VideoCall: React.FC = () => {
   // throw new Error("My first Sentry error!");
   return (
     <>
-      {queryComplete || !callActive ? (
-        <>
+      {queryComplete ? (
+        (queryComplete || !callActive) && (
           <PropsProvider
             value={{
               rtcProps: {
@@ -385,15 +388,14 @@ const VideoCall: React.FC = () => {
                                 ) : (
                                   <GridVideo setLayout={setLayout} />
                                 )}
-                                {sidePanel === SidePanelType.Participants ? (
-                                  <ParticipantsView
-                                    isHost={isHost}
-                                    // setParticipantsView={setParticipantsView}
-                                    setSidePanel={setSidePanel}
-                                  />
-                                ) : (
-                                  <></>
-                                )}
+                                <LiveStreamRequestProvider>
+                                  {sidePanel === SidePanelType.Participants && (
+                                    <ParticipantViewNew
+                                      isHost={isHost}
+                                      setSidePanel={setSidePanel}
+                                    />
+                                  )}
+                                </LiveStreamRequestProvider>
                                 {sidePanel === SidePanelType.Chat ? (
                                   $config.CHAT ? (
                                     <Chat
@@ -422,7 +424,6 @@ const VideoCall: React.FC = () => {
                                 {sidePanel === SidePanelType.Settings ? (
                                   <SettingsView
                                     isHost={isHost}
-                                    // setParticipantsView={setParticipantsView}
                                     setSidePanel={setSidePanel}
                                   />
                                 ) : (
@@ -438,11 +439,10 @@ const VideoCall: React.FC = () => {
                                 setLayout={setLayout}
                                 recordingActive={recordingActive}
                                 setRecordingActive={setRecordingActive}
-                                // chatDisplayed={chatDisplayed}
-                                // setChatDisplayed={setChatDisplayed}
-                                isHost={isHost}
-                                // participantsView={participantsView}
-                                // setParticipantsView={setParticipantsView}
+                                raiseHandRequestActive={raiseHandRequestActive}
+                                setRaiseHandRequestActive={
+                                  setRaiseHandRequestActive
+                                }
                                 sidePanel={sidePanel}
                                 setSidePanel={setSidePanel}
                                 pendingMessageLength={
@@ -474,7 +474,7 @@ const VideoCall: React.FC = () => {
               </DeviceConfigure>
             </RtcConfigure>
           </PropsProvider>
-        </>
+        )
       ) : (
         <View style={style.loader}>
           <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
@@ -504,6 +504,7 @@ const styleProps = {
     muteRemoteVideo: styles.remoteButton,
     remoteSwap: styles.remoteButton,
     minCloseBtnStyles: styles.minCloseBtn,
+    liveStreamHostControlBtns: styles.liveStreamHostControlBtns,
   },
   BtnStyles: styles.remoteButton,
 };

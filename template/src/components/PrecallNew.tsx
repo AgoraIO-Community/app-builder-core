@@ -13,24 +13,24 @@ import React, {useState, useContext} from 'react';
 import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
-
 import {
   MaxUidConsumer,
   MaxVideoView,
   LocalAudioMute,
   LocalVideoMute,
   LocalUserContext,
+  PropsContext,
 } from '../../agora-rn-uikit';
-
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
 import isLiveStreamingEnabled from '../utils/isLiveStreamingEnabled';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
+import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 const JoinRoomInputView = (props: any) => {
-  const {username, setUsername, queryComplete, setCallActive, ...rest} = props;
+  const {username, setUsername, queryComplete, setCallActive} = props;
   return (
     <View style={style.btnContainer}>
       <TextInput
@@ -54,8 +54,10 @@ const JoinRoomInputView = (props: any) => {
 
 const PrecallNew = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
+  const {rtcProps} = useContext(PropsContext);
+  console.log('RTC PROPS', rtcProps);
 
-  const {error, title} = props;
+  const {queryComplete, isHost, error, title} = props;
 
   const [dim, setDim] = useState<Array<number>>([
     Dimensions.get('window').width,
@@ -68,9 +70,11 @@ const PrecallNew = (props: any) => {
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 
+  if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
+
   return (
     <View style={style.main} onLayout={onLayout}>
-      {isLiveStreamingEnabled ? (
+      {rtcProps.role === role.Audience && rtcProps.mode === mode.Live ? (
         <View style={style.preCallContainer}>
           <Text style={style.titleFont}>Join meeting ::: {title}</Text>
           <View style={{height: 50}} />
