@@ -56,7 +56,6 @@ interface chatContext {
   localUid: string;
   userList: any;
   events: rtmEventsInterface;
-  // peersRTM: Array<string>;
 }
 
 export enum controlMessageEnum {
@@ -67,6 +66,9 @@ export enum controlMessageEnum {
   kickUser = '5',
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
+  raiseHandRequest = '8',
+  raiseHandActive = '9',
+  raiseHandInactive = '10',
 }
 
 const ChatContext = createContext(null as unknown as chatContext);
