@@ -9,6 +9,10 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
+import {
+  ClientRole,
+  role,
+} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -16,10 +20,8 @@ import AgoraRTC, {
   IRemoteAudioTrack,
   IRemoteVideoTrack,
   UID,
-  CameraVideoTrackInitConfig,
   ScreenVideoTrackInitConfig,
   RemoteStreamType,
-  ClientConfig,
   ICameraVideoTrack,
   EncryptionMode,
   ILocalTrack,
@@ -28,7 +30,8 @@ import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
-import { VideoProfile } from '../quality';
+import {VideoProfile} from '../quality';
+import isLiveStreamingEnabled from '../../../src/utils/isLiveStreamingEnabled';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -155,12 +158,7 @@ export default class RtcEngine {
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
-  // public streamSpec: AgoraRTC.StreamSpec;
-  // public streamSpecScreenshare: ScreenVideoTrackInitConfig;
   private inScreenshare: Boolean = false;
-  // private removeStream = (uid: UID) => {
-
-  // };
   private videoProfile: VideoProfile = '480p_9';
   private isPublished = false;
   private isAudioEnabled = true;
@@ -171,45 +169,25 @@ export default class RtcEngine {
   private deviceId = '';
   private muteLocalVideoMutex = false;
 
-  constructor(appId: string) {
+  constructor(appId: string, role: role) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
     this.client = AgoraRTC.createClient({
       codec: 'vp8',
-      mode: 'rtc',
+      mode: isLiveStreamingEnabled ? 'live' : 'rtc',
+      role: role,
     });
+
     this.screenClient = AgoraRTC.createClient({
       codec: 'vp8',
       mode: 'rtc',
+      role: role,
     });
-    // this.streamSpec = {
-    //   video: true,
-    //   audio: true,
-    // };
-    // this.streamSpecScreenshare = {
-    //   audio: false,
-    //   video: false,
-    //   screen: true,
-    //   screenAudio: true,
-    // };
   }
-  static async create(appId: string): Promise<RtcEngine> {
-    let engine = new RtcEngine(appId);
+
+  static async create(appId: string, role: role): Promise<RtcEngine> {
+    let engine = new RtcEngine(appId, role);
     window.engine = engine;
-    // let init = new Promise((resolve, reject) => {
-    //   engine.client.init(
-    //     appId,
-    //     function () {
-    //       window.engine = engine;
-    //       resolve();
-    //     },
-    //     function (err) {
-    //       console.error(err);
-    //       reject();
-    //     },
-    //   );
-    // });
-    // await init;
     return engine;
   }
 
@@ -222,26 +200,16 @@ export default class RtcEngine {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(
           {},
-          { encoderConfig: this.videoProfile },
+          {encoderConfig: this.videoProfile},
         );
-      // localVideo.setEncoderConfiguration(this.videoProfile);
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
       throw e;
     }
-    // let enable = new Promise((resolve, reject) => {
-    //   this.streams.set(0, );
-    //   (this.streams.get(0) as AgoraRTC.Stream).setVideoProfile(
-    //     this.videoProfile,
-    //   );
-    //   (this.streams.get(0) as AgoraRTC.Stream).init(() => {
-    //     resolve();
-    //   }, reject);
-    // });
-    // await enable;
   }
   async publish() {
+    console.log('SUPRIYA running publish');
     if (this.localStream.audio && this.localStream.video) {
       try {
         let tracks: Array<ILocalTrack> = [];
@@ -249,7 +217,8 @@ export default class RtcEngine {
         this.isVideoEnabled && tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
-          console.log('publishing now');
+          console.log('SUPRIYA publishing now');
+          console.log('SUPRIYA publishing now client', this.client);
           await this.client.publish(tracks);
           if (tracks[0].trackMediaType === 'audio') {
             this.isAudioPublished = true;
@@ -308,7 +277,6 @@ export default class RtcEngine {
           ? user.uid
           : 1
         : user.uid;
-
       // if (uid ===1) {
       //   this.screenStream.audio?.close();
       //   this.screenStream.video?.close();
@@ -323,6 +291,8 @@ export default class RtcEngine {
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription
+      console.log('SUPRIYA user is published', user);
+      console.log('SUPRIYA media type', mediaType);
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           1,
@@ -331,6 +301,7 @@ export default class RtcEngine {
           0,
         );
       } else {
+        console.log('SUPRIYA user published else block', mediaType);
         await this.client.subscribe(user, mediaType);
       }
 
@@ -367,7 +338,7 @@ export default class RtcEngine {
     });
     this.client.on('user-unpublished', async (user, mediaType) => {
       if (mediaType === 'audio') {
-        const { audio, ...rest } = this.remoteStreams.get(user.uid);
+        const {audio, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
@@ -376,7 +347,7 @@ export default class RtcEngine {
           0,
         );
       } else {
-        const { video, ...rest } = this.remoteStreams.get(user.uid);
+        const {video, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           user.uid,
@@ -388,22 +359,35 @@ export default class RtcEngine {
     });
 
     // this.client.on('stream-fallback', (evt))
-    this.client.on('stream-type-changed', function(uid, streamType) {
+    this.client.on('stream-type-changed', function (uid, streamType) {
       console.log('[fallback]: ', uid, streamType);
     });
 
-    this.client.on('network-quality', async ({ downlinkNetworkQuality, uplinkNetworkQuality }) => {
-      const networkQualityIndicatorCallback = this.eventsMap.get('NetworkQuality') as callbackType;
+    this.client.on(
+      'network-quality',
+      async ({downlinkNetworkQuality, uplinkNetworkQuality}) => {
+        const networkQualityIndicatorCallback = this.eventsMap.get(
+          'NetworkQuality',
+        ) as callbackType;
 
-      networkQualityIndicatorCallback(0, downlinkNetworkQuality, uplinkNetworkQuality)
+        networkQualityIndicatorCallback(
+          0,
+          downlinkNetworkQuality,
+          uplinkNetworkQuality,
+        );
 
-      const remoteUserNetworkQualities = this.client.getRemoteNetworkQuality();
+        const remoteUserNetworkQualities =
+          this.client.getRemoteNetworkQuality();
 
-      Object.keys(remoteUserNetworkQualities).forEach((uid) => {
-        networkQualityIndicatorCallback(uid, remoteUserNetworkQualities[uid].downlinkNetworkQuality, remoteUserNetworkQualities[uid].uplinkNetworkQuality)
-      })
-
-    })
+        Object.keys(remoteUserNetworkQualities).forEach((uid) => {
+          networkQualityIndicatorCallback(
+            uid,
+            remoteUserNetworkQualities[uid].downlinkNetworkQuality,
+            remoteUserNetworkQualities[uid].uplinkNetworkQuality,
+          );
+        });
+      },
+    );
 
     await this.client.join(
       this.appId,
@@ -412,9 +396,9 @@ export default class RtcEngine {
       optionalUid || null,
     );
     this.isJoined = true;
+
     await this.publish();
   }
-
 
   async leaveChannel(): Promise<void> {
     this.client.leave();
@@ -519,6 +503,26 @@ export default class RtcEngine {
     const devices: Array<MediaDeviceInfo> = await AgoraRTC.getDevices(true);
     callback && callback(devices);
     return devices;
+  }
+
+  async setClientRole(clientRole: ClientRole): Promise<void> {
+    console.log('SUPRIYA inside setClientRole');
+    try {
+      if (clientRole == ClientRole.Audience) {
+        console.log('SUPRIYA setting client role as audience');
+        await this.client.setClientRole('audience', {level: 1});
+        return;
+      } else if (clientRole == ClientRole.Broadcaster) {
+        console.log('SUPRIYA setting client role as Host');
+        await this.client.setClientRole('host');
+        console.log('SUPRIYA after setting', this.client);
+        return;
+        return;
+      }
+    } catch (e) {
+      console.log('SUPRIYA, setclientrole error ', e);
+      throw e;
+    }
   }
 
   async changeCamera(cameraId, callback, error): Promise<void> {
