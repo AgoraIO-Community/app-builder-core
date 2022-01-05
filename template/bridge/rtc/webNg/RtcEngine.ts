@@ -209,7 +209,6 @@ export default class RtcEngine {
     }
   }
   async publish() {
-    console.log('SUPRIYA running publish');
     if (this.localStream.audio && this.localStream.video) {
       try {
         let tracks: Array<ILocalTrack> = [];
@@ -217,8 +216,6 @@ export default class RtcEngine {
         this.isVideoEnabled && tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
-          console.log('SUPRIYA publishing now');
-          console.log('SUPRIYA publishing now client', this.client);
           await this.client.publish(tracks);
           if (tracks[0].trackMediaType === 'audio') {
             this.isAudioPublished = true;
@@ -291,8 +288,6 @@ export default class RtcEngine {
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription
-      console.log('SUPRIYA user is published', user);
-      console.log('SUPRIYA media type', mediaType);
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           1,
@@ -301,7 +296,6 @@ export default class RtcEngine {
           0,
         );
       } else {
-        console.log('SUPRIYA user published else block', mediaType);
         await this.client.subscribe(user, mediaType);
       }
 
@@ -506,21 +500,15 @@ export default class RtcEngine {
   }
 
   async setClientRole(clientRole: ClientRole): Promise<void> {
-    console.log('SUPRIYA inside setClientRole');
     try {
       if (clientRole == ClientRole.Audience) {
-        console.log('SUPRIYA setting client role as audience');
         await this.client.setClientRole('audience', {level: 1});
         return;
       } else if (clientRole == ClientRole.Broadcaster) {
-        console.log('SUPRIYA setting client role as Host');
         await this.client.setClientRole('host');
-        console.log('SUPRIYA after setting', this.client);
-        return;
         return;
       }
     } catch (e) {
-      console.log('SUPRIYA, setclientrole error ', e);
       throw e;
     }
   }
