@@ -128,7 +128,6 @@ const RtmConfigure = (props: any) => {
         try {
           const attr = await backoffAttributes;
           console.log('[user attributes]:', {attr});
-          console.log('SUPRIYA setting user list while getting name channel');
           setUserList((prevState) => {
             return {
               ...prevState,
@@ -310,17 +309,16 @@ const RtmConfigure = (props: any) => {
       {key: 'screenUid', value: String(rtcProps.screenShareUid)},
     ]);
     await engine.current.joinChannel(rtcProps.channel);
+
     engine.current
       .getChannelMembersBychannelId(rtcProps.channel)
       .then((data) => {
-        console.log('SUPRIYA channel members by channel id joined', data);
         data.members.map(async (member: any) => {
           const backoffAttributes = backOff(
             async () => {
               const attr = await engine.current.getUserAttributesByUid(
                 member.uid,
               );
-              console.log('SUPRIYA attr', attr);
               if (attr?.attributes?.name && attr?.attributes?.screenUid) {
                 return attr;
               } else {
@@ -339,8 +337,6 @@ const RtmConfigure = (props: any) => {
           );
           try {
             const attr = await backoffAttributes;
-            console.log('[user attributes]:', {attr});
-            console.log('SUPRIYA setting user list while joining channel');
             setUserList((prevState) => {
               return {
                 ...prevState,
