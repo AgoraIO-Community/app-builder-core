@@ -83,7 +83,9 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
     (acc, curItem) => {
       let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
         (total, item) => {
-          return item.uid === curItem ? total + 1 : total;
+			//In template/src/components/RTMConfigure.tsx
+			//on messageReceived event we are passing uid as number type for android so we should not check with ===
+          return item.uid == curItem ? total + 1 : total;
         },
         0,
       );
