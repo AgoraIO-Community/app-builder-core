@@ -59,7 +59,7 @@ export const LiveStreamRequestProvider: React.FC = (props) => {
     const setRole = async () => {
       if (rtcProps.mode === mode.Live) {
         if (rtcProps.role === role.Audience) {
-          RtcEngine.setClientRole(ClientRole.Audience);
+          await RtcEngine.setClientRole(ClientRole.Audience);
           dispatch({
             type: 'LocalMuteAudio',
             value: [0],
@@ -69,7 +69,7 @@ export const LiveStreamRequestProvider: React.FC = (props) => {
             value: [0],
           });
         } else {
-          RtcEngine.setClientRole(ClientRole.Broadcaster);
+          await RtcEngine.setClientRole(ClientRole.Broadcaster);
           await RtcEngine.enableVideo();
         }
       }
