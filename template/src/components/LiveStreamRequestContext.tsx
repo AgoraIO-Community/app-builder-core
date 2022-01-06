@@ -44,7 +44,8 @@ export default LiveStreamContext;
 
 export const LiveStreamConsumer = LiveStreamContext.Consumer;
 
-export const LiveStreamRequestProvider: React.FC = (props) => {
+export const LiveStreamRequestProvider = (props: any) => {
+  const {setRtcProps} = props;
   const {sendControlMessageToUid} = useContext(ChatContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {rtcProps} = useContext(PropsContext);
@@ -59,7 +60,6 @@ export const LiveStreamRequestProvider: React.FC = (props) => {
     const setRole = async () => {
       if (rtcProps.mode === mode.Live) {
         if (rtcProps.role === role.Audience) {
-          await RtcEngine.setClientRole(ClientRole.Audience);
           dispatch({
             type: 'LocalMuteAudio',
             value: [0],
@@ -69,7 +69,6 @@ export const LiveStreamRequestProvider: React.FC = (props) => {
             value: [0],
           });
         } else {
-          await RtcEngine.setClientRole(ClientRole.Broadcaster);
           await RtcEngine.enableVideo();
         }
       }
@@ -79,12 +78,19 @@ export const LiveStreamRequestProvider: React.FC = (props) => {
 
   const updateClientRole = async (newClientRole: role) => {
     if (newClientRole === role.Audience) {
-      console.log('Audience done setting');
       await RtcEngine.setClientRole(ClientRole.Audience);
+      setRtcProps((prevState) => ({
+        ...prevState,
+        role: role.Audience,
+      }));
     }
     if (newClientRole === role.Host) {
-      console.log('Host done setting');
       await RtcEngine.setClientRole(ClientRole.Broadcaster);
+      await RtcEngine.enableVideo();
+      setRtcProps((prevState) => ({
+        ...prevState,
+        role: role.Host,
+      }));
     }
   };
 

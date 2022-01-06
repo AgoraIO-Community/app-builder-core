@@ -344,7 +344,7 @@ const VideoCall: React.FC = () => {
                   setRecordingActive={setRecordingActive}
                   name={username}
                   callActive={callActive}>
-                  <LiveStreamRequestProvider>
+                  <LiveStreamRequestProvider setRtcProps={setRtcProps}>
                     {callActive ? (
                       <View style={style.full}>
                         <NotificationControl
