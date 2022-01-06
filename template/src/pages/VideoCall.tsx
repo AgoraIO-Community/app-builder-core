@@ -255,6 +255,7 @@ const VideoCall: React.FC = () => {
       : false,
     mode: isLiveStreamingEnabled ? mode.Live : mode.Communication,
     role: role.Host,
+    enableAudioVideoTrack: isLiveStreamingEnabled ? false : true,
   });
 
   const {data, loading, error} = useQuery(
@@ -297,6 +298,7 @@ const VideoCall: React.FC = () => {
         screenShareToken: data.joinChannel.screenShare.rtc,
         role: data.joinChannel.isHost ? role.Host : role.Audience,
         mode: isLiveStreamingEnabled ? mode.Live : mode.Communication,
+        enableAudioVideoTrack: data.joinChannel.isHost ? true : false,
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);

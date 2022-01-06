@@ -56,42 +56,12 @@ export const LiveStreamRequestProvider = (props: any) => {
 
   const {events} = React.useContext(ChatContext);
 
-  React.useEffect(() => {
-    const setRole = async () => {
-      if (rtcProps.mode === mode.Live) {
-        if (rtcProps.role === role.Audience) {
-          dispatch({
-            type: 'LocalMuteAudio',
-            value: [0],
-          });
-          dispatch({
-            type: 'LocalMuteVideo',
-            value: [0],
-          });
-        } else {
-          await RtcEngine.enableVideo();
-        }
-      }
-    };
-    setRole();
-  }, []);
-
   const updateClientRole = async (newClientRole: role) => {
-    if (newClientRole === role.Audience) {
-      await RtcEngine.setClientRole(ClientRole.Audience);
-      setRtcProps((prevState) => ({
-        ...prevState,
-        role: role.Audience,
-      }));
-    }
-    if (newClientRole === role.Host) {
-      await RtcEngine.setClientRole(ClientRole.Broadcaster);
-      await RtcEngine.enableVideo();
-      setRtcProps((prevState) => ({
-        ...prevState,
-        role: role.Host,
-      }));
-    }
+    setRtcProps((prevState: any) => ({
+      ...prevState,
+      role: newClientRole === role.Audience ? role.Audience : role.Host,
+      enableAudioVideoTrack: newClientRole === role.Audience ? false : true,
+    }));
   };
 
   React.useEffect(() => {

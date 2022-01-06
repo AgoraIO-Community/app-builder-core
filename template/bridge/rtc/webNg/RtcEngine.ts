@@ -12,6 +12,7 @@
 import {
   ClientRole,
   role,
+  ChannelProfile,
 } from '../../../agora-rn-uikit/src/Contexts/PropsContext';
 import AgoraRTC, {
   IAgoraRTCClient,
@@ -169,19 +170,19 @@ export default class RtcEngine {
   private deviceId = '';
   private muteLocalVideoMutex = false;
 
-  constructor(appId: string, role: role) {
+  // Create channel profile and set it here
+
+  constructor(appId: string) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
     this.client = AgoraRTC.createClient({
       codec: 'vp8',
       mode: isLiveStreamingEnabled ? 'live' : 'rtc',
-      role: role,
     });
 
     this.screenClient = AgoraRTC.createClient({
       codec: 'vp8',
       mode: 'rtc',
-      role: role,
     });
   }
 
@@ -247,6 +248,7 @@ export default class RtcEngine {
     optionalInfo: string,
     optionalUid: number,
   ): Promise<void> {
+    // TODO create agora client here
     this.client.on('user-joined', (user) => {
       const uid = this.inScreenshare
         ? user.uid !== this.screenClient.uid
@@ -511,6 +513,12 @@ export default class RtcEngine {
     } catch (e) {
       throw e;
     }
+  }
+
+  async setChannelProfile(profile: ChannelProfile): Promise<void> {
+    // Web version how to do
+    console.log('SUPRIYA setchannelprofile', profile);
+    console.log('SUPRIYA setchannelprofile', this.client);
   }
 
   async changeCamera(cameraId, callback, error): Promise<void> {
