@@ -158,7 +158,8 @@ const Navbar = (props: any) => {
               Platform.OS === 'web'
                 ? $config.SECONDARY_FONT_COLOR
                 : $config.SECONDARY_FONT_COLOR + '00',
-            padding: 4,
+            paddingVertical: 4,
+            paddingHorizontal: mobileAndTabletCheck() ? 0 : 4,
             minHeight: 35,
             // height: 40,
             // backgroundColor: '#f0f',
@@ -168,7 +169,7 @@ const Navbar = (props: any) => {
               Platform.OS === 'web' && isDesktop
                 ? 300
                 : mobileAndTabletCheck()
-                ? 150
+                ? 160
                 : 200,
             // borderTopLeftRadius: 10,
             // borderBottomLeftRadius: 10,
@@ -205,15 +206,7 @@ const Navbar = (props: any) => {
               ) : (
                 <></>
               )}
-              <View style={{width: '25%', height: '120%'}}>
-                <View style={{width: '100%', height: '110%'}}>
-                  <View
-                    style={{
-                      alignSelf: 'center',
-                      width: '100%',
-                      height: '100%',
-                      position: 'relative',
-                    }}>
+              <View style={{width: '20%', height: '100%', position: 'relative'}}>
                     <BtnTemplate
                       style={style.btnHolder}
                       onPress={() => {
@@ -230,7 +223,7 @@ const Navbar = (props: any) => {
                           : 'chatIcon'
                       }
                     />
-                    <View style={{position: 'absolute', top: 5}}>
+                    <View style={{position: 'absolute', top: Platform.OS === 'web' ? 1 : -15, left: ( Platform.OS === 'web' && isDesktop) ? 10 : 1 }}>
                       {sidePanel !== SidePanelType.Chat &&
                       pendingMessageLength !== 0 ? (
                         <View style={style.chatNotification}>
@@ -243,8 +236,6 @@ const Navbar = (props: any) => {
                       )}
                     </View>
                   </View>
-                </View>
-              </View>
             </>
           ) : (
             <></>
@@ -263,8 +254,7 @@ const Navbar = (props: any) => {
           ) : (
             <></>
           )}
-          <View style={{width: '20%', height: '120%'}}>
-            <View style={{alignSelf: 'center', width: '100%', height: '105%'}}>
+          <View style={{width: '20%', height: '100%'}}>
               <BtnTemplate
                 style={style.btnHolder}
                 onPress={() => {
@@ -274,7 +264,6 @@ const Navbar = (props: any) => {
                 }}
                 name={layout ? 'gridLayoutFilledIcon' : 'pinnedLayoutIcon'}
               />
-            </View>
           </View>
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
@@ -346,8 +335,8 @@ const style = StyleSheet.create({
     margin: 1,
     resizeMode: 'contain',
   },
-  btnHolder: {
-    padding: mobileAndTabletCheck() ? 2 : 5,
+  btnHolder: {   
+    marginHorizontal: mobileAndTabletCheck() ? 2 : 0, 
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
