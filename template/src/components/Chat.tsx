@@ -122,7 +122,9 @@ const Chat = (props: any) => {
           }>
           {pendingPrivateNotification !== 0 ? (
             <View style={style.chatNotification}>
-              {pendingPrivateNotification}
+              <Text>
+                {pendingPrivateNotification}
+              </Text>
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
@@ -205,9 +207,9 @@ const Chat = (props: any) => {
                             {(privateMessageCountMap[user.uid] || 0) -
                               (lastCheckedPrivateState[user.uid] || 0) !==
                             0 ? (
-                              <View style={style.chatNotification}>
-                                {(privateMessageCountMap[user.uid] || 0) -
-                                  (lastCheckedPrivateState[user.uid] || 0)}
+                              <View style={style.chatNotificationPrivate}>
+                                <Text>{(privateMessageCountMap[user.uid] || 0) -
+                                  (lastCheckedPrivateState[user.uid] || 0)}</Text>
                               </View>
                             ) : null}
                             <Text style={style.participantText}>
@@ -404,6 +406,20 @@ const style = StyleSheet.create({
     left: 25,
     top: -5,
   },
+  chatNotificationPrivate:{
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    right: 25,
+    top: 0,
+  }
 });
 
 export default Chat;
