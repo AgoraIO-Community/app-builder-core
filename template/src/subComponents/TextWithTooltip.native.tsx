@@ -10,15 +10,15 @@
 *********************************************
 */
 import React, {useState, useRef} from 'react';
-import {View, Text, Modal, TouchableOpacity, TouchableWithoutFeedback, StyleSheet} from 'react-native';
+import {View, Text, Modal, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, useWindowDimensions} from 'react-native';
 /**
  * Component showing text with tooltip on mobile native
  */
 const TextWithToolTip = (props: any) => {
-    const [toolTipVisible, setToolTipVisible] = useState(false)
-    const [top, setTop] = useState(0)
-    const [left, setLeft] = useState(0)
-    const ref = useRef(null)
+    const {width:globalWidth, height:globalHeight} = useWindowDimensions();
+    const [toolTipVisible, setToolTipVisible] = useState(false);
+    const [position, setPosition] = useState({})
+    const ref = useRef(null);
     return(
         <View style={{flex: 1}}>
             <Modal
@@ -34,21 +34,64 @@ const TextWithToolTip = (props: any) => {
                         style={style.backDrop} 
                     />
                 </TouchableWithoutFeedback>
-                <View style={[style.textContainer, {top: top,left: left}]}>
+                <View style={[style.textContainer, position]}>
                     <Text style={style.textStyle}>{props.value}</Text>
                 </View>
             </Modal>
             <TouchableOpacity ref={ref} onPress={() => {
-                    ref?.current?.measure( (fx, fy, width, height, px, py) => {
-                        // console.log('Component width is: ' + width)
-                        // console.log('Component height is: ' + height)
-                        // console.log('X offset to frame: ' + fx)
-                        // console.log('Y offset to frame: ' + fy)
-                        // console.log('X offset to page: ' + px)
-                        // console.log('Y offset to page: ' + py)
-                        setTop(py + height)
-                        setLeft(px)
-                        setToolTipVisible(!toolTipVisible)
+                    ref?.current?.measure( (fx: number, fy: number, localWidth: number, localHeight: number, px: number, py: number) => {
+                        /* To display the tooltip we are setting to position and maxwidth. so it will display above and below actual name present with modal.
+                        ---------
+                        | A | B |
+                        ---------
+                        | C | D |
+                        ---------
+                        Assume we are spliting mobile/tablet screen into 4 section
+
+                        When user click any username doing below the calculation to find (left or right postion and maxwidth). 
+                        so it won't hidden and we can use the maximum area to show tooltip
+                        
+                        For ex:
+                        Case 1: If element is present in the A or C section then we will set position top and left
+                        Case 2: If element is present in the B or D section then we will set position top and right position
+
+                        Note : we are also can doing some calculation based on height so that text won't hidden in the bottom.
+                        **/
+
+                        const rightPos = (globalWidth - (px + localWidth)) - 20 < 0 ? 10 : (globalWidth - (px + localWidth)) - 20
+                        const leftPos = px < 0 ? 10 : px
+                        if(px > globalWidth/2){
+                            if(py > globalHeight/2){
+                                setPosition({
+                                    top: py - localHeight,
+                                    right: rightPos,
+                                    maxWidth: (globalWidth - rightPos) - 30,
+                                })
+                            }else{
+                                setPosition({
+                                    top: py+localHeight,
+                                    right: rightPos,
+                                    maxWidth: (globalWidth - rightPos) - 30,
+                                })
+                            }
+                        }else{
+                            if(py > globalHeight/2){
+                                setPosition({
+                                    top: py - localHeight,
+                                    left: leftPos,
+                                    maxWidth: (globalWidth - leftPos - 5),
+                                })
+                            }else{
+                                setPosition({
+                                    top: py+localHeight,
+                                    left: leftPos,
+                                    maxWidth: (globalWidth - leftPos - 5),
+                                })
+                            }
+                        }
+                        setTimeout(() =>{
+                            setToolTipVisible(!toolTipVisible)
+                        })
                     })     
                 }}>
                 <Text style={props.style} numberOfLines={1}>{props.value}</Text>
@@ -72,7 +115,7 @@ const style = StyleSheet.create({
         marginRight: 20
     },
     textStyle:{
-        backgroundColor:'white', padding: 5, margin: 5
+        backgroundColor:'white', padding: 5, margin: 5        
     }
 })
 
