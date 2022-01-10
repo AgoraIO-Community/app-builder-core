@@ -39,13 +39,25 @@ const TextWithToolTip = (props: any) => {
                 </View>
             </Modal>
             <TouchableOpacity ref={ref} onPress={() => {
-                    ref?.current?.measure( (fx, fy, localWidth, localHeight, px, py) => {
-                        // console.log('Component width is: ' + width2)
-                        // console.log('Component height is: ' + height)
-                        // console.log('X offset to frame: ' + fx)
-                        // console.log('Y offset to frame: ' + fy)
-                        // console.log('X offset to page: ' + px)
-                        // console.log('Y offset to page: ' + py)
+                    ref?.current?.measure( (fx: number, fy: number, localWidth: number, localHeight: number, px: number, py: number) => {
+                        /* To display the tooltip we are setting to position and maxwidth. so it will display above and below actual name present with modal.
+                        ---------
+                        | A | B |
+                        ---------
+                        | C | D |
+                        ---------
+                        Assume we are spliting mobile/tablet screen into 4 section
+
+                        When user click any username doing below the calculation to find (left or right postion and maxwidth). 
+                        so it won't hidden and we can use the maximum area to show tooltip
+                        
+                        For ex:
+                        Case 1: If element is present in the A or C section then we will set position top and left
+                        Case 2: If element is present in the B or D section then we will set position top and right position
+
+                        Note : we are also can doing some calculation based on height so that text won't hidden in the bottom.
+                        **/
+
                         const rightPos = (globalWidth - (px + localWidth)) - 20 < 0 ? 10 : (globalWidth - (px + localWidth)) - 20
                         const leftPos = px < 0 ? 10 : px
                         if(px > globalWidth/2){
