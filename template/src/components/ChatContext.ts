@@ -52,6 +52,7 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
+  updateChannelAttributes: (uid: number, role: 'audience' | 'host') => void;
   engine: RtmEngine;
   localUid: string;
   userList: any;
@@ -66,9 +67,8 @@ export enum controlMessageEnum {
   kickUser = '5',
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
-  raiseHandRequest = 'RAISE_HAND_REQUEST',
-  raiseHandRequestAccepted = 'RAISE_HAND_ACCEPTED',
-  raiseHandRequestRejected = 'RAISE_HAND_REJECTED',
+  raiseHandApprovedRequestRecall = 'RAISE_HAND_APPROVED_REQUEST_RECALL',
+  // TODO move to livestream provider
 }
 
 const ChatContext = createContext(null as unknown as chatContext);

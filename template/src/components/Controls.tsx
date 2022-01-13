@@ -20,7 +20,7 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
-import RaiseHand from '../subComponents/RaiseHand';
+import {LocalRaiseHand} from '../subComponents/livestream';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
@@ -61,7 +61,7 @@ const Controls = (props: any) => {
         onLayout={onLayout}>
         {rtcProps.role === role.Audience && rtcProps.mode === mode.Live ? (
           <View style={{alignSelf: 'center'}}>
-            <RaiseHand
+            <LocalRaiseHand
               raiseHandRequestActive={raiseHandRequestActive}
               setRaiseHandRequestActive={setRaiseHandRequestActive}
             />
