@@ -118,6 +118,7 @@ const RtmConfigure = (props: any) => {
       await engine.current.setLocalUserAttributes([
         {key: 'name', value: name || 'User'},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+        {key: 'role', value: String(rtcProps.role)},
       ]);
       timerValueRef.current = 5;
       joinChannel();
@@ -178,6 +179,7 @@ const RtmConfigure = (props: any) => {
                   [member.uid]: {
                     name: attr?.attributes?.name || 'User',
                     type: UserType.Normal,
+                    role: attr?.attributes?.role,
                     screenUid: parseInt(attr?.attributes?.screenUid),
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {

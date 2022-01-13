@@ -183,12 +183,12 @@ export default class RtcEngine {
 
     this.screenClient = AgoraRTC.createClient({
       codec: 'vp8',
-      mode: 'rtc',
+      mode: isLiveStreamingEnabled ? 'live' : 'rtc',
     });
   }
 
   static async create(appId: string, role: role): Promise<RtcEngine> {
-    let engine = new RtcEngine(appId, role);
+    let engine = new RtcEngine(appId);
     window.engine = engine;
     return engine;
   }
