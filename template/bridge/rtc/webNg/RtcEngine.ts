@@ -252,7 +252,7 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
-      console.log('STATEAUDIOVIDEOCHANGE user joined', user);
+      console.log('STATEAUDIOVIDEOCHANGE user joined begins linw 255', user);
       const uid = this.inScreenshare
         ? user.uid !== this.screenClient.uid
           ? user.uid
@@ -294,7 +294,7 @@ export default class RtcEngine {
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription
-      console.log('STATEAUDIOVIDEOCHANGE line 294');
+      console.log('STATEAUDIOVIDEOCHANGE user-published begins line 294', user);
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         console.log('STATEAUDIOVIDEOCHANGE dispatch line if');
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
