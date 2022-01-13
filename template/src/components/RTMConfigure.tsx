@@ -278,13 +278,13 @@ const RtmConfigure = (props: any) => {
             case controlMessageEnum.muteVideo:
               dispatch({
                 type: 'LocalMuteVideo',
-                value: [true],
+                value: [0],
               });
               break;
             case controlMessageEnum.muteAudio:
               dispatch({
                 type: 'LocalMuteAudio',
-                value: [true],
+                value: [0],
               });
               break;
             case controlMessageEnum.kickUser:
@@ -347,13 +347,13 @@ const RtmConfigure = (props: any) => {
               case controlMessageEnum.muteVideo:
                 dispatch({
                   type: 'LocalMuteVideo',
-                  value: [true],
+                  value: [0],
                 });
                 break;
               case controlMessageEnum.muteAudio:
                 dispatch({
                   type: 'LocalMuteAudio',
-                  value: [true],
+                  value: [0],
                 });
                 break;
               case controlMessageEnum.cloudRecordingActive:
