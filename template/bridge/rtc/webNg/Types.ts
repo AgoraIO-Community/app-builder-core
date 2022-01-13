@@ -9,8 +9,40 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-export enum VideoRenderMode{
-    Hidden=1,
-    Fit,
-    Adaptive
-} 
+export enum VideoRenderMode {
+  Hidden = 1,
+  Fit,
+  Adaptive,
+}
+/**
+ *
+ * The latency level of an audience member in a live interactive streaming. Takes effect only when the user role is `"audience"`.
+ * - `1`: Low latency.
+ * - `2`: (Default) Ultra low latency.
+ */
+
+export const enum AudienceLatencyLevelType {
+  /**
+   * Low latency.
+   */
+  AUDIENCE_LEVEL_LOW_LATENCY = 1,
+  /**
+   * Ultra-low latency.
+   */
+  AUDIENCE_LEVEL_ULTRA_LOW_LATENCY = 2,
+  /**
+   * @ignore
+   */
+  AUDIENCE_LEVEL_SYNC_LATENCY = 3,
+}
+
+export interface ClientRoleOptions {
+  /**
+   * The latency level of an audience member in a live interactive streaming.
+   *
+   * > Note:
+   * > - Takes effect only when the user role is `"audience"`.
+   * > - Levels affect prices.
+   */
+  level: AudienceLatencyLevelType;
+}
