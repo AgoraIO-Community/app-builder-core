@@ -12,17 +12,20 @@
 import React, {useContext, useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import ChatContext from '../../../components/ChatContext';
-import {LiveStreamControlMessageEnum} from '../../../components/livestream';
+import LiveStreamContext, {
+  LiveStreamControlMessageEnum,
+} from '../../../components/livestream';
 import {PropsContext} from '../../../../agora-rn-uikit';
 import Toast from '../../../../react-native-toast-message';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
 
 const LocalRaiseHand = (props: any) => {
-  const {raiseHandRequestActive, setRaiseHandRequestActive} = props;
   const {styleProps} = useContext(PropsContext);
+  const {sendControlMessage} = useContext(ChatContext);
+  const {setRaiseHandRequestActive, raiseHandRequestActive} =
+    useContext(LiveStreamContext);
   const {localBtnStyles} = styleProps || {};
   const {muteLocalAudio} = localBtnStyles || {};
-  const {sendControlMessage} = useContext(ChatContext);
 
   useEffect(() => {
     if (raiseHandRequestActive)

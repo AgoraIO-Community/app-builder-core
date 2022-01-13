@@ -39,14 +39,7 @@ const Controls = (props: any) => {
   ]);
   const isDesktop = dim[0] > 1224;
   const [screenshareActive, setScreenshareActive] = useState(false);
-  const {
-    setRecordingActive,
-    recordingActive,
-    isHost,
-    setLayout,
-    raiseHandRequestActive,
-    setRaiseHandRequestActive,
-  } = props;
+  const {setRecordingActive, recordingActive, isHost, setLayout} = props;
 
   return (
     <LocalUserContext>
@@ -61,10 +54,7 @@ const Controls = (props: any) => {
         onLayout={onLayout}>
         {rtcProps.role === role.Audience && rtcProps.mode === mode.Live ? (
           <View style={{alignSelf: 'center'}}>
-            <LocalRaiseHand
-              raiseHandRequestActive={raiseHandRequestActive}
-              setRaiseHandRequestActive={setRaiseHandRequestActive}
-            />
+            <LocalRaiseHand />
           </View>
         ) : (
           <>

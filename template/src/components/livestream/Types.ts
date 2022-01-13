@@ -24,4 +24,6 @@ export interface liveStreamContext {
   currLiveStreamRequest: Array<number>;
   approveRequestOfUID: (uid: number) => void;
   rejectRequestOfUID: (uid: number) => void;
+  raiseHandRequestActive: boolean;
+  setRaiseHandRequestActive: (state: boolean) => void;
 }

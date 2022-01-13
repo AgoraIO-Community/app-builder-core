@@ -22,6 +22,9 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
 export const LiveStreamContextProvider = (props: any) => {
+  const [raiseHandRequestActive, setRaiseHandRequestActive] =
+    React.useState(false);
+
   const {setRtcProps} = props;
   const {localUid, sendControlMessageToUid, updateChannelAttributes} =
     useContext(ChatContext);
@@ -86,6 +89,7 @@ export const LiveStreamContextProvider = (props: any) => {
           data.msg === LiveStreamControlMessageEnum.raiseHandRequestRejected
         ) {
           showToast(LSNotificationObject.RAISE_HAND_REJECTED);
+          setRaiseHandRequestActive(false);
         }
       },
     );
@@ -102,6 +106,7 @@ export const LiveStreamContextProvider = (props: any) => {
           showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
           updateRtcProps(role.Audience);
           updateChannelAttributes(localUid, role.Host);
+          setRaiseHandRequestActive(false);
         }
       },
     );
@@ -142,6 +147,8 @@ export const LiveStreamContextProvider = (props: any) => {
         currLiveStreamRequest,
         approveRequestOfUID,
         rejectRequestOfUID,
+        raiseHandRequestActive,
+        setRaiseHandRequestActive,
       }}>
       {props.children}
     </LiveStreamContext.Provider>

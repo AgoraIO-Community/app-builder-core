@@ -242,7 +242,6 @@ const VideoCall: React.FC = () => {
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
-  const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
@@ -463,12 +462,6 @@ const VideoCall: React.FC = () => {
                                   }
                                   setLastCheckedPublicState={
                                     setLastCheckedPublicState
-                                  }
-                                  raiseHandRequestActive={
-                                    raiseHandRequestActive
-                                  }
-                                  setRaiseHandRequestActive={
-                                    setRaiseHandRequestActive
                                   }
                                 />
                               )}
