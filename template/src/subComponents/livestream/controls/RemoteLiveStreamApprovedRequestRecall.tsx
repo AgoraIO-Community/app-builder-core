@@ -7,7 +7,7 @@ const RemoteLiveStreamApprovedRequestRecall = (props: {uid: number}) => {
   const {sendControlMessageToUid} = useContext(ChatContext);
   return (
     <BtnTemplate
-      style={{width: 24, height: 24}}
+      style={{width: 24, height: 22}}
       onPress={() => {
         sendControlMessageToUid(
           LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall,
@@ -15,7 +15,7 @@ const RemoteLiveStreamApprovedRequestRecall = (props: {uid: number}) => {
         );
       }}
       color="#FD0845"
-      name="exitIcon"
+      name="demoteIcon"
     />
   );
 };

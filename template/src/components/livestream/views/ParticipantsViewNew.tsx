@@ -171,11 +171,13 @@ const ParticipantViewNew = (props: any) => {
                                     isHost={props.isHost}
                                   />
                                 </View>
-                                <View style={[style.actionBtnIcon]}>
+                                <View
+                                  style={[
+                                    style.actionBtnIcon,
+                                    {marginLeft: 7},
+                                  ]}>
                                   <RemoteLiveStreamApprovedRequestRecall
                                     uid={user.uid}
-                                    // uid={user.uid}
-                                    // isHost={props.isHost}
                                   />
                                 </View>
                               </View>
