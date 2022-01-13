@@ -10,6 +10,7 @@
 *********************************************
 */
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
+import {ChannelAttributeOptions, AttributesMap} from './Types';
 
 export default class RtmEngine {
   public appId: string;
@@ -21,6 +22,7 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
+    ['channelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -50,7 +52,8 @@ export default class RtmEngine {
     if (
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
-      event === 'channelMemberLeft'
+      event === 'channelMemberLeft' ||
+      event === 'channelAttributesUpdated'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
@@ -181,6 +184,12 @@ export default class RtmEngine {
       console.log('Member Left', this.channelEventsMap);
       this.channelEventsMap.get('channelMemberLeft')({uid});
     });
+    this.channelMap
+      .get(channelId)
+      .on('AttributesUpdated', (attributeList: AttributesMap) => {
+        this.channelEventsMap.get('channelAttributesUpdated')(attributeList); //RN expect evt: any
+      });
+
     return this.channelMap.get(channelId).join();
   }
 
@@ -288,6 +297,18 @@ export default class RtmEngine {
       // console.log('!!!!formattedAttributes', formattedAttributes, key, value);
     });
     return this.client.setLocalUserAttributes({...formattedAttributes});
+  }
+
+  addOrUpdateChannelAttributes(
+    channelId: string,
+    attributes: AttributesMap,
+    option: ChannelAttributeOptions,
+  ): Promise<void> {
+    return this.client.addOrUpdateChannelAttributes(
+      channelId,
+      attributes,
+      option,
+    );
   }
 
   async sendLocalInvitation(invitationProps: any) {
