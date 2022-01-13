@@ -31,7 +31,7 @@ import { gql, useQuery } from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
-import ChatContext, {messageChannelType} from '../components/ChatContext';
+import ChatContext, {messageActionType, messageChannelType} from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
@@ -109,24 +109,26 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
 
   React.useEffect(() => {
     const showMessageNotification = (data: any) => {
-      const {uid, msg} = data;
-      Toast.show({
-        type: 'success',
-        text1: msg.length > 50 ? msg.slice(0, 50) + '...' : msg,
-        text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
-        visibilityTime: 1000,
-        onPress: () => {
-          setSidePanel(SidePanelType.Chat);
-          setLastCheckedPublicState(messageStore.length);
-        },
-      });
+		if(data.type === messageActionType.Normal){
+			const {uid, msg} = data;
+			Toast.show({
+				type: 'success',
+				text1: msg.length > 50 ? msg.slice(0, 50) + '...' : msg,
+				text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
+				visibilityTime: 1000,
+				onPress: () => {
+				setSidePanel(SidePanelType.Chat);
+				setLastCheckedPublicState(messageStore.length);
+				},
+			});
+		}
     };
     events.on(
       messageChannelType.Public,
       'onPublicMessageReceived',
       (data: any, error: any) => {
         if (!data) return;
-        showMessageNotification(data);
+		showMessageNotification(data);
       },
     );
     events.on(
@@ -135,7 +137,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       (data: any, error: any) => {
         if (!data) return;
         if (data.uid === localUid) return;
-        showMessageNotification(data);
+		showMessageNotification(data);
       },
     );
     return () => {
