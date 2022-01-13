@@ -75,6 +75,8 @@ export const LiveStreamContextProvider = (props: any) => {
         if (
           data.msg === LiveStreamControlMessageEnum.raiseHandRequestAccepted
         ) {
+          // This If condition solves the raise condition => if the host approves after the audience has recalled his request
+          if (!raiseHandRequestActive) return;
           showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
           updateRtcProps(role.Host);
           updateChannelAttributes(localUid, role.Host);
