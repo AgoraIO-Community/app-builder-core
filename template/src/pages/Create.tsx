@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, Dimensions, ScrollView, Platform} from 'react-native';
 import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
@@ -73,6 +73,12 @@ const Create = () => {
 
   console.log('mutation data', data);
 
+  useEffect(() => {
+    if(Platform.OS === 'web'){
+      document.title = $config.APP_NAME;
+    }
+  },[])
+
   const createRoom = () => {
     if (roomTitle !== '') {
       console.log('Create room invoked');
@@ -115,7 +121,7 @@ const Create = () => {
     //   style={style.full}
     //   resizeMode={'cover'}>
     // <KeyboardAvoidingView behavior={'height'} style={style.main}>
-    <ScrollView contentContainerStyle={style.main}>
+    <ScrollView contentContainerStyle={style.main}>      
       <View style={style.nav}>
         {hasBrandLogo && <Logo />}
         {error ? <Error error={error} /> : <></>}

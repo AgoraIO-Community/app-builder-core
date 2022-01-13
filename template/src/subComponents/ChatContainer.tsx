@@ -44,7 +44,7 @@ const ChatContainer = (props: any) => {
               name={'backBtn'}
             />
           </View>
-          <Text style={style.name}>hey{selectedUsername}</Text>
+          <Text style={style.name}>{selectedUsername}</Text>
         </View>
       ) : (
         <></>
@@ -93,6 +93,14 @@ const style = StyleSheet.create({
     marginTop: 2,
     alignItems: 'center',
     paddingVertical: 10,
+    ...Platform.select({
+      android:{
+        height: 40
+      },
+      ios:{
+        height: 40
+      }
+    })
   },
   backButton: {
     marginHorizontal: 10,
@@ -107,7 +115,7 @@ const style = StyleSheet.create({
   },
   backIcon: {
     width: 20,
-    height: 12,
+    height: 20,
   },
 });
 export default ChatContainer;

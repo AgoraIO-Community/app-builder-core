@@ -34,6 +34,7 @@ import {RFValue} from 'react-native-responsive-fontsize';
 const {topPinned} = layoutProps;
 import networkQualityContext from './NetworkQualityContext';
 import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
+import TextWithTooltip from '../subComponents/TextWithTooltip';
 
 const PinnedVideo = () => {
   const {height, width} = useWindowDimensions();
@@ -162,32 +163,30 @@ const PinnedVideo = () => {
                               style={style.MicIcon}
                             />
                           </View>
-                          <Text
-                            numberOfLines={1}
-                            style={[
-                              style.name,
-                              {
-                                fontSize: RFValue(
-                                  14,
-                                  height > width ? height : width,
-                                ),
-                              },
-                            ]}>
-                            {user.uid === 'local'
+                          <View style={{flex:1}}>
+                            <TextWithTooltip 
+                              value={user.uid === 'local'
                               ? userList[localUid]
-                                ? userList[localUid].name.slice(0, 20) + ' '
+                                ? userList[localUid].name + ' '
                                 : 'You '
                               : userList[user.uid]
-                              ? userList[user.uid].name.slice(0, 20) + ' '
+                              ? userList[user.uid].name + ' '
                               : user.uid === 1
-                              ? (userList[localUid]?.name + "'s screen ").slice(
-                                  0,
-                                  20,
-                                )
+                              ? (userList[localUid]?.name + "'s screen ")
                               : String(user.uid)[0] === '1'
                               ? 'PSTN User '
                               : 'User '}
-                          </Text>
+                              style={[
+                                style.name,
+                                {
+                                  fontSize: RFValue(
+                                    14,
+                                    height > width ? height : width,
+                                  ),
+                                },
+                              ]}
+                            />
+                          </View>
                         </View>
                       </View>
                     </Pressable>
@@ -242,22 +241,23 @@ const PinnedVideo = () => {
                       style={style.MicIcon}
                     />
                   </View>
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      style.name,
-                      {fontSize: RFValue(14, height > width ? height : width)},
-                    ]}>
-                    {maxUsers[0].uid === 'local'
+                  <View style={{flex:1}}>
+                    <TextWithTooltip 
+                      value={maxUsers[0].uid === 'local'
                       ? userList[localUid]
-                        ? userList[localUid].name.slice(0, 20) + ' '
+                        ? userList[localUid].name + ' '
                         : 'You '
                       : userList[maxUsers[0].uid]
-                      ? userList[maxUsers[0].uid].name.slice(0, 20) + ' '
+                      ? userList[maxUsers[0].uid].name + ' '
                       : maxUsers[0].uid === 1
-                      ? (userList[localUid].name + "'s screen ").slice(0, 20)
+                      ? (userList[localUid].name + "'s screen ")
                       : 'User '}
-                  </Text>
+                      style={[
+                        style.name,
+                        {fontSize: RFValue(14, height > width ? height : width)},
+                      ]}
+                    />
+                  </View>
                 </View>
               </View>
             </>
@@ -286,7 +286,7 @@ const style = StyleSheet.create({
     zIndex: 5,
     maxWidth: '100%',
   },
-  name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700'},
+  name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700', flexShrink: 1},
   MicBackdrop: {
     width: 20,
     height: 20,

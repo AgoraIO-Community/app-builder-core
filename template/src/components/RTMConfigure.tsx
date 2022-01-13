@@ -64,6 +64,7 @@ const RtmConfigure = (props: any) => {
   const [userList, setUserList] = useState<{[key: string]: any}>({});
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
+  const timerValueRef: any = useRef(5);
 
   const addMessageToStore = (uid: string, msg: {body: string; ts: string}) => {
     setMessageStore((m: messageStoreInterface[]) => {
@@ -96,11 +97,118 @@ const RtmConfigure = (props: any) => {
     });
   };
 
+  const doLoginAndSetupRTM = async () => {
+    try {
+      await engine.current.login({
+        uid: localUid.current,
+        token: rtcProps.rtm,
+      });
+      timerValueRef.current = 5;
+      setAttribute();
+    } catch (error) {
+      setTimeout(async () => {
+        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        doLoginAndSetupRTM();
+      }, timerValueRef.current * 1000);
+    }
+  };
+
+  const setAttribute = async () => {
+    try {
+      await engine.current.setLocalUserAttributes([
+        {key: 'name', value: name || 'User'},
+        {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+      ]);
+      timerValueRef.current = 5;
+      joinChannel();
+    } catch (error) {
+      setTimeout(async () => {
+        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        setAttribute();
+      }, timerValueRef.current * 1000);
+    }
+  };
+
+  const joinChannel = async () => {
+    try {
+      await engine.current.joinChannel(rtcProps.channel);
+      timerValueRef.current = 5;
+      getMembers();
+    } catch (error) {
+      setTimeout(async () => {
+        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        joinChannel();
+      }, timerValueRef.current * 1000);
+    }
+  };
+
+  const getMembers = async () => {
+    try {
+      await engine.current
+        .getChannelMembersBychannelId(rtcProps.channel)
+        .then((data) => {
+          data.members.map(async (member: any) => {
+            const backoffAttributes = backOff(
+              async () => {
+                const attr = await engine.current.getUserAttributesByUid(
+                  member.uid,
+                );
+                if (attr?.attributes?.name && attr?.attributes?.screenUid) {
+                  return attr;
+                } else {
+                  throw attr;
+                }
+              },
+              {
+                retry: (e, idx) => {
+                  console.log(
+                    `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
+                    e,
+                  );
+                  return true;
+                },
+              },
+            );
+            try {
+              const attr = await backoffAttributes;
+              console.log('[user attributes]:', {attr});
+              setUserList((prevState) => {
+                return {
+                  ...prevState,
+                  [member.uid]: {
+                    name: attr?.attributes?.name || 'User',
+                    type: UserType.Normal,
+                    screenUid: parseInt(attr?.attributes?.screenUid),
+                  },
+                  [parseInt(attr?.attributes?.screenUid)]: {
+                    name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                    type: UserType.ScreenShare,
+                  },
+                };
+              });
+            } catch (e) {
+              console.error(`Could not retrieve name of ${member.uid}`, e);
+            }
+          });
+          setLogin(true);
+          console.log('RTM init done');
+        });
+      timerValueRef.current = 5;
+    } catch (error) {
+      setTimeout(async () => {
+        timerValueRef.current = timerValueRef.current + timerValueRef.current;
+        getMembers();
+      }, timerValueRef.current * 1000);
+    }
+  };
   const init = async () => {
     engine.current = new RtmEngine();
     rtcProps.uid
       ? (localUid.current = rtcProps.uid + '')
       : (localUid.current = '' + timeNow());
+    engine.current.on('connectionStateChanged', (evt: any) => {
+      //console.log(evt);
+    });
     engine.current.on('error', (evt: any) => {
       // console.log(evt);
     });
@@ -173,13 +281,13 @@ const RtmConfigure = (props: any) => {
             case controlMessageEnum.muteVideo:
               dispatch({
                 type: 'LocalMuteVideo',
-                value: [true],
+                value: [0],
               });
               break;
             case controlMessageEnum.muteAudio:
               dispatch({
                 type: 'LocalMuteAudio',
-                value: [true],
+                value: [0],
               });
               break;
             case controlMessageEnum.kickUser:
@@ -254,13 +362,13 @@ const RtmConfigure = (props: any) => {
               case controlMessageEnum.muteVideo:
                 dispatch({
                   type: 'LocalMuteVideo',
-                  value: [true],
+                  value: [0],
                 });
                 break;
               case controlMessageEnum.muteAudio:
                 dispatch({
                   type: 'LocalMuteAudio',
-                  value: [true],
+                  value: [0],
                 });
                 break;
               case controlMessageEnum.cloudRecordingActive:
@@ -306,7 +414,6 @@ const RtmConfigure = (props: any) => {
       });
     });
 
-    // this is web specific
     engine.current.on('channelAttributesUpdated', (attributeList: any) => {
       const {user} = attributeList;
       const {lastUpdateUserId, value} = user;
@@ -328,70 +435,8 @@ const RtmConfigure = (props: any) => {
       updateUserList();
     });
 
-    engine.current.createClient(rtcProps.appId);
-
-    await engine.current.login({
-      uid: localUid.current,
-      token: rtcProps.rtm,
-    });
-
-    await engine.current.setLocalUserAttributes([
-      {key: 'name', value: name || 'User'},
-      {key: 'role', value: rtcProps?.role},
-      {key: 'screenUid', value: String(rtcProps.screenShareUid)},
-    ]);
-
-    await engine.current.joinChannel(rtcProps.channel);
-
-    engine.current
-      .getChannelMembersBychannelId(rtcProps.channel)
-      .then((data) => {
-        data.members.map(async (member: any) => {
-          const backoffAttributes = backOff(
-            async () => {
-              const attr = await engine.current.getUserAttributesByUid(
-                member.uid,
-              );
-              if (attr?.attributes?.name && attr?.attributes?.screenUid) {
-                return attr;
-              } else {
-                throw attr;
-              }
-            },
-            {
-              retry: (e, idx) => {
-                console.log(
-                  `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
-                  e,
-                );
-                return true;
-              },
-            },
-          );
-          try {
-            const attr = await backoffAttributes;
-            setUserList((prevState) => {
-              return {
-                ...prevState,
-                [member.uid]: {
-                  name: attr?.attributes?.name || 'User',
-                  type: UserType.Normal,
-                  role: attr?.attributes?.role,
-                  screenUid: parseInt(attr?.attributes?.screenUid),
-                },
-                [parseInt(attr?.attributes?.screenUid)]: {
-                  name: `${attr?.attributes?.name || 'User'}'s screenshare`,
-                  type: UserType.ScreenShare,
-                },
-              };
-            });
-          } catch (e) {
-            console.error(`Could not retrieve name of ${member.uid}`, e);
-          }
-        });
-        setLogin(true);
-      });
-    console.log('RTM init done');
+    await engine.current.createClient(rtcProps.appId);
+    doLoginAndSetupRTM();
   };
 
   const sendMessage = async (msg: string) => {
