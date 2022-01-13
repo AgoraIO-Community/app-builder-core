@@ -149,6 +149,7 @@ const RtmConfigure = (props: any) => {
       }
       getname();
     });
+
     engine.current.on('channelMemberLeft', (data: any) => {
       console.log('user left', data);
       // Chat of left user becomes undefined. So don't cleanup
@@ -187,14 +188,22 @@ const RtmConfigure = (props: any) => {
                 value: [],
               });
               break;
-            case controlMessageEnum.raiseHandRequest:
-              break;
-            case controlMessageEnum.raiseHandRequestAccepted:
-              break;
-            case controlMessageEnum.raiseHandRequestRejected:
-              break;
+            case controlMessageEnum.raiseHandApprovedRequestRecall:
+              dispatch({
+                type: 'LocalMuteVideo',
+                value: [0],
+              });
+              dispatch({
+                type: 'LocalMuteAudio',
+                value: [0],
+              });
             default:
-              throw new Error('Unsupported message type');
+              break;
+            // if (Object.values(controlMessageEnum).includes(msg)) break;
+            // else {
+            //   console.log('supriya error');
+            //   throw new Error('Unsupported message type');
+            // }
           }
         } catch (e) {
           events.emit(messageChannelType.Private, null, {
@@ -232,13 +241,10 @@ const RtmConfigure = (props: any) => {
       const {uid, channelId, text, ts} = evt;
       const textObj = parsePayload(text);
       const {type, msg} = textObj;
-      console.log('RTM TEST type', type);
-      console.log('RTM TEST msg', msg);
       let arr = new Int32Array(1);
       arr[0] = parseInt(uid);
 
       const userUID = Platform.OS ? arr[0] : uid;
-      console.log('userId', userUID);
       const timestamp = ts === 0 ? timeNow() : ts;
 
       if (channelId === rtcProps.channel) {
@@ -263,14 +269,16 @@ const RtmConfigure = (props: any) => {
               case controlMessageEnum.cloudRecordingUnactive:
                 setRecordingActive(false);
                 break;
-              case controlMessageEnum.raiseHandRequest:
-                break;
-              case controlMessageEnum.raiseHandRequestAccepted:
-                break;
-              case controlMessageEnum.raiseHandRequestRejected:
-                break;
               default:
-                throw new Error('Unsupported message type');
+                break;
+              // console.log(
+              //   'supriya default',
+              //   Object.values(controlMessageEnum),
+              // );
+              // if (Object.values(controlMessageEnum).includes(msg)) break;
+              // else {
+              //   throw new Error('Unsupported message type');
+              // }
             }
           } catch (e) {
             events.emit(messageChannelType.Public, null, {
@@ -298,16 +306,41 @@ const RtmConfigure = (props: any) => {
       });
     });
 
+    // this is web specific
+    engine.current.on('channelAttributesUpdated', (attributeList: any) => {
+      const {user} = attributeList;
+      const {lastUpdateUserId, value} = user;
+      function updateUserList() {
+        try {
+          setUserList((prevState) => {
+            return {
+              ...prevState,
+              [lastUpdateUserId]: {
+                ...prevState[lastUpdateUserId],
+                role: value,
+              },
+            };
+          });
+        } catch (e) {
+          // console.error(`Could not retrieve name of ${data.uid}`, e);
+        }
+      }
+      updateUserList();
+    });
+
     engine.current.createClient(rtcProps.appId);
+
     await engine.current.login({
       uid: localUid.current,
       token: rtcProps.rtm,
     });
+
     await engine.current.setLocalUserAttributes([
       {key: 'name', value: name || 'User'},
       {key: 'role', value: rtcProps?.role},
       {key: 'screenUid', value: String(rtcProps.screenShareUid)},
     ]);
+
     await engine.current.joinChannel(rtcProps.channel);
 
     engine.current
@@ -441,6 +474,21 @@ const RtmConfigure = (props: any) => {
       : {};
   };
 
+  const updateChannelAttributes = async (
+    uid: number,
+    role: 'audience' | 'host',
+  ) => {
+    try {
+      await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
+        rtcProps.channel,
+        {user: role},
+        {enableNotificationToChannelMembers: true},
+      );
+    } catch (error) {
+      console.log('AttributesUpdated error');
+    }
+  };
+
   useEffect(() => {
     callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
     return () => {
@@ -458,6 +506,7 @@ const RtmConfigure = (props: any) => {
         sendControlMessageToUid,
         sendMessage,
         sendMessageToUid,
+        updateChannelAttributes,
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,

@@ -14,8 +14,11 @@ import {View, StyleSheet, Text, Platform} from 'react-native';
 import {RtcConfigure, PropsProvider} from '../../agora-rn-uikit';
 import Navbar from '../components/Navbar';
 // import Precall from '../components/Precall';
-import PrecallNew from '../components/PrecallNew';
-import ParticipantViewNew from '../components/ParticipantsViewNew';
+import {
+  LiveStreamContextProvider,
+  PrecallNew,
+  ParticipantsViewNew,
+} from '../components/livestream';
 // import ParticipantsView from '../components/ParticipantsView';
 import SettingsView from '../components/SettingsView';
 import PinnedVideo from '../components/PinnedVideo';
@@ -36,7 +39,6 @@ import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
-import {LiveStreamRequestProvider} from '../components/LiveStreamRequestContext';
 import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import isLiveStreamingEnabled from '../utils/isLiveStreamingEnabled';
 
@@ -346,7 +348,7 @@ const VideoCall: React.FC = () => {
                   setRecordingActive={setRecordingActive}
                   name={username}
                   callActive={callActive}>
-                  <LiveStreamRequestProvider setRtcProps={setRtcProps}>
+                  <LiveStreamContextProvider setRtcProps={setRtcProps}>
                     {callActive ? (
                       <View style={style.full}>
                         <NotificationControl
@@ -393,7 +395,7 @@ const VideoCall: React.FC = () => {
                                   )}
 
                                   {sidePanel === SidePanelType.Participants && (
-                                    <ParticipantViewNew
+                                    <ParticipantsViewNew
                                       isHost={isHost}
                                       setSidePanel={setSidePanel}
                                     />
@@ -474,7 +476,7 @@ const VideoCall: React.FC = () => {
                         />
                       )
                     )}
-                  </LiveStreamRequestProvider>
+                  </LiveStreamContextProvider>
                 </RtmConfigure>
               </DeviceConfigure>
             </RtcConfigure>
