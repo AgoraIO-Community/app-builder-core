@@ -4,6 +4,7 @@ export enum LiveStreamControlMessageEnum {
   raiseHandRequestAccepted = 'RAISE_HAND_ACCEPTED',
   raiseHandRequestRejected = 'RAISE_HAND_REJECTED',
   raiseHandRequestReceived = 'RAISE_HAND_RECEIVED',
+  raiseHandRequestRecall = 'RAISE_HAND_REQUEST_RECALL',
   raiseHandApprovedRequestRecall = 'RAISE_HAND_APPROVED_REQUEST_RECALL',
 }
 
@@ -16,6 +17,8 @@ export const LSNotificationObject = {
     'Live-Streaming request was approved',
   [LiveStreamControlMessageEnum.raiseHandRequestRejected]:
     'Live-Streaming request was rejected',
+  [LiveStreamControlMessageEnum.raiseHandRequestRecall]:
+    'User has cancelled his request to stream',
   [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]:
     'You can no longer live stream',
 };

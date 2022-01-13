@@ -51,6 +51,7 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   React.useEffect(() => {
+    // 1. Host listens for this event
     events.on(
       messageChannelType.Public,
       'onLiveStreamRequestReceived',
@@ -65,6 +66,7 @@ export const LiveStreamContextProvider = (props: any) => {
         }
       },
     );
+    // 2. Audience listens for this event
     events.on(
       messageChannelType.Private,
       'onLiveStreamRequestAccepted',
@@ -80,6 +82,7 @@ export const LiveStreamContextProvider = (props: any) => {
       },
     );
 
+    // 3. Audience listens for this event
     events.on(
       messageChannelType.Private,
       'onLiveStreamRequestRejected',
@@ -94,9 +97,23 @@ export const LiveStreamContextProvider = (props: any) => {
       },
     );
 
+    // 4. Host listens for this event
+    events.on(
+      messageChannelType.Public,
+      'onLiveStreamRequestRecall',
+      (data: any, error: any) => {
+        if (!data) return;
+        if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
+          showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
+          updateCurrentLiveStreamRequest(data.uid);
+        }
+      },
+    );
+
+    // 5. Audience listens for this event
     events.on(
       messageChannelType.Private,
-      'onLiveStreamApprovedRequestRecalled',
+      'onLiveStreamApprovedRequestRecall',
       (data: any, error: any) => {
         if (!data) return;
         if (
@@ -111,8 +128,16 @@ export const LiveStreamContextProvider = (props: any) => {
       },
     );
 
-    () => {
-      // clean up listeners
+    return () => {
+      // Cleanup the listeners
+      events.off(messageChannelType.Public, 'onLiveStreamRequestReceived');
+      events.off(messageChannelType.Private, 'onLiveStreamRequestAccepted');
+      events.off(messageChannelType.Private, 'onLiveStreamRequestRejected');
+      events.off(messageChannelType.Public, 'onLiveStreamRequestRecall');
+      events.off(
+        messageChannelType.Private,
+        'onLiveStreamApprovedRequestRecall',
+      );
     };
   }, [events, localUid]);
 

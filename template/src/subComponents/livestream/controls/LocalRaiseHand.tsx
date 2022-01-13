@@ -46,11 +46,16 @@ const LocalRaiseHand = (props: any) => {
         ...(localBtnStyles as object),
         ...(muteLocalAudio as object),
       }}
-      disabled={raiseHandRequestActive}
       onPress={() => {
         if (!raiseHandRequestActive) {
           setRaiseHandRequestActive(true);
           sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
+        }
+        if (raiseHandRequestActive) {
+          setRaiseHandRequestActive(false);
+          sendControlMessage(
+            LiveStreamControlMessageEnum.raiseHandRequestRecall,
+          );
         }
       }}
     />
