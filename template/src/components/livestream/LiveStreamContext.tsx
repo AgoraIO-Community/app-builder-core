@@ -141,7 +141,7 @@ export const LiveStreamContextProvider = (props: any) => {
         'onLiveStreamApprovedRequestRecall',
       );
     };
-  }, [events, localUid]);
+  }, [events, localUid, raiseHandRequestActive]);
 
   // SUP TODO: Change the update to hook, basically send control message when state changes i.e currLiveStreamRequest
   const updateCurrentLiveStreamRequest = (uid: number | string) => {
@@ -168,12 +168,6 @@ export const LiveStreamContextProvider = (props: any) => {
     );
   };
 
-  // debug only code
-  const toggleProps = () => {
-    if (role.Audience) updateRtcProps(role.Host);
-    else updateRtcProps(role.Host);
-  };
-
   return (
     <LiveStreamContext.Provider
       value={{
@@ -182,7 +176,6 @@ export const LiveStreamContextProvider = (props: any) => {
         rejectRequestOfUID,
         raiseHandRequestActive,
         setRaiseHandRequestActive,
-        toggleProps,
       }}>
       {props.children}
     </LiveStreamContext.Provider>
