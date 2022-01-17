@@ -401,14 +401,19 @@ const VideoCall: React.FC = () => {
                                   ) : (
                                     <GridVideo setLayout={setLayout} />
                                   )}
-                                  {sidePanel === SidePanelType.Participants ? (
-                                    <ParticipantsViewNew
-                                      isHost={isHost}
-                                      setSidePanel={setSidePanel}
-                                    />
-                                  ) : (
-                                    <></>
-                                  )}
+                                  {sidePanel === SidePanelType.Participants &&
+                                    (isLiveStreamingEnabled ? (
+                                      // TODO Refactor this (multiple component or single component) ??
+                                      <ParticipantsViewNew
+                                        isHost={isHost}
+                                        setSidePanel={setSidePanel}
+                                      />
+                                    ) : (
+                                      <ParticipantsView
+                                        isHost={isHost}
+                                        setSidePanel={setSidePanel}
+                                      />
+                                    ))}
                                   {sidePanel === SidePanelType.Chat ? (
                                     $config.CHAT ? (
                                       <Chat

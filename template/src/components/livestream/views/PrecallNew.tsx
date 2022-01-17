@@ -54,9 +54,8 @@ const JoinRoomInputView = (props: any) => {
 const PrecallNew = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
-  console.log('RTC PROPS', rtcProps);
 
-  const {queryComplete, isHost, error, title} = props;
+  const {queryComplete, error, title} = props;
 
   const [dim, setDim] = useState<Array<number>>([
     Dimensions.get('window').width,
@@ -68,12 +67,15 @@ const PrecallNew = (props: any) => {
   };
 
   const isMobileView = () => dim[0] < dim[1] + 150;
+  const isAudienceView = () => rtcProps.role === role.Audience;
+  const isLiveEvent = () => rtcProps.mode === mode.Live;
 
   if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
 
   return (
     <View style={style.main} onLayout={onLayout}>
-      {rtcProps.role === role.Audience && rtcProps.mode === mode.Live ? (
+      {/* Precall screen only changes for audience in Live Stream event */}
+      {isLiveEvent() && isAudienceView() ? (
         <View style={style.preCallContainer}>
           <Text style={style.titleFont}>Join meeting ::: {title}</Text>
           <View style={{height: 50}} />
@@ -107,10 +109,11 @@ const PrecallNew = (props: any) => {
                   </LocalUserContext>
                 </View>
                 <View style={{marginBottom: '10%'}}>
+                  {/* This view is visible only on MOBILE view */}
                   {isMobileView() && <JoinRoomInputView {...props} />}
                 </View>
               </View>
-              {/* hide when live streaming is true and mobile view is active */}
+              {/* This view is visible only on WEB view */}
               {!isMobileView() && (
                 <View style={style.rightContent}>
                   <View
