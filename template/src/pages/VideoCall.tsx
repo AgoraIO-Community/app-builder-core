@@ -37,7 +37,6 @@ import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {
   LiveStreamContextProvider,
-  PrecallNew,
   ParticipantsViewNew,
 } from '../components/livestream';
 import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
@@ -470,7 +469,7 @@ const VideoCall: React.FC = () => {
                         </NotificationControl>
                       </View>
                     ) : $config.PRECALL ? (
-                      <PrecallNew
+                      <Precall
                         error={errorMessage}
                         username={username}
                         setUsername={setUsername}
