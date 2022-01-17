@@ -52,43 +52,47 @@ const Controls = (props: any) => {
           },
         ]}
         onLayout={onLayout}>
-        {rtcProps.role === role.Audience && rtcProps.mode === mode.Live ? (
-          <View style={{alignSelf: 'center'}}>
-            <LocalRaiseHand />
-          </View>
-        ) : (
-          <>
+        {
+          // The below flag will enable/disable feature 'Raise Hand' in LiveStreaming vertical
+          // $config.RAISE_HAND &&
+          rtcProps.role === role.Audience && rtcProps.mode === mode.Live ? (
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
+              <LocalRaiseHand />
             </View>
-            <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
-            </View>
-            {mobileAndTabletCheck() && (
+          ) : (
+            <>
               <View style={{alignSelf: 'center'}}>
-                <SwitchCamera />
+                <LocalAudioMute />
               </View>
-            )}
-            {$config.SCREEN_SHARING && !mobileAndTabletCheck() && (
               <View style={{alignSelf: 'center'}}>
-                <ScreenshareButton
-                  screenshareActive={screenshareActive}
-                  setScreenshareActive={setScreenshareActive}
-                  setLayout={setLayout}
-                  recordingActive={recordingActive}
-                />
+                <LocalVideoMute />
               </View>
-            )}
-            {isHost && $config.CLOUD_RECORDING && (
-              <View style={{alignSelf: 'center'}}>
-                <Recording
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
-              </View>
-            )}
-          </>
-        )}
+              {mobileAndTabletCheck() && (
+                <View style={{alignSelf: 'center'}}>
+                  <SwitchCamera />
+                </View>
+              )}
+              {$config.SCREEN_SHARING && !mobileAndTabletCheck() && (
+                <View style={{alignSelf: 'center'}}>
+                  <ScreenshareButton
+                    screenshareActive={screenshareActive}
+                    setScreenshareActive={setScreenshareActive}
+                    setLayout={setLayout}
+                    recordingActive={recordingActive}
+                  />
+                </View>
+              )}
+              {isHost && $config.CLOUD_RECORDING && (
+                <View style={{alignSelf: 'center'}}>
+                  <Recording
+                    recordingActive={recordingActive}
+                    setRecordingActive={setRecordingActive}
+                  />
+                </View>
+              )}
+            </>
+          )
+        }
         <View style={{alignSelf: 'center'}}>
           <Endcall />
         </View>
