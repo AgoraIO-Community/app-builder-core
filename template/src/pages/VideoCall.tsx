@@ -108,20 +108,20 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
   const pendingPrivateNotification = totalPrivateMessage - totalPrivateLastSeen;
 
   React.useEffect(() => {
-    const showMessageNotification = (data: any) => {
-		if(data.type === messageActionType.Normal){
-			const {uid, msg} = data;
-			Toast.show({
-				type: 'success',
-				text1: msg.length > 50 ? msg.slice(0, 50) + '...' : msg,
-				text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
-				visibilityTime: 1000,
-				onPress: () => {
-					setSidePanel(SidePanelType.Chat);
-					setLastCheckedPublicState(messageStore.length);
-				},
-			});
-		}
+		const showMessageNotification = (data: any) => {
+			if(data.type === messageActionType.Normal){
+      const {uid, msg} = data;
+      Toast.show({
+        type: 'success',
+        text1: msg.length > 50 ? msg.slice(0, 50) + '...' : msg,
+        text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
+        visibilityTime: 1000,
+        onPress: () => {
+          setSidePanel(SidePanelType.Chat);
+          setLastCheckedPublicState(messageStore.length);
+        },
+      });
+			}
     };
     events.on(
       messageChannelType.Public,
