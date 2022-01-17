@@ -1,3 +1,3 @@
-const isLiveStreamingEnabled: boolean = true;
+const isLiveStreamingEnabled: boolean = !!$config.EVENT_MODE;
 
 export default isLiveStreamingEnabled;
