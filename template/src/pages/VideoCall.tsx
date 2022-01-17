@@ -31,7 +31,7 @@ import { gql, useQuery } from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
-import ChatContext, {messageActionType, messageChannelType} from '../components/ChatContext';
+import ChatContext, {messageChannelType, messageActionType} from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
@@ -128,7 +128,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       'onPublicMessageReceived',
       (data: any, error: any) => {
         if (!data) return;
-		showMessageNotification(data);
+        showMessageNotification(data);
       },
     );
     events.on(
@@ -137,7 +137,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
       (data: any, error: any) => {
         if (!data) return;
         if (data.uid === localUid) return;
-		showMessageNotification(data);
+        showMessageNotification(data);
       },
     );
     return () => {
