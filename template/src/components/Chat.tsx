@@ -44,6 +44,7 @@ const Chat = (props: any) => {
     lastCheckedPrivateState,
     privateMessageCountMap,
     setPrivateMessageLastSeen,
+    setPrivateChatDisplayed
   } = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
@@ -61,9 +62,11 @@ const Chat = (props: any) => {
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
+    setPrivateChatDisplayed(false)
   };
   const selectPrivate = () => {
     setGroupActive(false);
+    setPrivateChatDisplayed(true)
   };
   const selectUser = (user: any) => {
     setSelectedUser(user);
