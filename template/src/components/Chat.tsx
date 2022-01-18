@@ -50,6 +50,10 @@ const Chat = (props: any) => {
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
   const [selectedUser, setSelectedUser] = useState({uid: null});
+  //initally private state should be false
+  useEffect(()=>{
+    setPrivateChatDisplayed(false)
+  },[])
   useEffect(() => {
     if (privateActive) {
       setPrivateMessageLastSeen({
