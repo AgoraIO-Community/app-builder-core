@@ -18,6 +18,7 @@ import LiveStreamContext, {
 import {PropsContext} from '../../../../agora-rn-uikit';
 import Toast from '../../../../react-native-toast-message';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
+import icons from '../../../assets/icons';
 
 const LocalRaiseHand = (props: any) => {
   const {styleProps} = useContext(PropsContext);
@@ -38,7 +39,7 @@ const LocalRaiseHand = (props: any) => {
 
   return (
     <BtnTemplate
-      name={raiseHandRequestActive ? 'raiseHandIcon' : 'raiseHandIcon'}
+      icon={icons['raiseHandIcon']}
       btnText={raiseHandRequestActive ? 'Lower hand' : 'Raise Hand'}
       color={raiseHandRequestActive && '#FD0845'}
       style={{

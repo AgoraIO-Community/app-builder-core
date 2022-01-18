@@ -2,6 +2,7 @@ import React, {useContext} from 'react';
 import ChatContext from '../../../components/ChatContext';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
+import icons from '../../../assets/icons';
 
 const RemoteLiveStreamApprovedRequestRecall = (props: {uid: number}) => {
   const {sendControlMessageToUid} = useContext(ChatContext);
@@ -15,7 +16,7 @@ const RemoteLiveStreamApprovedRequestRecall = (props: {uid: number}) => {
         );
       }}
       color="#FD0845"
-      name="demoteIcon"
+      icon={icons['demoteIcon']}
     />
   );
 };

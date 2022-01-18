@@ -6,6 +6,7 @@ import {
   UidInterface,
 } from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
+import icons from '../../../assets/icons';
 
 interface RemoteLiveStreamControlInterface {
   user: UidInterface;
@@ -23,7 +24,7 @@ const RemoteLiveStreamRequestReject: React.FC<RemoteLiveStreamControlInterface> 
     return (
       <View style={{...(liveStreamHostControlBtns as object)}}>
         <BtnTemplate
-          name={'crossCircleIcon'}
+          icon={icons['crossCircleIcon']}
           style={{...(liveStreamHostControlBtns as object)}}
           onPress={() => {
             rejectRequestOfUID(user.uid);
