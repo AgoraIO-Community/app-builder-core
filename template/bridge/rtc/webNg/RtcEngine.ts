@@ -9,11 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import {
-  ClientRole,
-  role,
-  ChannelProfile,
-} from '../../../agora-rn-uikit/src/Contexts/PropsContext';
+
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -48,6 +44,19 @@ declare global {
     engine: RtcEngine;
   }
 }
+
+export enum role {
+  Host = 'host',
+  Audience = 'audience',
+}
+/** * User role for live streaming mode */
+export enum ClientRole {
+  /** 1: A host can both send and receive streams. */
+  Broadcaster = 1,
+  /** 2: The default role. An audience can only receive streams.*/
+  Audience = 2,
+}
+
 export enum AREAS {
   /**
    * China.
@@ -208,9 +217,11 @@ export default class RtcEngine {
       this.localStream.video = localVideo;
       console.log('STATEAUDIOVIDEOCHANGE localStream', this.localStream);
     } catch (e) {
+      console.log('STATEAUDIOVIDEOCHANGE THROW localStream', e);
       throw e;
     }
   }
+
   async publish() {
     if (this.localStream.audio && this.localStream.video) {
       try {

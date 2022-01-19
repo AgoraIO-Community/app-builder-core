@@ -46,7 +46,6 @@ export const LiveStreamContextProvider = (props: any) => {
     setRtcProps((prevState: any) => ({
       ...prevState,
       role: newClientRole === role.Audience ? role.Audience : role.Host,
-      enableAudioVideoTrack: newClientRole === role.Audience ? false : true,
     }));
   };
 
