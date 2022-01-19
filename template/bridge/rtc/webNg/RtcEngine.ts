@@ -196,7 +196,7 @@ export default class RtcEngine {
     });
   }
 
-  static async create(appId: string, role: role): Promise<RtcEngine> {
+  static async create(appId: string): Promise<RtcEngine> {
     let engine = new RtcEngine(appId);
     window.engine = engine;
     return engine;
