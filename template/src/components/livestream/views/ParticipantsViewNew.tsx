@@ -251,7 +251,7 @@ const style = StyleSheet.create({
     marginBottom: 25,
   },
   titleContainer: {
-    cursor: 'default',
+    // cursor: 'default',
   },
   mainHeading: {
     fontSize: 20,
@@ -303,7 +303,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     letterSpacing: 0.3,
     color: $config.PRIMARY_FONT_COLOR,
-    cursor: 'default',
+    // cursor: 'default',
     fontWeight: '300',
   },
   participantTextSmall: {

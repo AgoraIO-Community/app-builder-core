@@ -170,14 +170,8 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: '10px 50px',
+    padding: '10px 50px',
     flex: 3,
-  },
-  lowerContainer: {
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'row',
-    border: '10px solid green',
   },
   rightContentContainer: {
     display: 'flex',
