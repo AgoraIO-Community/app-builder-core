@@ -9,7 +9,6 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
