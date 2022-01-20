@@ -17,7 +17,6 @@ const RemoteLiveStreamRequestReject: React.FC<RemoteLiveStreamControlInterface> 
     const {user} = props;
     const {rejectRequestOfUID} = useContext(LiveStreamContext);
     const {styleProps} = useContext(PropsContext);
-    console.log('styleProps: ', styleProps);
     const {remoteBtnStyles} = styleProps || {};
     const {liveStreamHostControlBtns} = remoteBtnStyles || {};
 

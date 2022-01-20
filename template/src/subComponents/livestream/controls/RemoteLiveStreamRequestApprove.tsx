@@ -20,7 +20,6 @@ const RemoteLiveStreamRequestApprove: React.FC<RemoteLiveStreamControlInterface>
     const {remoteBtnStyles} = styleProps || {};
 
     const {liveStreamHostControlBtns} = remoteBtnStyles || {};
-    console.log('liveStreamHostControlBtns: ', liveStreamHostControlBtns);
 
     return (
       <View style={{...(liveStreamHostControlBtns as object), marginRight: 15}}>
