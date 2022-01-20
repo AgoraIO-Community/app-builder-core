@@ -27,7 +27,6 @@ import type {
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 import {VideoProfile} from '../quality';
-import isLiveStreamingEnabled from '../../../src/utils/isLiveStreamingEnabled';
 import {ClientRoleOptions} from './Types';
 
 interface MediaDeviceInfo {
@@ -186,12 +185,12 @@ export default class RtcEngine {
     // this.AgoraRTC = AgoraRTC;
     this.client = AgoraRTC.createClient({
       codec: 'vp8',
-      mode: isLiveStreamingEnabled ? 'live' : 'rtc',
+      mode: $config.EVENT_MODE ? 'live' : 'rtc',
     });
 
     this.screenClient = AgoraRTC.createClient({
       codec: 'vp8',
-      mode: isLiveStreamingEnabled ? 'live' : 'rtc',
+      mode: $config.EVENT_MODE ? 'live' : 'rtc',
     });
   }
 

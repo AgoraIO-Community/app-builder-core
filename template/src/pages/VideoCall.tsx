@@ -40,7 +40,6 @@ import {
   ParticipantsViewNew,
 } from '../components/livestream';
 import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import isLiveStreamingEnabled from '../utils/isLiveStreamingEnabled';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -261,7 +260,7 @@ const VideoCall: React.FC = () => {
     encryption: $config.ENCRYPTION_ENABLED
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
-    mode: isLiveStreamingEnabled ? mode.Live : mode.Communication,
+    mode: $config.EVENT_MODE ? mode.Live : mode.Communication,
     role: role.Host,
   });
 
@@ -305,7 +304,7 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
         role: data.joinChannel.isHost ? role.Host : role.Audience,
-        mode: isLiveStreamingEnabled ? mode.Live : mode.Communication,
+        mode: $config.EVENT_MODE ? mode.Live : mode.Communication,
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);
@@ -400,7 +399,7 @@ const VideoCall: React.FC = () => {
                                     <GridVideo setLayout={setLayout} />
                                   )}
                                   {sidePanel === SidePanelType.Participants &&
-                                    (isLiveStreamingEnabled ? (
+                                    ($config.EVENT_MODE ? (
                                       // TODO Refactor this (multiple component or single component) ??
                                       <ParticipantsViewNew
                                         isHost={isHost}
