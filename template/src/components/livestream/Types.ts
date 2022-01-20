@@ -24,7 +24,7 @@ export const LSNotificationObject = {
 };
 
 export interface liveStreamContext {
-  currLiveStreamRequest: Array<number>;
+  currLiveStreamRequest: Record<string, {}>;
   approveRequestOfUID: (uid: number) => void;
   rejectRequestOfUID: (uid: number) => void;
   raiseHandRequestActive: boolean;
