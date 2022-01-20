@@ -116,7 +116,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
         const {uid, msg} = data;
         Toast.show({
           type: 'success',
-          text1: msg,
+          text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
           text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
           visibilityTime: 1000,
           onPress: () => {

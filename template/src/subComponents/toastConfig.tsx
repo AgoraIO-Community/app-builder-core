@@ -28,10 +28,9 @@ const toastConfig = {
             text1Style={{
                 fontSize: 15,
                 fontWeight: '400',
-                color: $config.PRIMARY_FONT_COLOR,
-                width: mobileAndTabletCheck() ? '70%' : '100%',
+                color: $config.PRIMARY_FONT_COLOR                
             }}
-            text1={text1?.length > 45 ? text1.slice(0, 45) + '...' : text1}
+            text1={text1}
             text2={text2}
             // text2={props.uuid}
         />
