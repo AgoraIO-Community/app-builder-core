@@ -87,11 +87,17 @@ const Precall = (props: any) => {
       <View style={{height: 20}} />
       <View style={style.controls}>
         <LocalUserContext>
-          <LocalVideoMute />
+          <View style={style.width50}>
+            <LocalVideoMute />
+          </View>
           <View style={style.width50} />
-          <LocalAudioMute />
+          <View style={style.width50}>
+            <LocalAudioMute />
+          </View>
           <View style={style.width50} />
-          <SwitchCamera />
+          <View style={style.width50}>
+            <SwitchCamera />
+          </View>
         </LocalUserContext>
       </View>
       <View
@@ -140,7 +146,12 @@ const style = StyleSheet.create({
     minHeight: 45,
     alignSelf: 'center',
   },
-  controls: {flex: 0.2, flexDirection: 'row', alignSelf: 'center', padding: 5},
+  controls: {
+    flex: 0.2,
+    flexDirection: 'row',
+    alignSelf: 'center',
+    padding: 5,
+  },
   width50: {width: 50},
   buttonActive: {
     backgroundColor: $config.PRIMARY_COLOR,
