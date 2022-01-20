@@ -78,14 +78,16 @@ const ParticipantViewNew = (props: any) => {
           <View style={style.participantsection}>
             <Text style={style.subheading}>Streaming request</Text>
             <View style={style.participantContainer}>
-              {currLiveStreamRequest.map((user: any, index: number) => (
-                <CurrentLiveStreamRequestsView
-                  participantStyles={style}
-                  key={index}
-                  user={{...userList[user], uid: user}}
-                />
-              ))}
-              {currLiveStreamRequest.length == 0 && (
+              {Object.keys(currLiveStreamRequest).map(
+                (user: any, index: number) => (
+                  <CurrentLiveStreamRequestsView
+                    participantStyles={style}
+                    key={index}
+                    user={{...userList[user], uid: user}}
+                  />
+                ),
+              )}
+              {Object.keys(currLiveStreamRequest).length == 0 && (
                 <Text style={style.infoText}>No streaming request</Text>
               )}
             </View>

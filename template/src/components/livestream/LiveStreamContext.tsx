@@ -29,9 +29,9 @@ export const LiveStreamContextProvider = (props: any) => {
   const {localUid, sendControlMessageToUid, updateChannelAttributes} =
     useContext(ChatContext);
 
-  const [currLiveStreamRequest, setLiveStreamRequest] = useState<Array<number>>(
-    [],
-  );
+  const [currLiveStreamRequest, setLiveStreamRequest] = useState<
+    Record<string, {}>
+  >({});
 
   const showToast = (text: string) => {
     Toast.show({
@@ -58,10 +58,10 @@ export const LiveStreamContextProvider = (props: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequest) {
           showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
-          setLiveStreamRequest((oldLiveStreamRequest) => [
+          setLiveStreamRequest((oldLiveStreamRequest) => ({
             ...oldLiveStreamRequest,
-            data.uid,
-          ]);
+            [data.uid]: '',
+          }));
         }
       },
     );
@@ -142,13 +142,9 @@ export const LiveStreamContextProvider = (props: any) => {
     };
   }, [events, localUid, raiseHandRequestActive]);
 
-  // SUP TODO: Change the update to hook, basically send control message when state changes i.e currLiveStreamRequest
   const updateCurrentLiveStreamRequest = (uid: number | string) => {
-    setLiveStreamRequest(
-      currLiveStreamRequest.filter(
-        (liveStreamUserId) => liveStreamUserId != uid,
-      ),
-    );
+    const {[uid]: value, ...restOfUids} = currLiveStreamRequest;
+    setLiveStreamRequest(restOfUids);
   };
 
   const approveRequestOfUID = (uid: number | string) => {
