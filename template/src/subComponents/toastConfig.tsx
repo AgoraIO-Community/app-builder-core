@@ -24,13 +24,14 @@ const toastConfig = {
             {...rest}
             //BaseToast is modified to have zIndex: 100
             style={{ borderLeftColor: $config.PRIMARY_COLOR, backgroundColor: $config.SECONDARY_FONT_COLOR, width: !mobileAndTabletCheck() ? '40%' : '95%'}}
-            contentContainerStyle={{ paddingHorizontal: 15 }}
+            contentContainerStyle={{ paddingHorizontal: 15, overflow: 'hidden' }}
             text1Style={{
                 fontSize: 15,
                 fontWeight: '400',
                 color: $config.PRIMARY_FONT_COLOR,
+                maxWidth: mobileAndTabletCheck() ? '70%' : '100%',
             }}
-            text1={text1}
+            text1={text1?.length > 50 ? text1.slice(0, 50) + '...' : text1}
             text2={text2}
             // text2={props.uuid}
         />

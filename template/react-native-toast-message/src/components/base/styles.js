@@ -1,7 +1,6 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import colors from '../../colors';
 
-const deviceWidth = Dimensions.get('screen').width;
 export const HEIGHT = 60;
 
 export default StyleSheet.create({
@@ -14,8 +13,7 @@ export default StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 2,
-    overflow: 'hidden',
+    elevation: 2
   },
   borderLeft: {
     borderLeftWidth: 5,
@@ -47,8 +45,7 @@ export default StyleSheet.create({
   text1: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 3,
-    width: deviceWidth * 0.8
+    marginBottom: 3
   },
   text2: {
     fontSize: 10,
