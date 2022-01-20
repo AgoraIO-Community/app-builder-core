@@ -87,6 +87,7 @@ const Navbar = (props: any) => {
               height: 20,
               margin: 1,
             }}
+            color='#FD0845'
           />
           <Text
             style={{

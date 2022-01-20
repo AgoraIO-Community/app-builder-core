@@ -79,6 +79,7 @@ const ParticipantView = (props: {showText?: boolean}) => {
       onPress={() => copyToClipboard()}
       name={'clipboard'}
       btnText={props.showText ? 'Copy Meeting Invite' : ''}
+      color={$config.PRIMARY_FONT_COLOR}
     />
   );
 };

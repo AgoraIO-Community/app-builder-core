@@ -103,6 +103,7 @@ const Recording = (props: any) => {
         <ImageIcon
           name={recordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
           style={[style.buttonIcon]}
+          color={recordingActive ? '#FD0845': $config.PRIMARY_COLOR}
         />
       </View>
       <Text
