@@ -44,11 +44,16 @@ const Chat = (props: any) => {
     lastCheckedPrivateState,
     privateMessageCountMap,
     setPrivateMessageLastSeen,
+    setPrivateChatDisplayed
   } = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
   const [selectedUser, setSelectedUser] = useState({uid: null});
+  //initally private state should be false
+  useEffect(()=>{
+    setPrivateChatDisplayed(false)
+  },[])
   useEffect(() => {
     if (privateActive) {
       setPrivateMessageLastSeen({
@@ -61,9 +66,11 @@ const Chat = (props: any) => {
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
+    setPrivateChatDisplayed(false)
   };
   const selectPrivate = () => {
     setGroupActive(false);
+    setPrivateChatDisplayed(true)
   };
   const selectUser = (user: any) => {
     setSelectedUser(user);

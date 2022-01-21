@@ -45,15 +45,16 @@ const useChatNotification = (
   messageStore: string | any[],
   privateMessageStore: string | any[],
   chatDisplayed: boolean,
+  isPrivateChatDisplayed: boolean
 ) => {
   // store the last checked state from the messagestore, to identify unread messages
   const [lastCheckedPublicState, setLastCheckedPublicState] = useState(0);
   const [lastCheckedPrivateState, setLastCheckedPrivateState] = useState({});
   useEffect(() => {
-    if (chatDisplayed) {
+    if (chatDisplayed && !isPrivateChatDisplayed) {
       setLastCheckedPublicState(messageStore.length);
     }
-  }, [messageStore]);
+  }, [messageStore,isPrivateChatDisplayed]);
 
   const setPrivateMessageLastSeen = ({userId, lastSeenCount}) => {
     setLastCheckedPrivateState((prevState) => {
@@ -69,7 +70,7 @@ const useChatNotification = (
   ];
 };
 
-const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
+const NotificationControl = ({children, chatDisplayed, setSidePanel, isPrivateChatDisplayed}) => {
   const {messageStore, privateMessageStore, userList, localUid, events} =
     useContext(ChatContext);
   const [
@@ -78,7 +79,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel}) => {
     lastCheckedPrivateState,
     setLastCheckedPrivateState,
     setPrivateMessageLastSeen,
-  ] = useChatNotification(messageStore, privateMessageStore, chatDisplayed);
+  ] = useChatNotification(messageStore, privateMessageStore, chatDisplayed, isPrivateChatDisplayed);
 
   const pendingPublicNotification =
     messageStore.length - lastCheckedPublicState;
@@ -245,6 +246,7 @@ const VideoCall: React.FC = () => {
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
+  const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false)
   const {phrase} = useParams();
   const [errorMessage, setErrorMessage] = useState(null);
   const [isHost, setIsHost] = React.useState(false);
@@ -355,7 +357,9 @@ const VideoCall: React.FC = () => {
                     <View style={style.full}>
                       <NotificationControl
                         setSidePanel={setSidePanel}
-                        chatDisplayed={sidePanel === SidePanelType.Chat}>
+                        chatDisplayed={sidePanel === SidePanelType.Chat}
+                        isPrivateChatDisplayed={isPrivateChatDisplayed}
+                        >
                         {({
                           pendingPublicNotification,
                           pendingPrivateNotification,
@@ -407,6 +411,7 @@ const VideoCall: React.FC = () => {
                                 {sidePanel === SidePanelType.Chat ? (
                                   $config.CHAT ? (
                                     <Chat
+                                      setPrivateChatDisplayed={setPrivateChatDisplayed}
                                       privateMessageCountMap={
                                         privateMessageCountMap
                                       }
