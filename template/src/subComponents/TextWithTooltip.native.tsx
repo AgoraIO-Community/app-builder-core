@@ -19,6 +19,12 @@ const TextWithToolTip = (props: any) => {
     const [toolTipVisible, setToolTipVisible] = useState(false);
     const [position, setPosition] = useState({})
     const ref = useRef(null);
+    /**
+     * Private chat user list - we are using this component to show the username and that component itself clickable 
+     * and user will navigate to next screen(chatting screen) so if we had touchable here they can't proceed futher, 
+     * hence checked tocuable flag and creating the view based on that
+     *  */     
+    const CustomView = props?.touchable === false ? View : TouchableOpacity
     return(
         <View style={{flex: 1}}>
             <Modal
@@ -38,7 +44,7 @@ const TextWithToolTip = (props: any) => {
                     <Text style={style.textStyle}>{props.value}</Text>
                 </View>
             </Modal>
-            <TouchableOpacity ref={ref} onPress={() => {
+            <CustomView style={{flex:1}} ref={ref} onPress={() => {
                     ref?.current?.measure( (fx: number, fy: number, localWidth: number, localHeight: number, px: number, py: number) => {
                         /* To display the tooltip we are setting to position and maxwidth. so it will display above and below actual name present with modal.
                         ---------
@@ -95,7 +101,7 @@ const TextWithToolTip = (props: any) => {
                     })     
                 }}>
                 <Text style={props.style} numberOfLines={1}>{props.value}</Text>
-            </TouchableOpacity>
+            </CustomView>
         </View>
     )
 };

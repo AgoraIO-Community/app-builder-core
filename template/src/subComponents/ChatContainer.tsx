@@ -18,10 +18,13 @@ import {
   StyleSheet,
   Image,
   Platform,
+  useWindowDimensions
 } from 'react-native';
+import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
+import TextWithTooltip from './TextWithTooltip';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -29,6 +32,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
+  const {height, width} = useWindowDimensions();
   const {selectedUser, privateActive, setPrivateActive, selectedUsername} =
     props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
@@ -44,7 +48,9 @@ const ChatContainer = (props: any) => {
               name={'backBtn'}
             />
           </View>
-          <Text style={style.name}>{selectedUsername}</Text>
+          <View style={{flex:1}}>
+            <TextWithTooltip style={[style.name, {flexShrink: 1,fontSize: RFValue(16, height > width ? height : width)}]} value={selectedUsername} />
+          </View>
         </View>
       ) : (
         <></>
@@ -108,10 +114,10 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
-    alignSelf: 'center',
+    textAlign: 'left',
+    marginRight: 10
   },
   backIcon: {
     width: 20,
