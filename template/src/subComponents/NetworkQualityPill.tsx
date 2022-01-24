@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Image,
@@ -9,7 +9,7 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import { networkIconsObject } from '../components/NetworkQualityContext';
+import {networkIconsObject} from '../components/NetworkQualityContext';
 
 /**
  *
@@ -19,7 +19,7 @@ import { networkIconsObject } from '../components/NetworkQualityContext';
  * @param rootStyle - CSS style override primarily used for custom placement
  * @returns This component display overlay network quality indicator with an icon that expands on
  * hover to show network quality text [ ex. Excellent, Good, Bad etc ]
- * 
+ *
  */
 export const NetworkQualityPill = ({
   networkStat,
@@ -42,20 +42,21 @@ export const NetworkQualityPill = ({
           opacity: networkTextVisible ? 1 : 0.8,
         },
         rootStyle,
-      ]}>
-      <PlatformSpecificWrapper {...{ networkTextVisible, setNetworkTextVisible }}>
+      ]}
+    >
+      <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
         <View style={[style.networkIndicatorBackdrop]}>
           <Image
             source={{
-              uri: networkIconsObject[networkStat || 0].icon,
+              uri: networkIconsObject[networkStat].icon,
             }}
             style={[
               style.networkIcon,
               {
                 tintColor:
-                  networkIconsObject[networkStat || 0].tint === 'primary'
+                  networkIconsObject[networkStat].tint === 'primary'
                     ? primaryColor
-                    : networkIconsObject[networkStat || 0].tint,
+                    : networkIconsObject[networkStat].tint,
               },
             ]}
             resizeMode={'contain'}
@@ -64,8 +65,12 @@ export const NetworkQualityPill = ({
         {networkTextVisible && (
           <Text
             textBreakStrategy={'simple'}
-            style={[style.networkPillText, { fontSize: small ? 14 : 15 }]}>
-            {networkIconsObject[networkStat || 0].text}
+            style={[
+              style.networkPillText,
+              {fontSize: small ? 14 : 15, userSelect: 'none'},
+            ]}
+          >
+            {networkIconsObject[networkStat].text}
           </Text>
         )}
       </PlatformSpecificWrapper>
@@ -87,30 +92,33 @@ const PlatformSpecificWrapper = ({
         alignItems: 'center',
       }}
       onPress={() => {
-        networkTextVisible
-          ? setNetworkTextVisible(false)
-          : setNetworkTextVisible(true);
+        setNetworkTextVisible((visible: boolean) => !visible);
       }}
     >
       {children}
     </Pressable>
   ) : (
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-        onMouseEnter={() => {
-          setNetworkTextVisible(true);
-        }}
-        onMouseLeave={() => {
-          setNetworkTextVisible(false);
-        }}>
-        {children}
-      </div>
-    );
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        setNetworkTextVisible((visible: boolean) => !visible);
+      }}
+      onMouseEnter={() => {
+        setNetworkTextVisible(true);
+      }}
+      onMouseLeave={() => {
+        setNetworkTextVisible(false);
+      }}
+    >
+      {children}
+    </div>
+  );
 };
 
 const style = StyleSheet.create({

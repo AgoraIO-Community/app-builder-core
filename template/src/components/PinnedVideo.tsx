@@ -137,7 +137,13 @@ const PinnedVideo = () => {
                       }}>
                       <View style={style.flex1}>
                         <NetworkQualityPill
-                          networkStat={networkQualityStat[user.uid]}
+                          networkStat={
+                            networkQualityStat[user.uid]
+                              ? networkQualityStat[user.uid]
+                              : user.audio || user.video
+                              ? 8
+                              : 7
+                          }
                           primaryColor={primaryColor}
                           rootStyle={{left: 5, top: 5}}
                           small
@@ -211,7 +217,13 @@ const PinnedVideo = () => {
               <View style={style.flex1}>
                 <ScreenShareNotice uid={maxUsers[0].uid} />
                 <NetworkQualityPill
-                  networkStat={networkQualityStat[maxUsers[0].uid]}
+                  networkStat={
+                    networkQualityStat[maxUsers[0].uid]
+                      ? networkQualityStat[maxUsers[0].uid]
+                      : maxUsers[0].audio || maxUsers[0].video
+                      ? 8
+                      : 7
+                  }
                   primaryColor={primaryColor}
                   rootStyle={{
                     marginLeft: 25,
