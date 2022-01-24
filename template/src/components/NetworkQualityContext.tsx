@@ -36,7 +36,7 @@ export const networkIconsObject: {
   0: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Unpublished',
+    text: 'Unknown',
   },
   1: {
     icon: icons.networkIcons['Excellent'],
@@ -71,7 +71,7 @@ export const networkIconsObject: {
   7: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Unknown',
+    text: 'Unpublished',
   },
   8: {
     icon: icons.networkIcons['Loading'],
