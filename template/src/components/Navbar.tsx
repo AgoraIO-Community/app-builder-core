@@ -260,7 +260,7 @@ const Navbar = (props: any) => {
                     l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
                   );
                 }}
-                name={layout ? 'gridLayoutIcon' : 'pinnedLayoutIcon'}
+                name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
               />
           </View>
           {/** Show setting icon only in non native apps
