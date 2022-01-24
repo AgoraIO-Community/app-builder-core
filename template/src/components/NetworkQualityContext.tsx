@@ -16,7 +16,7 @@ import icons from '../assets/icons';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
- * 0 - Unsupported
+ * 0 - Unpublished
  * 1 - Excellent
  * 2 - Good
  * 3 - Bad
@@ -36,7 +36,7 @@ export const networkIconsObject: {
   0: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Unknown',
+    text: 'Unpublished',
   },
   1: {
     icon: icons.networkIcons['Excellent'],
