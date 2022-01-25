@@ -279,14 +279,14 @@ const RtmConfigure = (props: any) => {
               RtcEngine.muteLocalVideoStream(true);
               dispatch({
                 type: 'LocalMuteVideo',
-                value: [2],
+                value: [0],
               });
               break;
             case controlMessageEnum.muteAudio:
               RtcEngine.muteLocalAudioStream(true);
               dispatch({
                 type: 'LocalMuteAudio',
-                value: [2],
+                value: [0],
               });
               break;
             case controlMessageEnum.kickUser:
