@@ -26,7 +26,7 @@ import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
-import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 const JoinRoomInputView = (props: any) => {
   const {username, setUsername, queryComplete, setCallActive} = props;
@@ -67,24 +67,20 @@ const PrecallNew = (props: any) => {
   };
 
   const isMobileView = () => dim[0] < dim[1] + 150;
-  const isAudienceView = () => rtcProps.role === role.Audience;
-  const isLiveEvent = () => rtcProps.mode === mode.Live;
 
   if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
 
   return (
     <View style={style.main} onLayout={onLayout}>
       {/* Precall screen only changes for audience in Live Stream event */}
-      {isLiveEvent() && isAudienceView() ? (
+      {$config.EVENT_MODE && rtcProps.role === role.Audience ? (
         <View style={style.preCallContainer}>
-          <Text style={style.titleFont}>Join meeting ::: {title}</Text>
           <View style={{height: 50}} />
           <JoinRoomInputView {...props} />
         </View>
       ) : (
         <>
           <View style={style.nav}>
-            <Text style={style.titleFont}>Join meeting ::: {title}</Text>
             {hasBrandLogo && <Logo />}
             {error && <Error error={error} showBack={true} />}
           </View>
@@ -165,23 +161,19 @@ const style = StyleSheet.create({
   leftContent: {
     flex: 1.3,
     height: '100%',
+    paddingRight: 40,
   },
   upperContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: '10px 50px',
     flex: 3,
-  },
-  rightContentContainer: {
-    display: 'flex',
-    flex: 1,
   },
   rightContent: {
     flex: 1,
     height: '70%',
     backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
-    padding: 20,
+    paddingLeft: 20,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
