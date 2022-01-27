@@ -336,8 +336,8 @@ const VideoCall: React.FC = () => {
   // throw new Error("My first Sentry error!");
   return (
     <>
-      {queryComplete ? (
-        (queryComplete || !callActive) && (
+      {queryComplete || !callActive ? (
+        <>
           <PropsProvider
             value={{
               rtcProps: {
@@ -480,7 +480,7 @@ const VideoCall: React.FC = () => {
               </DeviceConfigure>
             </RtcConfigure>
           </PropsProvider>
-        )
+        </>
       ) : (
         <View style={style.loader}>
           <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
