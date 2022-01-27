@@ -16,42 +16,26 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
-  Image,
   ScrollView,
   Dimensions,
-  useWindowDimensions
 } from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
-import {MinUidConsumer} from '../../agora-rn-uikit';
-import {MaxUidConsumer} from '../../agora-rn-uikit';
-import {LocalAudioMute, LocalVideoMute} from '../../agora-rn-uikit';
-import {LocalUserContext} from '../../agora-rn-uikit';
+import {PropsContext} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import RemoteAudioMute from '../subComponents/RemoteAudioMute';
-import RemoteVideoMute from '../subComponents/RemoteVideoMute';
-import RemoteEndCall from '../subComponents/RemoteEndCall';
 import chatContext from './ChatContext';
-import Clipboard from '../subComponents/Clipboard';
-import ColorContext from './ColorContext';
-import {gql, useQuery} from '@apollo/client';
-import icons from '../assets/icons';
-import platform from '../subComponents/Platform';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {UserType} from './RTMConfigure';
-import styles from './styles';
-import TextWithToolTip from '../subComponents/TextWithTooltip'
+import AllHostParticipants from './participants/AllHostParticipants';
+import AllAudienceParticipants from './participants/AllAudienceParticipants';
+import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 
 const ParticipantView = (props: any) => {
-  const {height, width} = useWindowDimensions();
   const {userList, localUid} = useContext(chatContext);
-  const {primaryColor} = useContext(ColorContext);
+
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  let fontSize = Platform.OS === 'web' ? 14 : 16
+
   return (
     <View
       style={
@@ -61,108 +45,35 @@ const ParticipantView = (props: any) => {
             : style.participantView
           : style.participantViewNative
       }>
-      <TouchableOpacity style={style.backButton}>
-        {/* onPress={() => props.setSidePanel(SidePanelType.None)}> */}
-        {/* <Image
-          resizeMode={'contain'}
-          style={style.backIcon}
-          source={{uri: icons.backBtn}}
-        /> */}
-        <Text style={style.heading}>Participants</Text>
-      </TouchableOpacity>
-      <ScrollView style={{flex: 1}}>
-        <MinUidConsumer>
-          {(minUsers) => (
-            <MaxUidConsumer>
-              {(maxUser) =>
-                [...minUsers, ...maxUser].map((user) =>
-                  user.uid === 'local' ? (
-                    <View style={style.participantContainer} key={user.uid}>
-                      <View style={{flex:1}}>
-                        <TextWithToolTip 
-                          value={userList[localUid] ? userList[localUid].name + ' ' : 'You '} 
-                          style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
-                        />
-                      </View>
-                      <View style={style.participantButtonContainer}>
-                        <LocalUserContext>
-                          <View
-                            style={[style.actionBtnIcon, {marginRight: 10}]}>
-                            <LocalAudioMute btnText=" " variant="text" />
-                          </View>
-                          <View style={style.actionBtnIcon}>
-                            <LocalVideoMute btnText=" " variant="text" />
-                          </View>
-                        </LocalUserContext>
-                      </View>
-                    </View>
-                  ) : user.uid === 1 ? (
-                    <View style={style.participantContainer} key={user.uid}>
-                      <View style={{flex:1}}>
-                        <TextWithToolTip 
-                          value={userList[localUid]
-                            ? userList[localUid].name + "'s screenshare "
-                            : 'Your screenshare '} 
-                          style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
-                        />
-                      </View>
-                      <View style={style.dummyView}>
-                          {/** its just the placeholder to adjust the UI. if no icon option to be shown */}
-                          <Text>local screen sharing</Text>
-                      </View>
-                    </View>
-                  ) : (
-                    <View style={style.participantContainer} key={user.uid} >
-                      <View style={{flex:1}}>
-                        <TextWithToolTip 
-                          value={userList[user.uid]
-                            ? userList[user.uid].name + ' '
-                            : String(user.uid)[0] === '1'
-                            ? 'PSTN User '
-                            : 'User '} 
-                          style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
-                        />
-                      </View>
-                      {userList[user.uid]?.type !== UserType.ScreenShare ? (
-                        <View style={style.participantButtonContainer}>
-                          <View style={style.actionBtnIcon}>
-                            <RemoteEndCall
-                              uid={user.uid}
-                              isHost={props.isHost}
-                            />
-                          </View>
-                          <View
-                            style={[
-                              style.actionBtnIcon,
-                              {marginLeft: 10, marginRight: 5},
-                            ]}>
-                            <RemoteAudioMute
-                              uid={user.uid}
-                              audio={user.audio}
-                              isHost={props.isHost}
-                            />
-                          </View>
-                          <View style={[style.actionBtnIcon, {marginRight:5}]}>
-                            <RemoteVideoMute
-                              uid={user.uid}
-                              video={user.video}
-                              isHost={props.isHost}
-                            />
-                          </View>
-                        </View>
-                      ) : (
-                        <View style={style.dummyView}>
-                          {/** its just the placeholder to adjust the UI. if no icon option to be shown */}
-                          <Text>remote screen sharing</Text>
-                        </View>
-                      )}
-                    </View>
-                  ),
-                )
-              }
-            </MaxUidConsumer>
-          )}
-        </MinUidConsumer>
+      <View style={[style.titleContainer, style.padding10]}>
+        <TouchableOpacity>
+          <Text style={[style.mainHeading, style.lineUnderHeading]}>
+            Participants
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={[style.bodyContainer, style.padding10]}>
+        <View style={style.participantsection}>
+          <Text style={style.subheading}>Streaming Requests</Text>
+          <View style={style.participantContainer}>
+            <CurrentLiveStreamRequestsView
+              p_style={style}
+              userList={userList}
+            />
+          </View>
+        </View>
+        <View style={style.participantsection}>
+          <Text style={style.subheading}>Host</Text>
+          <View style={style.participantContainer}>
+            <AllHostParticipants p_style={style} isHost={props.isHost} />
+          </View>
+        </View>
+        <View style={style.participantsection}>
+          <Text style={style.subheading}>Audience</Text>
+          <View style={style.participantContainer}>
+            <AllAudienceParticipants p_style={style} />
+          </View>
+        </View>
       </ScrollView>
       <View
         style={{
@@ -180,18 +91,23 @@ const ParticipantView = (props: any) => {
 };
 
 const style = StyleSheet.create({
+  padding10: {
+    padding: 10,
+  },
+  lineUnderHeading: {
+    borderBottomWidth: 2,
+    borderBottomColor: $config.PRIMARY_COLOR,
+  },
   participantView: {
     width: '20%',
     minWidth: 200,
     maxWidth: 300,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
-    paddingTop: 20,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
     shadowColor: $config.PRIMARY_FONT_COLOR + '80',
     shadowOpacity: 0.5,
     shadowOffset: {width: -2, height: 0},
     shadowRadius: 3,
-    // borderLeftWidth: 1
   },
   participantViewNative: {
     position: 'absolute',
@@ -202,82 +118,75 @@ const style = StyleSheet.create({
     top: 0,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
-  heading: {
-    fontSize: 24,
+  bodyContainer: {
+    flex: 1,
+  },
+  participantsection: {
+    minHeight: 150,
+    marginBottom: 25,
+  },
+  titleContainer: {
+    // cursor: 'default',
+  },
+  mainHeading: {
+    fontSize: 20,
+    letterSpacing: 0.8,
+    lineHeight: 30,
+    color: $config.PRIMARY_FONT_COLOR,
+  },
+  subheading: {
+    fontSize: 15,
+    letterSpacing: 0.8,
     fontWeight: '700',
-    textAlign: 'center',
+    color: $config.PRIMARY_FONT_COLOR,
+  },
+  infoText: {
+    fontSize: 12,
+    letterSpacing: 0.8,
+    fontStyle: 'italic',
     color: $config.PRIMARY_FONT_COLOR,
   },
   participantContainer: {
     width: '100%',
     display: 'flex',
+    flexDirection: 'column',
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  participantRow: {
+    width: '100%',
+    display: 'flex',
     flexDirection: 'row',
-    flex: 1,
-    marginVertical: 2,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    // height: 10,
-    paddingLeft: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  participantActionContainer: {
+    flexDirection: 'row',
     paddingRight: 10,
     alignSelf: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  participantText: {
-    flex: 1,
-    fontWeight: '500',
-    flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 20,
-    paddingHorizontal: 5,
-    textAlign:'left',
-    flexShrink: 1 
-  },
-  participantButtonContainer: {
-    flex: 0.5,
-    flexDirection: 'row',
-    paddingRight: 5,
-    justifyContent:'flex-end'
-  },
-  secondaryBtn: {
-    alignSelf: 'center',
-    width: '60%',
-    borderColor: $config.PRIMARY_COLOR,
-    borderWidth: 3,
-    maxWidth: 400,
-    minHeight: 42,
-    minWidth: 200,
-    marginTop: 'auto',
-  },
-  secondaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    fontWeight: '500',
-    textAlignVertical: 'center',
-    color: $config.PRIMARY_COLOR,
-  },
-  backButton: {
-    // marginLeft: 5,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  backIcon: {
-    width: 20,
-    height: 12,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    tintColor: $config.PRIMARY_FONT_COLOR,
   },
   actionBtnIcon: {
     width: 25,
     height: 25,
   },
-  dummyView:{
-    flex: 0.5,opacity:0, marginHorizontal: 5
-  }
+  participantText: {
+    lineHeight: 24,
+    fontSize: Platform.OS === 'web' ? 18 : 16,
+    flexDirection: 'row',
+    letterSpacing: 0.3,
+    color: $config.PRIMARY_FONT_COLOR,
+    fontWeight: '300',
+  },
+  participantTextSmall: {
+    fontSize: Platform.OS === 'web' ? 14 : 12,
+  },
+  dummyView: {
+    flex: 0.5,
+    opacity: 0,
+    marginHorizontal: 5,
+  },
 });
 
 export default ParticipantView;
