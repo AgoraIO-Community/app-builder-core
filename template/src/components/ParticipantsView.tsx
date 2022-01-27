@@ -27,7 +27,8 @@ import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 
 const ParticipantView = (props: any) => {
-  const {userList, localUid} = useContext(chatContext);
+  const {userList} = useContext(chatContext);
+  const {rtcProps} = useContext(PropsContext);
 
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -53,27 +54,39 @@ const ParticipantView = (props: any) => {
         </TouchableOpacity>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
-        <View style={style.participantsection}>
-          <Text style={style.subheading}>Streaming Requests</Text>
-          <View style={style.participantContainer}>
-            <CurrentLiveStreamRequestsView
-              p_style={style}
-              userList={userList}
-            />
+        {$config.EVENT_MODE ? (
+          <>
+            {rtcProps.role === 'host' && (
+              <View style={style.participantsection}>
+                <Text style={style.subheading}>Streaming Requests</Text>
+                <View style={style.participantContainer}>
+                  <CurrentLiveStreamRequestsView
+                    p_style={style}
+                    userList={userList}
+                  />
+                </View>
+              </View>
+            )}
+            <View style={style.participantsection}>
+              <Text style={style.subheading}>Host</Text>
+              <View style={style.participantContainer}>
+                <AllHostParticipants p_style={style} isHost={props.isHost} />
+              </View>
+            </View>
+            <View style={style.participantsection}>
+              <Text style={style.subheading}>Audience</Text>
+              <View style={style.participantContainer}>
+                <AllAudienceParticipants p_style={style} />
+              </View>
+            </View>
+          </>
+        ) : (
+          <View style={style.participantsection}>
+            <View style={style.participantContainer}>
+              <AllHostParticipants p_style={style} isHost={props.isHost} />
+            </View>
           </View>
-        </View>
-        <View style={style.participantsection}>
-          <Text style={style.subheading}>Host</Text>
-          <View style={style.participantContainer}>
-            <AllHostParticipants p_style={style} isHost={props.isHost} />
-          </View>
-        </View>
-        <View style={style.participantsection}>
-          <Text style={style.subheading}>Audience</Text>
-          <View style={style.participantContainer}>
-            <AllAudienceParticipants p_style={style} />
-          </View>
-        </View>
+        )}
       </ScrollView>
       <View
         style={{

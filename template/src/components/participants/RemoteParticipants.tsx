@@ -50,9 +50,11 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               isHost={isHost}
             />
           </View>
-          <View style={[p_styles.actionBtnIcon, {marginLeft: 7}]}>
-            <RemoteLiveStreamApprovedRequestRecall uid={user.uid} />
-          </View>
+          {$config.EVENT_MODE && (
+            <View style={[p_styles.actionBtnIcon, {marginLeft: 7}]}>
+              <RemoteLiveStreamApprovedRequestRecall uid={user.uid} />
+            </View>
+          )}
         </View>
       ) : (
         <View style={p_styles.dummyView}>
