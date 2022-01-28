@@ -87,6 +87,7 @@ const Navbar = (props: any) => {
               height: 20,
               margin: 1,
             }}
+            color='#FD0845'
           />
           <Text
             style={{
@@ -216,8 +217,6 @@ const Navbar = (props: any) => {
                           : setSidePanel(SidePanelType.Chat);
                       }}
                       name={
-                        (sidePanel !== SidePanelType.Chat &&
-                          pendingMessageLength !== 0) ||
                         sidePanel === SidePanelType.Chat
                           ? 'chatIconFilled'
                           : 'chatIcon'
@@ -262,7 +261,7 @@ const Navbar = (props: any) => {
                     l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
                   );
                 }}
-                name={layout ? 'gridLayoutFilledIcon' : 'pinnedLayoutIcon'}
+                name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
               />
           </View>
           {/** Show setting icon only in non native apps

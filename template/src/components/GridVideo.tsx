@@ -108,7 +108,14 @@ const GridVideo = (props: GridVideoProps) => {
               <View style={style.gridVideoContainerInner}>
                 <NetworkQualityPill
                   networkStat={
+                    // When no network quality reported and if user has no stream
+                    // published show "unsupported" else show "loading"
                     networkQualityStat[users[ridx * dims.c + cidx].uid]
+                      ? networkQualityStat[users[ridx * dims.c + cidx].uid]
+                      : users[ridx * dims.c + cidx].audio ||
+                        users[ridx * dims.c + cidx].video
+                      ? 8
+                      : 7
                   }
                   primaryColor={primaryColor}
                   rootStyle={{top: 5, left: 5}}

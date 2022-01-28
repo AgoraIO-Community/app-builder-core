@@ -9,14 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { createContext, useContext, useState } from 'react';
-import { RtcContext } from '../../agora-rn-uikit';
+import React, {createContext, useContext, useState} from 'react';
+import {RtcContext} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
- * 0 - Loading
+ * 0 - Unpublished
  * 1 - Excellent
  * 2 - Good
  * 3 - Bad
@@ -24,7 +24,7 @@ import icons from '../assets/icons';
  * 5 - Very Bad
  * 6 - Very Bad
  * 7 - Unsupported
- * 8 - Unsupported
+ * 8 - Loading
  */
 export const networkIconsObject: {
   [key: number]: {
@@ -34,9 +34,9 @@ export const networkIconsObject: {
   };
 } = {
   0: {
-    icon: icons.networkIcons['Loading'],
+    icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Loading',
+    text: 'Unknown',
   },
   1: {
     icon: icons.networkIcons['Excellent'],
@@ -61,26 +61,26 @@ export const networkIconsObject: {
   5: {
     icon: icons.networkIcons['VeryBad'],
     tint: 'red',
-    text: 'VeryBad',
+    text: 'Very Bad',
   },
   6: {
     icon: icons.networkIcons['VeryBad'],
     tint: 'red',
-    text: 'VeryBad',
+    text: 'Very Bad',
   },
   7: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Unknown',
+    text: 'Unpublished',
   },
   8: {
-    icon: icons.networkIcons['Unsupported'],
+    icon: icons.networkIcons['Loading'],
     tint: 'primary',
-    text: 'Unknown',
+    text: 'Loading',
   },
 };
 
-const initNewtorkQualityStats: { [key in string | number]: number } = {
+const initNewtorkQualityStats: {[key in string | number]: number} = {
   local: 0,
 };
 
@@ -94,7 +94,7 @@ export const NetworkQualityProvider: React.FC = (props) => {
   const [networkQualityStats, setNetworkQualityStats] = useState(
     initNewtorkQualityStats,
   );
-  const { RtcEngine } = useContext(RtcContext);
+  const {RtcEngine} = useContext(RtcContext);
 
   useMount(() => {
     function handleNetworkQuality(
@@ -105,8 +105,20 @@ export const NetworkQualityProvider: React.FC = (props) => {
       uplinkQuality: number,
     ) {
       setNetworkQualityStats((prevNetworkQualityStats) => {
-        const updatedNetworkQualityStats = { ...prevNetworkQualityStats };
-        updatedNetworkQualityStats[uid === 0 ? 'local' : uid] = downlinkQuality;
+        const updatedNetworkQualityStats = {...prevNetworkQualityStats};
+        if (uid === 0) {
+          const displayedNetworkQuality =
+          // check if either are unsupported (0)
+          // if not then display whichever is poorer
+            downlinkQuality * uplinkQuality !== 0
+              ? downlinkQuality < uplinkQuality
+                ? uplinkQuality
+                : downlinkQuality
+              : 0;
+          updatedNetworkQualityStats['local'] = displayedNetworkQuality;
+        } else {
+          updatedNetworkQualityStats[uid] = downlinkQuality;
+        }
         return updatedNetworkQualityStats;
       });
     }
