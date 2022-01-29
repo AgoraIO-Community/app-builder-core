@@ -18,7 +18,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  useWindowDimensions
 } from 'react-native';
+import {RFValue} from 'react-native-responsive-fontsize';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import {MinUidConsumer} from '../../agora-rn-uikit';
@@ -27,8 +29,10 @@ import icons from '../assets/icons';
 import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
+import TextWithTooltip from '../subComponents/TextWithTooltip';
 
 const Chat = (props: any) => {
+  const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -44,11 +48,16 @@ const Chat = (props: any) => {
     lastCheckedPrivateState,
     privateMessageCountMap,
     setPrivateMessageLastSeen,
+    setPrivateChatDisplayed
   } = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
   const [selectedUser, setSelectedUser] = useState({uid: null});
+  //initally private state should be false
+  useEffect(()=>{
+    setPrivateChatDisplayed(false)
+  },[])
   useEffect(() => {
     if (privateActive) {
       setPrivateMessageLastSeen({
@@ -61,9 +70,11 @@ const Chat = (props: any) => {
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
+    setPrivateChatDisplayed(false)
   };
   const selectPrivate = () => {
     setGroupActive(false);
+    setPrivateChatDisplayed(true)
   };
   const selectUser = (user: any) => {
     setSelectedUser(user);
@@ -212,12 +223,17 @@ const Chat = (props: any) => {
                                   (lastCheckedPrivateState[user.uid] || 0)}</Text>
                               </View>
                             ) : null}
-                            <Text style={style.participantText}>
-                              {userList[user.uid]
-                                ? userList[user.uid].name + ' '
-                                : 'User '}
-                            </Text>
-                            <Text style={{color: $config.PRIMARY_FONT_COLOR}}>{`>`}</Text>
+                            <View style={{flex:1}}>
+                              <TextWithTooltip touchable={false}  style={[style.participantText,{
+                                fontSize: RFValue(16, height > width ? height : width)
+                              }]} value={userList[user.uid]
+                                  ? userList[user.uid].name + ' '
+                                  : 'User '} 
+                              />
+                            </View>
+                            <View>
+                              <Text style={{color: $config.PRIMARY_FONT_COLOR, fontSize: 18}}>{`>`}</Text>
+                            </View>                            
                           </TouchableOpacity>
                         );
                       }
@@ -359,25 +375,22 @@ const style = StyleSheet.create({
   },
   participantContainer: {
     flexDirection: 'row',
-    // flex: 1,
+    flex: 1,
     height: 20,
     marginTop: 10,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
-    // height: '15%',
-    width: '90%',
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
+    marginHorizontal: 10,
   },
   participantText: {
     flex: 1,
-    fontSize: 18,
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     flexDirection: 'row',
     color: $config.PRIMARY_FONT_COLOR,
     lineHeight: 20,
-    paddingLeft: 10,
-    alignSelf: 'center',
+    textAlign:'left',
+    flexShrink: 1 ,
+    marginRight: 30
   },
   backButton: {
     // marginLeft: 5,
@@ -417,7 +430,7 @@ const style = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
-    right: 25,
+    right: 20,
     top: 0,
   }
 });

@@ -66,7 +66,7 @@ const timeNow = () => new Date().getTime();
 const RtmConfigure = (props: any) => {
   const {setRecordingActive, callActive, name} = props;
   const {rtcProps} = useContext(PropsContext);
-  const {dispatch} = useContext(RtcContext);
+  const {RtcEngine, dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
@@ -290,12 +290,14 @@ const RtmConfigure = (props: any) => {
         try {
           switch (msg) {
             case controlMessageEnum.muteVideo:
+              RtcEngine.muteLocalVideoStream(true);
               dispatch({
                 type: 'LocalMuteVideo',
                 value: [0],
               });
               break;
             case controlMessageEnum.muteAudio:
+              RtcEngine.muteLocalAudioStream(true);
               dispatch({
                 type: 'LocalMuteAudio',
                 value: [0],
@@ -371,12 +373,14 @@ const RtmConfigure = (props: any) => {
           try {
             switch (actionMsg) {
               case controlMessageEnum.muteVideo:
+                RtcEngine.muteLocalVideoStream(true);
                 dispatch({
                   type: 'LocalMuteVideo',
                   value: [0],
                 });
                 break;
               case controlMessageEnum.muteAudio:
+                RtcEngine.muteLocalAudioStream(true);
                 dispatch({
                   type: 'LocalMuteAudio',
                   value: [0],

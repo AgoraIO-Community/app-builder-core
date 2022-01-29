@@ -22,6 +22,7 @@ const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
       onPress={() => {
         sendControlMessageToUid(controlMessageEnum.kickUser, props.uid);
       }}
+      color='#FD0845'
       name={'remoteEndCall'} // earlier was endCall, added remoteEndCall
     />
   ) : (
