@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -66,24 +66,44 @@ const Precall = (props: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
 
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      if (title) {
+        document.title = title + ' | ' + $config.APP_NAME;
+      }
+    }
+  });
   const isMobileView = () => dim[0] < dim[1] + 150;
 
   if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
+
+  const brandHolder = () => (
+    <View style={style.nav}>
+      {hasBrandLogo && <Logo />}
+      {error && <Error error={error} showBack={true} />}
+    </View>
+  );
+  const meetingTitle = () => (
+    <>
+      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
+        {title}
+      </Text>
+      <View style={{height: 50}} />
+    </>
+  );
 
   return (
     <View style={style.main} onLayout={onLayout}>
       {/* Precall screen only changes for audience in Live Stream event */}
       {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
         <View style={style.preCallContainer}>
-          <View style={{height: 50}} />
+          {brandHolder()}
+          {meetingTitle()}
           <JoinRoomInputView {...props} />
         </View>
       ) : (
         <>
-          <View style={style.nav}>
-            {hasBrandLogo && <Logo />}
-            {error && <Error error={error} showBack={true} />}
-          </View>
+          {brandHolder()}
           <View style={style.content}>
             <View style={style.upperContainer}>
               <View style={style.leftContent}>
@@ -112,6 +132,7 @@ const Precall = (props: any) => {
               {/* This view is visible only on WEB view */}
               {!isMobileView() && (
                 <View style={style.rightContent}>
+                  {meetingTitle()}
                   <View
                     style={[{shadowColor: primaryColor}, style.precallPickers]}>
                     <Text style={style.subHeading}>Select Input Device</Text>
@@ -141,14 +162,16 @@ const style = StyleSheet.create({
   full: {flex: 1},
   main: {
     flex: 2,
-    justifyContent: 'space-evenly',
+    // justifyContent: 'space-evenly',
     marginHorizontal: '10%',
+    minHeight: 500,
   },
   preCallContainer: {
     display: 'flex',
     flexDirection: 'column',
-    minHeight: 200,
+    minHeight: 350,
     justifyContent: 'space-between',
+    marginTop: '15%',
   },
   nav: {
     flex: 1,
@@ -186,8 +209,14 @@ const style = StyleSheet.create({
     fontSize: 20,
     color: $config.PRIMARY_FONT_COLOR,
   },
-  subHeading: {
+  titleHeading: {
     fontSize: 28,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: $config.SECONDARY_FONT_COLOR,
+  },
+  subHeading: {
+    fontSize: 18,
     fontWeight: '700',
     color: $config.PRIMARY_FONT_COLOR,
   },
