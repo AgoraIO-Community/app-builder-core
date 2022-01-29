@@ -3,7 +3,7 @@ import {View, Text} from 'react-native';
 import RemoteLiveStreamRequestApprove from './controls/RemoteLiveStreamRequestApprove';
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
 import ParticipantName from '../../components/participants/ParticipantName';
-import LiveStreamContext from '../../components/livestream/LiveStreamContext';
+import LiveStreamContext, {requestStatus} from '../../components/livestream';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   const {userList, p_style} = props;
@@ -13,21 +13,29 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     return <Text style={p_style.infoText}>No streaming request(s)</Text>;
   }
 
+  const activeLiveStreamRequests = Object.fromEntries(
+    Object.entries(currLiveStreamRequest).filter(
+      ([key, value]) => value === requestStatus.AwaitingAction,
+    ),
+  );
+
   return (
     <>
-      {Object.keys(currLiveStreamRequest).map((userUID: any, index: number) => (
-        <View style={p_style.participantRow} key={index}>
-          <ParticipantName value={userList[userUID].name} />
-          <View style={p_style.participantActionContainer}>
-            <RemoteLiveStreamRequestApprove
-              user={{...userList[userUID], uid: userUID}}
-            />
-            <RemoteLiveStreamRequestReject
-              user={{...userList[userUID], uid: userUID}}
-            />
+      {Object.keys(activeLiveStreamRequests).map(
+        (userUID: any, index: number) => (
+          <View style={p_style.participantRow} key={index}>
+            <ParticipantName value={userList[userUID].name} />
+            <View style={p_style.participantActionContainer}>
+              <RemoteLiveStreamRequestApprove
+                user={{...userList[userUID], uid: userUID}}
+              />
+              <RemoteLiveStreamRequestReject
+                user={{...userList[userUID], uid: userUID}}
+              />
+            </View>
           </View>
-        </View>
-      ))}
+        ),
+      )}
     </>
   );
 };

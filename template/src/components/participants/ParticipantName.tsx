@@ -20,7 +20,7 @@ const ParticipantName = ({value}: {value: string}) => {
   return (
     <View style={{flex: 1}}>
       <TextWithToolTip
-        value={`${value} super long name testing the icon displacement`}
+        value={value}
         style={[
           style.participantText,
           {

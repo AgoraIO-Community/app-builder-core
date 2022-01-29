@@ -20,13 +20,13 @@ import {
   LocalVideoMute,
   LocalUserContext,
   PropsContext,
+  ClientRole,
 } from '../../agora-rn-uikit';
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
-import {role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 const JoinRoomInputView = (props: any) => {
   const {username, setUsername, queryComplete, setCallActive} = props;
@@ -73,7 +73,7 @@ const PrecallNew = (props: any) => {
   return (
     <View style={style.main} onLayout={onLayout}>
       {/* Precall screen only changes for audience in Live Stream event */}
-      {$config.EVENT_MODE && rtcProps.role === role.Audience ? (
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
         <View style={style.preCallContainer}>
           <View style={{height: 50}} />
           <JoinRoomInputView {...props} />

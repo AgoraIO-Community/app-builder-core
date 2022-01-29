@@ -78,7 +78,7 @@ const ParticipantViewNew = (props: any) => {
           <View style={style.participantsection}>
             <Text style={style.subheading}>Streaming request</Text>
             <View style={style.participantContainer}>
-              {Object.keys(currLiveStreamRequest).map(
+              {/* {Object.keys(currLiveStreamRequest).map(
                 (user: any, index: number) => (
                   <CurrentLiveStreamRequestsView
                     participantStyles={style}
@@ -86,7 +86,7 @@ const ParticipantViewNew = (props: any) => {
                     user={{...userList[user], uid: user}}
                   />
                 ),
-              )}
+              )} */}
               {Object.keys(currLiveStreamRequest).length == 0 && (
                 <Text style={style.infoText}>No streaming request</Text>
               )}

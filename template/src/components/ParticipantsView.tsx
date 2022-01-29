@@ -19,11 +19,11 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import {PropsContext} from '../../agora-rn-uikit';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import chatContext from './ChatContext';
 import AllHostParticipants from './participants/AllHostParticipants';
-import AllAudienceParticipants from './participants/AllAudienceParticipants';
+import ParticipantsWithoutControls from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 
 const ParticipantView = (props: any) => {
@@ -56,27 +56,69 @@ const ParticipantView = (props: any) => {
       <ScrollView style={[style.bodyContainer, style.padding10]}>
         {$config.EVENT_MODE ? (
           <>
-            {rtcProps.role === 'host' && (
+            {/* Live streaming is true  */}
+            {/** Original Host
+             * a) Can view streaming requests
+             * b) Can view all hosts with remote controls
+             */}
+            {rtcProps.role == ClientRole.Broadcaster && props.isHost && (
+              <>
+                <View style={style.participantsection}>
+                  <Text style={style.subheading}>Streaming Requests</Text>
+                  <View style={style.participantContainer}>
+                    <CurrentLiveStreamRequestsView
+                      p_style={style}
+                      userList={userList}
+                    />
+                  </View>
+                </View>
+                <View style={style.participantsection}>
+                  <Text style={style.subheading}>Host</Text>
+                  <View style={style.participantContainer}>
+                    <AllHostParticipants
+                      p_style={style}
+                      isHost={props.isHost}
+                    />
+                  </View>
+                </View>
+              </>
+            )}
+            {/** New Host ( earlier was 'audience' and now is host )
+             * a) Can view all hosts without remote controls
+             */}
+            {rtcProps.role == ClientRole.Broadcaster && !props.isHost && (
               <View style={style.participantsection}>
-                <Text style={style.subheading}>Streaming Requests</Text>
+                <Text style={style.subheading}>Host</Text>
                 <View style={style.participantContainer}>
-                  <CurrentLiveStreamRequestsView
+                  <ParticipantsWithoutControls
                     p_style={style}
-                    userList={userList}
+                    type={ClientRole.Broadcaster}
                   />
                 </View>
               </View>
             )}
-            <View style={style.participantsection}>
-              <Text style={style.subheading}>Host</Text>
-              <View style={style.participantContainer}>
-                <AllHostParticipants p_style={style} isHost={props.isHost} />
+            {/**
+             *  Audience views all hosts without remote controls
+             */}
+            {rtcProps.role == ClientRole.Audience && (
+              <View style={style.participantsection}>
+                <Text style={style.subheading}>Host</Text>
+                <View style={style.participantContainer}>
+                  <ParticipantsWithoutControls
+                    p_style={style}
+                    type={ClientRole.Broadcaster}
+                  />
+                </View>
               </View>
-            </View>
+            )}
+            {/* Everyone can see audience */}
             <View style={style.participantsection}>
               <Text style={style.subheading}>Audience</Text>
               <View style={style.participantContainer}>
-                <AllAudienceParticipants p_style={style} />
+                <ParticipantsWithoutControls
+                  p_style={style}
+                  type={ClientRole.Audience}
+                />
               </View>
             </View>
           </>

@@ -1,21 +1,17 @@
 import React, {createContext, useContext, useState} from 'react';
-import ChatContext, {messageChannelType} from '../ChatContext';
+import ChatContext, {
+  controlMessageEnum,
+  messageChannelType,
+} from '../ChatContext';
 import Toast from '../../../react-native-toast-message';
 import {
   LiveStreamControlMessageEnum,
   LSNotificationObject,
   liveStreamContext,
+  requestStatus,
 } from './Types';
-
-export enum mode {
-  Live = 'live',
-  Communication = 'rtc',
-}
-
-export enum role {
-  Host = 'host',
-  Audience = 'audience',
-}
+import {ClientRole} from '../../../agora-rn-uikit';
+import {View, Text} from 'react-native';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -26,8 +22,16 @@ export const LiveStreamContextProvider = (props: any) => {
     React.useState(false);
 
   const {setRtcProps} = props;
-  const {localUid, sendControlMessageToUid, updateChannelAttributes} =
-    useContext(ChatContext);
+
+  const {events} = React.useContext(ChatContext);
+
+  const {
+    localUid,
+    sendControlMessageToUid,
+    sendControlMessage,
+    updateChannelAttributes,
+    broadcastUserAttributes,
+  } = useContext(ChatContext);
 
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
     Record<string, {}>
@@ -40,17 +44,19 @@ export const LiveStreamContextProvider = (props: any) => {
       visibilityTime: 1000,
     });
   };
-  const {events} = React.useContext(ChatContext);
 
-  const updateRtcProps = async (newClientRole: role) => {
+  const updateRtcProps = async (newClientRole: ClientRole) => {
     setRtcProps((prevState: any) => ({
       ...prevState,
-      role: newClientRole === role.Audience ? role.Audience : role.Host,
+      role:
+        newClientRole === ClientRole.Audience
+          ? ClientRole.Audience
+          : ClientRole.Broadcaster,
     }));
   };
 
   React.useEffect(() => {
-    // 1. Host listens for this event
+    // 1. All Hosts in channel listens for this event - channel message
     events.on(
       messageChannelType.Public,
       'onLiveStreamRequestReceived',
@@ -60,12 +66,12 @@ export const LiveStreamContextProvider = (props: any) => {
           showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
           setLiveStreamRequest((oldLiveStreamRequest) => ({
             ...oldLiveStreamRequest,
-            [data.uid]: '',
+            [data.uid]: requestStatus.AwaitingAction,
           }));
         }
       },
     );
-    // 2. Audience listens for this event
+    // 2. Audience who raised hand listens for this event - private message
     events.on(
       messageChannelType.Private,
       'onLiveStreamRequestAccepted',
@@ -74,16 +80,25 @@ export const LiveStreamContextProvider = (props: any) => {
         if (
           data.msg === LiveStreamControlMessageEnum.raiseHandRequestAccepted
         ) {
-          // This If condition solves the raise condition => if the host approves after the audience has recalled his request
+          /**
+           * This If condition solves the raise condition =>
+           * if the host approves after the audience has recalled his request
+           */
           if (!raiseHandRequestActive) return;
           showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
-          updateRtcProps(role.Host);
-          updateChannelAttributes(localUid, role.Host);
+          notifyAllHostsInChannel(
+            LiveStreamControlMessageEnum.notifyAllRequestApproved,
+          );
+          updateRtcProps(ClientRole.Broadcaster);
+          updateChannelAttributes(localUid, ClientRole.Broadcaster);
+          broadcastUserAttributes(
+            [{key: 'role', value: ClientRole.Broadcaster.toString()}],
+            controlMessageEnum.clientRoleChanged,
+          );
         }
       },
     );
-
-    // 3. Audience listens for this event
+    // 3. Audience who raised hand listens for this event - private message
     events.on(
       messageChannelType.Private,
       'onLiveStreamRequestRejected',
@@ -94,11 +109,13 @@ export const LiveStreamContextProvider = (props: any) => {
         ) {
           showToast(LSNotificationObject.RAISE_HAND_REJECTED);
           setRaiseHandRequestActive(false);
+          notifyAllHostsInChannel(
+            LiveStreamControlMessageEnum.notifyAllRequestRejected,
+          );
         }
       },
     );
-
-    // 4. Host listens for this event
+    // 4. All Hosts in channel listens for this event - channel message
     events.on(
       messageChannelType.Public,
       'onLiveStreamRequestRecall',
@@ -106,12 +123,11 @@ export const LiveStreamContextProvider = (props: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
           showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
-          updateCurrentLiveStreamRequest(data.uid);
+          deleteCurrentLiveStreamRequest(data.uid);
         }
       },
     );
-
-    // 5. Audience listens for this event
+    // 5. Audience who raised hand listens for this event - private message
     events.on(
       messageChannelType.Private,
       'onLiveStreamApprovedRequestRecall',
@@ -122,9 +138,34 @@ export const LiveStreamContextProvider = (props: any) => {
           LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall
         ) {
           showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-          updateRtcProps(role.Audience);
-          updateChannelAttributes(localUid, role.Audience);
+          notifyAllHostsInChannel(
+            LiveStreamControlMessageEnum.notifyAllRequestRejected,
+          );
+          updateRtcProps(ClientRole.Audience);
+          updateChannelAttributes(localUid, ClientRole.Audience);
           setRaiseHandRequestActive(false);
+        }
+      },
+    );
+
+    // 5. Audience who raised hand listens for this event - private message
+    events.on(
+      messageChannelType.Public,
+      'onRequestStatusNotification',
+      (data: any, error: any) => {
+        if (!data) return;
+        if (
+          data.msg === LiveStreamControlMessageEnum.notifyAllRequestApproved
+        ) {
+          updateCurrentLiveStreamRequestStatus(
+            data.uid,
+            requestStatus.Approved,
+          );
+        }
+        if (
+          data.msg === LiveStreamControlMessageEnum.notifyAllRequestRejected
+        ) {
+          deleteCurrentLiveStreamRequest(data.uid);
         }
       },
     );
@@ -139,16 +180,32 @@ export const LiveStreamContextProvider = (props: any) => {
         messageChannelType.Private,
         'onLiveStreamApprovedRequestRecall',
       );
+      events.off(messageChannelType.Public, 'onRequestStatusNotification');
     };
-  }, [events, localUid, raiseHandRequestActive]);
+  }, [events, localUid, raiseHandRequestActive, currLiveStreamRequest]);
 
-  const updateCurrentLiveStreamRequest = (uid: number | string) => {
+  const deleteCurrentLiveStreamRequest = (uid: number | string) => {
     const {[uid]: value, ...restOfUids} = currLiveStreamRequest;
     setLiveStreamRequest(restOfUids);
   };
 
+  const updateCurrentLiveStreamRequestStatus = (
+    uid: number | string,
+    status: requestStatus,
+  ) => {
+    setLiveStreamRequest((oldLiveStreamRequest) => ({
+      ...oldLiveStreamRequest,
+      [uid]: status,
+    }));
+  };
+
+  const notifyAllHostsInChannel = (ctrlEnum: LiveStreamControlMessageEnum) => {
+    sendControlMessage(ctrlEnum);
+  };
+
+  // Live stream request either approve or reject
   const approveRequestOfUID = (uid: number | string) => {
-    updateCurrentLiveStreamRequest(uid);
+    updateCurrentLiveStreamRequestStatus(uid, requestStatus.Approved);
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       uid,
@@ -156,7 +213,7 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   const rejectRequestOfUID = (uid: number | string) => {
-    updateCurrentLiveStreamRequest(uid);
+    deleteCurrentLiveStreamRequest(uid);
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       uid,
@@ -172,6 +229,15 @@ export const LiveStreamContextProvider = (props: any) => {
         raiseHandRequestActive,
         setRaiseHandRequestActive,
       }}>
+      {/* <Text
+        onPress={() =>
+          broadcastUserAttributes(
+            [{key: 'role', value: ClientRole.Broadcaster.toString()}],
+            controlMessageEnum.clientRoleChanged,
+          )
+        }>
+        hey
+      </Text> */}
       {props.children}
     </LiveStreamContext.Provider>
   );

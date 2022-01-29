@@ -6,10 +6,13 @@ import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestRej
 import LocalRaiseHand from './controls/LocalRaiseHand';
 // Views
 import CurrentLiveStreamRequestsView from './CurrentLiveStreamRequestsView';
+import ApprovedLiveStreamControlsView from './ApprovedLiveStreamControlsView';
+
 export {
   RemoteLiveStreamApprovedRequestRecall,
   RemoteLiveStreamRequestApprove,
   RemoteLiveStreamRequestReject,
   LocalRaiseHand,
   CurrentLiveStreamRequestsView,
+  ApprovedLiveStreamControlsView,
 };

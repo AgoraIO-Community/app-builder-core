@@ -9,7 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine from 'agora-react-native-rtm';
+import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
+import {ClientRole} from '../../agora-rn-uikit';
 import {createContext} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
 
@@ -52,7 +53,8 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  updateChannelAttributes: (uid: number, role: 'audience' | 'host') => void;
+  updateChannelAttributes: (uid: number, role: ClientRole) => void;
+  broadcastUserAttributes: (attributes: RtmAttribute[], ctrlMsg: any) => void;
   engine: RtmEngine;
   localUid: string;
   userList: any;
@@ -67,7 +69,7 @@ export enum controlMessageEnum {
   kickUser = '5',
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
-  raiseHandApprovedRequestRecall = 'RAISE_HAND_APPROVED_REQUEST_RECALL',
+  clientRoleChanged = 'CLIENT_ROLE_CHANGED',
   // TODO move to livestream provider
 }
 

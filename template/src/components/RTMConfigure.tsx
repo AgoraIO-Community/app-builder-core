@@ -10,8 +10,8 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine from 'agora-react-native-rtm';
-import {PropsContext} from '../../agora-rn-uikit';
+import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
@@ -50,6 +50,15 @@ const stringifyPayload = (
 
 const parsePayload = (data: string) => {
   return JSON.parse(data);
+};
+
+const IsJsonString = (str: string) => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
 };
 
 const timeNow = () => new Date().getTime();
@@ -298,15 +307,6 @@ const RtmConfigure = (props: any) => {
                 value: [],
               });
               break;
-            case controlMessageEnum.raiseHandApprovedRequestRecall:
-              dispatch({
-                type: 'LocalMuteVideo',
-                value: [0],
-              });
-              dispatch({
-                type: 'LocalMuteAudio',
-                value: [0],
-              });
             default:
               break;
             // if (Object.values(controlMessageEnum).includes(msg)) break;
@@ -359,8 +359,17 @@ const RtmConfigure = (props: any) => {
 
       if (channelId === rtcProps.channel) {
         if (type === messageActionType.Control) {
+          let actionMsg = '';
+          let actionPayload = {};
+          if (IsJsonString(msg)) {
+            let {action, payload} = JSON.parse(msg);
+            actionMsg = action;
+            actionPayload = {...payload};
+          } else {
+            actionMsg = msg;
+          }
           try {
-            switch (msg) {
+            switch (actionMsg) {
               case controlMessageEnum.muteVideo:
                 dispatch({
                   type: 'LocalMuteVideo',
@@ -379,12 +388,19 @@ const RtmConfigure = (props: any) => {
               case controlMessageEnum.cloudRecordingUnactive:
                 setRecordingActive(false);
                 break;
+              case controlMessageEnum.clientRoleChanged:
+                setUserList((prevState) => {
+                  return {
+                    ...prevState,
+                    [uid]: {
+                      ...prevState[uid],
+                      ...actionPayload,
+                    },
+                  };
+                });
+                break;
               default:
                 break;
-              // console.log(
-              //   'supriya default',
-              //   Object.values(controlMessageEnum),
-              // );
               // if (Object.values(controlMessageEnum).includes(msg)) break;
               // else {
               //   throw new Error('Unsupported message type');
@@ -416,26 +432,31 @@ const RtmConfigure = (props: any) => {
       });
     });
 
-    engine.current.on('channelAttributesUpdated', (attributeList: any) => {
-      const {user} = attributeList;
-      const {lastUpdateUserId, value} = user;
-      function updateUserList() {
-        try {
-          setUserList((prevState) => {
-            return {
-              ...prevState,
-              [lastUpdateUserId]: {
-                ...prevState[lastUpdateUserId],
-                role: value,
-              },
-            };
-          });
-        } catch (e) {
-          // console.error(`Could not retrieve name of ${data.uid}`, e);
+    engine.current.addListener(
+      'ChannelAttributesUpdated',
+      (attributes: any) => {
+        if (attributes?.role) {
+          const {lastUpdateUserId, value} = attributes.role;
+          updateUserList();
+          function updateUserList() {
+            try {
+              // check for lastUpdateUserId and value is valid (host(1), audience(2))
+              setUserList((prevState) => {
+                return {
+                  ...prevState,
+                  [lastUpdateUserId]: {
+                    ...prevState[lastUpdateUserId],
+                    role: value ? value : '1',
+                  },
+                };
+              });
+            } catch (e) {
+              // console.error(`Could not retrieve name of ${data.uid}`, e);
+            }
+          }
         }
-      }
-      updateUserList();
-    });
+      },
+    );
 
     await engine.current.createClient(rtcProps.appId);
     doLoginAndSetupRTM();
@@ -521,14 +542,11 @@ const RtmConfigure = (props: any) => {
       : {};
   };
 
-  const updateChannelAttributes = async (
-    uid: number,
-    role: 'audience' | 'host',
-  ) => {
+  const updateChannelAttributes = async (uid: number, role: ClientRole) => {
     try {
       await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
         rtcProps.channel,
-        {user: role},
+        [{key: 'role', value: role.toString()}],
         {enableNotificationToChannelMembers: true},
       );
     } catch (error) {
@@ -544,6 +562,25 @@ const RtmConfigure = (props: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rtcProps.channel, rtcProps.appId, callActive]);
 
+  const broadcastUserAttributes = async (
+    attributes: RtmAttribute[],
+    ctrlMsg: any,
+  ) => {
+    let formattedAttributes: any = {};
+    attributes.map((attribute) => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
+    await engine.current.addOrUpdateLocalUserAttributes(attributes);
+    // send payload and control message as string
+    const msgAsString = JSON.stringify({
+      action: ctrlMsg,
+      payload: {...formattedAttributes},
+    });
+    sendControlMessage(msgAsString);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -554,6 +591,7 @@ const RtmConfigure = (props: any) => {
         sendMessage,
         sendMessageToUid,
         updateChannelAttributes,
+        broadcastUserAttributes,
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,

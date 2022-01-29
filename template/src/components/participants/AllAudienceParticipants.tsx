@@ -4,19 +4,19 @@ import chatContext from '../ChatContext';
 
 import ParticipantName from '../../components/participants/ParticipantName';
 
-const AllAudienceParticipants = (props: any) => {
-  const {p_style} = props;
+const ParticipantsWithoutControls = (props: any) => {
+  const {p_style, type} = props;
   const {userList} = useContext(chatContext);
 
-  const allAudience = Object.values(userList)
-    .map(function (objectValue, index) {
+  const filteredParticipantsByType = Object.values(userList)
+    .map(function (objectValue) {
       return objectValue;
     })
-    .filter((user: any) => user.type === 0 && user.role === 'audience');
+    .filter((user: any) => user.type === 0 && user.role == type);
 
   return (
     <>
-      {allAudience.map((user: any, index: number) => (
+      {filteredParticipantsByType.map((user: any, index: number) => (
         <View style={p_style.participantRow} key={index}>
           <ParticipantName value={user.name} />
         </View>
@@ -25,4 +25,4 @@ const AllAudienceParticipants = (props: any) => {
   );
 };
 
-export default AllAudienceParticipants;
+export default ParticipantsWithoutControls;

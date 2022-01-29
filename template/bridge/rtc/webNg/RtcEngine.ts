@@ -21,13 +21,15 @@ import AgoraRTC, {
   ICameraVideoTrack,
   EncryptionMode,
   ILocalTrack,
+  ClientRoleOptions,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 import {VideoProfile} from '../quality';
-import {ClientRoleOptions} from './Types';
+import {ClientRole} from '../../../agora-rn-uikit';
+import {role, mode} from './Types';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -41,18 +43,6 @@ declare global {
   interface Window {
     engine: RtcEngine;
   }
-}
-
-export enum role {
-  Host = 'host',
-  Audience = 'audience',
-}
-/** * User role for live streaming mode */
-export enum ClientRole {
-  /** 1: A host can both send and receive streams. */
-  Broadcaster = 1,
-  /** 2: The default role. An audience can only receive streams.*/
-  Audience = 2,
 }
 
 export enum AREAS {
@@ -185,12 +175,12 @@ export default class RtcEngine {
     // this.AgoraRTC = AgoraRTC;
     this.client = AgoraRTC.createClient({
       codec: 'vp8',
-      mode: $config.EVENT_MODE ? 'live' : 'rtc',
+      mode: $config.EVENT_MODE ? mode.live : mode.rtc,
     });
 
     this.screenClient = AgoraRTC.createClient({
       codec: 'vp8',
-      mode: $config.EVENT_MODE ? 'live' : 'rtc',
+      mode: $config.EVENT_MODE ? mode.live : mode.rtc,
     });
   }
 
@@ -528,11 +518,9 @@ export default class RtcEngine {
   ): Promise<void> {
     try {
       if (clientRole == ClientRole.Audience) {
-        await this.client.setClientRole('audience', {level: 1});
-        return;
+        await this.client.setClientRole(role.audience, {level: 1});
       } else if (clientRole == ClientRole.Broadcaster) {
-        await this.client.setClientRole('host');
-        return;
+        await this.client.setClientRole(role.host);
       }
     } catch (e) {
       throw e;

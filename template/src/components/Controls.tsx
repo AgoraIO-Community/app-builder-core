@@ -24,7 +24,7 @@ import {LocalRaiseHand} from '../subComponents/livestream';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
-import {mode, role} from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {ClientRole} from '../../agora-rn-uikit';
 
 const Controls = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
@@ -52,12 +52,14 @@ const Controls = (props: any) => {
           },
         ]}
         onLayout={onLayout}>
-        {$config.RAISE_HAND &&
-        rtcProps.role === role.Audience &&
-        rtcProps.mode === mode.Live ? (
-          <View style={{alignSelf: 'center'}}>
-            <LocalRaiseHand />
-          </View>
+        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          $config.RAISE_HAND ? (
+            <View style={{alignSelf: 'center'}}>
+              <LocalRaiseHand />
+            </View>
+          ) : (
+            <></>
+          )
         ) : (
           <>
             <View style={{alignSelf: 'center'}}>

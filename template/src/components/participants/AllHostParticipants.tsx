@@ -50,11 +50,10 @@ export default function AllHostParticipants(props: any) {
                   p_styles={p_style}
                   user={user}
                   showControls={
-                    userList[user.uid]?.type !== UserType.ScreenShare &&
-                    $config.RAISE_HAND
+                    userList[user.uid]?.type !== UserType.ScreenShare
                   }
                   isHost={isHost}
-                  variant={'LiveStreaming'}
+                  key={user.uid}
                 />
               ),
             )

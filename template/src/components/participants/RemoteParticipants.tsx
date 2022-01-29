@@ -13,7 +13,7 @@ import React from 'react';
 import {View, Text} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {RemoteLiveStreamApprovedRequestRecall} from '../../subComponents/livestream';
+import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from './ParticipantName';
 
@@ -22,17 +22,23 @@ interface remoteParticipantsInterface {
   name: string;
   user: any;
   showControls: boolean;
-  variant?: 'LiveStreaming';
   isHost: boolean;
 }
 
 const RemoteParticipants = (props: remoteParticipantsInterface) => {
-  const {p_styles, user, name, showControls, variant, isHost} = props;
+  const {p_styles, user, name, showControls, isHost} = props;
+
   return (
     <View style={p_styles.participantRow}>
       <ParticipantName value={name} />
       {showControls ? (
         <View style={p_styles.participantActionContainer}>
+          {$config.EVENT_MODE && (
+            <ApprovedLiveStreamControlsView
+              p_styles={[p_styles.actionBtnIcon]}
+              uid={user.uid}
+            />
+          )}
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
             <RemoteEndCall uid={user.uid} isHost={isHost} />
           </View>
@@ -50,16 +56,12 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               isHost={isHost}
             />
           </View>
-          {$config.EVENT_MODE && (
-            <View style={[p_styles.actionBtnIcon, {marginLeft: 7}]}>
-              <RemoteLiveStreamApprovedRequestRecall uid={user.uid} />
-            </View>
-          )}
         </View>
       ) : (
-        <View style={p_styles.dummyView}>
-          <Text>Remote screen sharing</Text>
-        </View>
+        <></>
+        // <View style={p_styles.dummyView}>
+        //   <Text>Remote screen sharing</Text>
+        // </View>
       )}
     </View>
   );

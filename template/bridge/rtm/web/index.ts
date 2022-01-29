@@ -9,8 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {
+  ChannelAttributeOptions,
+  RtmAttribute,
+  RtmChannelAttribute,
+  Subscription,
+} from 'agora-react-native-rtm';
+import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
-import {ChannelAttributeOptions, AttributesMap} from './Types';
+
+type callbackType = (args?: any) => void;
 
 export default class RtmEngine {
   public appId: string;
@@ -22,7 +30,7 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
-    ['channelAttributesUpdated', () => null],
+    ['ChannelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -53,7 +61,7 @@ export default class RtmEngine {
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
       event === 'channelMemberLeft' ||
-      event === 'channelAttributesUpdated'
+      event === 'ChannelAttributesUpdated'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
@@ -186,8 +194,8 @@ export default class RtmEngine {
     });
     this.channelMap
       .get(channelId)
-      .on('AttributesUpdated', (attributeList: AttributesMap) => {
-        this.channelEventsMap.get('channelAttributesUpdated')(attributeList); //RN expect evt: any
+      .on('AttributesUpdated', (attributeList: Attr) => {
+        this.channelEventsMap.get('ChannelAttributesUpdated')(attributeList); //RN expect evt: any
       });
 
     return this.channelMap.get(channelId).join();
@@ -299,14 +307,30 @@ export default class RtmEngine {
     return this.client.setLocalUserAttributes({...formattedAttributes});
   }
 
+  async addOrUpdateLocalUserAttributes(attributes: RtmAttribute[]) {
+    let formattedAttributes: any = {};
+    attributes.map((attribute) => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
+    return this.client.addOrUpdateLocalUserAttributes({...formattedAttributes});
+  }
+
   addOrUpdateChannelAttributes(
     channelId: string,
-    attributes: AttributesMap,
+    attributes: RtmChannelAttribute[],
     option: ChannelAttributeOptions,
   ): Promise<void> {
+    let formattedAttributes: any = {};
+    attributes.map((attribute) => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
     return this.client.addOrUpdateChannelAttributes(
       channelId,
-      attributes,
+      {...formattedAttributes},
       option,
     );
   }
@@ -412,5 +436,21 @@ export default class RtmEngine {
 
   getSdkVersion(callback: (version: string) => void) {
     callback(VERSION);
+  }
+
+  addListener<EventType extends keyof RtmClientEvents>(
+    event: EventType,
+    listener: RtmClientEvents[EventType],
+  ): Subscription {
+    if (event === 'ChannelAttributesUpdated') {
+      this.channelEventsMap.set(event, listener as callbackType);
+    }
+    return {
+      remove: () => {
+        console.log(
+          'Use destroy method to remove all the event listeners from the RtcEngine instead.',
+        );
+      },
+    };
   }
 }
