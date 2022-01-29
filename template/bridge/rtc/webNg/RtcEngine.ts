@@ -28,7 +28,7 @@ import type {
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 import {VideoProfile} from '../quality';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 
 interface MediaDeviceInfo {
@@ -143,8 +143,8 @@ AgoraRTC.setArea({
 export default class RtcEngine {
   public appId: string;
   // public AgoraRTC: any;
-  public client: IAgoraRTCClient;
-  public screenClient: IAgoraRTCClient;
+  private client: any | IAgoraRTCClient;
+  private screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
     ['UserJoined', () => null],
     ['UserOffline', () => null],
@@ -173,15 +173,6 @@ export default class RtcEngine {
   constructor(appId: string) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
-    this.client = AgoraRTC.createClient({
-      codec: 'vp8',
-      mode: $config.EVENT_MODE ? mode.live : mode.rtc,
-    });
-
-    this.screenClient = AgoraRTC.createClient({
-      codec: 'vp8',
-      mode: $config.EVENT_MODE ? mode.live : mode.rtc,
-    });
   }
 
   static async create(appId: string): Promise<RtcEngine> {
@@ -512,6 +503,32 @@ export default class RtcEngine {
     return devices;
   }
 
+  async setChannelProfile(profile: ChannelProfile): Promise<void> {
+    try {
+      if (profile == ChannelProfile.Communication) {
+        this.client = AgoraRTC.createClient({
+          codec: 'vp8',
+          mode: mode.rtc,
+        });
+        this.screenClient = AgoraRTC.createClient({
+          codec: 'vp8',
+          mode: mode.rtc,
+        });
+      } else if (profile == ChannelProfile.LiveBroadcasting) {
+        this.client = AgoraRTC.createClient({
+          codec: 'vp8',
+          mode: mode.live,
+        });
+        this.screenClient = AgoraRTC.createClient({
+          codec: 'vp8',
+          mode: mode.live,
+        });
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async setClientRole(
     clientRole: ClientRole,
     options?: ClientRoleOptions,
@@ -519,19 +536,15 @@ export default class RtcEngine {
     try {
       if (clientRole == ClientRole.Audience) {
         await this.client.setClientRole(role.audience, {level: 1});
+        await this.screenClient.setClientRole(role.audience, {level: 1});
       } else if (clientRole == ClientRole.Broadcaster) {
         await this.client.setClientRole(role.host);
+        await this.screenClient.setClientRole(role.host);
       }
     } catch (e) {
       throw e;
     }
   }
-
-  // async setChannelProfile(profile: ChannelProfile): Promise<void> {
-  //   // Web version how to do
-  //   console.log('SUPRIYA setchannelprofile', profile);
-  //   console.log('SUPRIYA setchannelprofile', this.client);
-  // }
 
   async changeCamera(cameraId, callback, error): Promise<void> {
     try {

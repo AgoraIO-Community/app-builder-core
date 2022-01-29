@@ -45,7 +45,7 @@ export const LiveStreamContextProvider = (props: any) => {
     });
   };
 
-  const updateRtcProps = async (newClientRole: ClientRole) => {
+  const updateRtcProps = (newClientRole: ClientRole) => {
     setRtcProps((prevState: any) => ({
       ...prevState,
       role:
