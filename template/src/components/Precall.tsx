@@ -51,7 +51,7 @@ const JoinRoomInputView = (props: any) => {
   );
 };
 
-const PrecallNew = (props: any) => {
+const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
 
@@ -215,4 +215,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default PrecallNew;
+export default Precall;
