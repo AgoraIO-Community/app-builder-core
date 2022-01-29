@@ -143,8 +143,8 @@ AgoraRTC.setArea({
 export default class RtcEngine {
   public appId: string;
   // public AgoraRTC: any;
-  private client: any | IAgoraRTCClient;
-  private screenClient: any | IAgoraRTCClient;
+  public client: any | IAgoraRTCClient;
+  public screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
     ['UserJoined', () => null],
     ['UserOffline', () => null],
