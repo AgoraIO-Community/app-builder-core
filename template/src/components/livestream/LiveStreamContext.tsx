@@ -11,7 +11,6 @@ import {
   requestStatus,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
-import {View, Text} from 'react-native';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -229,15 +228,6 @@ export const LiveStreamContextProvider = (props: any) => {
         raiseHandRequestActive,
         setRaiseHandRequestActive,
       }}>
-      {/* <Text
-        onPress={() =>
-          broadcastUserAttributes(
-            [{key: 'role', value: ClientRole.Broadcaster.toString()}],
-            controlMessageEnum.clientRoleChanged,
-          )
-        }>
-        hey
-      </Text> */}
       {props.children}
     </LiveStreamContext.Provider>
   );

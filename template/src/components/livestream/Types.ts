@@ -18,7 +18,7 @@ export enum LiveStreamControlMessageEnum {
 
 export const LSNotificationObject = {
   [LiveStreamControlMessageEnum.raiseHandRequest]:
-    'Requested raised for live streaming',
+    'Requested raised for Live-Streaming',
   [LiveStreamControlMessageEnum.raiseHandRequestReceived]:
     'New Live-Streaming request received',
   [LiveStreamControlMessageEnum.raiseHandRequestAccepted]:
@@ -26,9 +26,9 @@ export const LSNotificationObject = {
   [LiveStreamControlMessageEnum.raiseHandRequestRejected]:
     'Live-Streaming request was rejected',
   [LiveStreamControlMessageEnum.raiseHandRequestRecall]:
-    'User has cancelled his request to stream',
+    'User has cancelled their request to Live-Stream',
   [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]:
-    'You can no longer live stream',
+    'You can no longer Live-Stream',
 };
 
 export interface liveStreamContext {
