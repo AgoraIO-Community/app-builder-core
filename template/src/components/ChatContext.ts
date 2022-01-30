@@ -9,8 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
-import {ClientRole} from '../../agora-rn-uikit';
+import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
 import {createContext} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
 
@@ -53,8 +52,11 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  updateChannelAttributes: (attributes: RtmAttribute[]) => void;
-  broadcastUserAttributes: (attributes: RtmAttribute[], ctrlMsg: any) => void;
+  updateChannelAttributes: (attributes: RtmChannelAttribute[]) => void;
+  broadcastUserAttributes: (
+    attributes: RtmChannelAttribute[],
+    ctrlMsg: any,
+  ) => void;
   engine: RtmEngine;
   localUid: string;
   userList: any;

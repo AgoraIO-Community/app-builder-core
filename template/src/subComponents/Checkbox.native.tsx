@@ -22,13 +22,14 @@ const Checkbox = (props: any) => {
     <CheckBox
       value={urlCheckbox}
       onValueChange={setUrlCheckbox}
+      disabled={props?.disabled}
       tintColors={{
-        true: $config.PRIMARY_COLOR,
-        false: $config.PRIMARY_FONT_COLOR + 80,
+        true: props?.disabled ? 'grey' : $config.PRIMARY_COLOR,
+        false: props?.disabled ? 'grey' : $config.PRIMARY_FONT_COLOR + 80,
       }}
-      tintColor={$config.PRIMARY_FONT_COLOR + 80}
-      onCheckColor={$config.PRIMARY_COLOR}
-      onTintColor={$config.PRIMARY_COLOR}
+      tintColor={props?.disabled ? 'grey' : $config.PRIMARY_FONT_COLOR + 80}
+      onCheckColor={props?.disabled ? 'grey' : $config.PRIMARY_COLOR}
+      onTintColor={props?.disabled ? 'grey' : $config.PRIMARY_COLOR}
     />
   );
 };

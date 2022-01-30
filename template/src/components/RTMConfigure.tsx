@@ -10,8 +10,8 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
+import {PropsContext} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
@@ -545,7 +545,7 @@ const RtmConfigure = (props: any) => {
       : {};
   };
 
-  const updateChannelAttributes = async (attributes: RtmAttribute[]) => {
+  const updateChannelAttributes = async (attributes: RtmChannelAttribute[]) => {
     try {
       await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
         rtcProps.channel,
