@@ -63,10 +63,7 @@ export const LiveStreamContextProvider = (props: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequest) {
           showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
-          setLiveStreamRequest((oldLiveStreamRequest) => ({
-            ...oldLiveStreamRequest,
-            [data.uid]: requestStatus.AwaitingAction,
-          }));
+          addOrUpdateLiveStreamRequest(data.uid, requestStatus.AwaitingAction);
         }
       },
     );
@@ -88,12 +85,7 @@ export const LiveStreamContextProvider = (props: any) => {
           notifyAllHostsInChannel(
             LiveStreamControlMessageEnum.notifyAllRequestApproved,
           );
-          updateRtcProps(ClientRole.Broadcaster);
-          updateChannelAttributes(localUid, ClientRole.Broadcaster);
-          broadcastUserAttributes(
-            [{key: 'role', value: ClientRole.Broadcaster.toString()}],
-            controlMessageEnum.clientRoleChanged,
-          );
+          changeClientRoleTo(ClientRole.Broadcaster);
         }
       },
     );
@@ -122,7 +114,7 @@ export const LiveStreamContextProvider = (props: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
           showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
-          deleteCurrentLiveStreamRequest(data.uid);
+          addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
         }
       },
     );
@@ -137,12 +129,11 @@ export const LiveStreamContextProvider = (props: any) => {
           LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall
         ) {
           showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
+          setRaiseHandRequestActive(false);
           notifyAllHostsInChannel(
             LiveStreamControlMessageEnum.notifyAllRequestRejected,
           );
-          updateRtcProps(ClientRole.Audience);
-          updateChannelAttributes(localUid, ClientRole.Audience);
-          setRaiseHandRequestActive(false);
+          changeClientRoleTo(ClientRole.Audience);
         }
       },
     );
@@ -156,15 +147,12 @@ export const LiveStreamContextProvider = (props: any) => {
         if (
           data.msg === LiveStreamControlMessageEnum.notifyAllRequestApproved
         ) {
-          updateCurrentLiveStreamRequestStatus(
-            data.uid,
-            requestStatus.Approved,
-          );
+          addOrUpdateLiveStreamRequest(data.uid, requestStatus.Approved);
         }
         if (
           data.msg === LiveStreamControlMessageEnum.notifyAllRequestRejected
         ) {
-          deleteCurrentLiveStreamRequest(data.uid);
+          addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
         }
       },
     );
@@ -183,12 +171,7 @@ export const LiveStreamContextProvider = (props: any) => {
     };
   }, [events, localUid, raiseHandRequestActive, currLiveStreamRequest]);
 
-  const deleteCurrentLiveStreamRequest = (uid: number | string) => {
-    const {[uid]: value, ...restOfUids} = currLiveStreamRequest;
-    setLiveStreamRequest(restOfUids);
-  };
-
-  const updateCurrentLiveStreamRequestStatus = (
+  const addOrUpdateLiveStreamRequest = (
     uid: number | string,
     status: requestStatus,
   ) => {
@@ -198,13 +181,22 @@ export const LiveStreamContextProvider = (props: any) => {
     }));
   };
 
+  const changeClientRoleTo = (newRole: ClientRole) => {
+    updateRtcProps(newRole);
+    updateChannelAttributes([{key: 'role', value: newRole.toString()}]);
+    broadcastUserAttributes(
+      [{key: 'role', value: newRole.toString()}],
+      controlMessageEnum.clientRoleChanged,
+    );
+  };
+
   const notifyAllHostsInChannel = (ctrlEnum: LiveStreamControlMessageEnum) => {
     sendControlMessage(ctrlEnum);
   };
 
-  // Live stream request either approve or reject
+  // Live stream button controls for host - either approve or reject
   const approveRequestOfUID = (uid: number | string) => {
-    updateCurrentLiveStreamRequestStatus(uid, requestStatus.Approved);
+    addOrUpdateLiveStreamRequest(uid, requestStatus.Approved);
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       uid,
@@ -212,7 +204,7 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   const rejectRequestOfUID = (uid: number | string) => {
-    deleteCurrentLiveStreamRequest(uid);
+    addOrUpdateLiveStreamRequest(uid, requestStatus.Cancelled);
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       uid,

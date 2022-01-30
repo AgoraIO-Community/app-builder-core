@@ -545,11 +545,11 @@ const RtmConfigure = (props: any) => {
       : {};
   };
 
-  const updateChannelAttributes = async (uid: number, role: ClientRole) => {
+  const updateChannelAttributes = async (attributes: RtmAttribute[]) => {
     try {
       await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
         rtcProps.channel,
-        [{key: 'role', value: role.toString()}],
+        [...attributes],
         {enableNotificationToChannelMembers: true},
       );
     } catch (error) {

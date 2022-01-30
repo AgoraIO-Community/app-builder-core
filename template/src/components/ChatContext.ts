@@ -53,7 +53,7 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  updateChannelAttributes: (uid: number, role: ClientRole) => void;
+  updateChannelAttributes: (attributes: RtmAttribute[]) => void;
   broadcastUserAttributes: (attributes: RtmAttribute[], ctrlMsg: any) => void;
   engine: RtmEngine;
   localUid: string;

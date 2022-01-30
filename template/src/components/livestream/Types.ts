@@ -3,6 +3,7 @@
 export enum requestStatus {
   AwaitingAction = 'AWAITING_ACTION',
   Approved = 'APPROVED',
+  Cancelled = 'CANCELLED',
 }
 
 export enum LiveStreamControlMessageEnum {
