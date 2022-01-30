@@ -311,11 +311,8 @@ const RtmConfigure = (props: any) => {
               break;
             default:
               break;
-            // if (Object.values(controlMessageEnum).includes(msg)) break;
-            // else {
-            //   console.log('supriya error');
+
             //   throw new Error('Unsupported message type');
-            // }
           }
         } catch (e) {
           events.emit(messageChannelType.Private, null, {
@@ -405,10 +402,7 @@ const RtmConfigure = (props: any) => {
                 break;
               default:
                 break;
-              // if (Object.values(controlMessageEnum).includes(msg)) break;
-              // else {
               //   throw new Error('Unsupported message type');
-              // }
             }
           } catch (e) {
             events.emit(messageChannelType.Public, null, {
@@ -441,6 +435,7 @@ const RtmConfigure = (props: any) => {
       (attributes: any) => {
         if (attributes?.role) {
           const {lastUpdateUserId, value} = attributes.role;
+          if (!lastUpdateUserId && !value) return;
           updateUserList();
           function updateUserList() {
             try {
@@ -450,7 +445,11 @@ const RtmConfigure = (props: any) => {
                   ...prevState,
                   [lastUpdateUserId]: {
                     ...prevState[lastUpdateUserId],
-                    role: value ? value : '1',
+                    role: value
+                      ? parseInt(value)
+                        ? parseInt(value)
+                        : value
+                      : '1',
                   },
                 };
               });
@@ -570,13 +569,14 @@ const RtmConfigure = (props: any) => {
     attributes: RtmAttribute[],
     ctrlMsg: any,
   ) => {
+    await engine.current.addOrUpdateLocalUserAttributes(attributes);
     let formattedAttributes: any = {};
+    // Transform the array into object of key value pair
     attributes.map((attribute) => {
       let key = Object.values(attribute)[0];
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
     });
-    await engine.current.addOrUpdateLocalUserAttributes(attributes);
     // send payload and control message as string
     const msgAsString = JSON.stringify({
       action: ctrlMsg,
