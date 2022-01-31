@@ -35,7 +35,7 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
         <View style={p_styles.participantActionContainer}>
           {$config.EVENT_MODE && (
             <ApprovedLiveStreamControlsView
-              p_styles={[p_styles.actionBtnIcon]}
+              p_styles={p_styles}
               uid={user.uid}
             />
           )}
