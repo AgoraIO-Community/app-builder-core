@@ -10,7 +10,10 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
+import RtmEngine, {
+  RtmChannelAttribute,
+  RtmAttribute,
+} from 'agora-react-native-rtm';
 import {PropsContext} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
@@ -553,7 +556,7 @@ const RtmConfigure = (props: any) => {
         {enableNotificationToChannelMembers: true},
       );
     } catch (error) {
-      console.log('AttributesUpdated error');
+      console.log('AttributesUpdated error', error);
     }
   };
 
