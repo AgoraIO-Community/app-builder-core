@@ -194,9 +194,7 @@ export default class RtcEngine {
         );
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
-      console.log('STATEAUDIOVIDEOCHANGE localStream', this.localStream);
     } catch (e) {
-      console.log('STATEAUDIOVIDEOCHANGE THROW localStream', e);
       throw e;
     }
   }
@@ -242,14 +240,12 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
-      console.log('STATEAUDIOVIDEOCHANGE user joined begins linw 255', user);
       const uid = this.inScreenshare
         ? user.uid !== this.screenClient.uid
           ? user.uid
           : 1
         : user.uid;
       (this.eventsMap.get('UserJoined') as callbackType)(uid);
-      console.log('STATEAUDIOVIDEOCHANGE dispatch line 259', uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
         uid,
         0,
@@ -284,9 +280,7 @@ export default class RtcEngine {
     });
     this.client.on('user-published', async (user, mediaType) => {
       // Initiate the subscription
-      console.log('STATEAUDIOVIDEOCHANGE user-published begins line 294', user);
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
-        console.log('STATEAUDIOVIDEOCHANGE dispatch line if');
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           1,
           2,
@@ -294,10 +288,8 @@ export default class RtcEngine {
           0,
         );
       } else {
-        console.log('STATEAUDIOVIDEOCHANGE line else');
         await this.client.subscribe(user, mediaType);
       }
-      console.log('STATEAUDIOVIDEOCHANGE line 307', mediaType);
       // If the subscribed track is an audio track
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
@@ -307,7 +299,6 @@ export default class RtcEngine {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,
         });
-        console.log('STATEAUDIOVIDEOCHANGE dispatch line 317', user.uid, user);
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
           2,
@@ -322,7 +313,6 @@ export default class RtcEngine {
           ...this.remoteStreams.get(user.uid),
           video: videoTrack,
         });
-        console.log('STATEAUDIOVIDEOCHANGE dispatch line 332', user.uid, user);
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           user.uid,
           2,
@@ -332,11 +322,9 @@ export default class RtcEngine {
       }
     });
     this.client.on('user-unpublished', async (user, mediaType) => {
-      console.log('STATEAUDIOVIDEOCHANGE dispatch line 342', user.uid, user);
       if (mediaType === 'audio') {
         const {audio, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
-        console.log('STATEAUDIOVIDEOCHANGE dispatch line 346', user.uid, user);
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
           0,
@@ -344,7 +332,6 @@ export default class RtcEngine {
           0,
         );
       } else {
-        console.log('STATEAUDIOVIDEOCHANGE dispatch line 354', user.uid, user);
         const {video, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
