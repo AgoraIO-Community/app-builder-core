@@ -14,7 +14,7 @@ import RtmEngine, {
   RtmChannelAttribute,
   RtmAttribute,
 } from 'agora-react-native-rtm';
-import {PropsContext} from '../../agora-rn-uikit';
+import {ClientRole, PropsContext} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
@@ -191,7 +191,7 @@ const RtmConfigure = (props: any) => {
                   [member.uid]: {
                     name: attr?.attributes?.name || 'User',
                     type: UserType.Normal,
-                    role: attr?.attributes?.role,
+                    role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
@@ -256,7 +256,7 @@ const RtmConfigure = (props: any) => {
               [data.uid]: {
                 name: attr?.attributes?.name || 'User',
                 type: UserType.Normal,
-                role: attr?.attributes?.role,
+                role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
               },
               [parseInt(attr?.attributes?.screenUid)]: {
@@ -275,6 +275,10 @@ const RtmConfigure = (props: any) => {
     engine.current.on('channelMemberLeft', (data: any) => {
       console.log('user left', data);
       // Chat of left user becomes undefined. So don't cleanup
+      // TODOS:
+      // Add new array for list of all(uids) active attendees in the call
+      // Store attendees in RTM  list
+      // Check RTM response when a message is being sent to user who has left the call
     });
 
     engine.current.on('messageReceived', (evt: any) => {
@@ -314,7 +318,6 @@ const RtmConfigure = (props: any) => {
               break;
             default:
               break;
-
             //   throw new Error('Unsupported message type');
           }
         } catch (e) {
@@ -362,11 +365,9 @@ const RtmConfigure = (props: any) => {
       if (channelId === rtcProps.channel) {
         if (type === messageActionType.Control) {
           let actionMsg = '';
-          let actionPayload = {};
           if (IsJsonString(msg)) {
-            let {action, payload} = JSON.parse(msg);
+            let {action} = JSON.parse(msg);
             actionMsg = action;
-            actionPayload = {...payload};
           } else {
             actionMsg = msg;
           }
@@ -393,15 +394,22 @@ const RtmConfigure = (props: any) => {
                 setRecordingActive(false);
                 break;
               case controlMessageEnum.clientRoleChanged:
-                setUserList((prevState) => {
-                  return {
-                    ...prevState,
-                    [uid]: {
-                      ...prevState[uid],
-                      ...actionPayload,
-                    },
-                  };
-                });
+                const {payload} = JSON.parse(msg);
+                if (payload && payload?.role && payload?.value) {
+                  if (
+                    payload.value.trim() !== '' &&
+                    payload.value in ClientRole
+                  )
+                    setUserList((prevState) => {
+                      return {
+                        ...prevState,
+                        [uid]: {
+                          ...prevState[uid],
+                          [payload.role]: parseInt(payload.value),
+                        },
+                      };
+                    });
+                }
                 break;
               default:
                 break;
@@ -570,7 +578,7 @@ const RtmConfigure = (props: any) => {
 
   const broadcastUserAttributes = async (
     attributes: RtmAttribute[],
-    ctrlMsg: any,
+    ctrlMsg: controlMessageEnum,
   ) => {
     await engine.current.addOrUpdateLocalUserAttributes(attributes);
     let formattedAttributes: any = {};

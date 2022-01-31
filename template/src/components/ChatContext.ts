@@ -55,7 +55,7 @@ interface chatContext {
   updateChannelAttributes: (attributes: RtmChannelAttribute[]) => void;
   broadcastUserAttributes: (
     attributes: RtmChannelAttribute[],
-    ctrlMsg: any,
+    ctrlMsg: controlMessageEnum,
   ) => void;
   engine: RtmEngine;
   localUid: string;
