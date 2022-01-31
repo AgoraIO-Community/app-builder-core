@@ -194,8 +194,8 @@ export default class RtmEngine {
     });
     this.channelMap
       .get(channelId)
-      .on('AttributesUpdated', (attributeList: Attr) => {
-        this.channelEventsMap.get('ChannelAttributesUpdated')(attributeList); //RN expect evt: any
+      .on('AttributesUpdated', (attributes: RtmChannelAttribute) => {
+        this.channelEventsMap.get('ChannelAttributesUpdated')(attributes); //RN expect evt: any
       });
 
     return this.channelMap.get(channelId).join();
