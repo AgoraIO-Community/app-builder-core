@@ -28,7 +28,6 @@ export const LiveStreamContextProvider = (props: any) => {
     localUid,
     sendControlMessageToUid,
     sendControlMessage,
-    updateChannelAttributes,
     broadcastUserAttributes,
   } = useContext(ChatContext);
 
@@ -183,7 +182,6 @@ export const LiveStreamContextProvider = (props: any) => {
 
   const changeClientRoleTo = (newRole: ClientRole) => {
     updateRtcProps(newRole);
-    updateChannelAttributes([{key: 'role', value: newRole.toString()}]);
     broadcastUserAttributes(
       [{key: 'role', value: newRole.toString()}],
       controlMessageEnum.clientRoleChanged,

@@ -52,7 +52,6 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  updateChannelAttributes: (attributes: RtmChannelAttribute[]) => void;
   broadcastUserAttributes: (
     attributes: RtmChannelAttribute[],
     ctrlMsg: controlMessageEnum,

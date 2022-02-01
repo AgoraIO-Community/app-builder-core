@@ -195,7 +195,17 @@ export default class RtmEngine {
     this.channelMap
       .get(channelId)
       .on('AttributesUpdated', (attributes: RtmChannelAttribute) => {
-        this.channelEventsMap.get('ChannelAttributesUpdated')(attributes); //RN expect evt: any
+        /**
+         * a) The following piece of code is commented for future reference.
+         * b) To be used in future implementations of channel attributes
+         * c) Kindly note the below event listener 'ChannelAttributesUpdated' expects type
+         *    RtmChannelAttribute[] (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
+         *    whereas the above listener 'AttributesUpdated' receives attributes in object form
+         *    {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
+         * d) Hence in this bridge the data should be modified to keep in sync with both the
+         *    listeners for web and listener for native
+         */
+        // this.channelEventsMap.get('ChannelAttributesUpdated')(attributes); //RN expect evt: any
       });
 
     return this.channelMap.get(channelId).join();
@@ -322,17 +332,23 @@ export default class RtmEngine {
     attributes: RtmChannelAttribute[],
     option: ChannelAttributeOptions,
   ): Promise<void> {
-    let formattedAttributes: any = {};
-    attributes.map((attribute) => {
-      let key = Object.values(attribute)[0];
-      let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
-    });
-    return this.client.addOrUpdateChannelAttributes(
-      channelId,
-      {...formattedAttributes},
-      option,
-    );
+    /**
+     * The following piece of code is commented and not deleted
+     * to be used in future implementations of channel attributes
+     */
+
+    // let formattedAttributes: any = {};
+    // attributes.map((attribute) => {
+    //   let key = Object.values(attribute)[0];
+    //   let value = Object.values(attribute)[1];
+    //   formattedAttributes[key] = value;
+    // });
+    // return this.client.addOrUpdateChannelAttributes(
+    //   channelId,
+    //   {...formattedAttributes},
+    //   option,
+    // );
+    return Promise.resolve(); // remove this line when functionality is added to the above function
   }
 
   async sendLocalInvitation(invitationProps: any) {

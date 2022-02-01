@@ -443,32 +443,13 @@ const RtmConfigure = (props: any) => {
 
     engine.current.addListener(
       'ChannelAttributesUpdated',
-      (attributes: any) => {
-        if (attributes?.role) {
-          const {lastUpdateUserId, value} = attributes.role;
-          if (!lastUpdateUserId && !value) return;
-          updateUserList();
-          function updateUserList() {
-            try {
-              // check for lastUpdateUserId and value is valid (host(1), audience(2))
-              setUserList((prevState) => {
-                return {
-                  ...prevState,
-                  [lastUpdateUserId]: {
-                    ...prevState[lastUpdateUserId],
-                    role: value
-                      ? parseInt(value)
-                        ? parseInt(value)
-                        : value
-                      : '1',
-                  },
-                };
-              });
-            } catch (e) {
-              // console.error(`Could not retrieve name of ${data.uid}`, e);
-            }
-          }
-        }
+      (attributes: RtmChannelAttribute[]) => {
+        /**
+         * a) The following piece of code is commented for future reference.
+         * b) To be used in future implementations of channel attributes
+         * c) Kindly note the agora-react-native-rtm does not return the attributes with
+         *    additional lastUpdateUserId and lastUpdateTs as mentioned in RtmChannelAttribute type
+         */
       },
     );
 
@@ -557,15 +538,21 @@ const RtmConfigure = (props: any) => {
   };
 
   const updateChannelAttributes = async (attributes: RtmChannelAttribute[]) => {
-    try {
-      await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
-        rtcProps.channel,
-        [...attributes],
-        {enableNotificationToChannelMembers: true},
-      );
-    } catch (error) {
-      console.log('AttributesUpdated error', error);
-    }
+    /**
+     * a) The following piece of code is commented for future reference.
+     * b) To be used in future implementations of channel attributes
+     * c) attributes should be an array of key value [{key:"keyTobeUsed", value; 'valueToBeUsed}]
+     *    following the type RtmChannelAttribute
+     */
+    // try {
+    //   await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
+    //     rtcProps.channel,
+    //     [...attributes],
+    //     {enableNotificationToChannelMembers: true},
+    //   );
+    // } catch (error) {
+    //   console.log('AttributesUpdated error', error);
+    // }
   };
 
   useEffect(() => {
@@ -605,7 +592,6 @@ const RtmConfigure = (props: any) => {
         sendControlMessageToUid,
         sendMessage,
         sendMessageToUid,
-        updateChannelAttributes,
         broadcastUserAttributes,
         engine: engine.current,
         localUid: localUid.current,
