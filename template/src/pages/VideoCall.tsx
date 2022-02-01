@@ -296,6 +296,7 @@ const VideoCall: React.FC = () => {
       // console.log('error data', data);
       if (!errorMessage) {
         setErrorMessage(error);
+        queryComplete ? {} : setQueryComplete(true);
       }
       return;
     }
