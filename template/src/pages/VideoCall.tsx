@@ -254,7 +254,7 @@ const VideoCall: React.FC = () => {
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
   const [participantsView, setParticipantsView] = useState(false);
-  const [callActive, setCallActive] = useState(true);
+  const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
@@ -326,6 +326,7 @@ const VideoCall: React.FC = () => {
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);
+
       console.log('query done: ', data, queryComplete);
       // 1. Store the display name from API
       if (data.getUser) {
@@ -333,7 +334,6 @@ const VideoCall: React.FC = () => {
       }
       console.log('token:', rtcProps.token);
       queryComplete ? {} : setQueryComplete(true);
-      $config.PRECALL ? setCallActive(false) : setCallActive(true);
     }
   }, [error, loading, data]);
 
