@@ -395,20 +395,21 @@ const RtmConfigure = (props: any) => {
                 break;
               case controlMessageEnum.clientRoleChanged:
                 const {payload} = JSON.parse(msg);
-                if (payload && payload?.role && payload?.value) {
+                if (payload && payload?.role) {
                   if (
-                    payload.value.trim() !== '' &&
-                    payload.value in ClientRole
-                  )
+                    payload.role.trim() !== '' &&
+                    payload.role in ClientRole
+                  ) {
                     setUserList((prevState) => {
                       return {
                         ...prevState,
                         [uid]: {
                           ...prevState[uid],
-                          [payload.role]: parseInt(payload.value),
+                          role: parseInt(payload.role),
                         },
                       };
                     });
+                  }
                 }
                 break;
               default:
