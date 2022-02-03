@@ -576,6 +576,17 @@ const RtmConfigure = (props: any) => {
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
     });
+    // Update my attributes in user-list
+    setUserList((prevState) => {
+      return {
+        ...prevState,
+        [localUid.current]: {
+          ...prevState[localUid.current],
+          ...formattedAttributes,
+        },
+      };
+    });
+    // Broadcast my updated attributes to everyone
     // send payload and control message as string
     const msgAsString = JSON.stringify({
       action: ctrlMsg,
