@@ -40,6 +40,9 @@ import {videoView} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
+import PreCallProvider from '../components/precall/PreCallProvider';
+import { getFpeCmpConfig } from 'fpe-api';
+
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -235,6 +238,7 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const {PreCallScreen} = getFpeCmpConfig()
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
@@ -474,14 +478,16 @@ const VideoCall: React.FC = () => {
                       </NotificationControl>
                     </View>
                   ) : $config.PRECALL ? (
-                    <Precall
+                    <PreCallProvider
                       error={errorMessage}
                       username={username}
                       setUsername={setUsername}
                       setCallActive={setCallActive}
                       queryComplete={queryComplete}
                       title={title}
-                    />
+                      >
+                        {PreCallScreen && <PreCallScreen />}
+                    </PreCallProvider>                    
                   ) : (
                     <></>
                   )}

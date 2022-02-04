@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
@@ -29,7 +29,8 @@ import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
 import shouldAuthenticate from './utils/shouldAuthenticate';
 import KeyboardManager from 'react-native-keyboard-manager';
-
+import DimensionProvider from './components/dimension/DimensionProvider';
+import {installPlugin} from 'test-fpe'
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -40,7 +41,9 @@ if (Platform.OS === 'ios') {
 
 const App: React.FC = () => {
   const [phrase, onChangePhrase] = useState('');
-
+  useEffect(( ) => {
+    installPlugin()
+  },[])
   return (
     <ImageBackground
       source={{uri: $config.BG}}
@@ -54,6 +57,7 @@ const App: React.FC = () => {
             <Router>
               <SessionProvider>
                 <ColorConfigure>
+                  <DimensionProvider>
                   <Navigation />
                   <Switch>
                     <Route exact path={'/'}>
@@ -83,6 +87,7 @@ const App: React.FC = () => {
                       <VideoCall />
                     </Route>
                   </Switch>
+                  </DimensionProvider>
                 </ColorConfigure>
               </SessionProvider>
             </Router>

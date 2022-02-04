@@ -43,6 +43,8 @@ module.exports = {
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
+      'fpe-api': path.join(__dirname, 'fpe-api/index.ts'),
+      'test-fpe': path.join(__dirname, 'test-fpe/index.ts'),
     },
     // Adds platform specific extensions and OS specific extensions
     // .web.tsx works for web specific code
