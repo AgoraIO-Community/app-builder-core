@@ -22,8 +22,8 @@ const Precall = (props: any) => {
   const [isDesktop, setDesktop] = useState(false)
   
   let onLayout = (e: any) => {
-    const data = getDimensionData(e.nativeEvent.layout.width, e.nativeEvent.layout.height);
-    setDesktop(data.isDesktop)
+    const {isDesktop} = getDimensionData(e.nativeEvent.layout.width, e.nativeEvent.layout.height);
+    setDesktop(isDesktop)
   };
 
   useEffect(()=>{

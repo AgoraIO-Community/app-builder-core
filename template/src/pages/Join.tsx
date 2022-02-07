@@ -35,14 +35,7 @@ const Join = () => {
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-  // const [dim, setDim] = useState([
-  //   Dimensions.get('window').width,
-  //   Dimensions.get('window').height,
-  //   Dimensions.get('window').width > Dimensions.get('window').height,
-  // ]);
-  // let onLayout = (e: any) => {
-  //   setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  // };
+  
   const createMeeting = () => {
     history.push('/create');
   };

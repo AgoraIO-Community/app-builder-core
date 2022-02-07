@@ -4,11 +4,18 @@ import { DEFAULT_ROUTES, CustomRoutesInterface } from './route/defaultRoutes';
 /**
  * Importing components
  */
-import { PreCallScreen, PreCallLocalMute, PreCallVideoPreview ,
-  PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallLogo,
-  PreCallSetName,PreCallSelectDevice
+import Authenticate from '../src/pages/Authenticate';
+import VideoCall from '../src/pages/VideoCall';
+import Join from '../src/pages/Join';
+import Create from '../src/pages/Create'
+import {PreCallScreen} from '../src/components/precall/index'
+/**
+ * Importing subcomponents
+ */
+import {
+  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallLogo,
+  PreCallSetName, PreCallSelectDevice
 } from "../src/components/precall/index";
-
 
 import ROUTE_KEY from './route/keys';
 
@@ -31,7 +38,7 @@ interface VideoCallScreenInterface {
   videoLayout?: VideoLayoutInterface[];
 }
 
-interface VideoAudioMuteInterface{
+interface VideoAudioMuteInterface {
   audioMute?: React.FC<{}>;
   videoMute?: React.FC<{}>;
 }
@@ -54,7 +61,7 @@ export interface ComponentsInterface {
 interface MessageCallBack {
   notify?: () => void;
 }
-interface SubcomponentsInterface{
+interface SubcomponentsInterface {
   PreCallVideoPreview?: React.FC<{}>;
   PreCallLocalMute?: React.FC<{}>;
   PreCallLocalAudioMute?: React.FC<{}>;
@@ -82,7 +89,7 @@ export interface FpeApiInterface {
   message_callback?: MessageCallBack;
 }
 
-let subcomponents:SubcomponentsInterface = {
+let subcomponents: SubcomponentsInterface = {
   PreCallVideoPreview: PreCallVideoPreview,
   PreCallLogo: PreCallLogo,
   PreCallLocalAudioMute: PreCallLocalAudioMute,
@@ -100,27 +107,27 @@ let FpeApiConfig: FpeApiInterface = {
   components: components,
   subcomponents: subcomponents
 };
- 
+
 const getFpeSubCmpConfig = (): SubcomponentsInterface => {
   return FpeApiConfig?.subcomponents ? FpeApiConfig.subcomponents : subcomponents
-} 
+}
 const getFpeCmpConfig = (): ComponentsInterface => {
   return FpeApiConfig?.components ? FpeApiConfig.components : components
-} 
+}
 const getFpeCustomRoutes = (): CustomRoutesInterface[] => {
   return FpeApiConfig?.custom_routes ? FpeApiConfig.custom_routes : []
 }
 
-const getFpeConfig = (key:string) => {
-  if(key){
+const getFpeConfig = (key: string) => {
+  if (key) {
     return FpeApiConfig[key]
   }
   return FpeApiConfig
 };
 
 const installComponents = (components?: ComponentsInterface) => {
-  let temp = {...FpeApiConfig.components}
-  if(components?.PreCallScreen){
+  let temp = { ...FpeApiConfig.components }
+  if (components?.PreCallScreen) {
     temp = {
       ...temp,
       PreCallScreen: components?.PreCallScreen
@@ -130,8 +137,8 @@ const installComponents = (components?: ComponentsInterface) => {
 }
 
 const installSubComponents = (subcomponents?: SubcomponentsInterface) => {
-  let temp = {...FpeApiConfig.subcomponents}
-  if(subcomponents?.PreCallVideoPreview){
+  let temp = { ...FpeApiConfig.subcomponents }
+  if (subcomponents?.PreCallVideoPreview) {
     temp = {
       ...temp,
       PreCallVideoPreview: subcomponents?.PreCallVideoPreview
@@ -141,7 +148,7 @@ const installSubComponents = (subcomponents?: SubcomponentsInterface) => {
 
 }
 
-const installCustomRoutes = (custom_routes:any) => {
+const installCustomRoutes = (custom_routes: any) => {
   FpeApiConfig.custom_routes = custom_routes?.concat(DEFAULT_ROUTES)
 }
 
@@ -152,4 +159,25 @@ const installFPE = (config: FpeApiInterface) => {
   return FpeApiConfig
 };
 
-export {installFPE, getFpeConfig, ROUTE_KEY, getFpeSubCmpConfig, getFpeCmpConfig, getFpeCustomRoutes, type CustomRoutesInterface};
+export {
+  /** 
+   * type defintion
+   */
+  type CustomRoutesInterface,
+  /**
+   * Core methods
+   */
+  installFPE, getFpeConfig, ROUTE_KEY, getFpeSubCmpConfig, getFpeCmpConfig, getFpeCustomRoutes,
+  /**
+   * Components
+   */
+  Authenticate,
+  Create,
+  Join,
+  PreCallScreen,
+  VideoCall,
+  /**
+   * Subcomponents
+   */
+  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallLogo, PreCallSetName, PreCallSelectDevice
+};
