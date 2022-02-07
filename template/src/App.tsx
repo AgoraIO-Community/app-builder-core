@@ -40,7 +40,6 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
-  const [phrase, onChangePhrase] = useState('');
   useEffect(( ) => {
     installPlugin()
   },[])
@@ -70,7 +69,7 @@ const App: React.FC = () => {
                       <StoreToken />
                     </Route>
                     <Route exact path={'/join'}>
-                      <Join phrase={phrase} onChangePhrase={onChangePhrase} />
+                      <Join />
                     </Route>
                     {shouldAuthenticate ? (
                       <PrivateRoute

@@ -27,12 +27,9 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import shouldAuthenticate from '../utils/shouldAuthenticate';
 // const joinFlag = 0;
-interface joinProps {
-  phrase: string;
-  onChangePhrase: (text: string) => void;
-}
-const Join = (props: joinProps) => {
+const Join = () => {
   const history = useHistory();
+  const [phrase, setPhrase] = useState('')
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
   const [error, setError] = useState<null | {name: string; message: string}>(
@@ -50,8 +47,6 @@ const Join = (props: joinProps) => {
     history.push('/create');
   };
 
-  const phrase = props.phrase;
-  const onChangePhrase = props.onChangePhrase;
   const startCall = async () => {
     joinSession({phrase});
   };
@@ -69,7 +64,7 @@ const Join = (props: joinProps) => {
           <View style={style.inputs}>
             <TextInput
               value={phrase}
-              onChangeText={(text) => onChangePhrase(text)}
+              onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
               placeholder="Enter Meeting ID"
             />
