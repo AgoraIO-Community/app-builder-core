@@ -9,16 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useState} from 'react';
-import Join from './pages/Join';
-import VideoCall from './pages/VideoCall';
-import Create from './pages/Create';
-import Authenticate from './pages/Authenticate';
-import {Router, Route, Switch, Redirect} from './components/Router';
+import React, {useEffect} from 'react';
+import {Router, Route, Switch} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
-import OAuth from './components/OAuth';
 import Navigation from './components/Navigation';
-import StoreToken from './components/StoreToken';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 // import JoinPhrase from './components/JoinPhrase';
@@ -27,10 +21,10 @@ import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
-import shouldAuthenticate from './utils/shouldAuthenticate';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import {installPlugin} from 'test-fpe'
+import {DEFAULT_ROUTES} from './defaultRoutes'
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -59,32 +53,25 @@ const App: React.FC = () => {
                   <DimensionProvider>
                   <Navigation />
                   <Switch>
-                    <Route exact path={'/'}>
-                      <Redirect to={'/create'} />
-                    </Route>
-                    <Route exact path={'/authenticate'}>
-                      {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
-                    </Route>
-                    <Route path={'/auth-token/:token'}>
-                      <StoreToken />
-                    </Route>
-                    <Route exact path={'/join'}>
-                      <Join />
-                    </Route>
-                    {shouldAuthenticate ? (
-                      <PrivateRoute
-                        path={'/create'}
-                        failureRedirectTo={'/authenticate'}>
-                        <Create />
-                      </PrivateRoute>
-                    ) : (
-                      <Route path={'/create'}>
-                        <Create />
-                      </Route>
-                    )}
-                    <Route path={'/:phrase'}>
-                      <VideoCall />
-                    </Route>
+                  {DEFAULT_ROUTES.map((e, i) => {
+                      if (e?.privateRoute) {
+                        return (
+                          <PrivateRoute
+                            path={e.path}
+                            key={i}
+                            {...e.routeProps}
+                          >
+                            <e.component {...e.componentProps} />
+                          </PrivateRoute>
+                        );
+                      } else {
+                        return (
+                          <Route path={e.path} exact={e.exact} key={i} {...e.routeProps}>
+                            <e.component {...e.componentProps}/>
+                          </Route>
+                        );
+                      }
+                    })}
                   </Switch>
                   </DimensionProvider>
                 </ColorConfigure>
