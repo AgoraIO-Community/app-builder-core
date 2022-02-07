@@ -1,8 +1,8 @@
-const ROUTE_KEY={
+const ROUTE_KEY = {
   ROOT: '/',
   JOIN: '/join',
   CREATE: '/create',
-  PHASE: '/:phase',
+  PHRASE: '/:phrase',
   AUTHENTICATE: '/authenticate',
   AUTH_TOKEN:'/auth-token',
   TOKEN: '/:token'

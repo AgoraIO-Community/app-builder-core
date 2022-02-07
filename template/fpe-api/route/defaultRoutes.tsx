@@ -9,25 +9,25 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { Redirect } from './components/Router';
-import OAuth from './components/OAuth';
-import Join from './pages/Join';
-import VideoCall from './pages/VideoCall';
-import Create from './pages/Create';
-import StoreToken from './components/StoreToken';
-import shouldAuthenticate from './utils/shouldAuthenticate';
-import { ROUTE_KEY } from 'fpe-api';
+import { Redirect } from '../../src/components/Router';
+import OAuth from '../../src/components/OAuth';
+import Join from '../../src/pages/Join';
+import VideoCall from '../../src/pages/VideoCall';
+import Create from '../../src/pages/Create';
+import StoreToken from '../../src/components/StoreToken';
+import shouldAuthenticate from '../../src/utils/shouldAuthenticate';
+import ROUTE_KEY from './keys'
 
-type routeObject = {
-  path: string,
-  exact?: boolean,
-  component: any,
-  componentProps?: any,
-  privateRoute?: boolean,
-  routeProps?: any
-}[];
+export type CustomRoutesInterface = {
+  path: string;
+  component: any;
+  exact?: boolean;  
+  componentProps?: any;
+  privateRoute?: boolean;
+  routeProps?: any;
+};
 
-const DEFAULT_ROUTES: routeObject = [
+const DEFAULT_ROUTES: CustomRoutesInterface[] = [
   {
     path: ROUTE_KEY.ROOT,
     exact: true,

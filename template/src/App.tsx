@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Router, Route, Switch} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import Navigation from './components/Navigation';
@@ -23,8 +23,8 @@ import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
+import {getFpeCustomRoutes,CustomRoutesInterface} from 'fpe-api'
 import {installPlugin} from 'test-fpe'
-import {DEFAULT_ROUTES} from './defaultRoutes'
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -34,8 +34,12 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
+  const [appRoutes, setAppRoutes] = useState<CustomRoutesInterface[]>()
+  const [pluginReady, setPluginReady] = useState(false)
   useEffect(( ) => {
     installPlugin()
+    setAppRoutes(getFpeCustomRoutes())
+    setPluginReady(true)
   },[])
   return (
     <ImageBackground
@@ -53,7 +57,7 @@ const App: React.FC = () => {
                   <DimensionProvider>
                   <Navigation />
                   <Switch>
-                  {DEFAULT_ROUTES.map((e, i) => {
+                  {pluginReady && appRoutes?.map((e, i) => {
                       if (e?.privateRoute) {
                         return (
                           <PrivateRoute

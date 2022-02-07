@@ -1,4 +1,5 @@
 import React from 'react';
+import { DEFAULT_ROUTES, CustomRoutesInterface } from './route/defaultRoutes';
 
 /**
  * Importing components
@@ -49,12 +50,7 @@ export interface ComponentsInterface {
   PreCallScreen?: React.FC<{}>;
   videoCallScreen?: VideoCallScreenInterface | React.FC<{}>;
 }
-interface CustomRoutesInterface {
-  path: string;
-  exact?: boolean;
-  private?: boolean;
-  component: React.FC<{}>;
-}
+
 interface MessageCallBack {
   notify?: () => void;
 }
@@ -111,6 +107,9 @@ const getFpeSubCmpConfig = (): SubcomponentsInterface => {
 const getFpeCmpConfig = (): ComponentsInterface => {
   return FpeApiConfig?.components ? FpeApiConfig.components : components
 } 
+const getFpeCustomRoutes = (): CustomRoutesInterface[] => {
+  return FpeApiConfig?.custom_routes ? FpeApiConfig.custom_routes : []
+}
 
 const getFpeConfig = (key:string) => {
   if(key){
@@ -142,10 +141,15 @@ const installSubComponents = (subcomponents?: SubcomponentsInterface) => {
 
 }
 
+const installCustomRoutes = (custom_routes:any) => {
+  FpeApiConfig.custom_routes = custom_routes?.concat(DEFAULT_ROUTES)
+}
+
 const installFPE = (config: FpeApiInterface) => {
   installComponents(config?.components)
   installSubComponents(config?.subcomponents)
+  installCustomRoutes(config?.custom_routes)
   return FpeApiConfig
 };
 
-export {installFPE, getFpeConfig, ROUTE_KEY, getFpeSubCmpConfig, getFpeCmpConfig};
+export {installFPE, getFpeConfig, ROUTE_KEY, getFpeSubCmpConfig, getFpeCmpConfig, getFpeCustomRoutes, type CustomRoutesInterface};
