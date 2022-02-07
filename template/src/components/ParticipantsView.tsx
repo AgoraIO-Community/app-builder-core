@@ -47,11 +47,9 @@ const ParticipantView = (props: any) => {
           : style.participantViewNative
       }>
       <View style={[style.titleContainer, style.padding10]}>
-        <TouchableOpacity>
-          <Text style={[style.mainHeading, style.lineUnderHeading]}>
-            Participants
-          </Text>
-        </TouchableOpacity>
+        <Text style={[style.mainHeading, style.lineUnderHeading]}>
+          Participants
+        </Text>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
         {$config.EVENT_MODE ? (
