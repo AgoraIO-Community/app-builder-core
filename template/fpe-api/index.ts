@@ -2,6 +2,10 @@ import React from 'react';
 import { DEFAULT_ROUTES, CustomRoutesInterface } from './route/defaultRoutes';
 
 /**
+ * Importing common components
+ */
+import {Logo,Error} from '../src/components/common/index'
+/**
  * Importing components
  */
 import Authenticate from '../src/pages/Authenticate';
@@ -13,7 +17,7 @@ import {PreCallScreen} from '../src/components/precall/index'
  * Importing subcomponents
  */
 import {
-  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallLogo,
+  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute,
   PreCallSetName, PreCallSelectDevice
 } from "../src/components/precall/index";
 
@@ -91,7 +95,7 @@ export interface FpeApiInterface {
 
 let subcomponents: SubcomponentsInterface = {
   PreCallVideoPreview: PreCallVideoPreview,
-  PreCallLogo: PreCallLogo,
+  PreCallLogo: Logo,
   PreCallLocalAudioMute: PreCallLocalAudioMute,
   PreCallLocalVideoMute: PreCallLocalVideoMute,
   PreCallLocalMute: PreCallLocalMute,
@@ -169,6 +173,11 @@ export {
    */
   installFPE, getFpeConfig, ROUTE_KEY, getFpeSubCmpConfig, getFpeCmpConfig, getFpeCustomRoutes,
   /**
+   * Common components
+   */
+  Logo,
+  Error,
+  /**
    * Components
    */
   Authenticate,
@@ -179,5 +188,5 @@ export {
   /**
    * Subcomponents
    */
-  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallLogo, PreCallSetName, PreCallSelectDevice
+  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallSetName, PreCallSelectDevice
 };

@@ -42,6 +42,7 @@ import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import PreCallProvider from '../components/precall/PreCallProvider';
 import { getFpeCmpConfig } from 'fpe-api';
+import { ErrorContext } from '../components/common/index';
 
 
 const useChatNotification = (
@@ -238,6 +239,7 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const {setGlobalErrorMessage} = useContext(ErrorContext)
   const {PreCallScreen} = getFpeCmpConfig()
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
@@ -284,7 +286,7 @@ const VideoCall: React.FC = () => {
       console.log('error', error);
       // console.log('error data', data);
       if (!errorMessage) {
-        setErrorMessage(error);
+        setGlobalErrorMessage && setGlobalErrorMessage(error)
       }
       return;
     }
@@ -478,8 +480,7 @@ const VideoCall: React.FC = () => {
                       </NotificationControl>
                     </View>
                   ) : $config.PRECALL ? (
-                    <PreCallProvider
-                      error={errorMessage}
+                    <PreCallProvider                    
                       username={username}
                       setUsername={setUsername}
                       setCallActive={setCallActive}

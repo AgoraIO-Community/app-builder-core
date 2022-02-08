@@ -12,10 +12,6 @@
 import React, {createContext} from 'react';
 
 interface PreCallContextInterface {
-  error:{
-    name: string;
-    message: string
-  };
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;

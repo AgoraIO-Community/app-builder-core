@@ -10,24 +10,20 @@
 *********************************************
 */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native'
 import Logo from '../../subComponents/Logo';
 import hasBrandLogo from '../../utils/hasBrandLogo';
-import Error from '../../subComponents/Error';
-import PreCallContext from './PreCallContext';
 
-const PreCallLogo: React.FC = () => {
-  const {error} = useContext(PreCallContext)
+const CommonLogo: React.FC = () => {
   return (
     <View style={style.nav}>
       {hasBrandLogo && <Logo />}{/**TODO:hari update logo cmp works for localimage and url */}
-      {error ? <Error error={error} showBack={true} /> : <></>}
       {/* <OpenInNativeButton /> */}
     </View>
   )
 }
-export default PreCallLogo;
+export default CommonLogo;
 const style = StyleSheet.create({
   nav: {
     flex: 1,

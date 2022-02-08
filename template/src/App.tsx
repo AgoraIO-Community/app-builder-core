@@ -23,8 +23,9 @@ import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
-import {getFpeCustomRoutes,CustomRoutesInterface} from 'fpe-api'
+import {getFpeCustomRoutes,CustomRoutesInterface,Error} from 'fpe-api'
 import {installPlugin} from 'test-fpe'
+import { ErrorProvider } from './components/common';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -55,6 +56,8 @@ const App: React.FC = () => {
               <SessionProvider>
                 <ColorConfigure>
                   <DimensionProvider>
+                  <ErrorProvider>
+                  <Error />
                   <Navigation />
                   <Switch>
                   {pluginReady && appRoutes?.map((e, i) => {
@@ -76,7 +79,8 @@ const App: React.FC = () => {
                         );
                       }
                     })}
-                  </Switch>
+                  </Switch>        
+                  </ErrorProvider>        
                   </DimensionProvider>
                 </ColorConfigure>
               </SessionProvider>

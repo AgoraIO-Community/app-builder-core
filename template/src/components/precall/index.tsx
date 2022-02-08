@@ -13,8 +13,7 @@
 import React from 'react';
 import PreCallScreen from './PreCallScreen';
 import PreCallLocalMute from './LocalMute';
-import PreCallVideoPreview from './VideoPreview'
-import PreCallLogo from './Logo';
+import PreCallVideoPreview from './VideoPreview';
 import PreCallSetName from './setName';
 import PreCallSelectDevice from './selectDevice';
 import {LocalAudioMute,LocalVideoMute} from '../../../agora-rn-uikit';
@@ -26,7 +25,6 @@ export {
   PreCallVideoPreview,
   PreCallLocalAudioMute,
   PreCallLocalVideoMute,
-  PreCallLogo,
   PreCallSetName,
   PreCallSelectDevice
 };
