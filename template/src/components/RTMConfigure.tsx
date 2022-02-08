@@ -55,15 +55,23 @@ const parsePayload = (data: string) => {
   return JSON.parse(data);
 };
 
-const IsJsonString = (str: string) => {
+function hasJsonStructure(str: string) {
+  if (typeof str !== 'string') return false;
   try {
-    JSON.parse(str);
-  } catch (e) {
+    const result = JSON.parse(str);
+    const type = Object.prototype.toString.call(result);
+    return type === '[object Object]' || type === '[object Array]';
+  } catch (err) {
     return false;
   }
-  return true;
-};
-
+}
+function safeJsonParse(str: string) {
+  try {
+    return [null, JSON.parse(str)];
+  } catch (err) {
+    return [err];
+  }
+}
 const timeNow = () => new Date().getTime();
 
 const RtmConfigure = (props: any) => {
@@ -74,6 +82,14 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
+  const [attendeeList, setAttendeeList] = useState<{[key: string]: any}>({});
+
+  const attendeeListRef = useRef(attendeeList);
+
+  useEffect(() => {
+    attendeeListRef.current = attendeeList;
+  }, [attendeeList]);
+
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
@@ -365,9 +381,11 @@ const RtmConfigure = (props: any) => {
       if (channelId === rtcProps.channel) {
         if (type === messageActionType.Control) {
           let actionMsg = '';
-          if (IsJsonString(msg)) {
-            let {action} = JSON.parse(msg);
-            actionMsg = action;
+          if (hasJsonStructure(msg)) {
+            const [err, result] = safeJsonParse(msg);
+            if (!err) {
+              actionMsg = result;
+            }
           } else {
             actionMsg = msg;
           }
