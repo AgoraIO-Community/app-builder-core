@@ -91,6 +91,7 @@ const ParticipantView = (props: any) => {
                   <ParticipantsWithoutControls
                     p_style={style}
                     type={ClientRole.Broadcaster}
+                    isHost={props.isHost}
                   />
                 </View>
               </View>
@@ -105,6 +106,7 @@ const ParticipantView = (props: any) => {
                   <ParticipantsWithoutControls
                     p_style={style}
                     type={ClientRole.Broadcaster}
+                    isHost={props.isHost}
                   />
                 </View>
               </View>
@@ -116,6 +118,7 @@ const ParticipantView = (props: any) => {
                 <ParticipantsWithoutControls
                   p_style={style}
                   type={ClientRole.Audience}
+                  isHost={props.isHost}
                 />
               </View>
             </View>
