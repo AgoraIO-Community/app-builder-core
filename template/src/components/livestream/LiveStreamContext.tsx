@@ -20,7 +20,7 @@ export const LiveStreamContextProvider = (props: any) => {
   const [raiseHandRequestActive, setRaiseHandRequestActive] =
     React.useState(false);
 
-  const {setRtcProps} = props;
+  const {currentRole, setRtcProps} = props;
 
   const {events} = React.useContext(ChatContext);
 
@@ -61,8 +61,13 @@ export const LiveStreamContextProvider = (props: any) => {
       (data: any, error: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequest) {
-          showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
-          addOrUpdateLiveStreamRequest(data.uid, requestStatus.AwaitingAction);
+          if (currentRole && currentRole === ClientRole.Broadcaster) {
+            showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
+            addOrUpdateLiveStreamRequest(
+              data.uid,
+              requestStatus.AwaitingAction,
+            );
+          }
         }
       },
     );
@@ -112,8 +117,10 @@ export const LiveStreamContextProvider = (props: any) => {
       (data: any, error: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
-          showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
-          addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+          if (currentRole && currentRole === ClientRole.Broadcaster) {
+            showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
+            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+          }
         }
       },
     );
@@ -168,7 +175,13 @@ export const LiveStreamContextProvider = (props: any) => {
       );
       events.off(messageChannelType.Public, 'onRequestStatusNotification');
     };
-  }, [events, localUid, raiseHandRequestActive, currLiveStreamRequest]);
+  }, [
+    events,
+    localUid,
+    raiseHandRequestActive,
+    currLiveStreamRequest,
+    currentRole,
+  ]);
 
   const addOrUpdateLiveStreamRequest = (
     uid: number | string,
