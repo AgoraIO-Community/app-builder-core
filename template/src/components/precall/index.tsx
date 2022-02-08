@@ -17,6 +17,8 @@ import PreCallVideoPreview from './VideoPreview';
 import PreCallSetName from './setName';
 import PreCallSelectDevice from './selectDevice';
 import {LocalAudioMute,LocalVideoMute} from '../../../agora-rn-uikit';
+import PreCallJoinBtn from './joinCallBtn'
+import PreCallTextInput from './textInput';
 const PreCallLocalAudioMute = () => <LocalAudioMute />;
 const PreCallLocalVideoMute = () => <LocalVideoMute />;
 export {
@@ -26,5 +28,7 @@ export {
   PreCallLocalAudioMute,
   PreCallLocalVideoMute,
   PreCallSetName,
-  PreCallSelectDevice
+  PreCallSelectDevice,
+  PreCallJoinBtn,
+  PreCallTextInput
 };

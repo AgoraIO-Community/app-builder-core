@@ -10,23 +10,25 @@
 *********************************************
 */
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native'
-import { getFpeSubCmpConfig } from 'fpe-api';
+import React, { useContext } from 'react';
+import PreCallContext from './PreCallContext';
+import TextInput from '../../atoms/TextInput';
 
-const setName: React.FC = () => {
-  const {PreCallJoinBtn, PreCallTextInput} = getFpeSubCmpConfig()
+const PreCallTextInput: React.FC = () => {
+  const { username,setUsername, queryComplete } = useContext(PreCallContext)
   return (
-    <View style={[style.margin5Btm, { alignItems: 'center' }]}>
-      {PreCallTextInput && <PreCallTextInput/>}
-      <View style={style.margin5Btm} />
-      {PreCallJoinBtn && <PreCallJoinBtn/>}      
-    </View>
+    <TextInput
+      value={username}
+      onChangeText={(text) => {
+        setUsername(text);
+      }}
+      onSubmitEditing={() => { }}
+      placeholder={
+        queryComplete ? 'Display name*' : 'Getting name...'
+      }
+      editable={queryComplete}
+    />
   )
 }
 
-export default setName;
-
-const style = StyleSheet.create({
-  margin5Btm: { marginBottom: '5%' }
-})
+export default PreCallTextInput;

@@ -18,7 +18,7 @@ import {PreCallScreen} from '../src/components/precall/index'
  */
 import {
   PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute,
-  PreCallSetName, PreCallSelectDevice
+  PreCallSetName, PreCallSelectDevice, PreCallJoinBtn, PreCallTextInput
 } from "../src/components/precall/index";
 import Share from '../src/components/Share';
 
@@ -74,6 +74,8 @@ interface SubcomponentsInterface {
   PreCallLogo?: React.FC<{}>;
   PreCallSetName?: React.FC<{}>;
   PreCallSelectDevice?: React.FC<{}>;
+  PreCallJoinBtn?: React.FC<{}>;
+  PreCallTextInput?: React.FC<{}>;
   ShareLink?: React.FC<{}>;
 }
 export interface FpeApiInterface {
@@ -103,6 +105,8 @@ let subcomponents: SubcomponentsInterface = {
   PreCallLocalMute: PreCallLocalMute,
   PreCallSetName: PreCallSetName,
   PreCallSelectDevice: PreCallSelectDevice,
+  PreCallJoinBtn: PreCallJoinBtn,
+  PreCallTextInput: PreCallTextInput,
   ShareLink:Share
 }
 

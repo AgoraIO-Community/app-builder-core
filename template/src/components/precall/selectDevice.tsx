@@ -13,13 +13,13 @@
 import React, { useContext } from 'react';
 import { View, StyleSheet, Text, Platform } from 'react-native'
 import ColorContext from '../ColorContext';
-import TextInput from '../../atoms/TextInput';
-import PrimaryButton from '../../atoms/PrimaryButton';
 import SelectDevice from '../../subComponents/SelectDevice';
 import PreCallContext from './PreCallContext';
+import { getFpeSubCmpConfig } from 'fpe-api';
 
 const selectDevice: React.FC = () => {
-  const { title, username, setUsername, queryComplete, setCallActive } = useContext(PreCallContext)
+  const {PreCallJoinBtn, PreCallTextInput} = getFpeSubCmpConfig()
+  const { title } = useContext(PreCallContext)
   const { primaryColor } = useContext(ColorContext);
   return (
     <View
@@ -67,24 +67,10 @@ const selectDevice: React.FC = () => {
             alignItems: 'center',
             marginTop: 50,
           }}>
-          <TextInput
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-            }}
-            onSubmitEditing={() => { }}
-            placeholder={
-              queryComplete ? 'Display name*' : 'Getting name...'
-            }
-            editable={queryComplete}
-          />
+          {PreCallTextInput && <PreCallTextInput />}
           <View style={{ height: 20 }} />
-          <PrimaryButton
-            onPress={() => setCallActive(true)}
-            disabled={!queryComplete || username.trim() === ''}
-            text={queryComplete ? 'Join Room' : 'Loading...'}
-          />
-        </View>
+          {PreCallJoinBtn && <PreCallJoinBtn/>}
+        </View>        
       </View>
     </View>
   )

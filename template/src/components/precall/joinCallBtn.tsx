@@ -10,23 +10,19 @@
 *********************************************
 */
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native'
-import { getFpeSubCmpConfig } from 'fpe-api';
+import React, { useContext } from 'react';
+import PrimaryButton from '../../atoms/PrimaryButton';
+import PreCallContext from './PreCallContext';
 
-const setName: React.FC = () => {
-  const {PreCallJoinBtn, PreCallTextInput} = getFpeSubCmpConfig()
+const joinCallBtn: React.FC = () => {
+  const { username, queryComplete, setCallActive } = useContext(PreCallContext)
   return (
-    <View style={[style.margin5Btm, { alignItems: 'center' }]}>
-      {PreCallTextInput && <PreCallTextInput/>}
-      <View style={style.margin5Btm} />
-      {PreCallJoinBtn && <PreCallJoinBtn/>}      
-    </View>
+    <PrimaryButton
+        onPress={() => setCallActive(true)}
+        disabled={!queryComplete || username.trim() === ''}
+        text={queryComplete ? 'Join Room' : 'Loading...'}
+    />
   )
 }
 
-export default setName;
-
-const style = StyleSheet.create({
-  margin5Btm: { marginBottom: '5%' }
-})
+export default joinCallBtn;
