@@ -11,12 +11,10 @@
 */
 import { Redirect } from '../../src/components/Router';
 import OAuth from '../../src/components/OAuth';
-import Join from '../../src/pages/Join';
-import VideoCall from '../../src/pages/VideoCall';
-import Create from '../../src/pages/Create';
 import StoreToken from '../../src/components/StoreToken';
 import shouldAuthenticate from '../../src/utils/shouldAuthenticate';
 import ROUTE_KEY from './keys'
+import { getFpeCmpConfig } from '../index';
 
 export type CustomRoutesInterface = {
   path: string;
@@ -27,47 +25,49 @@ export type CustomRoutesInterface = {
   routeProps?: any;
 };
 
-const DEFAULT_ROUTES: CustomRoutesInterface[] = [
-  {
-    path: ROUTE_KEY.ROOT,
-    exact: true,
-    component: Redirect,
-    componentProps: {
-      to: ROUTE_KEY.CREATE
-    }
-  },
-  {
-    path: ROUTE_KEY.AUTHENTICATE,
-    exact: true,
-    component: shouldAuthenticate ? OAuth : Redirect,
-    componentProps: shouldAuthenticate ? {} : {
-      to: ROUTE_KEY.CREATE
-    }
-  },
-  {
-    path: ROUTE_KEY.AUTH_TOKEN + ROUTE_KEY.TOKEN,
-    component: StoreToken,
-  },
-  {
-    path: ROUTE_KEY.JOIN,
-    exact: true,
-    component: Join,
-  },
-  {
-    path: ROUTE_KEY.CREATE,
-    privateRoute: shouldAuthenticate,
-    component: Create,
-    routeProps: {
-      failureRedirectTo: ROUTE_KEY.AUTHENTICATE
-    }
-  },
-  {
-    path: ROUTE_KEY.PHRASE,
-    component: VideoCall,
-  },
-];
-
-
+const getDefaultRoutes = ():CustomRoutesInterface[] => {
+  const { createMeetingScreen, joinMeetingScreen, videoCallScreen} =  getFpeCmpConfig()
+  const DEFAULT_ROUTES: CustomRoutesInterface[] = [
+    {
+      path: ROUTE_KEY.ROOT,
+      exact: true,
+      component: Redirect,
+      componentProps: {
+        to: ROUTE_KEY.CREATE
+      }
+    },
+    {
+      path: ROUTE_KEY.AUTHENTICATE,
+      exact: true,
+      component: shouldAuthenticate ? OAuth : Redirect,
+      componentProps: shouldAuthenticate ? {} : {
+        to: ROUTE_KEY.CREATE
+      }
+    },
+    {
+      path: ROUTE_KEY.AUTH_TOKEN + ROUTE_KEY.TOKEN,
+      component: StoreToken,
+    },
+    {
+      path: ROUTE_KEY.JOIN,
+      exact: true,
+      component: joinMeetingScreen,
+    },
+    {
+      path: ROUTE_KEY.CREATE,
+      privateRoute: shouldAuthenticate,
+      component: createMeetingScreen,
+      routeProps: {
+        failureRedirectTo: ROUTE_KEY.AUTHENTICATE
+      }
+    },
+    {
+      path: ROUTE_KEY.PHRASE,
+      component: videoCallScreen,
+    },
+  ];
+  return DEFAULT_ROUTES
+}
 export {
-  DEFAULT_ROUTES
+  getDefaultRoutes
 }

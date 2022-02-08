@@ -30,11 +30,11 @@ import icons from '../assets/icons';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
+import { ShareLinkContext } from '../pages/Create/ShareLink';
 
-const Share = (props: any) => {
+const Share = () => {
   const history = useHistory();
-  const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} =
-    props;
+  const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} = useContext(ShareLinkContext);   
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {

@@ -6,10 +6,12 @@ export const installPlugin = () => {
   /**we can pass components and subcomponents to override the UI elements or screen */
   return installFPE({
     components: {
+      //createMeetingScreen: CustomPreCall
       //PreCallScreen: CustomPreCall
     },
     subcomponents:{
       //PreCallVideoPreview: CustomPreCall
+      //ShareLink: CustomPreCall
     },
     custom_routes:[
       {

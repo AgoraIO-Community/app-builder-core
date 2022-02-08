@@ -1,5 +1,5 @@
 import React from 'react';
-import { DEFAULT_ROUTES, CustomRoutesInterface } from './route/defaultRoutes';
+import { getDefaultRoutes, CustomRoutesInterface } from './route/defaultRoutes';
 
 /**
  * Importing common components
@@ -11,7 +11,7 @@ import {Logo,Error} from '../src/components/common/index'
 import Authenticate from '../src/pages/Authenticate';
 import VideoCall from '../src/pages/VideoCall';
 import Join from '../src/pages/Join';
-import Create from '../src/pages/Create'
+import Create from '../src/pages/Create/index'
 import {PreCallScreen} from '../src/components/precall/index'
 /**
  * Importing subcomponents
@@ -20,6 +20,7 @@ import {
   PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute,
   PreCallSetName, PreCallSelectDevice
 } from "../src/components/precall/index";
+import Share from '../src/components/Share';
 
 import ROUTE_KEY from './route/keys';
 
@@ -59,7 +60,7 @@ export interface ComponentsInterface {
   joinMeetingScreen?: React.FC<{}>;
   shareMeetingLinks?: React.FC<{}>;
   PreCallScreen?: React.FC<{}>;
-  videoCallScreen?: VideoCallScreenInterface | React.FC<{}>;
+  videoCallScreen?: React.FC<{}>;
 }
 
 interface MessageCallBack {
@@ -73,6 +74,7 @@ interface SubcomponentsInterface {
   PreCallLogo?: React.FC<{}>;
   PreCallSetName?: React.FC<{}>;
   PreCallSelectDevice?: React.FC<{}>;
+  ShareLink?: React.FC<{}>;
 }
 export interface FpeApiInterface {
   /**
@@ -100,11 +102,15 @@ let subcomponents: SubcomponentsInterface = {
   PreCallLocalVideoMute: PreCallLocalVideoMute,
   PreCallLocalMute: PreCallLocalMute,
   PreCallSetName: PreCallSetName,
-  PreCallSelectDevice: PreCallSelectDevice
+  PreCallSelectDevice: PreCallSelectDevice,
+  ShareLink:Share
 }
 
 let components: ComponentsInterface = {
-  PreCallScreen: PreCallScreen
+  PreCallScreen: PreCallScreen,
+  createMeetingScreen: Create,
+  joinMeetingScreen: Join,
+  videoCallScreen: VideoCall
 }
 
 let FpeApiConfig: FpeApiInterface = {
@@ -124,36 +130,29 @@ const getFpeCustomRoutes = (): CustomRoutesInterface[] => {
 
 const getFpeConfig = (key: string) => {
   if (key) {
-    return FpeApiConfig[key]
+    return FpeApiConfig[key as keyof FpeApiInterface]
   }
   return FpeApiConfig
 };
 
 const installComponents = (components?: ComponentsInterface) => {
   let temp = { ...FpeApiConfig.components }
-  if (components?.PreCallScreen) {
-    temp = {
-      ...temp,
-      PreCallScreen: components?.PreCallScreen
-    }
+  for (const key in components) {
+    temp[key as keyof ComponentsInterface] = components[key as keyof ComponentsInterface];
   }
   FpeApiConfig.components = temp
 }
 
 const installSubComponents = (subcomponents?: SubcomponentsInterface) => {
   let temp = { ...FpeApiConfig.subcomponents }
-  if (subcomponents?.PreCallVideoPreview) {
-    temp = {
-      ...temp,
-      PreCallVideoPreview: subcomponents?.PreCallVideoPreview
-    }
+  for (const key in subcomponents) {
+    temp[key as keyof SubcomponentsInterface] = subcomponents[key as keyof SubcomponentsInterface];
   }
   FpeApiConfig.subcomponents = temp
-
 }
 
-const installCustomRoutes = (custom_routes: any) => {
-  FpeApiConfig.custom_routes = custom_routes?.concat(DEFAULT_ROUTES)
+const installCustomRoutes = (custom_routes: CustomRoutesInterface[] = []) => {
+  FpeApiConfig.custom_routes = custom_routes?.concat(getDefaultRoutes())
 }
 
 const installFPE = (config: FpeApiInterface) => {
