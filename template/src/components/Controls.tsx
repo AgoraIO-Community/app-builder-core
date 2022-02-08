@@ -21,10 +21,11 @@ import {
 import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
 import {LocalRaiseHand} from '../subComponents/livestream';
-import ScreenshareButton from '../subComponents/ScreenshareButton';
+import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {ClientRole} from '../../agora-rn-uikit';
+import {ScreenshareContextProvider} from '../subComponents/screenshare/ScreenshareContext';
 
 const Controls = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
@@ -38,7 +39,6 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const [screenshareActive, setScreenshareActive] = useState(false);
   const {setRecordingActive, recordingActive, isHost, setLayout} = props;
 
   return (
@@ -62,6 +62,21 @@ const Controls = (props: any) => {
           )
         ) : (
           <>
+            {$config.EVENT_MODE &&
+              $config.RAISE_HAND &&
+              rtcProps.role == ClientRole.Broadcaster &&
+              !isHost && (
+                <>
+                  {/**
+                   * In event mode when raise hand feature is active
+                   * and audience is promoted to host, the audience can also
+                   * demote himself
+                   */}
+                  <View style={{alignSelf: 'center'}}>
+                    <LocalRaiseHand />
+                  </View>
+                </>
+              )}
             <View style={{alignSelf: 'center'}}>
               <LocalAudioMute />
             </View>
@@ -74,14 +89,13 @@ const Controls = (props: any) => {
               </View>
             )}
             {$config.SCREEN_SHARING && !mobileAndTabletCheck() && (
-              <View style={{alignSelf: 'center'}}>
-                <ScreenshareButton
-                  screenshareActive={screenshareActive}
-                  setScreenshareActive={setScreenshareActive}
-                  setLayout={setLayout}
-                  recordingActive={recordingActive}
-                />
-              </View>
+              <ScreenshareContextProvider
+                setLayout={setLayout}
+                recordingActive={recordingActive}>
+                <View style={{alignSelf: 'center'}}>
+                  <ScreenshareButton />
+                </View>
+              </ScreenshareContextProvider>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
