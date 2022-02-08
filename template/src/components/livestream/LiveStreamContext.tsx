@@ -117,7 +117,14 @@ export const LiveStreamContextProvider = (props: any) => {
       (data: any, error: any) => {
         if (!data) return;
         if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
-          if (currentRole && currentRole === ClientRole.Broadcaster) {
+          // Audience revoked his approved request
+          if (
+            currLiveStreamRequest.hasOwnProperty(data.uid) &&
+            currLiveStreamRequest[data.uid] === requestStatus.Approved
+          ) {
+            approvedRequestRevoked();
+          } else if (currentRole && currentRole === ClientRole.Broadcaster) {
+            // Audience revoked his request
             showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
             addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
           }
@@ -134,12 +141,7 @@ export const LiveStreamContextProvider = (props: any) => {
           data.msg ===
           LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall
         ) {
-          showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-          setRaiseHandRequestActive(false);
-          notifyAllHostsInChannel(
-            LiveStreamControlMessageEnum.notifyAllRequestRejected,
-          );
-          changeClientRoleTo(ClientRole.Audience);
+          approvedRequestRevoked();
         }
       },
     );
@@ -203,6 +205,15 @@ export const LiveStreamContextProvider = (props: any) => {
 
   const notifyAllHostsInChannel = (ctrlEnum: LiveStreamControlMessageEnum) => {
     sendControlMessage(ctrlEnum);
+  };
+
+  const approvedRequestRevoked = () => {
+    showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
+    setRaiseHandRequestActive(false);
+    notifyAllHostsInChannel(
+      LiveStreamControlMessageEnum.notifyAllRequestRejected,
+    );
+    changeClientRoleTo(ClientRole.Audience);
   };
 
   // Live stream button controls for host - either approve or reject
