@@ -49,7 +49,7 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               isHost={isHost}
             />
           </View>
-          <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
+          <View style={[p_styles.actionBtnIcon]}>
             <RemoteVideoMute
               uid={user.uid}
               video={user.video}
