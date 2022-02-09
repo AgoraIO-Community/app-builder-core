@@ -15,16 +15,13 @@ import {
   Text,
   StyleSheet,
   Platform,
-  TouchableOpacity,
-  Image,
 } from 'react-native';
+import { VideoCallContext } from '../pages/VideoCall/index';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
-import ColorContext from './ColorContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 
-const SettingsView = (props: any) => {
-  const {isHost} = props;
+const SettingsView = () => {
+  const {isHost} = useContext(VideoCallContext);
   return (
     <View
       style={

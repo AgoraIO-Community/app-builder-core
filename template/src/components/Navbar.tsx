@@ -32,13 +32,11 @@ import ChatContext from '../components/ChatContext';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
+import { VideoCallContext } from '../pages/VideoCall/index';
 
-const Navbar = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
+const Navbar = () => {
   const {messageStore} = useContext(ChatContext);
   const {
-    // participantsView,
-    // setParticipantsView,
     recordingActive,
     sidePanel,
     setSidePanel,
@@ -46,11 +44,9 @@ const Navbar = (props: any) => {
     setLayout,
     pendingMessageLength,
     setLastCheckedPublicState,
-    // setChatDisplayed,
-    // chatDisplayed,
     isHost,
     title,
-  } = props;
+  } = useContext(VideoCallContext);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,

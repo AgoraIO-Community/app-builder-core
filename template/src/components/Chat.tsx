@@ -30,6 +30,7 @@ import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
+import { VideoCallContext } from '../pages/VideoCall';
 
 const Chat = (props: any) => {
   const {height, width} = useWindowDimensions();
@@ -42,14 +43,13 @@ const Chat = (props: any) => {
 
   const {userList, localUid} = useContext(chatContext);
   const {
-    setChatDisplayed,
     pendingPrivateNotification,
     pendingPublicNotification,
     lastCheckedPrivateState,
     privateMessageCountMap,
     setPrivateMessageLastSeen,
     setPrivateChatDisplayed
-  } = props;
+  } = useContext(VideoCallContext);
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);

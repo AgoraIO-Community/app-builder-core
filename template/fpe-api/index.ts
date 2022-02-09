@@ -9,7 +9,7 @@ import {Logo,Error} from '../src/components/common/index'
  * Importing components
  */
 import Authenticate from '../src/pages/Authenticate';
-import VideoCall from '../src/pages/VideoCall';
+import VideoCall from '../src/pages/VideoCall/index';
 import Join from '../src/pages/Join';
 import Create from '../src/pages/Create/index'
 import {PreCallScreen} from '../src/components/precall/index'
@@ -21,6 +21,11 @@ import {
   PreCallSetName, PreCallSelectDevice, PreCallJoinBtn, PreCallTextInput
 } from "../src/components/precall/index";
 import Share from '../src/components/Share';
+import Navbar from '../src/components/Navbar';
+import SettingsView from '../src/components/SettingsView';
+import ParticipantsView from '../src/components/ParticipantsView';
+import Controls from '../src/components/Controls';
+import Chat from '../src/components/Chat'
 
 import ROUTE_KEY from './route/keys';
 
@@ -77,6 +82,11 @@ interface SubcomponentsInterface {
   PreCallJoinBtn?: React.FC<{}>;
   PreCallTextInput?: React.FC<{}>;
   ShareLink?: React.FC<{}>;
+  NavBar?: React.FC<{}>;
+  SettingsView?: React.FC<{}>;
+  ParticipantsView?: React.FC<{}>;
+  Controls?: React.FC<{}>;
+  Chat?: React.FC<{}>;
 }
 export interface FpeApiInterface {
   /**
@@ -107,7 +117,12 @@ let subcomponents: SubcomponentsInterface = {
   PreCallSelectDevice: PreCallSelectDevice,
   PreCallJoinBtn: PreCallJoinBtn,
   PreCallTextInput: PreCallTextInput,
-  ShareLink:Share
+  ShareLink:Share,
+  NavBar: Navbar,
+  SettingsView: SettingsView,
+  ParticipantsView: ParticipantsView,
+  Controls: Controls,
+  Chat: Chat
 }
 
 let components: ComponentsInterface = {
@@ -191,5 +206,10 @@ export {
   /**
    * Subcomponents
    */
-  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallSetName, PreCallSelectDevice
+  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallSetName, PreCallSelectDevice,
+  Navbar,
+  SettingsView,
+  ParticipantsView,
+  Controls,
+  Chat
 };

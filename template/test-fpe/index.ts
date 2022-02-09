@@ -10,6 +10,10 @@ export const installPlugin = () => {
       //PreCallScreen: CustomPreCall
     },
     subcomponents:{
+      //Chat: CustomPage1
+      //Controls: CustomPage1
+      //ParticipantsView: CustomPage1
+      //SettingsView: CustomPage1
       // PreCallTextInput: CustomPage1,
       // PreCallJoinBtn: CustomPreCall
       //PreCallVideoPreview: CustomPreCall

@@ -40,8 +40,10 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {UserType} from './RTMConfigure';
 import styles from './styles';
 import TextWithToolTip from '../subComponents/TextWithTooltip'
+import { VideoCallContext } from '../pages/VideoCall/index';
 
-const ParticipantView = (props: any) => {
+const ParticipantView = () => {
+  const {isHost} = useContext(VideoCallContext);
   const {height, width} = useWindowDimensions();
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
@@ -128,7 +130,7 @@ const ParticipantView = (props: any) => {
                           <View style={style.actionBtnIcon}>
                             <RemoteEndCall
                               uid={user.uid}
-                              isHost={props.isHost}
+                              isHost={isHost}
                             />
                           </View>
                           <View
@@ -139,14 +141,14 @@ const ParticipantView = (props: any) => {
                             <RemoteAudioMute
                               uid={user.uid}
                               audio={user.audio}
-                              isHost={props.isHost}
+                              isHost={isHost}
                             />
                           </View>
                           <View style={[style.actionBtnIcon, {marginRight:5}]}>
                             <RemoteVideoMute
                               uid={user.uid}
                               video={user.video}
-                              isHost={props.isHost}
+                              isHost={isHost}
                             />
                           </View>
                         </View>
