@@ -23,7 +23,7 @@ import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import chatContext from './ChatContext';
 import AllHostParticipants from './participants/AllHostParticipants';
-import ParticipantsWithoutControls from './participants/AllAudienceParticipants';
+import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 
 const ParticipantView = (props: any) => {
@@ -88,7 +88,7 @@ const ParticipantView = (props: any) => {
               <View style={style.participantsection}>
                 <Text style={style.subheading}>Host</Text>
                 <View style={style.participantContainer}>
-                  <ParticipantsWithoutControls
+                  <AllAudienceParticipants
                     p_style={style}
                     type={ClientRole.Broadcaster}
                     isHost={props.isHost}
@@ -103,7 +103,7 @@ const ParticipantView = (props: any) => {
               <View style={style.participantsection}>
                 <Text style={style.subheading}>Host</Text>
                 <View style={style.participantContainer}>
-                  <ParticipantsWithoutControls
+                  <AllAudienceParticipants
                     p_style={style}
                     type={ClientRole.Broadcaster}
                     isHost={props.isHost}
@@ -115,7 +115,7 @@ const ParticipantView = (props: any) => {
             <View style={style.participantsection}>
               <Text style={style.subheading}>Audience</Text>
               <View style={style.participantContainer}>
-                <ParticipantsWithoutControls
+                <AllAudienceParticipants
                   p_style={style}
                   type={ClientRole.Audience}
                   isHost={props.isHost}
