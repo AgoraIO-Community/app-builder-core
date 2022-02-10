@@ -39,6 +39,7 @@ import PreCallProvider from '../.././components/precall/PreCallProvider';
 import { getFpeCmpConfig, getFpeSubCmpConfig } from 'fpe-api';
 import { ErrorContext } from '../.././components/common/index';
 import { VideoCallProvider } from './index';
+import {ChatUIProvider} from '../../components/chat-ui/index'
 
 
 const useChatNotification = (
@@ -381,33 +382,18 @@ const VideoCall: React.FC = () => {
                             recordingActive={recordingActive}
                             setRecordingActive={setRecordingActive}
                             isHost={isHost}
-                            title={title}
-                            pendingMessageLength={
-                              pendingPublicNotification +
-                              pendingPrivateNotification
-                            }
-                            setLastCheckedPublicState={
-                              setLastCheckedPublicState
-                            }
-                            //chat
-                            setPrivateChatDisplayed={setPrivateChatDisplayed}
-                            privateMessageCountMap={
-                              privateMessageCountMap
-                            }
-                            pendingPublicNotification={
-                              pendingPublicNotification
-                            }
-                            pendingPrivateNotification={
-                              pendingPrivateNotification
-                            }
-                            setPrivateMessageLastSeen={
-                              setPrivateMessageLastSeen
-                            }
-                            lastCheckedPrivateState={
-                              lastCheckedPrivateState
-                            }
-                            //chat
+                            title={title}                      
                           >
+                            <ChatUIProvider
+                              privateMessageCountMap={privateMessageCountMap}
+                              pendingPublicNotification={pendingPublicNotification}
+                              pendingPrivateNotification={pendingPrivateNotification}
+                              lastCheckedPrivateState={lastCheckedPrivateState}
+                              pendingMessageLength={pendingPublicNotification + pendingPrivateNotification}
+                              setLastCheckedPublicState={setLastCheckedPublicState}
+                              setPrivateMessageLastSeen={setPrivateMessageLastSeen}
+                              setPrivateChatDisplayed={setPrivateChatDisplayed}
+                            >
                             {NavBar && <NavBar />}
                               <View
                                 style={[
@@ -447,6 +433,7 @@ const VideoCall: React.FC = () => {
                             ) : (
                               Controls && <Controls />
                             )}
+                            </ChatUIProvider>
                           </VideoCallProvider>
                         )}
                       </NotificationControl>

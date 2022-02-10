@@ -9,32 +9,30 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import React,{createContext, SetStateAction} from 'react';
 
-import React, { SetStateAction } from 'react';
-import { SidePanelType } from 'src/subComponents/SidePanelEnum';
-
-type VideoCallContextType = {
-  setRecordingActive: any,
-  recordingActive: boolean,
-  sidePanel: SidePanelType,
-  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>,
-  layout: any,
-  setLayout: React.Dispatch<SetStateAction<any>>,
-  isHost: boolean,
-  title: string,
+interface ChatUIInterface {
+  pendingMessageLength: number,
+  pendingPrivateNotification: any,
+  pendingPublicNotification: any,
+  lastCheckedPrivateState: any,
+  privateMessageCountMap: any,
+  setLastCheckedPublicState: React.Dispatch<SetStateAction<any>>,
+  setPrivateMessageLastSeen: React.Dispatch<SetStateAction<any>>,
+  setPrivateChatDisplayed: React.Dispatch<SetStateAction<any>>
 }
-const VideoCallContext = React.createContext((null as unknown) as VideoCallContextType);
-const VideoCallProvider = (props:any) => {
+
+const ChatUIContext = createContext((null as unknown) as ChatUIInterface);
+
+const ChatUIProvider = (props:any) => {
   return (
-    <VideoCallContext.Provider
+    <ChatUIContext.Provider
       value={{...props}}
     >
       {true ? props.children : <></>}
-    </VideoCallContext.Provider>
+    </ChatUIContext.Provider>
   );
 };
-import VideoCall  from './VideoCall';
-export {VideoCallContext, VideoCallProvider}
-export default VideoCall
 
+export {ChatUIProvider,ChatUIContext};
 
