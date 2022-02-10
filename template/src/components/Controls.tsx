@@ -26,6 +26,7 @@ import {controlsHolder} from '../../theme.json';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {ClientRole} from '../../agora-rn-uikit';
 import {ScreenshareContextProvider} from '../subComponents/screenshare/ScreenshareContext';
+import LiveStreamControls from './livestream/views/LiveStreamControls';
 
 const Controls = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
@@ -53,30 +54,21 @@ const Controls = (props: any) => {
         ]}
         onLayout={onLayout}>
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          $config.RAISE_HAND ? (
-            <View style={{alignSelf: 'center'}}>
-              <LocalRaiseHand />
-            </View>
-          ) : (
-            <></>
-          )
+          <LiveStreamControls showControls={true} />
         ) : (
           <>
-            {$config.EVENT_MODE &&
-              $config.RAISE_HAND &&
-              rtcProps.role == ClientRole.Broadcaster &&
-              !isHost && (
-                <>
-                  {/**
-                   * In event mode when raise hand feature is active
-                   * and audience is promoted to host, the audience can also
-                   * demote himself
-                   */}
-                  <View style={{alignSelf: 'center'}}>
-                    <LocalRaiseHand />
-                  </View>
-                </>
-              )}
+            {/**
+             * In event mode when raise hand feature is active
+             * and audience is promoted to host, the audience can also
+             * demote himself
+             */}
+            {$config.EVENT_MODE && (
+              <LiveStreamControls
+                showControls={
+                  rtcProps.role == ClientRole.Broadcaster && !isHost
+                }
+              />
+            )}
             <View style={{alignSelf: 'center'}}>
               <LocalAudioMute />
             </View>
