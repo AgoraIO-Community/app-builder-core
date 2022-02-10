@@ -1,4 +1,7 @@
+import {Platform} from 'react-native';
+
 const isSafariBrowser = () => {
+  if (Platform.OS !== 'web') return;
   if (!('userAgent' in navigator)) {
     console.warn('unable to detect browser');
     return false;
