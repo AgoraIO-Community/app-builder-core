@@ -95,46 +95,45 @@ export const LiveStreamContextProvider = (props: any) => {
       (data: any, error: any) => {
         if (!data) return;
         switch (data.msg) {
-          // 1. Audience changes his role once raise hand is requested
+          // 1. Audience receives this when the request is accepted by host
           case LiveStreamControlMessageEnum.raiseHandRequestAccepted:
             if (!raiseHandRequestActive) return;
             showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
+            // Audience notfies all host when request is approved
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestApproved,
             );
             changeClientRoleTo(ClientRole.Broadcaster);
+            localMe.current.status = requestStatus.Approved;
             break;
-          // 2. Audience receives either his reqyest to be rejected or cancelled
+          // 2. Audience receives this when the request is cancelled by host
           case LiveStreamControlMessageEnum.raiseHandRequestRejected:
             showToast(LSNotificationObject.RAISE_HAND_REJECTED);
             setRaiseHandRequestActive(false);
+            // Audience notfies all host when request is approved
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
+            localMe.current.status = requestStatus.Cancelled;
             break;
-          // 3. Audience receives either his reqyest to be rejected or cancelled
+          // 3. Audience receives this when host demotes (canceled after approval)
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
             showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
             stopUserScreenShare();
             setRaiseHandRequestActive(false);
+            // Audience notfies all host when request is rejected
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
             changeClientRoleTo(ClientRole.Audience);
+            localMe.current.status = requestStatus.Cancelled;
             break;
-          // 4. Audience notfies all host when request is approved
-          case LiveStreamControlMessageEnum.notifyAllRequestApproved:
-            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Approved);
-            break;
-          // 5. Audience notfies all host when request is approved
-          case LiveStreamControlMessageEnum.notifyAllRequestRejected:
-            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
-            break;
-          // 6. Audience notfies all host when is kicked out
+          // 4. Audience when receives kickUser notifies all host when is kicked out
           case controlMessageEnum.kickUser:
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
+            localMe.current.status = requestStatus.Cancelled;
             break;
           default:
             break;
