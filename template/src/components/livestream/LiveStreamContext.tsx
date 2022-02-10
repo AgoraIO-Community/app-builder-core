@@ -11,12 +11,14 @@ import {
   requestStatus,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
+import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
 export const LiveStreamContextProvider = (props: any) => {
+  const {stopUserScreenShare} = useContext(ScreenshareContext);
   const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
 
   const {isHost, setRtcProps} = props;
@@ -92,7 +94,6 @@ export const LiveStreamContextProvider = (props: any) => {
       'onLiveStreamActionsForAudience',
       (data: any, error: any) => {
         if (!data) return;
-        console.log('supriya onLiveStreamActionsForAudience', data.msg);
         switch (data.msg) {
           // 1. Audience changes his role once raise hand is requested
           case LiveStreamControlMessageEnum.raiseHandRequestAccepted:
@@ -114,6 +115,7 @@ export const LiveStreamContextProvider = (props: any) => {
           // 3. Audience receives either his reqyest to be rejected or cancelled
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
             showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
+            stopUserScreenShare();
             setRaiseHandRequestActive(false);
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
@@ -145,7 +147,7 @@ export const LiveStreamContextProvider = (props: any) => {
       events.off(messageChannelType.Public, 'onLiveStreamActionsForHost');
       events.off(messageChannelType.Private, 'onLiveStreamActionsForAudience');
     };
-  }, [events, localUid, isHost]);
+  }, [events, localUid, isHost, raiseHandRequestActive]);
 
   const addOrUpdateLiveStreamRequest = (
     uid: number | string,
@@ -205,18 +207,20 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   const audienceRecallsRequest = () => {
-    setRaiseHandRequestActive(false);
     /**
      * if: Check if request is already approved
      * else: Audience Request was not approved by host, and was in 'Awaiting Action' status
      */
     if (localMe && localMe.current?.status === requestStatus.Approved) {
+      stopUserScreenShare();
+      setRaiseHandRequestActive(false);
       /// Change role and send message in channel notifying the same
       changeClientRoleTo(ClientRole.Audience);
       notifyAllHostsInChannel(
         LiveStreamControlMessageEnum.notifyAllRequestRejected,
       );
     } else {
+      setRaiseHandRequestActive(false);
       // Send message in channel to withdraw the request
       sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
     }
