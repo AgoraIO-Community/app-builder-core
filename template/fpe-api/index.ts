@@ -4,7 +4,7 @@ import { getDefaultRoutes, CustomRoutesInterface } from './route/defaultRoutes';
 /**
  * Importing common components
  */
-import {Logo,Error} from '../src/components/common/index'
+import { Logo, Error } from '../src/components/common/index'
 /**
  * Importing components
  */
@@ -12,54 +12,29 @@ import Authenticate from '../src/pages/Authenticate';
 import VideoCall from '../src/pages/VideoCall/index';
 import Join from '../src/pages/Join';
 import Create from '../src/pages/Create/index'
-import {PreCallScreen} from '../src/components/precall/index'
+import { PreCallScreen } from '../src/components/precall/index'
 /**
  * Importing subcomponents
  */
+//Pre call screen
 import {
   PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute,
   PreCallSetName, PreCallSelectDevice, PreCallJoinBtn, PreCallTextInput
 } from "../src/components/precall/index";
+//Pre call screen
+//Create screen
 import Share from '../src/components/Share';
+//Create screen
+//Video call screen
 import Navbar from '../src/components/Navbar';
 import SettingsView from '../src/components/SettingsView';
 import ParticipantsView from '../src/components/ParticipantsView';
 import Controls from '../src/components/Controls';
 import Chat from '../src/components/Chat'
+//video call screen
 
 import ROUTE_KEY from './route/keys';
 
-interface ChatCmpInterface {
-  chatBubble?: React.FC<{}>;
-  chatInput?: React.FC<{}>;
-}
-interface VideoLayoutInterface {
-  name: string;
-  icons?: string[];
-  component: React.FC<{}>;
-}
-
-interface VideoCallScreenInterface {
-  chat?: React.FC<{}> | ChatCmpInterface;
-  participants?: React.FC<{}>;
-  settings?: React.FC<{}>;
-  topBar?: React.FC<{}>;
-  bottomBar?: React.FC<{}>;
-  videoLayout?: VideoLayoutInterface[];
-}
-
-interface VideoAudioMuteInterface {
-  audioMute?: React.FC<{}>;
-  videoMute?: React.FC<{}>;
-}
-// export interface PrecallScreenInterface {
-//   videoPreview?: React.FC<{}>;
-//   videoAudioMute?: React.FC<{}> | VideoAudioMuteInterface
-//   cameraSelector?: React.FC<{}>;
-//   micSelector?: React.FC<{}>;
-//   nameInput?: React.FC<{}>;
-//   joinCallButton?: React.FC<{}>;
-// }
 export interface ComponentsInterface {
   createMeetingScreen?: React.FC<{}>;
   joinMeetingScreen?: React.FC<{}>;
@@ -68,9 +43,6 @@ export interface ComponentsInterface {
   videoCallScreen?: React.FC<{}>;
 }
 
-interface MessageCallBack {
-  notify?: () => void;
-}
 interface SubcomponentsInterface {
   PreCallVideoPreview?: React.FC<{}>;
   PreCallLocalMute?: React.FC<{}>;
@@ -104,7 +76,7 @@ export interface FpeApiInterface {
   /**
    * message callback used to listen for incoming message from private or public 
    */
-  message_callback?: MessageCallBack;
+  //message_callback?: //TODO:hari;
 }
 
 let subcomponents: SubcomponentsInterface = {
@@ -117,7 +89,7 @@ let subcomponents: SubcomponentsInterface = {
   PreCallSelectDevice: PreCallSelectDevice,
   PreCallJoinBtn: PreCallJoinBtn,
   PreCallTextInput: PreCallTextInput,
-  ShareLink:Share,
+  ShareLink: Share,
   NavBar: Navbar,
   SettingsView: SettingsView,
   ParticipantsView: ParticipantsView,
@@ -157,7 +129,10 @@ const getFpeConfig = (key: string) => {
 const installComponents = (components?: ComponentsInterface) => {
   let temp = { ...FpeApiConfig.components }
   for (const key in components) {
-    temp[key as keyof ComponentsInterface] = components[key as keyof ComponentsInterface];
+    let tempComp = components[key as keyof ComponentsInterface]
+    if (tempComp) {
+      temp[key as keyof ComponentsInterface] = tempComp
+    }
   }
   FpeApiConfig.components = temp
 }
@@ -165,7 +140,10 @@ const installComponents = (components?: ComponentsInterface) => {
 const installSubComponents = (subcomponents?: SubcomponentsInterface) => {
   let temp = { ...FpeApiConfig.subcomponents }
   for (const key in subcomponents) {
-    temp[key as keyof SubcomponentsInterface] = subcomponents[key as keyof SubcomponentsInterface];
+    let tempSubComp = subcomponents[key as keyof SubcomponentsInterface]
+    if (tempSubComp) {
+      temp[key as keyof SubcomponentsInterface] = tempSubComp;
+    }
   }
   FpeApiConfig.subcomponents = temp
 }
@@ -206,7 +184,12 @@ export {
   /**
    * Subcomponents
    */
-  PreCallLocalMute, PreCallVideoPreview, PreCallLocalAudioMute, PreCallLocalVideoMute, PreCallSetName, PreCallSelectDevice,
+  PreCallLocalMute,
+  PreCallVideoPreview,
+  PreCallLocalAudioMute,
+  PreCallLocalVideoMute,
+  PreCallSetName,
+  PreCallSelectDevice,
   Navbar,
   SettingsView,
   ParticipantsView,
