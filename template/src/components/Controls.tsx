@@ -20,12 +20,10 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
-import {LocalRaiseHand} from '../subComponents/livestream';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {ClientRole} from '../../agora-rn-uikit';
-import {ScreenshareContextProvider} from '../subComponents/screenshare/ScreenshareContext';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 
 const Controls = (props: any) => {
@@ -40,7 +38,7 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {setRecordingActive, recordingActive, isHost, setLayout} = props;
+  const {setRecordingActive, recordingActive, isHost} = props;
 
   return (
     <LocalUserContext>
@@ -81,13 +79,9 @@ const Controls = (props: any) => {
               </View>
             )}
             {$config.SCREEN_SHARING && !mobileAndTabletCheck() && (
-              <ScreenshareContextProvider
-                setLayout={setLayout}
-                recordingActive={recordingActive}>
-                <View style={{alignSelf: 'center'}}>
-                  <ScreenshareButton />
-                </View>
-              </ScreenshareContextProvider>
+              <View style={{alignSelf: 'center'}}>
+                <ScreenshareButton />
+              </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
