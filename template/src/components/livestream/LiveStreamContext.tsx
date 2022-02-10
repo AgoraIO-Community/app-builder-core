@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState} from 'react';
+import React, {createContext, useContext, useState, useRef} from 'react';
 import ChatContext, {
   controlMessageEnum,
   messageChannelType,
@@ -17,19 +17,19 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
 export const LiveStreamContextProvider = (props: any) => {
-  const [raiseHandRequestActive, setRaiseHandRequestActive] =
-    React.useState(false);
+  const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
 
-  const {currentRole, setRtcProps} = props;
-
-  const {events} = React.useContext(ChatContext);
+  const {isHost, setRtcProps} = props;
 
   const {
     localUid,
     sendControlMessageToUid,
     sendControlMessage,
     broadcastUserAttributes,
+    events,
   } = useContext(ChatContext);
+
+  const localMe = useRef({uid: localUid, status: ''});
 
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
     Record<string, {}>
@@ -54,136 +54,98 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   React.useEffect(() => {
-    // 1. All Hosts in channel listens for this event - channel message
     events.on(
       messageChannelType.Public,
-      'onLiveStreamRequestReceived',
+      'onLiveStreamActionsForHost',
       (data: any, error: any) => {
         if (!data) return;
-        if (data.msg === LiveStreamControlMessageEnum.raiseHandRequest) {
-          if (currentRole && currentRole === ClientRole.Broadcaster) {
+        if (!isHost) return;
+        switch (data.msg) {
+          // 1. All Hosts in channel add the audience request with 'Awaiting action' status
+          case LiveStreamControlMessageEnum.raiseHandRequest:
             showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
             addOrUpdateLiveStreamRequest(
               data.uid,
               requestStatus.AwaitingAction,
             );
-          }
-        }
-      },
-    );
-    // 2. Audience who raised hand listens for this event - private message
-    events.on(
-      messageChannelType.Private,
-      'onLiveStreamRequestAccepted',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (
-          data.msg === LiveStreamControlMessageEnum.raiseHandRequestAccepted
-        ) {
-          /**
-           * This If condition solves the raise condition =>
-           * if the host approves after the audience has recalled his request
-           */
-          if (!raiseHandRequestActive) return;
-          showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
-          notifyAllHostsInChannel(
-            LiveStreamControlMessageEnum.notifyAllRequestApproved,
-          );
-          changeClientRoleTo(ClientRole.Broadcaster);
-        }
-      },
-    );
-    // 3. Audience who raised hand listens for this event - private message
-    events.on(
-      messageChannelType.Private,
-      'onLiveStreamRequestRejected',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (
-          data.msg === LiveStreamControlMessageEnum.raiseHandRequestRejected
-        ) {
-          showToast(LSNotificationObject.RAISE_HAND_REJECTED);
-          setRaiseHandRequestActive(false);
-          notifyAllHostsInChannel(
-            LiveStreamControlMessageEnum.notifyAllRequestRejected,
-          );
-        }
-      },
-    );
-    // 4. All Hosts in channel listens for this event - channel message
-    events.on(
-      messageChannelType.Public,
-      'onLiveStreamRequestRecall',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
-          // Audience revoked his approved request
-          if (
-            currLiveStreamRequest.hasOwnProperty(data.uid) &&
-            currLiveStreamRequest[data.uid] === requestStatus.Approved
-          ) {
-            approvedRequestRevoked();
-          } else if (currentRole && currentRole === ClientRole.Broadcaster) {
-            // Audience revoked his request
+            break;
+          // 2. All Hosts in channel update their status when a audience recalls his request
+          case LiveStreamControlMessageEnum.raiseHandRequestRecall:
             showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
             addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
-          }
+            break;
+          // 3. All Host in channel update their status when a audience request is approved
+          case LiveStreamControlMessageEnum.notifyAllRequestApproved:
+            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Approved);
+            break;
+          // 4. All Host in channel update their status when a audience request is rejected
+          case LiveStreamControlMessageEnum.notifyAllRequestRejected:
+            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+            break;
+          default:
+            break;
         }
       },
     );
-    // 5. Audience who raised hand listens for this event - private message
     events.on(
       messageChannelType.Private,
-      'onLiveStreamApprovedRequestRecall',
+      'onLiveStreamActionsForAudience',
       (data: any, error: any) => {
         if (!data) return;
-        if (
-          data.msg ===
-          LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall
-        ) {
-          approvedRequestRevoked();
-        }
-      },
-    );
-
-    // 5. Audience who raised hand listens for this event - private message
-    events.on(
-      messageChannelType.Public,
-      'onRequestStatusNotification',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (
-          data.msg === LiveStreamControlMessageEnum.notifyAllRequestApproved
-        ) {
-          addOrUpdateLiveStreamRequest(data.uid, requestStatus.Approved);
-        }
-        if (
-          data.msg === LiveStreamControlMessageEnum.notifyAllRequestRejected
-        ) {
-          addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+        console.log('supriya onLiveStreamActionsForAudience', data.msg);
+        switch (data.msg) {
+          // 1. Audience changes his role once raise hand is requested
+          case LiveStreamControlMessageEnum.raiseHandRequestAccepted:
+            if (!raiseHandRequestActive) return;
+            showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
+            notifyAllHostsInChannel(
+              LiveStreamControlMessageEnum.notifyAllRequestApproved,
+            );
+            changeClientRoleTo(ClientRole.Broadcaster);
+            break;
+          // 2. Audience receives either his reqyest to be rejected or cancelled
+          case LiveStreamControlMessageEnum.raiseHandRequestRejected:
+            showToast(LSNotificationObject.RAISE_HAND_REJECTED);
+            setRaiseHandRequestActive(false);
+            notifyAllHostsInChannel(
+              LiveStreamControlMessageEnum.notifyAllRequestRejected,
+            );
+            break;
+          // 3. Audience receives either his reqyest to be rejected or cancelled
+          case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
+            showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
+            setRaiseHandRequestActive(false);
+            notifyAllHostsInChannel(
+              LiveStreamControlMessageEnum.notifyAllRequestRejected,
+            );
+            changeClientRoleTo(ClientRole.Audience);
+            break;
+          // 4. Audience notfies all host when request is approved
+          case LiveStreamControlMessageEnum.notifyAllRequestApproved:
+            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Approved);
+            break;
+          // 5. Audience notfies all host when request is approved
+          case LiveStreamControlMessageEnum.notifyAllRequestRejected:
+            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+            break;
+          // 6. Audience notfies all host when is kicked out
+          case controlMessageEnum.kickUser:
+            notifyAllHostsInChannel(
+              LiveStreamControlMessageEnum.notifyAllRequestRejected,
+            );
+            break;
+          default:
+            break;
         }
       },
     );
 
     return () => {
       // Cleanup the listeners
-      events.off(messageChannelType.Public, 'onLiveStreamRequestReceived');
-      events.off(messageChannelType.Private, 'onLiveStreamRequestAccepted');
-      events.off(messageChannelType.Private, 'onLiveStreamRequestRejected');
-      events.off(messageChannelType.Public, 'onLiveStreamRequestRecall');
-      events.off(
-        messageChannelType.Private,
-        'onLiveStreamApprovedRequestRecall',
-      );
-      events.off(messageChannelType.Public, 'onRequestStatusNotification');
+      events.off(messageChannelType.Public, 'onLiveStreamActionsForHost');
+      events.off(messageChannelType.Private, 'onLiveStreamActionsForAudience');
     };
-  }, [
-    events,
-    localUid,
-    raiseHandRequestActive,
-    currLiveStreamRequest,
-    currentRole,
-  ]);
+  }, [events, localUid, isHost]);
 
   const addOrUpdateLiveStreamRequest = (
     uid: number | string,
@@ -207,17 +169,13 @@ export const LiveStreamContextProvider = (props: any) => {
     sendControlMessage(ctrlEnum);
   };
 
-  const approvedRequestRevoked = () => {
-    showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-    setRaiseHandRequestActive(false);
-    notifyAllHostsInChannel(
-      LiveStreamControlMessageEnum.notifyAllRequestRejected,
-    );
-    changeClientRoleTo(ClientRole.Audience);
-  };
+  /****************** HOST CONTROLS ******************
+   * Host controls for Live Streaming
+   * a. Host can approve streaming request sent by audience
+   * b. Host can reject streaming request sent by audience
+   */
 
-  // Live stream button controls for host - either approve or reject
-  const approveRequestOfUID = (uid: number | string) => {
+  const hostApprovesRequestOfUID = (uid: number | string) => {
     addOrUpdateLiveStreamRequest(uid, requestStatus.Approved);
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
@@ -225,7 +183,7 @@ export const LiveStreamContextProvider = (props: any) => {
     );
   };
 
-  const rejectRequestOfUID = (uid: number | string) => {
+  const hostRejectsRequestOfUID = (uid: number | string) => {
     addOrUpdateLiveStreamRequest(uid, requestStatus.Cancelled);
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -233,12 +191,45 @@ export const LiveStreamContextProvider = (props: any) => {
     );
   };
 
+  /****************** AUDIENCE CONTROLS ****************
+   * Audience have below controls
+   * a. Audience can raise a request to live stream
+   * b. Audience can recalls his request to live stream
+   *   i. While recalling the request could be either approved or not approved
+   */
+
+  const audienceSendsRequest = () => {
+    showToast('Request sent to host for approval');
+    setRaiseHandRequestActive(true);
+    sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
+  };
+
+  const audienceRecallsRequest = () => {
+    setRaiseHandRequestActive(false);
+    /**
+     * if: Check if request is already approved
+     * else: Audience Request was not approved by host, and was in 'Awaiting Action' status
+     */
+    if (localMe && localMe.current?.status === requestStatus.Approved) {
+      /// Change role and send message in channel notifying the same
+      changeClientRoleTo(ClientRole.Audience);
+      notifyAllHostsInChannel(
+        LiveStreamControlMessageEnum.notifyAllRequestRejected,
+      );
+    } else {
+      // Send message in channel to withdraw the request
+      sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
+    }
+  };
+
   return (
     <LiveStreamContext.Provider
       value={{
         currLiveStreamRequest,
-        approveRequestOfUID,
-        rejectRequestOfUID,
+        hostApprovesRequestOfUID,
+        hostRejectsRequestOfUID,
+        audienceSendsRequest,
+        audienceRecallsRequest,
         raiseHandRequestActive,
         setRaiseHandRequestActive,
       }}>
