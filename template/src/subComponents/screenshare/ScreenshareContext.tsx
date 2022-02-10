@@ -18,8 +18,9 @@ import Layout from '../../subComponents/LayoutEnum';
 import {gql, useMutation} from '@apollo/client';
 
 export interface ScreenshareContext {
-  startUserScreenshare: any;
   screenshareActive: boolean;
+  startUserScreenshare: () => void;
+  stopUserScreenShare: () => void;
 }
 
 const SET_PRESENTER = gql`
@@ -62,42 +63,6 @@ export const ScreenshareContextProvider = (props: any) => {
 
   const [setPresenterQuery] = useMutation(SET_PRESENTER);
   const [setNormalQuery] = useMutation(SET_NORMAL);
-
-  // Live streaming vertical
-  React.useEffect(() => {
-    // 4. All Hosts in channel listens for this event - channel message
-    events.on(
-      messageChannelType.Public,
-      'onLiveStreamRequestRecall',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (data.msg === LiveStreamControlMessageEnum.raiseHandRequestRecall) {
-          startUserScreenshare();
-        }
-      },
-    );
-    // 5. Audience who raised hand listens for this event - private message
-    events.on(
-      messageChannelType.Private,
-      'onLiveStreamApprovedRequestRecall',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (
-          data.msg ===
-          LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall
-        ) {
-          startUserScreenshare();
-        }
-      },
-    );
-    return () => {
-      events.off(messageChannelType.Public, 'onLiveStreamRequestRecall');
-      events.off(
-        messageChannelType.Private,
-        'onLiveStreamApprovedRequestRecall',
-      );
-    };
-  }, [events, screenshareActive]);
 
   useEffect(() => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
@@ -186,6 +151,13 @@ export const ScreenshareContextProvider = (props: any) => {
         });
     }
   };
+
+  const stopUserScreenShare = () => {
+    if (screenshareActive) {
+      startUserScreenshare();
+    }
+  };
+
   const startUserScreenshare = async () => {
     const isScreenActive = screenshareActive;
     if (recordingActive) {
@@ -220,11 +192,13 @@ export const ScreenshareContextProvider = (props: any) => {
         });
     }
   };
+
   return (
     <ScreenshareContext.Provider
       value={{
         screenshareActive,
         startUserScreenshare,
+        stopUserScreenShare,
       }}>
       {props.children}
     </ScreenshareContext.Provider>
