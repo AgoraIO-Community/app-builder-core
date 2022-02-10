@@ -82,13 +82,6 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
-  const [attendeeList, setAttendeeList] = useState<{[key: string]: any}>({});
-
-  const attendeeListRef = useRef(attendeeList);
-
-  useEffect(() => {
-    attendeeListRef.current = attendeeList;
-  }, [attendeeList]);
 
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
@@ -209,6 +202,7 @@ const RtmConfigure = (props: any) => {
                     type: UserType.Normal,
                     role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
+                    offline: false,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
                     name: `${attr?.attributes?.name || 'User'}'s screenshare`,
@@ -274,6 +268,7 @@ const RtmConfigure = (props: any) => {
                 type: UserType.Normal,
                 role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
+                offline: false,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
                 name: `${attr?.attributes?.name || 'User'}'s screenshare`,
@@ -290,6 +285,17 @@ const RtmConfigure = (props: any) => {
 
     engine.current.on('channelMemberLeft', (data: any) => {
       console.log('user left', data);
+      const {uid} = data;
+      if (!uid) return;
+      setUserList((prevState) => {
+        return {
+          ...prevState,
+          [uid]: {
+            ...prevState[uid],
+            offline: true,
+          },
+        };
+      });
       // Chat of left user becomes undefined. So don't cleanup
       // TODOS:
       // Add new array for list of all(uids) active attendees in the call
@@ -384,7 +390,8 @@ const RtmConfigure = (props: any) => {
           if (hasJsonStructure(msg)) {
             const [err, result] = safeJsonParse(msg);
             if (!err) {
-              actionMsg = result;
+              const {action} = result;
+              actionMsg = action;
             }
           } else {
             actionMsg = msg;

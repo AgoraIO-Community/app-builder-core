@@ -15,7 +15,7 @@ interface RemoteLiveStreamControlInterface {
 const RemoteLiveStreamRequestReject: React.FC<RemoteLiveStreamControlInterface> =
   (props) => {
     const {user} = props;
-    const {rejectRequestOfUID} = useContext(LiveStreamContext);
+    const {hostRejectsRequestOfUID} = useContext(LiveStreamContext);
     const {styleProps} = useContext(PropsContext);
     const {remoteBtnStyles} = styleProps || {};
     const {liveStreamHostControlBtns} = remoteBtnStyles || {};
@@ -26,7 +26,7 @@ const RemoteLiveStreamRequestReject: React.FC<RemoteLiveStreamControlInterface> 
           icon={icons['crossCircleIcon']}
           style={{...(liveStreamHostControlBtns as object)}}
           onPress={() => {
-            rejectRequestOfUID(user.uid);
+            hostRejectsRequestOfUID(user.uid);
           }}
         />
       </View>

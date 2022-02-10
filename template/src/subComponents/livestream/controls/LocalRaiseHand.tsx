@@ -9,33 +9,19 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
-import ChatContext from '../../../components/ChatContext';
-import LiveStreamContext, {
-  LiveStreamControlMessageEnum,
-} from '../../../components/livestream';
+import LiveStreamContext from '../../../components/livestream';
 import {PropsContext} from '../../../../agora-rn-uikit';
-import Toast from '../../../../react-native-toast-message';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
 import icons from '../../../assets/icons';
 
-const LocalRaiseHand = (props: any) => {
+const LocalRaiseHand = () => {
   const {styleProps} = useContext(PropsContext);
-  const {sendControlMessage} = useContext(ChatContext);
-  const {setRaiseHandRequestActive, raiseHandRequestActive} =
+  const {audienceSendsRequest, audienceRecallsRequest, raiseHandRequestActive} =
     useContext(LiveStreamContext);
   const {localBtnStyles} = styleProps || {};
   const {muteLocalAudio} = localBtnStyles || {};
-
-  useEffect(() => {
-    if (raiseHandRequestActive)
-      Toast.show({
-        type: 'success',
-        text1: 'Request sent to host for approval',
-        visibilityTime: 1000,
-      });
-  }, [raiseHandRequestActive]);
 
   return (
     <BtnTemplate
@@ -49,14 +35,9 @@ const LocalRaiseHand = (props: any) => {
       }}
       onPress={() => {
         if (!raiseHandRequestActive) {
-          setRaiseHandRequestActive(true);
-          sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
-        }
-        if (raiseHandRequestActive) {
-          setRaiseHandRequestActive(false);
-          sendControlMessage(
-            LiveStreamControlMessageEnum.raiseHandRequestRecall,
-          );
+          audienceSendsRequest();
+        } else {
+          audienceRecallsRequest();
         }
       }}
     />
