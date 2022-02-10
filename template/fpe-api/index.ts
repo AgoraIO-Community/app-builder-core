@@ -12,7 +12,7 @@ import Authenticate from '../src/pages/Authenticate';
 import VideoCall from '../src/pages/VideoCall/index';
 import Join from '../src/pages/Join';
 import Create from '../src/pages/Create/index'
-import { PreCallScreen } from '../src/components/precall/index'
+import { PreCall } from '../src/components/precall/index'
 /**
  * Importing subcomponents
  */
@@ -39,7 +39,7 @@ export interface ComponentsInterface {
   createMeetingScreen?: React.FC<{}>;
   joinMeetingScreen?: React.FC<{}>;
   shareMeetingLinks?: React.FC<{}>;
-  PreCallScreen?: React.FC<{}>;
+  PreCall?: React.FC<{}>;
   videoCallScreen?: React.FC<{}>;
 }
 
@@ -98,7 +98,7 @@ let subcomponents: SubcomponentsInterface = {
 }
 
 let components: ComponentsInterface = {
-  PreCallScreen: PreCallScreen,
+  PreCall: PreCall,
   createMeetingScreen: Create,
   joinMeetingScreen: Join,
   videoCallScreen: VideoCall
@@ -179,7 +179,7 @@ export {
   Authenticate,
   Create,
   Join,
-  PreCallScreen,
+  PreCall,
   VideoCall,
   /**
    * Subcomponents

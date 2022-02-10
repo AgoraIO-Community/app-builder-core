@@ -33,7 +33,8 @@ const Precall = (props: any) => {
       }
     }
   })
-
+  //TODO: move context to separete folder
+  //isWeb Platform.OS === 'web' move to utils
   return (
     <View style={style.main} onLayout={onLayout}>
       {PreCallLogo && <PreCallLogo/>}

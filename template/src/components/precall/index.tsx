@@ -11,7 +11,7 @@
 */
 
 import React from 'react';
-import PreCallScreen from './PreCallScreen';
+import PreCall from './PreCall';
 import PreCallLocalMute from './LocalMute';
 import PreCallVideoPreview from './VideoPreview';
 import PreCallSetName from './setName';
@@ -22,7 +22,7 @@ import PreCallTextInput from './textInput';
 const PreCallLocalAudioMute = () => <LocalAudioMute />;
 const PreCallLocalVideoMute = () => <LocalVideoMute />;
 export {
-  PreCallScreen,
+  PreCall,
   PreCallLocalMute,
   PreCallVideoPreview,
   PreCallLocalAudioMute,

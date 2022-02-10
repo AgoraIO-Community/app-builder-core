@@ -240,7 +240,7 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {setGlobalErrorMessage} = useContext(ErrorContext)
-  const {PreCallScreen} = getFpeCmpConfig()
+  const {PreCall} = getFpeCmpConfig()
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
@@ -487,7 +487,7 @@ const VideoCall: React.FC = () => {
                       queryComplete={queryComplete}
                       title={title}
                       >
-                        {PreCallScreen && <PreCallScreen />}
+                        {PreCall && <PreCall />}
                     </PreCallProvider>                    
                   ) : (
                     <></>

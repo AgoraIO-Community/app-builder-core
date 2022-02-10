@@ -7,7 +7,7 @@ export const installPlugin = () => {
   return installFPE({
     components: {
       //createMeetingScreen: CustomPreCall
-      //PreCallScreen: CustomPreCall
+      //PreCall: CustomPreCall
     },
     subcomponents:{
       //Chat: CustomPage1
@@ -21,7 +21,7 @@ export const installPlugin = () => {
     },
     custom_routes:[
       {
-        path: '/test',
+        path: '/videocall',
         component: CustomPage1,
         exact: true
       }
