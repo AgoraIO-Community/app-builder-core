@@ -12,7 +12,7 @@
 import { Redirect } from '../../src/components/Router';
 import OAuth from '../../src/components/OAuth';
 import StoreToken from '../../src/components/StoreToken';
-import shouldAuthenticate from '../../src/utils/shouldAuthenticate';
+import {shouldAuthenticate} from '../../src/utils/common';
 import ROUTE_KEY from './keys'
 import { getFpeCmpConfig } from '../index';
 

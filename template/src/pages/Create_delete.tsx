@@ -26,7 +26,7 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import Toast from '../../react-native-toast-message';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
 
 type PasswordInput = {
   host: string;

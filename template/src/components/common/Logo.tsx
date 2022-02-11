@@ -13,7 +13,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native'
 import Logo from '../../subComponents/Logo';
-import hasBrandLogo from '../../utils/hasBrandLogo';
+import {hasBrandLogo} from '../../utils/common';
 
 const CommonLogo: React.FC = () => {
   return (

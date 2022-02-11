@@ -24,7 +24,7 @@ import {
 
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
 

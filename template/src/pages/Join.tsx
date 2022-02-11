@@ -15,7 +15,7 @@ import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
 // import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 // import Illustration from '../subComponents/Illustration';
@@ -25,7 +25,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
-import shouldAuthenticate from '../utils/shouldAuthenticate';
+import {shouldAuthenticate} from '../utils/common';
 // const joinFlag = 0;
 const Join = () => {
   const history = useHistory();

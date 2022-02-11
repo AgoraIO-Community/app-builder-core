@@ -19,7 +19,7 @@ import {
 import Logo from '../subComponents/Logo';
 import OAuth from '../components/OAuth';
 import Illustration from '../subComponents/Illustration';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
 import DimensionContext from '../components/dimension/DimensionContext';
 
 const Authenticate = () => {
