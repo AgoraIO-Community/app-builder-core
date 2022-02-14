@@ -4,6 +4,7 @@ import RemoteLiveStreamRequestApprove from './controls/RemoteLiveStreamRequestAp
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
 import ParticipantName from '../../components/participants/ParticipantName';
 import LiveStreamContext, {requestStatus} from '../../components/livestream';
+import {filterObject} from '../../utils/index';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   const {userList, p_style} = props;
@@ -13,10 +14,9 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     return <Text style={p_style.infoText}>No streaming request(s)</Text>;
   }
 
-  const activeLiveStreamRequests = Object.fromEntries(
-    Object.entries(currLiveStreamRequest).filter(
-      ([key, value]) => value === requestStatus.AwaitingAction,
-    ),
+  const activeLiveStreamRequests = filterObject(
+    currLiveStreamRequest,
+    ([k, v]) => v === requestStatus.AwaitingAction,
   );
 
   return (

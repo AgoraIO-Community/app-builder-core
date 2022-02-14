@@ -3,16 +3,15 @@ import {View} from 'react-native';
 import chatContext from '../ChatContext';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from '../../components/participants/ParticipantName';
+import {filterObject} from '../../utils/index';
 
 const AllAudienceParticipants = (props: any) => {
   const {p_style, type, isHost} = props;
   const {userList} = useContext(chatContext);
 
-  const filteredParticipantsByType = Object.fromEntries(
-    Object.entries(userList).filter(
-      ([key, value]) =>
-        value?.type === 0 && value?.role == type && !value.offline,
-    ),
+  const filteredParticipantsByType = filterObject(
+    userList,
+    ([k, v]) => v?.type === 0 && v?.role == type && !v.offline,
   );
 
   return (
