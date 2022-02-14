@@ -9,19 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet, Platform} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
-import ColorContext from './ColorContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 const SettingsView = (props: any) => {
   const {isHost} = props;
@@ -31,9 +22,11 @@ const SettingsView = (props: any) => {
         Platform.OS === 'web' ? style.settingsView : style.settingsViewNative
       }>
       <View style={style.main}>
-        <Text style={style.heading}>Select Input Device</Text>
-        <View style={style.popupPickerHolder}>
-          <SelectDevice />
+        <View>
+          <Text style={style.heading}>Select Input Device</Text>
+          <View style={style.popupPickerHolder}>
+            <SelectDevice />
+          </View>
         </View>
         {isHost ? <HostControlView /> : <></>}
       </View>
@@ -49,21 +42,18 @@ const style = StyleSheet.create({
     paddingVertical: 5,
     flexGrow: 1,
     shadowColor: $config.PRIMARY_FONT_COLOR + '80',
-    shadowOpacity: .5,
-    shadowOffset: {width:-2, height: 0},
+    shadowOpacity: 0.5,
+    shadowOffset: {width: -2, height: 0},
     shadowRadius: 3,
     paddingHorizontal: 20,
   },
   popupPickerHolder: {
-    // height: '40%',
     justifyContent: 'space-around',
-    // paddingHorizontal: '8%',
   },
   heading: {
     fontSize: 20,
     fontWeight: '700',
     color: $config.PRIMARY_FONT_COLOR,
-    // marginBottom: 20,
     alignSelf: 'center',
   },
   settingsView: {
