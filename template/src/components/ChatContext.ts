@@ -59,6 +59,7 @@ interface chatContext {
   engine: RtmEngine;
   localUid: string;
   userList: any;
+  onlineUsersCount: number;
   events: rtmEventsInterface;
 }
 

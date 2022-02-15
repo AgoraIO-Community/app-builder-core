@@ -33,6 +33,7 @@ export const LSNotificationObject = {
 };
 
 export interface liveStreamContext {
+  activeLiveStreamRequestCount: number;
   currLiveStreamRequest: Record<string, {}>;
   hostApprovesRequestOfUID: (uid: number) => void;
   hostRejectsRequestOfUID: (uid: number) => void;

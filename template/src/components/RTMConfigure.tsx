@@ -26,6 +26,7 @@ import {
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
+import {filterObject} from '../utils';
 
 export enum UserType {
   Normal,
@@ -82,10 +83,22 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
+  const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
+
+  React.useEffect(() => {
+    setTotalOnlineUsers(
+      Object.keys(
+        filterObject(
+          userList,
+          ([k, v]) => v?.type === UserType.Normal && !v.offline,
+        ),
+      ).length,
+    );
+  }, [userList]);
 
   const addMessageToStore = (uid: string, msg: {body: string; ts: string}) => {
     setMessageStore((m: messageStoreInterface[]) => {
@@ -633,6 +646,7 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,
+        onlineUsersCount,
         events,
       }}>
       {login ? props.children : <></>}
