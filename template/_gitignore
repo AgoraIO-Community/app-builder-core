@@ -74,4 +74,4 @@ dist/
 out/
 
 #FPE plugin folder TODO:hari rename folder later
-test-fpe/*
+template/test-fpe/*
