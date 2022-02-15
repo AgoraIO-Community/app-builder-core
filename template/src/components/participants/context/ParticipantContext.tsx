@@ -12,6 +12,7 @@
 import {createContext} from 'react';
 import React, {useState, useContext, useEffect} from 'react';
 import chatContext from '../../ChatContext';
+import {UserType} from '../../../components/RTMConfigure';
 import {filterObject} from '../../../utils';
 import {ClientRole} from '../../../../agora-rn-uikit';
 
@@ -37,14 +38,18 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
       const hostList = filterObject(
         userList,
         ([k, v]) =>
-          v?.type === 0 && v?.role == ClientRole.Broadcaster && !v.offline,
+          v?.type === UserType.Normal &&
+          v?.role == ClientRole.Broadcaster &&
+          !v.offline,
       );
       setHostList(hostList);
       setHostCount(Object.keys(hostList).length);
       const audienceList = filterObject(
         userList,
         ([k, v]) =>
-          v?.type === 0 && v?.role == ClientRole.Audience && !v.offline,
+          v?.type === UserType.Normal &&
+          v?.role == ClientRole.Audience &&
+          !v.offline,
       );
       setAudienceList(audienceList);
       setAudienceCount(Object.keys(audienceList).length);
