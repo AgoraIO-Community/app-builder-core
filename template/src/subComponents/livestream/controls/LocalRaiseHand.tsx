@@ -21,13 +21,14 @@ const LocalRaiseHand = () => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandRequestActive} =
     useContext(LiveStreamContext);
   const {localBtnStyles} = styleProps || {};
+  const {theme} = styleProps || {};
   const {muteLocalAudio} = localBtnStyles || {};
 
   return (
     <BtnTemplate
       icon={icons['raiseHandIcon']}
       btnText={raiseHandRequestActive ? 'Lower hand' : 'Raise Hand'}
-      color={raiseHandRequestActive && '#FD0845'}
+      color={raiseHandRequestActive ? '#FD0845' : theme}
       style={{
         ...style.localBtn,
         ...(localBtnStyles as object),
