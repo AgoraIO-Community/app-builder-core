@@ -28,7 +28,7 @@ import {
   ClientRole,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
-import {LocalRaiseHand} from '../subComponents/livestream';
+import LiveStreamControls from './livestream/views/LiveStreamControls';
 
 const Controls = (props: any) => {
   const {setRecordingActive, recordingActive, isHost} = props;
@@ -38,34 +38,34 @@ const Controls = (props: any) => {
     <LocalUserContext>
       <View style={style.bottomBar}>
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          $config.RAISE_HAND ? (
-            <View style={{alignSelf: 'center'}}>
-              <LocalRaiseHand />
-            </View>
-          ) : (
-            <></>
-          )
+          <LiveStreamControls showControls={true} />
         ) : (
           <>
+            {/**
+             * In event mode when raise hand feature is active
+             * and audience is promoted to host, the audience can also
+             * demote himself
+             */}
+            {$config.EVENT_MODE && (
+              <LiveStreamControls
+                showControls={
+                  rtcProps.role == ClientRole.Broadcaster && !isHost
+                }
+              />
+            )}
             <View style={{alignSelf: 'center'}}>
               <LocalAudioMute />
             </View>
             <View style={{alignSelf: 'center'}}>
               <LocalVideoMute />
             </View>
-            {isHost ? (
-              $config.CLOUD_RECORDING ? (
-                <View style={{alignSelf: 'center'}}>
-                  <Recording
-                    recordingActive={recordingActive}
-                    setRecordingActive={setRecordingActive}
-                  />
-                </View>
-              ) : (
-                <></>
-              )
-            ) : (
-              <></>
+            {isHost && $config.CLOUD_RECORDING && (
+              <View style={{alignSelf: 'baseline'}}>
+                <Recording
+                  recordingActive={recordingActive}
+                  setRecordingActive={setRecordingActive}
+                />
+              </View>
             )}
             <View style={{alignSelf: 'center'}}>
               <SwitchCamera />
@@ -96,7 +96,6 @@ const style = StyleSheet.create({
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     borderRadius: 2,
     borderColor: $config.PRIMARY_COLOR,
-    // borderWidth: 1,
     width: 40,
     height: 40,
     display: 'flex',

@@ -6,8 +6,7 @@ import React, {
   useState,
 } from 'react';
 import {useParams} from '../../components/Router';
-import ChatContext, {messageChannelType} from '../../components/ChatContext';
-import {LiveStreamControlMessageEnum} from '../../components/livestream';
+import ChatContext from '../../components/ChatContext';
 import {
   RtcContext,
   PropsContext,
