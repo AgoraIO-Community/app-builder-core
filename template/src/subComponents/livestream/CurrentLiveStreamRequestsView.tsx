@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {View, Text} from 'react-native';
 import RemoteLiveStreamRequestApprove from './controls/RemoteLiveStreamRequestApprove';
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
@@ -9,33 +9,48 @@ import {filterObject} from '../../utils/index';
 const CurrentLiveStreamRequestsView = (props: any) => {
   const {userList, p_style} = props;
   const {currLiveStreamRequest} = useContext(LiveStreamContext);
+  const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
+    React.useState({});
 
-  if (Object.keys(currLiveStreamRequest).length == 0) {
-    return <Text style={p_style.infoText}>No streaming request(s)</Text>;
-  }
-
-  const activeLiveStreamRequests = filterObject(
-    currLiveStreamRequest,
-    ([k, v]) => v === requestStatus.AwaitingAction,
-  );
+  useEffect(() => {
+    setActiveLiveStreamRequests(
+      filterObject(
+        currLiveStreamRequest,
+        ([k, v]) => v === requestStatus.AwaitingAction,
+      ),
+    );
+  }, [currLiveStreamRequest]);
 
   return (
     <>
-      {Object.keys(activeLiveStreamRequests).map(
-        (userUID: any, index: number) => (
-          <View style={p_style.participantRow} key={index}>
-            <ParticipantName value={userList[userUID].name} />
-            <View style={p_style.participantActionContainer}>
-              <RemoteLiveStreamRequestApprove
-                user={{...userList[userUID], uid: userUID}}
-              />
-              <RemoteLiveStreamRequestReject
-                user={{...userList[userUID], uid: userUID}}
-              />
-            </View>
-          </View>
-        ),
-      )}
+      <Text style={p_style.subheading}>
+        Streaming Request{' '}
+        <Text style={p_style.count}>
+          ({Object.keys(activeLiveStreamRequests).length})
+        </Text>
+      </Text>
+      <View style={p_style.participantContainer}>
+        {Object.keys(currLiveStreamRequest).length == 0 ||
+        Object.keys(activeLiveStreamRequests).length == 0 ? (
+          <Text style={p_style.infoText}>No streaming request(s)</Text>
+        ) : (
+          Object.keys(activeLiveStreamRequests).map(
+            (userUID: any, index: number) => (
+              <View style={p_style.participantRow} key={index}>
+                <ParticipantName value={userList[userUID].name} />
+                <View style={p_style.participantActionContainer}>
+                  <RemoteLiveStreamRequestApprove
+                    user={{...userList[userUID], uid: userUID}}
+                  />
+                  <RemoteLiveStreamRequestReject
+                    user={{...userList[userUID], uid: userUID}}
+                  />
+                </View>
+              </View>
+            ),
+          )
+        )}
+      </View>
     </>
   );
 };

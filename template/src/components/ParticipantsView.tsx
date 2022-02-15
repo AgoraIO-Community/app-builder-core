@@ -15,7 +15,6 @@ import {
   Text,
   StyleSheet,
   Platform,
-  TouchableOpacity,
   ScrollView,
   Dimensions,
 } from 'react-native';
@@ -62,13 +61,10 @@ const ParticipantView = (props: any) => {
             {rtcProps.role == ClientRole.Broadcaster && props.isHost && (
               <>
                 <View style={style.participantsection}>
-                  <Text style={style.subheading}>Streaming Requests</Text>
-                  <View style={style.participantContainer}>
-                    <CurrentLiveStreamRequestsView
-                      p_style={style}
-                      userList={userList}
-                    />
-                  </View>
+                  <CurrentLiveStreamRequestsView
+                    p_style={style}
+                    userList={userList}
+                  />
                 </View>
                 <View style={style.participantsection}>
                   <Text style={style.subheading}>Host</Text>
@@ -86,14 +82,12 @@ const ParticipantView = (props: any) => {
              */}
             {rtcProps.role == ClientRole.Broadcaster && !props.isHost && (
               <View style={style.participantsection}>
-                <Text style={style.subheading}>Host</Text>
-                <View style={style.participantContainer}>
-                  <AllAudienceParticipants
-                    p_style={style}
-                    type={ClientRole.Broadcaster}
-                    isHost={props.isHost}
-                  />
-                </View>
+                <AllAudienceParticipants
+                  title="Host"
+                  p_style={style}
+                  type={ClientRole.Broadcaster}
+                  isHost={props.isHost}
+                />
               </View>
             )}
             {/**
@@ -101,26 +95,22 @@ const ParticipantView = (props: any) => {
              */}
             {rtcProps.role == ClientRole.Audience && (
               <View style={style.participantsection}>
-                <Text style={style.subheading}>Host</Text>
-                <View style={style.participantContainer}>
-                  <AllAudienceParticipants
-                    p_style={style}
-                    type={ClientRole.Broadcaster}
-                    isHost={props.isHost}
-                  />
-                </View>
+                <AllAudienceParticipants
+                  title="Host"
+                  p_style={style}
+                  type={ClientRole.Broadcaster}
+                  isHost={props.isHost}
+                />
               </View>
             )}
             {/* Everyone can see audience */}
             <View style={style.participantsection}>
-              <Text style={style.subheading}>Audience</Text>
-              <View style={style.participantContainer}>
-                <AllAudienceParticipants
-                  p_style={style}
-                  type={ClientRole.Audience}
-                  isHost={props.isHost}
-                />
-              </View>
+              <AllAudienceParticipants
+                title="Audience"
+                p_style={style}
+                type={ClientRole.Audience}
+                isHost={props.isHost}
+              />
             </View>
           </>
         ) : (
@@ -195,6 +185,10 @@ const style = StyleSheet.create({
     letterSpacing: 0.8,
     fontWeight: '700',
     color: $config.PRIMARY_FONT_COLOR,
+  },
+  count: {
+    fontSize: 13,
+    fontWeight: '500',
   },
   infoText: {
     fontSize: 12,
