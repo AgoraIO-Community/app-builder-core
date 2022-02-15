@@ -103,7 +103,7 @@ const Recording = (props: any) => {
         <ImageIcon
           name={recordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
           style={[style.buttonIcon]}
-          color={recordingActive ? '#FD0845': $config.PRIMARY_COLOR}
+          color={recordingActive ? '#FD0845' : $config.PRIMARY_COLOR}
         />
       </View>
       <Text
@@ -132,8 +132,8 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonIcon: {
-    width: '100%',
-    height: '100%',
+    width: '90%',
+    height: '90%',
   },
 });
 
