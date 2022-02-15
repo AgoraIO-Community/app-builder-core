@@ -4,6 +4,7 @@ function useImageDelay(
   elementRef: any,
   delay: number | null,
   imageName: string,
+  tintColor?: string,
 ) {
   // Remember the latest callback if it changes.
   React.useEffect(() => {
@@ -22,7 +23,7 @@ function useImageDelay(
       }
     }, delay);
     return () => clearTimeout(timer);
-  }, [imageName]);
+  }, [imageName, tintColor]);
 }
 
 export default useImageDelay;
