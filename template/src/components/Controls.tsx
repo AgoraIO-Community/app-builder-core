@@ -26,7 +26,7 @@ import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import {isMobileWeb} from '../utils/common';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
 import { VideoCallContext } from '../pages/VideoCall';
 
 const Controls = (props: any) => {
@@ -61,13 +61,13 @@ const Controls = (props: any) => {
         <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
         </View>
-        {isMobileWeb() ? (
+        {mobileAndTabletCheck() ? (
         <View style={{alignSelf: 'center'}}>
           <SwitchCamera />
         </View>
         ) : (<></>)}
         {$config.SCREEN_SHARING ? (
-          !isMobileWeb() ? (
+          !mobileAndTabletCheck() ? (
             <View style={{alignSelf: 'center'}}>
               <ScreenshareButton
                 screenshareActive={screenshareActive}

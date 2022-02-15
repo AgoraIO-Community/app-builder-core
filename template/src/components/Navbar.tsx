@@ -29,7 +29,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
-import {isMobileWeb} from '../utils/common';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import { VideoCallContext } from '../pages/VideoCall/index';
@@ -64,13 +64,13 @@ const Navbar = () => {
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
         Platform.OS === 'web'
           ? {
-              justifyContent: isMobileWeb()
+              justifyContent: mobileAndTabletCheck()
                 ? 'space-between'
                 : 'flex-end',
             }
           : {},
       ]}>
-      {recordingActive && !isMobileWeb() ? (
+      {recordingActive && !mobileAndTabletCheck() ? (
         <View
           style={[
             style.recordingView,
@@ -103,7 +103,7 @@ const Navbar = () => {
       <View
         style={[
           style.roomNameContainer,
-          Platform.OS === 'web' && !isMobileWeb()
+          Platform.OS === 'web' && !mobileAndTabletCheck()
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
@@ -115,7 +115,7 @@ const Navbar = () => {
               paddingLeft: 5,
             }}>
             <Text style={style.roomNameText}>
-              {isMobileWeb()
+              {mobileAndTabletCheck()
                 ? title.length > 13
                   ? title.slice(0, 13) + '..'
                   : title
@@ -156,7 +156,7 @@ const Navbar = () => {
                 ? $config.SECONDARY_FONT_COLOR
                 : $config.SECONDARY_FONT_COLOR + '00',
             paddingVertical: 4,
-            paddingHorizontal: isMobileWeb() ? 0 : 4,
+            paddingHorizontal: mobileAndTabletCheck() ? 0 : 4,
             minHeight: 35,
             // height: 40,
             // backgroundColor: '#f0f',
@@ -165,7 +165,7 @@ const Navbar = () => {
             minWidth:
               Platform.OS === 'web' && isDesktop
                 ? 300
-                : isMobileWeb()
+                : mobileAndTabletCheck()
                 ? 160
                 : 200,
             // borderTopLeftRadius: 10,
@@ -331,7 +331,7 @@ const style = StyleSheet.create({
     resizeMode: 'contain',
   },
   btnHolder: {   
-    marginHorizontal: isMobileWeb() ? 2 : 0, 
+    marginHorizontal: mobileAndTabletCheck() ? 2 : 0, 
     width: '100%',
     height: '100%',
     resizeMode: 'contain',

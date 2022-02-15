@@ -12,7 +12,7 @@
 import React from 'react';
 import {Platform} from 'react-native';
 import Toast, { BaseToast }  from '../../react-native-toast-message';
-import {isMobileWeb} from '../utils/common';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
 
 const toastConfig = {
     /* 
@@ -23,7 +23,7 @@ const toastConfig = {
         <BaseToast
             {...rest}
             //BaseToast is modified to have zIndex: 100
-            style={{ borderLeftColor: $config.PRIMARY_COLOR, backgroundColor: $config.SECONDARY_FONT_COLOR, width: !isMobileWeb() ? '40%' : '95%'}}
+            style={{ borderLeftColor: $config.PRIMARY_COLOR, backgroundColor: $config.SECONDARY_FONT_COLOR, width: !mobileAndTabletCheck() ? '40%' : '95%'}}
             contentContainerStyle={{ paddingHorizontal: 15, overflow: 'hidden'}}
             text1Style={{
                 fontSize: 15,
