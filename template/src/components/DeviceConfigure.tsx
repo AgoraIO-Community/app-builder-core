@@ -10,18 +10,23 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {RtcContext} from '../../agora-rn-uikit';
+import {RtcContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 
-const DeviceConfigure: React.FC = (props: any) => {
+interface Props {
+  userRole: ClientRole;
+}
+const DeviceConfigure: React.FC<Props> = (props: any) => {
+  const {userRole} = props;
   const [selectedCam, setSelectedCam] = useState('');
   const [selectedMic, setSelectedMic] = useState('');
   const [deviceList, setDeviceList] = useState([]);
   const rtc = useContext(RtcContext);
 
   useEffect(() => {
-    if (deviceList.length === 0) {
+    const updateDevices = () => {
       rtc.RtcEngine.getDevices(function (devices: any) {
+        console.log('set devices');
         setDeviceList(devices);
         for (const i in devices) {
           if (devices[i].kind === 'videoinput') {
@@ -36,8 +41,15 @@ const DeviceConfigure: React.FC = (props: any) => {
           }
         }
       });
+    };
+    if ($config.EVENT_MODE) {
+      if (userRole == ClientRole.Broadcaster) {
+        updateDevices();
+      }
+    } else {
+      updateDevices();
     }
-  });
+  }, [userRole]);
 
   useEffect(() => {
     if (selectedCam.length !== 0) {

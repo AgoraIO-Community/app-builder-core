@@ -372,7 +372,7 @@ const VideoCall: React.FC = () => {
                   : ChannelProfile.Communication,
               }}>
               <RtcConfigure>
-                <DeviceConfigure>
+                <DeviceConfigure userRole={rtcProps.role}>
                   <RtmConfigure
                     setRecordingActive={setRecordingActive}
                     name={username}
