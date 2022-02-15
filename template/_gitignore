@@ -72,3 +72,6 @@ dist/
 .electron/
 .webpack/
 out/
+
+#FPE plugin folder TODO:hari rename folder later
+test-fpe/*
