@@ -29,7 +29,9 @@ import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
 
 const JoinRoomInputView = (props: any) => {
-  const {username, setUsername, queryComplete, setCallActive} = props;
+  const {username, setUsername, queryComplete, setCallActive, buttonText} =
+    props;
+
   return (
     <View style={style.btnContainer}>
       <TextInput
@@ -45,7 +47,7 @@ const JoinRoomInputView = (props: any) => {
       <PrimaryButton
         onPress={() => setCallActive(true)}
         disabled={!queryComplete || username.trim() === ''}
-        text={queryComplete ? 'Join Room' : 'Loading...'}
+        text={queryComplete ? buttonText : 'Loading...'}
       />
     </View>
   );
@@ -56,6 +58,7 @@ const Precall = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
 
   const {queryComplete, error, title} = props;
+  const [buttonText, setButtonText] = React.useState('Join Room');
 
   const [dim, setDim] = useState<Array<number>>([
     Dimensions.get('window').width,
@@ -73,6 +76,20 @@ const Precall = (props: any) => {
       }
     }
   });
+
+  useEffect(() => {
+    let clientRole = '';
+    if (rtcProps.role == 1) {
+      clientRole = 'Host';
+    }
+    if (rtcProps.role == 2) {
+      clientRole = 'Audience';
+    }
+    setButtonText(
+      $config.EVENT_MODE ? `Join as Room as ${clientRole}` : `Join Room`,
+    );
+  }, [rtcProps.role]);
+
   const isMobileView = () => dim[0] < dim[1] + 150;
 
   if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
@@ -83,6 +100,7 @@ const Precall = (props: any) => {
       {error && <Error error={error} showBack={true} />}
     </View>
   );
+
   const meetingTitle = () => (
     <>
       <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
@@ -99,7 +117,7 @@ const Precall = (props: any) => {
         <View style={style.preCallContainer}>
           {brandHolder()}
           {meetingTitle()}
-          <JoinRoomInputView {...props} />
+          <JoinRoomInputView {...props} buttonText={buttonText} />
         </View>
       ) : (
         <>
@@ -126,7 +144,9 @@ const Precall = (props: any) => {
                 </View>
                 <View style={{marginBottom: '10%'}}>
                   {/* This view is visible only on MOBILE view */}
-                  {isMobileView() && <JoinRoomInputView {...props} />}
+                  {isMobileView() && (
+                    <JoinRoomInputView {...props} buttonText={buttonText} />
+                  )}
                 </View>
               </View>
               {/* This view is visible only on WEB view */}
@@ -145,7 +165,7 @@ const Precall = (props: any) => {
                       <SelectDevice />
                     </View>
                     <View style={{width: '100%'}}>
-                      <JoinRoomInputView {...props} />
+                      <JoinRoomInputView {...props} buttonText={buttonText} />
                     </View>
                   </View>
                 </View>
