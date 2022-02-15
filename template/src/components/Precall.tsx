@@ -86,7 +86,7 @@ const Precall = (props: any) => {
       clientRole = 'Audience';
     }
     setButtonText(
-      $config.EVENT_MODE ? `Join as Room as ${clientRole}` : `Join Room`,
+      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
     );
   }, [rtcProps.role]);
 
