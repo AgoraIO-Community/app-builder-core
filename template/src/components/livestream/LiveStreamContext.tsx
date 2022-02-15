@@ -12,17 +12,19 @@ import {
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
 import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
+import {filterObject} from '../../utils';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
 export const LiveStreamContextProvider = (props: any) => {
-  const {stopUserScreenShare} = useContext(ScreenshareContext);
-  const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
-
-  const {isHost, setRtcProps} = props;
-
+  const screenshareContextInstance = useContext(ScreenshareContext);
+  let stopUserScreenShareMethodInstance: any = null;
+  if (screenshareContextInstance) {
+    const {stopUserScreenShare} = useContext(ScreenshareContext);
+    stopUserScreenShareMethodInstance = stopUserScreenShare;
+  }
   const {
     localUid,
     sendControlMessageToUid,
@@ -31,11 +33,18 @@ export const LiveStreamContextProvider = (props: any) => {
     events,
   } = useContext(ChatContext);
 
-  const localMe = useRef({uid: localUid, status: ''});
+  const {isHost, setRtcProps} = props;
 
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
     Record<string, {}>
   >({});
+
+  const [activeLiveStreamRequestCount, setActiveLiveStreamRequestCount] =
+    useState(0);
+
+  const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
+
+  const localMe = useRef({uid: localUid, status: ''});
 
   const showToast = (text: string) => {
     Toast.show({
@@ -54,6 +63,18 @@ export const LiveStreamContextProvider = (props: any) => {
           : ClientRole.Broadcaster,
     }));
   };
+
+  React.useEffect(() => {
+    // Get active count of livestream requests
+    setActiveLiveStreamRequestCount(
+      Object.keys(
+        filterObject(
+          currLiveStreamRequest,
+          ([k, v]) => v === requestStatus.AwaitingAction,
+        ),
+      ).length,
+    );
+  }, [currLiveStreamRequest]);
 
   React.useEffect(() => {
     events.on(
@@ -119,7 +140,8 @@ export const LiveStreamContextProvider = (props: any) => {
           // 3. Audience receives this when host demotes (canceled after approval)
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
             showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-            stopUserScreenShare();
+            stopUserScreenShareMethodInstance &&
+              stopUserScreenShareMethodInstance(); // This will not exist on ios
             setRaiseHandRequestActive(false);
             // Audience notfies all host when request is rejected
             notifyAllHostsInChannel(
@@ -211,7 +233,7 @@ export const LiveStreamContextProvider = (props: any) => {
      * else: Audience Request was not approved by host, and was in 'Awaiting Action' status
      */
     if (localMe && localMe.current?.status === requestStatus.Approved) {
-      stopUserScreenShare();
+      stopUserScreenShareMethodInstance && stopUserScreenShareMethodInstance(); // This will not exist on ios
       setRaiseHandRequestActive(false);
       /// Change role and send message in channel notifying the same
       changeClientRoleTo(ClientRole.Audience);
@@ -228,6 +250,7 @@ export const LiveStreamContextProvider = (props: any) => {
   return (
     <LiveStreamContext.Provider
       value={{
+        activeLiveStreamRequestCount,
         currLiveStreamRequest,
         hostApprovesRequestOfUID,
         hostRejectsRequestOfUID,
