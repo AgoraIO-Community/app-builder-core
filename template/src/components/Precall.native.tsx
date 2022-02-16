@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {MaxUidContext} from '../../agora-rn-uikit';
 import {MaxVideoView} from '../../agora-rn-uikit';
@@ -34,6 +34,21 @@ const Precall = (props: any) => {
 
   const {setCallActive, queryComplete, username, setUsername, error, title} =
     props;
+
+  const [buttonText, setButtonText] = React.useState('Join Room');
+
+  useEffect(() => {
+    let clientRole = '';
+    if (rtcProps.role == 1) {
+      clientRole = 'Host';
+    }
+    if (rtcProps.role == 2) {
+      clientRole = 'Audience';
+    }
+    setButtonText(
+      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
+    );
+  }, [rtcProps.role]);
 
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps.role == ClientRole.Audience;
@@ -100,7 +115,7 @@ const Precall = (props: any) => {
       )}
       <View style={{marginBottom: 50}}>
         <PrimaryButton
-          text={'Join Room'}
+          text={buttonText}
           disabled={!queryComplete || username.trim() === ''}
           onPress={() => setCallActive(true)}
         />
