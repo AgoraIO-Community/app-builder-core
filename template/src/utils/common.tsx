@@ -1,5 +1,9 @@
 import { Platform } from "react-native";
 
+const checkIsComponent = (cmp: object | Function) => {
+  return (cmp && typeof cmp === 'function') ? true : false
+}
+
 const hasBrandLogo: boolean = !!$config.LOGO;
 
 const isSafariBrowser = () => {
@@ -40,5 +44,6 @@ export {
   isWeb,
   isIOS,
   isAndroid,
+  checkIsComponent,
 }
 

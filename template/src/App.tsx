@@ -9,10 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useState} from 'react';
-import {Router, Route, Switch} from './components/Router';
+import React from 'react';
+import Join from './pages/Join';
+import VideoCall from './pages/VideoCall';
+import Create from './pages/Create';
+import Authenticate from './pages/Authenticate';
+import {Router, Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
+import OAuth from './components/OAuth';
 import Navigation from './components/Navigation';
+import StoreToken from './components/StoreToken';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 // import JoinPhrase from './components/JoinPhrase';
@@ -21,11 +27,12 @@ import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
+import {shouldAuthenticate,checkIsComponent} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
-import {getFpeCustomRoutes,CustomRoutesInterface,Error} from 'fpe-api'
-import {installPlugin} from 'test-fpe'
+import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
+import { useFpe } from 'fpe-api/api';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -35,13 +42,9 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
-  const [appRoutes, setAppRoutes] = useState<CustomRoutesInterface[]>()
-  const [pluginReady, setPluginReady] = useState(false)
-  useEffect(( ) => {
-    installPlugin()
-    setAppRoutes(getFpeCustomRoutes())
-    setPluginReady(true)
-  },[])
+  const VideoCallScreen = useFpe(data => data.components?.VideoCallScreen)
+  const JoinMeetingScreen = useFpe(data => data.components?.JoinMeetingScreen)
+  const CreateMeetingScreen = useFpe(data => data.components?.CreateMeetingScreen)
   return (
     <ImageBackground
       source={{uri: $config.BG}}
@@ -60,25 +63,32 @@ const App: React.FC = () => {
                   <Error />
                   <Navigation />
                   <Switch>
-                  {pluginReady && appRoutes?.map((e, i) => {
-                      if (e?.privateRoute) {
-                        return (
-                          <PrivateRoute
-                            path={e.path}
-                            key={i}
-                            {...e.routeProps}
-                          >
-                            <e.component {...e.componentProps} />
-                          </PrivateRoute>
-                        );
-                      } else {
-                        return (
-                          <Route path={e.path} exact={e.exact} key={i} {...e.routeProps}>
-                            <e.component {...e.componentProps}/>
-                          </Route>
-                        );
-                      }
-                    })}
+                    <Route exact path={'/'}>
+                      <Redirect to={'/create'} />
+                    </Route>
+                    <Route exact path={'/authenticate'}>
+                      {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
+                    </Route>
+                    <Route path={'/auth-token/:token'}>
+                      <StoreToken />
+                    </Route>
+                    <Route exact path={'/join'}>
+                      <Join />
+                    </Route>
+                    {shouldAuthenticate ? (
+                      <PrivateRoute
+                        path={'/create'}
+                        failureRedirectTo={'/authenticate'}>
+                        <Create />
+                      </PrivateRoute>
+                    ) : (
+                      <Route path={'/create'}>
+                        <Create />
+                      </Route>
+                    )}
+                    <Route path={'/:phrase'}>
+                      {checkIsComponent(VideoCallScreen) ? <VideoCallScreen /> : <VideoCall />}
+                    </Route>
                   </Switch>        
                   </ErrorProvider>        
                   </DimensionProvider>
@@ -92,4 +102,32 @@ const App: React.FC = () => {
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
+
+// const LoadRoutes = () => {
+//   const {custom_routes }=useContext(FpeApiContext)
+//   const data = [...getDefaultRoutes()]
+//   return(
+//     <>
+//     {data?.map((e, i) => {
+//       if (e?.privateRoute) {
+//         return (
+//           <PrivateRoute
+//             path={e.path}
+//             key={i}
+//             {...e.routeProps}
+//           >
+//             <e.component {...e.componentProps} />
+//           </PrivateRoute>
+//         );
+//       } else {
+//         return (
+//           <Route path={e.path} exact={e.exact} key={i} {...e.routeProps}>
+//             <e.component {...e.componentProps}/>
+//           </Route>
+//         );
+//       }
+//     })}
+//     </>
+//   )
+// }
 export default App;

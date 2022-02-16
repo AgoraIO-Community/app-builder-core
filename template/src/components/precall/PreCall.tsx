@@ -11,12 +11,24 @@
 */
 import React, { useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import { getFpeSubCmpConfig } from 'fpe-api';
 import PreCallContext from './PreCallContext';
 import DimensionContext from '../dimension/DimensionContext';
 
-const Precall = (props: any) => {
-  const {PreCallLogo,PreCallVideoPreview,PreCallLocalMute,PreCallSetName,PreCallSelectDevice} = getFpeSubCmpConfig()
+import { useFpe } from 'fpe-api/api';
+import { checkIsComponent } from '../../utils/common';
+// Precall subcomponents
+import PreCallLogo from '../common/Logo';
+import PreCallVideoPreview from './VideoPreview';
+import PreCallLocalMute from './LocalMute';
+import PreCallSetName from './setName';
+import PreCallSelectDevice from './selectDevice';
+
+const Precall = () => {
+  const PreCallLogoFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallLogo)
+  const PreCallVideoPreviewFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallVideoPreview)
+  const PreCallLocalMuteFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallLocalMute)
+  const PreCallSetNameFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallSetName)
+  const PreCallSelectDeviceFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallSelectDevice)
   const {title} = useContext(PreCallContext)
   const {getDimensionData} = useContext(DimensionContext)
   const [isDesktop, setDesktop] = useState(false)
@@ -33,21 +45,19 @@ const Precall = (props: any) => {
       }
     }
   })
-  //TODO: move context to separete folder
-  //isWeb Platform.OS === 'web' move to utils
   return (
     <View style={style.main} onLayout={onLayout}>
-      {PreCallLogo && <PreCallLogo/>}
+      {checkIsComponent(PreCallLogoFpe) ? <PreCallLogoFpe /> : <PreCallLogo/>}
       <View style={style.content}>
         <View style={style.leftContent}>
-          {PreCallVideoPreview && <PreCallVideoPreview />}
-          {PreCallLocalMute && <PreCallLocalMute />}
+          {checkIsComponent(PreCallVideoPreviewFpe) ? <PreCallVideoPreviewFpe /> : <PreCallVideoPreview />}
+          {checkIsComponent(PreCallLocalMuteFpe) ? <PreCallLocalMuteFpe /> : <PreCallLocalMute /> }
           {!isDesktop && (
-            PreCallSetName && <PreCallSetName />
+            checkIsComponent(PreCallSetNameFpe) ? <PreCallSetNameFpe /> : <PreCallSetName />
           )}
         </View>
         {isDesktop && (
-          PreCallSelectDevice && <PreCallSelectDevice />
+           checkIsComponent(PreCallSelectDeviceFpe) ? <PreCallSelectDeviceFpe /> : <PreCallSelectDevice />
         )}
       </View>
     </View>

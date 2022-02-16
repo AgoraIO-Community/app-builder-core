@@ -19,9 +19,12 @@ import SecondaryButton from '../../atoms/SecondaryButton';
 import HorizontalRule from '../../atoms/HorizontalRule';
 import TextInput from '../../atoms/TextInput';
 import Toast from '../../../react-native-toast-message';
-import { getFpeSubCmpConfig, Logo } from 'fpe-api';
 import { ErrorContext } from '../../components/common';
 import { ShareLinkProvider } from './ShareLink';
+import ShareLinkDefault from '../../components/Share'
+import Logo from '../../components/common/Logo'
+import { checkIsComponent } from '../../utils/common';
+import { useFpe } from 'fpe-api/api';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
@@ -49,7 +52,7 @@ const CREATE_CHANNEL = gql`
 `;
 
 const Create = () => {
-  const {ShareLink} = getFpeSubCmpConfig()
+  const ShareLinksScreen =  useFpe(config => config.components?.ShareLinksScreen)
   const {setGlobalErrorMessage} = useContext(ErrorContext)
   const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');
@@ -166,7 +169,7 @@ const Create = () => {
           joinPhrase={joinPhrase}
           roomTitle={roomTitle}
         >
-          {ShareLink && <ShareLink />}
+          {checkIsComponent(ShareLinksScreen) ? <ShareLinksScreen />  : <ShareLinkDefault /> }
         </ShareLinkProvider>
       )}
     </ScrollView>

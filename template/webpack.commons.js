@@ -18,6 +18,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const configVars = require('./configTransform');
+const getFpePath = require('./fpe.config');
 
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 
@@ -43,8 +44,9 @@ module.exports = {
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
-      'fpe-api': path.join(__dirname, 'fpe-api/index.ts'),
-      'test-fpe': path.join(__dirname, 'test-fpe/index.ts'),
+      'fpe-api/install': path.join(__dirname, 'fpe-api/install.ts'),
+      'fpe-api/api': path.join(__dirname, 'fpe-api/api.ts'),
+      'test-fpe': path.join(__dirname, getFpePath()),
     },
     // Adds platform specific extensions and OS specific extensions
     // .web.tsx works for web specific code

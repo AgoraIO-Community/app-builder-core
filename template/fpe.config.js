@@ -9,24 +9,17 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-const configVars = require('./configTransform');
-const getFpePath = require('./fpe.config');
 
-// This file is read only by react native for IOS & Android. Doesn't apply to electron, Web targets
-module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
-  plugins: [
-    ['transform-define', configVars],
-    [
-      require.resolve('babel-plugin-module-resolver'),
-      {
-        root: ["./"],
-        alias: {
-          "fpe-api/install": "./fpe-api/install.ts",
-          "fpe-api/api": "./fpe-api/api.ts",
-          "test-fpe": getFpePath()
-        }
-      }
-    ]
-  ],
-};
+/*
+getFpePath - will return test-fpe if exists otherwise it will return the dummy fpe path
+*/
+const fs = require("fs");
+const FpePath = './test-fpe/index.ts'
+const FpeDummyPath = './fpe-api/dummyFpe.ts'
+const getFpePath = () => {
+  if (fs.existsSync(FpePath)) {
+    return FpePath    
+  }
+  return FpeDummyPath
+}
+module.exports = getFpePath

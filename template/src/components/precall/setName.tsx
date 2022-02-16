@@ -10,17 +10,20 @@
 *********************************************
 */
 
+import { useFpe } from 'fpe-api/api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native'
-import { getFpeSubCmpConfig } from 'fpe-api';
+import { checkIsComponent } from '../../utils/common';
+import { PreCallJoinBtn, PreCallTextInput } from './index';
 
 const setName: React.FC = () => {
-  const {PreCallJoinBtn, PreCallTextInput} = getFpeSubCmpConfig()
+  const PreCallJoinBtnFpe = useFpe(data => data.components?.PreCallScreen?.PreCallJoinBtn)
+  const PreCallTextInputFpe = useFpe(data => data.components?.PreCallScreen?.PreCallTextInput)
   return (
     <View style={[style.margin5Btm, { alignItems: 'center' }]}>
-      {PreCallTextInput && <PreCallTextInput/>}
+      {checkIsComponent(PreCallTextInputFpe) ? <PreCallTextInputFpe /> : <PreCallTextInput />}
       <View style={style.margin5Btm} />
-      {PreCallJoinBtn && <PreCallJoinBtn/>}      
+      {checkIsComponent(PreCallJoinBtnFpe) ? <PreCallJoinBtnFpe /> : <PreCallJoinBtn />}
     </View>
   )
 }

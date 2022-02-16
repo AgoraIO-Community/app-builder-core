@@ -9,21 +9,24 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import { useFpe } from 'fpe-api/api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { getFpeSubCmpConfig } from 'fpe-api';
+import { checkIsComponent } from '../../utils/common';
+import { PreCallLocalVideoMute, PreCallLocalAudioMute } from './index';
 import { LocalUserContext } from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
-  const { PreCallLocalAudioMute, PreCallLocalVideoMute } = getFpeSubCmpConfig()
+  const PreCallLocalVideoMuteFpe = useFpe(data => data.components?.PreCallScreen?.PreCallLocalMute?.PreCallLocalVideoMute)
+  const PreCallLocalAudioMuteFpe = useFpe(data => data.components?.PreCallScreen?.PreCallLocalMute?.PreCallLocalAudioMute)
   return (
     <View style={style.precallControls}>
       <LocalUserContext>
         <View style={{ alignSelf: 'center' }}>
-          {PreCallLocalVideoMute && <PreCallLocalVideoMute />}
+          {checkIsComponent(PreCallLocalVideoMuteFpe) ? <PreCallLocalVideoMuteFpe /> : <PreCallLocalVideoMute />}
         </View>
         <View style={{ alignSelf: 'center' }}>
-          {PreCallLocalAudioMute && <PreCallLocalAudioMute />}
+          {checkIsComponent(PreCallLocalAudioMuteFpe) ? <PreCallLocalAudioMuteFpe /> : <PreCallLocalAudioMute />}
         </View>
       </LocalUserContext>
     </View>

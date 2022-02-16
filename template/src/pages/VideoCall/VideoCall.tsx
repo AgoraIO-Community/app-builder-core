@@ -17,6 +17,11 @@ import {PropsProvider} from '../.././../agora-rn-uikit';
 
 import PinnedVideo from '../.././components/PinnedVideo';
 import GridVideo from '../.././components/GridVideo';
+import ParticipantsView from '../../components/ParticipantsView';
+import Chat from '../../components/Chat';
+import Navbar from '../../components/Navbar';
+import SettingsView from '../../components/SettingsView';
+import Controls from '../../components/Controls';
 import styles from '../.././components/styles';
 import {useParams, useHistory} from '../.././components/Router';
 import RtmConfigure from '../.././components/RTMConfigure';
@@ -25,7 +30,7 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../.././subComponents/Watermark';
 import StorageContext from '../.././components/StorageContext';
 import Logo from '../.././subComponents/Logo';
-import {hasBrandLogo} from '../.././utils/common';
+import {checkIsComponent, hasBrandLogo} from '../.././utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
@@ -36,10 +41,11 @@ import Layout from '../.././subComponents/LayoutEnum';
 import Toast from '../.././../react-native-toast-message';
 import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
 import PreCallProvider from '../.././components/precall/PreCallProvider';
-import { getFpeCmpConfig, getFpeSubCmpConfig } from 'fpe-api';
 import { ErrorContext } from '../.././components/common/index';
 import { VideoCallProvider } from './index';
 import {ChatUIProvider} from '../../components/chat-ui/index'
+import { useFpe } from 'fpe-api/api';
+import Precall from '../../components/precall/PreCall';
 
 
 const useChatNotification = (
@@ -236,9 +242,13 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const {NavBar,SettingsView, ParticipantsView,Controls,Chat} = getFpeSubCmpConfig()
+  const ChatFpe = useFpe(data => data.components?.VideoCallScreen?.Chat)
+  const SettingsViewFpe = useFpe(data => data.components?.VideoCallScreen?.SettingsView)
+  const NavBarFpe = useFpe(data => data.components?.VideoCallScreen?.NavBar)
+  const ParticipantsViewFpe = useFpe(data => data.components?.VideoCallScreen?.ParticipantsView)
+  const ControlsFpe = useFpe(data => data.components?.VideoCallScreen?.Controls)
+  const PreCallScreenFpe = useFpe(data => data.components?.PreCallScreen)
   const {setGlobalErrorMessage} = useContext(ErrorContext)
-  const {PreCall} = getFpeCmpConfig()
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
@@ -394,7 +404,7 @@ const VideoCall: React.FC = () => {
                               setPrivateMessageLastSeen={setPrivateMessageLastSeen}
                               setPrivateChatDisplayed={setPrivateChatDisplayed}
                             >
-                            {NavBar && <NavBar />}
+                              {checkIsComponent(NavBarFpe) ? <NavBarFpe /> : <Navbar />}
                               <View
                                 style={[
                                   style.videoView,
@@ -407,14 +417,14 @@ const VideoCall: React.FC = () => {
                                   <GridVideo setLayout={setLayout} />
                                 )}
                                 {sidePanel === SidePanelType.Participants ? (
-                                  ParticipantsView && <ParticipantsView/>
+                                  checkIsComponent(ParticipantsViewFpe) ? <ParticipantsViewFpe/> : <ParticipantsView/>
                                 ) : (
                                   <></>
                                 )}
                                 </NetworkQualityProvider>
                                 {sidePanel === SidePanelType.Chat ? (
                                   $config.CHAT ? (
-                                    Chat && <Chat />
+                                   checkIsComponent(ChatFpe) ? <ChatFpe /> : <Chat />
                                   ) : (
                                     <></>
                                   )
@@ -422,7 +432,7 @@ const VideoCall: React.FC = () => {
                                   <></>
                                 )}
                                 {sidePanel === SidePanelType.Settings ? (
-                                  SettingsView && <SettingsView/>
+                                  checkIsComponent(SettingsViewFpe) ? <SettingsViewFpe /> : <SettingsView />
                                 ) : (
                                   <></>
                                 )}
@@ -431,7 +441,7 @@ const VideoCall: React.FC = () => {
                             sidePanel === SidePanelType.Chat ? (
                               <></>
                             ) : (
-                              Controls && <Controls />
+                              checkIsComponent(ControlsFpe) ? <ControlsFpe /> : <Controls />
                             )}
                             </ChatUIProvider>
                           </VideoCallProvider>
@@ -446,7 +456,7 @@ const VideoCall: React.FC = () => {
                       queryComplete={queryComplete}
                       title={title}
                       >
-                        {PreCall && <PreCall />}
+                       {checkIsComponent(PreCallScreenFpe) ? <PreCallScreenFpe /> : <Precall />}
                     </PreCallProvider>                    
                   ) : (
                     <></>
