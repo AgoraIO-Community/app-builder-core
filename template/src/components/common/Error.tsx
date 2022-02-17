@@ -15,24 +15,29 @@ import Error from '../../subComponents/Error';
 type ErrorType = {
   name: string;
   message: string
-} 
+};
 type ErrorContextType = {
   error: ErrorType | undefined,
   setGlobalErrorMessage: (error: any) => void,
   resetError: () => void
-}
-const ErrorContext = React.createContext((null as unknown) as ErrorContextType);
-const ErrorProvider = (props:any) => {
+};
+const ErrorContext = React.createContext({
+  error: { name: '', message: '' },
+  setGlobalErrorMessage: () => { },
+  resetError: () => { }
+} as ErrorContextType);
+
+const ErrorProvider = (props: { children: React.ReactNode }) => {
   const [error, setError] = useState<ErrorType>();
-  const setGlobalErrorMessage = (error:ErrorType) => {
+  const setGlobalErrorMessage = (error: ErrorType) => {
     setError(error)
-  }
+  };
   const resetError = () => {
     setError(undefined)
-  }
+  };
   return (
     <ErrorContext.Provider
-      value={{error,setGlobalErrorMessage,resetError}}
+      value={{ error, setGlobalErrorMessage, resetError }}
     >
       {true ? props.children : <></>}
     </ErrorContext.Provider>
@@ -40,9 +45,9 @@ const ErrorProvider = (props:any) => {
 };
 
 const CommonError: React.FC = () => {
-  const {error} = useContext(ErrorContext)
-  return error ? <Error error={error} showBack={true} /> : <></>
+  const { error } = useContext(ErrorContext);
+  return (error && (error.name || error.message)) ? <Error error={error} showBack={true} /> : <></>
 }
-export {ErrorContext, ErrorProvider}
+export { ErrorContext, ErrorProvider };
 export default CommonError;
 
