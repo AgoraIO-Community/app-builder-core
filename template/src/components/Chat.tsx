@@ -32,7 +32,7 @@ import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
 import { ChatUIContext } from './chat-ui/index';
 
-const Chat = (props: any) => {
+const Chat = () => {
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,

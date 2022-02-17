@@ -11,18 +11,31 @@
 */
 import React,{createContext, SetStateAction} from 'react';
 
+type privateMsgLastSeen = {
+  userId: string | number,
+  lastSeenCount: number
+}
 interface ChatUIInterface {
   pendingMessageLength: number,
-  pendingPrivateNotification: any,
-  pendingPublicNotification: any,
-  lastCheckedPrivateState: any,
-  privateMessageCountMap: any,
-  setLastCheckedPublicState: React.Dispatch<SetStateAction<any>>,
-  setPrivateMessageLastSeen: React.Dispatch<SetStateAction<any>>,
-  setPrivateChatDisplayed: React.Dispatch<SetStateAction<any>>
+  pendingPrivateNotification: number,
+  pendingPublicNotification: number,
+  lastCheckedPrivateState: object,
+  privateMessageCountMap: object ,
+  setLastCheckedPublicState: React.Dispatch<SetStateAction<number>>,
+  setPrivateMessageLastSeen: React.Dispatch<SetStateAction<privateMsgLastSeen>>,
+  setPrivateChatDisplayed: React.Dispatch<SetStateAction<boolean>>
 }
 
-const ChatUIContext = createContext((null as unknown) as ChatUIInterface);
+const ChatUIContext = createContext({
+  pendingMessageLength: 0, 
+  pendingPrivateNotification: 0,
+  pendingPublicNotification: 0, 
+  lastCheckedPrivateState: {},
+  privateMessageCountMap: {},
+  setLastCheckedPublicState: () => {},
+  setPrivateMessageLastSeen: () => {},
+  setPrivateChatDisplayed: () => {},
+ } as ChatUIInterface);
 
 const ChatUIProvider = (props:any) => {
   return (
