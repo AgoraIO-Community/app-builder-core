@@ -11,7 +11,7 @@
 */
 import React, { useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import PreCallContext from './PreCallContext';
+import {usePreCall} from './usePreCall';
 import DimensionContext from '../dimension/DimensionContext';
 
 import { useFpe } from 'fpe-api/api';
@@ -29,7 +29,7 @@ const Precall = () => {
   const PreCallLocalMuteFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallLocalMute)
   const PreCallSetNameFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallSetName)
   const PreCallSelectDeviceFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallSelectDevice)
-  const {title} = useContext(PreCallContext)
+  const {title} = usePreCall(data => data)
   const {getDimensionData} = useContext(DimensionContext)
   const [isDesktop, setDesktop] = useState(false)
   

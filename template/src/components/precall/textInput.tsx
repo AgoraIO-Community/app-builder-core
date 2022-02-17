@@ -10,12 +10,12 @@
 *********************************************
 */
 
-import React, { useContext } from 'react';
-import PreCallContext from './PreCallContext';
+import React from 'react';
+import {usePreCall} from './usePreCall';
 import TextInput from '../../atoms/TextInput';
 
 const PreCallTextInput: React.FC = () => {
-  const { username,setUsername, queryComplete } = useContext(PreCallContext)
+  const { username,setUsername, queryComplete } = usePreCall(data => data)
   return (
     <TextInput
       value={username}

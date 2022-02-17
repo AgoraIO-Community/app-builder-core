@@ -13,7 +13,7 @@ import { useFpe } from 'fpe-api/api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { checkIsComponent } from '../../utils/common';
-import { PreCallLocalVideoMute, PreCallLocalAudioMute } from './index';
+import {LocalAudioMute,LocalVideoMute} from '../../../agora-rn-uikit';
 import { LocalUserContext } from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
@@ -23,10 +23,10 @@ const PreCallLocalMute: React.FC = () => {
     <View style={style.precallControls}>
       <LocalUserContext>
         <View style={{ alignSelf: 'center' }}>
-          {checkIsComponent(PreCallLocalVideoMuteFpe) ? <PreCallLocalVideoMuteFpe /> : <PreCallLocalVideoMute />}
+          {checkIsComponent(PreCallLocalVideoMuteFpe) ? <PreCallLocalVideoMuteFpe /> : <LocalAudioMute />}
         </View>
         <View style={{ alignSelf: 'center' }}>
-          {checkIsComponent(PreCallLocalAudioMuteFpe) ? <PreCallLocalAudioMuteFpe /> : <PreCallLocalAudioMute />}
+          {checkIsComponent(PreCallLocalAudioMuteFpe) ? <PreCallLocalAudioMuteFpe /> : <LocalVideoMute />}
         </View>
       </LocalUserContext>
     </View>

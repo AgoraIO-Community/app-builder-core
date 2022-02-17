@@ -27,7 +27,7 @@ type ComponentsType = {
   CreateMeetingScreen?: React.FC<{}>;
   ShareLinksScreen?: React.FC<{}>;
   JoinMeetingScreen?: React.FC<{}>;
-  PreCallScreen?: PreCallCmpType;
+  PreCallScreen?: PreCallCmpType | React.FC<{}>;
   VideoCallScreen?: VideoCallCmpType;
 }
 

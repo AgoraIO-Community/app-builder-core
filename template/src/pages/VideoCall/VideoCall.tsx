@@ -40,7 +40,7 @@ import {videoView} from '../.././../theme.json';
 import Layout from '../.././subComponents/LayoutEnum';
 import Toast from '../.././../react-native-toast-message';
 import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
-import PreCallProvider from '../.././components/precall/PreCallProvider';
+import {PreCallProvider} from '../.././components/precall/usePreCall';
 import { ErrorContext } from '../.././components/common/index';
 import { VideoCallProvider } from './index';
 import {ChatUIProvider} from '../../components/chat-ui/index'

@@ -14,7 +14,7 @@ import React, { useContext } from 'react';
 import { View, StyleSheet, Text, Platform } from 'react-native'
 import ColorContext from '../ColorContext';
 import SelectDevice from '../../subComponents/SelectDevice';
-import PreCallContext from './PreCallContext';
+import { usePreCall } from './usePreCall';
 import { useFpe } from 'fpe-api/api';
 import { checkIsComponent } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';
@@ -22,7 +22,7 @@ import { PreCallTextInput, PreCallJoinBtn } from './index';
 const selectDevice: React.FC = () => {
   const PreCallJoinBtnFpe = useFpe(data => data.components?.PreCallScreen?.PreCallJoinBtn)
   const PreCallTextInputFpe = useFpe(data => data.components?.PreCallScreen?.PreCallTextInput)
-  const { title } = useContext(PreCallContext)
+  const { title } = usePreCall(data => data);
   const { primaryColor } = useContext(ColorContext);
   return (
     <View
@@ -73,7 +73,7 @@ const selectDevice: React.FC = () => {
           {checkIsComponent(PreCallTextInputFpe) ? <PreCallTextInputFpe /> : <PreCallTextInput />}
           <View style={{ height: 20 }} />
           {checkIsComponent(PreCallJoinBtnFpe) ? <PreCallJoinBtnFpe /> : <PreCallJoinBtn />}
-        </View>        
+        </View>
       </View>
     </View>
   )

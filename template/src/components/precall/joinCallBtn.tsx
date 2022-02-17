@@ -10,17 +10,17 @@
 *********************************************
 */
 
-import React, { useContext } from 'react';
+import React from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
-import PreCallContext from './PreCallContext';
+import { usePreCall } from './usePreCall';
 
 const joinCallBtn: React.FC = () => {
-  const { username, queryComplete, setCallActive } = useContext(PreCallContext)
+  const { queryComplete, username, setCallActive } = usePreCall(data => data)
   return (
     <PrimaryButton
-        onPress={() => setCallActive(true)}
-        disabled={!queryComplete || username.trim() === ''}
-        text={queryComplete ? 'Join Room' : 'Loading...'}
+      onPress={() => setCallActive(true)}
+      disabled={!queryComplete || username.trim() === ''}
+      text={queryComplete ? 'Join Room' : 'Loading...'}
     />
   )
 }

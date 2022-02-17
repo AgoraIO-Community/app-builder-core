@@ -9,8 +9,17 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import PreCallContext from './PreCallContext';
+import React, {createContext, useContext} from 'react';
+
+interface PreCallContextInterface {
+  username: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
+  setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
+  queryComplete: boolean;
+  title: string;
+}
+
+const PreCallContext:React.Context<PreCallContextInterface> = createContext({username: '',setUsername: () => {} , setCallActive: () => {}, queryComplete: false,title: ''} as PreCallContextInterface);
 
 const PreCallProvider = (props:any) => {
   return (
@@ -22,4 +31,9 @@ const PreCallProvider = (props:any) => {
   );
 };
 
-export default PreCallProvider;
+const usePreCall = (selector: (precall: PreCallContextInterface) => PreCallContextInterface) => {
+  const precall = useContext(PreCallContext)
+  return selector(precall)
+}
+
+export {PreCallProvider,usePreCall};
