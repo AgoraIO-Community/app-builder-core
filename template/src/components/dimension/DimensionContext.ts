@@ -15,6 +15,6 @@ interface DimensionContextInterface {
   getDimensionData: (width?: number, height?: number) => {dim:(number | boolean)[],isDesktop: boolean}
 }
 
-const DimensionContext = createContext((null as unknown) as DimensionContextInterface);
+const DimensionContext = createContext({getDimensionData: () => {}} as DimensionContextInterface);
 
 export default DimensionContext;

@@ -19,7 +19,7 @@ const joinCallBtn: React.FC = () => {
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
-      disabled={!queryComplete || username.trim() === ''}
+      disabled={!queryComplete || username === ''}
       text={queryComplete ? 'Join Room' : 'Loading...'}
     />
   )

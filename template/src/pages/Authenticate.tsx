@@ -15,6 +15,7 @@ import {
   Text,
   ImageBackground,
   StyleSheet,
+  LayoutChangeEvent,
 } from 'react-native';
 import Logo from '../subComponents/Logo';
 import OAuth from '../components/OAuth';
@@ -25,7 +26,7 @@ import DimensionContext from '../components/dimension/DimensionContext';
 const Authenticate = () => {
   const {getDimensionData}= useContext(DimensionContext)
   const [isDesktop, setIsDesktop] = useState(false)
-  let onLayout = (e: any) => {
+  let onLayout = (e: LayoutChangeEvent) => {
     const {isDesktop}  = getDimensionData(e.nativeEvent.layout.width, e.nativeEvent.layout.height)
     setIsDesktop(isDesktop)
   };

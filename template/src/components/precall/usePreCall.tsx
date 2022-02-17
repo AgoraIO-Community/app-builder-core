@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useContext} from 'react';
+import React, { createContext, useContext } from 'react';
 
 interface PreCallContextInterface {
   username: string;
@@ -17,14 +17,22 @@ interface PreCallContextInterface {
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
   queryComplete: boolean;
   title: string;
+  children: React.ReactNode
 }
 
-const PreCallContext:React.Context<PreCallContextInterface> = createContext({username: '',setUsername: () => {} , setCallActive: () => {}, queryComplete: false,title: ''} as PreCallContextInterface);
+const PreCallContext: React.Context<PreCallContextInterface> = createContext({
+  username: '',
+  setUsername: () => { },
+  setCallActive: () => { },
+  queryComplete: false,
+  title: '', children:
+    null
+} as PreCallContextInterface);
 
-const PreCallProvider = (props:any) => {
+const PreCallProvider = (props: PreCallContextInterface) => {
   return (
     <PreCallContext.Provider
-      value={{...props}}
+      value={{ ...props }}
     >
       {true ? props.children : <></>}
     </PreCallContext.Provider>
@@ -36,4 +44,4 @@ const usePreCall = (selector: (precall: PreCallContextInterface) => PreCallConte
   return selector(precall)
 }
 
-export {PreCallProvider,usePreCall};
+export { PreCallProvider, usePreCall };

@@ -1,5 +1,5 @@
-const mobileAndTabletCheck = () => {
+const isMobileOrTablet = () => {
   return true;
 }
 
-export default mobileAndTabletCheck;
+export default isMobileOrTablet;

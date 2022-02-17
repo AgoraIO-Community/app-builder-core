@@ -11,30 +11,44 @@
 */
 
 import React, { SetStateAction } from 'react';
-import { SidePanelType } from 'src/subComponents/SidePanelEnum';
+import { SidePanelType } from '../../subComponents/SidePanelEnum';
+import Layout from '../../subComponents/LayoutEnum';
 
 type VideoCallContextType = {
-  setRecordingActive: any,
   recordingActive: boolean,
   sidePanel: SidePanelType,
-  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>,
-  layout: any,
-  setLayout: React.Dispatch<SetStateAction<any>>,
+  layout: Layout,
   isHost: boolean,
   title: string,
+  children: React.ReactNode,
+  setRecordingActive: React.Dispatch<SetStateAction<boolean>>,
+  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>,
+  setLayout: React.Dispatch<SetStateAction<any>>,
 }
-const VideoCallContext = React.createContext((null as unknown) as VideoCallContextType);
-const VideoCallProvider = (props:any) => {
+
+const VideoCallContext = React.createContext({
+  recordingActive: false,
+  sidePanel: SidePanelType.None,
+  layout: Layout.Grid,
+  isHost: false,
+  title: '',
+  children: null,
+  setRecordingActive: () => { },
+  setSidePanel: () => { },
+  setLayout: () => { }
+} as VideoCallContextType);
+
+const VideoCallProvider = (props: VideoCallContextType) => {
   return (
     <VideoCallContext.Provider
-      value={{...props}}
+      value={{ ...props }}
     >
       {true ? props.children : <></>}
     </VideoCallContext.Provider>
   );
 };
-import VideoCall  from './VideoCall';
-export {VideoCallContext, VideoCallProvider}
+import VideoCall from './VideoCall';
+export { VideoCallContext, VideoCallProvider }
 export default VideoCall
 
 

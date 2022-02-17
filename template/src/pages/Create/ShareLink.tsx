@@ -18,10 +18,18 @@ type ShareLinkContextType = {
   pstn: string;
   hostControlCheckbox: boolean;
   joinPhrase: string
-  roomTitle: string
+  roomTitle: string,
+  children: React.ReactNode
 }
-const ShareLinkContext = React.createContext((null as unknown) as ShareLinkContextType);
-const ShareLinkProvider = (props: any) => {
+const ShareLinkContext = React.createContext({
+  urlView: '',
+  urlHost: '',
+  pstn: '',
+  hostControlCheckbox: false,
+  joinPhrase: '',
+  roomTitle: ''
+} as ShareLinkContextType);
+const ShareLinkProvider = (props: ShareLinkContextType) => {
   return (
     <ShareLinkContext.Provider
       value={{ ...props }}

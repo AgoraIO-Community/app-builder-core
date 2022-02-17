@@ -11,17 +11,15 @@
 */
 
 import React from 'react';
-import {usePreCall} from './usePreCall';
+import { usePreCall } from './usePreCall';
 import TextInput from '../../atoms/TextInput';
 
 const PreCallTextInput: React.FC = () => {
-  const { username,setUsername, queryComplete } = usePreCall(data => data)
+  const { username, setUsername, queryComplete } = usePreCall(data => data)
   return (
     <TextInput
       value={username}
-      onChangeText={(text) => {
-        setUsername(text);
-      }}
+      onChangeText={(text) => setUsername(text ? text.trim() : text)}
       onSubmitEditing={() => { }}
       placeholder={
         queryComplete ? 'Display name*' : 'Getting name...'

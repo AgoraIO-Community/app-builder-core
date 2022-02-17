@@ -26,10 +26,10 @@ import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/mobileWebTest';
 import { VideoCallContext } from '../pages/VideoCall';
 
-const Controls = (props: any) => {
+const Controls = () => {
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -61,13 +61,13 @@ const Controls = (props: any) => {
         <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
         </View>
-        {mobileAndTabletCheck() ? (
+        {isMobileOrTablet() ? (
         <View style={{alignSelf: 'center'}}>
           <SwitchCamera />
         </View>
         ) : (<></>)}
         {$config.SCREEN_SHARING ? (
-          !mobileAndTabletCheck() ? (
+          !isMobileOrTablet() ? (
             <View style={{alignSelf: 'center'}}>
               <ScreenshareButton
                 screenshareActive={screenshareActive}

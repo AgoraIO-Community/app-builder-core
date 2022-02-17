@@ -25,24 +25,7 @@ const selectDevice: React.FC = () => {
   const { title } = usePreCall(data => data);
   const { primaryColor } = useContext(ColorContext);
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
-        marginLeft: 50,
-        padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: $config.PRIMARY_COLOR,
-        height: '70%',
-        minHeight: 340,
-        minWidth: 380,
-        alignSelf: 'center',
-        justifyContent: 'center',
-        marginBottom: '10%',
-      }}>
+    <View style={style.container}>
       <Text style={[style.titleHeading, { color: $config.PRIMARY_COLOR }]}>
         {title}
       </Text>
@@ -55,21 +38,10 @@ const selectDevice: React.FC = () => {
         </Text>
         {/* </View> */}
         <View style={{ height: 20 }} />
-        <View
-          style={{
-            flex: 1,
-            maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
-          }}>
+        <View style={style.selectDeviceContainer}>
           <SelectDevice />
         </View>
-        <View
-          style={{
-            flex: 1,
-            width: 350,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 50,
-          }}>
+        <View style={style.inputAndBtnContainer}>
           {checkIsComponent(PreCallTextInputFpe) ? <PreCallTextInputFpe /> : <PreCallTextInput />}
           <View style={{ height: 20 }} />
           {checkIsComponent(PreCallJoinBtnFpe) ? <PreCallJoinBtnFpe /> : <PreCallJoinBtn />}
@@ -82,6 +54,34 @@ const selectDevice: React.FC = () => {
 export default selectDevice;
 
 const style = StyleSheet.create({
+  container:{
+    flex: 1,
+    backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
+    marginLeft: 50,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: $config.PRIMARY_COLOR,
+    height: '70%',
+    minHeight: 340,
+    minWidth: 380,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: '10%',
+  },
+  inputAndBtnContainer:{
+    flex: 1,
+    width: 350,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  selectDeviceContainer:{
+    flex: 1,
+    maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
+  },
   titleHeading: {
     fontSize: 28,
     fontWeight: '700',
