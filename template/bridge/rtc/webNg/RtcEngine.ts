@@ -28,7 +28,7 @@ import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
-import { VideoProfile } from '../quality';
+import {VideoProfile} from '../quality';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -228,7 +228,31 @@ export default class RtcEngine {
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
+      let audioError = false;
+      let videoError = false;
+      try {
+        let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+        this.localStream.audio = localAudio;
+      } catch (error) {
+        e = error;
+        audioError = true;
+      }
+      try {
+        let localVideo = await AgoraRTC.createCameraVideoTrack({
+          encoderConfig: this.videoProfile,
+        });
+        this.localStream.video = localVideo;
+      } catch (error) {
+        e = error;
+        videoError = true;
+      }
+      e.status = {audioError, videoError};
       throw e;
+      // if (audioError && videoError) throw e;
+      // else
+      //   throw new Error(
+      //     audioError ? 'No Microphone found' : 'No Video device found',
+      //   );
     }
     // let enable = new Promise((resolve, reject) => {
     //   this.streams.set(0, );
@@ -242,11 +266,15 @@ export default class RtcEngine {
     // await enable;
   }
   async publish() {
-    if (this.localStream.audio && this.localStream.video) {
+    if (this.localStream.audio || this.localStream.video) {
       try {
         let tracks: Array<ILocalTrack> = [];
-        this.isAudioEnabled && tracks.push(this.localStream.audio);
-        this.isVideoEnabled && tracks.push(this.localStream.video);
+        this.localStream.audio &&
+          this.isAudioEnabled &&
+          tracks.push(this.localStream.audio);
+        this.localStream.video &&
+          this.isVideoEnabled &&
+          tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
           console.log('publishing now');
