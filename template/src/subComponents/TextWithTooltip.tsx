@@ -17,7 +17,7 @@ import TextWithToolTipNative from './TextWithTooltip.native';
  * Text with tooltip
  * web - used title attribute to show the tooltip
  */
-const TextWithToolTip = (props: any) => {
+const TextWithToolTip = (props: {value: string, style: object}) => {
     return(
         <div 
             style={style.containerStyle} 
