@@ -33,6 +33,7 @@ import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
 import { useFpe } from 'fpe-api/api';
+import { CustomRoutesInterface } from 'fpe-api/typeDef';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -45,6 +46,7 @@ const App: React.FC = () => {
   const VideoCallScreen = useFpe(data => data.components?.VideoCallScreen)
   const JoinMeetingScreen = useFpe(data => data.components?.JoinMeetingScreen)
   const CreateMeetingScreen = useFpe(data => data.components?.CreateMeetingScreen)
+  const CustomRoutes = useFpe(data => data.custom_routes)
   return (
     <ImageBackground
       source={{uri: $config.BG}}
@@ -63,6 +65,27 @@ const App: React.FC = () => {
                   <Error />
                   <Navigation />
                   <Switch>
+                    {CustomRoutes?.map((e:CustomRoutesInterface, i: number) => {
+                      if (e?.privateRoute) {
+                        return (
+                          <PrivateRoute
+                            path={e.path}
+                            exact={e.exact}
+                            key={i}
+                            failureRedirectTo={e.failureRedirectTo ? e.failureRedirectTo : '/'}
+                            {...e.routeProps}                            
+                          >
+                            <e.component {...e.componentProps} />
+                          </PrivateRoute>
+                        );
+                      } else {
+                        return (
+                          <Route path={e.path} exact={e.exact} key={i} {...e.routeProps}>
+                            <e.component {...e.componentProps}/>
+                          </Route>
+                        );
+                      }
+                    })}
                     <Route exact path={'/'}>
                       <Redirect to={'/create'} />
                     </Route>
@@ -73,17 +96,17 @@ const App: React.FC = () => {
                       <StoreToken />
                     </Route>
                     <Route exact path={'/join'}>
-                      <Join />
+                      {checkIsComponent(JoinMeetingScreen) ? <JoinMeetingScreen /> : <Join />}
                     </Route>
                     {shouldAuthenticate ? (
                       <PrivateRoute
                         path={'/create'}
                         failureRedirectTo={'/authenticate'}>
-                        <Create />
+                        {checkIsComponent(CreateMeetingScreen) ? <CreateMeetingScreen /> : <Create />}
                       </PrivateRoute>
                     ) : (
                       <Route path={'/create'}>
-                        <Create />
+                        {checkIsComponent(CreateMeetingScreen) ? <CreateMeetingScreen /> : <Create />}
                       </Route>
                     )}
                     <Route path={'/:phrase'}>
@@ -103,31 +126,4 @@ const App: React.FC = () => {
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
 
-// const LoadRoutes = () => {
-//   const {custom_routes }=useContext(FpeApiContext)
-//   const data = [...getDefaultRoutes()]
-//   return(
-//     <>
-//     {data?.map((e, i) => {
-//       if (e?.privateRoute) {
-//         return (
-//           <PrivateRoute
-//             path={e.path}
-//             key={i}
-//             {...e.routeProps}
-//           >
-//             <e.component {...e.componentProps} />
-//           </PrivateRoute>
-//         );
-//       } else {
-//         return (
-//           <Route path={e.path} exact={e.exact} key={i} {...e.routeProps}>
-//             <e.component {...e.componentProps}/>
-//           </Route>
-//         );
-//       }
-//     })}
-//     </>
-//   )
-// }
 export default App;

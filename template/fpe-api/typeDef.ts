@@ -31,13 +31,14 @@ type ComponentsType = {
   VideoCallScreen?: VideoCallCmpType;
 }
 
-interface CustomRoutesInterface {
+export interface CustomRoutesInterface {
   path: string;
-  component: React.ReactNode;
+  component: React.ElementType;
   exact?: boolean;
   componentProps?: object;
   privateRoute?: boolean;
   routeProps?: object;
+  failureRedirectTo?: string;
 };
 
 export interface FpeApiInterface {

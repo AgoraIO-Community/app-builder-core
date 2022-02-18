@@ -39,9 +39,11 @@ const PreCallProvider = (props: PreCallContextInterface) => {
   );
 };
 
-const usePreCall = (selector: (precall: PreCallContextInterface) => PreCallContextInterface) => {
+const usePreCall = (selector: (precall: PreCallContextInterface) => Partial<PreCallContextInterface>) => {
   const precall = useContext(PreCallContext)
   return selector(precall)
 }
+
+
 
 export { PreCallProvider, usePreCall };
