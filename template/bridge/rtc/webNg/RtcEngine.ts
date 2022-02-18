@@ -222,8 +222,9 @@ export default class RtcEngine {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(
           {},
-          { encoderConfig: this.videoProfile },
+          {encoderConfig: this.videoProfile},
         );
+
       // localVideo.setEncoderConfiguration(this.videoProfile);
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
@@ -395,7 +396,7 @@ export default class RtcEngine {
     });
     this.client.on('user-unpublished', async (user, mediaType) => {
       if (mediaType === 'audio') {
-        const { audio, ...rest } = this.remoteStreams.get(user.uid);
+        const {audio, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
@@ -404,7 +405,7 @@ export default class RtcEngine {
           0,
         );
       } else {
-        const { video, ...rest } = this.remoteStreams.get(user.uid);
+        const {video, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           user.uid,
@@ -416,22 +417,35 @@ export default class RtcEngine {
     });
 
     // this.client.on('stream-fallback', (evt))
-    this.client.on('stream-type-changed', function(uid, streamType) {
+    this.client.on('stream-type-changed', function (uid, streamType) {
       console.log('[fallback]: ', uid, streamType);
     });
 
-    this.client.on('network-quality', async ({ downlinkNetworkQuality, uplinkNetworkQuality }) => {
-      const networkQualityIndicatorCallback = this.eventsMap.get('NetworkQuality') as callbackType;
+    this.client.on(
+      'network-quality',
+      async ({downlinkNetworkQuality, uplinkNetworkQuality}) => {
+        const networkQualityIndicatorCallback = this.eventsMap.get(
+          'NetworkQuality',
+        ) as callbackType;
 
-      networkQualityIndicatorCallback(0, downlinkNetworkQuality, uplinkNetworkQuality)
+        networkQualityIndicatorCallback(
+          0,
+          downlinkNetworkQuality,
+          uplinkNetworkQuality,
+        );
 
-      const remoteUserNetworkQualities = this.client.getRemoteNetworkQuality();
+        const remoteUserNetworkQualities =
+          this.client.getRemoteNetworkQuality();
 
-      Object.keys(remoteUserNetworkQualities).forEach((uid) => {
-        networkQualityIndicatorCallback(uid, remoteUserNetworkQualities[uid].downlinkNetworkQuality, remoteUserNetworkQualities[uid].uplinkNetworkQuality)
-      })
-
-    })
+        Object.keys(remoteUserNetworkQualities).forEach((uid) => {
+          networkQualityIndicatorCallback(
+            uid,
+            remoteUserNetworkQualities[uid].downlinkNetworkQuality,
+            remoteUserNetworkQualities[uid].uplinkNetworkQuality,
+          );
+        });
+      },
+    );
 
     await this.client.join(
       this.appId,
@@ -442,7 +456,6 @@ export default class RtcEngine {
     this.isJoined = true;
     await this.publish();
   }
-
 
   async leaveChannel(): Promise<void> {
     this.client.leave();
