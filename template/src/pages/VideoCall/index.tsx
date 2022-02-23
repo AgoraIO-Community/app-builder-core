@@ -13,7 +13,6 @@
 import React, { SetStateAction } from 'react';
 import { SidePanelType } from '../../subComponents/SidePanelEnum';
 import Layout from '../../subComponents/LayoutEnum';
-import VideoCall from './VideoCall';
 import createHook from '../../utils/createHook';
 
 export type VideoCallContextType = {
@@ -53,6 +52,5 @@ const VideoCallProvider = (props: VideoCallContextType) => {
 const useVideoCall = createHook(VideoCallContext);
 
 export { useVideoCall, VideoCallContext, VideoCallProvider };
-export default VideoCall;
 
 
