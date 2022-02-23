@@ -26,6 +26,7 @@ export const LiveStreamContextProvider = (props: any) => {
     stopUserScreenShareMethodInstance = stopUserScreenShare;
   }
   const {
+    userList,
     localUid,
     sendControlMessageToUid,
     sendControlMessage,
@@ -63,6 +64,16 @@ export const LiveStreamContextProvider = (props: any) => {
           : ClientRole.Broadcaster,
     }));
   };
+
+  React.useEffect(() => {
+    // Remove requests for users who are offline
+    setLiveStreamRequest(
+      filterObject(
+        currLiveStreamRequest,
+        ([k, v]) => userList[k] && !userList[k]?.offline,
+      ),
+    );
+  }, [userList]);
 
   React.useEffect(() => {
     // Get active count of livestream requests
