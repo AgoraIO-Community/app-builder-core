@@ -51,9 +51,9 @@ const ParticipantView = (props: any) => {
           : style.participantViewNative
       }>
       <View style={[style.padding10]}>
-        <Text style={[style.mainHeading, style.lineUnderHeading]}>
-          Participants
-        </Text>
+        <View style={style.lineUnderHeading}>
+          <Text style={style.mainHeading}>Participants</Text>
+        </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
         {$config.EVENT_MODE ? (
@@ -210,7 +210,6 @@ const style = StyleSheet.create({
     flex: 1,
   },
   participantsection: {
-    minHeight: 150,
     marginBottom: 25,
   },
   mainHeading: {

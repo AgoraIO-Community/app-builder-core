@@ -276,7 +276,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
   },
   recordingView: {
     height: 35,
