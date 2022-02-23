@@ -29,8 +29,14 @@ import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
 
 const JoinRoomInputView = (props: any) => {
-  const {username, setUsername, queryComplete, setCallActive, buttonText} =
-    props;
+  const {
+    username,
+    setUsername,
+    queryComplete,
+    setCallActive,
+    buttonText,
+    error,
+  } = props;
 
   return (
     <View style={style.btnContainer}>
@@ -41,12 +47,12 @@ const JoinRoomInputView = (props: any) => {
         }}
         onSubmitEditing={() => {}}
         placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-        editable={queryComplete}
+        editable={queryComplete && !error}
       />
       <View style={{height: 20}} />
       <PrimaryButton
         onPress={() => setCallActive(true)}
-        disabled={!queryComplete || username.trim() === ''}
+        disabled={!queryComplete || username.trim() === '' || error}
         text={queryComplete ? buttonText : 'Loading...'}
       />
     </View>
