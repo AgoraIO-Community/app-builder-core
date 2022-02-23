@@ -17,10 +17,10 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     setActiveLiveStreamRequests(
       filterObject(
         currLiveStreamRequest,
-        ([k, v]) => v === requestStatus.AwaitingAction && !userList[k]?.offline,
+        ([k, v]) => v === requestStatus.AwaitingAction,
       ),
     );
-  }, [currLiveStreamRequest, userList]);
+  }, [currLiveStreamRequest]);
 
   return (
     <>
@@ -34,19 +34,24 @@ const CurrentLiveStreamRequestsView = (props: any) => {
           <Text style={p_style.infoText}>No streaming request(s)</Text>
         ) : (
           Object.keys(activeLiveStreamRequests).map(
-            (userUID: any, index: number) => (
-              <View style={p_style.participantRow} key={index}>
-                <ParticipantName value={userList[userUID].name} />
-                <View style={p_style.participantActionContainer}>
-                  <RemoteLiveStreamRequestApprove
-                    user={{...userList[userUID], uid: userUID}}
-                  />
-                  <RemoteLiveStreamRequestReject
-                    user={{...userList[userUID], uid: userUID}}
-                  />
+            (userUID: any, index: number) =>
+              userList[userUID] ? (
+                <View style={p_style.participantRow} key={index}>
+                  <ParticipantName value={userList[userUID]?.name} />
+                  <View style={p_style.participantActionContainer}>
+                    <RemoteLiveStreamRequestApprove
+                      user={{...userList[userUID], uid: userUID}}
+                    />
+                    <RemoteLiveStreamRequestReject
+                      user={{...userList[userUID], uid: userUID}}
+                    />
+                  </View>
                 </View>
-              </View>
-            ),
+              ) : (
+                <View style={p_style.participantRow} key={index}>
+                  <ParticipantName value={'User not found'} />
+                </View>
+              ),
           )
         )}
       </View>
