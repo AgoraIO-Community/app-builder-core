@@ -7,10 +7,10 @@ interface PropsInterface {
 }
 
 export default function ParticipantSectionTitle(props: PropsInterface) {
-  const {title, count} = props;
+  const {title, count = 0} = props;
   return (
     <Text style={style.subheading}>
-      {title} <Text style={style.count}>({count})</Text>
+      {title} {count > 0 && <Text style={style.count}>({count})</Text>}
     </Text>
   );
 }

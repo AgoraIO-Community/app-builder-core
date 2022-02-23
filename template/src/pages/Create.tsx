@@ -154,10 +154,7 @@ const Create = () => {
                     onValueChange={setHostControlCheckbox}
                   />
                   <Text style={style.checkboxTitle}>
-                    Restrict Host Controls{' '}
-                    {!hostControlCheckbox
-                      ? '(Everyone is a Host)'
-                      : '(Separate host link)'}
+                    Restrict Host Controls (Separate host link)
                   </Text>
                 </View>
                 {$config.PSTN ? (

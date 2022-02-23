@@ -124,7 +124,11 @@ const Precall = (props: any) => {
           {brandHolder()}
           <View style={style.content}>
             <View style={style.upperContainer}>
-              <View style={style.leftContent}>
+              <View
+                style={[
+                  style.leftContent,
+                  isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
+                ]}>
                 <MaxUidConsumer>
                   {(maxUsers) => (
                     <View style={{borderRadius: 10, flex: 1}}>
@@ -204,7 +208,6 @@ const style = StyleSheet.create({
   leftContent: {
     flex: 1.3,
     height: '100%',
-    paddingRight: 40,
   },
   upperContainer: {
     display: 'flex',

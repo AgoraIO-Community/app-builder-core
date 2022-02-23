@@ -53,7 +53,7 @@ const Navbar = (props: any) => {
         <View style={style.navItemSeparator}></View>
       </View>
     ) : (
-      <View style={{marginHorizontal: 8}}></View>
+      <View style={{marginHorizontal: 2}}></View>
     );
   };
 
@@ -276,7 +276,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
   },
   recordingView: {
     height: 35,

@@ -5,6 +5,7 @@ import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestRej
 import ParticipantName from '../../components/participants/ParticipantName';
 import LiveStreamContext, {requestStatus} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
+import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   const {userList, p_style} = props;
@@ -16,19 +17,17 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     setActiveLiveStreamRequests(
       filterObject(
         currLiveStreamRequest,
-        ([k, v]) => v === requestStatus.AwaitingAction,
+        ([k, v]) => v === requestStatus.AwaitingAction && !userList[k]?.offline,
       ),
     );
-  }, [currLiveStreamRequest]);
+  }, [currLiveStreamRequest, userList]);
 
   return (
     <>
-      <Text style={p_style.subheading}>
-        Streaming Request{' '}
-        <Text style={p_style.count}>
-          ({Object.keys(activeLiveStreamRequests).length})
-        </Text>
-      </Text>
+      <ParticipantSectionTitle
+        title="Streaming Request "
+        count={Object.keys(activeLiveStreamRequests).length}
+      />
       <View style={p_style.participantContainer}>
         {Object.keys(currLiveStreamRequest).length == 0 ||
         Object.keys(activeLiveStreamRequests).length == 0 ? (
