@@ -43,7 +43,7 @@
   "dependencies": {
     "@apollo/client": "3.3.20",
     "@react-native-community/async-storage": "1.12.1",
-    "@react-native-community/checkbox": "0.5.10",
+    "@react-native-community/checkbox": "0.4.2",
     "@react-native-community/clipboard": "1.5.1",
     "@sentry/react": "6.5.1",
     "@sentry/react-native": "2.4.3",
