@@ -40,10 +40,10 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {UserType} from './RTMConfigure';
 import styles from './styles';
 import TextWithToolTip from '../subComponents/TextWithTooltip'
-import { VideoCallContext } from '../pages/VideoCall/index';
+import {useVideoCall} from '../pages/VideoCall/index';
 
 const ParticipantView = () => {
-  const {isHost} = useContext(VideoCallContext);
+  const {isHost} = useVideoCall(data => data);
   const {height, width} = useWindowDimensions();
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);

@@ -16,12 +16,12 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { VideoCallContext } from '../pages/VideoCall/index';
+import { useVideoCall } from '../pages/VideoCall/index';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 
 const SettingsView = () => {
-  const {isHost} = useContext(VideoCallContext);
+  const {isHost} = useVideoCall(data => data);
   return (
     <View
       style={

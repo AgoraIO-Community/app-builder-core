@@ -27,7 +27,7 @@ import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
-import { VideoCallContext } from '../pages/VideoCall';
+import { useVideoCall } from '../pages/VideoCall';
 
 const Controls = () => {
   let onLayout = (e: any) => {
@@ -45,7 +45,7 @@ const Controls = () => {
     recordingActive,
     isHost,
     setLayout,
-  } = useContext(VideoCallContext);
+  } = useVideoCall(data => data);
 
   return (
     <LocalUserContext>

@@ -1,11 +1,11 @@
 import React from 'react';
 
-type PreCallLocalMuteCmpType = {
+export type PreCallLocalMuteCmpType = {
   PreCallLocalAudioMute?: React.FC<{}>;
   PreCallLocalVideoMute?: React.FC<{}>;
 }
 
-type PreCallCmpType = {
+export type PreCallCmpType = {
   PreCallVideoPreview?: React.FC<{}>;
   PreCallLocalMute?: PreCallLocalMuteCmpType;
   PreCallLogo?: React.FC<{}>;
@@ -15,7 +15,7 @@ type PreCallCmpType = {
   PreCallTextInput?: React.FC<{}>;
 }
 
-type VideoCallCmpType = {
+export type VideoCallCmpType = {
   NavBar?: React.FC<{}>;
   SettingsView?: React.FC<{}>;
   ParticipantsView?: React.FC<{}>;
@@ -23,7 +23,7 @@ type VideoCallCmpType = {
   Chat?: React.FC<{}>;
 }
 
-type ComponentsType = {
+export type ComponentsType = {
   CreateMeetingScreen?: React.FC<{}>;
   ShareLinksScreen?: React.FC<{}>;
   JoinMeetingScreen?: React.FC<{}>;

@@ -43,10 +43,10 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
-  const VideoCallScreen = useFpe(data => data.components?.VideoCallScreen)
-  const JoinMeetingScreen = useFpe(data => data.components?.JoinMeetingScreen)
-  const CreateMeetingScreen = useFpe(data => data.components?.CreateMeetingScreen)
-  const CustomRoutes = useFpe(data => data.custom_routes)
+  const VideoCallScreen = useFpe(data => data?.components?.VideoCallScreen);
+  const JoinMeetingScreen = useFpe(data => data?.components?.JoinMeetingScreen);
+  const CreateMeetingScreen = useFpe(data => data?.components?.CreateMeetingScreen);
+  const CustomRoutes = useFpe(data => data?.custom_routes);
   return (
     <ImageBackground
       source={{uri: $config.BG}}

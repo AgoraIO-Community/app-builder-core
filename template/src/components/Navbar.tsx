@@ -32,7 +32,7 @@ import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
-import { VideoCallContext } from '../pages/VideoCall/index';
+import { useVideoCall } from '../pages/VideoCall/index';
 import { ChatUIContext } from './chat-ui/index';
 
 const Navbar = () => {
@@ -45,7 +45,7 @@ const Navbar = () => {
     setLayout,
     isHost,
     title,
-  } = useContext(VideoCallContext);
+  } = useVideoCall(data => data);
   const {pendingMessageLength, setLastCheckedPublicState} = useContext(ChatUIContext)
   const [dim, setDim] = useState([
     Dimensions.get('window').width,

@@ -9,9 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
+import createHook from '../../utils/createHook';
 
-interface PreCallContextInterface {
+export interface PreCallContextInterface {
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,11 +40,7 @@ const PreCallProvider = (props: PreCallContextInterface) => {
   );
 };
 
-const usePreCall = (selector: (precall: PreCallContextInterface) => Partial<PreCallContextInterface>) => {
-  const precall = useContext(PreCallContext)
-  return selector(precall)
-}
+const usePreCall = createHook(PreCallContext);
 
 
-
-export { PreCallProvider, usePreCall };
+export { PreCallProvider, PreCallContext, usePreCall };
