@@ -89,6 +89,19 @@ const RtmConfigure = (props: any) => {
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
 
+  const handBrowserClose = () => {
+    engine.current.leaveChannel(rtcProps.channel);
+  };
+
+  React.useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    window.addEventListener('beforeunload', handBrowserClose);
+    // cleanup this component
+    return () => {
+      window.removeEventListener('beforeunload', handBrowserClose);
+    };
+  }, []);
+
   React.useEffect(() => {
     setTotalOnlineUsers(
       Object.keys(
@@ -298,6 +311,7 @@ const RtmConfigure = (props: any) => {
 
     engine.current.on('channelMemberLeft', (data: any) => {
       console.log('user left', data);
+      // Chat of left user becomes undefined. So don't cleanup
       const {uid} = data;
       if (!uid) return;
       setUserList((prevState) => {
@@ -309,11 +323,6 @@ const RtmConfigure = (props: any) => {
           },
         };
       });
-      // Chat of left user becomes undefined. So don't cleanup
-      // TODOS:
-      // Add new array for list of all(uids) active attendees in the call
-      // Store attendees in RTM  list
-      // Check RTM response when a message is being sent to user who has left the call
     });
 
     engine.current.on('messageReceived', (evt: any) => {
