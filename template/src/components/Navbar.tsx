@@ -32,8 +32,8 @@ import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
-import { useVideoCall } from '../pages/VideoCall/index';
-import { ChatUIContext } from './chat-ui/index';
+import { useVideoCall } from 'fpe-api/api';
+import { useChatUIData } from 'fpe-api/api';
 
 const Navbar = () => {
   const {messageStore} = useContext(ChatContext);
@@ -46,7 +46,7 @@ const Navbar = () => {
     isHost,
     title,
   } = useVideoCall(data => data);
-  const {pendingMessageLength, setLastCheckedPublicState} = useContext(ChatUIContext)
+  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(data => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,

@@ -16,7 +16,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { useVideoCall } from '../pages/VideoCall/index';
+import { useVideoCall } from 'fpe-api/api';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 

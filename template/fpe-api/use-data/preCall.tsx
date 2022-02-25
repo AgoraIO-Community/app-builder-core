@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, { createContext } from 'react';
-import createHook from '../../utils/createHook';
+import {createHook} from '../api';
 
 export interface PreCallContextInterface {
   username: string;
@@ -41,4 +41,4 @@ const PreCallProvider = (props: PreCallContextInterface) => {
 };
 const usePreCall = createHook(PreCallContext);
 
-export { PreCallProvider, PreCallContext, usePreCall };
+export { PreCallProvider, usePreCall };

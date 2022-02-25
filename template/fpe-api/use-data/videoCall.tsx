@@ -11,9 +11,9 @@
 */
 
 import React, { SetStateAction } from 'react';
-import { SidePanelType } from '../../subComponents/SidePanelEnum';
-import Layout from '../../subComponents/LayoutEnum';
-import createHook from '../../utils/createHook';
+import { SidePanelType } from '../../src/subComponents/SidePanelEnum';
+import Layout from '../../src/subComponents/LayoutEnum';
+import {createHook} from '../api';
 
 export type VideoCallContextType = {
   recordingActive: boolean,
@@ -51,6 +51,6 @@ const VideoCallProvider = (props: VideoCallContextType) => {
 
 const useVideoCall = createHook(VideoCallContext);
 
-export { useVideoCall, VideoCallContext, VideoCallProvider };
+export { VideoCallProvider, useVideoCall };
 
 

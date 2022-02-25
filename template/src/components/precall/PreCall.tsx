@@ -11,7 +11,7 @@
 */
 import React, { useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {usePreCall} from './usePreCall';
+import {usePreCall} from 'fpe-api/api';
 import DimensionContext from '../dimension/DimensionContext';
 
 import { useFpe } from 'fpe-api/api';

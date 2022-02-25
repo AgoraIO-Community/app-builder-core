@@ -1,18 +1,28 @@
-import React, { useContext } from 'react';
-import { FpeApiInterface } from './typeDef';
+/*
+********************************************
+ Copyright © 2021 Agora Lab, Inc., all rights reserved.
+ AppBuilder and all associated components, source code, APIs, services, and documentation 
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
+ Use without a license or in violation of any license terms and conditions (including use for 
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
+ information visit https://appbuilder.agora.io. 
+*********************************************
+*/
+import React from 'react';
 import fpeConfig from 'test-fpe';
-import { usePreCall } from '../src/components/precall/usePreCall';
-import { useVideoCall } from '../src/pages/VideoCall/index';
+import { FpeApiInterface } from './typeDef';
+import createHook from './utils';
 
 const FpeContext: React.Context<FpeApiInterface> = React.createContext(fpeConfig);
-//TODO:hari update any type
-const useFpe = (selector: (fpeConfig: FpeApiInterface) => Partial<FpeApiInterface>) => {
-  const fpe = useContext(FpeContext);
-  return selector(fpe);
-}
+
+const useFpe = createHook(FpeContext);
 
 export {
+  createHook,
   useFpe,
-  usePreCall,
-  useVideoCall
-}
+};
+
+export { type PreCallContextInterface, PreCallProvider, usePreCall } from './use-data/preCall';
+export { type VideoCallContextType, VideoCallProvider, useVideoCall } from './use-data/videoCall';
+export { type ChatUIDataInterface, type privateMsgLastSeen, ChatUIDataProvider, useChatUIData } from './use-data/chatUIData';

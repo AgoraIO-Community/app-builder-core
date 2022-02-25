@@ -30,7 +30,7 @@ import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
-import { ChatUIContext } from './chat-ui/index';
+import { useChatUIData } from 'fpe-api/api';
 
 const Chat = () => {
   const {height, width} = useWindowDimensions();
@@ -49,7 +49,7 @@ const Chat = () => {
     privateMessageCountMap,
     setPrivateMessageLastSeen,
     setPrivateChatDisplayed
-  } = useContext(ChatUIContext);
+  } = useChatUIData(data => data);
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);

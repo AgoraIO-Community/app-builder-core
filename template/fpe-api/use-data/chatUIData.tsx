@@ -9,13 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import createHook from '../utils';
 import React,{createContext, SetStateAction} from 'react';
 
-type privateMsgLastSeen = {
+export type privateMsgLastSeen = {
   userId: string | number,
   lastSeenCount: number
 }
-interface ChatUIInterface {
+export interface ChatUIDataInterface {
   pendingMessageLength: number,
   pendingPrivateNotification: number,
   pendingPublicNotification: number,
@@ -26,7 +27,7 @@ interface ChatUIInterface {
   setPrivateChatDisplayed: React.Dispatch<SetStateAction<boolean>>
 }
 
-const ChatUIContext = createContext({
+const ChatUIDataContext = createContext({
   pendingMessageLength: 0, 
   pendingPrivateNotification: 0,
   pendingPublicNotification: 0, 
@@ -35,17 +36,19 @@ const ChatUIContext = createContext({
   setLastCheckedPublicState: () => {},
   setPrivateMessageLastSeen: () => {},
   setPrivateChatDisplayed: () => {},
- } as ChatUIInterface);
+ } as ChatUIDataInterface);
 
-const ChatUIProvider = (props:any) => {
+const ChatUIDataProvider = (props:any) => {
   return (
-    <ChatUIContext.Provider
+    <ChatUIDataContext.Provider
       value={{...props}}
     >
       {true ? props.children : <></>}
-    </ChatUIContext.Provider>
+    </ChatUIDataContext.Provider>
   );
 };
 
-export {ChatUIProvider,ChatUIContext};
+const useChatUIData = createHook(ChatUIDataContext)
+
+export {ChatUIDataProvider,useChatUIData};
 

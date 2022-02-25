@@ -11,7 +11,7 @@
 */
 
 import React from 'react';
-import { usePreCall } from './usePreCall';
+import { usePreCall } from 'fpe-api/api';
 import TextInput from '../../atoms/TextInput';
 
 const PreCallTextInput: React.FC = () => {

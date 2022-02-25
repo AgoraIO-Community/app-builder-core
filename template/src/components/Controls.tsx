@@ -27,7 +27,7 @@ import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
-import { useVideoCall } from '../pages/VideoCall';
+import { useVideoCall } from 'fpe-api/api';
 
 const Controls = () => {
   let onLayout = (e: any) => {

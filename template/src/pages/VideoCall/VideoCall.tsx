@@ -40,11 +40,9 @@ import {videoView} from '../.././../theme.json';
 import Layout from '../.././subComponents/LayoutEnum';
 import Toast from '../.././../react-native-toast-message';
 import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
-import {PreCallProvider} from '../.././components/precall/usePreCall';
+import {PreCallProvider} from 'fpe-api/api';
 import { ErrorContext } from '../.././components/common/index';
-import { VideoCallProvider } from './index';
-import {ChatUIProvider} from '../../components/chat-ui/index'
-import { useFpe } from 'fpe-api/api';
+import { useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api/api';
 import Precall from '../../components/precall/PreCall';
 
 
@@ -394,7 +392,7 @@ const VideoCall: React.FC = () => {
                             isHost={isHost}
                             title={title}                      
                           >
-                            <ChatUIProvider
+                            <ChatUIDataProvider
                               privateMessageCountMap={privateMessageCountMap}
                               pendingPublicNotification={pendingPublicNotification}
                               pendingPrivateNotification={pendingPrivateNotification}
@@ -443,7 +441,7 @@ const VideoCall: React.FC = () => {
                             ) : (
                               checkIsComponent(ControlsFpe) ? <ControlsFpe /> : <Controls />
                             )}
-                            </ChatUIProvider>
+                            </ChatUIDataProvider>
                           </VideoCallProvider>
                         )}
                       </NotificationControl>

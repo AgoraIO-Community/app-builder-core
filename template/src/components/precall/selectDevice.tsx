@@ -14,7 +14,7 @@ import React, { useContext } from 'react';
 import { View, StyleSheet, Text, Platform } from 'react-native'
 import ColorContext from '../ColorContext';
 import SelectDevice from '../../subComponents/SelectDevice';
-import { usePreCall } from './usePreCall';
+import { usePreCall } from 'fpe-api/api';
 import { useFpe } from 'fpe-api/api';
 import { checkIsComponent } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';

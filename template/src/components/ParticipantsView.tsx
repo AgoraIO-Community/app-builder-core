@@ -40,7 +40,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {UserType} from './RTMConfigure';
 import styles from './styles';
 import TextWithToolTip from '../subComponents/TextWithTooltip'
-import {useVideoCall} from '../pages/VideoCall/index';
+import {useVideoCall} from 'fpe-api/api';
 
 const ParticipantView = () => {
   const {isHost} = useVideoCall(data => data);
