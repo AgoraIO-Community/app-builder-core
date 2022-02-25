@@ -26,8 +26,8 @@ const PreCallContext: React.Context<PreCallContextInterface> = createContext({
   setUsername: () => { },
   setCallActive: () => { },
   queryComplete: false,
-  title: '', children:
-    null
+  title: '',
+  children: null
 } as PreCallContextInterface);
 
 const PreCallProvider = (props: PreCallContextInterface) => {
@@ -39,8 +39,6 @@ const PreCallProvider = (props: PreCallContextInterface) => {
     </PreCallContext.Provider>
   );
 };
-
 const usePreCall = createHook(PreCallContext);
-
 
 export { PreCallProvider, PreCallContext, usePreCall };

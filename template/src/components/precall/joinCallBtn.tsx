@@ -15,7 +15,7 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import { usePreCall } from './usePreCall';
 
 const joinCallBtn: React.FC = () => {
-  const { queryComplete, username, setCallActive } = usePreCall(data => data)
+  const { setCallActive, queryComplete, username } = usePreCall(data => data)
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
