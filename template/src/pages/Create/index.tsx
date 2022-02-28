@@ -23,7 +23,7 @@ import { ErrorContext } from '../../components/common';
 import { ShareLinkProvider } from './ShareLink';
 import ShareLinkDefault from '../../components/Share'
 import Logo from '../../components/common/Logo'
-import { checkIsComponent } from '../../utils/common';
+import { cmpTypeGuard } from '../../utils/common';
 import { useFpe } from 'fpe-api/api';
 
 const CREATE_CHANNEL = gql`
@@ -169,7 +169,7 @@ const Create = () => {
           joinPhrase={joinPhrase}
           roomTitle={roomTitle}
         >
-          {checkIsComponent(ShareLinksScreen) ? <ShareLinksScreen />  : <ShareLinkDefault /> }
+          {cmpTypeGuard(ShareLinksScreen, ShareLinkDefault)}
         </ShareLinkProvider>
       )}
     </ScrollView>

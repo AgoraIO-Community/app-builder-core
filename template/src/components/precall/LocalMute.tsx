@@ -13,21 +13,29 @@ import { useFpe } from 'fpe-api/api';
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { checkIsComponent } from '../../utils/common';
+import { cmpTypeGuard } from '../../utils/common';
 import {LocalAudioMute,LocalVideoMute} from '../../../agora-rn-uikit';
 import { LocalUserContext } from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
-  const PreCallLocalVideoMuteFpe = useFpe(data => data.components?.PreCallScreen?.PreCallLocalMute?.PreCallLocalVideoMute)
-  const PreCallLocalAudioMuteFpe = useFpe(data => data.components?.PreCallScreen?.PreCallLocalMute?.PreCallLocalAudioMute)
+  const PreCallLocalVideoMuteFpe = useFpe(data => {
+    if(data.components?.PreCallScreen && typeof data.components?.PreCallScreen === 'object' ){
+      return data.components?.PreCallScreen.PreCallLocalMute?.PreCallLocalVideoMute
+    } 
+  })
+  const PreCallLocalAudioMuteFpe = useFpe(data => {
+    if(data.components?.PreCallScreen && typeof data.components?.PreCallScreen === 'object' ){
+      return data.components?.PreCallScreen.PreCallLocalMute?.PreCallLocalAudioMute
+    } 
+  })
   return (
     <View style={style.precallControls}>
       <LocalUserContext>
         <View style={{ alignSelf: 'center' }}>
-          {checkIsComponent(PreCallLocalVideoMuteFpe) ? <PreCallLocalVideoMuteFpe /> : <LocalAudioMute />}
+          {cmpTypeGuard(PreCallLocalVideoMuteFpe,LocalAudioMute as React.FC)}
         </View>
         <View style={{ alignSelf: 'center' }}>
-          {checkIsComponent(PreCallLocalAudioMuteFpe) ? <PreCallLocalAudioMuteFpe /> : <LocalVideoMute />}
+          {cmpTypeGuard(PreCallLocalAudioMuteFpe,LocalVideoMute as React.FC)}
         </View>
       </LocalUserContext>
     </View>

@@ -27,13 +27,13 @@ import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
-import {shouldAuthenticate,checkIsComponent} from './utils/common';
+import {shouldAuthenticate,cmpTypeGuard} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
 import { useFpe } from 'fpe-api/api';
-import { CustomRoutesInterface } from 'fpe-api/typeDef';
+import { ComponentsType, CustomRoutesInterface } from 'fpe-api/typeDef';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -43,10 +43,14 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
-  const VideoCallScreen = useFpe(data => data?.components?.VideoCallScreen);
-  const JoinMeetingScreen = useFpe(data => data?.components?.JoinMeetingScreen);
-  const CreateMeetingScreen = useFpe(data => data?.components?.CreateMeetingScreen);
+  const {
+    VideoCallScreen:VideoCallScreenFpe, 
+    JoinMeetingScreen:JoinMeetingScreenFpe,
+    CreateMeetingScreen:CreateMeetingScreenFpe
+  } = useFpe(data => data?.components ? data.components : {} as ComponentsType);
   const CustomRoutes = useFpe(data => data?.custom_routes);
+
+  const CreateCmp = cmpTypeGuard(CreateMeetingScreenFpe, Create)
   return (
     <ImageBackground
       source={{uri: $config.BG}}
@@ -96,21 +100,21 @@ const App: React.FC = () => {
                       <StoreToken />
                     </Route>
                     <Route exact path={'/join'}>
-                      {checkIsComponent(JoinMeetingScreen) ? <JoinMeetingScreen /> : <Join />}
+                      {cmpTypeGuard(JoinMeetingScreenFpe, Join)}
                     </Route>
                     {shouldAuthenticate ? (
                       <PrivateRoute
                         path={'/create'}
                         failureRedirectTo={'/authenticate'}>
-                        {checkIsComponent(CreateMeetingScreen) ? <CreateMeetingScreen /> : <Create />}
+                        {CreateCmp}
                       </PrivateRoute>
                     ) : (
                       <Route path={'/create'}>
-                        {checkIsComponent(CreateMeetingScreen) ? <CreateMeetingScreen /> : <Create />}
+                        {CreateCmp}
                       </Route>
                     )}
                     <Route path={'/:phrase'}>
-                      {checkIsComponent(VideoCallScreen) ? <VideoCallScreen /> : <VideoCall />}
+                      {cmpTypeGuard(VideoCallScreenFpe,VideoCall)}
                     </Route>
                   </Switch>        
                   </ErrorProvider>        

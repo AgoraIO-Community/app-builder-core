@@ -16,12 +16,16 @@ import ColorContext from '../ColorContext';
 import SelectDevice from '../../subComponents/SelectDevice';
 import { usePreCall } from 'fpe-api/api';
 import { useFpe } from 'fpe-api/api';
-import { checkIsComponent } from '../../utils/common';
+import { cmpTypeGuard } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';
+import { PreCallCmpType } from 'fpe-api/typeDef';
 
 const selectDevice: React.FC = () => {
-  const PreCallJoinBtnFpe = useFpe(data => data.components?.PreCallScreen?.PreCallJoinBtn)
-  const PreCallTextInputFpe = useFpe(data => data.components?.PreCallScreen?.PreCallTextInput)
+
+  const {
+    PreCallJoinBtn:JoinBtn, PreCallTextInput:TextInput
+  } = useFpe(data => typeof data.components?.PreCallScreen === 'object' ? data.components?.PreCallScreen : {} as PreCallCmpType )
+  
   const { title } = usePreCall(data => data);
   const { primaryColor } = useContext(ColorContext);
   return (
@@ -42,9 +46,9 @@ const selectDevice: React.FC = () => {
           <SelectDevice />
         </View>
         <View style={style.inputAndBtnContainer}>
-          {checkIsComponent(PreCallTextInputFpe) ? <PreCallTextInputFpe /> : <PreCallTextInput />}
+          {cmpTypeGuard(TextInput,PreCallTextInput)}
           <View style={{ height: 20 }} />
-          {checkIsComponent(PreCallJoinBtnFpe) ? <PreCallJoinBtnFpe /> : <PreCallJoinBtn />}
+          {cmpTypeGuard(JoinBtn, PreCallJoinBtn)}
         </View>
       </View>
     </View>

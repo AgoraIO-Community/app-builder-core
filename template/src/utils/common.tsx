@@ -1,9 +1,10 @@
+import React from 'react';
 import { Platform } from "react-native";
 
-const checkIsComponent = (cmp: object | Function) => {
-  return (cmp && typeof cmp === 'function') ? true : false
+const cmpTypeGuard = (Cmp: any, FallBack: React.FC) => {
+  //TODO: hari update the cmp checking
+  return typeof Cmp === 'function' ? <Cmp /> : <FallBack />;
 }
-
 const hasBrandLogo: boolean = !!$config.LOGO;
 
 const isSafariBrowser = () => {
@@ -44,6 +45,6 @@ export {
   isWeb,
   isIOS,
   isAndroid,
-  checkIsComponent,
+  cmpTypeGuard
 }
 

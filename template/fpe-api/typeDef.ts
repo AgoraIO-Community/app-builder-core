@@ -38,8 +38,8 @@ export type ComponentsType = {
   CreateMeetingScreen?: React.FC<{}>;
   ShareLinksScreen?: React.FC<{}>;
   JoinMeetingScreen?: React.FC<{}>;
-  PreCallScreen?: PreCallCmpType | React.FC<{}>;
-  VideoCallScreen?: VideoCallCmpType;
+  PreCallScreen?: PreCallCmpType | React.FC<{}>
+  VideoCallScreen?: VideoCallCmpType | React.FC<{}>;
 }
 
 export interface CustomRoutesInterface {

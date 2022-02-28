@@ -15,7 +15,8 @@ import {usePreCall} from 'fpe-api/api';
 import DimensionContext from '../dimension/DimensionContext';
 
 import { useFpe } from 'fpe-api/api';
-import { checkIsComponent } from '../../utils/common';
+import { cmpTypeGuard } from '../../utils/common';
+import { PreCallCmpType } from 'fpe-api/typeDef';
 // Precall subcomponents
 import PreCallLogo from '../common/Logo';
 import PreCallVideoPreview from './VideoPreview';
@@ -24,11 +25,13 @@ import PreCallSetName from './setName';
 import PreCallSelectDevice from './selectDevice';
 
 const Precall = () => {
-  const PreCallLogoFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallLogo)
-  const PreCallVideoPreviewFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallVideoPreview)
-  const PreCallLocalMuteFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallLocalMute)
-  const PreCallSetNameFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallSetName)
-  const PreCallSelectDeviceFpe = useFpe((data) => data.components?.PreCallScreen?.PreCallSelectDevice)
+
+  const {
+    PreCallLogo:LogoFpe,PreCallLocalMute: Mute,
+    PreCallSelectDevice: selectDevice,PreCallSetName: setName,
+    PreCallVideoPreview: videoPreview
+  } = useFpe(data => typeof data.components?.PreCallScreen === 'object' ? data.components?.PreCallScreen : {} as PreCallCmpType )
+  
   const {title} = usePreCall(data => data)
   const {getDimensionData} = useContext(DimensionContext)
   const [isDesktop, setDesktop] = useState(false)
@@ -47,17 +50,17 @@ const Precall = () => {
   })
   return (
     <View style={style.main} onLayout={onLayout}>
-      {checkIsComponent(PreCallLogoFpe) ? <PreCallLogoFpe /> : <PreCallLogo/>}
+      {cmpTypeGuard(LogoFpe, PreCallLogo)}
       <View style={style.content}>
         <View style={style.leftContent}>
-          {checkIsComponent(PreCallVideoPreviewFpe) ? <PreCallVideoPreviewFpe /> : <PreCallVideoPreview />}
-          {checkIsComponent(PreCallLocalMuteFpe) ? <PreCallLocalMuteFpe /> : <PreCallLocalMute /> }
+          {cmpTypeGuard(videoPreview,PreCallVideoPreview)}
+          {cmpTypeGuard(Mute,PreCallLocalMute)}
           {!isDesktop && (
-            checkIsComponent(PreCallSetNameFpe) ? <PreCallSetNameFpe /> : <PreCallSetName />
+            cmpTypeGuard(setName ,PreCallSetName)
           )}
         </View>
         {isDesktop && (
-           checkIsComponent(PreCallSelectDeviceFpe) ? <PreCallSelectDeviceFpe /> : <PreCallSelectDevice />
+           cmpTypeGuard(selectDevice,PreCallSelectDevice)
         )}
       </View>
     </View>

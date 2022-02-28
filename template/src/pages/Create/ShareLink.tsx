@@ -13,11 +13,11 @@
 import React from 'react';
 
 type ShareLinkContextType = {
-  urlView: string;
-  urlHost: string;
-  pstn: string;
+  urlView: string | null;
+  urlHost: string | null;
+  pstn: string | null;
   hostControlCheckbox: boolean;
-  joinPhrase: string
+  joinPhrase: string | null;
   roomTitle: string,
   children: React.ReactNode
 }

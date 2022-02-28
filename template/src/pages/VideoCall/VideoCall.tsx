@@ -30,7 +30,7 @@ import {gql, useQuery} from '@apollo/client';
 // import Watermark from '../.././subComponents/Watermark';
 import StorageContext from '../.././components/StorageContext';
 import Logo from '../.././subComponents/Logo';
-import {checkIsComponent, hasBrandLogo} from '../.././utils/common';
+import {cmpTypeGuard, hasBrandLogo} from '../.././utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
@@ -44,6 +44,7 @@ import {PreCallProvider} from 'fpe-api/api';
 import { ErrorContext } from '../.././components/common/index';
 import { useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api/api';
 import Precall from '../../components/precall/PreCall';
+import { VideoCallCmpType } from 'fpe-api/typeDef';
 
 
 const useChatNotification = (
@@ -240,11 +241,11 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const ChatFpe = useFpe(data => data.components?.VideoCallScreen?.Chat)
-  const SettingsViewFpe = useFpe(data => data.components?.VideoCallScreen?.SettingsView)
-  const NavBarFpe = useFpe(data => data.components?.VideoCallScreen?.NavBar)
-  const ParticipantsViewFpe = useFpe(data => data.components?.VideoCallScreen?.ParticipantsView)
-  const ControlsFpe = useFpe(data => data.components?.VideoCallScreen?.Controls)
+  const {
+    Chat:ChatFpe, SettingsView:SettingsViewFpe, 
+    NavBar: NavBarFpe, ParticipantsView: ParticipantsViewFpe,
+    Controls: ControlsFpe
+  } = useFpe(data => typeof data.components?.VideoCallScreen === 'object' ? data.components?.VideoCallScreen : {} as VideoCallCmpType )
   const PreCallScreenFpe = useFpe(data => data.components?.PreCallScreen)
   const {setGlobalErrorMessage} = useContext(ErrorContext)
   const {store, setStore} = useContext(StorageContext);
@@ -402,7 +403,7 @@ const VideoCall: React.FC = () => {
                               setPrivateMessageLastSeen={setPrivateMessageLastSeen}
                               setPrivateChatDisplayed={setPrivateChatDisplayed}
                             >
-                              {checkIsComponent(NavBarFpe) ? <NavBarFpe /> : <Navbar />}
+                              {cmpTypeGuard(NavBarFpe,Navbar)}
                               <View
                                 style={[
                                   style.videoView,
@@ -415,14 +416,14 @@ const VideoCall: React.FC = () => {
                                   <GridVideo setLayout={setLayout} />
                                 )}
                                 {sidePanel === SidePanelType.Participants ? (
-                                  checkIsComponent(ParticipantsViewFpe) ? <ParticipantsViewFpe/> : <ParticipantsView/>
+                                  cmpTypeGuard(ParticipantsViewFpe, ParticipantsView)
                                 ) : (
                                   <></>
                                 )}
                                 </NetworkQualityProvider>
                                 {sidePanel === SidePanelType.Chat ? (
                                   $config.CHAT ? (
-                                   checkIsComponent(ChatFpe) ? <ChatFpe /> : <Chat />
+                                   cmpTypeGuard(ChatFpe,Chat)
                                   ) : (
                                     <></>
                                   )
@@ -430,7 +431,7 @@ const VideoCall: React.FC = () => {
                                   <></>
                                 )}
                                 {sidePanel === SidePanelType.Settings ? (
-                                  checkIsComponent(SettingsViewFpe) ? <SettingsViewFpe /> : <SettingsView />
+                                  cmpTypeGuard(SettingsViewFpe, SettingsView)
                                 ) : (
                                   <></>
                                 )}
@@ -439,7 +440,7 @@ const VideoCall: React.FC = () => {
                             sidePanel === SidePanelType.Chat ? (
                               <></>
                             ) : (
-                              checkIsComponent(ControlsFpe) ? <ControlsFpe /> : <Controls />
+                              cmpTypeGuard(ControlsFpe, Controls)
                             )}
                             </ChatUIDataProvider>
                           </VideoCallProvider>
@@ -454,7 +455,7 @@ const VideoCall: React.FC = () => {
                       queryComplete={queryComplete}
                       title={title}
                       >
-                       {checkIsComponent(PreCallScreenFpe) ? <PreCallScreenFpe /> : <Precall />}
+                       {cmpTypeGuard(PreCallScreenFpe,Precall)}
                     </PreCallProvider>                    
                   ) : (
                     <></>
