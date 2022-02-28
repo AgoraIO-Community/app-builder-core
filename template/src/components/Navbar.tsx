@@ -202,8 +202,7 @@ const Navbar = (props: any) => {
               <View
                 style={{
                   position: 'absolute',
-                  top: Platform.OS === 'web' ? 1 : -15,
-                  left: Platform.OS === 'web' && isDesktop ? 0 : 1,
+                  top: Platform.OS === 'web' ? -10 : 2,
                 }}>
                 <View style={style.badge}>
                   <ImageIcon

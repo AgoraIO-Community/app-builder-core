@@ -204,9 +204,7 @@ const RtmConfigure = (props: any) => {
                 if (
                   attr?.attributes?.name &&
                   attr?.attributes?.screenUid &&
-                  attr?.attributes?.role &&
-                  attr?.attributes?.type &&
-                  attr?.attributes?.offline
+                  attr?.attributes?.role
                 ) {
                   return attr;
                 } else {
@@ -275,9 +273,7 @@ const RtmConfigure = (props: any) => {
           if (
             attr?.attributes?.name &&
             attr?.attributes?.screenUid &&
-            attr?.attributes?.role &&
-            attr?.attributes?.type &&
-            attr?.attributes?.offline
+            attr?.attributes?.role
           ) {
             return attr;
           } else {
