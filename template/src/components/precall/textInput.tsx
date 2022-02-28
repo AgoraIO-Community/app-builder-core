@@ -11,6 +11,7 @@
 */
 
 import React from 'react';
+import { Platform } from 'react-native';
 import { usePreCall } from 'fpe-api/api';
 import TextInput from '../../atoms/TextInput';
 
@@ -24,7 +25,7 @@ const PreCallTextInput: React.FC = () => {
       placeholder={
         queryComplete ? 'Display name*' : 'Getting name...'
       }
-      editable={queryComplete}
+      editable={Platform.OS === 'ios' ? queryComplete : true}
     />
   )
 }

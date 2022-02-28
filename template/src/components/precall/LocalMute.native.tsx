@@ -14,7 +14,7 @@ import { useFpe } from 'fpe-api/api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { cmpTypeGuard } from '../../utils/common';
-import {LocalAudioMute,LocalVideoMute} from '../../../agora-rn-uikit';
+import {LocalAudioMute,LocalVideoMute,SwitchCamera} from '../../../agora-rn-uikit';
 import { LocalUserContext } from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
@@ -29,27 +29,23 @@ const PreCallLocalMute: React.FC = () => {
     } 
   })
   return (
-    <View style={style.precallControls}>
-      <LocalUserContext>
-        <View style={{ alignSelf: 'center' }}>
-          {cmpTypeGuard(PreCallLocalVideoMuteFpe,LocalAudioMute as React.FC)}
-        </View>
-        <View style={{ alignSelf: 'center' }}>
-          {cmpTypeGuard(PreCallLocalAudioMuteFpe,LocalVideoMute as React.FC)}
-        </View>
-      </LocalUserContext>
-    </View>
+    <LocalUserContext>
+      <View style={style.width50}>
+        {cmpTypeGuard(PreCallLocalVideoMuteFpe,LocalAudioMute as React.FC)}
+      </View>
+      <View style={style.width50} />
+      <View style={style.width50}>
+        {cmpTypeGuard(PreCallLocalAudioMuteFpe,LocalVideoMute as React.FC)}
+      </View>
+      <View style={style.width50} />
+      <View style={style.width50}>
+        <SwitchCamera />
+      </View>
+    </LocalUserContext>
   )
 }
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({
-  precallControls: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    padding: 10,
-    width: '40%',
-    justifyContent: 'space-around',
-    marginVertical: '5%',
-  },
+  width50: {width: 50},
 });
