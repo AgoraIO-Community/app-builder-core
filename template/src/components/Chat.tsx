@@ -30,9 +30,10 @@ import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
-import { useChatUIData } from 'fpe-api/api';
+import { useChatUIData, useFpe } from 'fpe-api/api';
 
 const Chat = () => {
+  const ChatInputFpe = useFpe(data => typeof data.components?.VideoCallScreen === 'object' && typeof data.components?.VideoCallScreen?.Chat === 'object' ? data.components?.VideoCallScreen?.Chat.ChatInput : undefined)
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -170,7 +171,7 @@ const Chat = () => {
                     marginBottom: 10,
                   }}
                 />
-                <ChatInput privateActive={privateActive} />
+                {ChatInputFpe ? <ChatInputFpe privateActive={privateActive} /> : <ChatInput privateActive={privateActive} />}          
               </View>
             </View>
           ) : (
@@ -186,7 +187,7 @@ const Chat = () => {
                   marginBottom: 10,
                 }}
               />
-              <ChatInput privateActive={privateActive} />
+              {ChatInputFpe ? <ChatInputFpe privateActive={privateActive} /> : <ChatInput privateActive={privateActive} />}               
             </View>
           )}
         </>
@@ -268,10 +269,12 @@ const Chat = () => {
                       marginBottom: 10,
                     }}
                   />
-                  <ChatInput
-                    privateActive={privateActive}
-                    selectedUser={selectedUser}
-                  />
+                  {ChatInputFpe ? <ChatInputFpe privateActive={privateActive} selectedUser={selectedUser} /> : 
+                    <ChatInput
+                      privateActive={privateActive}
+                      selectedUser={selectedUser}
+                    />
+                  }                  
                 </View>
               </View>
             </>

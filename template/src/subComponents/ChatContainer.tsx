@@ -25,6 +25,7 @@ import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
+import { useFpe } from 'fpe-api/api';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -37,6 +38,7 @@ const ChatContainer = (props: any) => {
     props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
   const scrollViewRef = useRef<ScrollView>(null);
+  const ChatBubbleFpe = useFpe(data => typeof data.components?.VideoCallScreen === 'object' && typeof data.components?.VideoCallScreen?.Chat === 'object' ? data.components?.VideoCallScreen?.Chat.ChatBubble : undefined)
   return (
     <View style={style.containerView}>
       {privateActive ? (
@@ -63,6 +65,13 @@ const ChatContainer = (props: any) => {
         {!privateActive ? (
           messageStore.map((message: any) => {
             return (
+              ChatBubbleFpe ? <ChatBubbleFpe 
+                isLocal={localUid === message.uid}
+                msg={message.msg}
+                ts={message.ts}
+                uid={message.uid}
+                key={message.ts}
+              /> :
               <ChatBubble
                 isLocal={localUid === message.uid}
                 msg={message.msg}
@@ -75,7 +84,14 @@ const ChatContainer = (props: any) => {
         ) : privateMessageStore[selectedUser.uid] ? (
           privateMessageStore[selectedUser.uid].map((message: any) => {
             return (
-              <ChatBubble
+              ChatBubbleFpe ? <ChatBubbleFpe 
+                isLocal={localUid === message.uid}
+                msg={message.msg}
+                ts={message.ts}
+                uid={message.uid}
+                key={message.ts} 
+              />
+              : <ChatBubble
                 isLocal={localUid === message.uid}
                 msg={message.msg}
                 ts={message.ts}

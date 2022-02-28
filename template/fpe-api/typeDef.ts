@@ -10,6 +10,7 @@
 *********************************************
 */
 import React from 'react';
+import { channelMessage, chatInputInterface } from 'src/components/ChatContext';
 
 export type PreCallLocalMuteCmpType = {
   PreCallLocalAudioMute?: React.FC<{}>;
@@ -18,7 +19,7 @@ export type PreCallLocalMuteCmpType = {
 
 export type PreCallCmpType = {
   PreCallVideoPreview?: React.FC<{}>;
-  PreCallLocalMute?: PreCallLocalMuteCmpType;
+  PreCallLocalMute?: PreCallLocalMuteCmpType | React.FC<{}>;
   PreCallLogo?: React.FC<{}>;
   PreCallSetName?: React.FC<{}>;
   PreCallSelectDevice?: React.FC<{}>;
@@ -26,12 +27,17 @@ export type PreCallCmpType = {
   PreCallTextInput?: React.FC<{}>;
 }
 
+export type ChatCmpType = {
+  ChatBubble?: React.FC<channelMessage>;
+  ChatInput?: React.FC<chatInputInterface>;
+}
+
 export type VideoCallCmpType = {
   NavBar?: React.FC<{}>;
   SettingsView?: React.FC<{}>;
   ParticipantsView?: React.FC<{}>;
   Controls?: React.FC<{}>;
-  Chat?: React.FC<{}>;
+  Chat?: ChatCmpType | React.FC<{}>;
 }
 
 export type ComponentsType = {

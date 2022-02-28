@@ -45,7 +45,7 @@ export enum messageActionType {
   Normal = '1',
 }
 
-interface chatContext {
+export interface chatContext {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
   sendMessage: (msg: string) => void;
@@ -59,6 +59,12 @@ interface chatContext {
   // peersRTM: Array<string>;
 }
 
+export interface chatInputInterface {
+  privateActive: boolean,
+  selectedUser?: {
+    uid: string | number | null
+  }
+}
 export enum controlMessageEnum {
   muteVideo = '1',
   muteAudio = '2',

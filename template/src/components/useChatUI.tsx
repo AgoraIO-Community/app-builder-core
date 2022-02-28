@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import createHook from '../utils';
+import {createHook} from 'fpe-api/api';
 import React,{createContext, SetStateAction} from 'react';
 
 export type privateMsgLastSeen = {

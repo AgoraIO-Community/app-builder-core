@@ -11,9 +11,9 @@
 */
 
 import React, { SetStateAction } from 'react';
-import { SidePanelType } from '../../src/subComponents/SidePanelEnum';
-import Layout from '../../src/subComponents/LayoutEnum';
-import {createHook} from '../api';
+import { SidePanelType } from '../../subComponents/SidePanelEnum';
+import Layout from '../../subComponents/LayoutEnum';
+import {createHook} from 'fpe-api/api';
 
 export type VideoCallContextType = {
   recordingActive: boolean,

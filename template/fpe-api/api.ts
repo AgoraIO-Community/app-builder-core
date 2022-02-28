@@ -23,6 +23,6 @@ export {
   useFpe,
 };
 
-export { type PreCallContextInterface, PreCallProvider, usePreCall } from './use-data/preCall';
-export { type VideoCallContextType, VideoCallProvider, useVideoCall } from './use-data/videoCall';
-export { type ChatUIDataInterface, type privateMsgLastSeen, ChatUIDataProvider, useChatUIData } from './use-data/chatUIData';
+export { type PreCallContextInterface, PreCallProvider, usePreCall } from '../src/components/precall/usePreCall';
+export { type VideoCallContextType, VideoCallProvider, useVideoCall } from '../src/pages/VideoCall/useVideoCall';
+export { type ChatUIDataInterface, type privateMsgLastSeen, ChatUIDataProvider, useChatUIData } from '../src/components/useChatUI';
