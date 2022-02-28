@@ -68,6 +68,10 @@ export interface FpeApiInterface {
    */
   custom_routes?: CustomRoutesInterface[];
   /**
+   * Custom context/api provider wrapped in root level
+   */
+  root_wrapper?: React.ReactNode;
+  /**
    * message callback used to listen for incoming message from private or public 
    */
   //message_callback?: //TODO:hari;

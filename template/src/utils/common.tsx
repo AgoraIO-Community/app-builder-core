@@ -2,8 +2,10 @@ import React from 'react';
 import { Platform } from "react-native";
 
 const cmpTypeGuard = (Cmp: any, FallBack: React.FC) => {
-  //TODO: hari update the cmp checking
   return typeof Cmp === 'function' ? <Cmp /> : <FallBack />;
+}
+const getTypeGuard = (Cmp: any, FallBack: React.FC) => {
+  return typeof Cmp === 'function' ? Cmp : FallBack;
 }
 const hasBrandLogo: boolean = !!$config.LOGO;
 
@@ -45,6 +47,7 @@ export {
   isWeb,
   isIOS,
   isAndroid,
-  cmpTypeGuard
+  cmpTypeGuard,
+  getTypeGuard
 }
 

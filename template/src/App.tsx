@@ -27,7 +27,7 @@ import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
-import {shouldAuthenticate,cmpTypeGuard} from './utils/common';
+import {shouldAuthenticate,cmpTypeGuard, getTypeGuard} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
@@ -49,9 +49,10 @@ const App: React.FC = () => {
     CreateMeetingScreen:CreateMeetingScreenFpe
   } = useFpe(data => data?.components ? data.components : {} as ComponentsType);
   const CustomRoutes = useFpe(data => data?.custom_routes);
-
   const CreateCmp = cmpTypeGuard(CreateMeetingScreenFpe, Create)
+  const RootWrapper = getTypeGuard(useFpe(data => data?.root_wrapper), React.Fragment);
   return (
+    <RootWrapper>
     <ImageBackground
       source={{uri: $config.BG}}
       style={{flex: 1}}
@@ -126,6 +127,7 @@ const App: React.FC = () => {
         </StorageProvider>
       </SafeAreaView>
     </ImageBackground>
+    </RootWrapper>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
