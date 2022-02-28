@@ -23,6 +23,7 @@ const RemoteLiveStreamRequestReject: React.FC<RemoteLiveStreamControlInterface> 
     return (
       <View style={{...(liveStreamHostControlBtns as object)}}>
         <BtnTemplate
+          disabled={!user?.uid}
           icon={icons['crossCircleIcon']}
           style={{...(liveStreamHostControlBtns as object)}}
           onPress={() => {

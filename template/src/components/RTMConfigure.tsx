@@ -201,7 +201,13 @@ const RtmConfigure = (props: any) => {
                 const attr = await engine.current.getUserAttributesByUid(
                   member.uid,
                 );
-                if (attr?.attributes?.name && attr?.attributes?.screenUid) {
+                if (
+                  attr?.attributes?.name &&
+                  attr?.attributes?.screenUid &&
+                  attr?.attributes?.role &&
+                  attr?.attributes?.type &&
+                  attr?.attributes?.offline
+                ) {
                   return attr;
                 } else {
                   throw attr;
@@ -266,7 +272,13 @@ const RtmConfigure = (props: any) => {
       const backoffAttributes = backOff(
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
-          if (attr?.attributes?.name && attr?.attributes?.screenUid) {
+          if (
+            attr?.attributes?.name &&
+            attr?.attributes?.screenUid &&
+            attr?.attributes?.role &&
+            attr?.attributes?.type &&
+            attr?.attributes?.offline
+          ) {
             return attr;
           } else {
             throw attr;

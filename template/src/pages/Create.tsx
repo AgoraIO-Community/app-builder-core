@@ -148,14 +148,20 @@ const Create = () => {
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
-                  <Checkbox
-                    disabled={$config.EVENT_MODE}
-                    value={hostControlCheckbox}
-                    onValueChange={setHostControlCheckbox}
-                  />
-                  <Text style={style.checkboxTitle}>
-                    Restrict Host Controls (Separate host link)
-                  </Text>
+                  {$config.EVENT_MODE ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Checkbox
+                        disabled={$config.EVENT_MODE}
+                        value={hostControlCheckbox}
+                        onValueChange={setHostControlCheckbox}
+                      />
+                      <Text style={style.checkboxTitle}>
+                        Restrict Host Controls (Separate host link)
+                      </Text>
+                    </>
+                  )}
                 </View>
                 {$config.PSTN ? (
                   <View style={style.checkboxHolder}>

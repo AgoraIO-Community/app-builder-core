@@ -38,18 +38,16 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
       const hostList = filterObject(
         userList,
         ([k, v]) =>
-          v?.type === UserType.Normal &&
-          v?.role == ClientRole.Broadcaster &&
-          !v.offline,
+          // v?.type === UserType.Normal &&
+          v?.role == ClientRole.Broadcaster && !v.offline,
       );
       setHostList(hostList);
       setHostCount(Object.keys(hostList).length);
       const audienceList = filterObject(
         userList,
         ([k, v]) =>
-          v?.type === UserType.Normal &&
-          v?.role == ClientRole.Audience &&
-          !v.offline,
+          // v?.type === UserType.Normal &&
+          v?.role == ClientRole.Audience && !v.offline,
       );
       setAudienceList(audienceList);
       setAudienceCount(Object.keys(audienceList).length);

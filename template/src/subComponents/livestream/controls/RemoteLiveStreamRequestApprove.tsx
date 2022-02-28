@@ -24,10 +24,11 @@ const RemoteLiveStreamRequestApprove: React.FC<RemoteLiveStreamControlInterface>
     return (
       <View style={{...(liveStreamHostControlBtns as object), marginRight: 15}}>
         <BtnTemplate
+          disabled={!user?.uid}
           icon={icons['checkCircleIcon']}
           style={{...(liveStreamHostControlBtns as object)}}
           onPress={() => {
-            hostApprovesRequestOfUID(user.uid);
+            hostApprovesRequestOfUID(user?.uid);
           }}
         />
       </View>
