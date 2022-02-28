@@ -22,6 +22,7 @@ import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
+import {kFormatter} from '../utils/index';
 
 const Navbar = (props: any) => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -62,12 +63,15 @@ const Navbar = (props: any) => {
       <View
         style={{
           position: 'absolute',
-          top: Platform.OS === 'web' ? 1 : -15,
-          left: Platform.OS === 'web' && isDesktop ? 10 : 1,
+          top: Platform.OS === 'web' ? -10 : 2,
         }}>
         <View style={style.badge}>
-          <Text style={{color: $config.SECONDARY_FONT_COLOR}}>
-            {badgeCount}
+          <Text
+            style={{
+              color: $config.SECONDARY_FONT_COLOR,
+              fontSize: 12,
+            }}>
+            {kFormatter(badgeCount)}
           </Text>
         </View>
       </View>
@@ -318,8 +322,9 @@ const style = StyleSheet.create({
     fontWeight: '500',
   },
   badge: {
-    width: 20,
+    lineHeight: 1,
     height: 20,
+    minWidth: 20,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -328,8 +333,9 @@ const style = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
-    left: 20,
-    top: Platform.OS === 'web' ? -8 : 18,
+    paddingHorizontal: 5,
+    top: 0,
+    left: -2,
   },
   chip: {
     backgroundColor: $config.PRIMARY_COLOR,
