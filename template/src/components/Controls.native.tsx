@@ -9,14 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {
   View,
-  TouchableOpacity,
-  Image,
-  Platform,
   StyleSheet,
-  Text,
 } from 'react-native';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {
@@ -26,39 +22,19 @@ import {
   Endcall,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
-import icons from '../assets/icons';
-import ColorContext from './ColorContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
+import { useVideoCall } from 'fpe-api/api';
 
-const Controls = (props: any) => {
-  const {setRecordingActive, recordingActive, sidePanel, setSidePanel, isHost} =
-    props;
-  const {primaryColor} = useContext(ColorContext);
-
+const Controls = () => {
+  const {setRecordingActive, recordingActive, isHost} = useVideoCall(data => data);
+  
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
         <View style={{alignSelf: 'center'}}>
           <LocalAudioMute />
-          {/* <Text
-            style={{
-              textAlign: 'center',
-              marginTop: 5,
-              color: $config.PRIMARY_COLOR,
-            }}>
-            Audio
-          </Text> */}
         </View>
         <View style={{alignSelf: 'center'}}>
           <LocalVideoMute />
-          {/* <Text
-            style={{
-              textAlign: 'center',
-              marginTop: 5,
-              color: $config.PRIMARY_COLOR,
-            }}>
-            Video
-          </Text> */}
         </View>
         {isHost ? (
           $config.CLOUD_RECORDING ? (
@@ -67,14 +43,6 @@ const Controls = (props: any) => {
                 recordingActive={recordingActive}
                 setRecordingActive={setRecordingActive}
               />
-              {/* <Text
-                style={{
-                  textAlign: 'center',
-                  marginTop: 5,
-                  color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
-                }}>
-                {recordingActive ? 'Recording' : 'Record'}
-              </Text> */}
             </View>
           ) : (
             <></>
@@ -84,34 +52,9 @@ const Controls = (props: any) => {
         )}
         <View style={{alignSelf: 'center'}}>
           <SwitchCamera />
-          {/* <Text
-            style={{
-              textAlign: 'center',
-              marginTop: 5,
-              color: $config.PRIMARY_COLOR,
-            }}>
-            Switch
-          </Text> */}
         </View>
-        {/* <View style={{ alignSelf: 'center' }}>
-          <TouchableOpacity
-            style={[style.localButton, { borderColor: primaryColor, borderRadius: 50 }]}
-            onPress={() => {
-              sidePanel === SidePanelType.Chat
-                ? setSidePanel(SidePanelType.None)
-                : setSidePanel(SidePanelType.Chat);
-            }}>
-            <Image
-              source={{ uri: icons.chatIcon }}
-              style={[style.buttonIcon, { tintColor: primaryColor }]}
-            />
-          </TouchableOpacity>
-        </View> */}
         <View style={{alignSelf: 'center'}}>
           <Endcall />
-          {/* <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
-            Hang Up
-          </Text> */}
         </View>
       </View>
     </LocalUserContext>
