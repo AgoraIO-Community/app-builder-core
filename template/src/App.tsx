@@ -51,6 +51,7 @@ const App: React.FC = () => {
   const CustomRoutes = useFpe(data => data?.custom_routes);
   const CreateCmp = cmpTypeGuard(CreateMeetingScreenFpe, Create)
   const RootWrapper = getTypeGuard(useFpe(data => data?.root_wrapper), React.Fragment);
+  //todo:hari check rootwrapper why having the default value if not passed
   return (
     <RootWrapper>
     <ImageBackground
