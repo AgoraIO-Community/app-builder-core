@@ -17,11 +17,7 @@ import {PropsProvider} from '../.././../agora-rn-uikit';
 
 import PinnedVideo from '../.././components/PinnedVideo';
 import GridVideo from '../.././components/GridVideo';
-import ParticipantsView from '../../components/ParticipantsView';
-import Chat from '../../components/Chat';
-import Navbar from '../../components/Navbar';
-import SettingsView from '../../components/SettingsView';
-import Controls from '../../components/Controls';
+import {ParticipantsView, SettingsView, Chat, Controls, Navbar} from './index';
 import styles from '../.././components/styles';
 import {useParams, useHistory} from '../.././components/Router';
 import RtmConfigure from '../.././components/RTMConfigure';
