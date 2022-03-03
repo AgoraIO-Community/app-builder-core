@@ -22,7 +22,7 @@ import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
-import {kFormatter} from '../utils/index';
+import {numFormatter} from '../utils/index';
 
 const Navbar = (props: any) => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -71,7 +71,7 @@ const Navbar = (props: any) => {
               color: $config.SECONDARY_FONT_COLOR,
               fontSize: 12,
             }}>
-            {kFormatter(badgeCount)}
+            {numFormatter(badgeCount)}
           </Text>
         </View>
       </View>
@@ -180,7 +180,11 @@ const Navbar = (props: any) => {
           {onlineUsersCount !== 0 && (
             <View style={[style.navItem, {justifyContent: 'center'}]}>
               <View style={style.chip}>
-                <Text style={style.chipText}>{onlineUsersCount}</Text>
+                {onlineUsersCount > 0 && (
+                  <Text style={style.chipText}>
+                    {numFormatter(onlineUsersCount)}
+                  </Text>
+                )}
               </View>
             </View>
           )}
