@@ -113,7 +113,7 @@ const Precall = (props: any) => {
           </LocalUserContext>
         </View>
       )}
-      <View style={{marginBottom: 50}}>
+      <View style={{marginBottom: 50, alignItems: 'center'}}>
         <PrimaryButton
           text={buttonText}
           disabled={!queryComplete || username.trim() === ''}
@@ -140,7 +140,7 @@ const style = StyleSheet.create({
   },
   textInputHolder: {
     flex: 0.1,
-    alignSelf: 'center',
+    alignItems: 'center',
     paddingTop: 20,
     width: '100%',
   },
