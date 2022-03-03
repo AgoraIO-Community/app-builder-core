@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Dimensions,
@@ -28,6 +28,7 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import { useVideoCall } from 'fpe-api/api';
+import { ScreenShareProvider } from 'fpe-api/api';
 
 const Controls = () => {
   let onLayout = (e: any) => {
@@ -39,7 +40,7 @@ const Controls = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const [screenshareActive, setScreenshareActive] = useState(false);
+  const [screenshareActive, setScreenshareActive] = useState<boolean>(false);
   const {
     setRecordingActive,
     recordingActive,
@@ -69,12 +70,12 @@ const Controls = () => {
         {$config.SCREEN_SHARING ? (
           !isMobileOrTablet() ? (
             <View style={{alignSelf: 'center'}}>
-              <ScreenshareButton
+              <ScreenShareProvider 
                 screenshareActive={screenshareActive}
                 setScreenshareActive={setScreenshareActive}
-                setLayout={setLayout}
-                recordingActive={recordingActive}
-              />
+              >
+                <ScreenshareButton />
+              </ScreenShareProvider>
             </View>
           ) : (
             <></>

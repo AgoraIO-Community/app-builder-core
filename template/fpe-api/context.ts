@@ -12,4 +12,5 @@ export {default as StorageContext} from '../src/components/StorageContext';
 export { type PreCallContextInterface, PreCallProvider, usePreCall } from '../src/components/precall/usePreCall';
 export { type VideoCallContextType, VideoCallProvider, useVideoCall } from '../src/pages/VideoCall/useVideoCall';
 export { type ChatUIDataInterface, type privateMsgLastSeen, ChatUIDataProvider, useChatUIData } from '../src/components/useChatUI';
-export { type ShareLinkContextType, useShareLink, ShareLinkProvider } from '../src/pages/Create/ShareLink'
+export { type ShareLinkContextType, useShareLink, ShareLinkProvider } from '../src/pages/Create/ShareLink';
+export { type ScreenShareContextInterface, useScreenShare, ScreenShareProvider  } from '../src/subComponents/screen-share/useScreenShare';
