@@ -37,7 +37,7 @@ const SelectDevice = () => {
       setPickerDisabled(false);
       setBtnTheme(primaryColor);
     }
-  }, [rtcProps.role]);
+  }, [rtcProps?.role]);
 
   return (
     <View>

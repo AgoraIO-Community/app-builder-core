@@ -63,7 +63,7 @@ const Controls = (props: any) => {
             {$config.EVENT_MODE && (
               <LiveStreamControls
                 showControls={
-                  rtcProps.role == ClientRole.Broadcaster && !isHost
+                  rtcProps?.role == ClientRole.Broadcaster && !isHost
                 }
               />
             )}
