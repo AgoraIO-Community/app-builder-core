@@ -35,28 +35,38 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
   const [audienceList, setAudienceList] = useState({});
   const [audienceCount, setAudienceCount] = useState(0);
 
-  const {userList} = useContext(chatContext);
+  const {userList, localUid} = useContext(chatContext);
   // For host list which are publishing
   const min = useContext(MinUidContext);
   const max = useContext(MaxUidContext);
 
   useEffect(() => {
-    const publishingUsers = [...min, ...max];
-    console.log('publishingUsers: ', publishingUsers);
-  }, [min, max]);
+    const hostList = [...min, ...max].reduce((acc, cur) => {
+      if (
+        cur.uid === 'local' &&
+        userList[localUid]?.role == ClientRole.Audience
+      ) {
+        // If local user skip
+        return acc;
+      }
+      const userUID =
+        cur.uid === 'local'
+          ? localUid
+          : cur.uid == 1
+          ? userList[localUid].screenUid
+          : cur.uid;
+
+      return {
+        ...acc,
+        [userUID]: {...userList[userUID]},
+      };
+    }, {});
+    setHostList(hostList);
+    setHostCount(Object.keys(hostList).length);
+  }, [min, max, userList]);
 
   useEffect(() => {
-    console.log('userList', userList);
     if (Object.keys(userList).length !== 0) {
-      const hostList = filterObject(
-        userList,
-        ([k, v]) =>
-          v?.type === UserType.Normal &&
-          v?.role == ClientRole.Broadcaster &&
-          !v.offline,
-      );
-      setHostList(hostList);
-      setHostCount(Object.keys(hostList).length);
       const audienceList = filterObject(
         userList,
         ([k, v]) =>

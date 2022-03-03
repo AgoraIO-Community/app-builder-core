@@ -60,7 +60,7 @@ const ParticipantView = (props: any) => {
           // Live streaming is true
           <ParticipantContextProvider>
             {/* Host and New host view */}
-            {rtcProps.role == ClientRole.Broadcaster &&
+            {rtcProps?.role == ClientRole.Broadcaster &&
               (props.isHost ? (
                 /**
                  * Original Host
@@ -120,7 +120,7 @@ const ParticipantView = (props: any) => {
             {/**
              *  Audience views all hosts without remote controls
              */}
-            {rtcProps.role == ClientRole.Audience && (
+            {rtcProps?.role == ClientRole.Audience && (
               <ParticipantContextConsumer>
                 {({hostList, hostCount}) => {
                   return (
