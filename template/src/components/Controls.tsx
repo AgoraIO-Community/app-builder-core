@@ -28,7 +28,7 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import { useVideoCall } from 'fpe-api/api';
-import { ScreenShareProvider } from 'fpe-api/api';
+import { ScreenShareProvider, RecordingProvider } from 'fpe-api/api';
 
 const Controls = () => {
   let onLayout = (e: any) => {
@@ -86,10 +86,12 @@ const Controls = () => {
         {isHost ? (
           $config.CLOUD_RECORDING ? (
             <View style={{alignSelf: 'center'}}>
-              <Recording
+              <RecordingProvider
                 recordingActive={recordingActive}
                 setRecordingActive={setRecordingActive}
-              />
+              >
+                <Recording />
+              </RecordingProvider>
             </View>
           ) : (
             <></>
