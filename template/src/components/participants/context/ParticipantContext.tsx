@@ -14,7 +14,11 @@ import React, {useState, useContext, useEffect} from 'react';
 import chatContext from '../../ChatContext';
 import {UserType} from '../../../components/RTMConfigure';
 import {filterObject} from '../../../utils';
-import {ClientRole} from '../../../../agora-rn-uikit';
+import {
+  ClientRole,
+  MinUidContext,
+  MaxUidContext,
+} from '../../../../agora-rn-uikit';
 
 interface ParticipantContext {
   hostList: any;
@@ -32,8 +36,17 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
   const [audienceCount, setAudienceCount] = useState(0);
 
   const {userList} = useContext(chatContext);
+  // For host list which are publishing
+  const min = useContext(MinUidContext);
+  const max = useContext(MaxUidContext);
 
   useEffect(() => {
+    const publishingUsers = [...min, ...max];
+    console.log('publishingUsers: ', publishingUsers);
+  }, [min, max]);
+
+  useEffect(() => {
+    console.log('userList', userList);
     if (Object.keys(userList).length !== 0) {
       const hostList = filterObject(
         userList,
