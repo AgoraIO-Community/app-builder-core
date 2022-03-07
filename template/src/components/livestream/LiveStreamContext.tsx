@@ -9,6 +9,7 @@ import {
   LSNotificationObject,
   liveStreamContext,
   requestStatus,
+  requestInterface,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
 import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
@@ -37,13 +38,22 @@ export const LiveStreamContextProvider = (props: any) => {
   const {isHost, setRtcProps} = props;
 
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
-    Record<string, {}>
+    Partial<Record<string, requestInterface>>
   >({});
 
-  const [activeLiveStreamRequestCount, setActiveLiveStreamRequestCount] =
-    useState(0);
+  const [activeLiveStreamRequest, setActiveLiveStreamRequest] = useState<
+    Partial<Record<string, requestInterface>>
+  >({});
 
   const [raiseHandRequestActive, setRaiseHandRequestActive] = useState(false);
+
+  const [lastCheckedRequestTimestamp, setLastCheckedRequestTimestamp] =
+    useState(0);
+
+  const [lastRequestReceivedTimestamp, setLastRequestReceivedTimestamp] =
+    useState(0);
+
+  const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
   const localMe = useRef({uid: localUid, status: ''});
 
@@ -70,6 +80,41 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   React.useEffect(() => {
+    setActiveLiveStreamRequest(
+      filterObject(
+        currLiveStreamRequest,
+        ([k, v]) => v?.status === requestStatus.AwaitingAction,
+      ),
+    );
+  }, [currLiveStreamRequest]);
+
+  React.useEffect(() => {
+    // Get the time timestamp of recent request
+    const recentRequest = Object.values(activeLiveStreamRequest).sort(
+      (a, b) => b?.ts - a?.ts || 0,
+    )[0]; // sorting in descending order and take the first request
+
+    if (recentRequest?.ts) {
+      setLastRequestReceivedTimestamp(recentRequest.ts);
+    }
+    if (Object.keys(activeLiveStreamRequest).length === 0) {
+      setPendingRequestToReview(false);
+    }
+  }, [activeLiveStreamRequest]);
+
+  React.useEffect(() => {
+    if (
+      // If active requests and last seen is less than last message received
+      Object.keys(activeLiveStreamRequest).length !== 0 &&
+      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp
+    ) {
+      setPendingRequestToReview(true);
+    } else {
+      setPendingRequestToReview(false);
+    }
+  }, [lastRequestReceivedTimestamp, lastCheckedRequestTimestamp]);
+
+  React.useEffect(() => {
     // Remove requests for users who are offline
     setLiveStreamRequest(
       filterObject(
@@ -78,18 +123,6 @@ export const LiveStreamContextProvider = (props: any) => {
       ),
     );
   }, [userList]);
-
-  React.useEffect(() => {
-    // Get active count of livestream requests
-    setActiveLiveStreamRequestCount(
-      Object.keys(
-        filterObject(
-          currLiveStreamRequest,
-          ([k, v]) => v === requestStatus.AwaitingAction,
-        ),
-      ).length,
-    );
-  }, [currLiveStreamRequest]);
 
   React.useEffect(() => {
     events.on(
@@ -106,10 +139,11 @@ export const LiveStreamContextProvider = (props: any) => {
                 LSNotificationObject.RAISE_HAND_RECEIVED
               }`,
             );
-            addOrUpdateLiveStreamRequest(
-              data.uid,
-              requestStatus.AwaitingAction,
-            );
+            addOrUpdateLiveStreamRequest({
+              uid: data.uid,
+              ts: data.ts,
+              status: requestStatus.AwaitingAction,
+            });
             break;
           // 2. All Hosts in channel update their status when a audience recalls his request
           case LiveStreamControlMessageEnum.raiseHandRequestRecall:
@@ -118,15 +152,27 @@ export const LiveStreamContextProvider = (props: any) => {
                 LSNotificationObject.RAISE_HAND_REQUEST_RECALL
               }`,
             );
-            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+            addOrUpdateLiveStreamRequest({
+              uid: data.uid,
+              ts: data.ts,
+              status: requestStatus.Cancelled,
+            });
             break;
           // 3. All Host in channel update their status when a audience request is approved
           case LiveStreamControlMessageEnum.notifyAllRequestApproved:
-            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Approved);
+            addOrUpdateLiveStreamRequest({
+              uid: data.uid,
+              ts: data.ts,
+              status: requestStatus.Approved,
+            });
             break;
           // 4. All Host in channel update their status when a audience request is rejected
           case LiveStreamControlMessageEnum.notifyAllRequestRejected:
-            addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
+            addOrUpdateLiveStreamRequest({
+              uid: data.uid,
+              ts: data.ts,
+              status: requestStatus.Cancelled,
+            });
             break;
           default:
             break;
@@ -193,14 +239,17 @@ export const LiveStreamContextProvider = (props: any) => {
     };
   }, [events, localUid, isHost, raiseHandRequestActive, userList]);
 
-  const addOrUpdateLiveStreamRequest = (
-    uid: number | string,
-    status: requestStatus,
-  ) => {
-    setLiveStreamRequest((oldLiveStreamRequest) => ({
-      ...oldLiveStreamRequest,
-      [uid]: status,
-    }));
+  const addOrUpdateLiveStreamRequest = (request: requestInterface) => {
+    if (request && request?.uid && request?.ts && request?.uid) {
+      setLiveStreamRequest((oldLiveStreamRequest) => ({
+        ...oldLiveStreamRequest,
+        [request?.uid as string]: {
+          status: request.status,
+          ts: request.ts,
+          uid: request.uid,
+        },
+      }));
+    }
   };
 
   const changeClientRoleTo = (newRole: ClientRole) => {
@@ -222,7 +271,11 @@ export const LiveStreamContextProvider = (props: any) => {
    */
 
   const hostApprovesRequestOfUID = (uid: number | string) => {
-    addOrUpdateLiveStreamRequest(uid, requestStatus.Approved);
+    addOrUpdateLiveStreamRequest({
+      uid,
+      ts: new Date().getTime(),
+      status: requestStatus.Cancelled,
+    });
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       uid,
@@ -230,7 +283,11 @@ export const LiveStreamContextProvider = (props: any) => {
   };
 
   const hostRejectsRequestOfUID = (uid: number | string) => {
-    addOrUpdateLiveStreamRequest(uid, requestStatus.Cancelled);
+    addOrUpdateLiveStreamRequest({
+      uid,
+      ts: new Date().getTime(),
+      status: requestStatus.Cancelled,
+    });
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       uid,
@@ -274,7 +331,8 @@ export const LiveStreamContextProvider = (props: any) => {
   return (
     <LiveStreamContext.Provider
       value={{
-        activeLiveStreamRequestCount,
+        setLastCheckedRequestTimestamp,
+        isPendingRequestToReview,
         currLiveStreamRequest,
         hostApprovesRequestOfUID,
         hostRejectsRequestOfUID,

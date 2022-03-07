@@ -36,12 +36,19 @@ export const LSNotificationObject = {
 };
 
 export interface liveStreamContext {
-  activeLiveStreamRequestCount: number;
-  currLiveStreamRequest: Record<string, {}>;
+  setLastCheckedRequestTimestamp: (timestamp: number) => void;
+  isPendingRequestToReview: boolean;
+  currLiveStreamRequest: Partial<Record<string, requestInterface>>;
   hostApprovesRequestOfUID: (uid: number) => void;
   hostRejectsRequestOfUID: (uid: number) => void;
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
   raiseHandRequestActive: boolean;
   setRaiseHandRequestActive: (state: boolean) => void;
+}
+
+export interface requestInterface {
+  ts: number;
+  status: requestStatus;
+  uid: string | number;
 }

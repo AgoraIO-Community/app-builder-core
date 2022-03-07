@@ -10,7 +10,7 @@ const ApprovedLiveStreamControlsView = (props: {
   const {uid, p_styles} = props;
   const {currLiveStreamRequest} = useContext(LiveStreamContext);
 
-  if (currLiveStreamRequest[uid] === requestStatus.Approved) {
+  if (currLiveStreamRequest[uid]?.status === requestStatus.Approved) {
     return (
       <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
         <RemoteLiveStreamApprovedRequestRecall uid={uid} />
