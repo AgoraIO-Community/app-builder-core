@@ -26,7 +26,9 @@ import {numFormatter} from '../utils/index';
 
 const Navbar = (props: any) => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
-  const {activeLiveStreamRequestCount} = useContext(LiveStreamContext);
+  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
+    useContext(LiveStreamContext);
+
   const {
     recordingActive,
     sidePanel,
@@ -194,6 +196,8 @@ const Navbar = (props: any) => {
                 sidePanel === SidePanelType.Participants
                   ? setSidePanel(SidePanelType.None)
                   : setSidePanel(SidePanelType.Participants);
+                $config.EVENT_MODE && $config.RAISE_HAND;
+                setLastCheckedRequestTimestamp(new Date().getTime());
               }}
               style={style.btnHolder}
               name={
@@ -202,20 +206,22 @@ const Navbar = (props: any) => {
                   : 'participantIcon'
               }
             />
-            {activeLiveStreamRequestCount !== 0 && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: Platform.OS === 'web' ? -10 : 2,
-                }}>
-                <View style={style.badge}>
-                  <ImageIcon
-                    icon={icons['exclamationIcon']}
-                    color={$config.SECONDARY_FONT_COLOR}
-                  />
+            {$config.EVENT_MODE &&
+              $config.RAISE_HAND &&
+              isPendingRequestToReview && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: Platform.OS === 'web' ? -10 : 2,
+                  }}>
+                  <View style={[style.badge, {paddingHorizontal: 3}]}>
+                    <ImageIcon
+                      icon={icons['exclamationIcon']}
+                      color={$config.SECONDARY_FONT_COLOR}
+                    />
+                  </View>
                 </View>
-              </View>
-            )}
+              )}
           </View>
           {$config.CHAT && (
             <>

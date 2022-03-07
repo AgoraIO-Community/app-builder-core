@@ -12,6 +12,7 @@ export enum LiveStreamControlMessageEnum {
   raiseHandRequestRejected = 'RAISE_HAND_REJECTED',
   raiseHandRequestReceived = 'RAISE_HAND_RECEIVED',
   raiseHandRequestRecall = 'RAISE_HAND_REQUEST_RECALL',
+  raiseHandRequestRecallLocal = 'RAISE_HAND_REQUEST_RECALL_LOCAL',
   raiseHandApprovedRequestRecall = 'RAISE_HAND_APPROVED_REQUEST_RECALL',
   notifyAllRequestApproved = 'NOTIFY_REQUEST_APPROVED',
   notifyAllRequestRejected = 'NOTIFY_REQUEST_REJECTED',
@@ -19,26 +20,35 @@ export enum LiveStreamControlMessageEnum {
 
 export const LSNotificationObject = {
   [LiveStreamControlMessageEnum.raiseHandRequest]:
-    'Requested raised for Live-Streaming',
+    'You have raised your hand. Request sent to host for approval',
   [LiveStreamControlMessageEnum.raiseHandRequestReceived]:
-    'New Live-Streaming request received',
+    'has raised their hand',
   [LiveStreamControlMessageEnum.raiseHandRequestAccepted]:
-    'Live-Streaming request was approved',
+    'Your request was approved, unmute to start talking',
   [LiveStreamControlMessageEnum.raiseHandRequestRejected]:
-    'Live-Streaming request was rejected',
+    'Your request was rejected by the host',
   [LiveStreamControlMessageEnum.raiseHandRequestRecall]:
-    'User has cancelled their request to Live-Stream',
+    'has lowered their hand',
+  [LiveStreamControlMessageEnum.raiseHandRequestRecallLocal]:
+    'You have lowered your hand',
   [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]:
-    'You can no longer Live-Stream',
+    'The host has revoked streaming permissions',
 };
 
 export interface liveStreamContext {
-  activeLiveStreamRequestCount: number;
-  currLiveStreamRequest: Record<string, {}>;
+  setLastCheckedRequestTimestamp: (timestamp: number) => void;
+  isPendingRequestToReview: boolean;
+  currLiveStreamRequest: Partial<Record<string, requestInterface>>;
   hostApprovesRequestOfUID: (uid: number) => void;
   hostRejectsRequestOfUID: (uid: number) => void;
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
   raiseHandRequestActive: boolean;
   setRaiseHandRequestActive: (state: boolean) => void;
+}
+
+export interface requestInterface {
+  ts: number;
+  status: requestStatus;
+  uid: string | number;
 }

@@ -48,15 +48,6 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
   useEffect(() => {
     console.log('userList', userList);
     if (Object.keys(userList).length !== 0) {
-      const hostList = filterObject(
-        userList,
-        ([k, v]) =>
-          v?.type === UserType.Normal &&
-          v?.role == ClientRole.Broadcaster &&
-          !v.offline,
-      );
-      setHostList(hostList);
-      setHostCount(Object.keys(hostList).length);
       const audienceList = filterObject(
         userList,
         ([k, v]) =>

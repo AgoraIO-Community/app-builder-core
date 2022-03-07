@@ -85,16 +85,16 @@ const Precall = (props: any) => {
 
   useEffect(() => {
     let clientRole = '';
-    if (rtcProps.role == 1) {
+    if (rtcProps?.role == 1) {
       clientRole = 'Host';
     }
-    if (rtcProps.role == 2) {
+    if (rtcProps?.role == 2) {
       clientRole = 'Audience';
     }
     setButtonText(
       $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
     );
-  }, [rtcProps.role]);
+  }, [rtcProps?.role]);
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 

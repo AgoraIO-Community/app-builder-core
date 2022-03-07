@@ -9,7 +9,8 @@ import ParticipantSectionTitle from '../../components/participants/ParticipantSe
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   const {userList, p_style} = props;
-  const {currLiveStreamRequest} = useContext(LiveStreamContext);
+  const {currLiveStreamRequest, setLastCheckedRequestTimestamp} =
+    useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
     React.useState({});
 
@@ -17,10 +18,17 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     setActiveLiveStreamRequests(
       filterObject(
         currLiveStreamRequest,
-        ([k, v]) => v === requestStatus.AwaitingAction,
+        ([k, v]) => v?.status === requestStatus.AwaitingAction,
       ),
     );
   }, [currLiveStreamRequest]);
+
+  React.useEffect(() => {
+    // On unmount update the timestamp, if the user was already active in this view
+    return () => {
+      setLastCheckedRequestTimestamp(new Date().getTime());
+    };
+  }, []);
 
   return (
     <>

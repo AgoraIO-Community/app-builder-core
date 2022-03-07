@@ -45,10 +45,12 @@ export default StyleSheet.create({
   text1: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 3
+    marginBottom: 3,
+    width: '100%'
   },
   text2: {
     fontSize: 10,
-    color: colors.dustyGray
+    color: colors.dustyGray,
+    width: '100%'
   }
 });
