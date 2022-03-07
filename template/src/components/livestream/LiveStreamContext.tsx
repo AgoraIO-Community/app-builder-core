@@ -65,6 +65,10 @@ export const LiveStreamContextProvider = (props: any) => {
     }));
   };
 
+  const getAttendeeName = (uid: number | string) => {
+    return userList[uid] ? userList[uid]?.name : 'user';
+  };
+
   React.useEffect(() => {
     // Remove requests for users who are offline
     setLiveStreamRequest(
@@ -97,7 +101,11 @@ export const LiveStreamContextProvider = (props: any) => {
         switch (data.msg) {
           // 1. All Hosts in channel add the audience request with 'Awaiting action' status
           case LiveStreamControlMessageEnum.raiseHandRequest:
-            showToast(LSNotificationObject.RAISE_HAND_RECEIVED);
+            showToast(
+              `${getAttendeeName(data.uid)} ${
+                LSNotificationObject.RAISE_HAND_RECEIVED
+              }`,
+            );
             addOrUpdateLiveStreamRequest(
               data.uid,
               requestStatus.AwaitingAction,
@@ -105,7 +113,11 @@ export const LiveStreamContextProvider = (props: any) => {
             break;
           // 2. All Hosts in channel update their status when a audience recalls his request
           case LiveStreamControlMessageEnum.raiseHandRequestRecall:
-            showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL);
+            showToast(
+              `${getAttendeeName(data.uid)} ${
+                LSNotificationObject.RAISE_HAND_REQUEST_RECALL
+              }`,
+            );
             addOrUpdateLiveStreamRequest(data.uid, requestStatus.Cancelled);
             break;
           // 3. All Host in channel update their status when a audience request is approved
@@ -179,7 +191,7 @@ export const LiveStreamContextProvider = (props: any) => {
       events.off(messageChannelType.Public, 'onLiveStreamActionsForHost');
       events.off(messageChannelType.Private, 'onLiveStreamActionsForAudience');
     };
-  }, [events, localUid, isHost, raiseHandRequestActive]);
+  }, [events, localUid, isHost, raiseHandRequestActive, userList]);
 
   const addOrUpdateLiveStreamRequest = (
     uid: number | string,
@@ -233,7 +245,7 @@ export const LiveStreamContextProvider = (props: any) => {
    */
 
   const audienceSendsRequest = () => {
-    showToast('Request sent to host for approval');
+    showToast(LSNotificationObject.RAISE_HAND_REQUEST);
     setRaiseHandRequestActive(true);
     sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
   };
@@ -256,6 +268,7 @@ export const LiveStreamContextProvider = (props: any) => {
       // Send message in channel to withdraw the request
       sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
     }
+    showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
   };
 
   return (
