@@ -15,7 +15,7 @@ import {RtcContext,PropsContext,MinUidContext, MaxUidContext, UidInterface} from
 import {useParams} from '../../components/Router';
 import ChatContext from '../../components/ChatContext';
 import Layout from '../LayoutEnum';
-import {createHook, useVideoCall} from 'fpe-api/api';
+import {createHook, useVideoCall} from 'fpe-api';
 
 export interface ScreenShareContextInterface {  
   children:React.ReactNode,

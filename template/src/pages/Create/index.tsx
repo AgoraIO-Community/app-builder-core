@@ -24,7 +24,7 @@ import { ShareLinkProvider } from './ShareLink';
 import ShareLinkDefault from '../../components/Share'
 import Logo from '../../components/common/Logo'
 import { cmpTypeGuard } from '../../utils/common';
-import { useFpe } from 'fpe-api/api';
+import { useFpe } from 'fpe-api';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(

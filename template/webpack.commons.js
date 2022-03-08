@@ -45,7 +45,7 @@ module.exports = {
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
       'fpe-api/install': path.join(__dirname, 'fpe-api/install.ts'),
-      'fpe-api/api': path.join(__dirname, 'fpe-api/api.ts'),
+      'fpe-api': path.join(__dirname, 'fpe-api/index.ts'),
       'test-fpe': path.join(__dirname, getFpePath()),
     },
     // Adds platform specific extensions and OS specific extensions

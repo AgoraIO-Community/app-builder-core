@@ -10,8 +10,7 @@
 *********************************************
 */
 
-import { useFpe } from 'fpe-api/api';
-import { PreCallCmpType } from 'fpe-api/typeDef';
+import { useFpe, PreCallCmpType } from 'fpe-api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native'
 import { cmpTypeGuard } from '../../utils/common';

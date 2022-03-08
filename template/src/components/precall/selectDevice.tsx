@@ -14,11 +14,9 @@ import React, { useContext } from 'react';
 import { View, StyleSheet, Text, Platform } from 'react-native'
 import ColorContext from '../ColorContext';
 import SelectDevice from '../../subComponents/SelectDevice';
-import { usePreCall } from 'fpe-api/api';
-import { useFpe } from 'fpe-api/api';
+import { useFpe, usePreCall, PreCallCmpType} from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';
-import { PreCallCmpType } from 'fpe-api/typeDef';
 
 const selectDevice: React.FC = () => {
 

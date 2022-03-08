@@ -16,8 +16,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { useFpe } from 'fpe-api/api';
-import { PreCallCmpType } from 'fpe-api/typeDef';
+import { useFpe, PreCallCmpType } from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 
 import PreCallVideoPreview from './VideoPreview';

@@ -32,8 +32,7 @@ import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
-import { useFpe } from 'fpe-api/api';
-import { ComponentsType, CustomRoutesInterface } from 'fpe-api/typeDef';
+import { useFpe, ComponentsType, CustomRoutesInterface} from 'fpe-api';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);

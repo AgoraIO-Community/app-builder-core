@@ -36,11 +36,9 @@ import {videoView} from '../.././../theme.json';
 import Layout from '../.././subComponents/LayoutEnum';
 import Toast from '../.././../react-native-toast-message';
 import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
-import {PreCallProvider} from 'fpe-api/api';
 import { ErrorContext } from '../.././components/common/index';
-import { useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api/api';
+import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider, VideoCallCmpType } from 'fpe-api';
 import Precall from '../../components/precall/PreCall';
-import { VideoCallCmpType } from 'fpe-api/typeDef';
 
 
 const useChatNotification = (

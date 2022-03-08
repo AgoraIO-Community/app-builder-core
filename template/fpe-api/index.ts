@@ -25,3 +25,4 @@ export {
 
 export * from './context';
 export * from './components';
+export * from './typeDef';

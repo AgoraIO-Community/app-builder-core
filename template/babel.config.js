@@ -23,7 +23,7 @@ module.exports = {
         root: ["./"],
         alias: {
           "fpe-api/install": "./fpe-api/install.ts",
-          "fpe-api/api": "./fpe-api/api.ts",
+          "fpe-api": "./fpe-api/index.ts",
           "test-fpe": getFpePath()
         }
       }

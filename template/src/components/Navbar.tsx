@@ -32,8 +32,7 @@ import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
-import { useVideoCall } from 'fpe-api/api';
-import { useChatUIData } from 'fpe-api/api';
+import { useVideoCall, useChatUIData } from 'fpe-api';
 
 const Navbar = () => {
   const {messageStore} = useContext(ChatContext);

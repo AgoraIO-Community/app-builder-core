@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useFpe } from 'fpe-api/api';
+import { useFpe } from 'fpe-api';
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';

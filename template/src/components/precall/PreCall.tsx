@@ -11,12 +11,11 @@
 */
 import React, { useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {usePreCall} from 'fpe-api/api';
+import {usePreCall} from 'fpe-api';
 import DimensionContext from '../dimension/DimensionContext';
 
-import { useFpe } from 'fpe-api/api';
+import { useFpe, PreCallCmpType } from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
-import { PreCallCmpType } from 'fpe-api/typeDef';
 // Precall subcomponents
 import PreCallLogo from '../common/Logo';
 import PreCallVideoPreview from './VideoPreview';

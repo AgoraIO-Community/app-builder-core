@@ -22,7 +22,7 @@ import {
   Endcall,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
-import { useVideoCall } from 'fpe-api/api';
+import { useVideoCall } from 'fpe-api';
 
 const Controls = () => {
   const {setRecordingActive, recordingActive, isHost} = useVideoCall(data => data);

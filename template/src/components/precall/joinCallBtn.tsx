@@ -12,7 +12,7 @@
 
 import React from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
-import { usePreCall } from 'fpe-api/api';
+import { usePreCall } from 'fpe-api';
 
 const joinCallBtn: React.FC = () => {
   const { setCallActive, queryComplete, username } = usePreCall(data => data)

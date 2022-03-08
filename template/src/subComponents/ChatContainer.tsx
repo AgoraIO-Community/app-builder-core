@@ -25,7 +25,7 @@ import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
-import { useFpe } from 'fpe-api/api';
+import { useFpe } from 'fpe-api';
 
 /**
  * Chat container is the component which renders all the chat messages
