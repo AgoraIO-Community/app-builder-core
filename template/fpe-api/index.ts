@@ -26,3 +26,9 @@ export {
 export * from './context';
 export * from './components';
 export * from './typeDef';
+
+export {default as useIsScreenShare} from '../src/utils/isScreenShareUser';
+export {default as useIsHost} from '../src/utils/isHostUser';
+export {default as useIsAttendee} from '../src/utils/IsAttendeeUser';
+export {default as useIsPSTN} from '../src/utils/isPSTNUser';
+export {default as useUserList} from '../src/utils/getUserList';
