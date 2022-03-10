@@ -12,7 +12,7 @@
 import {createHook} from 'fpe-api';
 import React,{createContext, SetStateAction} from 'react';
 
-export type privateMsgLastSeen = {
+export interface privateMsgLastSeenInterface {
   userId: string | number,
   lastSeenCount: number
 }
@@ -23,7 +23,7 @@ export interface ChatUIDataInterface {
   lastCheckedPrivateState: object,
   privateMessageCountMap: object ,
   setLastCheckedPublicState: React.Dispatch<SetStateAction<number>>,
-  setPrivateMessageLastSeen: React.Dispatch<SetStateAction<privateMsgLastSeen>>,
+  setPrivateMessageLastSeen: React.Dispatch<SetStateAction<privateMsgLastSeenInterface>>,
   setPrivateChatDisplayed: React.Dispatch<SetStateAction<boolean>>
 }
 

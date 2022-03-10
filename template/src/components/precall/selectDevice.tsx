@@ -14,15 +14,14 @@ import React, { useContext } from 'react';
 import { View, StyleSheet, Text, Platform } from 'react-native'
 import ColorContext from '../ColorContext';
 import SelectDevice from '../../subComponents/SelectDevice';
-import { useFpe, usePreCall, PreCallCmpType} from 'fpe-api';
+import { useFpe, usePreCall} from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';
 
 const selectDevice: React.FC = () => {
-
   const {
-    PreCallJoinBtn:JoinBtn, PreCallTextInput:TextInput
-  } = useFpe(data => typeof data.components?.PreCallScreen === 'object' ? data.components?.PreCallScreen : {} as PreCallCmpType )
+    joinButton, textBox
+  } = useFpe(data => typeof data.components?.precall === 'object' ? data.components?.precall : {});
   
   const { title } = usePreCall(data => data);
   const { primaryColor } = useContext(ColorContext);
@@ -44,9 +43,9 @@ const selectDevice: React.FC = () => {
           <SelectDevice />
         </View>
         <View style={style.inputAndBtnContainer}>
-          {cmpTypeGuard(TextInput,PreCallTextInput)}
+          {cmpTypeGuard(textBox,PreCallTextInput)}
           <View style={{ height: 20 }} />
-          {cmpTypeGuard(JoinBtn, PreCallJoinBtn)}
+          {cmpTypeGuard(joinButton, PreCallJoinBtn)}
         </View>
       </View>
     </View>

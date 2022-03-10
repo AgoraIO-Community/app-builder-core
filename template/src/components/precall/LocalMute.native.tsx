@@ -14,28 +14,19 @@ import { useFpe } from 'fpe-api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { cmpTypeGuard } from '../../utils/common';
-import {LocalAudioMute,LocalVideoMute,SwitchCamera} from '../../../agora-rn-uikit';
+import { LocalAudioMute, LocalVideoMute, SwitchCamera } from '../../../agora-rn-uikit';
 import { LocalUserContext } from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
-  const PreCallLocalVideoMuteFpe = useFpe(data => {
-    if(data.components?.PreCallScreen && typeof data.components?.PreCallScreen === 'object' && typeof data.components?.PreCallScreen.PreCallLocalMute === 'object'){
-      return data.components?.PreCallScreen.PreCallLocalMute?.PreCallLocalVideoMute
-    } 
-  })
-  const PreCallLocalAudioMuteFpe = useFpe(data => {
-    if(data.components?.PreCallScreen && typeof data.components?.PreCallScreen === 'object' && typeof data.components?.PreCallScreen.PreCallLocalMute === 'object'){
-      return data.components?.PreCallScreen.PreCallLocalMute?.PreCallLocalAudioMute
-    } 
-  })
+  const { videoMute, audioMute } = useFpe(data => data.components?.precall && typeof data.components?.precall === 'object' ? data.components?.precall : {})
   return (
     <LocalUserContext>
       <View style={style.width50}>
-        {cmpTypeGuard(PreCallLocalVideoMuteFpe,LocalAudioMute as React.FC)}
+        {cmpTypeGuard(audioMute, LocalAudioMute)}
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        {cmpTypeGuard(PreCallLocalAudioMuteFpe,LocalVideoMute as React.FC)}
+        {cmpTypeGuard(videoMute, LocalVideoMute)}
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
@@ -47,5 +38,5 @@ const PreCallLocalMute: React.FC = () => {
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({
-  width50: {width: 50},
+  width50: { width: 50 },
 });

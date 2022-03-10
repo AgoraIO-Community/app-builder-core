@@ -13,7 +13,7 @@
 import {createHook} from 'fpe-api';
 import React from 'react';
 
-export type ShareLinkContextType = {
+export interface ShareLinkContextInterface {
   urlView: string | null;
   urlHost: string | null;
   pstn: string | null;
@@ -29,9 +29,9 @@ const ShareLinkContext = React.createContext({
   hostControlCheckbox: false,
   joinPhrase: '',
   roomTitle: ''
-} as ShareLinkContextType);
+} as ShareLinkContextInterface);
 
-const ShareLinkProvider = (props: ShareLinkContextType) => {
+const ShareLinkProvider = (props: ShareLinkContextInterface) => {
   return (
     <ShareLinkContext.Provider
       value={{ ...props }}

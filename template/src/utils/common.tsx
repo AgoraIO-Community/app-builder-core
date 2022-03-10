@@ -1,7 +1,7 @@
 import React from 'react';
 import { Platform } from "react-native";
 
-const cmpTypeGuard = (Cmp: any, FallBack: React.FC) => {
+const cmpTypeGuard = (Cmp: any, FallBack: React.FC<any>) => {
   //TODO:hari - what if null passed and handle that also -  null or undefined should not render anything
   return typeof Cmp === 'function' ? <Cmp /> : <FallBack />;
 }

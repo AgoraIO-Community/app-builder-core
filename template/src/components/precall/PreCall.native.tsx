@@ -16,7 +16,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { useFpe, PreCallCmpType } from 'fpe-api';
+import { useFpe } from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 
 import PreCallVideoPreview from './VideoPreview';
@@ -26,38 +26,37 @@ import PreCallJoinBtn from './joinCallBtn'
 
 const Precall = () => {
   const {
-    PreCallLocalMute: Mute,
-    PreCallVideoPreview: VideoPreview,
-    PreCallTextInput: TextInput,
-    PreCallJoinBtn: JoinBtn
-  } = useFpe(data => typeof data.components?.PreCallScreen === 'object' ? data.components?.PreCallScreen : {} as PreCallCmpType )
-  
+    preview,
+    textBox,
+    joinButton
+  } = useFpe(data => typeof data.components?.precall === 'object' ? data.components?.precall : {})
+
   return (
     <View style={style.full}>
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
       </View>
       <View style={style.full}>
-        {cmpTypeGuard(VideoPreview, PreCallVideoPreview)}
+        {cmpTypeGuard(preview, PreCallVideoPreview)}
       </View>
       <View style={style.textInputHolder}>
-        {cmpTypeGuard(TextInput, PreCallTextInput)}
+        {cmpTypeGuard(textBox, PreCallTextInput)}
       </View>
-      <View style={{height: 20}} />
+      <View style={{ height: 20 }} />
       <View style={style.controls}>
-        {cmpTypeGuard(Mute, PreCallLocalMute)}
+        <PreCallLocalMute />
       </View>
       <View
-        style={{marginBottom: 50}}>
-        {cmpTypeGuard(JoinBtn, PreCallJoinBtn)}
+        style={{ marginBottom: 50 }}>
+        {cmpTypeGuard(joinButton, PreCallJoinBtn)}
       </View>
     </View>
   );
 };
 
 const style = StyleSheet.create({
-  full: {flex: 1},
-  heading: {flex: 0.1, justifyContent: 'center'},
+  full: { flex: 1 },
+  heading: { flex: 0.1, justifyContent: 'center' },
   headingText: {
     fontSize: 24,
     color: $config.PRIMARY_FONT_COLOR,

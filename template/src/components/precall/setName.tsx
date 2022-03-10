@@ -10,19 +10,19 @@
 *********************************************
 */
 
-import { useFpe, PreCallCmpType } from 'fpe-api';
+import { useFpe } from 'fpe-api';
 import React from 'react';
 import { View, StyleSheet } from 'react-native'
 import { cmpTypeGuard } from '../../utils/common';
 import { PreCallJoinBtn, PreCallTextInput } from './index';
 
 const setName: React.FC = () => {
-  const {PreCallJoinBtn:JoinBtn, PreCallTextInput: TextInput} = useFpe(data => typeof data.components?.PreCallScreen === 'object' ? data.components?.PreCallScreen : {} as PreCallCmpType )
+  const {joinButton, textBox} = useFpe(data => typeof data.components?.precall === 'object' ? data.components?.precall : {});
   return (
     <View style={[style.margin5Btm, { alignItems: 'center' }]}>
-      {cmpTypeGuard(TextInput, PreCallTextInput)}
+      {cmpTypeGuard(textBox, PreCallTextInput)}
       <View style={style.margin5Btm} />
-      {cmpTypeGuard(JoinBtn, PreCallJoinBtn) }
+      {cmpTypeGuard(joinButton, PreCallJoinBtn) }
     </View>
   )
 }

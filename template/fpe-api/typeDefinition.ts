@@ -10,47 +10,45 @@
 *********************************************
 */
 import React from 'react';
-import { channelMessage, chatInputInterface } from 'src/components/ChatContext';
+import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
 
-export type PreCallLocalMuteCmpType = {
-  PreCallLocalAudioMute?: React.FC<{}>;
-  PreCallLocalVideoMute?: React.FC<{}>;
+//todo:hari define AnyReactComponent support any react component
+export type AnyReactComponent = React.FC<any>
+
+export interface PreCallInterface {
+  preview?: AnyReactComponent;
+  audioMute?: AnyReactComponent;
+  videoMute?: AnyReactComponent;
+  meetingName?: AnyReactComponent;
+  deviceSelect?: AnyReactComponent;
+  joinButton?: AnyReactComponent;
+  textBox?: AnyReactComponent;
 }
 
-export type PreCallCmpType = {
-  PreCallVideoPreview?: React.FC<{}>;
-  PreCallLocalMute?: PreCallLocalMuteCmpType | React.FC<{}>;
-  PreCallLogo?: React.FC<{}>;
-  PreCallSetName?: React.FC<{}>;
-  PreCallSelectDevice?: React.FC<{}>;
-  PreCallJoinBtn?: React.FC<{}>;
-  PreCallTextInput?: React.FC<{}>;
+export interface ChatCmpInterface {
+  chatBubble?: React.FC<channelMessage>;
+  chatInput?: React.FC<chatInputInterface>;
 }
 
-export type ChatCmpType = {
-  ChatBubble?: React.FC<channelMessage>;
-  ChatInput?: React.FC<chatInputInterface>;
+export interface VideoCallInterface {
+  topBar?: AnyReactComponent;
+  settingsPanel?: AnyReactComponent;
+  participantsPanel?: AnyReactComponent;
+  bottomBar?: AnyReactComponent;
+  chat?: ChatCmpInterface | AnyReactComponent;
 }
 
-export type VideoCallCmpType = {
-  NavBar?: React.FC<{}>;
-  SettingsView?: React.FC<{}>;
-  ParticipantsView?: React.FC<{}>;
-  Controls?: React.FC<{}>;
-  Chat?: ChatCmpType | React.FC<{}>;
-}
-
-export type ComponentsType = {
-  CreateMeetingScreen?: React.FC<{}>;
-  ShareLinksScreen?: React.FC<{}>;
-  JoinMeetingScreen?: React.FC<{}>;
-  PreCallScreen?: PreCallCmpType | React.FC<{}>
-  VideoCallScreen?: VideoCallCmpType | React.FC<{}>;
+export type ComponentsInterface ={
+  precall?: PreCallInterface | AnyReactComponent
+  create?: AnyReactComponent;
+  share?: AnyReactComponent;
+  join?: AnyReactComponent;
+  videoCall?: VideoCallInterface | AnyReactComponent;
 }
 
 export interface CustomRoutesInterface {
   path: string;
-  component: React.ElementType;
+  component: AnyReactComponent;
   exact?: boolean;
   componentProps?: object;
   privateRoute?: boolean;
@@ -62,15 +60,15 @@ export interface FpeApiInterface {
   /**
    * components used to replace whole screen or subcomponents
    */
-  components?: ComponentsType;
+  components?: ComponentsInterface;
   /**
    * custom routes used to add new page/routes
    */
-  custom_routes?: CustomRoutesInterface[];
+  customRoutes?: CustomRoutesInterface[];
   /**
    * Custom context/api provider wrapped in root level
    */
-  root_wrapper?: React.ReactNode;
+  appRoot?: React.ReactNode;
   /**
    * message callback used to listen for incoming message from private or public 
    */

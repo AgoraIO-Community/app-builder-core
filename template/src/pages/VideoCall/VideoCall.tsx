@@ -37,7 +37,7 @@ import Layout from '../.././subComponents/LayoutEnum';
 import Toast from '../.././../react-native-toast-message';
 import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
 import { ErrorContext } from '../.././components/common/index';
-import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider, VideoCallCmpType } from 'fpe-api';
+import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api';
 import Precall from '../../components/precall/PreCall';
 
 
@@ -236,11 +236,9 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {
-    Chat:ChatFpe, SettingsView:SettingsViewFpe, 
-    NavBar: NavBarFpe, ParticipantsView: ParticipantsViewFpe,
-    Controls: ControlsFpe
-  } = useFpe(data => typeof data.components?.VideoCallScreen === 'object' ? data.components?.VideoCallScreen : {} as VideoCallCmpType )
-  const PreCallScreenFpe = useFpe(data => data.components?.PreCallScreen)
+    chat,bottomBar,participantsPanel,settingsPanel,topBar
+  } = useFpe(data => typeof data.components?.videoCall === 'object' ? data.components?.videoCall : {})
+  const PreCallScreenFpe = useFpe(data => data.components?.precall)
   const {setGlobalErrorMessage} = useContext(ErrorContext)
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
@@ -397,7 +395,7 @@ const VideoCall: React.FC = () => {
                               setPrivateMessageLastSeen={setPrivateMessageLastSeen}
                               setPrivateChatDisplayed={setPrivateChatDisplayed}
                             >
-                              {cmpTypeGuard(NavBarFpe,Navbar)}
+                              {cmpTypeGuard(topBar,Navbar)}
                               <View
                                 style={[
                                   style.videoView,
@@ -410,14 +408,14 @@ const VideoCall: React.FC = () => {
                                   <GridVideo setLayout={setLayout} />
                                 )}
                                 {sidePanel === SidePanelType.Participants ? (
-                                  cmpTypeGuard(ParticipantsViewFpe, ParticipantsView)
+                                  cmpTypeGuard(participantsPanel, ParticipantsView)
                                 ) : (
                                   <></>
                                 )}
                                 </NetworkQualityProvider>
                                 {sidePanel === SidePanelType.Chat ? (
                                   $config.CHAT ? (
-                                   cmpTypeGuard(ChatFpe,Chat)
+                                   cmpTypeGuard(chat,Chat)
                                   ) : (
                                     <></>
                                   )
@@ -425,7 +423,7 @@ const VideoCall: React.FC = () => {
                                   <></>
                                 )}
                                 {sidePanel === SidePanelType.Settings ? (
-                                  cmpTypeGuard(SettingsViewFpe, SettingsView)
+                                  cmpTypeGuard(settingsPanel, SettingsView)
                                 ) : (
                                   <></>
                                 )}
@@ -434,7 +432,7 @@ const VideoCall: React.FC = () => {
                             sidePanel === SidePanelType.Chat ? (
                               <></>
                             ) : (
-                              cmpTypeGuard(ControlsFpe, Controls)
+                              cmpTypeGuard(bottomBar, Controls)
                             )}
                             </ChatUIDataProvider>
                           </VideoCallProvider>

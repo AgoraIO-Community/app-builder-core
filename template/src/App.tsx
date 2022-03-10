@@ -32,7 +32,7 @@ import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
-import { useFpe, ComponentsType, CustomRoutesInterface} from 'fpe-api';
+import { useFpe, ComponentsInterface, CustomRoutesInterface} from 'fpe-api';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -43,14 +43,13 @@ if (Platform.OS === 'ios') {
 
 const App: React.FC = () => {
   const {
-    VideoCallScreen:VideoCallScreenFpe, 
-    JoinMeetingScreen:JoinMeetingScreenFpe,
-    CreateMeetingScreen:CreateMeetingScreenFpe
-  } = useFpe(data => data?.components ? data.components : {} as ComponentsType);
-  const CustomRoutes = useFpe(data => data?.custom_routes);
-  const CreateCmp = cmpTypeGuard(CreateMeetingScreenFpe, Create)
-  const RootWrapper = getTypeGuard(useFpe(data => data?.root_wrapper), React.Fragment);
-  //todo:hari check rootwrapper why having the default value if not passed
+    videoCall,
+    join,
+    create
+  } = useFpe(data => data?.components ? data.components : {} as ComponentsInterface);
+  const CustomRoutes = useFpe(data => data?.customRoutes);
+  const CreateCmp = cmpTypeGuard(create, Create)
+  const RootWrapper = getTypeGuard(useFpe(data => data?.appRoot), React.Fragment);  
   return (
     <RootWrapper>
     <ImageBackground
@@ -101,7 +100,7 @@ const App: React.FC = () => {
                       <StoreToken />
                     </Route>
                     <Route exact path={'/join'}>
-                      {cmpTypeGuard(JoinMeetingScreenFpe, Join)}
+                      {cmpTypeGuard(join, Join)}
                     </Route>
                     {shouldAuthenticate ? (
                       <PrivateRoute
@@ -115,7 +114,7 @@ const App: React.FC = () => {
                       </Route>
                     )}
                     <Route path={'/:phrase'}>
-                      {cmpTypeGuard(VideoCallScreenFpe,VideoCall)}
+                      {cmpTypeGuard(videoCall,VideoCall)}
                     </Route>
                   </Switch>        
                   </ErrorProvider>        

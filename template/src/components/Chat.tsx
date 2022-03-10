@@ -33,7 +33,7 @@ import TextWithTooltip from '../subComponents/TextWithTooltip';
 import { useChatUIData, useFpe } from 'fpe-api';
 
 const Chat = () => {
-  const ChatInputFpe = useFpe(data => typeof data.components?.VideoCallScreen === 'object' && typeof data.components?.VideoCallScreen?.Chat === 'object' ? data.components?.VideoCallScreen?.Chat.ChatInput : undefined)
+  const ChatInputFpe = useFpe(data => typeof data.components?.videoCall === 'object' && typeof data.components?.videoCall?.chat === 'object' ? data.components?.videoCall?.chat?.chatInput : undefined)
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,

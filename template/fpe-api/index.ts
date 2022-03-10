@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import fpeConfig from 'test-fpe';
-import { FpeApiInterface } from './typeDef';
+import { FpeApiInterface } from './typeDefinition';
 import createHook from './utils';
 
 const FpeContext: React.Context<FpeApiInterface> = React.createContext(fpeConfig);
@@ -25,7 +25,7 @@ export {
 
 export * from './context';
 export * from './components';
-export * from './typeDef';
+export * from './typeDefinition';
 
 export {default as useIsScreenShare} from '../src/utils/isScreenShareUser';
 export {default as useIsHost} from '../src/utils/isHostUser';

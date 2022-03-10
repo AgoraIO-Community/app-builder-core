@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {FpeApiInterface} from './typeDef';
+import {FpeApiInterface} from './typeDefinition';
 /**
  * 
  * @param config FPE options to override the UI components and customize the application

@@ -21,7 +21,7 @@ import TextInput from '../../atoms/TextInput';
 import Toast from '../../../react-native-toast-message';
 import { ErrorContext } from '../../components/common';
 import { ShareLinkProvider } from './ShareLink';
-import ShareLinkDefault from '../../components/Share'
+import ShareLink from '../../components/Share'
 import Logo from '../../components/common/Logo'
 import { cmpTypeGuard } from '../../utils/common';
 import { useFpe } from 'fpe-api';
@@ -52,7 +52,7 @@ const CREATE_CHANNEL = gql`
 `;
 
 const Create = () => {
-  const ShareLinksScreen =  useFpe(config => config.components?.ShareLinksScreen)
+  const share =  useFpe(config => config.components?.share)
   const {setGlobalErrorMessage} = useContext(ErrorContext)
   const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');
@@ -169,7 +169,7 @@ const Create = () => {
           joinPhrase={joinPhrase}
           roomTitle={roomTitle}
         >
-          {cmpTypeGuard(ShareLinksScreen, ShareLinkDefault)}
+          {cmpTypeGuard(share, ShareLink)}
         </ShareLinkProvider>
       )}
     </ScrollView>

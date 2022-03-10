@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, { useContext, useEffect, useState} from 'react';
-import {View, StyleSheet, Platform} from 'react-native';
-import {usePreCall} from 'fpe-api';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
+import { usePreCall } from 'fpe-api';
 import DimensionContext from '../dimension/DimensionContext';
 
-import { useFpe, PreCallCmpType } from 'fpe-api';
+import { useFpe } from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 // Precall subcomponents
 import PreCallLogo from '../common/Logo';
@@ -26,40 +26,38 @@ import PreCallSelectDevice from './selectDevice';
 const Precall = () => {
 
   const {
-    PreCallLogo:LogoFpe,PreCallLocalMute: Mute,
-    PreCallSelectDevice: selectDevice,PreCallSetName: setName,
-    PreCallVideoPreview: videoPreview
-  } = useFpe(data => typeof data.components?.PreCallScreen === 'object' ? data.components?.PreCallScreen : {} as PreCallCmpType )
-  
-  const {title} = usePreCall(data => data)
-  const {getDimensionData} = useContext(DimensionContext)
+    deviceSelect, meetingName, preview
+  } = useFpe(data => typeof data.components?.precall === 'object' ? data.components?.precall : {})
+
+  const { title } = usePreCall(data => data)
+  const { getDimensionData } = useContext(DimensionContext)
   const [isDesktop, setDesktop] = useState(false)
-  
+
   let onLayout = (e: any) => {
-    const {isDesktop} = getDimensionData(e.nativeEvent.layout.width, e.nativeEvent.layout.height);
+    const { isDesktop } = getDimensionData(e.nativeEvent.layout.width, e.nativeEvent.layout.height);
     setDesktop(isDesktop)
   };
 
-  useEffect(()=>{
-    if(Platform.OS === 'web'){
-      if(title){
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      if (title) {
         document.title = title + ' | ' + $config.APP_NAME
       }
     }
   })
   return (
     <View style={style.main} onLayout={onLayout}>
-      {cmpTypeGuard(LogoFpe, PreCallLogo)}
+      <PreCallLogo />
       <View style={style.content}>
         <View style={style.leftContent}>
-          {cmpTypeGuard(videoPreview,PreCallVideoPreview)}
-          {cmpTypeGuard(Mute,PreCallLocalMute)}
+          {cmpTypeGuard(preview, PreCallVideoPreview)}
+          <PreCallLocalMute />
           {!isDesktop && (
-            cmpTypeGuard(setName ,PreCallSetName)
+            cmpTypeGuard(meetingName, PreCallSetName)
           )}
         </View>
         {isDesktop && (
-           cmpTypeGuard(selectDevice,PreCallSelectDevice)
+          cmpTypeGuard(deviceSelect, PreCallSelectDevice)
         )}
       </View>
     </View>
@@ -67,7 +65,7 @@ const Precall = () => {
 };
 
 const style = StyleSheet.create({
-  full: {flex: 1},
+  full: { flex: 1 },
   main: {
     flex: 2,
     justifyContent: 'space-evenly',
@@ -81,7 +79,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'row'},
+  content: { flex: 6, flexDirection: 'row' },
   leftContent: {
     width: '100%',
     flex: 1.3,
@@ -173,7 +171,7 @@ const style = StyleSheet.create({
     height: '35%',
     minHeight: 280,
   },
-  margin5Btm: {marginBottom: '5%'},
+  margin5Btm: { marginBottom: '5%' },
 });
 
 export default Precall;

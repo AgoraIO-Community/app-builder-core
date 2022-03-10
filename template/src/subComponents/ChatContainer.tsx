@@ -38,7 +38,7 @@ const ChatContainer = (props: any) => {
     props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
   const scrollViewRef = useRef<ScrollView>(null);
-  const ChatBubbleFpe = useFpe(data => typeof data.components?.VideoCallScreen === 'object' && typeof data.components?.VideoCallScreen?.Chat === 'object' ? data.components?.VideoCallScreen?.Chat.ChatBubble : undefined)
+  const ChatBubbleFpe = useFpe(data => typeof data.components?.videoCall === 'object' && typeof data.components?.videoCall?.chat === 'object' ? data.components?.videoCall?.chat?.chatBubble : undefined)
   return (
     <View style={style.containerView}>
       {privateActive ? (
