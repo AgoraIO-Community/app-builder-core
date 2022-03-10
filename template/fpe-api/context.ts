@@ -1,7 +1,7 @@
 /**
  * Core contexts
  */
-export {RtcContext, MinUidContext, MaxUidContext, LocalUserContext, PropsContext} from '../agora-rn-uikit';
+export {RtcContext, MinUidContext, MaxUidContext, LocalUserContext, PropsContext, LocalContext} from '../agora-rn-uikit';
 export {default as ChatContext} from '../src/components/ChatContext';
 export {default as DeviceContext} from '../src/components/DeviceContext';
 export {default as StorageContext} from '../src/components/StorageContext';

@@ -34,3 +34,5 @@ export {default as useIsPSTN} from '../src/utils/isPSTNUser';
 export {default as useUserList} from '../src/utils/getUserList';
 export {default as useGroupMessages} from '../src/utils/getGroupMessages';
 export {default as usePrivateMessages} from '../src/utils/getPrivateMessages';
+export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
+export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
