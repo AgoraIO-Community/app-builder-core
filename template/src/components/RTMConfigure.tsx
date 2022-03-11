@@ -22,6 +22,7 @@ import {
   messageChannelType,
   messageSourceType,
   messageActionType,
+  attrRequestTypes,
 } from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
@@ -166,6 +167,7 @@ const RtmConfigure = (props: any) => {
         {key: 'name', value: name || 'User'},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
         {key: 'role', value: String(rtcProps?.role)},
+        {key: 'requests', value: attrRequestTypes.none}, // stores Uid who have raised a request
       ]);
       timerValueRef.current = 5;
       joinChannel();
@@ -174,6 +176,14 @@ const RtmConfigure = (props: any) => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
         setAttribute();
       }, timerValueRef.current * 1000);
+    }
+  };
+
+  const addOrUpdateAttributes = async (attributes: RtmAttribute[]) => {
+    try {
+      await engine.current.addOrUpdateLocalUserAttributes(attributes);
+    } catch (error) {
+      console.log('error while local user addOrUpdateAttributes: ', error);
     }
   };
 
@@ -204,7 +214,8 @@ const RtmConfigure = (props: any) => {
                 if (
                   attr?.attributes?.name &&
                   attr?.attributes?.screenUid &&
-                  attr?.attributes?.role
+                  attr?.attributes?.role &&
+                  attr?.attributes?.requests
                 ) {
                   return attr;
                 } else {
@@ -233,6 +244,7 @@ const RtmConfigure = (props: any) => {
                     role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
                     offline: false,
+                    requests: attr?.attributes?.requests,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
                     name: `${attr?.attributes?.name || 'User'}'s screenshare`,
@@ -273,7 +285,8 @@ const RtmConfigure = (props: any) => {
           if (
             attr?.attributes?.name &&
             attr?.attributes?.screenUid &&
-            attr?.attributes?.role
+            attr?.attributes?.role &&
+            attr?.attributes?.requests
           ) {
             return attr;
           } else {
@@ -303,6 +316,7 @@ const RtmConfigure = (props: any) => {
                 role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
                 offline: false,
+                requests: attr?.attributes?.requests,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
                 name: `${attr?.attributes?.name || 'User'}'s screenshare`,
@@ -327,6 +341,7 @@ const RtmConfigure = (props: any) => {
           ...prevState,
           [uid]: {
             ...prevState[uid],
+            requests: attrRequestTypes.none,
             offline: true,
           },
         };
@@ -623,7 +638,7 @@ const RtmConfigure = (props: any) => {
     attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,
   ) => {
-    await engine.current.addOrUpdateLocalUserAttributes(attributes);
+    await addOrUpdateAttributes(attributes);
     let formattedAttributes: any = {};
     // Transform the array into object of key value pair
     attributes.map((attribute) => {
@@ -660,6 +675,7 @@ const RtmConfigure = (props: any) => {
         sendMessage,
         sendMessageToUid,
         broadcastUserAttributes,
+        addOrUpdateAttributes,
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,

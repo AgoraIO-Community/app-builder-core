@@ -2,6 +2,7 @@ import React, {createContext, useContext, useState, useRef} from 'react';
 import ChatContext, {
   controlMessageEnum,
   messageChannelType,
+  attrRequestTypes,
 } from '../ChatContext';
 import Toast from '../../../react-native-toast-message';
 import {
@@ -32,6 +33,7 @@ export const LiveStreamContextProvider = (props: any) => {
     sendControlMessageToUid,
     sendControlMessage,
     broadcastUserAttributes,
+    addOrUpdateAttributes,
     events,
   } = useContext(ChatContext);
 
@@ -40,6 +42,10 @@ export const LiveStreamContextProvider = (props: any) => {
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
     Partial<Record<string, requestInterface>>
   >({});
+
+  const [uidsOfInitialRequests, setUidsOfInitialRequests] = useState<
+    Array<string>
+  >([]);
 
   const [activeLiveStreamRequest, setActiveLiveStreamRequest] = useState<
     Partial<Record<string, requestInterface>>
@@ -122,7 +128,40 @@ export const LiveStreamContextProvider = (props: any) => {
         ([k, v]) => userList[k] && !userList[k]?.offline,
       ),
     );
+
+    // Check attribute of user joined if it has request livestreaming attribute
+    const uidsOfUsersHavingLSRequest = Object.keys(
+      filterObject(
+        userList,
+        ([k, v]) => v?.requests === attrRequestTypes.liveStreaming,
+      ),
+    );
+    console.log('uidsOfUsersHavingLSRequest', uidsOfUsersHavingLSRequest);
+    // Set uids of user who have active live streaming request
+    setUidsOfInitialRequests([...uidsOfUsersHavingLSRequest]);
   }, [userList]);
+
+  React.useEffect(() => {
+    // Filter new requests
+    const initialRequests = uidsOfInitialRequests
+      .filter((uid: string) => !currLiveStreamRequest?.[uid])
+      .reduce((acc, uid) => {
+        return {
+          ...acc,
+          [uid]: {
+            uid: uid,
+            ts: new Date().getTime(),
+            status: requestStatus.AwaitingAction,
+          },
+        };
+      }, {});
+    setLiveStreamRequest((oldLiveStreamRequest) => ({
+      ...oldLiveStreamRequest,
+      ...initialRequests,
+    }));
+  }, [uidsOfInitialRequests]);
+
+  // Events listening section
 
   React.useEffect(() => {
     events.on(
@@ -305,6 +344,9 @@ export const LiveStreamContextProvider = (props: any) => {
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
     setRaiseHandRequestActive(true);
     sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
+    addOrUpdateAttributes([
+      {key: 'requests', value: attrRequestTypes.liveStreaming},
+    ]);
   };
 
   const audienceRecallsRequest = () => {
@@ -325,6 +367,7 @@ export const LiveStreamContextProvider = (props: any) => {
       // Send message in channel to withdraw the request
       sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
     }
+    addOrUpdateAttributes([{key: 'requests', value: attrRequestTypes.none}]);
     showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
   };
 
