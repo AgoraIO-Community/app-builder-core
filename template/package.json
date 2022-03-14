@@ -31,7 +31,6 @@
   "publish": [
     {
       "provider": "github",
-      "token": "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",
       "owner": "AgoraIO-Community",
       "repo": "app-builder-core"
     }
