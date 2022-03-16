@@ -9,6 +9,7 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
+import { useString } from '../utils/getString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 
 /**
@@ -70,7 +71,7 @@ export const NetworkQualityPill = ({
               {fontSize: small ? 14 : 15, userSelect: 'none'},
             ]}
           >
-            {networkIconsObject[networkStat].text}
+            {useString(networkIconsObject[networkStat].text)}
           </Text>
         )}
       </PlatformSpecificWrapper>

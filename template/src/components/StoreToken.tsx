@@ -14,9 +14,10 @@ import {Redirect, useParams} from './Router';
 import StorageContext from './StorageContext';
 import {Text} from 'react-native';
 import useMount from './useMount';
+import { useString } from '../utils/getString';
 
 const Authenticated = () => {
-  return <Text> Authenticated Successfully! </Text>;
+  return <Text> {useString('authenticated')} </Text>;
 };
 
 const StoreToken = () => {

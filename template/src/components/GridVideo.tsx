@@ -35,6 +35,7 @@ import networkQualityContext from './NetworkQualityContext';
 import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
+import { useString } from '../utils/getString';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -61,6 +62,7 @@ interface GridVideoProps {
 }
 
 const GridVideo = (props: GridVideoProps) => {
+  const PSTNUserText = useString('PSTNUser');
   const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
@@ -128,7 +130,7 @@ const GridVideo = (props: GridVideoProps) => {
                     } else if (
                       String(users[ridx * dims.c + cidx].uid)[0] === '1'
                     ) {
-                      return FallbackLogo('PSTN User');
+                      return FallbackLogo(PSTNUserText);
                     } else {
                       return FallbackLogo(
                         userList[users[ridx * dims.c + cidx]?.uid]?.name,
@@ -188,14 +190,14 @@ const GridVideo = (props: GridVideoProps) => {
                       value={users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
                         ? userList[localUid].name + ' '
-                        : 'You '
+                        : useString('you') + ' '
                       : userList[users[ridx * dims.c + cidx].uid]
                       ? userList[users[ridx * dims.c + cidx].uid].name + ' '
                       : users[ridx * dims.c + cidx].uid === 1
-                      ? (userList[localUid]?.name + "'s screen ")
+                      ? useString('screenName',userList[localUid]?.name) + " "
                       : String(users[ridx * dims.c + cidx].uid)[0] === '1'
-                      ? 'PSTN User '
-                      : 'User '}
+                      ? PSTNUserText + ' '
+                      : useString('user') + ' '}
                       style={
                         {
                           color: $config.PRIMARY_FONT_COLOR,

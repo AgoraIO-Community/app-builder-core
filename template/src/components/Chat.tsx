@@ -31,6 +31,7 @@ import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
 import { useChatUIData, useFpe } from 'fpe-api';
+import { useString } from '../utils/getString';
 
 const Chat = () => {
   const ChatInputFpe = useFpe(data => typeof data.components?.videoCall === 'object' && typeof data.components?.videoCall?.chat === 'object' ? data.components?.videoCall?.chat?.chatInput : undefined)
@@ -116,7 +117,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
-            Group
+            {useString('group')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -140,7 +141,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
-            Private
+            {useString('private')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -229,7 +230,7 @@ const Chat = () => {
                                 fontSize: RFValue(16, height > width ? height : width)
                               }]} value={userList[user.uid]
                                   ? userList[user.uid].name + ' '
-                                  : 'User '} 
+                                  : useString('user') + " "} 
                               />
                             </View>
                             <View>
@@ -253,7 +254,7 @@ const Chat = () => {
                 selectedUsername={
                   userList[selectedUser.uid]
                     ? userList[selectedUser.uid].name + ' '
-                    : 'User '
+                    : useString('user') + ' '
                 }
               />
                 <View>

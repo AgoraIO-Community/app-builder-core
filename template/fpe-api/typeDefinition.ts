@@ -11,6 +11,7 @@
 */
 import React from 'react';
 import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
+import { TextInterface } from 'src/language';
 
 //todo:hari define AnyReactComponent support any react component
 export type AnyReactComponent = React.FC<any>
@@ -56,6 +57,13 @@ export interface CustomRoutesInterface {
   failureRedirectTo?: string;
 };
 
+export interface i18nInterface {
+  locale: string,
+  data: {
+    [key in keyof TextInterface]: ((input:string) => string) | string
+  }
+}
+
 export interface FpeApiInterface {
   /**
    * components used to replace whole screen or subcomponents
@@ -69,6 +77,10 @@ export interface FpeApiInterface {
    * Custom context/api provider wrapped in root level
    */
   appRoot?: React.ReactNode;
+  /**
+   * 
+   */
+  i18n?:i18nInterface[]
   /**
    * message callback used to listen for incoming message from private or public 
    */

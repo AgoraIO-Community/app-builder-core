@@ -12,6 +12,7 @@
 
 import React, {useContext} from 'react';
 import { StyleSheet, View, Text } from 'react-native';
+import { useString } from '../utils/getString';
 import chatContext from '../components/ChatContext';
 /**
  *
@@ -31,7 +32,7 @@ function ScreenShareNotice({ uid }: any) {
         ?
         <View style={styles.screenSharingMessageContainer}>
             <Text style={styles.screensharingMessage}>
-            {userList[localUid]?.name + "'s screen share is active."} 
+            {useString('screenShareActive',userList[localUid]?.name)} 
             </Text>
         </View>
         : null

@@ -14,24 +14,25 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import chatContext, {controlMessageEnum} from './ChatContext';
 import ColorContext from './ColorContext';
 import SecondaryButton from '../atoms/SecondaryButton';
+import { useString } from '../utils/getString';
 
 const HostControlView = () => {
   const {sendControlMessage} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
   return (
     <>
-      <Text style={style.heading}>Host Controls</Text>
+      <Text style={style.heading}>{useString('hostControls')}</Text>
       <View>
         <View style={style.btnContainer}>
           <SecondaryButton
             onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
-            text={'Mute all audios'}
+            text={useString('muteAllAudios')}
           />
         </View>
         <View style={style.btnContainer}>
           <SecondaryButton
             onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
-            text={'Mute all videos'}
+            text={useString('muteAllVideos')}
           />
         </View>
       </View>

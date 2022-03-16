@@ -26,6 +26,7 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {shouldAuthenticate} from '../utils/common';
+import { useString } from '../utils/getString';
 // const joinFlag = 0;
 const Join = () => {
   const history = useHistory();
@@ -59,18 +60,18 @@ const Join = () => {
               value={phrase}
               onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder="Enter Meeting ID"
+              placeholder={useString('enterMeetingID')}
             />
             <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={'Enter Meeting'}
+              text={useString('enterMeeting')}
             />
             <HorizontalRule />
             <SecondaryButton
               onPress={() => createMeeting()}
-              text={'Create a meeting'}
+              text={useString('createAMeeting')}
             />
             {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?

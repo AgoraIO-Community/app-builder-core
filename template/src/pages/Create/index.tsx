@@ -25,6 +25,8 @@ import ShareLink from '../../components/Share'
 import Logo from '../../components/common/Logo'
 import { cmpTypeGuard } from '../../utils/common';
 import { useFpe } from 'fpe-api';
+import { useString } from '../../utils/getString';
+import { useLanguage } from '../../language/useLanguage';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
@@ -64,7 +66,7 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
-
+  const createdText = useString('created');
   useEffect(() =>{
     setGlobalErrorMessage(error);
   },[error])
@@ -89,7 +91,7 @@ const Create = () => {
       })
         .then((res: any) => {
           Toast.show({
-            text1: 'Created: ' + roomTitle,
+            text1: createdText + ': ' + roomTitle,
             visibilityTime: 1000,
           });
           console.log('promise data', res);
@@ -118,7 +120,7 @@ const Create = () => {
                 value={roomTitle}
                 onChangeText={(text) => onChangeRoomTitle(text)}
                 onSubmitEditing={() => createRoom()}
-                placeholder="Name your meeting"
+                placeholder={useString('nameYourMeeting')}
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
@@ -127,10 +129,11 @@ const Create = () => {
                     onValueChange={setHostControlCheckbox}
                   />
                   <Text style={style.checkboxTitle}>
-                    Restrict Host Controls{' '}
+                    {useString('restrictHostControls')}{' '}
                     {!hostControlCheckbox
-                      ? '(Everyone is a Host)'
-                      : '(Separate host link)'}
+                      ? `(${useString('everyOneIsAHost')})`
+                      : `(${useString('seperateHostLink')})`
+                    }
                   </Text>
                 </View>
                 {$config.PSTN ? (
@@ -140,7 +143,7 @@ const Create = () => {
                       onValueChange={setPstnCheckbox}
                     />
                     <Text style={style.checkboxTitle}>
-                      Use PSTN (Join by dialing a number)
+                      {useString('usePSTN')}
                     </Text>
                   </View>
                 ) : (
@@ -150,12 +153,12 @@ const Create = () => {
               <PrimaryButton
                 disabled={roomTitle === '' || loading}
                 onPress={() => createRoom()}
-                text={loading ? 'Loading...' : 'Create Meeting'}
+                text={loading ? useString('loadingWithDots') : useString('createMeeting')}
               />
               <HorizontalRule />
               <SecondaryButton
                 onPress={() => history.push('/join')}
-                text={'Have a Meeting ID?'}
+                text={useString('haveMeetingID')}
               />
             </View>
           </View>

@@ -16,6 +16,7 @@ import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-api';
+import { useString } from '../../utils/getString';
 
 export interface RecordingContextInterface {  
   children:React.ReactNode,
@@ -58,10 +59,10 @@ const RecordingProvider = (props: any) => {
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
-
+  const recordingStartedText = useString('recordingStarted') 
   useEffect(() => {
     if (recordingActive)
-      Toast.show({text1: 'Recording Started', visibilityTime: 1000});
+      Toast.show({text1: recordingStartedText , visibilityTime: 1000});
     // else if(!recordingActive)
     // Toast.show({text1: 'Recording Finished', visibilityTime: 1000})
   }, [recordingActive]);

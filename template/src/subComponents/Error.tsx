@@ -15,6 +15,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { useString } from '../utils/getString';
 import { ErrorContext } from '../components/common';
 import { useHistory } from '../components/Router';
 
@@ -60,7 +61,7 @@ const Error = (props: { error: { name: string; message: string }, showBack?: boo
             textAlign: 'center',
             textDecorationLine: 'underline',
           }}>
-          Go back
+          {useString('goBack')}
                 </Text>
       </TouchableOpacity> : null}
     </View>

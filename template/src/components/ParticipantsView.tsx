@@ -41,6 +41,7 @@ import {UserType} from './RTMConfigure';
 import styles from './styles';
 import TextWithToolTip from '../subComponents/TextWithTooltip'
 import {useVideoCall} from 'fpe-api';
+import { useString } from '../utils/getString';
 
 const ParticipantView = () => {
   const {isHost} = useVideoCall(data => data);
@@ -70,7 +71,7 @@ const ParticipantView = () => {
           style={style.backIcon}
           source={{uri: icons.backBtn}}
         /> */}
-        <Text style={style.heading}>Participants</Text>
+        <Text style={style.heading}>{useString('participants')}</Text>
       </TouchableOpacity>
       <ScrollView style={{flex: 1}}>
         <MinUidConsumer>
@@ -82,7 +83,7 @@ const ParticipantView = () => {
                     <View style={style.participantContainer} key={user.uid}>
                       <View style={{flex:1}}>
                         <TextWithToolTip 
-                          value={userList[localUid] ? userList[localUid].name + ' ' : 'You '} 
+                          value={userList[localUid] ? userList[localUid].name + ' ' :  useString('you') + ' '} 
                           style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
                         />
                       </View>
@@ -103,8 +104,8 @@ const ParticipantView = () => {
                       <View style={{flex:1}}>
                         <TextWithToolTip 
                           value={userList[localUid]
-                            ? userList[localUid].name + "'s screenshare "
-                            : 'Your screenshare '} 
+                            ? useString('screenShareName',userList[localUid].name )  + " "
+                            : useString('yourScreenshare') + " "} 
                           style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
                         />
                       </View>
@@ -120,8 +121,8 @@ const ParticipantView = () => {
                           value={userList[user.uid]
                             ? userList[user.uid].name + ' '
                             : String(user.uid)[0] === '1'
-                            ? 'PSTN User '
-                            : 'User '} 
+                            ? useString('PSTNUser') + " "
+                            : useString('user')+ " "} 
                           style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
                         />
                       </View>

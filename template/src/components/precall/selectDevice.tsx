@@ -17,6 +17,7 @@ import SelectDevice from '../../subComponents/SelectDevice';
 import { useFpe, usePreCall} from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';
+import { useString } from '../../utils/getString';
 
 const selectDevice: React.FC = () => {
   const {
@@ -35,7 +36,7 @@ const selectDevice: React.FC = () => {
         {/* <View style={{flex: 1}}> */}
         <Text
           style={[style.subHeading, { color: $config.PRIMARY_FONT_COLOR }]}>
-          Select Input Device
+          {useString('selectInputDevice')}
         </Text>
         {/* </View> */}
         <View style={{ height: 20 }} />

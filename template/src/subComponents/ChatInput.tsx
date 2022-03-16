@@ -23,6 +23,7 @@ import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
+import { useString } from '../utils/getString';
 
 /**
  * Input component for the Chat interface
@@ -72,7 +73,7 @@ const ChatInput = (props: any) => {
           }
           // UIManager.focus(inputRef.current);
         }}
-        placeholder="Type your message.."
+        placeholder={useString('typeYourMessage')}
         placeholderTextColor={$config.PRIMARY_FONT_COLOR}
         autoCorrect={false}
       />

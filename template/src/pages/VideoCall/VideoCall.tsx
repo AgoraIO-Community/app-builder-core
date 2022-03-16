@@ -39,6 +39,7 @@ import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
 import { ErrorContext } from '../.././components/common/index';
 import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api';
 import Precall from '../../components/precall/PreCall';
+import { useString } from '../../utils/getString';
 
 
 const useChatNotification = (
@@ -80,7 +81,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel, isPrivateCh
     setLastCheckedPrivateState,
     setPrivateMessageLastSeen,
   ] = useChatNotification(messageStore, privateMessageStore, chatDisplayed, isPrivateChatDisplayed);
-
+  const fromText = useString('from');
   const pendingPublicNotification =
     messageStore.length - lastCheckedPublicState;
   const privateMessageCountMap = Object.keys(privateMessageStore).reduce(
@@ -118,7 +119,7 @@ const NotificationControl = ({children, chatDisplayed, setSidePanel, isPrivateCh
         Toast.show({
           type: 'success',
           text1: msg.length > 30 ? msg.slice(0, 30) + '../../..' : msg,
-          text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
+          text2: userList[uid]?.name ? fromText + ': ' + userList[uid]?.name : '',
           visibilityTime: 1000,
           onPress: () => {
             setSidePanel(SidePanelType.Chat);
@@ -460,7 +461,7 @@ const VideoCall: React.FC = () => {
       ) : (
         <View style={style.loader}>
           <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
-          <Text style={style.loaderText}>Starting Call. Just a second.</Text>
+          <Text style={style.loaderText}>{useString('startingCall')}</Text>
         </View>
       )}
     </>

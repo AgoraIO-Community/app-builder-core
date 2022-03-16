@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
+import { useString } from '../utils/getString';
 import {RtcContext} from '../../agora-rn-uikit';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {LocalContext} from '../../agora-rn-uikit';
@@ -10,7 +11,7 @@ function SwitchCamera() {
   return (
     <BtnTemplate
       name={'switchCamera'}
-      btnText={'Switch'}
+      btnText={useString('switch')}
       disabled={local.video ? false : true }
       style={{
         backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',

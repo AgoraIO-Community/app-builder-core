@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useState} from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall/VideoCall';
 import Create from './pages/Create';
@@ -33,6 +33,8 @@ import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
 import { useFpe, ComponentsInterface, CustomRoutesInterface} from 'fpe-api';
+import { LanguageProvider } from './language/useLanguage';
+import { DEFAULT_LANGUAGE_CODE } from './language';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -50,6 +52,7 @@ const App: React.FC = () => {
   const CustomRoutes = useFpe(data => data?.customRoutes);
   const CreateCmp = cmpTypeGuard(create, Create)
   const RootWrapper = getTypeGuard(useFpe(data => data?.appRoot), React.Fragment);  
+  const [languageCode, setLanguageCode] = useState(DEFAULT_LANGUAGE_CODE);
   return (
     <RootWrapper>
     <ImageBackground
@@ -65,6 +68,10 @@ const App: React.FC = () => {
               <SessionProvider>
                 <ColorConfigure>
                   <DimensionProvider>
+                  <LanguageProvider 
+                    setLanguageCode={setLanguageCode} 
+                    languageCode={languageCode}
+                  >
                   <ErrorProvider>
                   <Error />
                   <Navigation />
@@ -117,7 +124,8 @@ const App: React.FC = () => {
                       {cmpTypeGuard(videoCall,VideoCall)}
                     </Route>
                   </Switch>        
-                  </ErrorProvider>        
+                  </ErrorProvider>  
+                  </LanguageProvider>      
                   </DimensionProvider>
                 </ColorConfigure>
               </SessionProvider>

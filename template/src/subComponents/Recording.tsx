@@ -14,6 +14,7 @@ import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {ImageIcon} from '../../agora-rn-uikit';
 import { useRecording } from './recording/useRecording';
+import { useString } from '../utils/getString';
 
 const Recording = () => {
   const {primaryColor} = useContext(ColorContext);
@@ -41,7 +42,7 @@ const Recording = () => {
           marginTop: 5,
           color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
         }}>
-        {recordingActive ? 'Recording' : 'Record'}
+        {recordingActive ? useString('recording') : useString('record')}
       </Text>
     </TouchableOpacity>
   );

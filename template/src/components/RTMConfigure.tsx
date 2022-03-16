@@ -23,6 +23,7 @@ import {
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
+import { useString } from '../utils/getString';
 
 export enum UserType {
   Normal,
@@ -62,6 +63,8 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
+  const userText = useString('user');
+  const getScreenShareName = useString('screenShareName');  
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
@@ -116,7 +119,7 @@ const RtmConfigure = (props: any) => {
   const setAttribute = async () => {    
     try {
       await engine.current.setLocalUserAttributes([
-        {key: 'name', value: name || 'User'},
+        {key: 'name', value: name || userText},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
       ]);
       timerValueRef.current = 5
@@ -176,12 +179,12 @@ const RtmConfigure = (props: any) => {
               return {
                 ...prevState,
                 [member.uid]: {
-                  name: attr?.attributes?.name || 'User',
+                  name: attr?.attributes?.name || userText,
                   type: UserType.Normal,
                   screenUid: parseInt(attr?.attributes?.screenUid),
                 },
                 [parseInt(attr?.attributes?.screenUid)]: {
-                  name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                  name: getScreenShareName(attr?.attributes?.name || userText),
                   type: UserType.ScreenShare,
                 },
               };
@@ -240,12 +243,12 @@ const RtmConfigure = (props: any) => {
             return {
               ...prevState,
               [data.uid]: {
-                name: attr?.attributes?.name || 'User',
+                name: attr?.attributes?.name || userText,
                 type: UserType.Normal,
                 screenUid: parseInt(attr?.attributes?.screenUid),
               },
               [parseInt(attr?.attributes?.screenUid)]: {
-                name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                name: getScreenShareName('screenShareName', attr?.attributes?.name || userText ),
                 type: UserType.ScreenShare,
               },
             };

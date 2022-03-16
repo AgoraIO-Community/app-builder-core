@@ -11,6 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, Platform, StyleSheet} from 'react-native';
+import { useString } from '../utils/getString';
 import ColorContext from '../components/ColorContext';
 
 /**
@@ -27,7 +28,7 @@ const OpenInNativeButton = () => {
       <TouchableOpacity
         style={[style.btn, {borderColor: primaryColor}]}
         onPress={() => openInNative()}>
-        <Text style={[style.btnText, {color: '#fff'}]}>Open in Desktop</Text>
+        <Text style={[style.btnText, {color: '#fff'}]}>{useString('openInDesktop')}</Text>
       </TouchableOpacity>
     </View>
   ) : (

@@ -23,6 +23,7 @@ import PreCallVideoPreview from './VideoPreview';
 import PreCallLocalMute from './LocalMute.native';
 import PreCallTextInput from './textInput';
 import PreCallJoinBtn from './joinCallBtn'
+import { useString } from '../../utils/getString';
 
 const Precall = () => {
   const {
@@ -34,7 +35,7 @@ const Precall = () => {
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>Precall </Text>
+        <Text style={style.headingText}>{useString('precall')}</Text>
       </View>
       <View style={style.full}>
         {cmpTypeGuard(preview, PreCallVideoPreview)}

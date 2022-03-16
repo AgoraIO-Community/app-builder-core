@@ -14,6 +14,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { usePreCall } from 'fpe-api';
 import TextInput from '../../atoms/TextInput';
+import { useString } from '../../utils/getString';
 
 const PreCallTextInput: React.FC = () => {
   const { username, setUsername, queryComplete } = usePreCall(data => data)
@@ -23,7 +24,7 @@ const PreCallTextInput: React.FC = () => {
       onChangeText={(text) => setUsername(text ? text.trim() : text)}
       onSubmitEditing={() => { }}
       placeholder={
-        queryComplete ? 'Display name*' : 'Getting name...'
+        queryComplete ? useString('displayName') : useString('gettingName')
       }
       editable={Platform.OS === 'ios' ? queryComplete : true}
     />

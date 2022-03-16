@@ -13,6 +13,7 @@
 import React from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import { usePreCall } from 'fpe-api';
+import { useString } from '../../utils/getString';
 
 const joinCallBtn: React.FC = () => {
   const { setCallActive, queryComplete, username } = usePreCall(data => data)
@@ -20,7 +21,7 @@ const joinCallBtn: React.FC = () => {
     <PrimaryButton
       onPress={() => setCallActive(true)}
       disabled={!queryComplete || username === ''}
-      text={queryComplete ? 'Join Room' : 'Loading...'}
+      text={queryComplete ? useString('joinRoom') : useString('loadingWithDots')}
     />
   )
 }

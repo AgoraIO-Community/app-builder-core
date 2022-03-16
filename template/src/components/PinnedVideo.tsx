@@ -35,6 +35,7 @@ const {topPinned} = layoutProps;
 import networkQualityContext from './NetworkQualityContext';
 import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
+import { useString } from '../utils/getString';
 
 const PinnedVideo = () => {
   const {height, width} = useWindowDimensions();
@@ -153,7 +154,7 @@ const PinnedVideo = () => {
                             if (user.uid === 'local') {
                               return FallbackLogo(userList[localUid]?.name);
                             } else if (String(user.uid)[0] === '1') {
-                              return FallbackLogo('PSTN User');
+                              return FallbackLogo(useString('PSTNUser'));
                             } else {
                               return FallbackLogo(userList[user.uid]?.name);
                             }
@@ -174,14 +175,14 @@ const PinnedVideo = () => {
                               value={user.uid === 'local'
                               ? userList[localUid]
                                 ? userList[localUid].name + ' '
-                                : 'You '
+                                : useString('you') + ' '
                               : userList[user.uid]
                               ? userList[user.uid].name + ' '
                               : user.uid === 1
-                              ? (userList[localUid]?.name + "'s screen ")
+                              ? useString('screenName',userList[localUid]?.name) + " "
                               : String(user.uid)[0] === '1'
-                              ? 'PSTN User '
-                              : 'User '}
+                              ? useString('PSTNUser') + " "
+                              : useString('user') + " "}
                               style={[
                                 style.name,
                                 {
@@ -237,7 +238,7 @@ const PinnedVideo = () => {
                     if (maxUsers[0].uid === 'local') {
                       return FallbackLogo(userList[localUid]?.name);
                     } else if (String(maxUsers[0].uid)[0] === '1') {
-                      return FallbackLogo('PSTN User');
+                      return FallbackLogo(useString('PSTNUser'));
                     } else {
                       return FallbackLogo(userList[maxUsers[0].uid]?.name);
                     }
@@ -258,12 +259,12 @@ const PinnedVideo = () => {
                       value={maxUsers[0].uid === 'local'
                       ? userList[localUid]
                         ? userList[localUid].name + ' '
-                        : 'You '
+                        : useString('you') + ' '
                       : userList[maxUsers[0].uid]
                       ? userList[maxUsers[0].uid].name + ' '
                       : maxUsers[0].uid === 1
-                      ? (userList[localUid].name + "'s screen ")
-                      : 'User '}
+                      ? useString('screenName',userList[localUid].name) + " "
+                      : useString('user') + " "}
                       style={[
                         style.name,
                         {fontSize: RFValue(14, height > width ? height : width)},

@@ -19,6 +19,7 @@ import {
 import { useVideoCall } from 'fpe-api';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
+import { useString } from '../utils/getString';
 
 const SettingsView = () => {
   const {isHost} = useVideoCall(data => data);
@@ -28,7 +29,7 @@ const SettingsView = () => {
         Platform.OS === 'web' ? style.settingsView : style.settingsViewNative
       }>
       <View style={style.main}>
-        <Text style={style.heading}>Select Input Device</Text>
+        <Text style={style.heading}>{useString('selectInputDevice')}</Text>
         <View style={style.popupPickerHolder}>
           <SelectDevice />
         </View>

@@ -14,6 +14,7 @@ import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {ImageIcon} from '../../agora-rn-uikit';
 import { useScreenShare } from './screen-share/useScreenShare';
+import { useString } from '../utils/getString';
 
 /**
  * A component to start and stop screen sharing on web clients.
@@ -43,7 +44,7 @@ const ScreenshareButton = () => {
           marginTop: 5,
           color: $config.PRIMARY_COLOR,
         }}>
-        Share
+        {useString('share')}
       </Text>
     </TouchableOpacity>
   );
