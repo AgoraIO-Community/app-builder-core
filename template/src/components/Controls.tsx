@@ -28,6 +28,7 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import { useVideoCall, ScreenShareProvider, RecordingProvider } from 'fpe-api';
+import { useString } from '../utils/getString';
 
 const Controls = () => {
   let onLayout = (e: any) => {
@@ -56,10 +57,10 @@ const Controls = () => {
         ]}
         onLayout={onLayout}>
         <View style={{alignSelf: 'center'}}>
-          <LocalAudioMute />
+          <LocalAudioMute btnText={useString('audio')} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <LocalVideoMute />
+          <LocalVideoMute btnText={useString('video')} />
         </View>
         {isMobileOrTablet() ? (
         <View style={{alignSelf: 'center'}}>
@@ -99,7 +100,7 @@ const Controls = () => {
           <></>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall />
+          <Endcall btnText={useString('hangUp')} />
         </View>
       </View>
     </LocalUserContext>

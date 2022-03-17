@@ -335,7 +335,13 @@ const VideoCall: React.FC = () => {
   React.useEffect(() => {
     // Update the username in localstorage when username changes
     if (setStore) {
-      setStore({token: store?.token || null, displayName: username});
+      setStore((prevState) => { 
+        return { 
+          ...prevState,
+          token: store?.token || null,
+          displayName: username
+        }
+      });
     }
   }, [username]);
 

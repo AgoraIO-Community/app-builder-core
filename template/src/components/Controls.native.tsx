@@ -23,6 +23,7 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import { useVideoCall } from 'fpe-api';
+import { useString } from 'src/utils/getString';
 
 const Controls = () => {
   const {setRecordingActive, recordingActive, isHost} = useVideoCall(data => data);
@@ -31,10 +32,10 @@ const Controls = () => {
     <LocalUserContext>
       <View style={style.bottomBar}>
         <View style={{alignSelf: 'center'}}>
-          <LocalAudioMute />
+          <LocalAudioMute btnText={useString('audio')} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <LocalVideoMute />
+          <LocalVideoMute btnText={useString('video')}/>
         </View>
         {isHost ? (
           $config.CLOUD_RECORDING ? (
@@ -51,10 +52,10 @@ const Controls = () => {
           <></>
         )}
         <View style={{alignSelf: 'center'}}>
-          <SwitchCamera />
+          <SwitchCamera btnText={useString('switch')} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <Endcall />
+          <Endcall btnText={useString('hangUp')} />
         </View>
       </View>
     </LocalUserContext>

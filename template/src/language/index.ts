@@ -92,6 +92,7 @@ export interface TextInterface extends TextWithFunctionInterface, NetworkTextInt
   slack?: string;
   apple?: string;
   pin?: string;
+  language?: string;
 }
 
 export const TEXTS: TextInterface = {
@@ -163,9 +164,10 @@ export const TEXTS: TextInterface = {
   slack: 'Slack',
   apple: 'Apple',
   pin: 'Pin',
+  language: 'Language',
   screenShareName: (name) => `${name}'s screenshare`,
   screenName: (name) => `${name}'s screen`,
   screenShareActive: (name) => `${name}s screen share is active.`,
 }
 
-export const DEFAULT_LANGUAGE_CODE = 'en-us'
+export const DEFAULT_LANGUAGE_CODE = 'en-us';

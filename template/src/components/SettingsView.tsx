@@ -20,6 +20,7 @@ import { useVideoCall } from 'fpe-api';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import { useString } from '../utils/getString';
+import LanguageSelector from '../subComponents/LanguageSelector';
 
 const SettingsView = () => {
   const {isHost} = useVideoCall(data => data);
@@ -34,6 +35,7 @@ const SettingsView = () => {
           <SelectDevice />
         </View>
         {isHost ? <HostControlView /> : <></>}
+        <LanguageSelector />
       </View>
     </View>
   );

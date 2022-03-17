@@ -9,13 +9,17 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { createContext } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import {createHook} from 'fpe-api';
 import { DEFAULT_LANGUAGE_CODE } from './index';
+import StorageContext from '../components/StorageContext';
 
 export interface LanguageContextInterface {
   languageCode: string;
-  setLanguageCode: React.Dispatch<React.SetStateAction<string>>;
+  setLanguageCode: (code: string) => void;
+}
+
+export interface LanguagePropsInterface {
   children: React.ReactNode;
 }
 
@@ -25,10 +29,29 @@ const LanguageContext: React.Context<LanguageContextInterface> = createContext({
   children: null
 } as LanguageContextInterface);
 
-const LanguageProvider = (props: LanguageContextInterface) => {
+const LanguageProvider = (props: LanguagePropsInterface) => {
+
+  const {store, setStore} = useContext(StorageContext);
+  const [languageCode, setLanguageCodeLocal] = useState(store.selectedLanguageCode || DEFAULT_LANGUAGE_CODE);
+
+  useEffect(() => {
+    if(setStore){
+      setStore((prevState) => {
+        return {
+          ...prevState,
+          selectedLanguageCode: languageCode
+        }
+      });
+    } 
+  }, [languageCode])
+  
+  const setLanguageCode = (langCode: string) => {
+    setLanguageCodeLocal(langCode);
+  }
+
   return (
     <LanguageContext.Provider
-      value={{ ...props}}
+      value={{ languageCode, setLanguageCode }}
     >
       {true ? props.children : <></>}
     </LanguageContext.Provider>
