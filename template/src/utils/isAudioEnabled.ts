@@ -9,8 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import { LocalContext } from 'fpe-api';
+import { useLocalContext } from 'fpe-api';
 import { ToggleState } from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 /**
@@ -19,7 +18,7 @@ import { ToggleState } from '../../agora-rn-uikit/src/Contexts/PropsContext';
  * @returns boolean
  */
 function useIsAudioEnabled() {
-  const {audio} = useContext(LocalContext);
+  const audio = useLocalContext(data => data.audio)
   return audio === ToggleState.enabled;
 }
 
