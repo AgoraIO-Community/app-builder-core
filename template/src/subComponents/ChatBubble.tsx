@@ -19,7 +19,10 @@ const ChatBubble = (props: channelMessage) => {
   const {userList} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
   let {isLocal, msg, ts, uid} = props;
-  let time = new Date(ts).getHours() + ':' + new Date(ts).getMinutes();
+  let time =
+    new Date(parseInt(ts)).getHours() +
+    ':' +
+    new Date(parseInt(ts)).getMinutes();
   const handleUrl = (url: string) => {
     if (Platform.OS === 'web') {
       window.open(url, '_blank');

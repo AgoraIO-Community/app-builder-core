@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine, {RtmChannelAttribute} from 'agora-react-native-rtm';
+import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {createContext} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
 
@@ -45,6 +45,11 @@ export enum messageActionType {
   Normal = '1',
 }
 
+export enum attrRequestTypes {
+  none = 'NONE',
+  liveStreaming = 'LIVESTREAMING',
+}
+
 interface chatContext {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
@@ -52,8 +57,9 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
+  addOrUpdateAttributes: (attributes: RtmAttribute[]) => void;
   broadcastUserAttributes: (
-    attributes: RtmChannelAttribute[],
+    attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,
   ) => void;
   engine: RtmEngine;
