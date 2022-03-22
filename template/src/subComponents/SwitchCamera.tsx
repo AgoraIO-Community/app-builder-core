@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 import {RtcContext} from '../../agora-rn-uikit';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {LocalContext} from '../../agora-rn-uikit';

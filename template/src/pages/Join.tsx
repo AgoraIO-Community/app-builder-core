@@ -26,7 +26,7 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {shouldAuthenticate} from '../utils/common';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 // const joinFlag = 0;
 const Join = () => {
   const history = useHistory();

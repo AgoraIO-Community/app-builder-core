@@ -16,7 +16,7 @@ import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-api';
-import { useString } from '../../utils/getString';
+import { useString } from '../../utils/useString';
 
 export interface RecordingContextInterface {  
   children:React.ReactNode,

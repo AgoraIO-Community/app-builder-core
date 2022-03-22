@@ -35,7 +35,7 @@ import networkQualityContext from './NetworkQualityContext';
 import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));

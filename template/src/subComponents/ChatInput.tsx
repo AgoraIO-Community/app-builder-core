@@ -23,7 +23,7 @@ import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 /**
  * Input component for the Chat interface

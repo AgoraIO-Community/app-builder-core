@@ -17,7 +17,7 @@ import SelectDevice from '../../subComponents/SelectDevice';
 import { useFpe, usePreCall} from 'fpe-api';
 import { cmpTypeGuard } from '../../utils/common';
 import { PreCallTextInput, PreCallJoinBtn } from './index';
-import { useString } from '../../utils/getString';
+import { useString } from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
   const {

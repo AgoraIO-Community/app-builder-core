@@ -19,7 +19,7 @@ import {
 import { useVideoCall } from 'fpe-api';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 
 const SettingsView = () => {

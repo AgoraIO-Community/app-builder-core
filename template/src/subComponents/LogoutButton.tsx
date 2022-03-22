@@ -14,7 +14,7 @@ import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 import StorageContext from '../components/StorageContext';
 import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const LOGOUT = gql`
   mutation logoutSession($token: String!) {

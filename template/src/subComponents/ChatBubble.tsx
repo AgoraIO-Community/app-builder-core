@@ -12,7 +12,7 @@
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 import ChatContext, {channelMessage} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 

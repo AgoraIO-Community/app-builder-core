@@ -28,7 +28,7 @@ import ScreenshareButton from '../subComponents/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import { useVideoCall, ScreenShareProvider, RecordingProvider } from 'fpe-api';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const Controls = () => {
   let onLayout = (e: any) => {

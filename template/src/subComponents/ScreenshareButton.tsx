@@ -14,7 +14,7 @@ import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {ImageIcon} from '../../agora-rn-uikit';
 import { useScreenShare } from './screen-share/useScreenShare';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 /**
  * A component to start and stop screen sharing on web clients.

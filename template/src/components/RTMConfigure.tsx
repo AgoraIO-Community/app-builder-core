@@ -23,7 +23,7 @@ import {
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 export enum UserType {
   Normal,

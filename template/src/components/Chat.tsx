@@ -31,7 +31,7 @@ import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
 import { useChatUIData, useFpe } from 'fpe-api';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const Chat = () => {
   const ChatInputFpe = useFpe(data => typeof data.components?.videoCall === 'object' && typeof data.components?.videoCall?.chat === 'object' ? data.components?.videoCall?.chat?.chatInput : undefined)

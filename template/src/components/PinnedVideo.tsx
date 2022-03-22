@@ -35,7 +35,7 @@ const {topPinned} = layoutProps;
 import networkQualityContext from './NetworkQualityContext';
 import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const PinnedVideo = () => {
   const {height, width} = useWindowDimensions();

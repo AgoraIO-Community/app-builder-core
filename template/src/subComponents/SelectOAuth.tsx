@@ -18,7 +18,7 @@ import slack from '../assets/slack.png';
 import microsoft from '../assets/microsoft.png';
 import Logo from './Logo';
 import {hasBrandLogo} from '../utils/common';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const SelectOAuth = ({onSelectOAuth}) => {
   // Linking.openURL(url);

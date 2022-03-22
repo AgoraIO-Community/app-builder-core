@@ -41,7 +41,7 @@ import {UserType} from './RTMConfigure';
 import styles from './styles';
 import TextWithToolTip from '../subComponents/TextWithTooltip'
 import {useVideoCall} from 'fpe-api';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const ParticipantView = () => {
   const {isHost} = useVideoCall(data => data);

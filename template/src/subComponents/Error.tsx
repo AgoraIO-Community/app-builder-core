@@ -15,7 +15,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 import { ErrorContext } from '../components/common';
 import { useHistory } from '../components/Router';
 

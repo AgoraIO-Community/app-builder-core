@@ -14,7 +14,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { usePreCall } from 'fpe-api';
 import TextInput from '../../atoms/TextInput';
-import { useString } from '../../utils/getString';
+import { useString } from '../../utils/useString';
 
 const PreCallTextInput: React.FC = () => {
   const { username, setUsername, queryComplete } = usePreCall(data => data)

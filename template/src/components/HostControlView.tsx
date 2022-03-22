@@ -14,7 +14,7 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import chatContext, {controlMessageEnum} from './ChatContext';
 import ColorContext from './ColorContext';
 import SecondaryButton from '../atoms/SecondaryButton';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const HostControlView = () => {
   const {sendControlMessage} = useContext(chatContext);

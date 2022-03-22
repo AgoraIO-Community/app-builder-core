@@ -22,7 +22,7 @@ import OAuth from '../components/OAuth';
 import Illustration from '../subComponents/Illustration';
 import {hasBrandLogo} from '../utils/common';
 import DimensionContext from '../components/dimension/DimensionContext';
-import { useString } from 'src/utils/getString';
+import { useString } from 'src/utils/useString';
 
 const Authenticate = () => {
   const {getDimensionData}= useContext(DimensionContext)

@@ -23,7 +23,7 @@ import PreCallVideoPreview from './VideoPreview';
 import PreCallLocalMute from './LocalMute.native';
 import PreCallTextInput from './textInput';
 import PreCallJoinBtn from './joinCallBtn'
-import { useString } from '../../utils/getString';
+import { useString } from '../../utils/useString';
 
 const Precall = () => {
   const {

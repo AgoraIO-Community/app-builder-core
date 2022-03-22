@@ -39,7 +39,7 @@ import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
 import { ErrorContext } from '../.././components/common/index';
 import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api';
 import Precall from '../../components/precall/PreCall';
-import { useString } from '../../utils/getString';
+import { useString } from '../../utils/useString';
 
 
 const useChatNotification = (

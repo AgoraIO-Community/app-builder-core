@@ -14,7 +14,7 @@ import {Picker, StyleSheet, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import { useLanguage } from '../language/useLanguage';
 import { useFpe } from 'fpe-api';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 
 const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);

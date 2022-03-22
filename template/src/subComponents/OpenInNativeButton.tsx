@@ -11,7 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, Platform, StyleSheet} from 'react-native';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 import ColorContext from '../components/ColorContext';
 
 /**

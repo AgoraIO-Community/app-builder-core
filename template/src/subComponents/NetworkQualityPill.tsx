@@ -9,7 +9,7 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import { useString } from '../utils/getString';
+import { useString } from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 
 /**
