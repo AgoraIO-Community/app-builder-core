@@ -32,7 +32,7 @@ import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
-import { useFpe, ComponentsInterface, CustomRoutesInterface} from 'fpe-api';
+import { useFpe, ComponentsInterface, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -73,7 +73,7 @@ const App: React.FC = () => {
                       if (e?.privateRoute) {
                         return (
                           <PrivateRoute
-                            path={e.path}
+                            path={CUSTOM_ROUTES_PREFIX + e.path}
                             exact={e.exact}
                             key={i}
                             failureRedirectTo={e.failureRedirectTo ? e.failureRedirectTo : '/'}
@@ -84,7 +84,7 @@ const App: React.FC = () => {
                         );
                       } else {
                         return (
-                          <Route path={e.path} exact={e.exact} key={i} {...e.routeProps}>
+                          <Route path={CUSTOM_ROUTES_PREFIX + e.path} exact={e.exact} key={i} {...e.routeProps}>
                             <e.component {...e.componentProps}/>
                           </Route>
                         );
