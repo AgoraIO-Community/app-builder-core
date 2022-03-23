@@ -10,8 +10,8 @@
 *********************************************
 */
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {createHook} from 'fpe-api';
-import { DEFAULT_LANGUAGE_CODE } from './index';
+import {createHook, useFpe} from 'fpe-api';
+import { DEFAULT_I18_DATA } from './index';
 import StorageContext from '../components/StorageContext';
 
 export interface LanguageContextInterface {
@@ -24,7 +24,7 @@ export interface LanguagePropsInterface {
 }
 
 const LanguageContext: React.Context<LanguageContextInterface> = createContext({
-  languageCode: DEFAULT_LANGUAGE_CODE,
+  languageCode: DEFAULT_I18_DATA.locale,
   setLanguageCode: () => { },
   children: null
 } as LanguageContextInterface);
@@ -32,7 +32,9 @@ const LanguageContext: React.Context<LanguageContextInterface> = createContext({
 const LanguageProvider = (props: LanguagePropsInterface) => {
 
   const {store, setStore} = useContext(StorageContext);
-  const [languageCode, setLanguageCodeLocal] = useState(store.selectedLanguageCode || DEFAULT_LANGUAGE_CODE);
+  const i18nData = useFpe(data => data.i18n);
+
+  const [languageCode, setLanguageCodeLocal] = useState(store.selectedLanguageCode || (i18nData && i18nData.length ? i18nData[0].locale : false ) || DEFAULT_I18_DATA.locale);
 
   useEffect(() => {
     if(setStore){

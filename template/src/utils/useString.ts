@@ -11,9 +11,9 @@
 */
 import { useFpe } from "fpe-api";
 import { useLanguage } from "../language/useLanguage";
-import { TEXTS, TextInterface, DEFAULT_LANGUAGE_CODE, TextWithFunctionInterface } from "../language";
+import { TEXTS, TextInterface, DEFAULT_I18_DATA, TextWithFunctionInterface } from "../language";
 
-export function usei18nData(selectedLanguageCode: string = DEFAULT_LANGUAGE_CODE){
+export function usei18nData(selectedLanguageCode: string = DEFAULT_I18_DATA.locale){
   const languageData = useFpe(data => data.i18n);
   if(languageData && languageData.length){
     if(selectedLanguageCode){

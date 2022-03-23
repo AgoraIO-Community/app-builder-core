@@ -15,17 +15,18 @@ import ColorContext from '../components/ColorContext';
 import { useLanguage } from '../language/useLanguage';
 import { useFpe } from 'fpe-api';
 import { useString } from '../utils/useString';
+import { DEFAULT_I18_DATA } from '../language';
 
 const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage(data => data);
-  const languageData = useFpe(data => data.i18n);
-
+  const languageData = useFpe(data => data.i18n);  
+  
   if(!languageData || !languageData.length){
     return <></>;
   }
 
-  if(languageData.length === 1){
+  if(languageData.length === 1 && languageData[0].locale === DEFAULT_I18_DATA.locale){
     return <></>;
   }
 
@@ -35,7 +36,7 @@ const LanguageSelector = () => {
       <Picker
         selectedValue={languageCode}
         style={[{borderColor: primaryColor}, style.popupPicker]}
-        onValueChange={(itemValue) => setLanguageCode(itemValue)}>
+        onValueChange={(itemValue) => setLanguageCode(itemValue)}>        
         {languageData.map((item) => {
             return (
               <Picker.Item
@@ -45,6 +46,14 @@ const LanguageSelector = () => {
               />
             );
         })}
+        {!languageData.filter((i) => i.locale === DEFAULT_I18_DATA.locale).length ? 
+          <Picker.Item
+            label={DEFAULT_I18_DATA.label}
+            value={DEFAULT_I18_DATA.locale}
+            key={DEFAULT_I18_DATA.locale}
+          />
+          : null
+        }
       </Picker>     
     </>
   );

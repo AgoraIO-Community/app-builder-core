@@ -9,6 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import { i18nInterface } from "fpe-api";
+
 export interface NetworkTextInterface{
   unknown?: 'Unknown',
   excellent?: 'Excellent',
@@ -170,4 +172,8 @@ export const TEXTS: TextInterface = {
   screenShareActive: (name) => `${name}s screen share is active.`,
 }
 
-export const DEFAULT_LANGUAGE_CODE = 'en-us';
+export const DEFAULT_I18_DATA: i18nInterface = {
+  label: 'English US',
+  locale: 'en-us',
+  data: TEXTS
+}
