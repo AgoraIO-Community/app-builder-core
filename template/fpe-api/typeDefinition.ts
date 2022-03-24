@@ -13,6 +13,8 @@ import React from 'react';
 import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
 import { TextInterface } from 'src/language';
 
+export const CUSTOM_ROUTES_PREFIX = '/r';
+
 //todo:hari define AnyReactComponent support any react component
 export type AnyReactComponent = React.FC<any>
 
