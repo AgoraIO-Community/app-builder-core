@@ -11,6 +11,8 @@ import {
   liveStreamContext,
   requestStatus,
   requestInterface,
+  attrRequestStatus,
+  attrRequestInterface,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
 import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
@@ -33,7 +35,7 @@ export const LiveStreamContextProvider = (props: any) => {
     sendControlMessageToUid,
     sendControlMessage,
     broadcastUserAttributes,
-    addOrUpdateAttributes,
+    addOrUpdateLocalUserAttributes,
     events,
   } = useContext(ChatContext);
 
@@ -44,7 +46,7 @@ export const LiveStreamContextProvider = (props: any) => {
   >({});
 
   const [uidsOfInitialRequests, setUidsOfInitialRequests] = useState<
-    Array<string>
+    attrRequestInterface[]
   >([]);
 
   const [activeLiveStreamRequest, setActiveLiveStreamRequest] = useState<
@@ -130,12 +132,19 @@ export const LiveStreamContextProvider = (props: any) => {
     );
 
     // Check attribute of user joined if it has request livestreaming attribute
-    const uidsOfUsersHavingLSRequest = Object.keys(
+    const uidsOfUsersHavingLSRequest: attrRequestInterface[] = Object.keys(
       filterObject(
         userList,
-        ([k, v]) => v?.requests === attrRequestTypes.liveStreaming,
+        ([k, v]) =>
+          v?.requests === attrRequestStatus.RaiseHand_AwaitingAction ||
+          v?.requests === attrRequestStatus.RaiseHand_Approved,
       ),
-    );
+    ).map((key) => ({
+      uid: key,
+      status:
+        userList[key]?.requests || attrRequestStatus.RaiseHand_AwaitingAction,
+    }));
+
     console.log('uidsOfUsersHavingLSRequest', uidsOfUsersHavingLSRequest);
     // Set uids of user who have active live streaming request
     setUidsOfInitialRequests([...uidsOfUsersHavingLSRequest]);
@@ -144,14 +153,19 @@ export const LiveStreamContextProvider = (props: any) => {
   React.useEffect(() => {
     // Filter new requests
     const initialRequests = uidsOfInitialRequests
-      .filter((uid: string) => !currLiveStreamRequest?.[uid])
-      .reduce((acc, uid) => {
+      .filter(
+        (item: attrRequestInterface) => !currLiveStreamRequest?.[item.uid],
+      )
+      .reduce((acc, item) => {
         return {
           ...acc,
-          [uid]: {
-            uid: uid,
+          [item.uid]: {
+            uid: item.uid,
             ts: new Date().getTime(),
-            status: requestStatus.AwaitingAction,
+            status:
+              item.status === attrRequestStatus.RaiseHand_Approved
+                ? requestStatus.Approved
+                : requestStatus.AwaitingAction,
           },
         };
       }, {});
@@ -234,6 +248,7 @@ export const LiveStreamContextProvider = (props: any) => {
             );
             changeClientRoleTo(ClientRole.Broadcaster);
             localMe.current.status = requestStatus.Approved;
+            updateLocalUserAttributes(attrRequestStatus.RaiseHand_Approved);
             break;
           // 2. Audience receives this when the request is cancelled by host
           case LiveStreamControlMessageEnum.raiseHandRequestRejected:
@@ -244,6 +259,7 @@ export const LiveStreamContextProvider = (props: any) => {
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
             localMe.current.status = requestStatus.Cancelled;
+            updateLocalUserAttributes(attrRequestTypes.none);
             break;
           // 3. Audience receives this when host demotes (canceled after approval)
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
@@ -344,9 +360,7 @@ export const LiveStreamContextProvider = (props: any) => {
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
     setRaiseHandRequestActive(true);
     sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
-    addOrUpdateAttributes([
-      {key: 'requests', value: attrRequestTypes.liveStreaming},
-    ]);
+    updateLocalUserAttributes(attrRequestStatus.RaiseHand_AwaitingAction);
   };
 
   const audienceRecallsRequest = () => {
@@ -367,8 +381,14 @@ export const LiveStreamContextProvider = (props: any) => {
       // Send message in channel to withdraw the request
       sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
     }
-    addOrUpdateAttributes([{key: 'requests', value: attrRequestTypes.none}]);
+    updateLocalUserAttributes(attrRequestTypes.none);
     showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
+  };
+
+  const updateLocalUserAttributes = (
+    value: attrRequestTypes | attrRequestStatus,
+  ) => {
+    addOrUpdateLocalUserAttributes([{key: 'requests', value: value}]);
   };
 
   return (

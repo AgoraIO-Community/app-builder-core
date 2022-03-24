@@ -179,7 +179,7 @@ const RtmConfigure = (props: any) => {
     }
   };
 
-  const addOrUpdateAttributes = async (attributes: RtmAttribute[]) => {
+  const addOrUpdateLocalUserAttributes = async (attributes: RtmAttribute[]) => {
     try {
       await engine.current.addOrUpdateLocalUserAttributes(attributes);
     } catch (error) {
@@ -638,7 +638,7 @@ const RtmConfigure = (props: any) => {
     attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,
   ) => {
-    await addOrUpdateAttributes(attributes);
+    await addOrUpdateLocalUserAttributes(attributes);
     let formattedAttributes: any = {};
     // Transform the array into object of key value pair
     attributes.map((attribute) => {
@@ -675,7 +675,7 @@ const RtmConfigure = (props: any) => {
         sendMessage,
         sendMessageToUid,
         broadcastUserAttributes,
-        addOrUpdateAttributes,
+        addOrUpdateLocalUserAttributes,
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,

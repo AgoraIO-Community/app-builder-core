@@ -47,7 +47,6 @@ export enum messageActionType {
 
 export enum attrRequestTypes {
   none = 'NONE',
-  liveStreaming = 'LIVESTREAMING',
 }
 
 interface chatContext {
@@ -57,7 +56,7 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  addOrUpdateAttributes: (attributes: RtmAttribute[]) => void;
+  addOrUpdateLocalUserAttributes: (attributes: RtmAttribute[]) => void;
   broadcastUserAttributes: (
     attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,

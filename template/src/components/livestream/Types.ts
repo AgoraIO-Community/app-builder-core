@@ -6,6 +6,11 @@ export enum requestStatus {
   Cancelled = 'CANCELLED',
 }
 
+export enum attrRequestStatus {
+  RaiseHand_AwaitingAction = 'AWAITING_ACTION',
+  RaiseHand_Approved = 'APPROVED',
+}
+
 export enum LiveStreamControlMessageEnum {
   raiseHandRequest = 'RAISE_HAND_REQUEST',
   raiseHandRequestAccepted = 'RAISE_HAND_ACCEPTED',
@@ -50,5 +55,10 @@ export interface liveStreamContext {
 export interface requestInterface {
   ts: number;
   status: requestStatus;
+  uid: string | number;
+}
+
+export interface attrRequestInterface {
+  status: attrRequestStatus;
   uid: string | number;
 }
