@@ -99,7 +99,6 @@ const style = StyleSheet.create({
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     flexDirection: 'row',
     color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 20,
     textAlign: 'left',
     flexShrink: 1,
     marginRight: 30,
