@@ -55,6 +55,11 @@ const ParticipantView = () => {
   ]);
   const isSmall = dim[0] < 700;
   let fontSize = Platform.OS === 'web' ? 14 : 16
+  const youText = useString('you');
+  const screenShareNameCallBack = useString('screenShareName');
+  const yourScreenshareText = useString('yourScreenshare');
+  const PSTNUserText = useString('PSTNUser');
+  const userText = useString('user');
   return (
     <View
       style={
@@ -83,7 +88,7 @@ const ParticipantView = () => {
                     <View style={style.participantContainer} key={user.uid}>
                       <View style={{flex:1}}>
                         <TextWithToolTip 
-                          value={userList[localUid] ? userList[localUid].name + ' ' :  useString('you') + ' '} 
+                          value={userList[localUid] ? userList[localUid].name + ' ' : youText + ' '} 
                           style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
                         />
                       </View>
@@ -104,8 +109,8 @@ const ParticipantView = () => {
                       <View style={{flex:1}}>
                         <TextWithToolTip 
                           value={userList[localUid]
-                            ? useString('screenShareName',userList[localUid].name )  + " "
-                            : useString('yourScreenshare') + " "} 
+                            ? screenShareNameCallBack(userList[localUid].name)  + " "
+                            : yourScreenshareText + " "} 
                           style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
                         />
                       </View>
@@ -121,8 +126,8 @@ const ParticipantView = () => {
                           value={userList[user.uid]
                             ? userList[user.uid].name + ' '
                             : String(user.uid)[0] === '1'
-                            ? useString('PSTNUser') + " "
-                            : useString('user')+ " "} 
+                            ? PSTNUserText + " "
+                            : userText + " "} 
                           style={[style.participantText, { fontSize: RFValue(fontSize, height > width ? height : width) }]}
                         />
                       </View>
