@@ -67,6 +67,8 @@ export interface i18nInterface {
   }
 }
 
+type CustomHookType = () => () => Promise<void> 
+
 export interface FpeApiInterface {
   /**
    * components used to replace whole screen or subcomponents
@@ -83,7 +85,13 @@ export interface FpeApiInterface {
   /**
    * 
    */
-  i18n?:i18nInterface[]
+  i18n?:i18nInterface[],
+  /**
+   * Life cycle events
+   */
+  lifecycle?: {
+    useBeforeJoin?: CustomHookType,
+  }
   /**
    * message callback used to listen for incoming message from private or public 
    */

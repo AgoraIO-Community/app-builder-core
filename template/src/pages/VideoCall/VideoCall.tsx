@@ -257,6 +257,7 @@ const VideoCall: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isHost, setIsHost] = React.useState(false);
   const [title, setTitle] = React.useState('');
+  const lifecycle = useFpe(data => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -355,6 +356,7 @@ const VideoCall: React.FC = () => {
               rtcProps: {
                 ...rtcProps,
                 callActive,
+                lifecycle
               },
               callbacks,
               styleProps,
