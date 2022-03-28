@@ -40,6 +40,11 @@ export const LSNotificationObject = {
     'The host has revoked streaming permissions',
 };
 
+export interface liveStreamPropsInterface {
+  isHost: boolean;
+  setRtcProps: any;
+}
+
 export interface liveStreamContext {
   setLastCheckedRequestTimestamp: (timestamp: number) => void;
   isPendingRequestToReview: boolean;

@@ -13,6 +13,7 @@ import {
   requestInterface,
   attrRequestStatus,
   attrRequestInterface,
+  liveStreamPropsInterface,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
 import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
@@ -22,7 +23,7 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
-export const LiveStreamContextProvider = (props: any) => {
+export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const screenshareContextInstance = useContext(ScreenshareContext);
 
   const {
