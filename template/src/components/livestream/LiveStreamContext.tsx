@@ -63,7 +63,7 @@ export const LiveStreamContextProvider = (props: any) => {
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
-  const localMe = useRef({uid: localUid, status: ''});
+  const localUserRef = useRef({uid: localUid, status: ''});
 
   const showToast = (text: string) => {
     Toast.show({
@@ -247,7 +247,7 @@ export const LiveStreamContextProvider = (props: any) => {
               LiveStreamControlMessageEnum.notifyAllRequestApproved,
             );
             changeClientRoleTo(ClientRole.Broadcaster);
-            localMe.current.status = requestStatus.Approved;
+            localUserRef.current.status = requestStatus.Approved;
             updateLocalUserAttributes(attrRequestStatus.RaiseHand_Approved);
             break;
           // 2. Audience receives this when the request is cancelled by host
@@ -258,7 +258,7 @@ export const LiveStreamContextProvider = (props: any) => {
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
-            localMe.current.status = requestStatus.Cancelled;
+            localUserRef.current.status = requestStatus.Cancelled;
             updateLocalUserAttributes(attrRequestTypes.none);
             break;
           // 3. Audience receives this when host demotes (canceled after approval)
@@ -272,14 +272,14 @@ export const LiveStreamContextProvider = (props: any) => {
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
             changeClientRoleTo(ClientRole.Audience);
-            localMe.current.status = requestStatus.Cancelled;
+            localUserRef.current.status = requestStatus.Cancelled;
             break;
           // 4. Audience when receives kickUser notifies all host when is kicked out
           case controlMessageEnum.kickUser:
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestRejected,
             );
-            localMe.current.status = requestStatus.Cancelled;
+            localUserRef.current.status = requestStatus.Cancelled;
             break;
           default:
             break;
@@ -368,7 +368,10 @@ export const LiveStreamContextProvider = (props: any) => {
      * if: Check if request is already approved
      * else: Audience Request was not approved by host, and was in 'Awaiting Action' status
      */
-    if (localMe && localMe.current?.status === requestStatus.Approved) {
+    if (
+      localUserRef &&
+      localUserRef.current?.status === requestStatus.Approved
+    ) {
       stopUserScreenShareMethodInstance && stopUserScreenShareMethodInstance(); // This will not exist on ios
       setRaiseHandRequestActive(false);
       /// Change role and send message in channel notifying the same
