@@ -17,7 +17,7 @@ import useMount from './useMount';
 import { useString } from '../utils/useString';
 
 const Authenticated = () => {
-  return <Text> {useString('authenticated')} </Text>;
+  return <Text> {useString('authenticationSuccessLabel')} </Text>;
 };
 
 const StoreToken = () => {

@@ -55,11 +55,11 @@ const ParticipantView = () => {
   ]);
   const isSmall = dim[0] < 700;
   let fontSize = Platform.OS === 'web' ? 14 : 16
-  const youText = useString('you');
+  const youText = useString('localUserDefaultLabel');
   const screenShareNameCallBack = useString('screenShareName');
-  const yourScreenshareText = useString('yourScreenshare');
-  const PSTNUserText = useString('PSTNUser');
-  const userText = useString('user');
+  const yourScreenshareText = useString('localScreenshareDefaultLabel');
+  const PSTNUserText = useString('pstnUserLabel');
+  const userText = useString('remoteUserDefaultLabel');
   return (
     <View
       style={
@@ -76,7 +76,7 @@ const ParticipantView = () => {
           style={style.backIcon}
           source={{uri: icons.backBtn}}
         /> */}
-        <Text style={style.heading}>{useString('participants')}</Text>
+        <Text style={style.heading}>{useString('participantsLabel')}</Text>
       </TouchableOpacity>
       <ScrollView style={{flex: 1}}>
         <MinUidConsumer>

@@ -26,28 +26,27 @@ export interface TextWithFunctionInterface {
   screenShareActive?: (name: string) => string;
 }
 export interface TextInterface extends TextWithFunctionInterface, NetworkTextInterface{
-  nameYourMeeting?: string;
+  meetingNameInputPlaceholder?: string;
   restrictHostControls?: string;
   everyOneIsAHost?: string;
   seperateHostLink?: string;
   usePSTN?: string;
   loadingWithDots?: string;
-  createMeeting?: string;
+  createMeetingButton?: string;
   haveMeetingID?: string;
-  enterMeetingID?: string;
-  enterMeeting?: string;
-  createAMeeting?: string;
-  attendeeURL?: string;
-  hostURL?: string;
-  startMeeting?: string;
-  copyInviteToClipboard?: string;
-  PSTN?: string;
-  number?: string;
-  meetingURL?: string;
-  hostID?: string;
-  meetingID?: string;
-  attendeeID?: string;
-  copiedToClipboard?: string;
+  meetingIdInputPlaceholder?: string;
+  enterMeetingButton?: string;
+  attendeeUrlLabel?: string;
+  hostUrlLabel?: string;
+  enterMeetingAfterCreateButton?: string;
+  copyInvite?: string;
+  pstnLabel?: string;
+  pstnNumberLabel?: string;
+  meetingUrlLabel?: string;
+  hostIdLabel?: string;
+  meetingIdLabel?: string;
+  attendeeIdLabel?: string;
+  copiedToClipboardNotificationLabel?: string;
   PSTNNumber?: string;
   PSTNPin?: string;
   meeting?: string;
@@ -56,70 +55,69 @@ export interface TextInterface extends TextWithFunctionInterface, NetworkTextInt
   attendeeMeetingID?: string;
   hostMeetingID?: string;
   joinRoom?: string;
-  precall?: string;
-  selectInputDevice?: string;
-  displayName?: string;
-  gettingName?: string;
+  precallLabel?: string;
+  selectInputDeviceLabel?: string;
+  userNamePlaceholder?: string;
+  fetchingNamePlaceholder?: string;
   video?: string;
   audio?: string;
-  share?: string;
+  screenShareButton?: string;
   record?: string;
   recording?: string;
-  recordingStarted?: string;
-  hangUp?: string;
-  participants?: string;
-  group?: string;
-  private?: string;
-  typeYourMessage?: string;
-  hostControls?: string;
-  muteAllVideos?: string;
-  muteAllAudios?: string;
-  switch?: string;
-  yourScreenshare?: string;
-  you?: string;
-  user?: string;
-  PSTNUser?: string;
-  authenticated?: string;
-  created?: string;
+  recordingNotificationLabel?: string;
+  endCallButton?: string;
+  participantsLabel?: string;
+  groupChatLabel?: string;
+  privateChatLabel?: string;
+  chatMessageInputPlaceholder?: string;
+  hostControlsLabel?: string;
+  muteAllVideoButton?: string;
+  muteAllAudioButton?: string;
+  switchCameraButton?: string;
+  localScreenshareDefaultLabel?: string;
+  localUserDefaultLabel?: string;
+  remoteUserDefaultLabel?: string;
+  pstnUserLabel?: string;
+  authenticationSuccessLabel?: string;
+  meetingCreatedNotificationLabel?: string;
   from?: string;
-  startingCall?: string;
-  loginOAuth?: string;
-  loginOAuthMessage?: string;
-  copyMeetingInvite?: string;
-  goBack?: string;
-  logout?: string;
+  joiningLoaderLabel?: string;
+  oauthLoginLabel?: string;
+  oauthProviderLabel?: string;
+  copyMeetingInviteButton?: string;
+  goBackButton?: string;
+  logoutButton?: string;
   openInDesktop?: string;
-  google?: string;
-  microsoft?: string;
-  slack?: string;
-  apple?: string;
+  googleAuthButton?: string;
+  microsoftAuthButton?: string;
+  slackAuthButton?: string;
+  appleAuthButton?: string;
   pin?: string;
   language?: string;
 }
 
 export const TEXTS: TextInterface = {
-  nameYourMeeting: 'Name your Meeting',
+  meetingNameInputPlaceholder: 'Name your Meeting',
   restrictHostControls: 'Restrict Host Controls',
   everyOneIsAHost: 'Everyone is a Host',
   seperateHostLink: 'Separate host link',
   usePSTN: 'Use PSTN (Join by dialing a number)',
   loadingWithDots: 'Loading...',
-  createMeeting: 'Create a Meeting',
+  createMeetingButton: 'Create Meeting',
   haveMeetingID: 'Have a Meeting ID?',
-  enterMeetingID: 'Enter Meeting ID',
-  enterMeeting: 'Enter Meeting',
-  createAMeeting: 'Create a meeting',
-  attendeeURL: 'Attendee URL',
-  hostURL: 'Host URL',
-  startMeeting: 'Start Meeting (as host)',
-  copyInviteToClipboard: 'Copy invite to clipboard',
-  PSTN: 'PSTN',
-  number: 'Number',
-  meetingURL: 'Meeting URL',
-  hostID: 'Host ID',
-  meetingID: 'Meeting ID',
-  attendeeID: 'Attendee ID',
-  copiedToClipboard: 'Copied to Clipboard',
+  meetingIdInputPlaceholder: 'Enter Meeting ID',
+  enterMeetingButton: 'Enter Meeting',
+  attendeeUrlLabel: 'Attendee URL',
+  hostUrlLabel: 'Host URL',
+  enterMeetingAfterCreateButton: 'Start Meeting (as host)',
+  copyInvite: 'Copy invite to clipboard',
+  pstnLabel: 'PSTN',
+  pstnNumberLabel: 'Number',
+  meetingUrlLabel: 'Meeting URL',
+  hostIdLabel: 'Host ID',
+  meetingIdLabel: 'Meeting ID',
+  attendeeIdLabel: 'Attendee ID',
+  copiedToClipboardNotificationLabel: 'Copied to Clipboard',
   PSTNNumber: 'PSTN Number',
   PSTNPin: 'PSTN Pin',
   meeting: 'Meeting',
@@ -128,43 +126,43 @@ export const TEXTS: TextInterface = {
   attendeeMeetingID: 'Attendee Meeting ID',
   hostMeetingID: 'Host Meeting ID',
   joinRoom: 'Join Room',
-  precall: 'Precall',
-  selectInputDevice: 'Select Input Device',
-  displayName: 'Display name*',
-  gettingName: 'Getting name...',
+  precallLabel: 'Precall',
+  selectInputDeviceLabel: 'Select Input Device',
+  userNamePlaceholder: 'Display name*',
+  fetchingNamePlaceholder: 'Getting name...',
   video: 'Video',
   audio: 'Audio',
-  share: 'Share',
+  screenShareButton: 'Share',
   record: 'Record',
   recording: 'Recording',
-  recordingStarted: 'Recording Started',
-  hangUp: 'Hang Up',
-  participants: 'Participants',
-  group: 'Group',
-  private: 'Private',
-  typeYourMessage: 'Type your message..',
-  hostControls: 'Host Controls',
-  muteAllAudios: 'Mute all audios',
-  muteAllVideos: 'Mute all videos',
-  switch: 'Switch',
-  yourScreenshare: 'Your screenshare',
-  you: 'You',
-  user: 'User',
-  PSTNUser: 'PSTN User',
-  authenticated: 'Authenticated Successfully!',
-  created: 'Created',
+  recordingNotificationLabel: 'Recording Started',
+  endCallButton: 'Hang Up',
+  participantsLabel: 'Participants',
+  groupChatLabel: 'Group',
+  privateChatLabel: 'Private',
+  chatMessageInputPlaceholder: 'Type your message..',
+  hostControlsLabel: 'Host Controls',
+  muteAllAudioButton: 'Mute all audios',
+  muteAllVideoButton: 'Mute all videos',
+  switchCameraButton: 'Switch',
+  localScreenshareDefaultLabel: 'Your screenshare',
+  localUserDefaultLabel: 'You',
+  remoteUserDefaultLabel: 'User',
+  pstnUserLabel: 'PSTN User',
+  authenticationSuccessLabel: 'Authenticated Successfully!',
+  meetingCreatedNotificationLabel: 'Created',
   from: 'From',
-  startingCall: 'Starting Call. Just a second.',
-  loginOAuth: 'Login using OAuth',
-  loginOAuthMessage: 'Please select an OAuth provider to login.',
-  copyMeetingInvite: 'Copy Meeting Invite',
-  goBack: 'Go back',
-  logout: 'Logout',
+  joiningLoaderLabel: 'Starting Call. Just a second.',
+  oauthLoginLabel: 'Login using OAuth',
+  oauthProviderLabel: 'Please select an OAuth provider to login.',
+  copyMeetingInviteButton: 'Copy Meeting Invite',
+  goBackButton: 'Go back',
+  logoutButton: 'Logout',
   openInDesktop: 'Open in Desktop',
-  google: 'Google',
-  microsoft: 'Microsoft',
-  slack: 'Slack',
-  apple: 'Apple',
+  googleAuthButton: 'Google',
+  microsoftAuthButton: 'Microsoft',
+  slackAuthButton: 'Slack',
+  appleAuthButton: 'Apple',
   pin: 'Pin',
   language: 'Language',
   screenShareName: (name) => `${name}'s screenshare`,

@@ -52,10 +52,10 @@ const Controls = () => {
           <></>
         )}
         <View style={{alignSelf: 'center'}}>
-          <SwitchCamera btnText={useString('switch')} />
+          <SwitchCamera btnText={useString('switchCameraButton')} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('hangUp')} />
+          <Endcall btnText={useString('endCallButton')} />
         </View>
       </View>
     </LocalUserContext>

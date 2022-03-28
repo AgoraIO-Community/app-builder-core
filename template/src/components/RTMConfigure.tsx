@@ -63,7 +63,7 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
-  const userText = useString('user');
+  const userText = useString('remoteUserDefaultLabel');
   const getScreenShareName = useString('screenShareName');  
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');

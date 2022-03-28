@@ -467,7 +467,7 @@ const VideoCall: React.FC = () => {
       ) : (
         <View style={style.loader}>
           <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
-          <Text style={style.loaderText}>{useString('startingCall')}</Text>
+          <Text style={style.loaderText}>{useString('joiningLoaderLabel')}</Text>
         </View>
       )}
     </>

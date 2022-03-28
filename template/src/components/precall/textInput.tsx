@@ -24,7 +24,7 @@ const PreCallTextInput: React.FC = () => {
       onChangeText={(text) => setUsername(text ? text.trim() : text)}
       onSubmitEditing={() => { }}
       placeholder={
-        queryComplete ? useString('displayName') : useString('gettingName')
+        queryComplete ? useString('userNamePlaceholder') : useString('fetchingNamePlaceholder')
       }
       editable={Platform.OS === 'ios' ? queryComplete : true}
     />

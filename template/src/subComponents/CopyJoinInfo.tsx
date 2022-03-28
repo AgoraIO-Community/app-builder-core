@@ -42,7 +42,7 @@ const ParticipantView = (props: {showText?: boolean}) => {
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
   });
-  const copiedToClipboardText = useString('copiedToClipboard');
+  const copiedToClipboardText = useString('copiedToClipboardNotificationLabel');
   const meetingText = useString('meeting');
   const URLForAttendeeText = useString('URLForAttendee');
   const URLForHostText = useString('URLForHost');
@@ -88,7 +88,7 @@ const ParticipantView = (props: {showText?: boolean}) => {
       style={style.backButton}
       onPress={() => copyToClipboard()}
       name={'clipboard'}
-      btnText={props.showText ? useString('copyMeetingInvite') : ''}
+      btnText={props.showText ? useString('copyMeetingInviteButton') : ''}
       color={$config.PRIMARY_FONT_COLOR}
     />
   );

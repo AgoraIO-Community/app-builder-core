@@ -36,7 +36,7 @@ const selectDevice: React.FC = () => {
         {/* <View style={{flex: 1}}> */}
         <Text
           style={[style.subHeading, { color: $config.PRIMARY_FONT_COLOR }]}>
-          {useString('selectInputDevice')}
+          {useString('selectInputDeviceLabel')}
         </Text>
         {/* </View> */}
         <View style={{ height: 20 }} />

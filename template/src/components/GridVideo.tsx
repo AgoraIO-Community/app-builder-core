@@ -62,7 +62,7 @@ interface GridVideoProps {
 }
 
 const GridVideo = (props: GridVideoProps) => {
-  const PSTNUserText = useString('PSTNUser');
+  const PSTNUserText = useString('pstnUserLabel');
   const {height, width} = useWindowDimensions();
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
@@ -190,14 +190,14 @@ const GridVideo = (props: GridVideoProps) => {
                       value={users[ridx * dims.c + cidx].uid === 'local'
                       ? userList[localUid]
                         ? userList[localUid].name + ' '
-                        : useString('you') + ' '
+                        : useString('localUserDefaultLabel') + ' '
                       : userList[users[ridx * dims.c + cidx].uid]
                       ? userList[users[ridx * dims.c + cidx].uid].name + ' '
                       : users[ridx * dims.c + cidx].uid === 1
                       ? useString('screenName',userList[localUid]?.name) + " "
                       : String(users[ridx * dims.c + cidx].uid)[0] === '1'
                       ? PSTNUserText + ' '
-                      : useString('user') + ' '}
+                      : useString('remoteUserDefaultLabel') + ' '}
                       style={
                         {
                           color: $config.PRIMARY_FONT_COLOR,
