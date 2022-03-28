@@ -638,6 +638,9 @@ const RtmConfigure = (props: any) => {
     attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,
   ) => {
+    // 1. Update my attributes in attribute-list
+    await addOrUpdateLocalUserAttributes(attributes);
+
     let formattedAttributes: any = {};
     // Transform the array into object of key value pair
     attributes.map((attribute) => {
@@ -645,7 +648,7 @@ const RtmConfigure = (props: any) => {
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
     });
-    // 1. Update my attributes in user-list
+    // 2. Update my attributes in user-list
     setUserList((prevState) => {
       return {
         ...prevState,
@@ -655,8 +658,7 @@ const RtmConfigure = (props: any) => {
         },
       };
     });
-    // 2. Update my attributes in attribute-list
-    await addOrUpdateLocalUserAttributes(attributes);
+
     /**
      * 3. Broadcast my updated attributes to everyone
      * send payload and control message as string
