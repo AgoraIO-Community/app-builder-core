@@ -12,9 +12,7 @@
 import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
 
-const ScreenshareContext = () => null;
-
-export const ScreenshareContextProvider: React.FC = (props: any) => {
+export const ScreenshareConfigure: React.FC = (props: any) => {
   return (
     <>
       {props.children}
@@ -23,4 +21,4 @@ export const ScreenshareContextProvider: React.FC = (props: any) => {
   );
 };
 
-export default ScreenshareContext;
+export default ScreenshareConfigure;

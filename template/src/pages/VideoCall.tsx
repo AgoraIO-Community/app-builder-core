@@ -44,7 +44,7 @@ import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
-import {ScreenshareContextProvider} from '../subComponents/screenshare/ScreenshareContext';
+import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -377,7 +377,7 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <ScreenshareContextProvider
+                    <ScreenshareConfigure
                       setLayout={setLayout}
                       recordingActive={recordingActive}>
                       <LiveStreamContextProvider
@@ -518,7 +518,7 @@ const VideoCall: React.FC = () => {
                           <></>
                         )}
                       </LiveStreamContextProvider>
-                    </ScreenshareContextProvider>
+                    </ScreenshareConfigure>
                   </RtmConfigure>
                 </DeviceConfigure>
               </RtcConfigure>

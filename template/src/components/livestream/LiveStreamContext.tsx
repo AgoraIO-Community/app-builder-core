@@ -24,11 +24,7 @@ export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
 export const LiveStreamContextProvider = (props: any) => {
   const screenshareContextInstance = useContext(ScreenshareContext);
-  let stopUserScreenShareMethodInstance: any = null;
-  if (screenshareContextInstance) {
-    const {stopUserScreenShare} = useContext(ScreenshareContext);
-    stopUserScreenShareMethodInstance = stopUserScreenShare;
-  }
+
   const {
     userList,
     localUid,
@@ -145,7 +141,7 @@ export const LiveStreamContextProvider = (props: any) => {
         userList[key]?.requests || attrRequestStatus.RaiseHand_AwaitingAction,
     }));
 
-    console.log('uidsOfUsersHavingLSRequest', uidsOfUsersHavingLSRequest);
+    // console.log('uidsOfUsersHavingLSRequest', uidsOfUsersHavingLSRequest);
     // Set uids of user who have active live streaming request
     setUidsOfInitialRequests([...uidsOfUsersHavingLSRequest]);
   }, [userList]);
@@ -264,8 +260,7 @@ export const LiveStreamContextProvider = (props: any) => {
           // 3. Audience receives this when host demotes (canceled after approval)
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
             showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-            stopUserScreenShareMethodInstance &&
-              stopUserScreenShareMethodInstance(); // This will not exist on ios
+            screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
             setRaiseHandRequestActive(false);
             // Audience notfies all host when request is rejected
             notifyAllHostsInChannel(
@@ -372,7 +367,7 @@ export const LiveStreamContextProvider = (props: any) => {
       localUserRef &&
       localUserRef.current?.status === requestStatus.Approved
     ) {
-      stopUserScreenShareMethodInstance && stopUserScreenShareMethodInstance(); // This will not exist on ios
+      screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
       setRaiseHandRequestActive(false);
       /// Change role and send message in channel notifying the same
       changeClientRoleTo(ClientRole.Audience);
