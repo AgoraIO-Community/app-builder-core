@@ -492,25 +492,16 @@ export default class RtcEngine {
 
   async setChannelProfile(profile: ChannelProfile): Promise<void> {
     try {
-      if (profile == ChannelProfile.Communication) {
-        this.client = AgoraRTC.createClient({
-          codec: 'vp8',
-          mode: mode.rtc,
-        });
-        this.screenClient = AgoraRTC.createClient({
-          codec: 'vp8',
-          mode: mode.rtc,
-        });
-      } else if (profile == ChannelProfile.LiveBroadcasting) {
-        this.client = AgoraRTC.createClient({
-          codec: 'vp8',
-          mode: mode.live,
-        });
-        this.screenClient = AgoraRTC.createClient({
-          codec: 'vp8',
-          mode: mode.live,
-        });
-      }
+      this.client = AgoraRTC.createClient({
+        codec: 'vp8',
+        mode:
+          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+      });
+      this.screenClient = AgoraRTC.createClient({
+        codec: 'vp8',
+        mode:
+          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+      });
     } catch (e) {
       throw e;
     }
@@ -522,8 +513,8 @@ export default class RtcEngine {
   ): Promise<void> {
     try {
       if (clientRole == ClientRole.Audience) {
-        await this.client.setClientRole(role.audience, {level: 1});
-        await this.screenClient.setClientRole(role.audience, {level: 1});
+        await this.client.setClientRole(role.audience, options);
+        await this.screenClient.setClientRole(role.audience, options);
       } else if (clientRole == ClientRole.Broadcaster) {
         await this.client.setClientRole(role.host);
         await this.screenClient.setClientRole(role.host);

@@ -66,7 +66,7 @@ const Precall = (props: any) => {
   const {queryComplete, error, title} = props;
   const [buttonText, setButtonText] = React.useState('Join Room');
 
-  const [dim, setDim] = useState<Array<number>>([
+  const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
   ]);

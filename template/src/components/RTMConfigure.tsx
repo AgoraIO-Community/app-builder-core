@@ -90,11 +90,11 @@ const RtmConfigure = (props: any) => {
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
 
-  const handBrowserClose = () => {
-    engine.current.leaveChannel(rtcProps.channel);
-  };
-
   React.useEffect(() => {
+    const handBrowserClose = () => {
+      engine.current.leaveChannel(rtcProps.channel);
+    };
+
     if (Platform.OS !== 'web') return;
     window.addEventListener('beforeunload', handBrowserClose);
     // cleanup this component
@@ -638,7 +638,6 @@ const RtmConfigure = (props: any) => {
     attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,
   ) => {
-    await addOrUpdateLocalUserAttributes(attributes);
     let formattedAttributes: any = {};
     // Transform the array into object of key value pair
     attributes.map((attribute) => {
@@ -646,7 +645,7 @@ const RtmConfigure = (props: any) => {
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
     });
-    // Update my attributes in user-list
+    // 1. Update my attributes in user-list
     setUserList((prevState) => {
       return {
         ...prevState,
@@ -656,8 +655,12 @@ const RtmConfigure = (props: any) => {
         },
       };
     });
-    // Broadcast my updated attributes to everyone
-    // send payload and control message as string
+    // 2. Update my attributes in attribute-list
+    await addOrUpdateLocalUserAttributes(attributes);
+    /**
+     * 3. Broadcast my updated attributes to everyone
+     * send payload and control message as string
+     */
     const msgAsString = JSON.stringify({
       action: ctrlMsg,
       payload: {...formattedAttributes},
