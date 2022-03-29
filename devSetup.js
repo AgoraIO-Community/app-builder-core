@@ -36,10 +36,16 @@ async function processDotfiles(){
 
 async function copyConfig(){
   try{
+    console.log(process.argv);
+    const mode = process.argv[2] || "meeting";
+    const isMeeting = mode === "meeting";
     await fs.copyFile(
-      path.join(process.cwd(),'config.json'),
-      path.join(ROOT,'config.json'),
-    )
+      path.join(
+        process.cwd(),
+        isMeeting ? "config.json" : "live-streaming.config.json"
+      ),
+      path.join(ROOT, "config.json")
+    );
     console.log('\t✓ Added dev config in the template')
   }
   catch(e){
