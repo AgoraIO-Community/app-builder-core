@@ -24,94 +24,56 @@ import {
   LocalVideoMute,
   SwitchCamera,
   Endcall,
+  PropsContext,
+  ClientRole,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
-import icons from '../assets/icons';
-import ColorContext from './ColorContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
+import LiveStreamControls from './livestream/views/LiveStreamControls';
 
 const Controls = (props: any) => {
-  const {setRecordingActive, recordingActive, sidePanel, setSidePanel, isHost} =
-    props;
-  const {primaryColor} = useContext(ColorContext);
+  const {setRecordingActive, recordingActive, isHost} = props;
+  const {rtcProps} = useContext(PropsContext);
 
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
-        <View style={{alignSelf: 'center'}}>
-          <LocalAudioMute />
-          {/* <Text
-            style={{
-              textAlign: 'center',
-              marginTop: 5,
-              color: $config.PRIMARY_COLOR,
-            }}>
-            Audio
-          </Text> */}
-        </View>
-        <View style={{alignSelf: 'center'}}>
-          <LocalVideoMute />
-          {/* <Text
-            style={{
-              textAlign: 'center',
-              marginTop: 5,
-              color: $config.PRIMARY_COLOR,
-            }}>
-            Video
-          </Text> */}
-        </View>
-        {isHost ? (
-          $config.CLOUD_RECORDING ? (
-            <View style={{alignSelf: 'center'}}>
-              <Recording
-                recordingActive={recordingActive}
-                setRecordingActive={setRecordingActive}
-              />
-              {/* <Text
-                style={{
-                  textAlign: 'center',
-                  marginTop: 5,
-                  color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
-                }}>
-                {recordingActive ? 'Recording' : 'Record'}
-              </Text> */}
-            </View>
-          ) : (
-            <></>
-          )
+        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          <LiveStreamControls showControls={true} />
         ) : (
-          <></>
+          <>
+            {/**
+             * In event mode when raise hand feature is active
+             * and audience is promoted to host, the audience can also
+             * demote himself
+             */}
+            {$config.EVENT_MODE && (
+              <LiveStreamControls
+                showControls={
+                  rtcProps?.role == ClientRole.Broadcaster && !isHost
+                }
+              />
+            )}
+            <View style={{alignSelf: 'center'}}>
+              <LocalAudioMute />
+            </View>
+            <View style={{alignSelf: 'center'}}>
+              <LocalVideoMute />
+            </View>
+            {isHost && $config.CLOUD_RECORDING && (
+              <View style={{alignSelf: 'baseline'}}>
+                <Recording
+                  recordingActive={recordingActive}
+                  setRecordingActive={setRecordingActive}
+                />
+              </View>
+            )}
+            <View style={{alignSelf: 'center'}}>
+              <SwitchCamera />
+            </View>
+          </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <SwitchCamera />
-          {/* <Text
-            style={{
-              textAlign: 'center',
-              marginTop: 5,
-              color: $config.PRIMARY_COLOR,
-            }}>
-            Switch
-          </Text> */}
-        </View>
-        {/* <View style={{ alignSelf: 'center' }}>
-          <TouchableOpacity
-            style={[style.localButton, { borderColor: primaryColor, borderRadius: 50 }]}
-            onPress={() => {
-              sidePanel === SidePanelType.Chat
-                ? setSidePanel(SidePanelType.None)
-                : setSidePanel(SidePanelType.Chat);
-            }}>
-            <Image
-              source={{ uri: icons.chatIcon }}
-              style={[style.buttonIcon, { tintColor: primaryColor }]}
-            />
-          </TouchableOpacity>
-        </View> */}
-        <View style={{alignSelf: 'center'}}>
           <Endcall />
-          {/* <Text style={{textAlign: 'center', marginTop: 5, color: '#FD0845'}}>
-            Hang Up
-          </Text> */}
         </View>
       </View>
     </LocalUserContext>
@@ -134,7 +96,6 @@ const style = StyleSheet.create({
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     borderRadius: 2,
     borderColor: $config.PRIMARY_COLOR,
-    // borderWidth: 1,
     width: 40,
     height: 40,
     display: 'flex',

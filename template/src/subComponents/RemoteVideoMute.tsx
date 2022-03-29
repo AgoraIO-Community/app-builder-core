@@ -24,9 +24,9 @@ const RemoteVideoMute = (props: {
   video: boolean;
   isHost: boolean;
 }) => {
-  const {primaryColor} = useContext(ColorContext);
   const {isHost = false} = props;
   const {sendControlMessageToUid} = useContext(ChatContext);
+
   return String(props.uid)[0] !== '1' ? (
     <BtnTemplate
       disabled={!isHost}
@@ -43,9 +43,8 @@ const RemoteVideoMute = (props: {
 
 const style = StyleSheet.create({
   buttonIconCam: {
-    width: 28,
+    width: 25,
     height: 25,
-    marginHorizontal: 2,
   },
 });
 

@@ -16,19 +16,20 @@ import AgoraRTC, {
   IRemoteAudioTrack,
   IRemoteVideoTrack,
   UID,
-  CameraVideoTrackInitConfig,
   ScreenVideoTrackInitConfig,
   RemoteStreamType,
-  ClientConfig,
   ICameraVideoTrack,
   EncryptionMode,
   ILocalTrack,
+  ClientRoleOptions,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
-import { VideoProfile } from '../quality';
+import {VideoProfile} from '../quality';
+import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
+import {role, mode} from './Types';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -43,6 +44,7 @@ declare global {
     engine: RtcEngine;
   }
 }
+
 export enum AREAS {
   /**
    * China.
@@ -141,8 +143,8 @@ AgoraRTC.setArea({
 export default class RtcEngine {
   public appId: string;
   // public AgoraRTC: any;
-  public client: IAgoraRTCClient;
-  public screenClient: IAgoraRTCClient;
+  public client: any | IAgoraRTCClient;
+  public screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
     ['UserJoined', () => null],
     ['UserOffline', () => null],
@@ -155,12 +157,7 @@ export default class RtcEngine {
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
-  // public streamSpec: AgoraRTC.StreamSpec;
-  // public streamSpecScreenshare: ScreenVideoTrackInitConfig;
   private inScreenshare: Boolean = false;
-  // private removeStream = (uid: UID) => {
-
-  // };
   private videoProfile: VideoProfile = '480p_9';
   private isPublished = false;
   private isAudioEnabled = true;
@@ -171,45 +168,16 @@ export default class RtcEngine {
   private deviceId = '';
   private muteLocalVideoMutex = false;
 
+  // Create channel profile and set it here
+
   constructor(appId: string) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
-    this.client = AgoraRTC.createClient({
-      codec: 'vp8',
-      mode: 'rtc',
-    });
-    this.screenClient = AgoraRTC.createClient({
-      codec: 'vp8',
-      mode: 'rtc',
-    });
-    // this.streamSpec = {
-    //   video: true,
-    //   audio: true,
-    // };
-    // this.streamSpecScreenshare = {
-    //   audio: false,
-    //   video: false,
-    //   screen: true,
-    //   screenAudio: true,
-    // };
   }
+
   static async create(appId: string): Promise<RtcEngine> {
     let engine = new RtcEngine(appId);
     window.engine = engine;
-    // let init = new Promise((resolve, reject) => {
-    //   engine.client.init(
-    //     appId,
-    //     function () {
-    //       window.engine = engine;
-    //       resolve();
-    //     },
-    //     function (err) {
-    //       console.error(err);
-    //       reject();
-    //     },
-    //   );
-    // });
-    // await init;
     return engine;
   }
 
@@ -222,25 +190,15 @@ export default class RtcEngine {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(
           {},
-          { encoderConfig: this.videoProfile },
+          {encoderConfig: this.videoProfile},
         );
-      // localVideo.setEncoderConfiguration(this.videoProfile);
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
       throw e;
     }
-    // let enable = new Promise((resolve, reject) => {
-    //   this.streams.set(0, );
-    //   (this.streams.get(0) as AgoraRTC.Stream).setVideoProfile(
-    //     this.videoProfile,
-    //   );
-    //   (this.streams.get(0) as AgoraRTC.Stream).init(() => {
-    //     resolve();
-    //   }, reject);
-    // });
-    // await enable;
   }
+
   async publish() {
     if (this.localStream.audio && this.localStream.video) {
       try {
@@ -249,7 +207,6 @@ export default class RtcEngine {
         this.isVideoEnabled && tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
-          console.log('publishing now');
           await this.client.publish(tracks);
           if (tracks[0].trackMediaType === 'audio') {
             this.isAudioPublished = true;
@@ -281,6 +238,7 @@ export default class RtcEngine {
     optionalInfo: string,
     optionalUid: number,
   ): Promise<void> {
+    // TODO create agora client here
     this.client.on('user-joined', (user) => {
       const uid = this.inScreenshare
         ? user.uid !== this.screenClient.uid
@@ -308,7 +266,6 @@ export default class RtcEngine {
           ? user.uid
           : 1
         : user.uid;
-
       // if (uid ===1) {
       //   this.screenStream.audio?.close();
       //   this.screenStream.video?.close();
@@ -333,7 +290,6 @@ export default class RtcEngine {
       } else {
         await this.client.subscribe(user, mediaType);
       }
-
       // If the subscribed track is an audio track
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
@@ -367,7 +323,7 @@ export default class RtcEngine {
     });
     this.client.on('user-unpublished', async (user, mediaType) => {
       if (mediaType === 'audio') {
-        const { audio, ...rest } = this.remoteStreams.get(user.uid);
+        const {audio, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
@@ -376,7 +332,7 @@ export default class RtcEngine {
           0,
         );
       } else {
-        const { video, ...rest } = this.remoteStreams.get(user.uid);
+        const {video, ...rest} = this.remoteStreams.get(user.uid);
         this.remoteStreams.set(user.uid, rest);
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
           user.uid,
@@ -388,22 +344,35 @@ export default class RtcEngine {
     });
 
     // this.client.on('stream-fallback', (evt))
-    this.client.on('stream-type-changed', function(uid, streamType) {
+    this.client.on('stream-type-changed', function (uid, streamType) {
       console.log('[fallback]: ', uid, streamType);
     });
 
-    this.client.on('network-quality', async ({ downlinkNetworkQuality, uplinkNetworkQuality }) => {
-      const networkQualityIndicatorCallback = this.eventsMap.get('NetworkQuality') as callbackType;
+    this.client.on(
+      'network-quality',
+      async ({downlinkNetworkQuality, uplinkNetworkQuality}) => {
+        const networkQualityIndicatorCallback = this.eventsMap.get(
+          'NetworkQuality',
+        ) as callbackType;
 
-      networkQualityIndicatorCallback(0, downlinkNetworkQuality, uplinkNetworkQuality)
+        networkQualityIndicatorCallback(
+          0,
+          downlinkNetworkQuality,
+          uplinkNetworkQuality,
+        );
 
-      const remoteUserNetworkQualities = this.client.getRemoteNetworkQuality();
+        const remoteUserNetworkQualities =
+          this.client.getRemoteNetworkQuality();
 
-      Object.keys(remoteUserNetworkQualities).forEach((uid) => {
-        networkQualityIndicatorCallback(uid, remoteUserNetworkQualities[uid].downlinkNetworkQuality, remoteUserNetworkQualities[uid].uplinkNetworkQuality)
-      })
-
-    })
+        Object.keys(remoteUserNetworkQualities).forEach((uid) => {
+          networkQualityIndicatorCallback(
+            uid,
+            remoteUserNetworkQualities[uid].downlinkNetworkQuality,
+            remoteUserNetworkQualities[uid].uplinkNetworkQuality,
+          );
+        });
+      },
+    );
 
     await this.client.join(
       this.appId,
@@ -412,9 +381,9 @@ export default class RtcEngine {
       optionalUid || null,
     );
     this.isJoined = true;
+
     await this.publish();
   }
-
 
   async leaveChannel(): Promise<void> {
     this.client.leave();
@@ -519,6 +488,40 @@ export default class RtcEngine {
     const devices: Array<MediaDeviceInfo> = await AgoraRTC.getDevices(true);
     callback && callback(devices);
     return devices;
+  }
+
+  async setChannelProfile(profile: ChannelProfile): Promise<void> {
+    try {
+      this.client = AgoraRTC.createClient({
+        codec: 'vp8',
+        mode:
+          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+      });
+      this.screenClient = AgoraRTC.createClient({
+        codec: 'vp8',
+        mode:
+          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async setClientRole(
+    clientRole: ClientRole,
+    options?: ClientRoleOptions,
+  ): Promise<void> {
+    try {
+      if (clientRole == ClientRole.Audience) {
+        await this.client.setClientRole(role.audience, options);
+        await this.screenClient.setClientRole(role.audience, options);
+      } else if (clientRole == ClientRole.Broadcaster) {
+        await this.client.setClientRole(role.host);
+        await this.screenClient.setClientRole(role.host);
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   async changeCamera(cameraId, callback, error): Promise<void> {

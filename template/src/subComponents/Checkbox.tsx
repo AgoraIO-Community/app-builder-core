@@ -22,6 +22,7 @@ const Checkbox = (props: any) => {
   const setUrlCheckbox = props.onValueChange;
   return (
     <CheckBox
+      disabled={props?.disabled}
       value={urlCheckbox}
       onValueChange={setUrlCheckbox}
       //@ts-ignore Color prop exists on react-native-web but it not present in @react-native-community/checkbox

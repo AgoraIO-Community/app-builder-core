@@ -26,5 +26,7 @@
   "MICROSOFT_CLIENT_ID": "",
   "SLACK_CLIENT_ID": "",
   "APPLE_CLIENT_ID": "",
-  "PROFILE": "480p_8"
+  "PROFILE": "480p_8",
+  "EVENT_MODE": false,
+  "RAISE_HAND": false
 }

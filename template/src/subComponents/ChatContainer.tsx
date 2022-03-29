@@ -13,12 +13,10 @@ import React, {useContext, useRef} from 'react';
 import {
   View,
   ScrollView,
-  Text,
-  TouchableOpacity,
   StyleSheet,
-  Image,
   Platform,
-  useWindowDimensions
+  Text,
+  useWindowDimensions,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
@@ -32,14 +30,17 @@ import TextWithTooltip from './TextWithTooltip';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
+  const {userList} = useContext(ChatContext);
   const {height, width} = useWindowDimensions();
-  const {selectedUser, privateActive, setPrivateActive, selectedUsername} =
+  const {selectedUserID, privateActive, setPrivateActive, selectedUsername} =
     props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
+
   const scrollViewRef = useRef<ScrollView>(null);
+
   return (
     <View style={style.containerView}>
-      {privateActive ? (
+      {privateActive && (
         <View style={style.row}>
           <View style={style.backButton}>
             <BtnTemplate
@@ -48,12 +49,19 @@ const ChatContainer = (props: any) => {
               name={'backBtn'}
             />
           </View>
-          <View style={{flex:1}}>
-            <TextWithTooltip style={[style.name, {flexShrink: 1,fontSize: RFValue(16, height > width ? height : width)}]} value={selectedUsername} />
+          <View style={{flex: 1}}>
+            <TextWithTooltip
+              style={[
+                style.name,
+                {
+                  flexShrink: 1,
+                  fontSize: RFValue(16, height > width ? height : width),
+                },
+              ]}
+              value={selectedUsername}
+            />
           </View>
         </View>
-      ) : (
-        <></>
       )}
       <ScrollView
         ref={scrollViewRef}
@@ -72,8 +80,8 @@ const ChatContainer = (props: any) => {
               />
             );
           })
-        ) : privateMessageStore[selectedUser.uid] ? (
-          privateMessageStore[selectedUser.uid].map((message: any) => {
+        ) : privateMessageStore[selectedUserID] ? (
+          privateMessageStore[selectedUserID].map((message: any) => {
             return (
               <ChatBubble
                 isLocal={localUid === message.uid}
@@ -87,6 +95,11 @@ const ChatContainer = (props: any) => {
         ) : (
           <></>
         )}
+        {userList[selectedUserID]?.offline && (
+          <View style={style.infoTextView}>
+            <Text style={style.infoText}>User is offline</Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -97,16 +110,16 @@ const style = StyleSheet.create({
   row: {
     flexDirection: 'row',
     marginTop: 2,
-    alignItems: 'center',
+    alignItems: 'baseline',
     paddingVertical: 10,
     ...Platform.select({
-      android:{
-        height: 40
+      android: {
+        height: 40,
       },
-      ios:{
-        height: 40
-      }
-    })
+      ios: {
+        height: 40,
+      },
+    }),
   },
   backButton: {
     marginHorizontal: 10,
@@ -117,11 +130,22 @@ const style = StyleSheet.create({
     fontWeight: Platform.OS === 'web' ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
-    marginRight: 10
+    marginRight: 10,
   },
   backIcon: {
     width: 20,
     height: 20,
+  },
+  infoTextView: {
+    marginVertical: 2,
+    flexDirection: 'row',
+  },
+  infoText: {
+    color: $config.PRIMARY_FONT_COLOR + '60',
+    fontWeight: '500',
+    fontSize: 14,
+    flex: 1,
+    textAlign: 'center',
   },
 });
 export default ChatContainer;
