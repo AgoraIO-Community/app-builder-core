@@ -194,7 +194,7 @@ const GridVideo = (props: GridVideoProps) => {
                       : userList[users[ridx * dims.c + cidx].uid]
                       ? userList[users[ridx * dims.c + cidx].uid].name + ' '
                       : users[ridx * dims.c + cidx].uid === 1
-                      ? useString('screenName',userList[localUid]?.name) + " "
+                      ? useString('screenshareUserName',userList[localUid]?.name) + " "
                       : String(users[ridx * dims.c + cidx].uid)[0] === '1'
                       ? PSTNUserText + ' '
                       : useString('remoteUserDefaultLabel') + ' '}

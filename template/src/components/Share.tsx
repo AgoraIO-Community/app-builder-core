@@ -37,12 +37,8 @@ const Share = () => {
   const history = useHistory();
   const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} = useShareLink(data => data);   
   const copiedToClipboardText = useString('copiedToClipboardNotificationLabel');
-  const meetingText = useString('meeting');
-  const urlForAttdText = useString('URLForAttendee');
-  const urlForHostText = useString('URLForHost');
+  const meetingInviteText = useString('meetingInviteText');
   const meetingUrlText = useString('meetingUrlLabel');
-  const attendeeMeetingIDText = useString('attendeeMeetingID');
-  const hostMeetingIDText = useString('hostMeetingID');
   const PSTNNumberText = useString('PSTNNumber');
   const PSTNPinText = useString('PSTNPin');
   const meetingIdText = useString('meetingIdLabel');
@@ -57,33 +53,24 @@ const Share = () => {
 
   const copyToClipboard = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
-    let stringToCopy = '';
-
-    $config.FRONTEND_ENDPOINT
-      ? hostControlCheckbox
-        ? (stringToCopy += `${meetingText} - ${roomTitle}
-${urlForAttdText}: ${$config.FRONTEND_ENDPOINT}/${urlView}
-${urlForHostText}: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-        : (stringToCopy += `${meetingText} - ${roomTitle}
-${meetingUrlText}: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-      : platform === 'web'
-      ? hostControlCheckbox
-        ? (stringToCopy += `${meetingText} - ${roomTitle}
-${urlForAttdText}: ${window.location.origin}/${urlView}
-${urlForHostText}: ${window.location.origin}/${urlHost}`)
-        : (stringToCopy += `${meetingText} - ${roomTitle}
-${meetingUrlText}: ${window.location.origin}/${urlHost}`)
-      : hostControlCheckbox
-      ? (stringToCopy += `${meetingText} - ${roomTitle}
-${attendeeMeetingIDText}: ${urlView}
-${hostMeetingIDText}: ${urlHost}`)
-      : (stringToCopy += `${meetingText} - ${roomTitle}
-${meetingUrlText}: ${urlHost}`);
-
-    pstn
-      ? (stringToCopy += `${PSTNNumberText}: ${pstn.number}
-${PSTNPinText}: ${pstn.dtmf}`)
-      : '';
+    let stringToCopy = meetingInviteText({
+      frontendEndpoint: $config.FRONTEND_ENDPOINT, 
+      hostControlCheckbox,
+      platform,
+      meetingName: roomTitle,
+      url:{
+        attendee: urlView,
+        host: urlHost
+      },
+      id:{
+        attendee: urlView,
+        host: urlHost
+      },
+      pstn: pstn ? {
+        number: pstn.number,
+        pin: pstn.dtmf,
+      } : undefined
+    })
     Clipboard.setString(stringToCopy);
   };
 

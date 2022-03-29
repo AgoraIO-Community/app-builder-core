@@ -11,7 +11,7 @@
 */
 import { useFpe } from "fpe-api";
 import { useLanguage } from "../language/useLanguage";
-import { TEXTS, TextInterface, DEFAULT_I18_DATA, TextWithFunctionInterface } from "../language";
+import { TEXTS, TextInterface, DEFAULT_I18_DATA, TextWithFunctionInterface, TextWithFunctionObjectInterface, meetingInviteInterface } from "../language";
 
 export function usei18nData(selectedLanguageCode: string = DEFAULT_I18_DATA.locale){
   const languageData = useFpe(data => data.i18n);
@@ -34,8 +34,8 @@ export function usei18nData(selectedLanguageCode: string = DEFAULT_I18_DATA.loca
   }
   return TEXTS;
 }
-
-export function useString(keyName: keyof TextWithFunctionInterface, input?: string): (input?:string) => string
+export function useString(keyName: keyof TextWithFunctionObjectInterface, input?: string): (input?: meetingInviteInterface) => string
+export function useString(keyName: keyof TextWithFunctionInterface, input?: string): (input?:string | boolean | object) => string
 export function useString(keyName: keyof TextInterface, input?: string): string
 export function useString(keyName: keyof TextInterface, input?: string){
   const lanCode = useLanguage(data => data.languageCode);
@@ -43,7 +43,7 @@ export function useString(keyName: keyof TextInterface, input?: string){
   if(textData[keyName]){
     let keyValue = textData[keyName];
     if(typeof keyValue === 'function'){
-      return input ? keyValue(input) : keyValue;
+      return input === undefined ? keyValue : keyValue(input);
     }else if(typeof keyValue === 'string'){
       return keyValue;
     }else{

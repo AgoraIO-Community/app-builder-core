@@ -67,6 +67,7 @@ const Create = () => {
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
   const createdText = useString('meetingCreatedNotificationLabel');
+  const hostControlsToggle = useString('hostControlsToggle');  
   useEffect(() =>{
     setGlobalErrorMessage(error);
   },[error])
@@ -129,11 +130,7 @@ const Create = () => {
                     onValueChange={setHostControlCheckbox}
                   />
                   <Text style={style.checkboxTitle}>
-                    {useString('restrictHostControls')}{' '}
-                    {!hostControlCheckbox
-                      ? `(${useString('everyOneIsAHost')})`
-                      : `(${useString('seperateHostLink')})`
-                    }
+                    {hostControlsToggle(hostControlCheckbox)}
                   </Text>
                 </View>
                 {$config.PSTN ? (

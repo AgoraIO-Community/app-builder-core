@@ -34,7 +34,7 @@ export const NetworkQualityPill = ({
   rootStyle?: StyleProp<ViewStyle>;
 }) => {
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
-
+  const getLabel = useString('networkQualityLabel')
   return (
     <View
       style={[
@@ -71,7 +71,7 @@ export const NetworkQualityPill = ({
               {fontSize: small ? 14 : 15, userSelect: 'none'},
             ]}
           >
-            {useString(networkIconsObject[networkStat].text)}
+            {getLabel(networkIconsObject[networkStat].text)}            
           </Text>
         )}
       </PlatformSpecificWrapper>

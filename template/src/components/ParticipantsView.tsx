@@ -56,7 +56,7 @@ const ParticipantView = () => {
   const isSmall = dim[0] < 700;
   let fontSize = Platform.OS === 'web' ? 14 : 16
   const youText = useString('localUserDefaultLabel');
-  const screenShareNameCallBack = useString('screenShareName');
+  const screenShareNameCallBack = useString('screenshareUserName');
   const yourScreenshareText = useString('localScreenshareDefaultLabel');
   const PSTNUserText = useString('pstnUserLabel');
   const userText = useString('remoteUserDefaultLabel');

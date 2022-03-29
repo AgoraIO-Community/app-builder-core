@@ -11,7 +11,7 @@
 */
 import { i18nInterface } from "fpe-api";
 
-export interface NetworkTextInterface{
+export interface NetworkQualityTextInterface {
   unknown?: 'Unknown',
   excellent?: 'Excellent',
   good?: 'Good',
@@ -20,16 +20,38 @@ export interface NetworkTextInterface{
   unpublished?: 'Unpublished',
   loading?: 'Loading',
 }
-export interface TextWithFunctionInterface {
-  screenShareName?: (name: string) => string;
-  screenName?: (name: string) => string;
-  screenShareActive?: (name: string) => string;
+export interface meetingInviteInterface {
+  meetingName?: string,
+  pstn?: {
+    number: string,
+    pin: string,
+  },
+  url?: {
+    host: string,
+    attendee: string,
+  },
+  id?: {
+    host: string,
+    attendee: string
+  },
+  hostControlCheckbox?: boolean,
+  platform?: string,
+  frontendEndpoint?: string
 }
-export interface TextInterface extends TextWithFunctionInterface, NetworkTextInterface{
+export interface TextWithFunctionObjectInterface{
+  meetingInviteText?: (invite: meetingInviteInterface) => string
+}
+
+export interface TextWithFunctionInterface {
+  screenshareUserName?: (name?: string) => string;
+  hostControlsToggle?: (toggle?: boolean) => string;
+  joinRoomButton?: (ready?: boolean) => string;
+  recordingButton?: (recording?: boolean) => string;
+  messageSenderNotificationLabel?: (name?: string) => string,
+  networkQualityLabel?: (quality: keyof NetworkQualityTextInterface) => string,
+}
+export interface TextInterface extends TextWithFunctionInterface,TextWithFunctionObjectInterface {
   meetingNameInputPlaceholder?: string;
-  restrictHostControls?: string;
-  everyOneIsAHost?: string;
-  seperateHostLink?: string;
   usePSTN?: string;
   loadingWithDots?: string;
   createMeetingButton?: string;
@@ -54,7 +76,6 @@ export interface TextInterface extends TextWithFunctionInterface, NetworkTextInt
   URLForHost?: string;
   attendeeMeetingID?: string;
   hostMeetingID?: string;
-  joinRoom?: string;
   precallLabel?: string;
   selectInputDeviceLabel?: string;
   userNamePlaceholder?: string;
@@ -80,27 +101,23 @@ export interface TextInterface extends TextWithFunctionInterface, NetworkTextInt
   pstnUserLabel?: string;
   authenticationSuccessLabel?: string;
   meetingCreatedNotificationLabel?: string;
-  from?: string;
   joiningLoaderLabel?: string;
   oauthLoginLabel?: string;
   oauthProviderLabel?: string;
   copyMeetingInviteButton?: string;
   goBackButton?: string;
   logoutButton?: string;
-  openInDesktop?: string;
   googleAuthButton?: string;
   microsoftAuthButton?: string;
   slackAuthButton?: string;
   appleAuthButton?: string;
   pin?: string;
   language?: string;
+  screensharingActiveOverlayLabel?: string
 }
 
 export const TEXTS: TextInterface = {
   meetingNameInputPlaceholder: 'Name your Meeting',
-  restrictHostControls: 'Restrict Host Controls',
-  everyOneIsAHost: 'Everyone is a Host',
-  seperateHostLink: 'Separate host link',
   usePSTN: 'Use PSTN (Join by dialing a number)',
   loadingWithDots: 'Loading...',
   createMeetingButton: 'Create Meeting',
@@ -125,7 +142,6 @@ export const TEXTS: TextInterface = {
   URLForHost: 'URL for Host',
   attendeeMeetingID: 'Attendee Meeting ID',
   hostMeetingID: 'Host Meeting ID',
-  joinRoom: 'Join Room',
   precallLabel: 'Precall',
   selectInputDeviceLabel: 'Select Input Device',
   userNamePlaceholder: 'Display name*',
@@ -151,23 +167,70 @@ export const TEXTS: TextInterface = {
   pstnUserLabel: 'PSTN User',
   authenticationSuccessLabel: 'Authenticated Successfully!',
   meetingCreatedNotificationLabel: 'Created',
-  from: 'From',
   joiningLoaderLabel: 'Starting Call. Just a second.',
   oauthLoginLabel: 'Login using OAuth',
   oauthProviderLabel: 'Please select an OAuth provider to login.',
   copyMeetingInviteButton: 'Copy Meeting Invite',
   goBackButton: 'Go back',
   logoutButton: 'Logout',
-  openInDesktop: 'Open in Desktop',
   googleAuthButton: 'Google',
   microsoftAuthButton: 'Microsoft',
   slackAuthButton: 'Slack',
   appleAuthButton: 'Apple',
   pin: 'Pin',
   language: 'Language',
-  screenShareName: (name) => `${name}'s screenshare`,
-  screenName: (name) => `${name}'s screen`,
-  screenShareActive: (name) => `${name}s screen share is active.`,
+  screensharingActiveOverlayLabel: 'Your screen share is active.',
+  screenshareUserName: (name) => `${name}'s screenshare`,
+  hostControlsToggle: (toggle) => toggle ? 'Restrict Host Controls (Separate host link)' : 'Restrict Host Controls (Everyone is a Host)',
+  joinRoomButton: (ready) => ready ? 'Join Room' : 'Loading...',
+  recordingButton: (recording) => recording ? 'Recording' : 'Record',
+  messageSenderNotificationLabel: (name) => `From : ${name}`,
+  networkQualityLabel: (quality) => {
+    switch (quality) {
+      case 'unknown':
+        return 'Unknown';
+      case 'excellent':
+        return 'Excellent';
+      case 'good':
+        return 'Good';
+      case 'bad':
+        return 'Bad';
+      case 'veryBad':
+        return 'Very Bad';
+      case 'unpublished':
+        return 'Unpublished';
+      case 'loading':
+        return 'Loading';
+      default:
+        return 'Loading';
+    }
+  },
+  meetingInviteText: ({ meetingName, id, url, pstn, hostControlCheckbox, platform }) => {
+    let inviteContent = '';
+    if($config.FRONTEND_ENDPOINT){
+      if(hostControlCheckbox){
+        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${$config.FRONTEND_ENDPOINT}/${url?.attendee}\nURL for Host: ${$config.FRONTEND_ENDPOINT}/${url?.host}`
+      }else{
+        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${$config.FRONTEND_ENDPOINT}/${url?.host}`
+      }  
+    }else if(platform === 'web'){
+      if(hostControlCheckbox){
+        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${window.location.origin}/${url?.attendee}\nURL for Host: ${window.location.origin}/${url?.host}`
+      }else{
+        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${window.location.origin}/${url?.host}`
+      }
+    }else{
+      if(hostControlCheckbox){
+        inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`
+      }else{
+        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.host}`
+      }
+    }
+    if(pstn){
+      inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`
+    }
+    return inviteContent;
+  }
 }
 
 export const DEFAULT_I18_DATA: i18nInterface = {

@@ -179,7 +179,7 @@ const PinnedVideo = () => {
                               : userList[user.uid]
                               ? userList[user.uid].name + ' '
                               : user.uid === 1
-                              ? useString('screenName',userList[localUid]?.name) + " "
+                              ? useString('screenshareUserName',userList[localUid]?.name) + " "
                               : String(user.uid)[0] === '1'
                               ? useString('pstnUserLabel') + " "
                               : useString('remoteUserDefaultLabel') + " "}
@@ -263,7 +263,7 @@ const PinnedVideo = () => {
                       : userList[maxUsers[0].uid]
                       ? userList[maxUsers[0].uid].name + ' '
                       : maxUsers[0].uid === 1
-                      ? useString('screenName',userList[localUid].name) + " "
+                      ? useString('screenshareUserName',userList[localUid].name) + " "
                       : useString('remoteUserDefaultLabel') + " "}
                       style={[
                         style.name,
