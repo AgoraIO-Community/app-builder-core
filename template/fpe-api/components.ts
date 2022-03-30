@@ -4,3 +4,8 @@ export * from "../src/components/precall";
 export * from "../src/pages/VideoCall";
 //Share link
 export * from "../src/components/Share";
+//Icons
+export * from "../src/assets/icons";
+//Settings
+export * from "../src/components/HostControlView";
+export * from "../src/subComponents/SelectDevice";
