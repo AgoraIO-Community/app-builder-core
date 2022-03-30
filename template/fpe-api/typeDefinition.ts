@@ -74,7 +74,7 @@ export interface i18nInterface {
   }
 }
 
-type CustomHookType = () => () => Promise<void> 
+export type CustomHookType = () => () => Promise<void> 
 
 export interface FpeApiInterface {
   /**
@@ -98,6 +98,7 @@ export interface FpeApiInterface {
    */
   lifecycle?: {
     useBeforeJoin?: CustomHookType,
+    useBeforeCreate?: CustomHookType
   }
   /**
    * message callback used to listen for incoming message from private or public 
