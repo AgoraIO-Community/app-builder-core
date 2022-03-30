@@ -17,7 +17,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  useWindowDimensions,
 } from 'react-native';
+import {RFValue} from 'react-native-responsive-fontsize';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
@@ -25,6 +27,7 @@ import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
 
 const Chat = (props: any) => {
+  const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -301,6 +304,20 @@ const style = StyleSheet.create({
     position: 'absolute',
     left: 25,
     top: -5,
+  },
+  chatNotificationPrivate: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    right: 20,
+    top: 0,
   },
 });
 

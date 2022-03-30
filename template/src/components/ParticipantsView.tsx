@@ -17,6 +17,7 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
@@ -40,7 +41,7 @@ const ParticipantView = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-
+  let fontSize = Platform.OS === 'web' ? 14 : 16;
   return (
     <View
       style={
@@ -241,9 +242,8 @@ const style = StyleSheet.create({
   },
   participantActionContainer: {
     flexDirection: 'row',
-    paddingRight: 10,
-    alignSelf: 'center',
-    alignItems: 'center',
+    paddingRight: 5,
+    justifyContent: 'flex-end',
   },
   actionBtnIcon: {
     width: 25,
@@ -259,6 +259,11 @@ const style = StyleSheet.create({
   },
   participantTextSmall: {
     fontSize: Platform.OS === 'web' ? 14 : 12,
+  },
+  dummyView: {
+    flex: 0.5,
+    opacity: 0,
+    marginHorizontal: 5,
   },
   dummyView: {
     flex: 0.5,
