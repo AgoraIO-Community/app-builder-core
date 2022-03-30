@@ -39,14 +39,14 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   marginBottom: 20,
                   color: $config.PRIMARY_FONT_COLOR,
                 }}>
-                  {useString('loginOAuth')}
+                  {useString('oauthLoginLabel')}
               </Text>
               {$config.ENABLE_GOOGLE_OAUTH ? (
                 <TouchableOpacity
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'google'})}>
                   <Image source={google} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>{useString('google')}</Text>
+                  <Text style={[style.secondaryBtnText]}>{useString('googleAuthButton')}</Text>
                 </TouchableOpacity>
               ) : (
                 <></>
@@ -56,7 +56,7 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'microsoft'})}>
                   <Image source={microsoft} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>{useString('microsoft')}</Text>
+                  <Text style={[style.secondaryBtnText]}>{useString('microsoftAuthButton')}</Text>
                 </TouchableOpacity>
               ) : (
                 <></>
@@ -66,7 +66,7 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'slack'})}>
                   <Image source={slack} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>{useString('slack')}</Text>
+                  <Text style={[style.secondaryBtnText]}>{useString('slackAuthButton')}</Text>
                 </TouchableOpacity>
               ) : (
                 <></>
@@ -76,7 +76,7 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'apple'})}>
                   <Image source={apple} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>{useString('apple')}</Text>
+                  <Text style={[style.secondaryBtnText]}>{useString('appleAuthButton')}</Text>
                 </TouchableOpacity>
               ) : (
                 <></>

@@ -59,7 +59,7 @@ const RecordingProvider = (props: any) => {
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
-  const recordingStartedText = useString('recordingStarted') 
+  const recordingStartedText = useString('recordingNotificationLabel') 
   useEffect(() => {
     if (recordingActive)
       Toast.show({text1: recordingStartedText , visibilityTime: 1000});

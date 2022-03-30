@@ -61,7 +61,7 @@ const Error = (props: { error: { name: string; message: string }, showBack?: boo
             textAlign: 'center',
             textDecorationLine: 'underline',
           }}>
-          {useString('goBack')}
+          {useString('goBackButton')}
                 </Text>
       </TouchableOpacity> : null}
     </View>

@@ -19,7 +19,7 @@ import { useString } from '../utils/useString';
 const Recording = () => {
   const {primaryColor} = useContext(ColorContext);
   const {startRecording, stopRecording, recordingActive} = useRecording(data => data);
-
+  const recordingButton = useString('recordingButton');
   return (
     <TouchableOpacity
       onPress={() => {
@@ -42,7 +42,7 @@ const Recording = () => {
           marginTop: 5,
           color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
         }}>
-        {recordingActive ? useString('recording') : useString('record')}
+        {recordingButton(recordingActive)}
       </Text>
     </TouchableOpacity>
   );

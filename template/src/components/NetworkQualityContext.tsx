@@ -13,7 +13,7 @@ import React, {createContext, useContext, useState} from 'react';
 import {RtcContext} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
-import { NetworkTextInterface } from '../language';
+import { NetworkQualityTextInterface } from '../language';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
@@ -31,7 +31,7 @@ export const networkIconsObject: {
   [key: number]: {
     icon: string;
     tint: string;
-    text: keyof NetworkTextInterface;
+    text: keyof NetworkQualityTextInterface;    
   };
 } = {
   0: {

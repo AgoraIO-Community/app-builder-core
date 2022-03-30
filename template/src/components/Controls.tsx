@@ -100,7 +100,7 @@ const Controls = () => {
           <></>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('hangUp')} />
+          <Endcall btnText={useString('endCallButton')} />
         </View>
       </View>
     </LocalUserContext>

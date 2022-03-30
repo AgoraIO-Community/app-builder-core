@@ -32,7 +32,7 @@ const ChatBubble = (props: channelMessage) => {
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid] ? userList[uid].name : useString('user')} | {time + ' '}
+          {userList[uid] ? userList[uid].name : useString('remoteUserDefaultLabel')} | {time + ' '}
         </Text>
       </View>
       <View

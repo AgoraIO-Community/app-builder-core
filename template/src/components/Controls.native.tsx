@@ -23,7 +23,7 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import { useVideoCall } from 'fpe-api';
-import { useString } from 'src/utils/useString';
+import { useString } from '../utils/useString';
 
 const Controls = () => {
   const {setRecordingActive, recordingActive, isHost} = useVideoCall(data => data);
@@ -52,10 +52,10 @@ const Controls = () => {
           <></>
         )}
         <View style={{alignSelf: 'center'}}>
-          <SwitchCamera btnText={useString('switch')} />
+          <SwitchCamera btnText={useString('switchCameraButton')} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('hangUp')} />
+          <Endcall btnText={useString('endCallButton')} />
         </View>
       </View>
     </LocalUserContext>

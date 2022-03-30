@@ -66,7 +66,8 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
-  const createdText = useString('created');
+  const createdText = useString('meetingCreatedNotificationLabel');
+  const hostControlsToggle = useString('hostControlsToggle');  
   useEffect(() =>{
     setGlobalErrorMessage(error);
   },[error])
@@ -120,7 +121,7 @@ const Create = () => {
                 value={roomTitle}
                 onChangeText={(text) => onChangeRoomTitle(text)}
                 onSubmitEditing={() => createRoom()}
-                placeholder={useString('nameYourMeeting')}
+                placeholder={useString('meetingNameInputPlaceholder')}
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
@@ -129,11 +130,7 @@ const Create = () => {
                     onValueChange={setHostControlCheckbox}
                   />
                   <Text style={style.checkboxTitle}>
-                    {useString('restrictHostControls')}{' '}
-                    {!hostControlCheckbox
-                      ? `(${useString('everyOneIsAHost')})`
-                      : `(${useString('seperateHostLink')})`
-                    }
+                    {hostControlsToggle(hostControlCheckbox)}
                   </Text>
                 </View>
                 {$config.PSTN ? (
@@ -153,7 +150,7 @@ const Create = () => {
               <PrimaryButton
                 disabled={roomTitle === '' || loading}
                 onPress={() => createRoom()}
-                text={loading ? useString('loadingWithDots') : useString('createMeeting')}
+                text={loading ? useString('loadingWithDots') : useString('createMeetingButton')}
               />
               <HorizontalRule />
               <SecondaryButton

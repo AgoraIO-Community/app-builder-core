@@ -36,17 +36,13 @@ import { useString } from '../utils/useString';
 const Share = () => {
   const history = useHistory();
   const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} = useShareLink(data => data);   
-  const copiedToClipboardText = useString('copiedToClipboard');
-  const meetingText = useString('meeting');
-  const urlForAttdText = useString('URLForAttendee');
-  const urlForHostText = useString('URLForHost');
-  const meetingUrlText = useString('meetingURL');
-  const attendeeMeetingIDText = useString('attendeeMeetingID');
-  const hostMeetingIDText = useString('hostMeetingID');
+  const copiedToClipboardText = useString('copiedToClipboardNotificationLabel');
+  const meetingInviteText = useString('meetingInviteText');
+  const meetingUrlText = useString('meetingUrlLabel');
   const PSTNNumberText = useString('PSTNNumber');
   const PSTNPinText = useString('PSTNPin');
-  const meetingIdText = useString('meetingID');
-  const hostIdText= useString('hostID');
+  const meetingIdText = useString('meetingIdLabel');
+  const hostIdText= useString('hostIdLabel');
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
@@ -57,33 +53,24 @@ const Share = () => {
 
   const copyToClipboard = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
-    let stringToCopy = '';
-
-    $config.FRONTEND_ENDPOINT
-      ? hostControlCheckbox
-        ? (stringToCopy += `${meetingText} - ${roomTitle}
-${urlForAttdText}: ${$config.FRONTEND_ENDPOINT}/${urlView}
-${urlForHostText}: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-        : (stringToCopy += `${meetingText} - ${roomTitle}
-${meetingUrlText}: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-      : platform === 'web'
-      ? hostControlCheckbox
-        ? (stringToCopy += `${meetingText} - ${roomTitle}
-${urlForAttdText}: ${window.location.origin}/${urlView}
-${urlForHostText}: ${window.location.origin}/${urlHost}`)
-        : (stringToCopy += `${meetingText} - ${roomTitle}
-${meetingUrlText}: ${window.location.origin}/${urlHost}`)
-      : hostControlCheckbox
-      ? (stringToCopy += `${meetingText} - ${roomTitle}
-${attendeeMeetingIDText}: ${urlView}
-${hostMeetingIDText}: ${urlHost}`)
-      : (stringToCopy += `${meetingText} - ${roomTitle}
-${meetingUrlText}: ${urlHost}`);
-
-    pstn
-      ? (stringToCopy += `${PSTNNumberText}: ${pstn.number}
-${PSTNPinText}: ${pstn.dtmf}`)
-      : '';
+    let stringToCopy = meetingInviteText({
+      frontendEndpoint: $config.FRONTEND_ENDPOINT, 
+      hostControlCheckbox,
+      platform,
+      meetingName: roomTitle,
+      url:{
+        attendee: urlView,
+        host: urlHost
+      },
+      id:{
+        attendee: urlView,
+        host: urlHost
+      },
+      pstn: pstn ? {
+        number: pstn.number,
+        pin: pstn.dtmf,
+      } : undefined
+    })
     Clipboard.setString(stringToCopy);
   };
 
@@ -136,8 +123,8 @@ ${PSTNPinText}: ${pstn.dtmf}`)
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
                 {$config.FRONTEND_ENDPOINT || platform === 'web'
-                  ? useString('attendeeURL')
-                  : useString('attendeeID')}
+                  ? useString('attendeeUrlLabel')
+                  : useString('attendeeIdLabel')}
               </Text>
               <View style={style.urlHolder}>
                 <Text
@@ -185,7 +172,7 @@ ${PSTNPinText}: ${pstn.dtmf}`)
             <Text style={style.urlTitle}>
               {$config.FRONTEND_ENDPOINT || platform === 'web'
                 ? hostControlCheckbox
-                  ? useString('hostURL')
+                  ? useString('hostUrlLabel')
                   : meetingUrlText
                 : hostControlCheckbox
                 ? hostIdText
@@ -232,10 +219,10 @@ ${PSTNPinText}: ${pstn.dtmf}`)
         {pstn ? (
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{useString('PSTN')}</Text>
+              <Text style={style.urlTitle}>{useString('pstnLabel')}</Text>
               <View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{useString('number')}: </Text>
+                  <Text style={style.urlTitle}>{useString('pstnNumberLabel')}: </Text>
                   <Text
                     style={[
                       style.url,
@@ -280,12 +267,12 @@ ${PSTNPinText}: ${pstn.dtmf}`)
         )}
         <PrimaryButton
           onPress={() => enterMeeting()}
-          text={useString('startMeeting')}
+          text={useString('enterMeetingAfterCreateButton')}
         />
         <View style={{height: 10}} />
         <SecondaryButton
           onPress={() => copyToClipboard()}
-          text={useString('copyInviteToClipboard')}
+          text={useString('copyInvite')}
         />
       </View>
       {/* {dim[0] > dim[1] + 150 ? (

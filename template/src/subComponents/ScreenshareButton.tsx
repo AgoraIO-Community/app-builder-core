@@ -44,7 +44,7 @@ const ScreenshareButton = () => {
           marginTop: 5,
           color: $config.PRIMARY_COLOR,
         }}>
-        {useString('share')}
+        {useString('screenShareButton')}
       </Text>
     </TouchableOpacity>
   );

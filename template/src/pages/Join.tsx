@@ -60,18 +60,18 @@ const Join = () => {
               value={phrase}
               onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder={useString('enterMeetingID')}
+              placeholder={useString('meetingIdInputPlaceholder')}
             />
             <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={useString('enterMeeting')}
+              text={useString('enterMeetingButton')}
             />
             <HorizontalRule />
             <SecondaryButton
               onPress={() => createMeeting()}
-              text={useString('createAMeeting')}
+              text={useString('createMeetingButton')}
             />
             {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?

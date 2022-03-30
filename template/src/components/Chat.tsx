@@ -117,7 +117,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
-            {useString('group')}
+            {useString('groupChatLabel')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -141,7 +141,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
-            {useString('private')}
+            {useString('privateChatLabel')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -230,7 +230,7 @@ const Chat = () => {
                                 fontSize: RFValue(16, height > width ? height : width)
                               }]} value={userList[user.uid]
                                   ? userList[user.uid].name + ' '
-                                  : useString('user') + " "} 
+                                  : useString('remoteUserDefaultLabel') + " "} 
                               />
                             </View>
                             <View>
@@ -254,7 +254,7 @@ const Chat = () => {
                 selectedUsername={
                   userList[selectedUser.uid]
                     ? userList[selectedUser.uid].name + ' '
-                    : useString('user') + ' '
+                    : useString('remoteUserDefaultLabel') + ' '
                 }
               />
                 <View>

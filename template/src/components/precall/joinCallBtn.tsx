@@ -17,11 +17,12 @@ import { useString } from '../../utils/useString';
 
 const joinCallBtn: React.FC = () => {
   const { setCallActive, queryComplete, username } = usePreCall(data => data)
+  const joinRoomButton = useString('joinRoomButton')
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
       disabled={!queryComplete || username === ''}
-      text={queryComplete ? useString('joinRoom') : useString('loadingWithDots')}
+      text={joinRoomButton(queryComplete)}      
     />
   )
 }

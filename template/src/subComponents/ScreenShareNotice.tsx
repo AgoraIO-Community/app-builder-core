@@ -32,7 +32,7 @@ function ScreenShareNotice({ uid }: any) {
         ?
         <View style={styles.screenSharingMessageContainer}>
             <Text style={styles.screensharingMessage}>
-            {useString('screenShareActive',userList[localUid]?.name)} 
+            {useString('screensharingActiveOverlayLabel')} 
             </Text>
         </View>
         : null

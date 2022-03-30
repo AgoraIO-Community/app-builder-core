@@ -47,11 +47,11 @@ const LogoutButton = () => {
     <>
       {token === null ? (
         <TouchableOpacity style={style.btn} onPress={() => login()}>
-          <Text style={style.btnText}>{useString('loginOAuth')}</Text>
+          <Text style={style.btnText}>{useString('oauthLoginLabel')}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={style.btn} onPress={() => logout()}>
-          <Text style={style.btnText}>{useString('logout')}</Text>
+          <Text style={style.btnText}>{useString('logoutButton')}</Text>
         </TouchableOpacity>
       )}
     </>

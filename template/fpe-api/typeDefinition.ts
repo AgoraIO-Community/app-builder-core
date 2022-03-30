@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
-import { TextInterface } from 'src/language';
+import { TextDataInterface, ConditionalTextInferface, DynamicTextInterface, NetworkQualityStatusInterface, MeetingInviteParam } from 'src/language';
 
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
@@ -63,7 +63,14 @@ export interface i18nInterface {
   label: string
   locale: string,
   data: {
-    [key in keyof TextInterface]: ((input:string) => string) | string
+    [key in keyof TextDataInterface]: string
+  } | {
+    [key in keyof ConditionalTextInferface]: (input: boolean) => string
+  } | {
+    [key in keyof DynamicTextInterface]: (input: string) => string
+  } | {
+    meetingInviteText?: (invite: MeetingInviteParam) => string,
+    networkQualityLabel?: (quality: keyof NetworkQualityStatusInterface) => string,
   }
 }
 

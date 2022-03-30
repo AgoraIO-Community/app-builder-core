@@ -154,7 +154,7 @@ const PinnedVideo = () => {
                             if (user.uid === 'local') {
                               return FallbackLogo(userList[localUid]?.name);
                             } else if (String(user.uid)[0] === '1') {
-                              return FallbackLogo(useString('PSTNUser'));
+                              return FallbackLogo(useString('pstnUserLabel'));
                             } else {
                               return FallbackLogo(userList[user.uid]?.name);
                             }
@@ -175,14 +175,14 @@ const PinnedVideo = () => {
                               value={user.uid === 'local'
                               ? userList[localUid]
                                 ? userList[localUid].name + ' '
-                                : useString('you') + ' '
+                                : useString('localUserDefaultLabel') + ' '
                               : userList[user.uid]
                               ? userList[user.uid].name + ' '
                               : user.uid === 1
-                              ? useString('screenName',userList[localUid]?.name) + " "
+                              ? useString('screenshareUserName',userList[localUid]?.name) + " "
                               : String(user.uid)[0] === '1'
-                              ? useString('PSTNUser') + " "
-                              : useString('user') + " "}
+                              ? useString('pstnUserLabel') + " "
+                              : useString('remoteUserDefaultLabel') + " "}
                               style={[
                                 style.name,
                                 {
@@ -238,7 +238,7 @@ const PinnedVideo = () => {
                     if (maxUsers[0].uid === 'local') {
                       return FallbackLogo(userList[localUid]?.name);
                     } else if (String(maxUsers[0].uid)[0] === '1') {
-                      return FallbackLogo(useString('PSTNUser'));
+                      return FallbackLogo(useString('pstnUserLabel'));
                     } else {
                       return FallbackLogo(userList[maxUsers[0].uid]?.name);
                     }
@@ -259,12 +259,12 @@ const PinnedVideo = () => {
                       value={maxUsers[0].uid === 'local'
                       ? userList[localUid]
                         ? userList[localUid].name + ' '
-                        : useString('you') + ' '
+                        : useString('localUserDefaultLabel') + ' '
                       : userList[maxUsers[0].uid]
                       ? userList[maxUsers[0].uid].name + ' '
                       : maxUsers[0].uid === 1
-                      ? useString('screenName',userList[localUid].name) + " "
-                      : useString('user') + " "}
+                      ? useString('screenshareUserName',userList[localUid].name) + " "
+                      : useString('remoteUserDefaultLabel') + " "}
                       style={[
                         style.name,
                         {fontSize: RFValue(14, height > width ? height : width)},

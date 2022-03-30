@@ -35,7 +35,7 @@ const Precall = () => {
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>{useString('precall')}</Text>
+        <Text style={style.headingText}>{useString('precallLabel')}</Text>
       </View>
       <View style={style.full}>
         {cmpTypeGuard(preview, PreCallVideoPreview)}

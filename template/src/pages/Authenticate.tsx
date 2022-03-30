@@ -22,7 +22,7 @@ import OAuth from '../components/OAuth';
 import Illustration from '../subComponents/Illustration';
 import {hasBrandLogo} from '../utils/common';
 import DimensionContext from '../components/dimension/DimensionContext';
-import { useString } from 'src/utils/useString';
+import { useString } from '../utils/useString';
 
 const Authenticate = () => {
   const {getDimensionData}= useContext(DimensionContext)
@@ -41,9 +41,9 @@ const Authenticate = () => {
         <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
         <View style={style.content}>
           <View style={style.leftContent}>
-            <Text style={style.heading}>{useString('loginOAuth')}</Text>
+            <Text style={style.heading}>{useString('oauthLoginLabel')}</Text>
             <Text style={style.headline}>
-              {useString('loginOAuthMessage')}
+              {useString('oauthProviderLabel')}
             </Text>
             <OAuth />
           </View>

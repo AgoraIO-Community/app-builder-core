@@ -63,8 +63,8 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
-  const userText = useString('user');
-  const getScreenShareName = useString('screenShareName');  
+  const userText = useString('remoteUserDefaultLabel');
+  const getScreenShareName = useString('screenshareUserName');  
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
@@ -248,7 +248,7 @@ const RtmConfigure = (props: any) => {
                 screenUid: parseInt(attr?.attributes?.screenUid),
               },
               [parseInt(attr?.attributes?.screenUid)]: {
-                name: getScreenShareName('screenShareName', attr?.attributes?.name || userText ),
+                name: getScreenShareName('screenshareUserName', attr?.attributes?.name || userText ),
                 type: UserType.ScreenShare,
               },
             };
