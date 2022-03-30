@@ -11,7 +11,7 @@
 */
 import { i18nInterface } from "fpe-api";
 
-export interface NetworkQualityTextInterface {
+export interface NetworkQualityStatusInterface {
   unknown?: 'Unknown',
   excellent?: 'Excellent',
   good?: 'Good',
@@ -20,7 +20,7 @@ export interface NetworkQualityTextInterface {
   unpublished?: 'Unpublished',
   loading?: 'Loading',
 }
-export interface meetingInviteInterface {
+export interface MeetingInviteParam {
   meetingName?: string,
   pstn?: {
     number: string,
@@ -38,19 +38,23 @@ export interface meetingInviteInterface {
   platform?: string,
   frontendEndpoint?: string
 }
-export interface TextWithFunctionObjectInterface{
-  meetingInviteText?: (invite: meetingInviteInterface) => string
+export interface MeetingInviteTextInterface{
+  meetingInviteText?: (invite: MeetingInviteParam) => string
 }
-
-export interface TextWithFunctionInterface {
+export interface NetworkQualityTextInterface{
+  networkQualityLabel?: (quality: keyof NetworkQualityStatusInterface) => string,
+}
+export interface DynamicTextInterface{
   screenshareUserName?: (name?: string) => string;
+  messageSenderNotificationLabel?: (name?: string) => string,  
+}
+export interface ConditionalTextInferface {
   hostControlsToggle?: (toggle?: boolean) => string;
   joinRoomButton?: (ready?: boolean) => string;
   recordingButton?: (recording?: boolean) => string;
-  messageSenderNotificationLabel?: (name?: string) => string,
-  networkQualityLabel?: (quality: keyof NetworkQualityTextInterface) => string,
 }
-export interface TextInterface extends TextWithFunctionInterface,TextWithFunctionObjectInterface {
+
+export interface TextDataInterface {
   meetingNameInputPlaceholder?: string;
   usePSTN?: string;
   loadingWithDots?: string;
@@ -115,8 +119,10 @@ export interface TextInterface extends TextWithFunctionInterface,TextWithFunctio
   language?: string;
   screensharingActiveOverlayLabel?: string
 }
+export interface CombinedTextDataInterface extends TextDataInterface, NetworkQualityTextInterface, MeetingInviteTextInterface, ConditionalTextInferface, DynamicTextInterface{
 
-export const TEXTS: TextInterface = {
+}
+export const TEXTS: CombinedTextDataInterface = {
   meetingNameInputPlaceholder: 'Name your Meeting',
   usePSTN: 'Use PSTN (Join by dialing a number)',
   loadingWithDots: 'Loading...',

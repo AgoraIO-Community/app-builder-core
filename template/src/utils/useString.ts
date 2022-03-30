@@ -11,7 +11,7 @@
 */
 import { useFpe } from "fpe-api";
 import { useLanguage } from "../language/useLanguage";
-import { TEXTS, TextInterface, DEFAULT_I18_DATA, TextWithFunctionInterface, TextWithFunctionObjectInterface, meetingInviteInterface } from "../language";
+import { TEXTS, TextDataInterface, DEFAULT_I18_DATA, MeetingInviteTextInterface, MeetingInviteParam, NetworkQualityTextInterface, ConditionalTextInferface, DynamicTextInterface, CombinedTextDataInterface } from "../language";
 
 export function usei18nData(selectedLanguageCode: string = DEFAULT_I18_DATA.locale){
   const languageData = useFpe(data => data.i18n);
@@ -34,10 +34,12 @@ export function usei18nData(selectedLanguageCode: string = DEFAULT_I18_DATA.loca
   }
   return TEXTS;
 }
-export function useString(keyName: keyof TextWithFunctionObjectInterface, input?: string): (input?: meetingInviteInterface) => string
-export function useString(keyName: keyof TextWithFunctionInterface, input?: string): (input?:string | boolean | object) => string
-export function useString(keyName: keyof TextInterface, input?: string): string
-export function useString(keyName: keyof TextInterface, input?: string){
+export function useString(keyName: keyof NetworkQualityTextInterface, input?: string): (input?: NetworkQualityTextInterface) => string
+export function useString(keyName: keyof MeetingInviteTextInterface, input?: string): (input?: MeetingInviteParam) => string
+export function useString(keyName: keyof DynamicTextInterface, input?: string): (input?: string) => string
+export function useString(keyName: keyof ConditionalTextInferface, input?: string): (input?: boolean) => string
+export function useString(keyName: keyof TextDataInterface, input?: string): string
+export function useString(keyName: keyof CombinedTextDataInterface, input?: string): string | ((input?: any) => string) {
   const lanCode = useLanguage(data => data.languageCode);
   const textData = usei18nData(lanCode);
   if(textData[keyName]){
