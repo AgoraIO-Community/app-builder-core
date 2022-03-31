@@ -9,9 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
-import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
-import icons from '../assets/icons';
+import React, {useContext, useEffect, useRef} from 'react';
+import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {gql, useMutation} from '@apollo/client';
@@ -37,6 +36,14 @@ const STOP_RECORDING = gql`
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
+function usePrevious(value: any) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 const Recording = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const {primaryColor} = useContext(ColorContext);
@@ -46,12 +53,19 @@ const Recording = (props: any) => {
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
+  const prevRecordingState = usePrevious({recordingActive});
 
   useEffect(() => {
-    if (recordingActive)
+    /**
+     * The below check makes sure the notification is triggered
+     * only once. In native apps, this componenet is mounted everytime
+     * when chat icon is toggle, as Controls component is hidden and
+     * shown
+     */
+    if (prevRecordingState && recordingActive) {
+      if (prevRecordingState?.recordingActive === recordingActive) return;
       Toast.show({text1: 'Recording Started', visibilityTime: 1000});
-    // else if(!recordingActive)
-    // Toast.show({text1: 'Recording Finished', visibilityTime: 1000})
+    }
   }, [recordingActive]);
 
   return (
@@ -103,7 +117,7 @@ const Recording = (props: any) => {
         <ImageIcon
           name={recordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
           style={[style.buttonIcon]}
-          color={recordingActive ? '#FD0845': $config.PRIMARY_COLOR}
+          color={recordingActive ? '#FD0845' : $config.PRIMARY_COLOR}
         />
       </View>
       <Text
@@ -132,8 +146,8 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonIcon: {
-    width: '100%',
-    height: '100%',
+    width: '90%',
+    height: '90%',
   },
 });
 

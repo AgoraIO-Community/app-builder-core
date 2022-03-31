@@ -13,170 +13,178 @@ import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
 import TextInput from '../atoms/TextInput';
 import PrimaryButton from '../atoms/PrimaryButton';
-
 import {
   MaxUidConsumer,
   MaxVideoView,
   LocalAudioMute,
   LocalVideoMute,
   LocalUserContext,
+  PropsContext,
+  ClientRole,
 } from '../../agora-rn-uikit';
-
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
 
+const JoinRoomInputView = (props: any) => {
+  const {
+    username,
+    setUsername,
+    queryComplete,
+    setCallActive,
+    buttonText,
+    error,
+  } = props;
+
+  return (
+    <View style={style.btnContainer}>
+      <TextInput
+        value={username}
+        onChangeText={(text) => {
+          setUsername(text);
+        }}
+        onSubmitEditing={() => {}}
+        placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
+        editable={queryComplete && !error}
+      />
+      <View style={{height: 20}} />
+      <PrimaryButton
+        onPress={() => setCallActive(true)}
+        disabled={!queryComplete || username.trim() === '' || error}
+        text={queryComplete ? buttonText : 'Loading...'}
+      />
+    </View>
+  );
+};
+
 const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  const {setCallActive, queryComplete, username, setUsername, error, title} = props;
-  const [dim, setDim] = useState([
+  const {rtcProps} = useContext(PropsContext);
+
+  const {queryComplete, error, title} = props;
+  const [buttonText, setButtonText] = React.useState('Join Room');
+
+  const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
 
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
 
-  useEffect(()=>{
-    if(Platform.OS === 'web'){
-      if(title){
-        document.title = title + ' | ' + $config.APP_NAME
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      if (title) {
+        document.title = title + ' | ' + $config.APP_NAME;
       }
     }
-  })
+  });
+
+  useEffect(() => {
+    let clientRole = '';
+    if (rtcProps?.role == 1) {
+      clientRole = 'Host';
+    }
+    if (rtcProps?.role == 2) {
+      clientRole = 'Audience';
+    }
+    setButtonText(
+      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
+    );
+  }, [rtcProps?.role]);
+
+  const isMobileView = () => dim[0] < dim[1] + 150;
+
+  if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
+
+  const brandHolder = () => (
+    <View style={style.nav}>
+      {hasBrandLogo && <Logo />}
+      {error && <Error error={error} showBack={true} />}
+    </View>
+  );
+
+  const meetingTitle = () => (
+    <>
+      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
+        {title}
+      </Text>
+      <View style={{height: 50}} />
+    </>
+  );
 
   return (
-    // <ImageBackground
-    //   onLayout={onLayout}
-    //   style={style.full}
-    //   resizeMode={'cover'}>
     <View style={style.main} onLayout={onLayout}>
-      <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
-        {error ? <Error error={error} showBack={true} /> : <></>}
-        {/* <OpenInNativeButton /> */}
-      </View>
-      <View style={style.content}>
-        <View style={style.leftContent}>
-          <MaxUidConsumer>
-            {(maxUsers) => (
-              <View style={{borderRadius: 10, flex: 1}}>
-                <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-              </View>
-            )}
-          </MaxUidConsumer>
-          <View style={style.precallControls}>
-            <LocalUserContext>
-              <View style={{alignSelf: 'center'}}>
-                <LocalVideoMute />
-              </View>
-              <View style={{alignSelf: 'center'}}>
-                <LocalAudioMute />
-              </View>
-            </LocalUserContext>
-          </View>
-          {dim[0] < dim[1] + 150 ? (
-            <View style={[style.margin5Btm, {alignItems: 'center'}]}>
-              <TextInput
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                }}
-                onSubmitEditing={() => {}}
-                placeholder={
-                  queryComplete ? 'Display name*' : 'Getting name...'
-                }
-                editable={queryComplete}
-              />
-              <View style={style.margin5Btm} />
-              <PrimaryButton
-                onPress={() => setCallActive(true)}
-                disabled={!queryComplete || username.trim() === ''}
-                text={queryComplete ? 'Join Room' : 'Loading...'}
-              />
-            </View>
-          ) : (
-            <></>
-          )}
+      {/* Precall screen only changes for audience in Live Stream event */}
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <View style={style.preCallContainer}>
+          {brandHolder()}
+          {meetingTitle()}
+          <JoinRoomInputView {...props} buttonText={buttonText} />
         </View>
-        {dim[0] >= dim[1] + 150 ? (
-          // <View style={[style.full]}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
-              marginLeft: 50,
-              padding: 20,
-              borderRadius: 10,
-              alignItems: 'center',
-              borderWidth: 1,
-              borderStyle: 'solid',
-              borderColor: $config.PRIMARY_COLOR,
-              height: '70%',
-              minHeight: 340,
-              minWidth: 380,
-              alignSelf: 'center',
-              justifyContent: 'center',
-              marginBottom: '10%',
-            }}>
-            <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-              {title}
-            </Text>
-            <View style={{height: 20}} />
-            <View style={[{shadowColor: primaryColor}, style.precallPickers]}>
-              {/* <View style={{flex: 1}}> */}
-              <Text
-                style={[style.subHeading, {color: $config.PRIMARY_FONT_COLOR}]}>
-                Select Input Device
-              </Text>
-              {/* </View> */}
-              <View style={{height: 20}} />
+      ) : (
+        <>
+          {brandHolder()}
+          <View style={style.content}>
+            <View style={style.upperContainer}>
               <View
-                style={{
-                  flex: 1,
-                  maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
-                }}>
-                <SelectDevice />
+                style={[
+                  style.leftContent,
+                  isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
+                ]}>
+                <MaxUidConsumer>
+                  {(maxUsers) => (
+                    <View style={{borderRadius: 10, flex: 1}}>
+                      <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+                    </View>
+                  )}
+                </MaxUidConsumer>
+                <View style={style.precallControls}>
+                  <LocalUserContext>
+                    <View style={{alignSelf: 'center'}}>
+                      <LocalVideoMute />
+                    </View>
+                    <View style={{alignSelf: 'center'}}>
+                      <LocalAudioMute />
+                    </View>
+                  </LocalUserContext>
+                </View>
+                <View style={{marginBottom: '10%'}}>
+                  {/* This view is visible only on MOBILE view */}
+                  {isMobileView() && (
+                    <JoinRoomInputView {...props} buttonText={buttonText} />
+                  )}
+                </View>
               </View>
-              <View
-                style={{
-                  flex: 1,
-                  width: 350,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: 50,
-                }}>
-                <TextInput
-                  value={username}
-                  onChangeText={(text) => {
-                    setUsername(text);
-                  }}
-                  onSubmitEditing={() => {}}
-                  placeholder={
-                    queryComplete ? 'Display name*' : 'Getting name...'
-                  }
-                  editable={queryComplete}
-                />
-                <View style={{height: 20}} />
-                <PrimaryButton
-                  onPress={() => setCallActive(true)}
-                  disabled={!queryComplete || username.trim() === ''}
-                  text={queryComplete ? 'Join Room' : 'Loading...'}
-                />
-              </View>
+              {/* This view is visible only on WEB view */}
+              {!isMobileView() && (
+                <View style={style.rightContent}>
+                  {meetingTitle()}
+                  <View
+                    style={[{shadowColor: primaryColor}, style.precallPickers]}>
+                    <Text style={style.subHeading}>Select Input Device</Text>
+                    <View
+                      style={{
+                        flex: 1,
+                        maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
+                        marginVertical: 30,
+                      }}>
+                      <SelectDevice />
+                    </View>
+                    <View style={{width: '100%'}}>
+                      <JoinRoomInputView {...props} buttonText={buttonText} />
+                    </View>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
-        ) : (
-          // </View>
-          <></>
-        )}
-      </View>
+        </>
+      )}
     </View>
-    // </ImageBackground>
   );
 };
 
@@ -184,9 +192,16 @@ const style = StyleSheet.create({
   full: {flex: 1},
   main: {
     flex: 2,
-    justifyContent: 'space-evenly',
+    // justifyContent: 'space-evenly',
     marginHorizontal: '10%',
     minHeight: 500,
+  },
+  preCallContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 350,
+    justifyContent: 'space-between',
+    marginTop: '15%',
   },
   nav: {
     flex: 1,
@@ -195,79 +210,50 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'row'},
+  content: {flex: 6, flexDirection: 'column'},
   leftContent: {
-    width: '100%',
     flex: 1.3,
-    justifyContent: 'space-evenly',
-    marginTop: '2.5%',
-    marginBottom: '1%',
-    // marginRight: '5%',
+    height: '100%',
+  },
+  upperContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    flex: 3,
+  },
+  rightContent: {
+    flex: 1,
+    height: '70%',
+    backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
+    paddingLeft: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: $config.PRIMARY_COLOR,
+    justifyContent: 'center',
+  },
+  titleFont: {
+    textAlign: 'center',
+    fontSize: 20,
+    color: $config.PRIMARY_FONT_COLOR,
   },
   titleHeading: {
     fontSize: 28,
     fontWeight: '700',
+    textAlign: 'center',
     color: $config.SECONDARY_FONT_COLOR,
   },
   subHeading: {
     fontSize: 18,
     fontWeight: '700',
-    color: $config.SECONDARY_FONT_COLOR,
-  },
-  headline: {
-    fontSize: 20,
-    fontWeight: '400',
     color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
   },
-  inputs: {
+  btnContainer: {
     flex: 1,
     width: '100%',
-    alignSelf: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  textInput: {
-    width: '100%',
-    paddingLeft: 8,
-    borderColor: $config.PRIMARY_COLOR,
-    borderWidth: 2,
-    color: $config.PRIMARY_FONT_COLOR,
-    fontSize: 16,
-    marginBottom: 15,
-    maxWidth: 400,
-    minHeight: 45,
-    alignSelf: 'center',
-  },
-  primaryBtn: {
-    width: '60%',
-    backgroundColor: $config.PRIMARY_COLOR,
-    maxWidth: 400,
-    minHeight: 45,
-    alignSelf: 'center',
-  },
-  primaryBtnDisabled: {
-    width: '60%',
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-    maxWidth: 400,
-    minHeight: 45,
-    minWidth: 200,
-    alignSelf: 'center',
-  },
-  primaryBtnText: {
-    width: '100%',
-    height: 45,
-    lineHeight: 45,
-    fontSize: 16,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
-  },
-  ruler: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    width: '100%',
-    maxWidth: 200,
   },
   precallControls: {
     flexDirection: 'row',
@@ -280,14 +266,11 @@ const style = StyleSheet.create({
   precallPickers: {
     alignItems: 'center',
     alignSelf: 'center',
-    // alignContent: 'space-around',
     justifyContent: 'space-around',
-    // flex: 1,
     marginBottom: '10%',
     height: '35%',
     minHeight: 280,
   },
-  margin5Btm: {marginBottom: '5%'},
 });
 
 export default Precall;
