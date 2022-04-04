@@ -12,11 +12,12 @@
 import React from 'react';
 import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
 import { TextDataInterface, ConditionalTextInferface, DynamicTextInterface, NetworkQualityStatusInterface, MeetingInviteParam } from 'src/language';
-
+import Layout from '../src/subComponents/LayoutEnum';
+import { UidInterface } from '../agora-rn-uikit/src';
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
 //todo:hari define AnyReactComponent support any react component
-export type AnyReactComponent = React.FC<any>
+export type AnyReactComponent = React.FC<any>;
 
 export interface PreCallInterface {
   preview?: AnyReactComponent;
@@ -33,12 +34,39 @@ export interface ChatCmpInterface {
   chatInput?: React.FC<chatInputInterface>;
 }
 
+export interface renderComponentInterface {
+  user: UidInterface;
+  // ----------
+  // incase of single component for min and max
+  // with conditional rendering.
+  isMax?: Boolean;
+  // ----------
+  index: number;
+}
+
+export interface renderComponentObjectInterface {
+  [key: string]: React.FC<renderComponentInterface> 
+}
+
+export type layoutComponent = React.FC<{
+  maxVideoArray: React.FC[];
+  minVideoArray: React.FC[];
+  setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
+}>;
+
+export interface layoutObjectInterface {
+  name: string;
+  icon?: string;
+  component: layoutComponent;
+}
 export interface VideoCallInterface {
   topBar?: AnyReactComponent;
   settingsPanel?: AnyReactComponent;
   participantsPanel?: AnyReactComponent;
   bottomBar?: AnyReactComponent;
   chat?: ChatCmpInterface | AnyReactComponent;
+  renderComponentObject?: renderComponentObjectInterface;  
+  customLayout?: (layouts: layoutObjectInterface[]) => layoutObjectInterface[];
 }
 
 export type ComponentsInterface ={
@@ -104,4 +132,7 @@ export interface FpeApiInterface {
    * message callback used to listen for incoming message from private or public 
    */
   //message_callback?: //TODO:hari;
+  customUserContext?: {
+    useUserContext: () => any
+  }
 }

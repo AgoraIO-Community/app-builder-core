@@ -42,6 +42,7 @@ const Navbar = () => {
     setSidePanel,
     layout,
     setLayout,
+    layouts,
     isHost,
     title,
   } = useVideoCall(data => data);
@@ -249,15 +250,19 @@ const Navbar = () => {
             <></>
           )}
           <View style={{width: '20%', height: '100%'}}>
-              <BtnTemplate
-                style={style.btnHolder}
-                onPress={() => {
-                  setLayout((l: Layout) =>
-                    l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-                  );
-                }}
-                name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
-              />
+            <BtnTemplate
+              style={style.btnHolder}
+              onPress={() => {
+                setLayout((l: Layout) => {
+                  if (l < layouts?.length - 1 ) {
+                    return l + 1;
+                  } else {
+                    return 0;
+                  }
+                });
+              }}
+              name={layouts[layout].icon}
+            />
           </View>
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web

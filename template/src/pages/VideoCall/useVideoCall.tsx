@@ -13,7 +13,9 @@
 import React, { SetStateAction } from 'react';
 import { SidePanelType } from '../../subComponents/SidePanelEnum';
 import Layout from '../../subComponents/LayoutEnum';
-import {createHook} from 'fpe-api';
+import {createHook, layoutObjectInterface} from 'fpe-api';
+import PinnedVideo from '../../components/PinnedVideo';
+import GridVideo from '../../components/GridVideo';
 
 export interface VideoCallContextInterface {
   recordingActive: boolean,
@@ -25,6 +27,7 @@ export interface VideoCallContextInterface {
   setRecordingActive: React.Dispatch<SetStateAction<boolean>>,
   setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>,
   setLayout: React.Dispatch<SetStateAction<any>>,
+  layouts: layoutObjectInterface[]
 }
 
 const VideoCallContext = React.createContext({
@@ -36,7 +39,11 @@ const VideoCallContext = React.createContext({
   children: null,
   setRecordingActive: () => { },
   setSidePanel: () => { },
-  setLayout: () => { }
+  setLayout: () => { },
+  layouts: [
+    {name: 'GridLayout', icon: 'gridLayoutIcon', component: GridVideo},
+    {name: 'PinnedLayout', icon: 'pinnedLayoutIcon', component: PinnedVideo}
+  ]
 } as VideoCallContextInterface);
 
 const VideoCallProvider = (props: VideoCallContextInterface) => {
