@@ -60,8 +60,8 @@ export interface CustomRoutesInterface {
 };
 
 export interface i18nInterface {
-  label: string
-  locale: string,
+  label?: string;
+  locale: string;
   data: {
     [key in keyof TextDataInterface]: string
   } | {

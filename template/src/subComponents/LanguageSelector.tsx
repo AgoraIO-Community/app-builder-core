@@ -40,7 +40,7 @@ const LanguageSelector = () => {
         {languageData.map((item) => {
             return (
               <Picker.Item
-                label={item.label}
+                label={item.label || item.locale}
                 value={item.locale}
                 key={item.locale}
               />
@@ -48,7 +48,7 @@ const LanguageSelector = () => {
         })}
         {!languageData.filter((i) => i.locale === DEFAULT_I18_DATA.locale).length ? 
           <Picker.Item
-            label={DEFAULT_I18_DATA.label}
+            label={DEFAULT_I18_DATA.label || DEFAULT_I18_DATA.locale}
             value={DEFAULT_I18_DATA.locale}
             key={DEFAULT_I18_DATA.locale}
           />
