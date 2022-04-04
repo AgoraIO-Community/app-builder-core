@@ -34,7 +34,11 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
   const {store, setStore} = useContext(StorageContext);
   const i18nData = useFpe(data => data.i18n);
 
-  const [languageCode, setLanguageCodeLocal] = useState(store.selectedLanguageCode || (i18nData && i18nData.length ? i18nData[0].locale : false ) || DEFAULT_I18_DATA.locale);
+  //If language code is stored in the localstorage no longer available in fpe data
+  //then we will update the localstorage value to default value
+  let storedCode = i18nData?.find((item) => item.locale === store.selectedLanguageCode) ? store.selectedLanguageCode : undefined
+
+  const [languageCode, setLanguageCodeLocal] = useState(storedCode || (i18nData && i18nData.length ? i18nData[0].locale : false ) || DEFAULT_I18_DATA.locale);
 
   useEffect(() => {
     if(setStore){
@@ -45,7 +49,12 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
         }
       });
     } 
-  }, [languageCode])
+  }, [languageCode]);
+
+  useEffect(() => {
+    let storedCode = i18nData?.find((item) => item.locale === store.selectedLanguageCode) ? store.selectedLanguageCode : undefined
+    setLanguageCodeLocal(storedCode || (i18nData && i18nData.length ? i18nData[0].locale : false ) || DEFAULT_I18_DATA.locale)
+  }, [i18nData]);
   
   const setLanguageCode = (langCode: string) => {
     setLanguageCodeLocal(langCode);
