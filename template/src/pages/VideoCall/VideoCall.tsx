@@ -40,7 +40,6 @@ import { ErrorContext } from '../.././components/common/index';
 import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider, VideoCallInterface } from 'fpe-api';
 import Precall from '../../components/precall/PreCall';
 import VideoArrayRenderer from './VideoArrayRenderer';
-import {CustomUserContextHolder} from './CustomUserContextholder';
 import { useString } from '../../utils/useString';
 import { useVideoCall } from './useVideoCall';
 
@@ -427,7 +426,6 @@ const VideoCall: React.FC = () => {
                                   style.videoView,
                                   {backgroundColor: '#ffffff00'},
                                 ]}>
-                                <CustomUserContextHolder>
                                   <NetworkQualityProvider>
                                     <VideoArrayRenderer>
                                       {(
@@ -471,7 +469,6 @@ const VideoCall: React.FC = () => {
                                   ) : (
                                     <></>
                                   )}
-                                </CustomUserContextHolder>
                               </View>
                             {Platform.OS !== 'web' &&
                             sidePanel === SidePanelType.Chat ? (

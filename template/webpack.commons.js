@@ -14,6 +14,7 @@
  */
 
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
 const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -21,16 +22,23 @@ const configVars = require('./configTransform');
 const getFpePath = require('./fpe.config');
 
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
+const isReactSdk = process.env.TARGET === 'rsdk';
+const isWebSdk = process.env.TARGET === 'wsdk';
 
 module.exports = {
   // Adds React Refresh webpack plugin for webpack dev server hmr
   plugins: [
     // Using html webpack plugin to utilize our index.html
-    new HtmlWebpackPlugin({
-      title: configVars['$config.APP_NAME'],
-      template: isElectron ? 'electron/index.html' : 'web/index.html',
-    }),
-    isDevelopment &&
+    !isReactSdk ?
+      new HtmlWebpackPlugin({
+        title: configVars['$config.APP_NAME'],
+        template: isWebSdk
+          ? 'wsdk/index.html'
+          : isElectron
+          ? 'electron/index.html'
+          : 'web/index.html',
+      }):new EsmWebpackPlugin(),
+    isDevelopment && !isReactSdk &&
       new ReactRefreshWebpackPlugin({
         overlay: false,
       }),
@@ -58,6 +66,8 @@ module.exports = {
       `.${process.env.TARGET}.ts`,
       isElectron && '.electron.tsx',
       isElectron && '.electron.ts',
+      (isWebSdk || isReactSdk) && '.web.ts',
+      (isWebSdk || isReactSdk) && '.web.tsx',
       '.tsx',
       '.ts',
       '.jsx',
