@@ -10,7 +10,6 @@
 *********************************************
 */
 
-import PreCall from './PreCall';
 import PreCallLocalMute from './LocalMute';
 import PreCallVideoPreview from './VideoPreview';
 import PreCallSetName from './setName';
@@ -18,7 +17,6 @@ import PreCallSelectDevice from './selectDevice';
 import PreCallJoinBtn from './joinCallBtn'
 import PreCallTextInput from './textInput';
 export {
-  PreCall,
   PreCallLocalMute,
   PreCallVideoPreview,
   PreCallSetName,

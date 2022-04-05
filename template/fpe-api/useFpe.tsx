@@ -9,17 +9,31 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import React from 'react';
+import fpeConfig from 'test-fpe';
+import { FpeApiInterface } from './typeDefinition';
+import {createHook} from 'fpe-implementation';
 
-/*
-getFpePath - will return test-fpe if exists otherwise it will return the dummy fpe path
-*/
-const fs = require("fs");
-const FpePath = './test-fpe/index.ts'
-const FpeDummyPath = './fpe-implementation/dummyFpe.ts'
-const getFpePath = () => {
-  if (fs.existsSync(FpePath)) {
-    return FpePath    
-  }
-  return FpeDummyPath
+const FpeContext: React.Context<FpeApiInterface> = React.createContext(fpeConfig);
+
+export interface FpeProviderInterface {
+  children: React.ReactNode,
+  value: FpeApiInterface
 }
-module.exports = getFpePath
+
+const FpeProvider = (props: FpeProviderInterface) => {
+  return (
+    <FpeContext.Provider
+      value={props.value}
+    >
+      {true ? props.children : <></>}
+    </FpeContext.Provider>
+  );
+};
+
+const useFpe = createHook(FpeContext);
+
+export {
+  useFpe,
+  FpeProvider
+};

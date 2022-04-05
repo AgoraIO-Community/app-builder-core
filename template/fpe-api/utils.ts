@@ -9,25 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-/**
- * 
- * @param context - any context data which we want to extract the data.
- * @returns useContextWithSelector in which we can pass selector function to extract data from the context that we passed.
- */
-function createHook<T>(context: React.Context<T>){
-  
-  function useContextWithSelector<U>(contextSelector:(data: T) => U): U ;
-  function useContextWithSelector(): T;
-  /**
-   * 
-   * @param contextSelector is used to pass callback function used to select data from the context data
-   * @returns the data selected from the context
-   */
-  function useContextWithSelector<U>(contextSelector?:(data: T) => U): U | T { 
-    const data = useContext(context);
-    return contextSelector ? contextSelector(data) : data
-  }
-  return useContextWithSelector;
-}
-export default createHook
+export {default as useIsScreenShare} from '../src/utils/isScreenShareUser';
+export {default as useIsHost} from '../src/utils/isHostUser';
+export {default as useIsAttendee} from '../src/utils/IsAttendeeUser';
+export {default as useIsPSTN} from '../src/utils/isPSTNUser';
+export {default as useUserList} from '../src/utils/useUserList';
+export {default as useGroupMessages} from '../src/utils/useGroupMessages';
+export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
+export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
+export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';

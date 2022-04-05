@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import {createHook} from 'fpe-api';
+import {createHook} from 'fpe-implementation';
 import React from 'react';
 
 export interface ShareLinkContextInterface {

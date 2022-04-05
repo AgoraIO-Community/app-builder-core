@@ -24,6 +24,7 @@ module.exports = {
         alias: {
           "fpe-api/install": "./fpe-api/install.ts",
           "fpe-api": "./fpe-api/index.ts",
+          "fpe-implementation": "./fpe-implementation/index.ts",
           "test-fpe": getFpePath()
         }
       }

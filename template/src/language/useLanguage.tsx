@@ -10,7 +10,8 @@
 *********************************************
 */
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {createHook, useFpe} from 'fpe-api';
+import {createHook} from 'fpe-implementation';
+import { useFpe } from 'fpe-api';
 import { DEFAULT_I18_DATA } from './index';
 import StorageContext from '../components/StorageContext';
 

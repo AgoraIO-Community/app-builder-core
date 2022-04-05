@@ -13,7 +13,7 @@
 import React, { SetStateAction } from 'react';
 import { SidePanelType } from '../../subComponents/SidePanelEnum';
 import Layout from '../../subComponents/LayoutEnum';
-import {createHook} from 'fpe-api';
+import {createHook} from 'fpe-implementation';
 
 export interface VideoCallContextInterface {
   recordingActive: boolean,

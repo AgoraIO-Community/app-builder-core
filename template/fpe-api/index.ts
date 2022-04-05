@@ -9,30 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
 import fpeConfig from 'test-fpe';
-import { FpeApiInterface } from './typeDefinition';
-import createHook from './utils';
 
-const FpeContext: React.Context<FpeApiInterface> = React.createContext(fpeConfig);
+export { fpeConfig };
 
-const useFpe = createHook(FpeContext);
-
-export {
-  createHook,
-  useFpe,
-};
-
+export * from './useFpe';
 export * from './context';
 export * from './components';
 export * from './typeDefinition';
-
-export {default as useIsScreenShare} from '../src/utils/isScreenShareUser';
-export {default as useIsHost} from '../src/utils/isHostUser';
-export {default as useIsAttendee} from '../src/utils/IsAttendeeUser';
-export {default as useIsPSTN} from '../src/utils/isPSTNUser';
-export {default as useUserList} from '../src/utils/useUserList';
-export {default as useGroupMessages} from '../src/utils/useGroupMessages';
-export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
-export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
-export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
+export * from './utils';

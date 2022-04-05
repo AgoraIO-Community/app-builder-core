@@ -15,43 +15,42 @@ import { TextDataInterface, ConditionalTextInferface, DynamicTextInterface, Netw
 
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
-//todo:hari define AnyReactComponent support any react component
-export type AnyReactComponent = React.FC<any>
+export type ReactComponentType = React.FC | React.ComponentClass
 
 export interface PreCallInterface {
-  preview?: AnyReactComponent;
-  audioMute?: AnyReactComponent;
-  videoMute?: AnyReactComponent;
-  meetingName?: AnyReactComponent;
-  deviceSelect?: AnyReactComponent;
-  joinButton?: AnyReactComponent;
-  textBox?: AnyReactComponent;
+  preview?: ReactComponentType;
+  audioMute?: ReactComponentType;
+  videoMute?: ReactComponentType;
+  meetingName?: ReactComponentType;
+  deviceSelect?: ReactComponentType;
+  joinButton?: ReactComponentType;
+  textBox?: ReactComponentType;
 }
 
 export interface ChatCmpInterface {
-  chatBubble?: React.FC<channelMessage>;
-  chatInput?: React.FC<chatInputInterface>;
+  chatBubble?: React.Component<channelMessage> | React.FC<channelMessage>;
+  chatInput?: React.Component<chatInputInterface> | React.FC<chatInputInterface>;
 }
 
 export interface VideoCallInterface {
-  topBar?: AnyReactComponent;
-  settingsPanel?: AnyReactComponent;
-  participantsPanel?: AnyReactComponent;
-  bottomBar?: AnyReactComponent;
-  chat?: ChatCmpInterface | AnyReactComponent;
+  topBar?: ReactComponentType;
+  settingsPanel?: ReactComponentType;
+  participantsPanel?: ReactComponentType;
+  bottomBar?: ReactComponentType;
+  chat?: ChatCmpInterface | ReactComponentType;
 }
 
-export type ComponentsInterface ={
-  precall?: PreCallInterface | AnyReactComponent
-  create?: AnyReactComponent;
-  share?: AnyReactComponent;
-  join?: AnyReactComponent;
-  videoCall?: VideoCallInterface | AnyReactComponent;
+export type ComponentsInterface = {
+  precall?: PreCallInterface | ReactComponentType
+  create?: ReactComponentType;
+  share?: ReactComponentType;
+  join?: ReactComponentType;
+  videoCall?: VideoCallInterface | ReactComponentType;
 }
 
 export interface CustomRoutesInterface {
   path: string;
-  component: AnyReactComponent;
+  component: ReactComponentType;
   exact?: boolean;
   componentProps?: object;
   privateRoute?: boolean;
@@ -104,4 +103,4 @@ export interface FpeApiInterface {
    * message callback used to listen for incoming message from private or public 
    */
   //message_callback?: //TODO:hari;
-}
+};

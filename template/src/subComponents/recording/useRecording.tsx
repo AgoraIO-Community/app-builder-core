@@ -15,7 +15,7 @@ import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
-import {createHook} from 'fpe-api';
+import {createHook} from 'fpe-implementation';
 import { useString } from '../../utils/useString';
 
 export interface RecordingContextInterface {  

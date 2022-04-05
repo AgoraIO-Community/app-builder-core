@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, { createContext } from 'react';
-import {createHook} from 'fpe-api';
+import {createHook} from 'fpe-implementation';
 
 export interface PreCallContextInterface {
   username: string;

@@ -46,6 +46,7 @@ module.exports = {
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
       'fpe-api/install': path.join(__dirname, 'fpe-api/install.ts'),
       'fpe-api': path.join(__dirname, 'fpe-api/index.ts'),
+      'fpe-implementation': path.join(__dirname, 'fpe-implementation/index.ts'),
       'test-fpe': path.join(__dirname, getFpePath()),
     },
     // Adds platform specific extensions and OS specific extensions

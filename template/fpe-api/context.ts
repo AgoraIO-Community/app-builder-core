@@ -1,7 +1,7 @@
 /**
  * Core contexts
  */
-import createHook from './utils';
+import {createHook} from 'fpe-implementation';
 import {RtcContext, MinUidContext, MaxUidContext, PropsContext, LocalContext} from '../agora-rn-uikit';
 import {default as ChatContext} from '../src/components/ChatContext';
 import {default as DeviceContext} from '../src/components/DeviceContext';
