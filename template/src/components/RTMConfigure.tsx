@@ -28,6 +28,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
 import {filterObject} from '../utils';
+import { useString } from '../utils/useString';
 
 export enum UserType {
   Normal,
@@ -86,6 +87,8 @@ const RtmConfigure = (props: any) => {
   const [userList, setUserList] = useState<{[key: string]: any}>({});
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
+  const userText = useString('remoteUserDefaultLabel');
+  const getScreenShareName = useString('screenshareUserName');  
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
@@ -164,7 +167,7 @@ const RtmConfigure = (props: any) => {
   const setAttribute = async () => {
     try {
       await engine.current.setLocalUserAttributes([
-        {key: 'name', value: name || 'User'},
+        {key: 'name', value: name || userText},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
         {key: 'role', value: String(rtcProps?.role)},
         {key: 'requests', value: attrRequestTypes.none}, // stores Uid who have raised a request
@@ -239,7 +242,7 @@ const RtmConfigure = (props: any) => {
                 return {
                   ...prevState,
                   [member.uid]: {
-                    name: attr?.attributes?.name || 'User',
+                    name: attr?.attributes?.name || userText,
                     type: UserType.Normal,
                     role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
@@ -247,7 +250,7 @@ const RtmConfigure = (props: any) => {
                     requests: attr?.attributes?.requests,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
-                    name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                    name: getScreenShareName(attr?.attributes?.name || userText),
                     type: UserType.ScreenShare,
                   },
                 };
@@ -311,7 +314,7 @@ const RtmConfigure = (props: any) => {
             return {
               ...prevState,
               [data.uid]: {
-                name: attr?.attributes?.name || 'User',
+                name: attr?.attributes?.name || userText,
                 type: UserType.Normal,
                 role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
@@ -319,7 +322,7 @@ const RtmConfigure = (props: any) => {
                 requests: attr?.attributes?.requests,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
-                name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                name: getScreenShareName('screenshareUserName', attr?.attributes?.name || userText ),
                 type: UserType.ScreenShare,
               },
             };

@@ -30,6 +30,7 @@ import {
   ParticipantContextProvider,
   ParticipantContextConsumer,
 } from './participants/context/ParticipantContext';
+import { useString } from '../utils/useString';
 
 const ParticipantView = (props: any) => {
   const {userList} = useContext(chatContext);
@@ -41,7 +42,12 @@ const ParticipantView = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  let fontSize = Platform.OS === 'web' ? 14 : 16;
+  let fontSize = Platform.OS === 'web' ? 14 : 16
+  const youText = useString('localUserDefaultLabel');
+  const screenShareNameCallBack = useString('screenshareUserName');
+  const yourScreenshareText = useString('localScreenshareDefaultLabel');
+  const PSTNUserText = useString('pstnUserLabel');
+  const userText = useString('remoteUserDefaultLabel');
   return (
     <View
       style={
@@ -53,7 +59,7 @@ const ParticipantView = (props: any) => {
       }>
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>Participants</Text>
+          <Text style={style.mainHeading}>{useString('participantsLabel')}</Text>
         </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
@@ -264,12 +270,7 @@ const style = StyleSheet.create({
     flex: 0.5,
     opacity: 0,
     marginHorizontal: 5,
-  },
-  dummyView: {
-    flex: 0.5,
-    opacity: 0,
-    marginHorizontal: 5,
-  },
+  }
 });
 
 export default ParticipantView;

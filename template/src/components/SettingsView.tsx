@@ -13,9 +13,12 @@ import React from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
+import { useVideoCall } from 'fpe-api';
+import { useString } from '../utils/useString';
+import LanguageSelector from '../subComponents/LanguageSelector';
 
-const SettingsView = (props: any) => {
-  const {isHost} = props;
+const SettingsView = () => {
+  const {isHost} = useVideoCall(data => data);
   return (
     <View
       style={
@@ -23,12 +26,13 @@ const SettingsView = (props: any) => {
       }>
       <View style={style.main}>
         <View>
-          <Text style={style.heading}>Select Input Device</Text>
+          <Text style={style.heading}>{useString('selectInputDeviceLabel')}</Text>
           <View style={style.popupPickerHolder}>
             <SelectDevice />
           </View>
         </View>
         {isHost ? <HostControlView /> : <></>}
+        <LanguageSelector />
       </View>
     </View>
   );

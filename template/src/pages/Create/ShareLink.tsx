@@ -1,0 +1,47 @@
+/*
+********************************************
+ Copyright © 2021 Agora Lab, Inc., all rights reserved.
+ AppBuilder and all associated components, source code, APIs, services, and documentation 
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
+ Use without a license or in violation of any license terms and conditions (including use for 
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
+ information visit https://appbuilder.agora.io. 
+*********************************************
+*/
+
+import {createHook} from 'fpe-implementation';
+import React from 'react';
+
+export interface ShareLinkContextInterface {
+  urlView: string | null;
+  urlHost: string | null;
+  pstn: string | null;
+  hostControlCheckbox: boolean;
+  joinPhrase: string | null;
+  roomTitle: string,
+  children: React.ReactNode
+}
+const ShareLinkContext = React.createContext({
+  urlView: '',
+  urlHost: '',
+  pstn: '',
+  hostControlCheckbox: false,
+  joinPhrase: '',
+  roomTitle: ''
+} as ShareLinkContextInterface);
+
+const ShareLinkProvider = (props: ShareLinkContextInterface) => {
+  return (
+    <ShareLinkContext.Provider
+      value={{ ...props }}
+    >
+      {true ? props.children : <></>}
+    </ShareLinkContext.Provider>
+  );
+};
+
+const useShareLink = createHook(ShareLinkContext)
+
+export { ShareLinkProvider, ShareLinkContext, useShareLink };
+

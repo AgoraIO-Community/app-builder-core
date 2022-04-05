@@ -22,9 +22,11 @@ import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/mobileWebTest';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
+import { useVideoCall, ScreenShareProvider, RecordingProvider } from 'fpe-api';
+import { useString } from '../utils/useString';
 
 const Controls = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
@@ -38,7 +40,13 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {setRecordingActive, recordingActive, isHost} = props;
+  const [screenshareActive, setScreenshareActive] = useState<boolean>(false);
+  const {
+    setRecordingActive,
+    recordingActive,
+    isHost,
+    setLayout,
+  } = useVideoCall(data => data);
 
   return (
     <LocalUserContext>
@@ -68,33 +76,40 @@ const Controls = (props: any) => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
+              <LocalAudioMute btnText={useString('audio')}/>
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
+              <LocalVideoMute btnText={useString('video')} />
             </View>
-            {mobileAndTabletCheck() && (
+            {isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
                 <SwitchCamera />
               </View>
             )}
-            {$config.SCREEN_SHARING && !mobileAndTabletCheck() && (
+            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
-                <ScreenshareButton />
+                <ScreenShareProvider 
+                  screenshareActive={screenshareActive}
+                  setScreenshareActive={setScreenshareActive}
+                >
+                  <ScreenshareButton />
+                </ScreenShareProvider>
               </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
-                <Recording
+                <RecordingProvider
                   recordingActive={recordingActive}
                   setRecordingActive={setRecordingActive}
-                />
+                  >
+                  <Recording />
+                </RecordingProvider>
               </View>
             )}
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall />
+          <Endcall btnText={useString('endCallButton')} />
         </View>
       </View>
     </LocalUserContext>

@@ -15,10 +15,12 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import { useString } from '../utils/useString';
+import { ErrorContext } from '../components/common';
 import { useHistory } from '../components/Router';
 
 const Error = (props: { error: { name: string; message: string }, showBack?: boolean }) => {
-
+  const {resetError} = useContext(ErrorContext)
   const history = useHistory();
   return (
     <View
@@ -48,14 +50,18 @@ const Error = (props: { error: { name: string; message: string }, showBack?: boo
       <Text style={{ textAlign: 'center', padding:4 }}>{props.error.message}</Text>
       {props.showBack ? <TouchableOpacity
         style={{ alignSelf: 'center' }}
-        onPress={() => history.replace('./')}>
+        onPress={() => {
+          resetError && resetError();
+          history.replace('./')
+          }
+        }>
         <Text
           style={{
             fontWeight: '500',
             textAlign: 'center',
             textDecorationLine: 'underline',
           }}>
-          Go back
+          {useString('goBackButton')}
                 </Text>
       </TouchableOpacity> : null}
     </View>

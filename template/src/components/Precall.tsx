@@ -24,19 +24,20 @@ import {
 } from '../../agora-rn-uikit';
 import SelectDevice from '../subComponents/SelectDevice';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
 import ColorContext from './ColorContext';
-import Error from '../subComponents/Error';
+import { usePreCall } from './precall/usePreCall';
+import PreCallLogo from './common/Logo';
 
 const JoinRoomInputView = (props: any) => {
+  const {buttonText} = props
   const {
     username,
     setUsername,
     queryComplete,
     setCallActive,
-    buttonText,
     error,
-  } = props;
+  } = usePreCall(data => data);
 
   return (
     <View style={style.btnContainer}>
@@ -59,11 +60,11 @@ const JoinRoomInputView = (props: any) => {
   );
 };
 
-const Precall = (props: any) => {
+const Precall = () => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
 
-  const {queryComplete, error, title} = props;
+  const {queryComplete, title} = usePreCall(data =>data);
   const [buttonText, setButtonText] = React.useState('Join Room');
 
   const [dim, setDim] = useState<[number, number]>([
@@ -100,13 +101,8 @@ const Precall = (props: any) => {
 
   if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
 
-  const brandHolder = () => (
-    <View style={style.nav}>
-      {hasBrandLogo && <Logo />}
-      {error && <Error error={error} showBack={true} />}
-    </View>
-  );
-
+  const brandHolder = () => <PreCallLogo />
+   
   const meetingTitle = () => (
     <>
       <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
@@ -123,7 +119,7 @@ const Precall = (props: any) => {
         <View style={style.preCallContainer}>
           {brandHolder()}
           {meetingTitle()}
-          <JoinRoomInputView {...props} buttonText={buttonText} />
+          <JoinRoomInputView buttonText={buttonText} />
         </View>
       ) : (
         <>
@@ -155,7 +151,7 @@ const Precall = (props: any) => {
                 <View style={{marginBottom: '10%'}}>
                   {/* This view is visible only on MOBILE view */}
                   {isMobileView() && (
-                    <JoinRoomInputView {...props} buttonText={buttonText} />
+                    <JoinRoomInputView buttonText={buttonText} />
                   )}
                 </View>
               </View>
@@ -175,7 +171,7 @@ const Precall = (props: any) => {
                       <SelectDevice />
                     </View>
                     <View style={{width: '100%'}}>
-                      <JoinRoomInputView {...props} buttonText={buttonText} />
+                      <JoinRoomInputView buttonText={buttonText} />
                     </View>
                   </View>
                 </View>

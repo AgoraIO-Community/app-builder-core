@@ -1,0 +1,12 @@
+//Precall components
+export * from "../src/components/precall";
+//video call components
+export * from "../src/pages/VideoCall";
+//Icons
+export {default as icons} from "../src/assets/icons";
+//Settings
+export {default as HostControlView} from "../src/components/HostControlView";
+export {default as SelectDevice} from "../src/subComponents/SelectDevice";
+//Video Rendering Component
+export {default as MaxVideoView} from "../agora-rn-uikit/src/Views/MaxVideoView";
+export {default as MinVideoView} from "../agora-rn-uikit/src/Views/MinVideoView";

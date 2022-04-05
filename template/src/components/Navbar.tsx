@@ -18,11 +18,12 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
+import { useVideoCall, useChatUIData } from 'fpe-api';
 
 const Navbar = (props: any) => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -35,11 +36,11 @@ const Navbar = (props: any) => {
     setSidePanel,
     layout,
     setLayout,
-    pendingMessageLength,
-    setLastCheckedPublicState,
+    layouts,
     isHost,
     title,
-  } = props;
+  } = useVideoCall(data => data);
+  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(data => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -88,13 +89,13 @@ const Navbar = (props: any) => {
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
         Platform.OS === 'web'
           ? {
-              justifyContent: mobileAndTabletCheck()
+              justifyContent: isMobileOrTablet()
                 ? 'space-between'
                 : 'flex-end',
             }
           : {},
       ]}>
-      {recordingActive && !mobileAndTabletCheck() ? (
+      {recordingActive && !isMobileOrTablet() ? (
         <View
           style={[
             style.recordingView,
@@ -127,7 +128,7 @@ const Navbar = (props: any) => {
       <View
         style={[
           style.roomNameContainer,
-          Platform.OS === 'web' && !mobileAndTabletCheck()
+          Platform.OS === 'web' && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
@@ -140,7 +141,7 @@ const Navbar = (props: any) => {
             }}>
             <View>
               <Text style={style.roomNameText}>
-                {mobileAndTabletCheck()
+                {isMobileOrTablet()
                   ? title.length > 13
                     ? title.slice(0, 13) + '..'
                     : title
@@ -174,7 +175,7 @@ const Navbar = (props: any) => {
               minWidth:
                 Platform.OS === 'web' && isDesktop
                   ? 300
-                  : mobileAndTabletCheck()
+                  : isMobileOrTablet()
                   ? 160
                   : 200,
             },
@@ -252,11 +253,15 @@ const Navbar = (props: any) => {
             <BtnTemplate
               style={style.btnHolder}
               onPress={() => {
-                setLayout((l: Layout) =>
-                  l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-                );
+                setLayout((l: Layout) => {
+                  if (l < layouts?.length - 1 ) {
+                    return l + 1;
+                  } else {
+                    return 0;
+                  }
+                });
               }}
-              name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
+              name={layouts[layout].icon}
             />
           </View>
           {/** Show setting icon only in non native apps
@@ -310,7 +315,7 @@ const style = StyleSheet.create({
     resizeMode: 'contain',
   },
   btnHolder: {
-    marginHorizontal: mobileAndTabletCheck() ? 2 : 0,
+    marginHorizontal: isMobileOrTablet() ? 2 : 0,
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
@@ -376,7 +381,7 @@ const style = StyleSheet.create({
         ? $config.SECONDARY_FONT_COLOR
         : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,
-    paddingHorizontal: mobileAndTabletCheck() ? 0 : 10,
+    paddingHorizontal: isMobileOrTablet() ? 0 : 10,
     minHeight: 35,
     borderRadius: 10,
   },

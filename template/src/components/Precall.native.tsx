@@ -23,17 +23,17 @@ import {
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
 import TextInput from '../atoms/TextInput';
-import Error from '../subComponents/Error';
 import PrimaryButton from '../atoms/PrimaryButton';
+import { usePreCall } from './precall/usePreCall';
 
-const Precall = (props: any) => {
+const Precall = () => {
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   const {rtcProps} = useContext(PropsContext);
   rtc.RtcEngine.startPreview();
 
-  const {setCallActive, queryComplete, username, setUsername, error, title} =
-    props;
+  const {setCallActive, queryComplete, username, setUsername, title} =
+    usePreCall(data=>data);
 
   const [buttonText, setButtonText] = React.useState('Join Room');
 
@@ -66,17 +66,6 @@ const Precall = (props: any) => {
     <View style={style.full}>
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
-      </View>
-      <View
-        style={{
-          zIndex: 50,
-          position: 'absolute',
-          width: '100%',
-          left: '18%',
-          top: 10,
-          alignSelf: 'center',
-        }}>
-        {error ? <Error error={error} showBack={true} /> : <></>}
       </View>
       {meetingTitle()}
       {!isAudienceInLiveStreaming() && (

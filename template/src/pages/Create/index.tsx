@@ -9,36 +9,30 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   ScrollView,
   Platform,
 } from 'react-native';
-import {useHistory} from '../components/Router';
-import Checkbox from '../subComponents/Checkbox';
+import {useHistory} from '../../components/Router';
+import Checkbox from '../../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
-import Logo from '../subComponents/Logo';
-// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
-import Share from '../components/Share';
-// import ColorContext from '../components/ColorContext';
-// import Illustration from '../subComponents/Illustration';
-// import {textInput} from '../../theme.json';
-import PrimaryButton from '../atoms/PrimaryButton';
-import SecondaryButton from '../atoms/SecondaryButton';
-import HorizontalRule from '../atoms/HorizontalRule';
-import TextInput from '../atoms/TextInput';
-import Error from '../subComponents/Error';
-import Toast from '../../react-native-toast-message';
-import hasBrandLogo from '../utils/hasBrandLogo';
-
-type PasswordInput = {
-  host: string;
-  view: string;
-};
+import PrimaryButton from '../../atoms/PrimaryButton';
+import SecondaryButton from '../../atoms/SecondaryButton';
+import HorizontalRule from '../../atoms/HorizontalRule';
+import TextInput from '../../atoms/TextInput';
+import Toast from '../../../react-native-toast-message';
+import { ErrorContext } from '../../components/common';
+import { ShareLinkProvider } from './ShareLink';
+import ShareLink from '../../components/Share'
+import Logo from '../../components/common/Logo'
+import { cmpTypeGuard } from '../../utils/common';
+import { useFpe } from 'fpe-api';
+import { useString } from '../../utils/useString';
+import { useLanguage } from '../../language/useLanguage';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
@@ -66,7 +60,8 @@ const CREATE_CHANNEL = gql`
 `;
 
 const Create = () => {
-  // const {primaryColor} = useContext(ColorContext);
+  const share =  useFpe(config => config.components?.share)
+  const {setGlobalErrorMessage} = useContext(ErrorContext)
   const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
@@ -77,6 +72,11 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
+  const createdText = useString('meetingCreatedNotificationLabel');
+  const hostControlsToggle = useString('hostControlsToggle');  
+  useEffect(() =>{
+    setGlobalErrorMessage(error);
+  },[error])
 
   console.log('mutation data', data);
 
@@ -98,7 +98,7 @@ const Create = () => {
       })
         .then((res: any) => {
           Toast.show({
-            text1: 'Created: ' + roomTitle,
+            text1: createdText + ': ' + roomTitle,
             visibilityTime: 1000,
           });
           console.log('promise data', res);
@@ -114,28 +114,11 @@ const Create = () => {
     }
   };
 
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-
   return (
-    // <ImageBackground
-    //   style={style.full}
-    //   resizeMode={'cover'}>
-    // <KeyboardAvoidingView behavior={'height'} style={style.main}>
-    <ScrollView contentContainerStyle={style.main}>
-      <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
-        {error ? <Error error={error} /> : <></>}
-        {/* <OpenInNativeButton /> */}
-      </View>
+    <ScrollView contentContainerStyle={style.main}>      
+      <Logo />
       {!roomCreated ? (
-        <View style={style.content} onLayout={onLayout}>
+        <View style={style.content}>
           <View style={style.leftContent}>
             <Text style={style.heading}>{$config.APP_NAME}</Text>
             <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
@@ -144,7 +127,7 @@ const Create = () => {
                 value={roomTitle}
                 onChangeText={(text) => onChangeRoomTitle(text)}
                 onSubmitEditing={() => createRoom()}
-                placeholder="Name your meeting"
+                placeholder={useString('meetingNameInputPlaceholder')}
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
@@ -158,7 +141,8 @@ const Create = () => {
                         onValueChange={setHostControlCheckbox}
                       />
                       <Text style={style.checkboxTitle}>
-                        Restrict Host Controls (Separate host link)
+                        {/* Restrict Host Controls (Separate host link) */}
+                        {hostControlsToggle(hostControlCheckbox)}
                       </Text>
                     </>
                   )}
@@ -170,7 +154,7 @@ const Create = () => {
                       onValueChange={setPstnCheckbox}
                     />
                     <Text style={style.checkboxTitle}>
-                      Use PSTN (Join by dialing a number)
+                      {useString('usePSTN')}
                     </Text>
                   </View>
                 ) : (
@@ -180,25 +164,27 @@ const Create = () => {
               <PrimaryButton
                 disabled={roomTitle === '' || loading}
                 onPress={() => createRoom()}
-                text={loading ? 'Loading...' : 'Create Meeting'}
+                text={loading ? useString('loadingWithDots') : useString('createMeetingButton')}
               />
               <HorizontalRule />
               <SecondaryButton
                 onPress={() => history.push('/join')}
-                text={'Have a Meeting ID?'}
+                text={useString('haveMeetingID')}
               />
             </View>
           </View>
         </View>
       ) : (
-        <Share
+        <ShareLinkProvider
           urlView={urlView}
           urlHost={urlHost}
           pstn={pstn}
           hostControlCheckbox={hostControlCheckbox}
           joinPhrase={joinPhrase}
           roomTitle={roomTitle}
-        />
+        >
+          {cmpTypeGuard(share, ShareLink)}
+        </ShareLinkProvider>
       )}
     </ScrollView>
   );

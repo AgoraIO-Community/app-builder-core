@@ -15,7 +15,7 @@ import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
 // import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
 // import Illustration from '../subComponents/Illustration';
@@ -25,33 +25,22 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
-import shouldAuthenticate from '../utils/shouldAuthenticate';
+import {shouldAuthenticate} from '../utils/common';
+import { useString } from '../utils/useString';
 // const joinFlag = 0;
-interface joinProps {
-  phrase: string;
-  onChangePhrase: (text: string) => void;
-}
-const Join = (props: joinProps) => {
+const Join = () => {
   const history = useHistory();
+  const [phrase, setPhrase] = useState('')
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-  // const [dim, setDim] = useState([
-  //   Dimensions.get('window').width,
-  //   Dimensions.get('window').height,
-  //   Dimensions.get('window').width > Dimensions.get('window').height,
-  // ]);
-  // let onLayout = (e: any) => {
-  //   setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  // };
+  
   const createMeeting = () => {
     history.push('/create');
   };
 
-  const phrase = props.phrase;
-  const onChangePhrase = props.onChangePhrase;
   const startCall = async () => {
     joinSession({phrase});
   };
@@ -69,20 +58,20 @@ const Join = (props: joinProps) => {
           <View style={style.inputs}>
             <TextInput
               value={phrase}
-              onChangeText={(text) => onChangePhrase(text)}
+              onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder="Enter Meeting ID"
+              placeholder={useString('meetingIdInputPlaceholder')}
             />
             <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={'Enter Meeting'}
+              text={useString('enterMeetingButton')}
             />
             <HorizontalRule />
             <SecondaryButton
               onPress={() => createMeeting()}
-              text={'Create a meeting'}
+              text={useString('createMeetingButton')}
             />
             {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?

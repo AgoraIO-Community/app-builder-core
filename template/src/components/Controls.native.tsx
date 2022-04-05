@@ -12,11 +12,7 @@
 import React, {useContext} from 'react';
 import {
   View,
-  TouchableOpacity,
-  Image,
-  Platform,
   StyleSheet,
-  Text,
 } from 'react-native';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {
@@ -29,9 +25,11 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
+import { useVideoCall } from 'fpe-api';
+import { useString } from '../utils/useString';
 
-const Controls = (props: any) => {
-  const {setRecordingActive, recordingActive, isHost} = props;
+const Controls = () => {
+  const {setRecordingActive, recordingActive, isHost} = useVideoCall(data => data);
   const {rtcProps} = useContext(PropsContext);
 
   return (
@@ -54,10 +52,10 @@ const Controls = (props: any) => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
+              <LocalAudioMute btnText={useString('audio')}/>
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
+              <LocalVideoMute btnText={useString('video')}/>
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
@@ -68,12 +66,12 @@ const Controls = (props: any) => {
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
-              <SwitchCamera />
+              <SwitchCamera btnText={useString('switchCameraButton')} />
             </View>
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall />
+          <Endcall btnText={useString('endCallButton')}/>
         </View>
       </View>
     </LocalUserContext>

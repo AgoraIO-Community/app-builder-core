@@ -9,200 +9,24 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useRef} from 'react';
-import {Image, TouchableOpacity, StyleSheet, View, Text} from 'react-native';
-import icons from '../assets/icons';
-import {RtcContext} from '../../agora-rn-uikit';
-import {PropsContext} from '../../agora-rn-uikit';
+import React, {useContext} from 'react';
+import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
-import {gql, useMutation} from '@apollo/client';
-import {useParams} from '../components/Router';
-import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import {MinUidContext} from '../../agora-rn-uikit';
-import {MaxUidContext} from '../../agora-rn-uikit';
-import Layout from '../subComponents/LayoutEnum';
 import {ImageIcon} from '../../agora-rn-uikit';
+import { useScreenShare } from './screen-share/useScreenShare';
+import { useString } from '../utils/useString';
 
-const SET_PRESENTER = gql`
-  mutation setPresenter($uid: Int!, $passphrase: String!) {
-    setPresenter(uid: $uid, passphrase: $passphrase)
-  }
-`;
-
-const SET_NORMAL = gql`
-  mutation setNormal($passphrase: String!) {
-    setNormal(passphrase: $passphrase)
-  }
-`;
-
-interface ScreenSharingProps {
-  screenshareActive: boolean;
-  setScreenshareActive: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
  * Electron has it's own screen sharing component
  */
-const ScreenshareButton = (props: ScreenSharingProps) => {
-  const {userList} = useContext(ChatContext);
+const ScreenshareButton = () => {
   const {primaryColor} = useContext(ColorContext);
-  const rtc = useContext(RtcContext);
-  const {dispatch} = rtc;
-  const max = useContext(MaxUidContext);
-  const min = useContext(MinUidContext);
-  const users = [...max, ...min];
-  const prevUsers = usePrevious({users});
-  const prevUserList = usePrevious({userList});
-  const {phrase} = useParams();
-  const {screenshareActive, setScreenshareActive, setLayout, recordingActive} =
-    props;
-  const {channel, appId, screenShareUid, screenShareToken, encryption} =
-    useContext(PropsContext).rtcProps;
-
-  const [setPresenterQuery] = useMutation(SET_PRESENTER);
-  const [setNormalQuery] = useMutation(SET_NORMAL);
-
-  useEffect(() => {
-    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
-      setScreenshareActive(false);
-      console.log('STOPPED SHARING');
-      setLayout((l: Layout) =>
-        l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-      );
-      setNormalQuery({variables: {passphrase: phrase}})
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.stopRecordingSession === 'success') {
-            // Once the backend sucessfuly stops recording,
-            // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-            // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-            // set the local recording state to false to update the UI
-            // setScreenshareActive(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (prevUsers !== undefined) {
-      let joinedUser = users.filter((person) =>
-        prevUsers.users.every((person2) => !(person2.uid === person.uid)),
-      );
-      let leftUser = prevUsers.users.filter((person) =>
-        users.every((person2) => !(person2.uid === person.uid)),
-      );
-
-      if (joinedUser.length === 1) {
-        const newUserUid = joinedUser[0].uid;
-        if (userList[newUserUid] && userList[newUserUid].type === 1) {
-          dispatch({
-            type: 'SwapVideo',
-            value: [joinedUser[0]],
-          });
-          setLayout(Layout.Pinned);
-        } else if (newUserUid === 1) {
-          if (newUserUid !== users[0].uid) {
-            dispatch({
-              type: 'SwapVideo',
-              value: [joinedUser[0]],
-            });
-          }
-          setLayout(Layout.Pinned);
-        }
-      }
-
-      if (leftUser.length === 1) {
-        const leftUserUid = leftUser[0].uid;
-        if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
-          setLayout((l: Layout) =>
-            l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-          );
-        }
-      }
-    }
-  }, [users, userList]);
+  const {screenshareActive, startScreenShare } = useScreenShare(data => data)
   return (
     <TouchableOpacity
-      onPress={async () => {
-        const isScreenActive = screenshareActive;
-        if (!isScreenActive && recordingActive) {
-          // If screen share is not going on, start the screen share by executing the graphql query
-          setPresenterQuery({
-            variables: {
-              uid: screenShareUid,
-              passphrase: phrase,
-            },
-          })
-            .then((res) => {
-              if (res.data.setPresenter === 'success') {
-                // Once the backend sucessfuly starts screnshare,
-                // send a control message to everbody in the channel indicating that screen sharing is now active.
-                // sendControlMessage(controlMessageEnum.cloudRecordingActive);
-                // set the local recording state to true to update the UI
-                // setScreenshareActive(true);
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        } else if (isScreenActive && recordingActive) {
-          // If recording is already going on, stop the recording by executing the graphql query.
-          setNormalQuery({variables: {passphrase: phrase}})
-            .then((res) => {
-              console.log(res.data);
-              if (res.data.stopRecordingSession === 'success') {
-                // Once the backend sucessfuly stops recording,
-                // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-                // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-                // set the local recording state to false to update the UI
-                // setScreenshareActive(false);
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }
-        try {
-          await rtc.RtcEngine.startScreenshare(
-            screenShareToken,
-            channel,
-            null,
-            screenShareUid,
-            appId,
-            rtc.RtcEngine,
-            encryption,
-          );
-          !isScreenActive && setScreenshareActive(true);
-        } catch (e) {
-          console.error("can't start the screen share", e);
-          setNormalQuery({variables: {passphrase: phrase}})
-            .then((res) => {
-              console.log(res.data);
-              if (res.data.stopRecordingSession === 'success') {
-                // Once the backend sucessfuly stops recording,
-                // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-                // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-                // set the local recording state to false to update the UI
-                // setScreenshareActive(false);
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }
-      }}>
+      onPress={() => startScreenShare && startScreenShare()}>
       <View
         style={
           screenshareActive
@@ -220,7 +44,7 @@ const ScreenshareButton = (props: ScreenSharingProps) => {
           marginTop: 5,
           color: $config.PRIMARY_COLOR,
         }}>
-        Share
+        {useString('screenShareButton')}
       </Text>
     </TouchableOpacity>
   );

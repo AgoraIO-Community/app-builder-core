@@ -18,6 +18,8 @@ import platform from '../subComponents/Platform';
 import {useParams} from '../components/Router';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
+import { useString } from '../utils/useString';
+import { useShareLink } from 'fpe-api';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -41,34 +43,32 @@ const ParticipantView = (props: {showText?: boolean}) => {
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
   });
+  const hostControlCheckbox = useShareLink(data => data.hostControlCheckbox);
+  const copiedToClipboardText = useString('copiedToClipboardNotificationLabel');
+  const meetingInviteText = useString('meetingInviteText');
   const copyToClipboard = () => {
-    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
+    Toast.show({text1: copiedToClipboardText , visibilityTime: 1000});
     if (data && !loading) {
-      let stringToCopy = '';
-      if ($config.FRONTEND_ENDPOINT) {
-        stringToCopy += `Meeting - ${data.share.title}\nURL for Attendee: ${$config.FRONTEND_ENDPOINT}/${data.share.passphrase.view}`;
-        if (data.share.passphrase.host) {
-          stringToCopy += `\nURL for Host: ${$config.FRONTEND_ENDPOINT}/${data.share.passphrase.host}`;
-        }
-      } else {
-        if (platform === 'web') {
-          stringToCopy += `Meeting - ${data.share.title}\nURL for Attendee: ${window.location.origin}/${data.share.passphrase.view}`;
-          if (data.share.passphrase.host) {
-            stringToCopy += `\nURL for Host: ${window.location.origin}/${data.share.passphrase.host}`;
-          }
-        } else {
-          stringToCopy += `Meeting - ${data.share.title}\nAttendee Meeting ID: ${data.share.passphrase.view}`;
-          if (data.share.passphrase.host) {
-            stringToCopy += `\nHost Meeting ID: ${data.share.passphrase.host}`;
-          }
-        }
-      }
-      if (data.share.pstn) {
-        stringToCopy += `\nPSTN Number: ${data.share.pstn.number}\nPSTN Pin: ${data.share.pstn.dtmf}`;
-      }
+      let stringToCopy = meetingInviteText({
+        frontendEndpoint: $config.FRONTEND_ENDPOINT,
+        hostControlCheckbox: hostControlCheckbox,
+        meetingName: data.share.title,
+        url:{
+          host: data.share.passphrase.host,
+          attendee: data.share.passphrase.view
+        },
+        id:{
+          host: data.share.passphrase.host,
+          attendee: data.share.passphrase.view
+        },
+        pstn: data.share.pstn ? {
+          number: data.share.pstn.number,
+          pin: data.share.pstn.dtmf
+        } : undefined
+
+      })
       console.log('Copying string to clipboard:', stringToCopy);
-      Clipboard.setString(stringToCopy);
-      // Clipboard.setString(JSON.stringify(data));
+      Clipboard.setString(stringToCopy);      
     }
   };
 
@@ -78,7 +78,7 @@ const ParticipantView = (props: {showText?: boolean}) => {
       style={style.backButton}
       onPress={() => copyToClipboard()}
       name={'clipboard'}
-      btnText={props.showText ? 'Copy Meeting Invite' : ''}
+      btnText={props.showText ? useString('copyMeetingInviteButton') : ''}
       color={$config.PRIMARY_FONT_COLOR}
     />
   );

@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React from 'react';
 import Join from './pages/Join';
-import VideoCall from './pages/VideoCall';
+import VideoCall from './pages/VideoCall/VideoCall';
 import Create from './pages/Create';
 import Authenticate from './pages/Authenticate';
 import {Router, Route, Switch, Redirect} from './components/Router';
@@ -27,9 +27,13 @@ import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
-import shouldAuthenticate from './utils/shouldAuthenticate';
+import {shouldAuthenticate,cmpTypeGuard, getTypeGuard} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
-
+import DimensionProvider from './components/dimension/DimensionProvider';
+import Error from './components/common/Error'
+import { ErrorProvider } from './components/common';
+import { useFpe, ComponentsInterface, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX, FpeProvider, fpeConfig} from 'fpe-api';
+import { LanguageProvider } from './language/useLanguage';
 
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
@@ -39,9 +43,16 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
-  const [phrase, onChangePhrase] = useState('');
-
+  const {
+    videoCall,
+    join,
+    create
+  } = useFpe(data => data?.components ? data.components : {} as ComponentsInterface);
+  const CustomRoutes = useFpe(data => data?.customRoutes);
+  const CreateCmp = cmpTypeGuard(create, Create)
+  const RootWrapper = getTypeGuard(useFpe(data => data?.appRoot), React.Fragment);  
   return (
+    <RootWrapper>
     <ImageBackground
       source={{uri: $config.BG}}
       style={{flex: 1}}
@@ -54,8 +65,33 @@ const App: React.FC = () => {
             <Router>
               <SessionProvider>
                 <ColorConfigure>
+                  <DimensionProvider>
+                  <LanguageProvider>
+                  <ErrorProvider>
+                  <Error />
                   <Navigation />
                   <Switch>
+                    {CustomRoutes?.map((e:CustomRoutesInterface, i: number) => {
+                      if (e?.privateRoute) {
+                        return (
+                          <PrivateRoute
+                            path={CUSTOM_ROUTES_PREFIX + e.path}
+                            exact={e.exact}
+                            key={i}
+                            failureRedirectTo={e.failureRedirectTo ? e.failureRedirectTo : '/'}
+                            {...e.routeProps}                            
+                          >
+                            <e.component {...e.componentProps} />
+                          </PrivateRoute>
+                        );
+                      } else {
+                        return (
+                          <Route path={CUSTOM_ROUTES_PREFIX + e.path} exact={e.exact} key={i} {...e.routeProps}>
+                            <e.component {...e.componentProps}/>
+                          </Route>
+                        );
+                      }
+                    })}
                     <Route exact path={'/'}>
                       <Redirect to={'/create'} />
                     </Route>
@@ -66,23 +102,26 @@ const App: React.FC = () => {
                       <StoreToken />
                     </Route>
                     <Route exact path={'/join'}>
-                      <Join phrase={phrase} onChangePhrase={onChangePhrase} />
+                      {cmpTypeGuard(join, Join)}
                     </Route>
                     {shouldAuthenticate ? (
                       <PrivateRoute
                         path={'/create'}
                         failureRedirectTo={'/authenticate'}>
-                        <Create />
+                        {CreateCmp}
                       </PrivateRoute>
                     ) : (
                       <Route path={'/create'}>
-                        <Create />
+                        {CreateCmp}
                       </Route>
                     )}
                     <Route path={'/:phrase'}>
-                      <VideoCall />
+                      {cmpTypeGuard(videoCall,VideoCall)}
                     </Route>
-                  </Switch>
+                  </Switch>        
+                  </ErrorProvider>  
+                  </LanguageProvider>      
+                  </DimensionProvider>
                 </ColorConfigure>
               </SessionProvider>
             </Router>
@@ -90,7 +129,17 @@ const App: React.FC = () => {
         </StorageProvider>
       </SafeAreaView>
     </ImageBackground>
+    </RootWrapper>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
-export default App;
+
+const AppWithFpeProvider: React.FC = () => {
+  return(
+    <FpeProvider value={fpeConfig}>
+      <App/>
+    </FpeProvider>
+  )
+}
+
+export default AppWithFpeProvider;

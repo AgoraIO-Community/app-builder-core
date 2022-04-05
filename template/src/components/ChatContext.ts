@@ -49,7 +49,7 @@ export enum attrRequestTypes {
   none = 'NONE',
 }
 
-interface chatContext {
+export interface chatContext {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
   sendMessage: (msg: string) => void;
@@ -68,6 +68,10 @@ interface chatContext {
   events: rtmEventsInterface;
 }
 
+export interface chatInputInterface {
+  privateActive: boolean,
+  selectedUserID: string | number
+}
 export enum controlMessageEnum {
   muteVideo = '1',
   muteAudio = '2',

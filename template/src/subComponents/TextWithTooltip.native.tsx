@@ -14,7 +14,7 @@ import {View, Text, Modal, TouchableOpacity, TouchableWithoutFeedback, StyleShee
 /**
  * Component showing text with tooltip on mobile native
  */
-const TextWithToolTip = (props: any) => {
+const TextWithToolTip = (props: {value: string, style: object, touchable?: boolean}) => {
     const {width:globalWidth, height:globalHeight} = useWindowDimensions();
     const [toolTipVisible, setToolTipVisible] = useState(false);
     const [position, setPosition] = useState({})
