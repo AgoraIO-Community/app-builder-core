@@ -9,17 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useLocalContext } from 'fpe-api';
+import { useMaxUidContext, useMinUidContext } from 'fpe-api';
 import { ToggleState } from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
-/**
- * Wrap the parent component with LocalUserContext.
- * This hook will check the current user audio enabled or not.
- * @returns boolean
- */
 function useIsAudioEnabled() {
-  const audio = useLocalContext(data => data.audio)
-  return audio === ToggleState.enabled;
+  const minUsers = useMinUidContext();
+  const maxUsers = useMaxUidContext();
+  const users = [...minUsers, ...maxUsers];
+  /**
+   * 
+   * @param uid number | string
+   * @returns boolean
+   */
+ const audioEnabled = (uid: number | string): boolean => users.find(item => item.uid === uid)?.audio === ToggleState.enabled
+ return audioEnabled;
 }
 
 export default useIsAudioEnabled;
