@@ -37,9 +37,12 @@ import Layout from '../.././subComponents/LayoutEnum';
 import Toast from '../.././../react-native-toast-message';
 import {NetworkQualityProvider} from '../.././components/NetworkQualityContext';
 import { ErrorContext } from '../.././components/common/index';
-import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider } from 'fpe-api';
+import { PreCallProvider, useFpe, VideoCallProvider, ChatUIDataProvider, VideoCallInterface } from 'fpe-api';
 import Precall from '../../components/precall/PreCall';
+import VideoArrayRenderer from './VideoArrayRenderer';
+import {CustomUserContextHolder} from './CustomUserContextholder';
 import { useString } from '../../utils/useString';
+import { useVideoCall } from './useVideoCall';
 
 
 const useChatNotification = (
@@ -239,6 +242,7 @@ const VideoCall: React.FC = () => {
   const {
     chat,bottomBar,participantsPanel,settingsPanel,topBar
   } = useFpe(data => typeof data.components?.videoCall === 'object' ? data.components?.videoCall : {})
+  const defaultLayouts = useVideoCall(data => data.layouts) 
   const PreCallScreenFpe = useFpe(data => data.components?.precall)
   const {setGlobalErrorMessage} = useContext(ErrorContext)
   const {store, setStore} = useContext(StorageContext);
@@ -281,6 +285,18 @@ const VideoCall: React.FC = () => {
       variables: {passphrase: phrase},
     },
   );
+
+  const fpeLayouts = useFpe((config) => {
+    const videocall = config.components?.videoCall;
+    if(videocall && typeof videocall === 'object' && videocall.customLayout){
+      return videocall.customLayout([
+        {name: 'Grid', icon: 'gridLayoutIcon', component: GridVideo},
+        {name: 'PinnedVideo', icon: 'pinnedLayoutIcon', component: PinnedVideo},
+      ]);
+    }else{
+      return defaultLayouts;
+    }  
+  });
 
   React.useEffect(() => {
     if (error) {
@@ -392,8 +408,9 @@ const VideoCall: React.FC = () => {
                             recordingActive={recordingActive}
                             setRecordingActive={setRecordingActive}
                             isHost={isHost}
-                            title={title}                      
-                          >
+                            title={title}
+                            layouts={fpeLayouts}
+                            >
                             <ChatUIDataProvider
                               privateMessageCountMap={privateMessageCountMap}
                               pendingPublicNotification={pendingPublicNotification}
@@ -410,32 +427,51 @@ const VideoCall: React.FC = () => {
                                   style.videoView,
                                   {backgroundColor: '#ffffff00'},
                                 ]}>
-                                <NetworkQualityProvider>
-                                {layout === Layout.Pinned ? (
-                                  <PinnedVideo />
-                                ) : (
-                                  <GridVideo setLayout={setLayout} />
-                                )}
-                                {sidePanel === SidePanelType.Participants ? (
-                                  cmpTypeGuard(participantsPanel, ParticipantsView)
-                                ) : (
-                                  <></>
-                                )}
-                                </NetworkQualityProvider>
-                                {sidePanel === SidePanelType.Chat ? (
-                                  $config.CHAT ? (
-                                   cmpTypeGuard(chat,Chat)
+                                <CustomUserContextHolder>
+                                  <NetworkQualityProvider>
+                                    <VideoArrayRenderer>
+                                      {(
+                                        minVideoArray: React.FC[],
+                                        maxVideoArray: React.FC[],
+                                      ) => {
+                                        if(fpeLayouts && fpeLayouts[layout] && typeof fpeLayouts[layout].component === 'function'){
+                                          const CurrentLayout = fpeLayouts[layout].component;
+                                          return (
+                                            <CurrentLayout
+                                              minVideoArray={minVideoArray}
+                                              maxVideoArray={maxVideoArray}
+                                            />
+                                          );
+                                        }else{
+                                          return <></>;
+                                        }                                       
+                                      }}
+                                    </VideoArrayRenderer>
+                                    {sidePanel ===
+                                      SidePanelType.Participants ? (
+                                        cmpTypeGuard(
+                                          participantsPanel,
+                                          ParticipantsView,
+                                        )
+                                      ) : (
+                                        <></>
+                                      )}
+                                  </NetworkQualityProvider>
+                                  {sidePanel === SidePanelType.Chat ? (
+                                    $config.CHAT ? (
+                                      cmpTypeGuard(chat, Chat)
+                                    ) : (
+                                      <></>
+                                    )
                                   ) : (
                                     <></>
-                                  )
-                                ) : (
-                                  <></>
-                                )}
-                                {sidePanel === SidePanelType.Settings ? (
-                                  cmpTypeGuard(settingsPanel, SettingsView)
-                                ) : (
-                                  <></>
-                                )}
+                                  )}
+                                  {sidePanel === SidePanelType.Settings ? (
+                                    cmpTypeGuard(settingsPanel, SettingsView)
+                                  ) : (
+                                    <></>
+                                  )}
+                                </CustomUserContextHolder>
                               </View>
                             {Platform.OS !== 'web' &&
                             sidePanel === SidePanelType.Chat ? (
