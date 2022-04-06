@@ -13,7 +13,7 @@ interface IProps {
   participantStyles: participantStylesInterface;
 }
 
-const CurrentLiveStreamRequestsView = (props: any) => {
+const CurrentLiveStreamRequestsView = (props: IProps) => {
   const {userList, participantStyles} = props;
   const {currLiveStreamRequest, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
