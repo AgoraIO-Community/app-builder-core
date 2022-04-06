@@ -9,48 +9,80 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useFpe } from "fpe-api";
-import { useLanguage } from "../language/useLanguage";
-import { TEXTS, TextDataInterface, DEFAULT_I18_DATA, MeetingInviteTextInterface, MeetingInviteParam, NetworkQualityTextInterface, ConditionalTextInferface, DynamicTextInterface, CombinedTextDataInterface } from "../language";
+import {useFpe} from 'fpe-api';
+import {useLanguage} from '../language/useLanguage';
+import {
+  TEXTS,
+  TextDataInterface,
+  DEFAULT_I18_DATA,
+  MeetingInviteTextInterface,
+  MeetingInviteParam,
+  NetworkQualityTextInterface,
+  ConditionalTextInferface,
+  DynamicTextInterface,
+  CombinedTextDataInterface,
+} from '../language';
 
-export function usei18nData(selectedLanguageCode: string = DEFAULT_I18_DATA.locale){
-  const languageData = useFpe(data => data.i18n);
-  if(languageData && languageData.length){
-    if(selectedLanguageCode){
-        let selectedLanguageData = languageData.find((item) => item.locale === selectedLanguageCode);
-        if(selectedLanguageData && selectedLanguageData.data){
-          return {
-            ...TEXTS,
-            ...selectedLanguageData.data
-          };
-        }else{
-          return TEXTS;
-        }
+export function usei18nData(
+  selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
+) {
+  const languageData = useFpe((data) => data.i18n);
+  if (languageData && languageData.length) {
+    if (selectedLanguageCode) {
+      let selectedLanguageData = languageData.find(
+        (item) => item.locale === selectedLanguageCode,
+      );
+      if (selectedLanguageData && selectedLanguageData.data) {
+        return {
+          ...TEXTS,
+          ...selectedLanguageData.data,
+        };
+      } else {
+        return TEXTS;
+      }
     }
     return {
       ...TEXTS,
-      ...languageData[0].data
+      ...languageData[0].data,
     };
   }
   return TEXTS;
 }
-export function useString(keyName: keyof NetworkQualityTextInterface, input?: string): (input?: NetworkQualityTextInterface) => string
-export function useString(keyName: keyof MeetingInviteTextInterface, input?: string): (input?: MeetingInviteParam) => string
-export function useString(keyName: keyof DynamicTextInterface, input?: string): (input?: string) => string
-export function useString(keyName: keyof ConditionalTextInferface, input?: string): (input?: boolean) => string
-export function useString(keyName: keyof TextDataInterface, input?: string): string
-export function useString(keyName: keyof CombinedTextDataInterface, input?: string): string | ((input?: any) => string) {
-  const lanCode = useLanguage(data => data.languageCode);
+export function useString(
+  keyName: keyof NetworkQualityTextInterface,
+  input?: string,
+): (input?: NetworkQualityTextInterface) => string;
+export function useString(
+  keyName: keyof MeetingInviteTextInterface,
+  input?: string,
+): (input?: MeetingInviteParam) => string;
+export function useString(
+  keyName: keyof DynamicTextInterface,
+  input?: string,
+): (input?: string) => string;
+export function useString(
+  keyName: keyof ConditionalTextInferface,
+  input?: string,
+): (input?: boolean) => string;
+export function useString(
+  keyName: keyof TextDataInterface,
+  input?: string,
+): string;
+export function useString(
+  keyName: keyof CombinedTextDataInterface,
+  input?: string,
+): string | ((input?: any) => string) {
+  const lanCode = useLanguage((data) => data.languageCode);
   const textData = usei18nData(lanCode);
-  if(textData[keyName]){
+  if (textData[keyName]) {
     let keyValue = textData[keyName];
-    if(typeof keyValue === 'function'){
+    if (typeof keyValue === 'function') {
       return input === undefined ? keyValue : keyValue(input);
-    }else if(typeof keyValue === 'string'){
+    } else if (typeof keyValue === 'string') {
       return keyValue;
-    }else{
-      return "";
+    } else {
+      return '';
     }
   }
-  return "";
+  return '';
 }

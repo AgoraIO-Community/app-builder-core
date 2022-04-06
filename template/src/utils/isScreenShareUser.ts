@@ -11,7 +11,7 @@
 */
 import {useContext} from 'react';
 import ChatContext from '../../src/components/ChatContext';
-import { UserType } from '../../src/components/RTMConfigure';
+import {UserType} from '../../src/components/RTMConfigure';
 
 /**
  * This hook will return the function to check whether the screen is shared or not
@@ -20,11 +20,12 @@ import { UserType } from '../../src/components/RTMConfigure';
 function useIsScreenShare() {
   const {userList} = useContext(ChatContext);
   /**
-   * 
+   *
    * @param uid number | string
    * @returns boolean
    */
-  const isScreenShare = (uid: number | string): boolean => userList[uid] && userList[uid].type === UserType.ScreenShare;
+  const isScreenShare = (uid: number | string): boolean =>
+    userList[uid] && userList[uid].type === UserType.ScreenShare;
   return isScreenShare;
 }
 

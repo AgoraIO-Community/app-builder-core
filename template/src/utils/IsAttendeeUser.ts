@@ -9,15 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useVideoCall } from 'fpe-api';
+import { ClientRole } from '../../agora-rn-uikit';
+import { useUserList } from 'fpe-api';
 
-/**
- * This hook will check the current user is a attendee or not.
- * @returns 
- */
 function useIsAttendee() {
-  const {isHost} = useVideoCall();
-  return !isHost;
+  const userList = useUserList();
+  const isAttendee = (uid: string | number) =>
+    userList[uid].role === ClientRole.Audience;
+  return isAttendee;
 }
 
 export default useIsAttendee;

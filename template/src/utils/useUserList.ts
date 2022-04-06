@@ -14,10 +14,10 @@ import ChatContext from '../../src/components/ChatContext';
 
 /**
  * This hook will fetch the user list
- * @returns userList 
+ * @returns userList
  */
 function useUserList() {
-  const {userList} = useContext(ChatContext); 
+  const {userList} = useContext(ChatContext);
   return userList;
 }
 

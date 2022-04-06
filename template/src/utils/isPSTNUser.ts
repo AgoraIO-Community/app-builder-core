@@ -19,11 +19,12 @@ import ChatContext from '../../src/components/ChatContext';
 function useIsPSTN() {
   const {userList} = useContext(ChatContext);
   /**
-   * 
+   *
    * @param uid number | string
    * @returns boolean
    */
-  const isPSTN = (uid: number | string) => !userList[uid] && String(uid)[0] === '1' ? true : false;
+  const isPSTN = (uid: number | string) =>
+    !userList[uid] && String(uid)[0] === '1' ? true : false;
   return isPSTN;
 }
 

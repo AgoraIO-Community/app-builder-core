@@ -14,10 +14,10 @@ import ChatContext from '../../src/components/ChatContext';
 
 /**
  * This hook will fetch the group messages
- * @returns userList 
+ * @returns userList
  */
 function useGroupMessages() {
-  const {messageStore} = useContext(ChatContext); 
+  const {messageStore} = useContext(ChatContext);
   return messageStore;
 }
 

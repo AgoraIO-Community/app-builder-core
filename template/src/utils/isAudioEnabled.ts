@@ -9,20 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useMaxUidContext, useMinUidContext } from 'fpe-api';
-import { ToggleState } from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {useMaxUidContext, useMinUidContext} from 'fpe-api';
+import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 function useIsAudioEnabled() {
   const minUsers = useMinUidContext();
   const maxUsers = useMaxUidContext();
   const users = [...minUsers, ...maxUsers];
   /**
-   * 
+   *
    * @param uid number | string
    * @returns boolean
    */
- const audioEnabled = (uid: number | string): boolean => users.find(item => item.uid === uid)?.audio === ToggleState.enabled
- return audioEnabled;
+  const audioEnabled = (uid: number | string): boolean =>
+    users.find((item) => item.uid === uid)?.audio === ToggleState.enabled;
+  return audioEnabled;
 }
 
 export default useIsAudioEnabled;

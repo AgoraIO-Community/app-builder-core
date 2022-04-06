@@ -14,11 +14,11 @@ import ChatContext from '../../src/components/ChatContext';
 
 /**
  * This hook will return function to find the private message by uid
- * @returns private message 
+ * @returns private message
  */
 function usePrivateMessages() {
-  const {privateMessageStore} = useContext(ChatContext); 
-  const getPrivateMessage = (uid: number | string) => privateMessageStore[uid]
+  const {privateMessageStore} = useContext(ChatContext);
+  const getPrivateMessage = (uid: number | string) => privateMessageStore[uid];
   return getPrivateMessage;
 }
 

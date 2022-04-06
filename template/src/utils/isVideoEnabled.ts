@@ -9,19 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useMaxUidContext, useMinUidContext } from 'fpe-api';
-import { ToggleState } from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {useMaxUidContext, useMinUidContext} from 'fpe-api';
+import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 function useIsVideoEnabled() {
   const minUsers = useMinUidContext();
   const maxUsers = useMaxUidContext();
-  const users = [...minUsers, ...maxUsers];  
+  const users = [...minUsers, ...maxUsers];
   /**
-   * 
+   *
    * @param uid number | string
    * @returns boolean
    */
- const videoEnabled = (uid: number | string): boolean => users.find(item => item.uid === uid)?.video === ToggleState.enabled
- return videoEnabled;
+  const videoEnabled = (uid: number | string): boolean =>
+    users.find((item) => item.uid === uid)?.video === ToggleState.enabled;
+  return videoEnabled;
 }
 export default useIsVideoEnabled;

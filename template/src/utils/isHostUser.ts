@@ -9,14 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useVideoCall } from 'fpe-api';
+import {ClientRole} from '../../agora-rn-uikit';
+import {useUserList} from 'fpe-api';
 
-/**
- * This hook will check the current user is a host or not.
- * @returns boolean
- */
 function useIsHost() {
-  const {isHost} = useVideoCall();
+  const userList = useUserList();
+  const isHost = (uid: string | number) =>
+    userList[uid].role === ClientRole.Broadcaster;
   return isHost;
 }
 
