@@ -16,21 +16,19 @@ import Layout from '../src/subComponents/LayoutEnum';
 import { UidInterface } from '../agora-rn-uikit/src';
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
-export type ReactComponentType = React.FC<any>
-
 export interface PreCallInterface {
-  preview?: ReactComponentType;
-  audioMute?: ReactComponentType;
-  videoMute?: ReactComponentType;
-  meetingName?: ReactComponentType;
-  deviceSelect?: ReactComponentType;
-  joinButton?: ReactComponentType;
-  textBox?: ReactComponentType;
+  preview?: React.ComponentType;
+  audioMute?: React.ComponentType;
+  videoMute?: React.ComponentType;
+  meetingName?: React.ComponentType;
+  deviceSelect?: React.ComponentType;
+  joinButton?: React.ComponentType;
+  textBox?: React.ComponentType;
 }
 
 export interface ChatCmpInterface {
-  chatBubble?: React.Component<channelMessage> | React.FC<channelMessage>;
-  chatInput?: React.Component<chatInputInterface> | React.FC<chatInputInterface>;
+  chatBubble?: React.ComponentType<channelMessage>;
+  chatInput?: React.ComponentType<chatInputInterface>;
 }
 
 export interface renderComponentInterface {
@@ -44,12 +42,12 @@ export interface renderComponentInterface {
 }
 
 export interface renderComponentObjectInterface {
-  [key: string]: React.FC<renderComponentInterface> 
+  [key: string]: React.ComponentType<renderComponentInterface>
 }
 
-export type layoutComponent = React.FC<{
-  maxVideoArray: React.FC[];
-  minVideoArray: React.FC[];
+export type layoutComponent = React.ComponentType<{
+  maxVideoArray: React.ComponentType[];
+  minVideoArray: React.ComponentType[];
   setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
 }>;
 
@@ -59,26 +57,26 @@ export interface layoutObjectInterface {
   component: layoutComponent;
 }
 export interface VideoCallInterface {
-  topBar?: ReactComponentType;
-  settingsPanel?: ReactComponentType;
-  participantsPanel?: ReactComponentType;
-  bottomBar?: ReactComponentType;
-  chat?: ChatCmpInterface | ReactComponentType;
-  renderComponentObject?: renderComponentObjectInterface;  
+  topBar?: React.ComponentType;
+  settingsPanel?: React.ComponentType;
+  participantsPanel?: React.ComponentType;
+  bottomBar?: React.ComponentType;
+  chat?: ChatCmpInterface | React.ComponentType;
+  renderComponentObject?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectInterface[]) => layoutObjectInterface[];
 }
 
 export type ComponentsInterface = {
-  precall?: PreCallInterface | ReactComponentType
-  create?: ReactComponentType;
-  share?: ReactComponentType;
-  join?: ReactComponentType;
-  videoCall?: VideoCallInterface | ReactComponentType;
+  precall?: PreCallInterface | React.ComponentType
+  create?: React.ComponentType;
+  share?: React.ComponentType;
+  join?: React.ComponentType;
+  videoCall?: VideoCallInterface | React.ComponentType;
 }
 
 export interface CustomRoutesInterface {
   path: string;
-  component: ReactComponentType;
+  component: React.ComponentType;
   exact?: boolean;
   componentProps?: object;
   privateRoute?: boolean;
@@ -101,7 +99,7 @@ export interface i18nInterface {
   }
 }
 
-export type CustomHookType = () => () => Promise<void> 
+export type CustomHookType = () => () => Promise<void>
 
 export interface FpeApiInterface {
   /**
@@ -119,7 +117,7 @@ export interface FpeApiInterface {
   /**
    * 
    */
-  i18n?:i18nInterface[],
+  i18n?: i18nInterface[],
   /**
    * Life cycle events
    */

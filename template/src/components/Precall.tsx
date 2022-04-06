@@ -11,27 +11,32 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
-import {
-  PropsContext,
-  ClientRole,
-} from '../../agora-rn-uikit';
-import {cmpTypeGuard, hasBrandLogo} from '../utils/common';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {cmpTypeGuard} from '../utils/common';
 import ColorContext from './ColorContext';
-import { usePreCall } from './precall/usePreCall';
+import {usePreCall} from './precall/usePreCall';
 import PreCallLogo from './common/Logo';
-import { useFpe } from 'fpe-api';
+import {useFpe} from 'fpe-api';
 import VideoPreview from './precall/VideoPreview';
 import PreCallLocalMute from './precall/LocalMute';
-import selectDevice from './precall/selectDevice';
-import { PreCallJoinBtn, PreCallTextInput, PreCallMeetingTitle } from './precall/index';
+import {
+  PreCallJoinBtn,
+  PreCallTextInput,
+  PreCallMeetingTitle,
+  PreCallSelectDevice,
+} from './precall/index';
 
 const JoinRoomInputView = () => {
-  const {textBox, joinButton} = useFpe(data => typeof data.components?.precall === 'object' && data.components?.precall ? data.components?.precall : {});
+  const {textBox, joinButton} = useFpe((data) =>
+    typeof data.components?.precall === 'object' && data.components?.precall
+      ? data.components?.precall
+      : {},
+  );
   return (
     <View style={style.btnContainer}>
-      {cmpTypeGuard(textBox, PreCallTextInput)}
+      {cmpTypeGuard(PreCallTextInput, textBox)}
       <View style={{height: 20}} />
-      {cmpTypeGuard(joinButton, PreCallJoinBtn)}
+      {cmpTypeGuard(PreCallJoinBtn, joinButton)}
     </View>
   );
 };
@@ -39,11 +44,12 @@ const JoinRoomInputView = () => {
 const Precall = () => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
-  const {preview, deviceSelect, meetingName} = useFpe(data => 
-    data.components?.precall && typeof data.components?.precall === 'object' ?
-      data.components.precall : {}
-  )
-  const {queryComplete, title} = usePreCall(data =>data);
+  const {preview, deviceSelect, meetingName} = useFpe((data) =>
+    data.components?.precall && typeof data.components?.precall === 'object'
+      ? data.components.precall
+      : {},
+  );
+  const {queryComplete, title} = usePreCall((data) => data);
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -66,8 +72,7 @@ const Precall = () => {
 
   if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
 
-  const brandHolder = () => <PreCallLogo />
-   
+  const brandHolder = () => <PreCallLogo />;
 
   return (
     <View style={style.main} onLayout={onLayout}>
@@ -75,7 +80,7 @@ const Precall = () => {
       {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
         <View style={style.preCallContainer}>
           {brandHolder()}
-          {cmpTypeGuard(meetingName, PreCallMeetingTitle)}
+          {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
           <JoinRoomInputView />
         </View>
       ) : (
@@ -88,22 +93,20 @@ const Precall = () => {
                   style.leftContent,
                   isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
                 ]}>
-                {cmpTypeGuard(preview, VideoPreview)}
+                {cmpTypeGuard(VideoPreview, preview)}
                 <PreCallLocalMute />
                 <View style={{marginBottom: '10%'}}>
                   {/* This view is visible only on MOBILE view */}
-                  {isMobileView() && (
-                    <JoinRoomInputView />
-                  )}
+                  {isMobileView() && <JoinRoomInputView />}
                 </View>
               </View>
               {/* This view is visible only on WEB view */}
               {!isMobileView() && (
                 <View style={style.rightContent}>
-                  {cmpTypeGuard(meetingName, PreCallMeetingTitle)}
+                  {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
                   <View
                     style={[{shadowColor: primaryColor}, style.precallPickers]}>
-                    {cmpTypeGuard(deviceSelect, selectDevice)}
+                    {cmpTypeGuard(PreCallSelectDevice, deviceSelect)}
                     <View style={{width: '100%'}}>
                       <JoinRoomInputView />
                     </View>

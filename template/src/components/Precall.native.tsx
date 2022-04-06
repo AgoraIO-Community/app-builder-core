@@ -11,10 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {
-  ClientRole,
-  PropsContext,
-} from '../../agora-rn-uikit';
+import {ClientRole, PropsContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
 import {useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
@@ -24,7 +21,7 @@ import {
   PreCallVideoPreview,
   PreCallTextInput,
   PreCallLocalMute,
-  PreCallMeetingTitle
+  PreCallMeetingTitle,
 } from './precall/index';
 
 const Precall = () => {
@@ -45,14 +42,14 @@ const Precall = () => {
       <View style={style.heading}>
         <Text style={style.headingText}>{useString('precallLabel')} </Text>
       </View>
-      {cmpTypeGuard(meetingName, PreCallMeetingTitle)}
+      {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
       {!isAudienceInLiveStreaming() && (
         <View style={style.full}>
-          {cmpTypeGuard(preview, PreCallVideoPreview)}
+          {cmpTypeGuard(PreCallVideoPreview, preview)}
         </View>
       )}
       <View style={style.textInputHolder}>
-        {cmpTypeGuard(textBox, PreCallTextInput)}
+        {cmpTypeGuard(PreCallTextInput, textBox)}
       </View>
       <View style={{height: 20}} />
       {!isAudienceInLiveStreaming() && (
@@ -61,7 +58,7 @@ const Precall = () => {
         </View>
       )}
       <View style={{marginBottom: 50, alignItems: 'center'}}>
-        {cmpTypeGuard(joinButton, PreCallJoinBtn)}
+        {cmpTypeGuard(PreCallJoinBtn, joinButton)}
       </View>
     </View>
   );

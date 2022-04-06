@@ -183,7 +183,7 @@ const Create = () => {
           joinPhrase={joinPhrase}
           roomTitle={roomTitle}
         >
-          {cmpTypeGuard(share, ShareLink)}
+          {cmpTypeGuard(ShareLink,share)}
         </ShareLinkProvider>
       )}
     </ScrollView>

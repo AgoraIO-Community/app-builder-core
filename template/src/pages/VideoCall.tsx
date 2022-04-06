@@ -476,7 +476,7 @@ const VideoCall: React.FC = () => {
                                     setPrivateChatDisplayed={
                                       setPrivateChatDisplayed
                                     }>
-                                    {cmpTypeGuard(topBar, Navbar)}
+                                    {cmpTypeGuard(Navbar,topBar)}
                                     <View
                                       style={[
                                         style.videoView,
@@ -515,8 +515,8 @@ const VideoCall: React.FC = () => {
                                           {sidePanel ===
                                           SidePanelType.Participants ? (
                                             cmpTypeGuard(
-                                              participantsPanel,
                                               ParticipantsView,
+                                              participantsPanel
                                             )
                                           ) : (
                                             <></>
@@ -524,7 +524,7 @@ const VideoCall: React.FC = () => {
                                         </NetworkQualityProvider>
                                         {sidePanel === SidePanelType.Chat ? (
                                           $config.CHAT ? (
-                                            cmpTypeGuard(chat, Chat)
+                                            cmpTypeGuard(Chat,chat)
                                           ) : (
                                             <></>
                                           )
@@ -534,8 +534,8 @@ const VideoCall: React.FC = () => {
                                         {sidePanel ===
                                         SidePanelType.Settings ? (
                                           cmpTypeGuard(
-                                            settingsPanel,
                                             SettingsView,
+                                            settingsPanel
                                           )
                                         ) : (
                                           <></>
@@ -546,7 +546,7 @@ const VideoCall: React.FC = () => {
                                     sidePanel === SidePanelType.Chat ? (
                                       <></>
                                     ) : (
-                                      cmpTypeGuard(bottomBar, Controls)
+                                      cmpTypeGuard(Controls,bottomBar)
                                     )}
                                   </ChatUIDataProvider>
                                 </VideoCallProvider>
@@ -561,7 +561,7 @@ const VideoCall: React.FC = () => {
                             queryComplete={queryComplete}
                             title={title}
                             error={error}>
-                            {cmpTypeGuard(PreCallScreenFpe, Precall)}
+                            {cmpTypeGuard(Precall,PreCallScreenFpe)}
                           </PreCallProvider>
                         ) : (
                           <></>

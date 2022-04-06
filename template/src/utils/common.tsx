@@ -10,17 +10,20 @@
 *********************************************
 */
 import React from 'react';
-import { Platform } from "react-native";
+import {Platform} from 'react-native';
 
-const cmpTypeGuard = (Cmp: any, FallBack: React.FC<any>) => {
-  //TODO:hari - what if null passed and handle that also -  null or undefined should not render anything
-  return typeof Cmp === 'function' ? <Cmp /> : <FallBack />;
-}
-const getTypeGuard = (Cmp: any, FallBack: React.FC) => {
-  return typeof Cmp === 'function' ? Cmp : FallBack;
-}
+const cmpTypeGuard = <T,>(
+  FallBackComponent: React.ComponentType,
+  FpeComponent?: T,
+) => {
+  return FpeComponent && typeof FpeComponent === 'function' ? (
+    <FpeComponent />
+  ) : (
+    <FallBackComponent />
+  );
+};
+
 const hasBrandLogo: boolean = !!$config.LOGO;
-
 
 const shouldAuthenticate: boolean =
   $config.ENABLE_APPLE_OAUTH ||
@@ -28,9 +31,9 @@ const shouldAuthenticate: boolean =
   $config.ENABLE_MICROSOFT_OAUTH ||
   $config.ENABLE_SLACK_OAUTH;
 
-const isWeb = Platform.OS === 'web'
-const isAndroid = Platform.OS === 'android'
-const isIOS = Platform.OS === 'ios'
+const isWeb = Platform.OS === 'web';
+const isAndroid = Platform.OS === 'android';
+const isIOS = Platform.OS === 'ios';
 //TODO:hari export check for desktop platform
 export {
   hasBrandLogo,
@@ -39,6 +42,4 @@ export {
   isIOS,
   isAndroid,
   cmpTypeGuard,
-  getTypeGuard
-}
-
+};

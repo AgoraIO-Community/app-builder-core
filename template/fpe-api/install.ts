@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {FpeApiInterface} from './typeDefinition';
+import { FpeApiInterface } from './typeDefinition';
 /**
  * 
  * @param config FPE options to override the UI components and customize the application
  * @returns config options
  */
-export const installFPE = (config:FpeApiInterface) => {
+export const installFPE = (config: FpeApiInterface) => {
   return config
 };

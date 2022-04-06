@@ -22,11 +22,11 @@ const PreCallLocalMute: React.FC = () => {
   return (
     <LocalUserContext>
       <View style={style.width50}>
-        {cmpTypeGuard(audioMute, LocalAudioMute)}
+        {cmpTypeGuard(LocalAudioMute,audioMute)}
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        {cmpTypeGuard(videoMute, LocalVideoMute)}
+        {cmpTypeGuard(LocalVideoMute,videoMute)}
       </View>
       <View style={style.width50} />
       <View style={style.width50}>

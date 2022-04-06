@@ -1,1 +1,1 @@
-export {default as createHook} from './createHook';
+export { default as createHook } from './createHook';

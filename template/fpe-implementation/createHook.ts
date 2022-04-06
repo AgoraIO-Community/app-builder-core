@@ -9,22 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 /**
  * 
  * @param context - any context data which we want to extract the data.
  * @returns useContextWithSelector in which we can pass selector function to extract data from the context that we passed.
  */
-function createHook<T>(context: React.Context<T>){
-  
-  function useContextWithSelector<U>(contextSelector:(data: T) => U): U ;
+function createHook<T>(context: React.Context<T>) {
+
+  function useContextWithSelector<U>(contextSelector: (data: T) => U): U;
   function useContextWithSelector(): T;
   /**
    * 
    * @param contextSelector is used to pass callback function used to select data from the context data
    * @returns the data selected from the context
    */
-  function useContextWithSelector<U>(contextSelector?:(data: T) => U): U | T { 
+  function useContextWithSelector<U>(contextSelector?: (data: T) => U): U | T {
     const data = useContext(context);
     return contextSelector ? contextSelector(data) : data
   }

@@ -27,7 +27,7 @@ import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
-import {shouldAuthenticate,cmpTypeGuard, getTypeGuard} from './utils/common';
+import {shouldAuthenticate,cmpTypeGuard} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
@@ -49,8 +49,9 @@ const App: React.FC = () => {
     create
   } = useFpe(data => data?.components ? data.components : {} as ComponentsInterface);
   const CustomRoutes = useFpe(data => data?.customRoutes);
-  const CreateCmp = cmpTypeGuard(create, Create)
-  const RootWrapper = getTypeGuard(useFpe(data => data?.appRoot), React.Fragment);  
+  const CreateCmp = cmpTypeGuard(Create,create);
+  const AppRoot = useFpe(data => data?.appRoot)
+  const RootWrapper = AppRoot && typeof AppRoot === 'function' ? AppRoot : React.Fragment;
   return (
     <RootWrapper>
     <ImageBackground
@@ -102,7 +103,7 @@ const App: React.FC = () => {
                       <StoreToken />
                     </Route>
                     <Route exact path={'/join'}>
-                      {cmpTypeGuard(join, Join)}
+                      {cmpTypeGuard(Join,join)}
                     </Route>
                     {shouldAuthenticate ? (
                       <PrivateRoute
@@ -116,7 +117,7 @@ const App: React.FC = () => {
                       </Route>
                     )}
                     <Route path={'/:phrase'}>
-                      {cmpTypeGuard(videoCall,VideoCall)}
+                      {cmpTypeGuard(VideoCall,videoCall)}
                     </Route>
                   </Switch>        
                   </ErrorProvider>  

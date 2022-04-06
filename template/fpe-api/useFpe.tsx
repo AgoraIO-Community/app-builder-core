@@ -11,21 +11,20 @@
 */
 import React from 'react';
 import fpeConfig from 'test-fpe';
-import { FpeApiInterface } from './typeDefinition';
+import {FpeApiInterface} from './typeDefinition';
 import {createHook} from 'fpe-implementation';
 
-const FpeContext: React.Context<FpeApiInterface> = React.createContext(fpeConfig);
+const FpeContext: React.Context<FpeApiInterface> =
+  React.createContext(fpeConfig);
 
 export interface FpeProviderInterface {
-  children: React.ReactNode,
-  value: FpeApiInterface
+  children: React.ReactNode;
+  value: FpeApiInterface;
 }
 
 const FpeProvider = (props: FpeProviderInterface) => {
   return (
-    <FpeContext.Provider
-      value={props.value}
-    >
+    <FpeContext.Provider value={props.value}>
       {true ? props.children : <></>}
     </FpeContext.Provider>
   );
@@ -33,7 +32,4 @@ const FpeProvider = (props: FpeProviderInterface) => {
 
 const useFpe = createHook(FpeContext);
 
-export {
-  useFpe,
-  FpeProvider
-};
+export {useFpe, FpeProvider};
