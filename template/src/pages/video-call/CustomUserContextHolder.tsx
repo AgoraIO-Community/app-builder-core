@@ -1,7 +1,7 @@
 import React from 'react';
 import {useFpe} from 'fpe-api';
 
-export const CustomUserContextHolder: React.FC<{children: any}> = (props) => {
+const CustomUserContextHolder: React.FC<{children: any}> = (props) => {
   const useFpeCustomContext = useFpe((config) => config?.customUserContext?.useUserContext);
   const Component = useFpeCustomContext ? useFpeCustomContext() : null;
   if (Component) {
@@ -21,3 +21,4 @@ export const CustomUserContextHolder: React.FC<{children: any}> = (props) => {
     return props.children;
   }
 };
+export default CustomUserContextHolder;

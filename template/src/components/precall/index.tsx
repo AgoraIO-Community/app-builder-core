@@ -12,15 +12,15 @@
 
 import PreCallLocalMute from './LocalMute';
 import PreCallVideoPreview from './VideoPreview';
-import PreCallSetName from './setName';
 import PreCallSelectDevice from './selectDevice';
 import PreCallJoinBtn from './joinCallBtn'
 import PreCallTextInput from './textInput';
+import PreCallMeetingTitle from './meetingTitle'
 export {
   PreCallLocalMute,
   PreCallVideoPreview,
-  PreCallSetName,
   PreCallSelectDevice,
   PreCallJoinBtn,
-  PreCallTextInput
+  PreCallTextInput,
+  PreCallMeetingTitle
 };

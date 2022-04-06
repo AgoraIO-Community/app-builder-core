@@ -30,7 +30,7 @@ import icons from '../assets/icons';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
-import { useShareLink } from '../pages/Create/ShareLink';
+import { useShareLink } from '../pages/ShareLink';
 import { useString } from '../utils/useString';
 
 const Share = () => {

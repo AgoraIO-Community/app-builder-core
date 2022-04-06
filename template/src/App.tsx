@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import Join from './pages/Join';
-import VideoCall from './pages/VideoCall/VideoCall';
+import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
 import Authenticate from './pages/Authenticate';
 import {Router, Route, Switch, Redirect} from './components/Router';

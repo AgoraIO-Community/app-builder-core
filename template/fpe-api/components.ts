@@ -1,7 +1,7 @@
 //Precall components
-export * from "../src/components/precall";
+export * from "../src/components/precall/index";
 //video call components
-export * from "../src/pages/VideoCall";
+export * from "../src/pages/video-call/index";
 //Icons
 export {default as icons} from "../src/assets/icons";
 //Settings

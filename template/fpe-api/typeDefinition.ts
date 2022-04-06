@@ -16,7 +16,7 @@ import Layout from '../src/subComponents/LayoutEnum';
 import { UidInterface } from '../agora-rn-uikit/src';
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
-export type ReactComponentType = React.FC | React.Component
+export type ReactComponentType = React.FC<any>
 
 export interface PreCallInterface {
   preview?: ReactComponentType;

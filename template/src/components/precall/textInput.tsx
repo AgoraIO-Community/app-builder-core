@@ -11,13 +11,13 @@
 */
 
 import React from 'react';
-import { Platform } from 'react-native';
-import { usePreCall } from 'fpe-api';
 import TextInput from '../../atoms/TextInput';
+import { usePreCall } from 'fpe-api';
 import { useString } from '../../utils/useString';
 
 const PreCallTextInput: React.FC = () => {
-  const { username, setUsername, queryComplete } = usePreCall(data => data)
+  const { username, setUsername, queryComplete, error } = usePreCall(data => data)
+ 
   return (
     <TextInput
       value={username}
@@ -26,7 +26,7 @@ const PreCallTextInput: React.FC = () => {
       placeholder={
         queryComplete ? useString('userNamePlaceholder') : useString('fetchingNamePlaceholder')
       }
-      editable={Platform.OS === 'ios' ? queryComplete : true}
+      editable={queryComplete && !error}
     />
   )
 }

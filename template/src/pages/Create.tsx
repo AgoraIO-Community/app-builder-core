@@ -17,22 +17,22 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import {useHistory} from '../../components/Router';
-import Checkbox from '../../subComponents/Checkbox';
+import {useHistory} from '../components/Router';
+import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
-import PrimaryButton from '../../atoms/PrimaryButton';
-import SecondaryButton from '../../atoms/SecondaryButton';
-import HorizontalRule from '../../atoms/HorizontalRule';
-import TextInput from '../../atoms/TextInput';
-import Toast from '../../../react-native-toast-message';
-import { ErrorContext } from '../../components/common';
+import PrimaryButton from '../atoms/PrimaryButton';
+import SecondaryButton from '../atoms/SecondaryButton';
+import HorizontalRule from '../atoms/HorizontalRule';
+import TextInput from '../atoms/TextInput';
+import Toast from '../../react-native-toast-message';
+import { ErrorContext } from '../components/common';
 import { ShareLinkProvider } from './ShareLink';
-import ShareLink from '../../components/Share'
-import Logo from '../../components/common/Logo'
-import { cmpTypeGuard } from '../../utils/common';
+import ShareLink from '../components/Share'
+import Logo from '../components/common/Logo'
+import { cmpTypeGuard } from '../utils/common';
 import { useFpe } from 'fpe-api';
-import { useString } from '../../utils/useString';
-import { useLanguage } from '../../language/useLanguage';
+import { useString } from '../utils/useString';
+import { useLanguage } from '../language/useLanguage';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(

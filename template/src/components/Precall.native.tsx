@@ -9,105 +9,59 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {MaxUidContext} from '../../agora-rn-uikit';
-import {MaxVideoView} from '../../agora-rn-uikit';
 import {
-  LocalAudioMute,
-  LocalVideoMute,
-  SwitchCamera,
   ClientRole,
   PropsContext,
 } from '../../agora-rn-uikit';
-import {LocalUserContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
-import TextInput from '../atoms/TextInput';
-import PrimaryButton from '../atoms/PrimaryButton';
-import { usePreCall } from './precall/usePreCall';
+import {useFpe} from 'fpe-api';
+import {useString} from '../utils/useString';
+import {cmpTypeGuard} from '../utils/common';
+import {
+  PreCallJoinBtn,
+  PreCallVideoPreview,
+  PreCallTextInput,
+  PreCallLocalMute,
+  PreCallMeetingTitle
+} from './precall/index';
 
 const Precall = () => {
-  const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
   const {rtcProps} = useContext(PropsContext);
   rtc.RtcEngine.startPreview();
 
-  const {setCallActive, queryComplete, username, setUsername, title} =
-    usePreCall(data=>data);
-
-  const [buttonText, setButtonText] = React.useState('Join Room');
-
-  useEffect(() => {
-    let clientRole = '';
-    if (rtcProps?.role == 1) {
-      clientRole = 'Host';
-    }
-    if (rtcProps?.role == 2) {
-      clientRole = 'Audience';
-    }
-    setButtonText(
-      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
-    );
-  }, [rtcProps?.role]);
-
+  const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
+    data.components?.precall && typeof data.components?.precall === 'object'
+      ? data.components.precall
+      : {},
+  );
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
-
-  const meetingTitle = () => (
-    <>
-      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-        {title}
-      </Text>
-      <View style={{height: 25}} />
-    </>
-  );
 
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>Precall </Text>
+        <Text style={style.headingText}>{useString('precallLabel')} </Text>
       </View>
-      {meetingTitle()}
+      {cmpTypeGuard(meetingName, PreCallMeetingTitle)}
       {!isAudienceInLiveStreaming() && (
         <View style={style.full}>
-          <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+          {cmpTypeGuard(preview, PreCallVideoPreview)}
         </View>
       )}
       <View style={style.textInputHolder}>
-        <TextInput
-          value={username}
-          onChangeText={(text) => {
-            setUsername(text);
-          }}
-          onSubmitEditing={() => {}}
-          placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-          editable={queryComplete}
-        />
+        {cmpTypeGuard(textBox, PreCallTextInput)}
       </View>
       <View style={{height: 20}} />
       {!isAudienceInLiveStreaming() && (
         <View style={style.controls}>
-          <LocalUserContext>
-            <View style={style.width50}>
-              <LocalVideoMute />
-            </View>
-            <View style={style.width50} />
-            <View style={style.width50}>
-              <LocalAudioMute />
-            </View>
-            <View style={style.width50} />
-            <View style={style.width50}>
-              <SwitchCamera />
-            </View>
-          </LocalUserContext>
+          <PreCallLocalMute />
         </View>
       )}
       <View style={{marginBottom: 50, alignItems: 'center'}}>
-        <PrimaryButton
-          text={buttonText}
-          disabled={!queryComplete || username.trim() === ''}
-          onPress={() => setCallActive(true)}
-        />
+        {cmpTypeGuard(joinButton, PreCallJoinBtn)}
       </View>
     </View>
   );

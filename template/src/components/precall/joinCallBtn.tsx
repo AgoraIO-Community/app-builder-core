@@ -10,19 +10,38 @@
 *********************************************
 */
 
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import { usePreCall } from 'fpe-api';
 import { useString } from '../../utils/useString';
+import { PropsContext } from '../../../agora-rn-uikit';
 
 const joinCallBtn: React.FC = () => {
-  const { setCallActive, queryComplete, username } = usePreCall(data => data)
-  const joinRoomButton = useString('joinRoomButton')
+
+  const {rtcProps} = useContext(PropsContext);
+  const [buttonText, setButtonText] = React.useState('Join Room');
+
+  useEffect(() => {
+    let clientRole = '';
+    if (rtcProps?.role == 1) {
+      clientRole = 'Host';
+    }
+    if (rtcProps?.role == 2) {
+      clientRole = 'Audience';
+    }
+    setButtonText(
+      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
+    );
+  }, [rtcProps?.role]);
+  
+  const { setCallActive, queryComplete, username, error } = usePreCall(data => data)
+  //const joinRoomButton = useString('joinRoomButton');
+
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
-      disabled={!queryComplete || username === ''}
-      text={joinRoomButton(queryComplete)}      
+      disabled={!queryComplete || username === '' || error}
+      text={queryComplete ? buttonText : 'Loading...'}      
     />
   )
 }
