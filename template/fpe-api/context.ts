@@ -25,5 +25,5 @@ export { type PreCallContextInterface, PreCallProvider, usePreCall } from '../sr
 export { type VideoCallContextInterface, VideoCallProvider, useVideoCall } from '../src/pages/video-call/useVideoCall';
 export { type ChatUIDataInterface, type privateMsgLastSeenInterface, ChatUIDataProvider, useChatUIData } from '../src/components/useChatUI';
 export { type ShareLinkContextInterface, useShareLink, ShareLinkProvider } from '../src/pages/ShareLink';
-export { type ScreenShareContextInterface, useScreenShare, ScreenShareProvider } from '../src/subComponents/screen-share/useScreenShare';
+export { type ScreenshareContextInterface, useScreenshare, ScreenshareProvider } from '../src/subComponents/screenshare/index';
 export { type RecordingContextInterface, useRecording, RecordingProvider } from '../src/subComponents/recording/useRecording';

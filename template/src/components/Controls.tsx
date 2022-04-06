@@ -25,8 +25,8 @@ import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import { useVideoCall, ScreenShareProvider, RecordingProvider } from 'fpe-api';
-import { useString } from '../utils/useString';
+import {useVideoCall, RecordingProvider} from 'fpe-api';
+import {useString} from '../utils/useString';
 
 const Controls = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
@@ -40,13 +40,9 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const [screenshareActive, setScreenshareActive] = useState<boolean>(false);
-  const {
-    setRecordingActive,
-    recordingActive,
-    isHost,
-    setLayout,
-  } = useVideoCall(data => data);
+  const {setRecordingActive, recordingActive, isHost, setLayout} = useVideoCall(
+    (data) => data,
+  );
 
   return (
     <LocalUserContext>
@@ -76,7 +72,7 @@ const Controls = (props: any) => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={useString('audio')}/>
+              <LocalAudioMute btnText={useString('audio')} />
             </View>
             <View style={{alignSelf: 'center'}}>
               <LocalVideoMute btnText={useString('video')} />
@@ -88,20 +84,14 @@ const Controls = (props: any) => {
             )}
             {$config.SCREEN_SHARING && !isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
-                <ScreenShareProvider 
-                  screenshareActive={screenshareActive}
-                  setScreenshareActive={setScreenshareActive}
-                >
-                  <ScreenshareButton />
-                </ScreenShareProvider>
+                <ScreenshareButton />
               </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
                 <RecordingProvider
                   recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                  >
+                  setRecordingActive={setRecordingActive}>
                   <Recording />
                 </RecordingProvider>
               </View>

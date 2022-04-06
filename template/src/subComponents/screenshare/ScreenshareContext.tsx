@@ -11,11 +11,13 @@
 */
 import {createContext} from 'react';
 
-interface ScreenshareContext {
+export interface ScreenshareContextInterface {
   screenshareActive: boolean;
   startUserScreenshare: () => void;
   stopUserScreenShare: () => void;
 }
 
-const ScreenshareContext = createContext(null as unknown as ScreenshareContext);
+const ScreenshareContext = createContext(
+  null as unknown as ScreenshareContextInterface,
+);
 export default ScreenshareContext;
