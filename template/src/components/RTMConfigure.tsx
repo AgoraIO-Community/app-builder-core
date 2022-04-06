@@ -28,7 +28,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
 import {filterObject} from '../utils';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 
 export enum UserType {
   Normal,
@@ -88,7 +88,7 @@ const RtmConfigure = (props: any) => {
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   const userText = useString('remoteUserDefaultLabel');
-  const getScreenShareName = useString('screenshareUserName');  
+  const getScreenShareName = useString('screenshareUserName');
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
@@ -250,7 +250,9 @@ const RtmConfigure = (props: any) => {
                     requests: attr?.attributes?.requests,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
-                    name: getScreenShareName(attr?.attributes?.name || userText),
+                    name: getScreenShareName(
+                      attr?.attributes?.name || userText,
+                    ),
                     type: UserType.ScreenShare,
                   },
                 };
@@ -322,7 +324,7 @@ const RtmConfigure = (props: any) => {
                 requests: attr?.attributes?.requests,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
-                name: getScreenShareName('screenshareUserName', attr?.attributes?.name || userText ),
+                name: getScreenShareName(attr?.attributes?.name || userText),
                 type: UserType.ScreenShare,
               },
             };

@@ -30,19 +30,20 @@ import {
   ParticipantContextProvider,
   ParticipantContextConsumer,
 } from './participants/context/ParticipantContext';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
+import {useVideoCall} from 'fpe-api';
 
-const ParticipantView = (props: any) => {
+const ParticipantView = () => {
   const {userList} = useContext(chatContext);
   const {rtcProps} = useContext(PropsContext);
-
+  const {isHost} = useVideoCall((data) => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  let fontSize = Platform.OS === 'web' ? 14 : 16
+  let fontSize = Platform.OS === 'web' ? 14 : 16;
   const youText = useString('localUserDefaultLabel');
   const screenShareNameCallBack = useString('screenshareUserName');
   const yourScreenshareText = useString('localScreenshareDefaultLabel');
@@ -59,7 +60,9 @@ const ParticipantView = (props: any) => {
       }>
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>{useString('participantsLabel')}</Text>
+          <Text style={style.mainHeading}>
+            {useString('participantsLabel')}
+          </Text>
         </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
@@ -68,7 +71,7 @@ const ParticipantView = (props: any) => {
           <ParticipantContextProvider>
             {/* Host and New host view */}
             {rtcProps?.role == ClientRole.Broadcaster &&
-              (props.isHost ? (
+              (isHost ? (
                 /**
                  * Original Host
                  * a) Can view streaming requests
@@ -94,7 +97,7 @@ const ParticipantView = (props: any) => {
                           <View style={style.participantContainer}>
                             <AllHostParticipants
                               p_style={style}
-                              isHost={props.isHost}
+                              isHost={isHost}
                             />
                           </View>
                         </View>
@@ -117,7 +120,7 @@ const ParticipantView = (props: any) => {
                         <AllAudienceParticipants
                           p_style={style}
                           participantList={hostList}
-                          isHost={props.isHost}
+                          isHost={isHost}
                         />
                       </View>
                     );
@@ -136,7 +139,7 @@ const ParticipantView = (props: any) => {
                       <AllAudienceParticipants
                         participantList={hostList}
                         p_style={style}
-                        isHost={props.isHost}
+                        isHost={isHost}
                       />
                     </View>
                   );
@@ -155,7 +158,7 @@ const ParticipantView = (props: any) => {
                     <AllAudienceParticipants
                       p_style={style}
                       participantList={audienceList}
-                      isHost={props.isHost}
+                      isHost={isHost}
                     />
                   </View>
                 );
@@ -165,7 +168,7 @@ const ParticipantView = (props: any) => {
         ) : (
           <View style={style.participantsection}>
             <View style={style.participantContainer}>
-              <AllHostParticipants p_style={style} isHost={props.isHost} />
+              <AllHostParticipants p_style={style} isHost={isHost} />
             </View>
           </View>
         )}
@@ -270,7 +273,7 @@ const style = StyleSheet.create({
     flex: 0.5,
     opacity: 0,
     marginHorizontal: 5,
-  }
+  },
 });
 
 export default ParticipantView;
