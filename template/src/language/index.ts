@@ -211,13 +211,13 @@ export const TEXTS: CombinedTextDataInterface = {
         return 'Loading';
     }
   },
-  meetingInviteText: ({ meetingName, id, url, pstn, hostControlCheckbox, platform }) => {
+  meetingInviteText: ({frontendEndpoint, meetingName, id, url, pstn, hostControlCheckbox, platform }) => {
     let inviteContent = '';
-    if($config.FRONTEND_ENDPOINT){
+    if(frontendEndpoint){
       if(hostControlCheckbox){
-        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${$config.FRONTEND_ENDPOINT}/${url?.attendee}\nURL for Host: ${$config.FRONTEND_ENDPOINT}/${url?.host}`
+        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${frontendEndpoint}/${url?.attendee}\nURL for Host: ${frontendEndpoint}/${url?.host}`
       }else{
-        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${$config.FRONTEND_ENDPOINT}/${url?.host}`
+        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${frontendEndpoint}/${url?.host}`
       }  
     }else if(platform === 'web'){
       if(hostControlCheckbox){

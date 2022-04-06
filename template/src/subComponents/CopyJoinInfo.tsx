@@ -38,7 +38,7 @@ const SHARE = gql`
   }
 `;
 
-const ParticipantView = (props: {showText?: boolean}) => {
+const CopyJoinInfo = (props: {showText?: boolean}) => {
   const {phrase} = useParams<{phrase: string}>();
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
@@ -50,6 +50,7 @@ const ParticipantView = (props: {showText?: boolean}) => {
     Toast.show({text1: copiedToClipboardText , visibilityTime: 1000});
     if (data && !loading) {
       let stringToCopy = meetingInviteText({
+        platform,
         frontendEndpoint: $config.FRONTEND_ENDPOINT,
         hostControlCheckbox: hostControlCheckbox,
         meetingName: data.share.title,
@@ -101,4 +102,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default ParticipantView;
+export default CopyJoinInfo;
