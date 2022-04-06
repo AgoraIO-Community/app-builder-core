@@ -1,14 +1,19 @@
 import React, {useContext} from 'react';
 import {MinUidConsumer, MaxUidConsumer} from '../../../agora-rn-uikit';
+import {participantStylesInterface} from '../ParticipantsView';
 import chatContext from '../ChatContext';
-
 import MeParticipant from './MeParticipant';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
 import {UserType} from './../RTMConfigure';
 
-export default function AllHostParticipants(props: any) {
-  const {p_style, isHost} = props;
+interface IProps {
+  participantStyles: participantStylesInterface;
+  isHost: boolean;
+}
+
+export default function ParticipantsWithHostControls(props: IProps) {
+  const {participantStyles, isHost} = props;
   const {userList, localUid} = useContext(chatContext);
 
   const getParticipantName = (userUID: number | string) => {
@@ -35,19 +40,19 @@ export default function AllHostParticipants(props: any) {
               user.uid === 'local' ? (
                 <MeParticipant
                   name={getParticipantName(user.uid)}
-                  p_style={p_style}
+                  participantStyles={participantStyles}
                   key={user.uid}
                 />
               ) : user.uid === 1 ? (
                 <ScreenshareParticipants
                   name={getParticipantName(user.uid)}
-                  p_styles={p_style}
+                  participantStyles={participantStyles}
                   key={user.uid}
                 />
               ) : (
                 <RemoteParticipants
                   name={getParticipantName(user.uid)}
-                  p_styles={p_style}
+                  participantStyles={participantStyles}
                   user={user}
                   showControls={
                     userList[user.uid]?.type !== UserType.ScreenShare

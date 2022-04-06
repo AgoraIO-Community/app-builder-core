@@ -17,14 +17,16 @@ import {
   Platform,
   ScrollView,
   Dimensions,
-  useWindowDimensions,
+  ViewStyle,
+  ImageStyle,
+  TextStyle,
 } from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import chatContext from './ChatContext';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
-import AllHostParticipants from './participants/AllHostParticipants';
-import AllAudienceParticipants from './participants/AllAudienceParticipants';
+import ParticipantsWithHostControls from './participants/ParticipantsWithHostControls';
+import ParticipantsWithAudienceControls from './participants/ParticipantsWithAudienceControls';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {
   ParticipantContextProvider,
@@ -72,7 +74,7 @@ const ParticipantView = (props: any) => {
                   {/* a) Live streaming view */}
                   <View style={style.participantsection}>
                     <CurrentLiveStreamRequestsView
-                      p_style={style}
+                      participantStyles={style}
                       userList={userList}
                     />
                   </View>
@@ -86,8 +88,8 @@ const ParticipantView = (props: any) => {
                             count={hostCount}
                           />
                           <View style={style.participantContainer}>
-                            <AllHostParticipants
-                              p_style={style}
+                            <ParticipantsWithHostControls
+                              participantStyles={style}
                               isHost={props.isHost}
                             />
                           </View>
@@ -108,8 +110,8 @@ const ParticipantView = (props: any) => {
                           title="Host"
                           count={hostCount}
                         />
-                        <AllAudienceParticipants
-                          p_style={style}
+                        <ParticipantsWithAudienceControls
+                          participantStyles={style}
                           participantList={hostList}
                           isHost={props.isHost}
                         />
@@ -127,9 +129,9 @@ const ParticipantView = (props: any) => {
                   return (
                     <View style={style.participantsection}>
                       <ParticipantSectionTitle title="Host" count={hostCount} />
-                      <AllAudienceParticipants
+                      <ParticipantsWithAudienceControls
                         participantList={hostList}
-                        p_style={style}
+                        participantStyles={style}
                         isHost={props.isHost}
                       />
                     </View>
@@ -146,8 +148,8 @@ const ParticipantView = (props: any) => {
                       title="Audience"
                       count={audienceCount}
                     />
-                    <AllAudienceParticipants
-                      p_style={style}
+                    <ParticipantsWithAudienceControls
+                      participantStyles={style}
                       participantList={audienceList}
                       isHost={props.isHost}
                     />
@@ -159,7 +161,10 @@ const ParticipantView = (props: any) => {
         ) : (
           <View style={style.participantsection}>
             <View style={style.participantContainer}>
-              <AllHostParticipants p_style={style} isHost={props.isHost} />
+              <ParticipantsWithHostControls
+                participantStyles={style}
+                isHost={props.isHost}
+              />
             </View>
           </View>
         )}
@@ -178,6 +183,17 @@ const ParticipantView = (props: any) => {
     </View>
   );
 };
+
+export interface participantStylesInterface {
+  participantContainer: ViewStyle;
+  participantRow: ViewStyle;
+  participantActionContainer: ViewStyle;
+  actionBtnIcon: ImageStyle;
+  participantText: TextStyle;
+  participantTextSmall: TextStyle;
+  infoText: TextStyle;
+  dummyView: ViewStyle;
+}
 
 const style = StyleSheet.create({
   padding10: {
@@ -259,11 +275,6 @@ const style = StyleSheet.create({
   },
   participantTextSmall: {
     fontSize: Platform.OS === 'web' ? 14 : 12,
-  },
-  dummyView: {
-    flex: 0.5,
-    opacity: 0,
-    marginHorizontal: 5,
   },
   dummyView: {
     flex: 0.5,

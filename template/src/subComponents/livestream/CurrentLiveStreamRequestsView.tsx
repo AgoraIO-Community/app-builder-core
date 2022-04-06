@@ -3,12 +3,18 @@ import {View, Text} from 'react-native';
 import RemoteLiveStreamRequestApprove from './controls/RemoteLiveStreamRequestApprove';
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
 import ParticipantName from '../../components/participants/ParticipantName';
+import {participantStylesInterface} from '../../components/ParticipantsView';
 import LiveStreamContext, {requestStatus} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 
+interface IProps {
+  userList: any;
+  participantStyles: participantStylesInterface;
+}
+
 const CurrentLiveStreamRequestsView = (props: any) => {
-  const {userList, p_style} = props;
+  const {userList, participantStyles} = props;
   const {currLiveStreamRequest, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
@@ -36,17 +42,19 @@ const CurrentLiveStreamRequestsView = (props: any) => {
         title="Streaming Request "
         count={Object.keys(activeLiveStreamRequests).length}
       />
-      <View style={p_style.participantContainer}>
+      <View style={participantStyles.participantContainer}>
         {Object.keys(currLiveStreamRequest).length == 0 ||
         Object.keys(activeLiveStreamRequests).length == 0 ? (
-          <Text style={p_style.infoText}>No streaming request(s)</Text>
+          <Text style={participantStyles.infoText}>
+            No streaming request(s)
+          </Text>
         ) : (
           Object.keys(activeLiveStreamRequests).map(
             (userUID: any, index: number) =>
               userList[userUID] ? (
-                <View style={p_style.participantRow} key={index}>
+                <View style={participantStyles.participantRow} key={index}>
                   <ParticipantName value={userList[userUID]?.name || 'User'} />
-                  <View style={p_style.participantActionContainer}>
+                  <View style={participantStyles.participantActionContainer}>
                     <RemoteLiveStreamRequestApprove
                       user={{...userList[userUID], uid: userUID}}
                     />
@@ -56,7 +64,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                   </View>
                 </View>
               ) : (
-                <View style={p_style.participantRow} key={index}>
+                <View style={participantStyles.participantRow} key={index}>
                   <ParticipantName value={'User not found'} />
                 </View>
               ),

@@ -10,46 +10,47 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
+import {participantStylesInterface} from '../ParticipantsView';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from './ParticipantName';
 
-interface remoteParticipantsInterface {
-  p_styles: any;
+interface IProps {
+  participantStyles: participantStylesInterface;
   name: string;
   user: any;
   showControls: boolean;
   isHost: boolean;
 }
 
-const RemoteParticipants = (props: remoteParticipantsInterface) => {
-  const {p_styles, user, name, showControls, isHost} = props;
+const RemoteParticipants = (props: IProps) => {
+  const {participantStyles, user, name, showControls, isHost} = props;
 
   return (
-    <View style={p_styles.participantRow}>
+    <View style={participantStyles.participantRow}>
       <ParticipantName value={name} />
       {showControls ? (
-        <View style={p_styles.participantActionContainer}>
+        <View style={participantStyles.participantActionContainer}>
           {$config.EVENT_MODE && (
             <ApprovedLiveStreamControlsView
-              p_styles={p_styles}
+              participantStyles={participantStyles}
               uid={user.uid}
             />
           )}
-          <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
+          <View style={[participantStyles.actionBtnIcon, {marginRight: 10}]}>
             <RemoteEndCall uid={user.uid} isHost={isHost} />
           </View>
-          <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
+          <View style={[participantStyles.actionBtnIcon, {marginRight: 10}]}>
             <RemoteAudioMute
               uid={user.uid}
               audio={user.audio}
               isHost={isHost}
             />
           </View>
-          <View style={[p_styles.actionBtnIcon]}>
+          <View style={[participantStyles.actionBtnIcon]}>
             <RemoteVideoMute
               uid={user.uid}
               video={user.video}
@@ -59,7 +60,7 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
         </View>
       ) : (
         <></>
-        // <View style={p_styles.dummyView}>
+        // <View style={participantStyles.dummyView}>
         //   <Text>Remote screen sharing</Text>
         // </View>
       )}

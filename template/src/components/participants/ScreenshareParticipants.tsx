@@ -12,13 +12,19 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 import ParticipantName from './ParticipantName';
+import {participantStylesInterface} from '../ParticipantsView';
 
-const ScreenshareParticipants = (props: any) => {
-  const {p_styles, name} = props;
+interface IProps {
+  participantStyles: participantStylesInterface;
+  name: string;
+}
+
+const ScreenshareParticipants = (props: IProps) => {
+  const {participantStyles, name} = props;
   return (
-    <View style={p_styles.participantRow}>
+    <View style={participantStyles.participantRow}>
       <ParticipantName value={name} />
-      <View style={p_styles.dummyView}>
+      <View style={participantStyles.dummyView}>
         {/** its just the placeholder to adjust the UI. if no icon option to be shown */}
         <Text>local screen sharing</Text>
       </View>

@@ -13,20 +13,25 @@ import React from 'react';
 import {View} from 'react-native';
 import {LocalAudioMute, LocalVideoMute} from '../../../agora-rn-uikit';
 import {LocalUserContext} from '../../../agora-rn-uikit';
+import {participantStylesInterface} from '../ParticipantsView';
 import ParticipantName from './ParticipantName';
 
-const MeParticipant = (props: any) => {
-  const {p_style, name} = props;
+interface IProps {
+  participantStyles: participantStylesInterface;
+  name: string;
+}
 
+const MeParticipant = (props: IProps) => {
+  const {participantStyles, name} = props;
   return (
-    <View style={p_style.participantRow}>
+    <View style={participantStyles.participantRow}>
       <ParticipantName value={name} />
-      <View style={p_style.participantActionContainer}>
+      <View style={participantStyles.participantActionContainer}>
         <LocalUserContext>
-          <View style={[p_style.actionBtnIcon, {marginRight: 10}]}>
+          <View style={[participantStyles.actionBtnIcon, {marginRight: 10}]}>
             <LocalAudioMute btnText=" " variant="text" />
           </View>
-          <View style={p_style.actionBtnIcon}>
+          <View style={participantStyles.actionBtnIcon}>
             <LocalVideoMute btnText=" " variant="text" />
           </View>
         </LocalUserContext>

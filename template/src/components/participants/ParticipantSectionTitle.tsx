@@ -1,12 +1,12 @@
 import React from 'react';
 import {StyleSheet, Text} from 'react-native';
 
-interface PropsInterface {
+export interface IProps {
   title: string;
   count?: number;
 }
 
-export default function ParticipantSectionTitle(props: PropsInterface) {
+export default function ParticipantSectionTitle(props: IProps) {
   const {title, count = 0} = props;
   return (
     <Text style={style.subheading}>
