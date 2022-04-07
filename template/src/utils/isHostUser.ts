@@ -15,7 +15,7 @@ import {useUserList} from 'fpe-api';
 function useIsHost() {
   const userList = useUserList();
   const isHost = (uid: string | number) =>
-    userList[uid].role === ClientRole.Broadcaster;
+    userList[uid] ? userList[uid].role === ClientRole.Broadcaster : false;
   return isHost;
 }
 

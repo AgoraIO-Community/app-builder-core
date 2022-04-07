@@ -9,13 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { ClientRole } from '../../agora-rn-uikit';
-import { useUserList } from 'fpe-api';
+import {ClientRole} from '../../agora-rn-uikit';
+import {useUserList} from 'fpe-api';
 
 function useIsAttendee() {
   const userList = useUserList();
   const isAttendee = (uid: string | number) =>
-    userList[uid].role === ClientRole.Audience;
+    userList[uid] ? userList[uid].role === ClientRole.Audience : false;
   return isAttendee;
 }
 
