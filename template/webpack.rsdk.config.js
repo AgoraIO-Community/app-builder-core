@@ -1,13 +1,12 @@
 const commons = require('./webpack.commons');
 const path = require('path');
 const {merge} = require('webpack-merge');
-var nodeExternals = require('webpack-node-externals');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 module.exports = merge(commons, {
   // Enable optimizations in production
-  mode: 'development',
+  mode: isDevelopment ? 'development' : 'production',
   // externals: [
   //   nodeExternals({allowlist: [/agora.*/, /fpe.*/]}),
   // ],
@@ -18,7 +17,7 @@ module.exports = merge(commons, {
   },
   target: 'node',
   output: {
-    path: path.resolve(__dirname, 'dist/rsdk2'),
+    path: path.resolve(__dirname, 'dist/rsdk'),
     filename: 'app-builder-react-sdk.js',
     library:{
       type: 'commonjs2',
