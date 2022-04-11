@@ -93,6 +93,30 @@ const RtmConfigure = (props: any) => {
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
 
+  const [displayName, setDisplayName] = useState<string>(name);
+
+  /**
+   * By default displayName will hold name stored in the local storage
+   * Added useEffect to Update displayName when user type something in precall screen
+   */
+  useEffect(() => {
+    setDisplayName(name);
+  }, [name]);
+
+  useEffect(() => {
+    if (callActive) {
+      broadcastUserAttributes(
+        [
+          {
+            key: 'name',
+            value: displayName,
+          },
+        ],
+        controlMessageEnum.userNameChanged,
+      );
+    }
+  }, [displayName]);
+
   React.useEffect(() => {
     const handBrowserClose = () => {
       engine.current.leaveChannel(rtcProps.channel);
@@ -487,6 +511,24 @@ const RtmConfigure = (props: any) => {
                   }
                 }
                 break;
+              case controlMessageEnum.userNameChanged:
+                const {payload: payloadData} = JSON.parse(msg);
+                if (payloadData && payloadData.name) {
+                  setUserList((prevState) => {
+                    return {
+                      ...prevState,
+                      [uid]: {
+                        ...prevState[uid],
+                        name: payloadData.name,
+                      },
+                      [parseInt(prevState[uid].screenUid)]: {
+                        ...prevState[parseInt(prevState[uid].screenUid)],
+                        name: getScreenShareName(payloadData.name || userText),
+                      },
+                    };
+                  });
+                }
+                break;
               default:
                 break;
               //   throw new Error('Unsupported message type');
@@ -655,12 +697,21 @@ const RtmConfigure = (props: any) => {
     });
     // 2. Update my attributes in user-list
     setUserList((prevState) => {
+      let screenShareObject: any = {};
+      //check if formattedAttributes has name then we need to update screenshare name.
+      if ('name' in formattedAttributes) {
+        screenShareObject[parseInt(prevState[localUid.current].screenUid)] = {
+          ...prevState[parseInt(prevState[localUid.current].screenUid)],
+          name: getScreenShareName(formattedAttributes['name'] || userText),
+        };
+      }
       return {
         ...prevState,
         [localUid.current]: {
           ...prevState[localUid.current],
           ...formattedAttributes,
         },
+        ...screenShareObject,
       };
     });
 
@@ -691,6 +742,7 @@ const RtmConfigure = (props: any) => {
         userList: userList,
         onlineUsersCount,
         events,
+        setDisplayName,
       }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>
