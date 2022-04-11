@@ -12,7 +12,7 @@
 import {useFpe} from 'fpe-api';
 import {useLanguage} from '../language/useLanguage';
 import {DEFAULT_I18_DATA} from '../language';
-import {TextDataType} from 'src/language/utils/i18nTypes';
+import {TextDataType} from '../language//i18nTypes';
 
 export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,

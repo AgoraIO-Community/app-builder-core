@@ -1,4 +1,4 @@
-import {i18nInterface} from '../utils/i18nTypes';
+import {i18nInterface} from '../i18nTypes';
 
 export const VideoCallScreenLabels: i18nInterface['data'] = {
   video: 'Video',
