@@ -34,7 +34,6 @@ const shouldAuthenticate: boolean =
 const isWeb = Platform.OS === 'web';
 const isAndroid = Platform.OS === 'android';
 const isIOS = Platform.OS === 'ios';
-//TODO:hari export check for desktop platform
 export {
   hasBrandLogo,
   shouldAuthenticate,

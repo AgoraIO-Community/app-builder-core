@@ -11,18 +11,18 @@
 */
 
 import React from 'react';
-import { View, StyleSheet } from 'react-native'
+import {View, StyleSheet} from 'react-native';
 import Logo from '../../subComponents/Logo';
 import {hasBrandLogo} from '../../utils/common';
 
 const CommonLogo: React.FC = () => {
   return (
     <View style={style.nav}>
-      {hasBrandLogo && <Logo />}{/**TODO:hari update logo cmp works for localimage and url */}
+      {hasBrandLogo && <Logo />}
       {/* <OpenInNativeButton /> */}
     </View>
-  )
-}
+  );
+};
 export default CommonLogo;
 const style = StyleSheet.create({
   nav: {
@@ -32,4 +32,4 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-})
+});

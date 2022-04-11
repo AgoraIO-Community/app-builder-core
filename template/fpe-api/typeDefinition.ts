@@ -16,7 +16,7 @@ import {
 } from '../src/components/ChatContext';
 import Layout from '../src/subComponents/LayoutEnum';
 import {UidInterface} from '../agora-rn-uikit/src';
-import {i18nInterface} from '../src/language/utils/i18nTypes';
+import {i18nInterface} from '../src/language/i18nTypes';
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
 export interface PreCallInterface {

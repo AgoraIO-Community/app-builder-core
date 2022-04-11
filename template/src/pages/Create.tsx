@@ -26,7 +26,6 @@ import Logo from '../components/common/Logo';
 import {cmpTypeGuard} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
-import {useLanguage} from '../language/useLanguage';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
