@@ -167,6 +167,7 @@ export default class RtcEngine {
   private isJoined = false;
   private deviceId = '';
   private muteLocalVideoMutex = false;
+  private muteLocalAudioMutex = false;
 
   // Create channel profile and set it here
 
@@ -419,17 +420,26 @@ export default class RtcEngine {
   }
 
   async muteLocalAudioStream(muted: boolean): Promise<void> {
+    let didProcureMutexLock = false;
     try {
-      // await this.localStream.audio?.setEnabled(!muted);
-      if (muted) {
-        await this.client.unpublish(this.localStream.audio);
-        this.isAudioPublished = false;
-      }
-      this.isAudioEnabled = !muted;
-      if (!muted && !this.isAudioPublished && this.isJoined) {
-        await this.publish();
+      if (!this.muteLocalAudioMutex) {
+        // If there no mutex lock, procure a lock
+        this.muteLocalAudioMutex = true;
+        didProcureMutexLock = true;
+        // Use set muted
+        await this.localStream.audio?.setMuted(!muted);
+        // Release the lock once done
+        this.muteLocalAudioMutex = false;
+        this.isAudioEnabled = !muted;
+        // Unpublish only after when the user has joined the call
+        if (!muted && !this.isAudioPublished && this.isJoined) {
+          await this.publish();
+        }
       }
     } catch (e) {
+      if (didProcureMutexLock) {
+        this.muteLocalAudioMutex = false;
+      }
       console.error(
         e,
         '\n Be sure to invoke the enableVideo method before using this method.',
@@ -449,7 +459,8 @@ export default class RtcEngine {
         this.muteLocalVideoMutex = false;
 
         this.isVideoEnabled = !muted;
-        if (!muted && !this.isVideoPublished) {
+        // Unpublish only after when the user has joined the call
+        if (!muted && !this.isVideoPublished && this.isJoined) {
           await this.publish();
         }
       }
@@ -513,6 +524,10 @@ export default class RtcEngine {
   ): Promise<void> {
     try {
       if (clientRole == ClientRole.Audience) {
+        if (this.isJoined) {
+          // Unpublish the streams when role is changed to Audience
+          await this.client.unpublish();
+        }
         await this.client.setClientRole(role.audience, options);
         await this.screenClient.setClientRole(role.audience, options);
       } else if (clientRole == ClientRole.Broadcaster) {
