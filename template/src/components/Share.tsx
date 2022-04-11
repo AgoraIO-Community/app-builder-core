@@ -30,19 +30,23 @@ import icons from '../assets/icons';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
-import { useShareLink } from '../pages/ShareLink';
-import { useString } from '../utils/useString';
+import {useShareLink} from '../pages/ShareLink';
+import {useString} from '../utils/useString';
+import {MeetingInviteParam} from 'src/language/utils/i18nTypes';
 
 const Share = () => {
   const history = useHistory();
-  const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} = useShareLink(data => data);   
-  const copiedToClipboardText = useString('copiedToClipboardNotificationLabel');
-  const meetingInviteText = useString('meetingInviteText');
-  const meetingUrlText = useString('meetingUrlLabel');
-  const PSTNNumberText = useString('PSTNNumber');
-  const PSTNPinText = useString('PSTNPin');
-  const meetingIdText = useString('meetingIdLabel');
-  const hostIdText= useString('hostIdLabel');
+  const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} =
+    useShareLink((data) => data);
+  const copiedToClipboardText = useString(
+    'copiedToClipboardNotificationLabel',
+  )();
+  const meetingInviteText = useString<MeetingInviteParam>('meetingInviteText');
+  const meetingUrlText = useString('meetingUrlLabel')();
+  const PSTNNumberText = useString('PSTNNumber')();
+  const PSTNPinText = useString('PSTNPin')();
+  const meetingIdText = useString('meetingIdLabel')();
+  const hostIdText = useString('hostIdLabel')();
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
@@ -54,23 +58,25 @@ const Share = () => {
   const copyToClipboard = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
     let stringToCopy = meetingInviteText({
-      frontendEndpoint: $config.FRONTEND_ENDPOINT, 
+      frontendEndpoint: $config.FRONTEND_ENDPOINT,
       hostControlCheckbox,
       platform,
       meetingName: roomTitle,
-      url:{
+      url: {
         attendee: urlView,
-        host: urlHost
+        host: urlHost,
       },
-      id:{
+      id: {
         attendee: urlView,
-        host: urlHost
+        host: urlHost,
       },
-      pstn: pstn ? {
-        number: pstn.number,
-        pin: pstn.dtmf,
-      } : undefined
-    })
+      pstn: pstn
+        ? {
+            number: pstn.number,
+            pin: pstn.dtmf,
+          }
+        : undefined,
+    });
     Clipboard.setString(stringToCopy);
   };
 
@@ -123,8 +129,8 @@ const Share = () => {
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
                 {$config.FRONTEND_ENDPOINT || platform === 'web'
-                  ? useString('attendeeUrlLabel')
-                  : useString('attendeeIdLabel')}
+                  ? useString('attendeeUrlLabel')()
+                  : useString('attendeeIdLabel')()}
               </Text>
               <View style={style.urlHolder}>
                 <Text
@@ -172,7 +178,7 @@ const Share = () => {
             <Text style={style.urlTitle}>
               {$config.FRONTEND_ENDPOINT || platform === 'web'
                 ? hostControlCheckbox
-                  ? useString('hostUrlLabel')
+                  ? useString('hostUrlLabel')()
                   : meetingUrlText
                 : hostControlCheckbox
                 ? hostIdText
@@ -219,10 +225,12 @@ const Share = () => {
         {pstn ? (
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{useString('pstnLabel')}</Text>
+              <Text style={style.urlTitle}>{useString('pstnLabel')()}</Text>
               <View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{useString('pstnNumberLabel')}: </Text>
+                  <Text style={style.urlTitle}>
+                    {useString('pstnNumberLabel')()}:{' '}
+                  </Text>
                   <Text
                     style={[
                       style.url,
@@ -232,7 +240,7 @@ const Share = () => {
                   </Text>
                 </View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{useString('pin')}: </Text>
+                  <Text style={style.urlTitle}>{useString('pin')()}: </Text>
                   <Text
                     style={[
                       style.url,
@@ -267,12 +275,12 @@ const Share = () => {
         )}
         <PrimaryButton
           onPress={() => enterMeeting()}
-          text={useString('enterMeetingAfterCreateButton')}
+          text={useString('enterMeetingAfterCreateButton')()}
         />
         <View style={{height: 10}} />
         <SecondaryButton
           onPress={() => copyToClipboard()}
-          text={useString('copyInvite')}
+          text={useString('copyInvite')()}
         />
       </View>
       {/* {dim[0] > dim[1] + 150 ? (

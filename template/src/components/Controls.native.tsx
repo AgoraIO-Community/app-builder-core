@@ -10,10 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {
-  View,
-  StyleSheet,
-} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
@@ -25,11 +22,13 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import { useVideoCall } from 'fpe-api';
-import { useString } from '../utils/useString';
+import {useVideoCall} from 'fpe-api';
+import {useString} from '../utils/useString';
 
 const Controls = () => {
-  const {setRecordingActive, recordingActive, isHost} = useVideoCall(data => data);
+  const {setRecordingActive, recordingActive, isHost} = useVideoCall(
+    (data) => data,
+  );
   const {rtcProps} = useContext(PropsContext);
 
   return (
@@ -52,10 +51,10 @@ const Controls = () => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={useString('audio')}/>
+              <LocalAudioMute btnText={useString('audio')()} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={useString('video')}/>
+              <LocalVideoMute btnText={useString('video')()} />
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
@@ -66,12 +65,12 @@ const Controls = () => {
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
-              <SwitchCamera btnText={useString('switchCameraButton')} />
+              <SwitchCamera btnText={useString('switchCameraButton')()} />
             </View>
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('endCallButton')}/>
+          <Endcall btnText={useString('endCallButton')()} />
         </View>
       </View>
     </LocalUserContext>

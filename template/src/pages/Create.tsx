@@ -10,13 +10,7 @@
 *********************************************
 */
 import React, {useEffect, useState, useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Platform,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Platform} from 'react-native';
 import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
@@ -25,14 +19,14 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Toast from '../../react-native-toast-message';
-import { ErrorContext } from '../components/common';
-import { ShareLinkProvider } from './ShareLink';
-import ShareLink from '../components/Share'
-import Logo from '../components/common/Logo'
-import { cmpTypeGuard } from '../utils/common';
-import { useFpe } from 'fpe-api';
-import { useString } from '../utils/useString';
-import { useLanguage } from '../language/useLanguage';
+import {ErrorContext} from '../components/common';
+import {ShareLinkProvider} from './ShareLink';
+import ShareLink from '../components/Share';
+import Logo from '../components/common/Logo';
+import {cmpTypeGuard} from '../utils/common';
+import {useFpe} from 'fpe-api';
+import {useString} from '../utils/useString';
+import {useLanguage} from '../language/useLanguage';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
@@ -60,8 +54,8 @@ const CREATE_CHANNEL = gql`
 `;
 
 const Create = () => {
-  const share =  useFpe(config => config.components?.share)
-  const {setGlobalErrorMessage} = useContext(ErrorContext)
+  const share = useFpe((config) => config.components?.share);
+  const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
@@ -72,11 +66,11 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
-  const createdText = useString('meetingCreatedNotificationLabel');
-  const hostControlsToggle = useString('hostControlsToggle');  
-  useEffect(() =>{
+  const createdText = useString('meetingCreatedNotificationLabel')();
+  const hostControlsToggle = useString<boolean>('hostControlsToggle');
+  useEffect(() => {
     setGlobalErrorMessage(error);
-  },[error])
+  }, [error]);
 
   console.log('mutation data', data);
 
@@ -115,7 +109,7 @@ const Create = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={style.main}>      
+    <ScrollView contentContainerStyle={style.main}>
       <Logo />
       {!roomCreated ? (
         <View style={style.content}>
@@ -127,7 +121,7 @@ const Create = () => {
                 value={roomTitle}
                 onChangeText={(text) => onChangeRoomTitle(text)}
                 onSubmitEditing={() => createRoom()}
-                placeholder={useString('meetingNameInputPlaceholder')}
+                placeholder={useString('meetingNameInputPlaceholder')()}
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
@@ -154,7 +148,7 @@ const Create = () => {
                       onValueChange={setPstnCheckbox}
                     />
                     <Text style={style.checkboxTitle}>
-                      {useString('usePSTN')}
+                      {useString('usePSTN')()}
                     </Text>
                   </View>
                 ) : (
@@ -164,12 +158,16 @@ const Create = () => {
               <PrimaryButton
                 disabled={roomTitle === '' || loading}
                 onPress={() => createRoom()}
-                text={loading ? useString('loadingWithDots') : useString('createMeetingButton')}
+                text={
+                  loading
+                    ? useString('loadingWithDots')()
+                    : useString('createMeetingButton')()
+                }
               />
               <HorizontalRule />
               <SecondaryButton
                 onPress={() => history.push('/join')}
-                text={useString('haveMeetingID')}
+                text={useString('haveMeetingID')()}
               />
             </View>
           </View>
@@ -181,9 +179,8 @@ const Create = () => {
           pstn={pstn}
           hostControlCheckbox={hostControlCheckbox}
           joinPhrase={joinPhrase}
-          roomTitle={roomTitle}
-        >
-          {cmpTypeGuard(ShareLink,share)}
+          roomTitle={roomTitle}>
+          {cmpTypeGuard(ShareLink, share)}
         </ShareLinkProvider>
       )}
     </ScrollView>

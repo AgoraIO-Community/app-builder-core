@@ -72,10 +72,10 @@ const Controls = (props: any) => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={useString('audio')} />
+              <LocalAudioMute btnText={useString('audio')()} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={useString('video')} />
+              <LocalVideoMute btnText={useString('video')()} />
             </View>
             {isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
@@ -99,7 +99,7 @@ const Controls = (props: any) => {
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('endCallButton')} />
+          <Endcall btnText={useString('endCallButton')()} />
         </View>
       </View>
     </LocalUserContext>

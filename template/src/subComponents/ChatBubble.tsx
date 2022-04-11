@@ -12,7 +12,7 @@
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 import ChatContext, {channelMessage} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 
@@ -35,7 +35,10 @@ const ChatBubble = (props: channelMessage) => {
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid] ? userList[uid].name : useString('remoteUserDefaultLabel')} | {time + ' '}
+          {userList[uid]
+            ? userList[uid].name
+            : useString('remoteUserDefaultLabel')()}{' '}
+          | {time + ' '}
         </Text>
       </View>
       <View

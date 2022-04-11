@@ -36,11 +36,10 @@ const Precall = () => {
   );
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
-
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>{useString('precallLabel')} </Text>
+        <Text style={style.headingText}>{useString('precallLabel')()} </Text>
       </View>
       {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
       {!isAudienceInLiveStreaming() && (

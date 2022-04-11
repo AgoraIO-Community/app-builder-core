@@ -71,7 +71,7 @@ export interface chatContext {
 
 export interface chatInputInterface {
   privateActive: boolean;
-  selectedUserID: string | number;
+  selectedUserID?: string | number;
 }
 export enum controlMessageEnum {
   muteVideo = '1',

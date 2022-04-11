@@ -18,8 +18,9 @@ import platform from '../subComponents/Platform';
 import {useParams} from '../components/Router';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
-import { useString } from '../utils/useString';
-import { useShareLink } from 'fpe-api';
+import {useString} from '../utils/useString';
+import {useShareLink} from 'fpe-api';
+import {MeetingInviteParam} from 'src/language/utils/i18nTypes';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -43,33 +44,36 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
   });
-  const hostControlCheckbox = useShareLink(data => data.hostControlCheckbox);
-  const copiedToClipboardText = useString('copiedToClipboardNotificationLabel');
-  const meetingInviteText = useString('meetingInviteText');
+  const hostControlCheckbox = useShareLink((data) => data.hostControlCheckbox);
+  const copiedToClipboardText = useString(
+    'copiedToClipboardNotificationLabel',
+  )();
+  const meetingInviteText = useString<MeetingInviteParam>('meetingInviteText');
   const copyToClipboard = () => {
-    Toast.show({text1: copiedToClipboardText , visibilityTime: 1000});
+    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
     if (data && !loading) {
       let stringToCopy = meetingInviteText({
         platform,
         frontendEndpoint: $config.FRONTEND_ENDPOINT,
         hostControlCheckbox: hostControlCheckbox,
         meetingName: data.share.title,
-        url:{
+        url: {
           host: data.share.passphrase.host,
-          attendee: data.share.passphrase.view
+          attendee: data.share.passphrase.view,
         },
-        id:{
+        id: {
           host: data.share.passphrase.host,
-          attendee: data.share.passphrase.view
+          attendee: data.share.passphrase.view,
         },
-        pstn: data.share.pstn ? {
-          number: data.share.pstn.number,
-          pin: data.share.pstn.dtmf
-        } : undefined
-
-      })
+        pstn: data.share.pstn
+          ? {
+              number: data.share.pstn.number,
+              pin: data.share.pstn.dtmf,
+            }
+          : undefined,
+      });
       console.log('Copying string to clipboard:', stringToCopy);
-      Clipboard.setString(stringToCopy);      
+      Clipboard.setString(stringToCopy);
     }
   };
 
@@ -79,7 +83,7 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
       style={style.backButton}
       onPress={() => copyToClipboard()}
       name={'clipboard'}
-      btnText={props.showText ? useString('copyMeetingInviteButton') : ''}
+      btnText={props.showText ? useString('copyMeetingInviteButton')() : ''}
       color={$config.PRIMARY_FONT_COLOR}
     />
   );

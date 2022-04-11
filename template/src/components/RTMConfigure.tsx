@@ -87,7 +87,7 @@ const RtmConfigure = (props: any) => {
   const [userList, setUserList] = useState<{[key: string]: any}>({});
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
-  const userText = useString('remoteUserDefaultLabel');
+  const userText = useString('remoteUserDefaultLabel')();
   const getScreenShareName = useString('screenshareUserName');
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');

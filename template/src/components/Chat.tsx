@@ -27,11 +27,16 @@ import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
-import { useChatUIData, useFpe } from 'fpe-api';
-import { useString } from '../utils/useString';
+import {useChatUIData, useFpe} from 'fpe-api';
+import {useString} from '../utils/useString';
 
 const Chat = () => {
-  const ChatInputFpe = useFpe(data => typeof data.components?.videoCall === 'object' && typeof data.components?.videoCall?.chat === 'object' ? data.components?.videoCall?.chat?.chatInput : undefined)
+  const ChatInputFpe = useFpe((data) =>
+    typeof data.components?.videoCall === 'object' &&
+    typeof data.components?.videoCall?.chat === 'object'
+      ? data.components?.videoCall?.chat?.chatInput
+      : undefined,
+  );
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -49,7 +54,7 @@ const Chat = () => {
     privateMessageCountMap,
     setPrivateMessageLastSeen,
     setPrivateChatDisplayed,
-  } = useChatUIData(data => data);
+  } = useChatUIData((data) => data);
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
@@ -112,7 +117,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
-            {useString('groupChatLabel')}
+            {useString('groupChatLabel')()}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -134,7 +139,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
-            {useString('privateChatLabel')}
+            {useString('privateChatLabel')()}
           </Text>
         </TouchableOpacity>
       </View>
@@ -145,7 +150,11 @@ const Chat = () => {
           <View>
             <View style={style.chatInputContainer}>
               <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
-              {ChatInputFpe ? <ChatInputFpe privateActive={privateActive}/> : <ChatInput privateActive={privateActive} />}
+              {ChatInputFpe ? (
+                <ChatInputFpe privateActive={privateActive} />
+              ) : (
+                <ChatInput privateActive={privateActive} />
+              )}
             </View>
           </View>
         </>
@@ -167,7 +176,7 @@ const Chat = () => {
                 selectedUsername={
                   userList[selectedUserID]
                     ? userList[selectedUserID]?.name + ' '
-                    : useString('remoteUserDefaultLabel') + ' '
+                    : useString('remoteUserDefaultLabel')() + ' '
                 }
               />
               <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
@@ -176,16 +185,17 @@ const Chat = () => {
                   <View
                     style={[style.chatInputLineSeparator, {opacity: 0.3}]}
                   />
-                  {ChatInputFpe ? 
-                    <ChatInputFpe 
+                  {ChatInputFpe ? (
+                    <ChatInputFpe
                       privateActive={privateActive}
-                      selectedUserID={selectedUserID}/> 
-                    : 
+                      selectedUserID={selectedUserID}
+                    />
+                  ) : (
                     <ChatInput
                       privateActive={privateActive}
                       selectedUserID={selectedUserID}
                     />
-                  }
+                  )}
                 </View>
               </View>
             </>

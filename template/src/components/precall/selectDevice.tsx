@@ -11,14 +11,16 @@
 */
 
 import React from 'react';
-import { View, StyleSheet, Text, Platform } from 'react-native'
+import {View, StyleSheet, Text, Platform} from 'react-native';
 import SelectDevice from '../../subComponents/SelectDevice';
-import { useString } from '../../utils/useString';
+import {useString} from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
   return (
     <>
-      <Text style={style.subHeading}>{useString('selectInputDeviceLabel')}</Text>
+      <Text style={style.subHeading}>
+        {useString('selectInputDeviceLabel')()}
+      </Text>
       <View
         style={{
           flex: 1,
@@ -28,8 +30,8 @@ const selectDevice: React.FC = () => {
         <SelectDevice />
       </View>
     </>
-  )
-}
+  );
+};
 
 export default selectDevice;
 
@@ -39,4 +41,4 @@ const style = StyleSheet.create({
     fontWeight: '700',
     color: $config.PRIMARY_FONT_COLOR,
   },
-})
+});

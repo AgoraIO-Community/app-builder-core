@@ -23,7 +23,7 @@ import ChatContext from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 
 /**
  * Input component for the Chat interface
@@ -66,7 +66,7 @@ const ChatInput = (props: any) => {
             onChangeMessage('');
           }
         }}
-        placeholder={useString('chatMessageInputPlaceholder')}
+        placeholder={useString('chatMessageInputPlaceholder')()}
         placeholderTextColor={$config.PRIMARY_FONT_COLOR}
         autoCorrect={false}
       />

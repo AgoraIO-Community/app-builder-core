@@ -10,10 +10,13 @@
 *********************************************
 */
 import React from 'react';
-import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
-import { TextDataInterface, ConditionalTextInferface, DynamicTextInterface, NetworkQualityStatusInterface, MeetingInviteParam } from 'src/language';
+import {
+  channelMessage,
+  chatInputInterface,
+} from '../src/components/ChatContext';
 import Layout from '../src/subComponents/LayoutEnum';
-import { UidInterface } from '../agora-rn-uikit/src';
+import {UidInterface} from '../agora-rn-uikit/src';
+import {i18nInterface} from '../src/language/utils/i18nTypes';
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
 export interface PreCallInterface {
@@ -42,7 +45,7 @@ export interface renderComponentInterface {
 }
 
 export interface renderComponentObjectInterface {
-  [key: string]: React.ComponentType<renderComponentInterface>
+  [key: string]: React.ComponentType<renderComponentInterface>;
 }
 
 export type layoutComponent = React.ComponentType<{
@@ -67,12 +70,12 @@ export interface VideoCallInterface {
 }
 
 export type ComponentsInterface = {
-  precall?: PreCallInterface | React.ComponentType
+  precall?: PreCallInterface | React.ComponentType;
   create?: React.ComponentType;
   share?: React.ComponentType;
   join?: React.ComponentType;
   videoCall?: VideoCallInterface | React.ComponentType;
-}
+};
 
 export interface CustomRoutesInterface {
   path: string;
@@ -82,24 +85,9 @@ export interface CustomRoutesInterface {
   privateRoute?: boolean;
   routeProps?: object;
   failureRedirectTo?: string;
-};
-
-export interface i18nInterface {
-  label?: string;
-  locale: string;
-  data: {
-    [key in keyof TextDataInterface]: string
-  } | {
-    [key in keyof ConditionalTextInferface]: (input: boolean) => string
-  } | {
-    [key in keyof DynamicTextInterface]: (input: string) => string
-  } | {
-    meetingInviteText?: (invite: MeetingInviteParam) => string,
-    networkQualityLabel?: (quality: keyof NetworkQualityStatusInterface) => string,
-  }
 }
 
-export type CustomHookType = () => () => Promise<void>
+export type CustomHookType = () => () => Promise<void>;
 
 export interface FpeApiInterface {
   /**
@@ -115,21 +103,21 @@ export interface FpeApiInterface {
    */
   appRoot?: React.ReactNode;
   /**
-   * 
+   *
    */
-  i18n?: i18nInterface[],
+  i18n?: i18nInterface[];
   /**
    * Life cycle events
    */
   lifecycle?: {
-    useBeforeJoin?: CustomHookType,
-    useBeforeCreate?: CustomHookType
-  }
+    useBeforeJoin?: CustomHookType;
+    useBeforeCreate?: CustomHookType;
+  };
   /**
-   * message callback used to listen for incoming message from private or public 
+   * message callback used to listen for incoming message from private or public
    */
   //message_callback?: //TODO:hari;
   customUserContext?: {
-    useUserContext: () => any
-  }
-};
+    useUserContext: () => any;
+  };
+}

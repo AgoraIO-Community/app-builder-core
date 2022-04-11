@@ -16,23 +16,24 @@ import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
-import { useString } from '../../utils/useString';
+import {useString} from '../../utils/useString';
 
-export interface RecordingContextInterface {  
-  children:React.ReactNode,
+export interface RecordingContextInterface {
+  children: React.ReactNode;
   recordingActive: boolean;
   setRecordingActive: React.Dispatch<React.SetStateAction<boolean>>;
   startRecording: () => void;
   stopRecording: () => void;
 }
 
-const RecordingContext: React.Context<RecordingContextInterface> = createContext({
-  children: <></>,
-  recordingActive: false,
-  setRecordingActive: () => {},
-  startRecording: () => {},
-  stopRecording: () => {},
-} as RecordingContextInterface);
+const RecordingContext: React.Context<RecordingContextInterface> =
+  createContext({
+    children: <></>,
+    recordingActive: false,
+    setRecordingActive: () => {},
+    startRecording: () => {},
+    stopRecording: () => {},
+  } as RecordingContextInterface);
 
 const START_RECORDING = gql`
   mutation startRecordingSession($passphrase: String!, $secret: String) {
@@ -51,7 +52,7 @@ const STOP_RECORDING = gql`
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
- function usePrevious(value: any) {
+function usePrevious(value: any) {
   const ref = useRef();
   useEffect(() => {
     ref.current = value;
@@ -73,7 +74,7 @@ const RecordingProvider = (props: any) => {
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   const prevRecordingState = usePrevious({recordingActive});
-  const recordingStartedText = useString('recordingNotificationLabel');
+  const recordingStartedText = useString('recordingNotificationLabel')();
   useEffect(() => {
     /**
      * The below check makes sure the notification is triggered
@@ -83,9 +84,9 @@ const RecordingProvider = (props: any) => {
      */
     if (prevRecordingState && recordingActive) {
       if (prevRecordingState?.recordingActive === recordingActive) return;
-      Toast.show({text1: useString(recordingStartedText), visibilityTime: 1000});
+      Toast.show({text1: recordingStartedText, visibilityTime: 1000});
     }
-  }, [recordingActive]); 
+  }, [recordingActive]);
 
   const startRecording = () => {
     // If recording is not going on, start the recording by executing the graphql query
@@ -111,30 +112,29 @@ const RecordingProvider = (props: any) => {
       .catch((err) => {
         console.log(err);
       });
-  }
+  };
 
   const stopRecording = () => {
     // If recording is already going on, stop the recording by executing the graphql query.
     stopRecordingQuery({variables: {passphrase: phrase}})
-    .then((res) => {
-      console.log(res.data);
-      if (res.data.stopRecordingSession === 'success') {
-        // Once the backend sucessfuly stops recording,
-        // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-        sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-        // set the local recording state to false to update the UI
-        setRecordingActive(false);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  }
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.stopRecordingSession === 'success') {
+          // Once the backend sucessfuly stops recording,
+          // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+          sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+          // set the local recording state to false to update the UI
+          setRecordingActive(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <RecordingContext.Provider
-      value={{...props, startRecording, stopRecording, recordingActive}}
-    >
+      value={{...props, startRecording, stopRecording, recordingActive}}>
       {true ? props.children : <></>}
     </RecordingContext.Provider>
   );

@@ -57,7 +57,6 @@ import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useVideoCall} from './video-call/useVideoCall';
 import {useString} from '../utils/useString';
 
-
 const useChatNotification = (
   messageStore: string | any[],
   privateMessageStore: string | any[],
@@ -476,7 +475,7 @@ const VideoCall: React.FC = () => {
                                     setPrivateChatDisplayed={
                                       setPrivateChatDisplayed
                                     }>
-                                    {cmpTypeGuard(Navbar,topBar)}
+                                    {cmpTypeGuard(Navbar, topBar)}
                                     <View
                                       style={[
                                         style.videoView,
@@ -516,7 +515,7 @@ const VideoCall: React.FC = () => {
                                           SidePanelType.Participants ? (
                                             cmpTypeGuard(
                                               ParticipantsView,
-                                              participantsPanel
+                                              participantsPanel,
                                             )
                                           ) : (
                                             <></>
@@ -524,7 +523,7 @@ const VideoCall: React.FC = () => {
                                         </NetworkQualityProvider>
                                         {sidePanel === SidePanelType.Chat ? (
                                           $config.CHAT ? (
-                                            cmpTypeGuard(Chat,chat)
+                                            cmpTypeGuard(Chat, chat)
                                           ) : (
                                             <></>
                                           )
@@ -535,7 +534,7 @@ const VideoCall: React.FC = () => {
                                         SidePanelType.Settings ? (
                                           cmpTypeGuard(
                                             SettingsView,
-                                            settingsPanel
+                                            settingsPanel,
                                           )
                                         ) : (
                                           <></>
@@ -546,7 +545,7 @@ const VideoCall: React.FC = () => {
                                     sidePanel === SidePanelType.Chat ? (
                                       <></>
                                     ) : (
-                                      cmpTypeGuard(Controls,bottomBar)
+                                      cmpTypeGuard(Controls, bottomBar)
                                     )}
                                   </ChatUIDataProvider>
                                 </VideoCallProvider>
@@ -561,7 +560,7 @@ const VideoCall: React.FC = () => {
                             queryComplete={queryComplete}
                             title={title}
                             error={error}>
-                            {cmpTypeGuard(Precall,PreCallScreenFpe)}
+                            {cmpTypeGuard(Precall, PreCallScreenFpe)}
                           </PreCallProvider>
                         ) : (
                           <></>
@@ -577,7 +576,7 @@ const VideoCall: React.FC = () => {
           <View style={style.loader}>
             <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
             <Text style={style.loaderText}>
-              {useString('joiningLoaderLabel')}
+              {useString('joiningLoaderLabel')()}
             </Text>
           </View>
         )

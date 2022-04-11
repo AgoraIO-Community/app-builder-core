@@ -11,17 +11,8 @@
 */
 import {useFpe} from 'fpe-api';
 import {useLanguage} from '../language/useLanguage';
-import {
-  TEXTS,
-  TextDataInterface,
-  DEFAULT_I18_DATA,
-  MeetingInviteTextInterface,
-  MeetingInviteParam,
-  NetworkQualityTextInterface,
-  ConditionalTextInferface,
-  DynamicTextInterface,
-  CombinedTextDataInterface,
-} from '../language';
+import {DEFAULT_I18_DATA} from '../language';
+import {TextDataType} from 'src/language/utils/i18nTypes';
 
 export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
@@ -34,55 +25,39 @@ export function usei18nData(
       );
       if (selectedLanguageData && selectedLanguageData.data) {
         return {
-          ...TEXTS,
+          ...DEFAULT_I18_DATA.data,
           ...selectedLanguageData.data,
         };
       } else {
-        return TEXTS;
+        return DEFAULT_I18_DATA.data;
       }
     }
     return {
-      ...TEXTS,
+      ...DEFAULT_I18_DATA.data,
       ...languageData[0].data,
     };
   }
-  return TEXTS;
+  return DEFAULT_I18_DATA.data;
 }
-export function useString(
-  keyName: keyof NetworkQualityTextInterface,
-  input?: string,
-): (input?: NetworkQualityTextInterface) => string;
-export function useString(
-  keyName: keyof MeetingInviteTextInterface,
-  input?: string,
-): (input?: MeetingInviteParam) => string;
-export function useString(
-  keyName: keyof DynamicTextInterface,
-  input?: string,
-): (input?: string) => string;
-export function useString(
-  keyName: keyof ConditionalTextInferface,
-  input?: string,
-): (input?: boolean) => string;
-export function useString(
-  keyName: keyof TextDataInterface,
-  input?: string,
-): string;
-export function useString(
-  keyName: keyof CombinedTextDataInterface,
-  input?: string,
-): string | ((input?: any) => string) {
+
+export function useString<T = string>(
+  keyName: keyof TextDataType,
+): (input?: T) => string {
   const lanCode = useLanguage((data) => data.languageCode);
   const textData = usei18nData(lanCode);
-  if (textData[keyName]) {
-    let keyValue = textData[keyName];
-    if (typeof keyValue === 'function') {
-      return input === undefined ? keyValue : keyValue(input);
-    } else if (typeof keyValue === 'string') {
-      return keyValue;
-    } else {
-      return '';
+
+  const getString = (input?: T) => {
+    if (textData[keyName]) {
+      let keyValue = textData[keyName];
+      if (typeof keyValue === 'function') {
+        return keyValue(input);
+      } else if (typeof keyValue === 'string') {
+        return keyValue;
+      } else {
+        return '';
+      }
     }
-  }
-  return '';
+    return '';
+  };
+  return getString;
 }

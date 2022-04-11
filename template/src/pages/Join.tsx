@@ -26,17 +26,17 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {shouldAuthenticate} from '../utils/common';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 // const joinFlag = 0;
 const Join = () => {
   const history = useHistory();
-  const [phrase, setPhrase] = useState('')
+  const [phrase, setPhrase] = useState('');
   const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-  
+
   const createMeeting = () => {
     history.push('/create');
   };
@@ -60,18 +60,18 @@ const Join = () => {
               value={phrase}
               onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder={useString('meetingIdInputPlaceholder')}
+              placeholder={useString('meetingIdInputPlaceholder')()}
             />
             <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={useString('enterMeetingButton')}
+              text={useString('enterMeetingButton')()}
             />
             <HorizontalRule />
             <SecondaryButton
               onPress={() => createMeeting()}
-              text={useString('createMeetingButton')}
+              text={useString('createMeetingButton')()}
             />
             {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?

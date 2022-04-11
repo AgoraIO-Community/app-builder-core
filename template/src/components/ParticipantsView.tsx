@@ -44,11 +44,6 @@ const ParticipantView = () => {
   ]);
   const isSmall = dim[0] < 700;
   let fontSize = Platform.OS === 'web' ? 14 : 16;
-  const youText = useString('localUserDefaultLabel');
-  const screenShareNameCallBack = useString('screenshareUserName');
-  const yourScreenshareText = useString('localScreenshareDefaultLabel');
-  const PSTNUserText = useString('pstnUserLabel');
-  const userText = useString('remoteUserDefaultLabel');
   return (
     <View
       style={
@@ -61,7 +56,7 @@ const ParticipantView = () => {
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
           <Text style={style.mainHeading}>
-            {useString('participantsLabel')}
+            {useString('participantsLabel')()}
           </Text>
         </View>
       </View>
