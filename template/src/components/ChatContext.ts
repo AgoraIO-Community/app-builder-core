@@ -13,11 +13,16 @@ import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {createContext, SetStateAction} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
 
-export interface channelMessage {
+export interface chatBubbleProps {
   isLocal: boolean;
-  msg: string;
-  ts: string;
+  message: string;
+  timestamp: string;
   uid: string;
+}
+
+export interface chatInputProps {
+  privateActive: boolean;
+  selectedUserId?: string | number;
 }
 
 export interface messageStoreInterface {
@@ -69,10 +74,6 @@ export interface chatContext {
   setDisplayName: React.Dispatch<SetStateAction<string>>;
 }
 
-export interface chatInputInterface {
-  privateActive: boolean;
-  selectedUserID?: string | number;
-}
 export enum controlMessageEnum {
   muteVideo = '1',
   muteAudio = '2',

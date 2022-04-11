@@ -13,17 +13,17 @@ import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
-import ChatContext, {channelMessage} from '../components/ChatContext';
+import ChatContext, {chatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 
-const ChatBubble = (props: channelMessage) => {
+const ChatBubble = (props: chatBubbleProps) => {
   const {userList} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
-  let {isLocal, msg, ts, uid} = props;
+  let {isLocal, message, timestamp, uid} = props;
   let time =
-    new Date(parseInt(ts)).getHours() +
+    new Date(parseInt(timestamp)).getHours() +
     ':' +
-    new Date(parseInt(ts)).getMinutes();
+    new Date(parseInt(timestamp)).getMinutes();
   const handleUrl = (url: string) => {
     if (Platform.OS === 'web') {
       window.open(url, '_blank');
@@ -58,7 +58,7 @@ const ChatBubble = (props: channelMessage) => {
           <Text
             style={isLocal ? style.whiteText : style.blackText}
             selectable={true}>
-            {msg.slice(1) + ' '}
+            {message.slice(1) + ' '}
           </Text>
         </Hyperlink>
       </View>

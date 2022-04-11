@@ -3,12 +3,10 @@
  */
 import { createHook } from 'fpe-implementation';
 import { RtcContext, MinUidContext, MaxUidContext, PropsContext, LocalContext } from '../agora-rn-uikit';
-import { default as ChatContext } from '../src/components/ChatContext';
 import { default as DeviceContext } from '../src/components/DeviceContext';
 import { default as StorageContext } from '../src/components/StorageContext';
 
 export const useRtcContext = createHook(RtcContext);
-export const useChatContext = createHook(ChatContext);
 export const useMinUidContext = createHook(MinUidContext);
 export const useMaxUidContext = createHook(MaxUidContext);
 export const usePropsContext = createHook(PropsContext);

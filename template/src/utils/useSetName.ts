@@ -9,10 +9,11 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import {useChatContext} from 'fpe-api';
+import {useContext} from 'react';
+import ChatContext from '../components/ChatContext';
 
 function useSetName() {
-  const setDisplayName = useChatContext((data) => data.setDisplayName);
+  const {setDisplayName} = useContext(ChatContext);
   return setDisplayName;
 }
 

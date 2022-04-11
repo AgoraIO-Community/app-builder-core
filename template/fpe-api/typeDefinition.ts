@@ -10,10 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {
-  channelMessage,
-  chatInputInterface,
-} from '../src/components/ChatContext';
+import {chatBubbleProps, chatInputProps} from '../src/components/ChatContext';
 import Layout from '../src/subComponents/LayoutEnum';
 import {UidInterface} from '../agora-rn-uikit/src';
 import {i18nInterface} from '../src/language/i18nTypes';
@@ -30,8 +27,8 @@ export interface PreCallInterface {
 }
 
 export interface ChatCmpInterface {
-  chatBubble?: React.ComponentType<channelMessage>;
-  chatInput?: React.ComponentType<chatInputInterface>;
+  chatBubble?: React.ComponentType<chatBubbleProps>;
+  chatInput?: React.ComponentType<chatInputProps>;
 }
 
 export interface renderComponentInterface {
