@@ -426,8 +426,12 @@ export default class RtcEngine {
         // If there no mutex lock, procure a lock
         this.muteLocalAudioMutex = true;
         didProcureMutexLock = true;
-        // Use set muted
-        await this.localStream.audio?.setMuted(!muted);
+        /** setEnabled
+         *  The SDK does NOT stop audio or video capture.
+         *   The camera light stays on for video
+         *  It takes less time for the audio or video to resume.
+         */
+        await this.localStream.audio?.setMuted(muted);
         // Release the lock once done
         this.muteLocalAudioMutex = false;
         this.isAudioEnabled = !muted;
@@ -454,6 +458,11 @@ export default class RtcEngine {
         // If there no mutex lock, procure a lock
         this.muteLocalVideoMutex = true;
         didProcureMutexLock = true;
+        /** setEnabled
+         *  The SDK stops audio or video capture.
+         *  The indicator light of the camera turns off and stays off.
+         *  It takes more time for the audio or video to resume.
+         */
         await this.localStream.video?.setEnabled(!muted);
         // Release the lock once done
         this.muteLocalVideoMutex = false;
