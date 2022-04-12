@@ -1,4 +1,4 @@
-import {ClientRole} from '../../agora-rn-uikit';
+import {ChannelProfile, ClientRole} from '../../agora-rn-uikit';
 
 export type BaseI18nType<T = {}> = string | ((template: T) => string);
 export type DynamicStringI18nType = BaseI18nType<string>;
@@ -73,13 +73,12 @@ export type TextDataType = {
   language?: BaseI18nType;
   screensharingActiveOverlayLabel?: BaseI18nType;
   hostControlsToggle?: ConditionalStringI18nType;
-  joinRoomButton?: ConditionalStringI18nType;
+  joinRoomButton?: BaseI18nType<joinRoomButtonTextInterface>;
   recordingButton?: ConditionalStringI18nType;
   screenshareUserName?: DynamicStringI18nType;
   messageSenderNotificationLabel?: DynamicStringI18nType;
   networkQualityLabel?: BaseI18nType<keyof NetworkQualityStatusInterface>;
   meetingInviteText?: BaseI18nType<MeetingInviteParam>;
-  joinRoomLiveSteamingButton?: BaseI18nType<ClientRole>;
   noOneJoinedLabel?: BaseI18nType;
   noLiveStreamingRequests?: BaseI18nType;
   liveStreamingRequest?: BaseI18nType;
@@ -122,7 +121,8 @@ export interface MeetingInviteParam {
   platform?: string;
   frontendEndpoint?: string;
 }
-export enum returnTypes {
-  stringType,
-  functionType,
+export interface joinRoomButtonTextInterface {
+  ready: boolean;
+  mode: ChannelProfile;
+  role?: ClientRole;
 }
