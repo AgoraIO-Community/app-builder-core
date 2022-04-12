@@ -9,34 +9,40 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { useFpe } from 'fpe-api';
+import {useFpe} from 'fpe-api';
 
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { cmpTypeGuard } from '../../utils/common';
-import { LocalAudioMute, LocalVideoMute, SwitchCamera } from '../../../agora-rn-uikit';
-import { LocalUserContext } from '../../../agora-rn-uikit';
+import {View, StyleSheet} from 'react-native';
+import {cmpTypeGuard} from '../../utils/common';
+import {
+  LocalAudioMute,
+  LocalVideoMute,
+  SwitchCamera,
+} from '../../../agora-rn-uikit';
+import {LocalUserContext} from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
-  const { videoMute, audioMute } = useFpe(data => data.components?.precall && typeof data.components?.precall === 'object' ? data.components?.precall : {})
+  const {videoMute, audioMute} = useFpe((data) =>
+    data.components?.precall ? data.components?.precall : {},
+  );
   return (
     <LocalUserContext>
       <View style={style.width50}>
-        {cmpTypeGuard(LocalAudioMute,audioMute)}
+        {cmpTypeGuard(LocalAudioMute, audioMute)}
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        {cmpTypeGuard(LocalVideoMute,videoMute)}
+        {cmpTypeGuard(LocalVideoMute, videoMute)}
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
         <SwitchCamera />
       </View>
     </LocalUserContext>
-  )
-}
+  );
+};
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({
-  width50: { width: 50 },
+  width50: {width: 50},
 });

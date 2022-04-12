@@ -262,10 +262,7 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {chat, bottomBar, participantsPanel, settingsPanel, topBar} = useFpe(
-    (data) =>
-      typeof data.components?.videoCall === 'object'
-        ? data.components?.videoCall
-        : {},
+    (data) => (data.components?.videoCall ? data.components?.videoCall : {}),
   );
   const defaultLayouts = useVideoCall((data) => data.layouts);
   const PreCallScreenFpe = useFpe((data) => data.components?.precall);
@@ -313,9 +310,8 @@ const VideoCall: React.FC = () => {
   );
 
   const fpeLayouts = useFpe((config) => {
-    const videocall = config.components?.videoCall;
-    if (videocall && typeof videocall === 'object' && videocall.customLayout) {
-      return videocall.customLayout([
+    if (config?.components?.videoCall?.customLayout) {
+      return config.components.videoCall.customLayout([
         {name: 'Grid', iconName: 'gridLayoutIcon', component: GridVideo},
         {
           name: 'PinnedVideo',

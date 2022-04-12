@@ -23,7 +23,7 @@ import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
-import { useFpe } from 'fpe-api';
+import {useFpe} from 'fpe-api';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -39,7 +39,9 @@ const ChatContainer = (props: any) => {
 
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const ChatBubbleFpe = useFpe(data => typeof data.components?.videoCall === 'object' && typeof data.components?.videoCall?.chat === 'object' ? data.components?.videoCall?.chat?.chatBubble : undefined)
+  const ChatBubbleFpe = useFpe(
+    (data) => data.components?.videoCall?.chat?.chatBubble,
+  );
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -72,18 +74,19 @@ const ChatContainer = (props: any) => {
         }}>
         {!privateActive ? (
           messageStore.map((message: any) => {
-            return (
-              ChatBubbleFpe ? <ChatBubbleFpe 
+            return ChatBubbleFpe ? (
+              <ChatBubbleFpe
                 isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
+                message={message.msg}
+                timestamp={message.ts}
                 uid={message.uid}
                 key={message.ts}
-              /> :
+              />
+            ) : (
               <ChatBubble
                 isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
+                message={message.msg}
+                timestamp={message.ts}
                 uid={message.uid}
                 key={message.ts}
               />
@@ -91,18 +94,19 @@ const ChatContainer = (props: any) => {
           })
         ) : privateMessageStore[selectedUserID] ? (
           privateMessageStore[selectedUserID].map((message: any) => {
-            return (
-              ChatBubbleFpe ? <ChatBubbleFpe 
+            return ChatBubbleFpe ? (
+              <ChatBubbleFpe
                 isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
+                message={message.msg}
+                timestamp={message.ts}
                 uid={message.uid}
-                key={message.ts} 
+                key={message.ts}
               />
-              : <ChatBubble
+            ) : (
+              <ChatBubble
                 isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
+                message={message.msg}
+                timestamp={message.ts}
                 uid={message.uid}
                 key={message.ts}
               />

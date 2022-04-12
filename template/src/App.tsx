@@ -38,7 +38,6 @@ import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {
   useFpe,
-  ComponentsInterface,
   CustomRoutesInterface,
   CUSTOM_ROUTES_PREFIX,
   FpeProvider,
@@ -55,11 +54,11 @@ if (Platform.OS === 'ios') {
 
 const App: React.FC = () => {
   const {videoCall, join, create} = useFpe((data) =>
-    data?.components ? data.components : ({} as ComponentsInterface),
+    data?.components ? data.components : {},
   );
   const CustomRoutes = useFpe((data) => data?.customRoutes);
-  const CreateCmp = cmpTypeGuard(Create, create);
   const AppRoot = useFpe((data) => data?.appRoot);
+  const CreateCmp = cmpTypeGuard(Create, create);
   const RootWrapper = getCmpTypeGuard(React.Fragment, AppRoot);
   return (
     <RootWrapper>

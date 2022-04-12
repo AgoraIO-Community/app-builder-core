@@ -18,27 +18,28 @@ import {ClientRole, PropsContext} from '../../../agora-rn-uikit';
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
-  const joinRoomText = useString('joinRoomButton')();
-  const [buttonText, setButtonText] = React.useState(joinRoomText);
-  const joinRoomLiveSteaming = useString<ClientRole>(
-    'joinRoomLiveSteamingButton',
-  );
-
-  useEffect(() => {
-    setButtonText(
-      $config.EVENT_MODE ? joinRoomLiveSteaming(rtcProps?.role) : joinRoomText,
-    );
-  }, [rtcProps?.role]);
-
   const {setCallActive, queryComplete, username, error} = usePreCall(
     (data) => data,
   );
+  const joinRoomButton = useString<boolean>('joinRoomButton');
+  const joinRoomButtonText = joinRoomButton(queryComplete);
+  const [buttonText, setButtonText] = React.useState(joinRoomButtonText);
+  const joinRoomLiveSteaming = useString<ClientRole>(
+    'joinRoomLiveSteamingButton',
+  );
+  useEffect(() => {
+    setButtonText(
+      $config.EVENT_MODE
+        ? joinRoomLiveSteaming(rtcProps?.role)
+        : joinRoomButtonText,
+    );
+  }, [rtcProps?.role]);
 
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
       disabled={!queryComplete || username === '' || error}
-      text={queryComplete ? buttonText : 'Loading...'}
+      text={queryComplete ? buttonText : useString('loadingWithDots')()}
     />
   );
 };
