@@ -10,40 +10,37 @@
 *********************************************
 */
 
-import React, { useContext, useEffect } from 'react';
+import React, {useContext, useEffect} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
-import { usePreCall } from 'fpe-api';
-import { useString } from '../../utils/useString';
-import { PropsContext } from '../../../agora-rn-uikit';
+import {usePreCall} from 'fpe-api';
+import {useString} from '../../utils/useString';
+import {ClientRole, PropsContext} from '../../../agora-rn-uikit';
 
 const joinCallBtn: React.FC = () => {
-
   const {rtcProps} = useContext(PropsContext);
-  const [buttonText, setButtonText] = React.useState('Join Room');
+  const joinRoomText = useString('joinRoomButton')();
+  const [buttonText, setButtonText] = React.useState(joinRoomText);
+  const joinRoomLiveSteaming = useString<ClientRole>(
+    'joinRoomLiveSteamingButton',
+  );
 
   useEffect(() => {
-    let clientRole = '';
-    if (rtcProps?.role == 1) {
-      clientRole = 'Host';
-    }
-    if (rtcProps?.role == 2) {
-      clientRole = 'Audience';
-    }
     setButtonText(
-      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
+      $config.EVENT_MODE ? joinRoomLiveSteaming(rtcProps?.role) : joinRoomText,
     );
   }, [rtcProps?.role]);
-  
-  const { setCallActive, queryComplete, username, error } = usePreCall(data => data)
-  //const joinRoomButton = useString('joinRoomButton');
+
+  const {setCallActive, queryComplete, username, error} = usePreCall(
+    (data) => data,
+  );
 
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
       disabled={!queryComplete || username === '' || error}
-      text={queryComplete ? buttonText : 'Loading...'}      
+      text={queryComplete ? buttonText : 'Loading...'}
     />
-  )
-}
+  );
+};
 
 export default joinCallBtn;

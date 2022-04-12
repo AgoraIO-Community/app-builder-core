@@ -1,4 +1,5 @@
-export type BaseI18nFunctionType<T> = (template: T) => string;
+import {ClientRole} from '../../agora-rn-uikit';
+
 export type BaseI18nType<T = {}> = string | ((template: T) => string);
 export type DynamicStringI18nType = BaseI18nType<string>;
 export type ConditionalStringI18nType = BaseI18nType<boolean>;
@@ -78,6 +79,21 @@ export type TextDataType = {
   messageSenderNotificationLabel?: DynamicStringI18nType;
   networkQualityLabel?: BaseI18nType<keyof NetworkQualityStatusInterface>;
   meetingInviteText?: BaseI18nType<MeetingInviteParam>;
+  joinRoomLiveSteamingButton?: BaseI18nType<ClientRole>;
+  noOneJoinedLabel?: BaseI18nType;
+  noLiveStreamingRequests?: BaseI18nType;
+  liveStreamingRequest?: BaseI18nType;
+  hostLabel?: BaseI18nType;
+  audienceLabel?: BaseI18nType;
+  raiseHandStatusText?: ConditionalStringI18nType;
+  noUserFoundLabel?: BaseI18nType;
+  raiseHandRequestMessage?: BaseI18nType;
+  raiseHandRequestReceivedMessage?: ConditionalStringI18nType;
+  raiseHandRequestAcceptedMessage?: BaseI18nType;
+  raiseHandRequestRejectedMessage?: BaseI18nType;
+  raiseHandRequestRecallMessage?: ConditionalStringI18nType;
+  raiseHandRequestRecallLocalMessage?: BaseI18nType;
+  raiseHandApprovedRequestRecallMessage?: BaseI18nType;
 };
 export interface NetworkQualityStatusInterface {
   unknown?: 'Unknown';

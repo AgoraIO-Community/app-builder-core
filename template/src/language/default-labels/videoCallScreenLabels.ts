@@ -30,8 +30,26 @@ export const VideoCallScreenLabels: i18nInterface['data'] = {
   muteAllAudioButton: 'Mute all audios',
   muteAllVideoButton: 'Mute all videos',
   screensharingActiveOverlayLabel: 'Your screen share is active.',
+  noOneJoinedLabel: 'No one has joined yet',
+  noLiveStreamingRequests: 'No streaming request(s)',
+  liveStreamingRequest: 'Streaming Request',
+  hostLabel: 'Host',
+  audienceLabel: 'Audience',
+  noUserFoundLabel: 'User not found',
+  raiseHandRequestMessage:
+    'You have raised your hand. Request sent to host for approval',
+  raiseHandRequestReceivedMessage: (name) => `${name} has raised their hand`,
+  raiseHandRequestAcceptedMessage:
+    'Your request was approved, unmute to start talking',
+  raiseHandRequestRejectedMessage: 'Your request was rejected by the host',
+  raiseHandRequestRecallMessage: (name) => `${name} has lowered their hand`,
+  raiseHandRequestRecallLocalMessage: 'You have lowered your hand',
+  raiseHandApprovedRequestRecallMessage:
+    'The host has revoked streaming permissions',
   screenshareUserName: (name) => `${name}'s screenshare`,
   recordingButton: (recording) => (recording ? 'Recording' : 'Record'),
+  raiseHandStatusText: (handStatus) =>
+    handStatus ? 'Lower hand' : 'Raise Hand',
   messageSenderNotificationLabel: (name) => `From : ${name}`,
   networkQualityLabel: (quality) => {
     switch (quality) {

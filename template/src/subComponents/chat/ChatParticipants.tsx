@@ -12,8 +12,10 @@ import {RFValue} from 'react-native-responsive-fontsize';
 import {UserType} from '../../components/RTMConfigure';
 import TextWithTooltip from '../TextWithTooltip';
 import chatContext from '../../components/ChatContext';
+import {useString} from '../../utils/useString';
 
 const ChatParticipants = (props: any) => {
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const {
     selectUser,
     setPrivateMessageLastSeen,
@@ -66,7 +68,11 @@ const ChatParticipants = (props: any) => {
                       fontSize: RFValue(16, height > width ? height : width),
                     },
                   ]}
-                  value={userList[uid] ? userList[uid].name + ' ' : 'User '}
+                  value={
+                    userList[uid]
+                      ? userList[uid].name + ' '
+                      : remoteUserDefaultLabel + ' '
+                  }
                 />
               </View>
               <View>

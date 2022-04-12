@@ -3,15 +3,16 @@ import {View, Text} from 'react-native';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from '../../components/participants/ParticipantName';
 import chatContext from '../ChatContext';
+import {useString} from '../../utils/useString';
 
 const AllAudienceParticipants = (props: any) => {
   const {p_style, isHost, participantList} = props;
   const {localUid} = useContext(chatContext);
-
+  const noOneJoinedLabel = useString('noOneJoinedLabel')();
   return (
     <View style={p_style.participantContainer}>
       {Object.keys(participantList).length == 0 ? (
-        <Text style={p_style.infoText}>No one has joined yet</Text>
+        <Text style={p_style.infoText}>{noOneJoinedLabel}</Text>
       ) : (
         <>
           {/* Audience should see his name first */}

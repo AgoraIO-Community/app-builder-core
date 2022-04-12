@@ -36,6 +36,8 @@ import {useVideoCall} from 'fpe-api';
 const ParticipantView = () => {
   const {userList} = useContext(chatContext);
   const {rtcProps} = useContext(PropsContext);
+  const hostLabel = useString('hostLabel')();
+  const audienceLabel = useString('audienceLabel')();
   const {isHost} = useVideoCall((data) => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -86,7 +88,7 @@ const ParticipantView = () => {
                       return (
                         <View style={style.participantsection}>
                           <ParticipantSectionTitle
-                            title="Host"
+                            title={hostLabel}
                             count={hostCount}
                           />
                           <View style={style.participantContainer}>
@@ -109,7 +111,7 @@ const ParticipantView = () => {
                     return (
                       <View style={style.participantsection}>
                         <ParticipantSectionTitle
-                          title="Host"
+                          title={hostLabel}
                           count={hostCount}
                         />
                         <AllAudienceParticipants
@@ -130,7 +132,10 @@ const ParticipantView = () => {
                 {({hostList, hostCount}) => {
                   return (
                     <View style={style.participantsection}>
-                      <ParticipantSectionTitle title="Host" count={hostCount} />
+                      <ParticipantSectionTitle
+                        title={hostLabel}
+                        count={hostCount}
+                      />
                       <AllAudienceParticipants
                         participantList={hostList}
                         p_style={style}
@@ -147,7 +152,7 @@ const ParticipantView = () => {
                 return (
                   <View style={style.participantsection}>
                     <ParticipantSectionTitle
-                      title="Audience"
+                      title={audienceLabel}
                       count={audienceCount}
                     />
                     <AllAudienceParticipants
