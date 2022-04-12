@@ -21,7 +21,7 @@ const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
 
 const log = (x) => console.log(x);
-const BUILD_PATH = path.join(__dirname, '.electron');
+const BUILD_PATH = path.join(__dirname, '../Builds/.electron');
 
 const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
@@ -33,7 +33,7 @@ const runCli = (cmd, cb) => {
 };
 
 function clean() {
-  return del([`${BUILD_PATH}/**/*`]);
+  return del([`${BUILD_PATH}/**/*`], {force: true});
 }
 
 function renderer(cb) {
@@ -103,7 +103,7 @@ function electronDevServer(cb) {
   });
 }
 
-function directory(){
+function directory() {
   return fs.mkdir(BUILD_PATH, {recursive: true});
 }
 
@@ -122,4 +122,10 @@ module.exports.build = series(
   build,
 );
 
-module.exports.development = series(clean, directory , electronDevServer, mainDev, start);
+module.exports.development = series(
+  clean,
+  directory,
+  electronDevServer,
+  mainDev,
+  start,
+);

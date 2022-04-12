@@ -1,6 +1,7 @@
 const commons = require('./webpack.commons');
 const path = require('path');
 const {merge} = require('webpack-merge');
+const configVars = require('./configTransform');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -17,7 +18,7 @@ module.exports = merge(commons, {
   },
   target: 'node',
   output: {
-    path: path.resolve(__dirname, 'dist/rsdk'),
+    path: path.resolve(__dirname, `../Builds/react-sdk`),
     filename: 'app-builder-react-sdk.js',
     library:{
       type: 'commonjs2',
