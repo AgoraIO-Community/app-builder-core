@@ -98,9 +98,9 @@ export interface FpeApiInterface {
   /**
    * Custom context/api provider wrapped in root level
    */
-  appRoot?: React.ReactNode;
+  appRoot?: React.ComponentType;
   /**
-   *
+   * Internationlization
    */
   i18n?: i18nInterface[];
   /**
@@ -110,10 +110,6 @@ export interface FpeApiInterface {
     useBeforeJoin?: CustomHookType;
     useBeforeCreate?: CustomHookType;
   };
-  /**
-   * message callback used to listen for incoming message from private or public
-   */
-  //message_callback?: //TODO:hari;
   customUserContext?: {
     useUserContext: () => any;
   };

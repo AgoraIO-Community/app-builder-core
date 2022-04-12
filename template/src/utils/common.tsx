@@ -23,6 +23,15 @@ const cmpTypeGuard = <T,>(
   );
 };
 
+const getCmpTypeGuard = <T,>(
+  FallBackComponent: React.ComponentType,
+  FpeComponent?: T,
+) => {
+  return FpeComponent && typeof FpeComponent === 'function'
+    ? FpeComponent
+    : FallBackComponent;
+};
+
 const hasBrandLogo: boolean = !!$config.LOGO;
 
 const shouldAuthenticate: boolean =
@@ -41,4 +50,5 @@ export {
   isIOS,
   isAndroid,
   cmpTypeGuard,
+  getCmpTypeGuard,
 };
