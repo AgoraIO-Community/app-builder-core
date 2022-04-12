@@ -12,8 +12,9 @@
 import React from 'react';
 import {chatBubbleProps, chatInputProps} from '../src/components/ChatContext';
 import Layout from '../src/subComponents/LayoutEnum';
-import {UidInterface} from '../agora-rn-uikit/src';
+import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
+import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
 export interface PreCallInterface {
@@ -54,6 +55,7 @@ export type layoutComponent = React.ComponentType<{
 export interface layoutObjectInterface {
   name: string;
   icon?: string;
+  iconName?: keyof IconsInterface;
   component: layoutComponent;
 }
 export interface VideoCallInterface {

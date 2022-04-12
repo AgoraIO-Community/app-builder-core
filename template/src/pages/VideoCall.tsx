@@ -316,8 +316,12 @@ const VideoCall: React.FC = () => {
     const videocall = config.components?.videoCall;
     if (videocall && typeof videocall === 'object' && videocall.customLayout) {
       return videocall.customLayout([
-        {name: 'Grid', icon: 'gridLayoutIcon', component: GridVideo},
-        {name: 'PinnedVideo', icon: 'pinnedLayoutIcon', component: PinnedVideo},
+        {name: 'Grid', iconName: 'gridLayoutIcon', component: GridVideo},
+        {
+          name: 'PinnedVideo',
+          iconName: 'pinnedLayoutIcon',
+          component: PinnedVideo,
+        },
       ]);
     } else {
       return defaultLayouts;
