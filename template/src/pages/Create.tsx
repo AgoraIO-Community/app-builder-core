@@ -59,9 +59,9 @@ const Create = () => {
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
-  const [urlView, setUrlView] = useState(null);
-  const [urlHost, setUrlHost] = useState(null);
-  const [pstn, setPstn] = useState(null);
+  const [urlView, setUrlView] = useState('');
+  const [urlHost, setUrlHost] = useState('');
+  const [pstn, setPstn] = useState({number: '', dtmf: ''});
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
@@ -173,10 +173,10 @@ const Create = () => {
         </View>
       ) : (
         <ShareLinkProvider
-          urlView={urlView}
-          urlHost={urlHost}
+          attendeeUrl={urlView}
+          hostUrl={urlHost}
           pstn={pstn}
-          hostControlCheckbox={hostControlCheckbox}
+          isSeparateHostLink={hostControlCheckbox}
           joinPhrase={joinPhrase}
           roomTitle={roomTitle}>
           {cmpTypeGuard(ShareLink, share)}

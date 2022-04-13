@@ -32,12 +32,18 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
 import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
-import {MeetingInviteInterface} from 'src/language/default-labels/videoCallScreenLabels';
+import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 
 const Share = () => {
   const history = useHistory();
-  const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} =
-    useShareLink((data) => data);
+  const {
+    attendeeUrl,
+    hostUrl,
+    pstn,
+    joinPhrase,
+    roomTitle,
+    isSeparateHostLink,
+  } = useShareLink((data) => data);
   const copiedToClipboardText = useString(
     'copiedToClipboardNotificationLabel',
   )();
@@ -51,30 +57,43 @@ const Share = () => {
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
-    if (urlHost) {
+    if (hostUrl) {
       history.push(`/${joinPhrase}`);
     }
   };
 
   const copyToClipboard = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    let baseURL =
+      platform === 'web'
+        ? $config.FRONTEND_ENDPOINT || window.location.origin
+        : null;
     let stringToCopy = meetingInviteText({
-      frontendEndpoint: $config.FRONTEND_ENDPOINT,
-      hostControlCheckbox,
-      platform,
       meetingName: roomTitle,
-      url: {
-        attendee: urlView,
-        host: urlHost,
-      },
-      id: {
-        attendee: urlView,
-        host: urlHost,
-      },
+      url: baseURL
+        ? isSeparateHostLink
+          ? {
+              attendee: `${baseURL}/${attendeeUrl}`,
+              host: `${baseURL}/${hostUrl}`,
+            }
+          : {
+              attendee: `${baseURL}/${attendeeUrl}`,
+            }
+        : undefined,
+      id: !baseURL
+        ? isSeparateHostLink
+          ? {
+              attendee: attendeeUrl,
+              host: hostUrl,
+            }
+          : {
+              attendee: attendeeUrl,
+            }
+        : undefined,
       pstn: pstn
         ? {
-            number: pstn.number,
-            pin: pstn.dtmf,
+            number: pstn?.number,
+            pin: pstn?.dtmf,
           }
         : undefined,
     });
@@ -85,10 +104,10 @@ const Share = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${urlHost}`)
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostUrl}`)
       : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${urlHost}`)
-      : (stringToCopy += `${meetingIdText}: ${urlHost}`);
+      ? (stringToCopy += `${window.location.origin}/${hostUrl}`)
+      : (stringToCopy += `${meetingIdText}: ${hostUrl}`);
     Clipboard.setString(stringToCopy);
   };
 
@@ -96,10 +115,10 @@ const Share = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${urlView}`)
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`)
       : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${urlView}`)
-      : (stringToCopy += `${meetingIdText}: ${urlView}`);
+      ? (stringToCopy += `${window.location.origin}/${attendeeUrl}`)
+      : (stringToCopy += `${meetingIdText}: ${attendeeUrl}`);
     Clipboard.setString(stringToCopy);
   };
 
@@ -125,7 +144,7 @@ const Share = () => {
           <Text style={style.heading}>{$config.APP_NAME}</Text>
           <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
         </View>
-        {hostControlCheckbox ? (
+        {isSeparateHostLink ? (
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
@@ -140,10 +159,10 @@ const Share = () => {
                     Platform.OS === 'web' ? urlWeb : {opacity: 1},
                   ]}>
                   {$config.FRONTEND_ENDPOINT
-                    ? `${$config.FRONTEND_ENDPOINT}/${urlView}`
+                    ? `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`
                     : platform === 'web'
-                    ? `${window.location.origin}/${urlView}`
-                    : urlView}
+                    ? `${window.location.origin}/${attendeeUrl}`
+                    : attendeeUrl}
                 </Text>
               </View>
             </View>
@@ -178,10 +197,10 @@ const Share = () => {
           <View style={{width: '80%'}}>
             <Text style={style.urlTitle}>
               {$config.FRONTEND_ENDPOINT || platform === 'web'
-                ? hostControlCheckbox
+                ? isSeparateHostLink
                   ? useString('hostUrlLabel')()
                   : meetingUrlText
-                : hostControlCheckbox
+                : isSeparateHostLink
                 ? hostIdText
                 : meetingIdText}
             </Text>
@@ -192,10 +211,10 @@ const Share = () => {
                   Platform.OS === 'web' ? urlWeb : {opacity: 1},
                 ]}>
                 {$config.FRONTEND_ENDPOINT
-                  ? `${$config.FRONTEND_ENDPOINT}/${urlHost}`
+                  ? `${$config.FRONTEND_ENDPOINT}/${hostUrl}`
                   : platform === 'web'
-                  ? `${window.location.origin}/${urlHost}`
-                  : urlHost}
+                  ? `${window.location.origin}/${hostUrl}`
+                  : hostUrl}
               </Text>
             </View>
           </View>

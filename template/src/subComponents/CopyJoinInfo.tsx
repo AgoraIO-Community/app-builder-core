@@ -44,7 +44,6 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
   });
-  const hostControlCheckbox = useShareLink((data) => data.hostControlCheckbox);
   const copiedToClipboardText = useString(
     'copiedToClipboardNotificationLabel',
   )();
@@ -53,19 +52,30 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   const copyToClipboard = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
     if (data && !loading) {
+      let baseURL =
+        platform === 'web'
+          ? $config.FRONTEND_ENDPOINT || window.location.origin
+          : null;
       let stringToCopy = meetingInviteText({
-        platform,
-        frontendEndpoint: $config.FRONTEND_ENDPOINT,
-        hostControlCheckbox: hostControlCheckbox,
         meetingName: data.share.title,
-        url: {
-          host: data.share.passphrase.host,
-          attendee: data.share.passphrase.view,
-        },
-        id: {
-          host: data.share.passphrase.host,
-          attendee: data.share.passphrase.view,
-        },
+        url: baseURL
+          ? data.share.passphrase.host
+            ? {
+                host: `${baseURL}/${data.share.passphrase.host}`,
+                attendee: `${baseURL}/${data.share.passphrase.view}`,
+              }
+            : {
+                attendee: `${baseURL}/${data.share.passphrase.view}`,
+              }
+          : undefined,
+        id: !baseURL
+          ? data.share.passphrase.host
+            ? {
+                host: data.share.passphrase.host,
+                attendee: data.share.passphrase.view,
+              }
+            : {attendee: data.share.passphrase.view}
+          : undefined,
         pstn: data.share.pstn
           ? {
               number: data.share.pstn.number,

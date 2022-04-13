@@ -16,16 +16,13 @@ export interface MeetingInviteInterface {
     pin: string;
   };
   url?: {
-    host: string;
+    host?: string;
     attendee: string;
   };
   id?: {
-    host: string;
+    host?: string;
     attendee: string;
   };
-  hostControlCheckbox?: boolean;
-  platform?: string;
-  frontendEndpoint?: string;
 }
 export interface I18nVideoCallScreenLabelsInterface {
   video?: I18nBaseType;
@@ -147,36 +144,22 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
         return 'Loading';
     }
   },
-  meetingInviteText: ({
-    frontendEndpoint,
-    meetingName,
-    id,
-    url,
-    pstn,
-    hostControlCheckbox,
-    platform,
-  }) => {
+  meetingInviteText: ({meetingName, id, url, pstn}) => {
     let inviteContent = '';
-    if (frontendEndpoint) {
-      if (hostControlCheckbox) {
-        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${frontendEndpoint}/${url?.attendee}\nURL for Host: ${frontendEndpoint}/${url?.host}`;
+    if (url) {
+      if (url?.host) {
+        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
       } else {
-        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${frontendEndpoint}/${url?.host}`;
-      }
-    } else if (platform === 'web') {
-      if (hostControlCheckbox) {
-        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${window.location.origin}/${url?.attendee}\nURL for Host: ${window.location.origin}/${url?.host}`;
-      } else {
-        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${window.location.origin}/${url?.host}`;
+        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.attendee}`;
       }
     } else {
-      if (hostControlCheckbox) {
+      if (id?.host) {
         inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
       } else {
-        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.host}`;
+        inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.attendee}`;
       }
     }
-    if (pstn) {
+    if (pstn?.number && pstn?.pin) {
       inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
     }
     return inviteContent;
