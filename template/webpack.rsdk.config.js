@@ -1,7 +1,6 @@
 const commons = require('./webpack.commons');
 const path = require('path');
 const {merge} = require('webpack-merge');
-const configVars = require('./configTransform');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -24,4 +23,5 @@ module.exports = merge(commons, {
       type: 'commonjs2',
     } 
   },
+  watch: isDevelopment
 });
