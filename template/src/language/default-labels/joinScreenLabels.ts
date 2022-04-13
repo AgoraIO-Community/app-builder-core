@@ -1,11 +1,11 @@
-import {BaseI18nType} from '../i18nTypes';
+import {I18nBaseType} from '../i18nTypes';
 
-export interface JoinScreenLabelsInterface {
-  meetingIdInputPlaceholder?: BaseI18nType;
-  enterMeetingButton?: BaseI18nType;
+export interface I18nJoinScreenLabelsInterface {
+  meetingIdInputPlaceholder?: I18nBaseType;
+  enterMeetingButton?: I18nBaseType;
 }
 
-export const JoinScreenLabels: JoinScreenLabelsInterface = {
+export const JoinScreenLabels: I18nJoinScreenLabelsInterface = {
   meetingIdInputPlaceholder: 'Enter Meeting ID',
   enterMeetingButton: 'Enter Meeting',
 };

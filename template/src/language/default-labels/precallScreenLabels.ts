@@ -1,21 +1,21 @@
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
-import {BaseI18nType} from '../i18nTypes';
+import {I18nBaseType} from '../i18nTypes';
 
-export interface joinRoomButtonTextInterface {
+export interface JoinRoomButtonTextInterface {
   ready: boolean;
   mode: ChannelProfile;
   role?: ClientRole;
 }
-export interface PrecallScreenLabelsInterface {
-  precallLabel?: BaseI18nType;
-  selectInputDeviceLabel?: BaseI18nType;
-  userNamePlaceholder?: BaseI18nType;
-  fetchingNamePlaceholder?: BaseI18nType;
-  loadingWithDots?: BaseI18nType;
-  joinRoomButton?: BaseI18nType<joinRoomButtonTextInterface>;
+export interface I18nPrecallScreenLabelsInterface {
+  precallLabel?: I18nBaseType;
+  selectInputDeviceLabel?: I18nBaseType;
+  userNamePlaceholder?: I18nBaseType;
+  fetchingNamePlaceholder?: I18nBaseType;
+  loadingWithDots?: I18nBaseType;
+  joinRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>;
 }
 
-export const PrecallScreenLabels: PrecallScreenLabelsInterface = {
+export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   precallLabel: 'Precall',
   selectInputDeviceLabel: 'Select Input Device',
   userNamePlaceholder: 'Display name*',

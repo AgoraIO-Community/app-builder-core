@@ -1,27 +1,27 @@
-import {BaseI18nType} from '../i18nTypes';
+import {I18nBaseType} from '../i18nTypes';
 
-export interface ShareLinkScreenLabelsInterface {
-  attendeeUrlLabel?: BaseI18nType;
-  hostUrlLabel?: BaseI18nType;
-  enterMeetingAfterCreateButton?: BaseI18nType;
-  copyInvite?: BaseI18nType;
-  pstnLabel?: BaseI18nType;
-  pstnNumberLabel?: BaseI18nType;
-  meetingUrlLabel?: BaseI18nType;
-  hostIdLabel?: BaseI18nType;
-  meetingIdLabel?: BaseI18nType;
-  attendeeIdLabel?: BaseI18nType;
-  copiedToClipboardNotificationLabel?: BaseI18nType;
-  PSTNNumber?: BaseI18nType;
-  PSTNPin?: BaseI18nType;
-  meeting?: BaseI18nType;
-  URLForAttendee?: BaseI18nType;
-  URLForHost?: BaseI18nType;
-  attendeeMeetingID?: BaseI18nType;
-  hostMeetingID?: BaseI18nType;
+export interface I18nShareLinkScreenLabelsInterface {
+  attendeeUrlLabel?: I18nBaseType;
+  hostUrlLabel?: I18nBaseType;
+  enterMeetingAfterCreateButton?: I18nBaseType;
+  copyInvite?: I18nBaseType;
+  pstnLabel?: I18nBaseType;
+  pstnNumberLabel?: I18nBaseType;
+  meetingUrlLabel?: I18nBaseType;
+  hostIdLabel?: I18nBaseType;
+  meetingIdLabel?: I18nBaseType;
+  attendeeIdLabel?: I18nBaseType;
+  copiedToClipboardNotificationLabel?: I18nBaseType;
+  PSTNNumber?: I18nBaseType;
+  PSTNPin?: I18nBaseType;
+  meeting?: I18nBaseType;
+  URLForAttendee?: I18nBaseType;
+  URLForHost?: I18nBaseType;
+  attendeeMeetingID?: I18nBaseType;
+  hostMeetingID?: I18nBaseType;
 }
 
-export const ShareLinkScreenLabels: ShareLinkScreenLabelsInterface = {
+export const ShareLinkScreenLabels: I18nShareLinkScreenLabelsInterface = {
   attendeeUrlLabel: 'Attendee URL',
   hostUrlLabel: 'Host URL',
   enterMeetingAfterCreateButton: 'Start Meeting (as host)',

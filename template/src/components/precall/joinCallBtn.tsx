@@ -15,7 +15,7 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from 'fpe-api';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
-import {joinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
+import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -27,7 +27,7 @@ const joinCallBtn: React.FC = () => {
       ? ChannelProfile.LiveBroadcasting
       : ChannelProfile.Communication;
   const joinRoomButton =
-    useString<joinRoomButtonTextInterface>('joinRoomButton');
+    useString<JoinRoomButtonTextInterface>('joinRoomButton');
 
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({

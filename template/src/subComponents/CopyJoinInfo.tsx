@@ -20,7 +20,7 @@ import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import {useShareLink} from 'fpe-api';
-import {MeetingInviteParam} from 'src/language/default-labels/videoCallScreenLabels';
+import {MeetingInviteInterface} from 'src/language/default-labels/videoCallScreenLabels';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -48,7 +48,8 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   const copiedToClipboardText = useString(
     'copiedToClipboardNotificationLabel',
   )();
-  const meetingInviteText = useString<MeetingInviteParam>('meetingInviteText');
+  const meetingInviteText =
+    useString<MeetingInviteInterface>('meetingInviteText');
   const copyToClipboard = () => {
     Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
     if (data && !loading) {

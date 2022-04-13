@@ -32,7 +32,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
 import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
-import {MeetingInviteParam} from 'src/language/default-labels/videoCallScreenLabels';
+import {MeetingInviteInterface} from 'src/language/default-labels/videoCallScreenLabels';
 
 const Share = () => {
   const history = useHistory();
@@ -41,7 +41,8 @@ const Share = () => {
   const copiedToClipboardText = useString(
     'copiedToClipboardNotificationLabel',
   )();
-  const meetingInviteText = useString<MeetingInviteParam>('meetingInviteText');
+  const meetingInviteText =
+    useString<MeetingInviteInterface>('meetingInviteText');
   const meetingUrlText = useString('meetingUrlLabel')();
   const PSTNNumberText = useString('PSTNNumber')();
   const PSTNPinText = useString('PSTNPin')();

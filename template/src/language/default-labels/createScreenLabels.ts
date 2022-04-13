@@ -1,14 +1,14 @@
-import {BaseI18nType, ConditionalI18nType} from '../i18nTypes';
+import {I18nBaseType, I18nConditionalType} from '../i18nTypes';
 
-export interface CreateScreenLabelsInterface {
-  meetingNameInputPlaceholder?: BaseI18nType;
-  createMeetingButton?: BaseI18nType;
-  haveMeetingID?: BaseI18nType;
-  usePSTN?: BaseI18nType;
-  hostControlsToggle?: ConditionalI18nType;
+export interface I18nCreateScreenLabelsInterface {
+  meetingNameInputPlaceholder?: I18nBaseType;
+  createMeetingButton?: I18nBaseType;
+  haveMeetingID?: I18nBaseType;
+  usePSTN?: I18nBaseType;
+  hostControlsToggle?: I18nConditionalType;
 }
 
-export const CreateScreenLabels: CreateScreenLabelsInterface = {
+export const CreateScreenLabels: I18nCreateScreenLabelsInterface = {
   meetingNameInputPlaceholder: 'Name your Meeting',
   createMeetingButton: 'Create Meeting',
   haveMeetingID: 'Have a Meeting ID?',

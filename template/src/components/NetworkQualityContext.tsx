@@ -13,7 +13,7 @@ import React, {createContext, useContext, useState} from 'react';
 import {RtcContext} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
-import {NetworkQualityStatusInterface} from '../language/default-labels/videoCallScreenLabels';
+import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
@@ -31,7 +31,7 @@ export const networkIconsObject: {
   [key: number]: {
     icon: string;
     tint: string;
-    text: keyof NetworkQualityStatusInterface;
+    text: NetworkQualities;
   };
 } = {
   0: {

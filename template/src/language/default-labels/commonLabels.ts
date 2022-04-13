@@ -1,15 +1,15 @@
-import {BaseI18nType} from '../i18nTypes';
+import {I18nBaseType} from '../i18nTypes';
 
-export interface CommonLabelsInterface {
-  goBackButton?: BaseI18nType;
-  logoutButton?: BaseI18nType;
-  googleAuthButton?: BaseI18nType;
-  microsoftAuthButton?: BaseI18nType;
-  slackAuthButton?: BaseI18nType;
-  appleAuthButton?: BaseI18nType;
+export interface I18nCommonLabelsInterface {
+  goBackButton?: I18nBaseType;
+  logoutButton?: I18nBaseType;
+  googleAuthButton?: I18nBaseType;
+  microsoftAuthButton?: I18nBaseType;
+  slackAuthButton?: I18nBaseType;
+  appleAuthButton?: I18nBaseType;
 }
 
-export const CommonLabels: CommonLabelsInterface = {
+export const CommonLabels: I18nCommonLabelsInterface = {
   goBackButton: 'Go back',
   logoutButton: 'Logout',
   googleAuthButton: 'Google',

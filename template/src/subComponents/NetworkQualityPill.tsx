@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
-import {NetworkQualityStatusInterface} from 'src/language/default-labels/videoCallScreenLabels';
+import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 
 /**
  *
@@ -35,9 +35,7 @@ export const NetworkQualityPill = ({
   rootStyle?: StyleProp<ViewStyle>;
 }) => {
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
-  const getLabel = useString<keyof NetworkQualityStatusInterface>(
-    'networkQualityLabel',
-  );
+  const getLabel = useString<NetworkQualities>('networkQualityLabel');
   return (
     <View
       style={[
