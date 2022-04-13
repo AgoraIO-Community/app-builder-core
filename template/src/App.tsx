@@ -31,6 +31,7 @@ import {
   shouldAuthenticate,
   cmpTypeGuard,
   getCmpTypeGuard,
+  isValidElementType,
 } from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
@@ -53,8 +54,13 @@ if (Platform.OS === 'ios') {
 }
 
 const App: React.FC = () => {
-  const {videoCall, join, create} = useFpe((data) =>
+  const {join, create} = useFpe((data) =>
     data?.components ? data.components : {},
+  );
+  const videoCall = useFpe((data) =>
+    typeof data?.components?.videoCall !== 'object'
+      ? isValidElementType(data?.components?.videoCall)
+      : undefined,
   );
   const CustomRoutes = useFpe((data) => data?.customRoutes);
   const AppRoot = useFpe((data) => data?.appRoot);

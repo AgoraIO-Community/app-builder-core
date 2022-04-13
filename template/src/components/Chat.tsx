@@ -31,8 +31,11 @@ import {useChatUIData, useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
 
 const Chat = () => {
-  const ChatInputFpe = useFpe(
-    (data) => data?.components?.videoCall?.chat?.chatInput,
+  const ChatInputFpe = useFpe((data) =>
+    typeof data?.components?.videoCall === 'object' &&
+    typeof data?.components?.videoCall?.chat === 'object'
+      ? data?.components?.videoCall?.chat?.chatInput
+      : undefined,
   );
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
@@ -185,12 +188,12 @@ const Chat = () => {
                   {ChatInputFpe ? (
                     <ChatInputFpe
                       privateActive={privateActive}
-                      selectedUserID={selectedUserID}
+                      selectedUserId={selectedUserID}
                     />
                   ) : (
                     <ChatInput
                       privateActive={privateActive}
-                      selectedUserID={selectedUserID}
+                      selectedUserId={selectedUserID}
                     />
                   )}
                 </View>

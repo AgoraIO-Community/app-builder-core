@@ -13,6 +13,9 @@ import React from 'react';
 import {Platform} from 'react-native';
 import * as ReactIs from 'react-is';
 
+const isValidElementType = (component?: React.ElementType) =>
+  ReactIs.isValidElementType(component) ? component : undefined;
+
 const cmpTypeGuard = (
   FallBackComponent: React.ComponentType,
   FpeComponent?: React.ElementType,
@@ -52,4 +55,5 @@ export {
   isAndroid,
   cmpTypeGuard,
   getCmpTypeGuard,
+  isValidElementType,
 };

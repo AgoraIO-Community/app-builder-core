@@ -15,7 +15,6 @@ import Layout from '../src/subComponents/LayoutEnum';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
-import {Either} from '../agora-rn-uikit/src/Controls/types';
 
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
@@ -65,17 +64,17 @@ export interface VideoCallInterface {
   settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
-  chat?: Either<ChatCmpInterface, React.ComponentType>;
+  chat?: ChatCmpInterface | React.ComponentType;
   renderComponentObject?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectInterface[]) => layoutObjectInterface[];
 }
 
 export type ComponentsInterface = {
-  precall?: Either<PreCallInterface, React.ComponentType>;
+  precall?: PreCallInterface | React.ComponentType;
   create?: React.ComponentType;
   share?: React.ComponentType;
   join?: React.ComponentType;
-  videoCall?: Either<VideoCallInterface, React.ComponentType>;
+  videoCall?: VideoCallInterface | React.ComponentType;
 };
 
 export interface CustomRoutesInterface {

@@ -32,7 +32,7 @@ import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import {cmpTypeGuard, hasBrandLogo} from '../utils/common';
+import {cmpTypeGuard, hasBrandLogo, isValidElementType} from '../utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
@@ -261,11 +261,26 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const {chat, bottomBar, participantsPanel, settingsPanel, topBar} = useFpe(
-    (data) => (data?.components?.videoCall ? data.components?.videoCall : {}),
+  const {
+    chat: ChatFPE,
+    bottomBar,
+    participantsPanel,
+    settingsPanel,
+    topBar,
+  } = useFpe((data) =>
+    data?.components?.videoCall &&
+    typeof data?.components?.videoCall === 'object'
+      ? data.components?.videoCall
+      : {},
   );
+  const chat =
+    typeof ChatFPE !== 'object' ? isValidElementType(ChatFPE) : undefined;
   const defaultLayouts = useVideoCall((data) => data.layouts);
-  const PreCallScreenFpe = useFpe((data) => data?.components?.precall);
+  const PreCallScreenFpe = useFpe((data) =>
+    typeof data?.components?.precall !== 'object'
+      ? isValidElementType(data?.components?.precall)
+      : undefined,
+  );
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
@@ -310,7 +325,10 @@ const VideoCall: React.FC = () => {
   );
 
   const fpeLayouts = useFpe((config) => {
-    if (config?.components?.videoCall?.customLayout) {
+    if (
+      typeof config?.components?.videoCall === 'object' &&
+      config?.components?.videoCall?.customLayout
+    ) {
       return config.components.videoCall.customLayout([
         {name: 'Grid', iconName: 'gridLayoutIcon', component: GridVideo},
         {

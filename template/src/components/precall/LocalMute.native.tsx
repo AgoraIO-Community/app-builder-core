@@ -23,7 +23,9 @@ import {LocalUserContext} from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
   const {videoMute, audioMute} = useFpe((data) =>
-    data?.components?.precall ? data.components?.precall : {},
+    typeof data?.components?.precall === 'object'
+      ? data.components?.precall
+      : {},
   );
   return (
     <LocalUserContext>

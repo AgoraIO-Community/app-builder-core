@@ -30,7 +30,9 @@ const Precall = () => {
   rtc.RtcEngine.startPreview();
 
   const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
-    data?.components?.precall ? data?.components.precall : {},
+    typeof data?.components?.precall === 'object'
+      ? data?.components.precall
+      : {},
   );
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
