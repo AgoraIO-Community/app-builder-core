@@ -281,18 +281,18 @@ const VideoCall: React.FC = () => {
   const [title, setTitle] = React.useState('');
   const [rtcProps, setRtcProps] = React.useState<RtcPropsInterface>({
     appId: $config.APP_ID,
-    channel: null,
-    uid: null,
+    channel: '',
+    uid: 0,
     token: null,
-    rtm: null,
-    screenShareUid: null,
+    rtm: '',
+    screenShareUid: 0,
     screenShareToken: null,
     profile: $config.PROFILE,
     dual: true,
     ...($config.ENCRYPTION_ENABLED && {
       encryption: {
-        key: null,
-        screenKey: null,
+        key: '',
+        screenKey: '',
         mode: EncryptionMode.AES128XTS,
       },
     }),
