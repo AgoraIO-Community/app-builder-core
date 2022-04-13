@@ -14,14 +14,17 @@ const {spawn} = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const del = require('del');
-const args = require('yargs').argv;
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
 
-const log = (x) => console.log(x);
-const BUILD_PATH = path.join(__dirname, '../Builds/.electron');
+const BUILD_PATH =
+  process.env.TARGET === 'wsdk'
+    ? path.join(__dirname, '../Builds/web-sdk')
+    : process.env.TARGET === 'rsdk'
+    ? path.join(__dirname, '../Builds/react-sdk')
+    : path.join(__dirname, '../Builds/.electron');
 
 const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
@@ -32,100 +35,137 @@ const runCli = (cmd, cb) => {
   proc.on('exit', cb);
 };
 
-function clean() {
-  return del([`${BUILD_PATH}/**/*`], {force: true});
-}
+const general = {
+  clean: () => {
+    return del([`${BUILD_PATH}/**/*`], {force: true});
+  },
+  packageJson: async (cb) => {
+    let package = JSON.parse(
+      await fs.readFile(path.join(__dirname, 'package.json')),
+    );
+    let {
+      name,
+      version,
+      private,
+      author,
+      description,
+      dependencies,
+      optionalDependencies,
+    } = package;
+    let nativeDeps = require('./nativeDeps').default;
+    let natives = {};
+    let searchDeps = {
+      ...dependencies,
+      ...optionalDependencies,
+    };
+    nativeDeps.map((k) => {
+      natives[k] = searchDeps[k];
+    });
 
-function renderer(cb) {
-  runCli('webpack --config webpack.renderer.config.js', cb);
-}
-
-function main(cb) {
-  runCli('webpack --config ./webpack.main.config.js', cb);
-}
-
-async function packageJson(cb) {
-  let package = JSON.parse(
-    await fs.readFile(path.join(__dirname, 'package.json')),
-  );
-  let {
-    name,
-    version,
-    private,
-    author,
-    description,
-    dependencies,
-    optionalDependencies,
-  } = package;
-  let nativeDeps = require('./nativeDeps').default;
-  let natives = {};
-  let searchDeps = {
-    ...dependencies,
-    ...optionalDependencies,
-  };
-  nativeDeps.map((k) => {
-    natives[k] = searchDeps[k];
-  });
-
-  let newPackage = {
-    name,
-    version,
-    private,
-    author,
-    description,
-    // dependencies: natives,
-    // agora_electron: {
-    //   electron_version: '5.0.8',
-    //   prebuilt: true,
-    // },
-  };
-  await fs.writeFile(
-    path.join(BUILD_PATH, 'package.json'),
-    JSON.stringify(newPackage, null, 2),
-  );
-  return;
-}
-
-function build(cb) {
-  runCli('electron-builder build --config ./electron-builder.js', cb);
-}
-
-function electronDevServer(cb) {
-  const config = webpack(webpackConfig);
-  new WebpackDevServer(config, {
-    hot: true,
-  }).listen(webpackConfig.devServer.port, 'localhost', (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      cb();
+    let newPackage = {
+      name,
+      version,
+      private,
+      author,
+      description,
+      // dependencies: natives,
+      // agora_electron: {
+      //   electron_version: '5.0.8',
+      //   prebuilt: true,
+      // },
+    };
+    if (process.env.TARGET === 'rsdk') {
+      newPackage.main = 'app-builder-react-sdk.js';
     }
-  });
-}
+    if (process.env.TARGET === 'wsdk') {
+      newPackage.main = 'app-builder-web-sdk.commonjs2.js';
+    }
+    await fs.writeFile(
+      path.join(BUILD_PATH, 'package.json'),
+      JSON.stringify(newPackage, null, 2),
+    );
+    return;
+  },
+  directory: () => {
+    return fs.mkdir(BUILD_PATH, {recursive: true});
+  },
+};
 
-function directory() {
-  return fs.mkdir(BUILD_PATH, {recursive: true});
-}
+const electron = {
+  webpack_renderer: (cb) => {
+    runCli('webpack --config webpack.renderer.config.js', cb);
+  },
 
-function mainDev(cb) {
-  runCli('webpack --config ./webpack.main.config.js', cb);
-}
+  webpack_main: (cb) => {
+    runCli('webpack --config ./webpack.main.config.js', cb);
+  },
 
-function start(cb) {
-  runCli('electron .', cb);
-}
+  build: (cb) => {
+    runCli('electron-builder build --config ./electron-builder.js', cb);
+  },
 
-module.exports.build = series(
-  clean,
-  directory,
-  parallel(renderer, main, packageJson),
-  build,
+  devServer: (cb) => {
+    const config = webpack(webpackConfig);
+    new WebpackDevServer(config, {
+      hot: true,
+    }).listen(webpackConfig.devServer.port, 'localhost', (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        cb();
+      }
+    });
+  },
+
+  start: (cb) => {
+    runCli('electron .', cb);
+  },
+};
+
+const reactSdk = {
+  webpack: (cb) => {
+    runCli('webpack --config ./webpack.rsdk.config.js', cb);
+  },
+};
+
+const webSdk = {
+  webpack: (cb) => {
+    runCli('webpack --config ./webpack.wsdk.config.js', cb);
+  },
+};
+
+// electron
+module.exports.electron_build = series(
+  general.clean,
+  general.directory,
+  parallel(
+    electron.webpack_renderer,
+    electron.webpack_main,
+    general.packageJson,
+  ),
+  electron.build,
 );
 
-module.exports.development = series(
-  clean,
-  directory,
-  electronDevServer,
-  mainDev,
-  start,
+module.exports.electron_development = series(
+  general.clean,
+  general.directory,
+  electron.devServer,
+  electron.webpack_main,
+  electron.start,
+);
+
+// react-sdk
+module.exports.reactSdk = series(
+  general.clean,
+  general.directory,
+  general.packageJson,
+  reactSdk.webpack,
+);
+
+// web-sdk
+module.exports.webSdk = series(
+  general.clean,
+  general.directory,
+  general.packageJson,
+  webSdk.webpack,
 );

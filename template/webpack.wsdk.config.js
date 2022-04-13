@@ -1,11 +1,12 @@
 const commons = require('./webpack.commons');
 const {merge} = require('webpack-merge');
 const path = require('path');
-const configVars = require('./configTransform');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-module.exports = merge(commons, {
+const libraryTargets = ['commonjs2', 'var','umd2'];
+
+const baseConfig = {
   // Enable optimizations in production
   mode: isDevelopment ? 'development' : 'production',
   // Main entry point for the web application
@@ -13,18 +14,21 @@ module.exports = merge(commons, {
     main: './index.wsdk.js',
   },
   output: {
-    path: path.resolve(
-      __dirname,
-      `../Builds/web-sdk`,
-    ),
+    path: path.resolve(__dirname, `../Builds/web-sdk`),
     filename: 'app-builder-web-sdk.js',
-    library: 'AgoraAppBuilder',
-    libraryTarget: 'var',
+    library: {
+      name: 'AgoraAppBuilder',
+    },
   },
-  // Webpack dev server config
-  devServer: {
-    port: 9000,
-    historyApiFallback: true, // Support for react-router
-    contentBase: './',
-  },
+  watch: isDevelopment
+};
+
+const mappedConfigs = libraryTargets.map((target, _) => {
+  let newConfig = baseConfig;
+  newConfig.output.library.type = target;
+  newConfig.output.filename = `app-builder-web-sdk.${target}.js`;
+  newConfig = merge(commons, newConfig);
+  return newConfig;
 });
+
+module.exports = mappedConfigs;

@@ -25,6 +25,7 @@ const getFpePath = require('./fpe.config');
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 const isReactSdk = process.env.TARGET === 'rsdk';
 const isWebSdk = process.env.TARGET === 'wsdk';
+const isSdk = isReactSdk || isWebSdk
 
 module.exports = {
   // Adds React Refresh webpack plugin for webpack dev server hmr
@@ -40,7 +41,7 @@ module.exports = {
           : 'web/index.html',
       }),
     isDevelopment &&
-      !isReactSdk &&
+      !isSdk &&
       new ReactRefreshWebpackPlugin({
         overlay: false,
       }),
@@ -113,7 +114,7 @@ module.exports = {
               ['transform-define', configVars],
               '@babel/plugin-proposal-optional-chaining',
               '@babel/plugin-proposal-class-properties',
-              isDevelopment && require.resolve('react-refresh/babel'),
+              isDevelopment && !isSdk && require.resolve('react-refresh/babel'),
             ].filter(Boolean),
           },
         },
