@@ -1,6 +1,14 @@
-import {i18nInterface} from '../i18nTypes';
+import {BaseI18nType, ConditionalI18nType} from '../i18nTypes';
 
-export const CreateScreenLabels: i18nInterface['data'] = {
+export interface CreateScreenLabelsInterface {
+  meetingNameInputPlaceholder?: BaseI18nType;
+  createMeetingButton?: BaseI18nType;
+  haveMeetingID?: BaseI18nType;
+  usePSTN?: BaseI18nType;
+  hostControlsToggle?: ConditionalI18nType;
+}
+
+export const CreateScreenLabels: CreateScreenLabelsInterface = {
   meetingNameInputPlaceholder: 'Name your Meeting',
   createMeetingButton: 'Create Meeting',
   haveMeetingID: 'Have a Meeting ID?',

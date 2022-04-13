@@ -20,7 +20,7 @@ import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import {useShareLink} from 'fpe-api';
-import {MeetingInviteParam} from 'src/language/utils/i18nTypes';
+import {MeetingInviteParam} from 'src/language/default-labels/videoCallScreenLabels';
 
 const SHARE = gql`
   query share($passphrase: String!) {

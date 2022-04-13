@@ -1,12 +1,30 @@
-import {i18nInterface} from '../i18nTypes';
-import {CommonLabels} from './commonLabels';
-import {CreateScreenLabels} from './createScreenLabels';
-import {JoinScreenLabels} from './joinScreenLabels';
-import {ShareLinkScreenLabels} from './shareLinkScreenLabels';
-import {VideoCallScreenLabels} from './videoCallScreenLabels';
-import {PrecallScreenLabels} from './precallScreenLabels';
+import {CommonLabels, CommonLabelsInterface} from './commonLabels';
+import {
+  CreateScreenLabels,
+  CreateScreenLabelsInterface,
+} from './createScreenLabels';
+import {JoinScreenLabels, JoinScreenLabelsInterface} from './joinScreenLabels';
+import {
+  ShareLinkScreenLabels,
+  ShareLinkScreenLabelsInterface,
+} from './shareLinkScreenLabels';
+import {
+  VideoCallScreenLabels,
+  VideoCallScreenLabelsInterface,
+} from './videoCallScreenLabels';
+import {
+  PrecallScreenLabels,
+  PrecallScreenLabelsInterface,
+} from './precallScreenLabels';
 
-export const DEFAULT_LABELS: i18nInterface['data'] = {
+export type TextDataType =
+  | CommonLabelsInterface
+  | CreateScreenLabelsInterface
+  | JoinScreenLabelsInterface
+  | ShareLinkScreenLabelsInterface
+  | VideoCallScreenLabelsInterface
+  | PrecallScreenLabelsInterface;
+export const DEFAULT_LABELS: TextDataType = {
   ...CommonLabels,
   ...CreateScreenLabels,
   ...JoinScreenLabels,

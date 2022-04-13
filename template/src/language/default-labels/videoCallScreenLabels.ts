@@ -1,6 +1,82 @@
-import {i18nInterface} from '../i18nTypes';
+import {BaseI18nType, ConditionalI18nType, DynamicI18nType} from '../i18nTypes';
+export interface NetworkQualityStatusInterface {
+  unknown?: 'Unknown';
+  excellent?: 'Excellent';
+  good?: 'Good';
+  bad?: 'Bad';
+  veryBad?: 'Very Bad';
+  unpublished?: 'Unpublished';
+  loading?: 'Loading';
+}
+export interface MeetingInviteParam {
+  meetingName?: string;
+  pstn?: {
+    number: string;
+    pin: string;
+  };
+  url?: {
+    host: string;
+    attendee: string;
+  };
+  id?: {
+    host: string;
+    attendee: string;
+  };
+  hostControlCheckbox?: boolean;
+  platform?: string;
+  frontendEndpoint?: string;
+}
+export interface VideoCallScreenLabelsInterface {
+  video?: BaseI18nType;
+  audio?: BaseI18nType;
+  screenShareButton?: BaseI18nType;
+  record?: BaseI18nType;
+  recording?: BaseI18nType;
+  recordingNotificationLabel?: BaseI18nType;
+  endCallButton?: BaseI18nType;
+  participantsLabel?: BaseI18nType;
+  groupChatLabel?: BaseI18nType;
+  privateChatLabel?: BaseI18nType;
+  chatMessageInputPlaceholder?: BaseI18nType;
+  hostControlsLabel?: BaseI18nType;
+  muteAllVideoButton?: BaseI18nType;
+  muteAllAudioButton?: BaseI18nType;
+  switchCameraButton?: BaseI18nType;
+  localScreenshareDefaultLabel?: BaseI18nType;
+  localUserDefaultLabel?: BaseI18nType;
+  remoteUserDefaultLabel?: BaseI18nType;
+  pstnUserLabel?: BaseI18nType;
+  authenticationSuccessLabel?: BaseI18nType;
+  meetingCreatedNotificationLabel?: BaseI18nType;
+  joiningLoaderLabel?: BaseI18nType;
+  oauthLoginLabel?: BaseI18nType;
+  oauthProviderLabel?: BaseI18nType;
+  copyMeetingInviteButton?: BaseI18nType;
+  pin?: BaseI18nType;
+  language?: BaseI18nType;
+  screensharingActiveOverlayLabel?: BaseI18nType;
+  recordingButton?: ConditionalI18nType;
+  screenshareUserName?: DynamicI18nType;
+  messageSenderNotificationLabel?: DynamicI18nType;
+  networkQualityLabel?: BaseI18nType<keyof NetworkQualityStatusInterface>;
+  meetingInviteText?: BaseI18nType<MeetingInviteParam>;
+  noOneJoinedLabel?: BaseI18nType;
+  noLiveStreamingRequests?: BaseI18nType;
+  liveStreamingRequest?: BaseI18nType;
+  hostLabel?: BaseI18nType;
+  audienceLabel?: BaseI18nType;
+  raiseHandStatusText?: ConditionalI18nType;
+  noUserFoundLabel?: BaseI18nType;
+  raiseHandRequestMessage?: BaseI18nType;
+  raiseHandRequestReceivedMessage?: ConditionalI18nType;
+  raiseHandRequestAcceptedMessage?: BaseI18nType;
+  raiseHandRequestRejectedMessage?: BaseI18nType;
+  raiseHandRequestRecallMessage?: ConditionalI18nType;
+  raiseHandRequestRecallLocalMessage?: BaseI18nType;
+  raiseHandApprovedRequestRecallMessage?: BaseI18nType;
+}
 
-export const VideoCallScreenLabels: i18nInterface['data'] = {
+export const VideoCallScreenLabels: VideoCallScreenLabelsInterface = {
   video: 'Video',
   audio: 'Audio',
   screenShareButton: 'Share',
@@ -13,7 +89,6 @@ export const VideoCallScreenLabels: i18nInterface['data'] = {
   groupChatLabel: 'Group',
   privateChatLabel: 'Private',
   chatMessageInputPlaceholder: 'Type your message..',
-  meeting: 'Meeting',
   localScreenshareDefaultLabel: 'Your screenshare',
   localUserDefaultLabel: 'You',
   remoteUserDefaultLabel: 'User',

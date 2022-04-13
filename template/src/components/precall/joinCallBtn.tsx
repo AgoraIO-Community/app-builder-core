@@ -15,7 +15,7 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import {usePreCall} from 'fpe-api';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
-import {joinRoomButtonTextInterface} from 'src/language/i18nTypes';
+import {joinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);

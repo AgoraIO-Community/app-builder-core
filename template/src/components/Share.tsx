@@ -32,7 +32,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import styles from './styles';
 import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
-import {MeetingInviteParam} from 'src/language/utils/i18nTypes';
+import {MeetingInviteParam} from 'src/language/default-labels/videoCallScreenLabels';
 
 const Share = () => {
   const history = useHistory();

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
-import {NetworkQualityStatusInterface} from 'src/language/utils/i18nTypes';
+import {NetworkQualityStatusInterface} from 'src/language/default-labels/videoCallScreenLabels';
 
 /**
  *

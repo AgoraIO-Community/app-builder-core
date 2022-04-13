@@ -1,6 +1,27 @@
-import {i18nInterface} from '../i18nTypes';
+import {BaseI18nType} from '../i18nTypes';
 
-export const ShareLinkScreenLabels: i18nInterface['data'] = {
+export interface ShareLinkScreenLabelsInterface {
+  attendeeUrlLabel?: BaseI18nType;
+  hostUrlLabel?: BaseI18nType;
+  enterMeetingAfterCreateButton?: BaseI18nType;
+  copyInvite?: BaseI18nType;
+  pstnLabel?: BaseI18nType;
+  pstnNumberLabel?: BaseI18nType;
+  meetingUrlLabel?: BaseI18nType;
+  hostIdLabel?: BaseI18nType;
+  meetingIdLabel?: BaseI18nType;
+  attendeeIdLabel?: BaseI18nType;
+  copiedToClipboardNotificationLabel?: BaseI18nType;
+  PSTNNumber?: BaseI18nType;
+  PSTNPin?: BaseI18nType;
+  meeting?: BaseI18nType;
+  URLForAttendee?: BaseI18nType;
+  URLForHost?: BaseI18nType;
+  attendeeMeetingID?: BaseI18nType;
+  hostMeetingID?: BaseI18nType;
+}
+
+export const ShareLinkScreenLabels: ShareLinkScreenLabelsInterface = {
   attendeeUrlLabel: 'Attendee URL',
   hostUrlLabel: 'Host URL',
   enterMeetingAfterCreateButton: 'Start Meeting (as host)',
