@@ -1,14 +1,21 @@
 // DECLARE ENUMS & CONTANTS
+import {RtcPropsInterface} from '../../../agora-rn-uikit';
+import {Dispatch, SetStateAction} from 'react';
 
-export enum requestStatus {
-  AwaitingAction = 'AWAITING_ACTION',
-  Approved = 'APPROVED',
-  Cancelled = 'CANCELLED',
+export type RaiseHandAttributeKey = 'raised';
+
+export enum RaiseHandValue {
+  TRUE = 'TRUE',
+  FALSE = 'FALSE',
 }
 
-export enum attrRequestStatus {
-  RaiseHand_AwaitingAction = 'AWAITING_ACTION',
-  RaiseHand_Approved = 'APPROVED',
+export interface raiseHandListInterface {
+  [key: string]: raiseHandItemInterface;
+}
+
+export interface raiseHandItemInterface {
+  raised: RaiseHandValue;
+  ts: number;
 }
 
 export enum LiveStreamControlMessageEnum {
@@ -42,28 +49,16 @@ export const LSNotificationObject = {
 
 export interface liveStreamPropsInterface {
   isHost: boolean;
-  setRtcProps: any;
+  setRtcProps: Dispatch<SetStateAction<RtcPropsInterface>>;
+  children: JSX.Element;
 }
 
 export interface liveStreamContext {
   setLastCheckedRequestTimestamp: (timestamp: number) => void;
   isPendingRequestToReview: boolean;
-  currLiveStreamRequest: Partial<Record<string, requestInterface>>;
+  raiseHandList: Partial<Record<string, raiseHandItemInterface>>;
   hostApprovesRequestOfUID: (uid: number) => void;
   hostRejectsRequestOfUID: (uid: number) => void;
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
-  raiseHandRequestActive: boolean;
-  setRaiseHandRequestActive: (state: boolean) => void;
-}
-
-export interface requestInterface {
-  ts: number;
-  status: requestStatus;
-  uid: string | number;
-}
-
-export interface attrRequestInterface {
-  status: attrRequestStatus;
-  uid: string | number;
 }

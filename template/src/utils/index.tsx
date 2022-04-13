@@ -8,7 +8,16 @@ export function filterObject<T extends object>(
 ) {
   return Object.fromEntries(
     (Object.entries(obj) as Entry<T>[]).filter(fn),
-  ) as Partial<T>;
+  ) as T;
+}
+
+export function isEmptyObject(obj: object) {
+  if (obj == null) return true;
+  if (typeof obj !== 'object') return true;
+  for (const key in obj) {
+    return false;
+  }
+  return true;
 }
 
 export function kFormatter(num: number) {

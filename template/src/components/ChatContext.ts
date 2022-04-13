@@ -9,9 +9,11 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {Dispatch, SetStateAction} from 'react';
 import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {createContext} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
+import {raiseHandListInterface} from './livestream';
 
 export interface channelMessage {
   isLocal: boolean;
@@ -56,14 +58,20 @@ interface chatContext {
   sendMessageToUid: (msg: string, uid: number) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  addOrUpdateLocalUserAttributes: (attributes: RtmAttribute[]) => void;
   broadcastUserAttributes: (
     attributes: RtmAttribute[],
     ctrlMsg: controlMessageEnum,
   ) => void;
+  sendLevel2message: (
+    attributes: RtmAttribute[],
+    ctrlMsg: any,
+    setLocalState?: Dispatch<SetStateAction<any>>,
+  ) => void;
   engine: RtmEngine;
   localUid: string;
   userList: any;
+  raiseHandList: raiseHandListInterface;
+  setRaiseHandList: Dispatch<SetStateAction<raiseHandListInterface>>;
   onlineUsersCount: number;
   events: rtmEventsInterface;
 }

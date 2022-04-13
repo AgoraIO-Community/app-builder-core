@@ -9,7 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect, useRef} from 'react';
+import React, {
+  Dispatch,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  SetStateAction,
+} from 'react';
 import RtmEngine, {
   RtmChannelAttribute,
   RtmAttribute,
@@ -22,8 +29,9 @@ import {
   messageChannelType,
   messageSourceType,
   messageActionType,
-  attrRequestTypes,
 } from './ChatContext';
+import {RaiseHandValue, raiseHandListInterface} from './livestream';
+
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
@@ -84,6 +92,10 @@ const RtmConfigure = (props: any) => {
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
+  const [raiseHandList, setRaiseHandList] = useState<raiseHandListInterface>(
+    {},
+  );
+
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   let engine = useRef<RtmEngine>(null!);
@@ -167,7 +179,7 @@ const RtmConfigure = (props: any) => {
         {key: 'name', value: name || 'User'},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
         {key: 'role', value: String(rtcProps?.role)},
-        {key: 'requests', value: attrRequestTypes.none}, // stores Uid who have raised a request
+        {key: 'raised', value: RaiseHandValue.FALSE},
       ]);
       timerValueRef.current = 5;
       joinChannel();
@@ -215,7 +227,7 @@ const RtmConfigure = (props: any) => {
                   attr?.attributes?.name &&
                   attr?.attributes?.screenUid &&
                   attr?.attributes?.role &&
-                  attr?.attributes?.requests
+                  attr?.attributes?.raised
                 ) {
                   return attr;
                 } else {
@@ -244,11 +256,19 @@ const RtmConfigure = (props: any) => {
                     role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
                     offline: false,
-                    requests: attr?.attributes?.requests,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
                     name: `${attr?.attributes?.name || 'User'}'s screenshare`,
                     type: UserType.ScreenShare,
+                  },
+                };
+              });
+              setRaiseHandList((prevState) => {
+                return {
+                  ...prevState,
+                  [member.uid]: {
+                    raised: attr?.attributes?.raised,
+                    ts: timeNow(),
                   },
                 };
               });
@@ -285,8 +305,7 @@ const RtmConfigure = (props: any) => {
           if (
             attr?.attributes?.name &&
             attr?.attributes?.screenUid &&
-            attr?.attributes?.role &&
-            attr?.attributes?.requests
+            attr?.attributes?.role
           ) {
             return attr;
           } else {
@@ -316,11 +335,19 @@ const RtmConfigure = (props: any) => {
                 role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
                 offline: false,
-                requests: attr?.attributes?.requests,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
                 name: `${attr?.attributes?.name || 'User'}'s screenshare`,
                 type: UserType.ScreenShare,
+              },
+            };
+          });
+          setRaiseHandList((prevState) => {
+            return {
+              ...prevState,
+              [data.uid]: {
+                raised: attr?.attributes?.raised,
+                ts: timeNow(),
               },
             };
           });
@@ -341,8 +368,16 @@ const RtmConfigure = (props: any) => {
           ...prevState,
           [uid]: {
             ...prevState[uid],
-            requests: attrRequestTypes.none,
             offline: true,
+          },
+        };
+      });
+      setRaiseHandList((prevState) => {
+        return {
+          ...prevState,
+          [uid]: {
+            ...prevState[uid],
+            raised: RaiseHandValue.FALSE,
           },
         };
       });
@@ -670,6 +705,72 @@ const RtmConfigure = (props: any) => {
     sendControlMessage(msgAsString);
   };
 
+  const getSetStateWrapper = (
+    setFunc?: Dispatch<SetStateAction<any>>,
+  ): Dispatch<SetStateAction<any>> => {
+    return function (attributes: RtmAttribute[]) {
+      if (setFunc && typeof setFunc === 'function') {
+        try {
+          setFunc((prevState) => {
+            return {
+              ...prevState,
+              [localUid.current]: {
+                ...prevState[localUid.current],
+                ...attributes,
+              },
+            };
+          });
+          return;
+        } catch (error) {
+          console.log('error: ', error);
+        }
+      }
+      setUserList((prevState) => {
+        return {
+          ...prevState,
+          [localUid.current]: {
+            ...prevState[localUid.current],
+            ...attributes,
+          },
+        };
+      });
+    };
+  };
+
+  const sendLevel2message = async (
+    attributes: RtmAttribute[],
+    ctrlMsg: any,
+    setLocalState?: Dispatch<SetStateAction<any>>,
+  ) => {
+    /**
+     * 1 parameter:  Update local user attributes with this value
+     * 2 parameter:  Send a control message to everyone in the channel with this value
+     * 3 paramaeter: Should be a function with default as setUserList, but should update either
+     *               setUserList or any other object
+     */
+    // 1. Update my attributes in attribute-list
+    await addOrUpdateLocalUserAttributes(attributes);
+
+    // Transform the array into object of key value pair
+    let formattedAttributes: any = {};
+    attributes.map((attribute) => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
+
+    /**
+     * 3. Broadcast my updated attributes to everyone
+     * send payload and control message as string
+     */
+    sendControlMessage(ctrlMsg);
+    /**
+     * If setstatefunction is passed run this
+     */
+    const setStateWrapper = getSetStateWrapper(setLocalState);
+    setStateWrapper(formattedAttributes);
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -680,10 +781,12 @@ const RtmConfigure = (props: any) => {
         sendMessage,
         sendMessageToUid,
         broadcastUserAttributes,
-        addOrUpdateLocalUserAttributes,
+        sendLevel2message,
         engine: engine.current,
         localUid: localUid.current,
         userList: userList,
+        raiseHandList,
+        setRaiseHandList,
         onlineUsersCount,
         events,
       }}>
