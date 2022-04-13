@@ -20,14 +20,15 @@ import {
   I18nPrecallScreenLabelsInterface,
 } from './precallScreenLabels';
 
-export type TextDataType =
-  | I18nCommonLabelsInterface
-  | I18nCreateScreenLabelsInterface
-  | I18nJoinScreenLabelsInterface
-  | I18nShareLinkScreenLabelsInterface
-  | I18nVideoCallScreenLabelsInterface
-  | I18nPrecallScreenLabelsInterface;
-export const DEFAULT_LABELS: TextDataType = {
+export interface TextDataInterface
+  extends I18nCommonLabelsInterface,
+    I18nCreateScreenLabelsInterface,
+    I18nJoinScreenLabelsInterface,
+    I18nShareLinkScreenLabelsInterface,
+    I18nVideoCallScreenLabelsInterface,
+    I18nPrecallScreenLabelsInterface {}
+
+export const DEFAULT_LABELS: TextDataInterface = {
   ...CommonLabels,
   ...CreateScreenLabels,
   ...JoinScreenLabels,

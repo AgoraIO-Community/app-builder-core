@@ -32,7 +32,7 @@ import {useString} from '../utils/useString';
 
 const Chat = () => {
   const ChatInputFpe = useFpe(
-    (data) => data.components?.videoCall?.chat?.chatInput,
+    (data) => data?.components?.videoCall?.chat?.chatInput,
   );
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([

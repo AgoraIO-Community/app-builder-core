@@ -12,12 +12,12 @@
 import {useFpe} from 'fpe-api';
 import {useLanguage} from '../language/useLanguage';
 import {DEFAULT_I18_DATA} from '../language';
-import {TextDataType} from '../language//i18nTypes';
+import {TextDataInterface} from '../language/default-labels/index';
 
 export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
 ) {
-  const languageData = useFpe((data) => data.i18n);
+  const languageData = useFpe((data) => data?.i18n);
   if (languageData && languageData.length) {
     if (selectedLanguageCode) {
       let selectedLanguageData = languageData.find(
@@ -41,7 +41,7 @@ export function usei18nData(
 }
 
 export function useString<T = string>(
-  keyName: keyof TextDataType,
+  keyName: keyof TextDataInterface,
 ): (input?: T) => string {
   const lanCode = useLanguage((data) => data.languageCode);
   const textData = usei18nData(lanCode);

@@ -40,7 +40,7 @@ const ChatContainer = (props: any) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const ChatBubbleFpe = useFpe(
-    (data) => data.components?.videoCall?.chat?.chatBubble,
+    (data) => data?.components?.videoCall?.chat?.chatBubble,
   );
   return (
     <View style={style.containerView}>

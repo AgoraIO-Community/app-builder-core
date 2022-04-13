@@ -8,7 +8,7 @@ const VideoArrayRenderer = ({children}: {children: React.FC<any>}) => {
   const min = useContext(MinUidContext);
 
   const FpeRenderComponent = useFpe(
-    (config) => config.components?.videoCall?.renderComponentObject,
+    (config) => config?.components?.videoCall?.renderComponentObject,
   );
 
   const minArray = min.map((user, index) => {

@@ -53,7 +53,7 @@ const CREATE_CHANNEL = gql`
 `;
 
 const Create = () => {
-  const share = useFpe((config) => config.components?.share);
+  const share = useFpe((config) => config?.components?.share);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [roomTitle, onChangeRoomTitle] = useState('');

@@ -20,7 +20,7 @@ import {DEFAULT_I18_DATA} from '../language';
 const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage((data) => data);
-  const languageData = useFpe((data) => data.i18n);
+  const languageData = useFpe((data) => data?.i18n);
 
   if (!languageData || !languageData.length) {
     return <></>;
@@ -35,7 +35,7 @@ const LanguageSelector = () => {
 
   return (
     <>
-      <Text style={style.heading}>{useString('language')()}</Text>
+      <Text style={style.heading}>{useString('')}</Text>
       <Picker
         selectedValue={languageCode}
         style={[{borderColor: primaryColor}, style.popupPicker]}

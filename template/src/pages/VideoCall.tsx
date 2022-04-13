@@ -262,10 +262,10 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {chat, bottomBar, participantsPanel, settingsPanel, topBar} = useFpe(
-    (data) => (data.components?.videoCall ? data.components?.videoCall : {}),
+    (data) => (data?.components?.videoCall ? data.components?.videoCall : {}),
   );
   const defaultLayouts = useVideoCall((data) => data.layouts);
-  const PreCallScreenFpe = useFpe((data) => data.components?.precall);
+  const PreCallScreenFpe = useFpe((data) => data?.components?.precall);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
