@@ -11,23 +11,24 @@
 */
 import React from 'react';
 import {Platform} from 'react-native';
+import * as ReactIs from 'react-is';
 
-const cmpTypeGuard = <T,>(
+const cmpTypeGuard = (
   FallBackComponent: React.ComponentType,
-  FpeComponent?: T,
+  FpeComponent?: React.ElementType,
 ) => {
-  return FpeComponent && typeof FpeComponent === 'function' ? (
+  return FpeComponent && ReactIs.isValidElementType(FpeComponent) ? (
     <FpeComponent />
   ) : (
     <FallBackComponent />
   );
 };
 
-const getCmpTypeGuard = <T,>(
+const getCmpTypeGuard = (
   FallBackComponent: React.ComponentType,
-  FpeComponent?: T,
+  FpeComponent?: React.ElementType,
 ) => {
-  return FpeComponent && typeof FpeComponent === 'function'
+  return FpeComponent && ReactIs.isValidElementType(FpeComponent)
     ? FpeComponent
     : FallBackComponent;
 };
