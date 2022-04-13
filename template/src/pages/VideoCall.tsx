@@ -17,6 +17,7 @@ import {
   PropsProvider,
   ClientRole,
   ChannelProfile,
+  RtcPropsInterface,
 } from '../../agora-rn-uikit';
 import Navbar from '../components/Navbar';
 import Precall from '../components/Precall';
@@ -223,7 +224,7 @@ const JOIN_CHANNEL_PHRASE = gql`
     }
   }
 `;
-enum RnEncryptionEnum {
+enum EncryptionMode {
   /**
    * @deprecated
    * 0: This mode is deprecated.
@@ -247,6 +248,18 @@ enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 5: 128-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES128GCM = 5,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES256GCM = 6,
 }
 
 const VideoCall: React.FC = () => {
@@ -266,7 +279,7 @@ const VideoCall: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isHost, setIsHost] = React.useState(false);
   const [title, setTitle] = React.useState('');
-  const [rtcProps, setRtcProps] = React.useState({
+  const [rtcProps, setRtcProps] = React.useState<RtcPropsInterface>({
     appId: $config.APP_ID,
     channel: null,
     uid: null,
@@ -276,9 +289,13 @@ const VideoCall: React.FC = () => {
     screenShareToken: null,
     profile: $config.PROFILE,
     dual: true,
-    encryption: $config.ENCRYPTION_ENABLED
-      ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
-      : false,
+    ...($config.ENCRYPTION_ENABLED && {
+      encryption: {
+        key: null,
+        screenKey: null,
+        mode: EncryptionMode.AES128XTS,
+      },
+    }),
     role: ClientRole.Broadcaster,
   });
 
@@ -313,13 +330,13 @@ const VideoCall: React.FC = () => {
         rtm: data.joinChannel.mainUser.rtm,
         dual: true,
         profile: $config.PROFILE,
-        encryption: $config.ENCRYPTION_ENABLED
-          ? {
-              key: data.joinChannel.secret,
-              mode: RnEncryptionEnum.AES128XTS,
-              screenKey: data.joinChannel.secret,
-            }
-          : false,
+        ...($config.ENCRYPTION_ENABLED && {
+          encryption: {
+            key: data.joinChannel.secret,
+            mode: EncryptionMode.AES128XTS,
+            screenKey: data.joinChannel.secret,
+          },
+        }),
         screenShareUid: data.joinChannel.screenShare.uid,
         screenShareToken: data.joinChannel.screenShare.rtc,
         role: data.joinChannel.isHost
@@ -372,7 +389,8 @@ const VideoCall: React.FC = () => {
                   : ChannelProfile.Communication,
               }}>
               <RtcConfigure>
-                <DeviceConfigure userRole={rtcProps.role}>
+                <DeviceConfigure
+                  userRole={rtcProps?.role || ClientRole.Audience}>
                   <RtmConfigure
                     setRecordingActive={setRecordingActive}
                     name={username}
