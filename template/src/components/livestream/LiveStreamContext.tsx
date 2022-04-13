@@ -113,8 +113,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
 
   React.useEffect(() => {
     if (
+      // Only host should see the pending request
       Object.keys(pendingRequests).length !== 0 &&
-      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp
+      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp &&
+      userList[localUid]?.role === ClientRole.Broadcaster
     ) {
       setPendingRequestToReview(true);
     } else {
