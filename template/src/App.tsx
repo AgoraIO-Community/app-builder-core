@@ -87,30 +87,41 @@ const App: React.FC = () => {
                           <Navigation />
                           <Switch>
                             {CustomRoutes?.map(
-                              (e: CustomRoutesInterface, i: number) => {
-                                if (e?.privateRoute) {
+                              (
+                                customRoute: CustomRoutesInterface,
+                                i: number,
+                              ) => {
+                                if (customRoute?.isPrivateRoute) {
                                   return (
                                     <PrivateRoute
-                                      path={CUSTOM_ROUTES_PREFIX + e.path}
-                                      exact={e.exact}
+                                      path={
+                                        CUSTOM_ROUTES_PREFIX + customRoute.path
+                                      }
+                                      exact={customRoute.exact}
                                       key={i}
                                       failureRedirectTo={
-                                        e.failureRedirectTo
-                                          ? e.failureRedirectTo
+                                        customRoute.failureRedirectTo
+                                          ? customRoute.failureRedirectTo
                                           : '/'
                                       }
-                                      {...e.routeProps}>
-                                      <e.component {...e.componentProps} />
+                                      {...customRoute.routeProps}>
+                                      <customRoute.component
+                                        {...customRoute.componentProps}
+                                      />
                                     </PrivateRoute>
                                   );
                                 } else {
                                   return (
                                     <Route
-                                      path={CUSTOM_ROUTES_PREFIX + e.path}
-                                      exact={e.exact}
+                                      path={
+                                        CUSTOM_ROUTES_PREFIX + customRoute.path
+                                      }
+                                      exact={customRoute.exact}
                                       key={i}
-                                      {...e.routeProps}>
-                                      <e.component {...e.componentProps} />
+                                      {...customRoute.routeProps}>
+                                      <customRoute.component
+                                        {...customRoute.componentProps}
+                                      />
                                     </Route>
                                   );
                                 }

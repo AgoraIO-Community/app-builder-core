@@ -82,7 +82,7 @@ export interface CustomRoutesInterface {
   component: React.ComponentType;
   exact?: boolean;
   componentProps?: object;
-  privateRoute?: boolean;
+  isPrivateRoute?: boolean;
   routeProps?: object;
   failureRedirectTo?: string;
 }
