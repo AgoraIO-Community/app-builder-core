@@ -32,7 +32,7 @@ const LogoutButton = () => {
 
   const logout = () => {
     if (setStore) {
-      setStore({token: null, displayName: ''});
+      setStore({token: null, displayName: '', selectedLanguageCode: ''});
     }
     logoutQuery({variables: {token}}).catch((e) => {
       console.log(e);
