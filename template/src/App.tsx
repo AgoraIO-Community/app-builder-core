@@ -135,12 +135,14 @@ const App: React.FC = () => {
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
 
-const AppWithFpeProvider: React.FC = () => {
-  return(
-    <FpeProvider value={fpeConfig}>
-      <App/>
+const AppWithFpeProvider: React.FC = (props: any) => {
+  console.log({propsFpeConfig: props});
+  const value = props.fpeConfig || fpeConfig;
+  return (
+    <FpeProvider value={value}>
+      <App />
     </FpeProvider>
-  )
-}
+  );
+};
 
 export default AppWithFpeProvider;

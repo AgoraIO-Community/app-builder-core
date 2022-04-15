@@ -12,16 +12,31 @@
 /**
  * @format
  */
+import React, {useEffect, useState} from 'react';
+import {installFPE as createFPE} from 'fpe-api/install';
 import App from './src/App';
-// import React,{useState} from 'react'
+import {SDKEvents} from './src/utils/eventEmitter';
 
-// export const test = {
-//   f: 'f',
-// };
+function addFPE(fpeConfig) {
+  console.log('addFpe', fpeConfig);
+  SDKEvents.emit('addFpe', fpeConfig);
+}
 
-// const App = () => {
-//   const [test, setTest] = useState(1);
-//   return <div>{test}</div>;
-// };
+const AppBuilderView = () => {
+  const [fpeConfig, setFpeConfig] = useState({});
+  useEffect(() => {
+    SDKEvents.on('addFpe', (sdkFpeConfig) => {
+      console.log({addFpe: sdkFpeConfig});
+      setFpeConfig(sdkFpeConfig);
+    });
+  }, []);
 
+  const View = () => <App fpeConfig={fpeConfig} />;
+  return View();
+};
+export default {
+  View: AppBuilderView,
+  addFPE,
+  createFPE,
+};
 export {App};
