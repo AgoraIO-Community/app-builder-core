@@ -33,6 +33,13 @@ export enum UserType {
   Normal,
   ScreenShare,
 }
+export interface userInterface {
+  name: string;
+  type: UserType;
+  role: ClientRole;
+  screenUid: number;
+  offline: boolean;
+}
 
 const adjustUID = (number: number) => {
   if (number < 0) {
@@ -83,7 +90,7 @@ const RtmConfigure = (props: any) => {
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
-  const [userList, setUserList] = useState<{[key: string]: any}>({});
+  const [userList, setUserList] = useState<{[key: string]: userInterface}>({});
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   let engine = useRef<RtmEngine>(null!);
