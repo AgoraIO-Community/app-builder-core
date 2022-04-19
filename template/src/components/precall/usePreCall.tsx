@@ -9,38 +9,42 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { createContext } from 'react';
+import React, {createContext} from 'react';
 import {createHook} from 'fpe-implementation';
-import { ApolloError } from '@apollo/client';
+import {ApolloError} from '@apollo/client';
 
 export interface PreCallContextInterface {
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
+  callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
   queryComplete: boolean;
   title: string;
-  children: React.ReactNode,
-  error?: ApolloError
+  error?: ApolloError;
 }
 
-const PreCallContext: React.Context<PreCallContextInterface> = createContext({
+const PreCallContext = createContext<PreCallContextInterface>({
   username: '',
-  setUsername: () => { },
-  setCallActive: () => { },
+  setUsername: () => {},
+  callActive: false,
+  setCallActive: () => {},
   queryComplete: false,
   title: '',
-  children: null
-} as PreCallContextInterface);
+});
 
-const PreCallProvider = (props: PreCallContextInterface) => {
+const PreCallProvider = ({
+  value,
+  children,
+}: {
+  value: PreCallContextInterface;
+  children: React.ReactNode;
+}) => {
   return (
-    <PreCallContext.Provider
-      value={{ ...props }}
-    >
-      {true ? props.children : <></>}
+    <PreCallContext.Provider value={{...value}}>
+      {true ? children : <></>}
     </PreCallContext.Provider>
   );
 };
 const usePreCall = createHook(PreCallContext);
 
-export { PreCallProvider, usePreCall };
+export {PreCallProvider, usePreCall};

@@ -572,12 +572,15 @@ const VideoCall: React.FC = () => {
                           </View>
                         ) : $config.PRECALL ? (
                           <PreCallProvider
-                            username={username}
-                            setUsername={setUsername}
-                            setCallActive={setCallActive}
-                            queryComplete={queryComplete}
-                            title={title}
-                            error={error}>
+                            value={{
+                              username,
+                              setUsername,
+                              callActive,
+                              setCallActive,
+                              queryComplete,
+                              title,
+                              error,
+                            }}>
                             {cmpTypeGuard(Precall, PreCallScreenFpe)}
                           </PreCallProvider>
                         ) : (
