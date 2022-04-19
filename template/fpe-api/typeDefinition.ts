@@ -53,7 +53,7 @@ export type layoutComponent = React.ComponentType<{
   setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
 }>;
 
-export interface layoutObjectInterface {
+export interface LayoutObjectInterface {
   name: string;
   icon?: string;
   iconName?: keyof IconsInterface;
@@ -66,7 +66,7 @@ export interface VideoCallInterface {
   bottomBar?: React.ComponentType;
   chat?: ChatCmpInterface | React.ComponentType;
   renderComponentObject?: renderComponentObjectInterface;
-  customLayout?: (layouts: layoutObjectInterface[]) => layoutObjectInterface[];
+  customLayout?: (layouts: LayoutObjectInterface[]) => LayoutObjectInterface[];
 }
 
 export type ComponentsInterface = {
