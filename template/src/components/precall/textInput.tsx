@@ -12,7 +12,7 @@
 
 import React from 'react';
 import TextInput from '../../atoms/TextInput';
-import {usePreCall} from 'fpe-api';
+import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 
 const PreCallTextInput: React.FC = () => {

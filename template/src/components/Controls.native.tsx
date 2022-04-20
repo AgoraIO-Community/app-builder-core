@@ -22,7 +22,7 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
 
 const Controls = () => {

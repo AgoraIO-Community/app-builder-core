@@ -23,7 +23,7 @@ import {
   ParticipantContextConsumer,
 } from './participants/context/ParticipantContext';
 import {useString} from '../utils/useString';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {isWeb} from '../utils/common';
 
 const ParticipantView = () => {

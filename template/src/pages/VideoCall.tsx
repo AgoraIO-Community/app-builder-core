@@ -51,12 +51,10 @@ import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 import {ErrorContext} from '.././components/common/index';
-import {
-  PreCallProvider,
-  useFpe,
-  VideoCallProvider,
-  ChatUIDataProvider,
-} from 'fpe-api';
+import {PreCallProvider} from '../components/precall/usePreCall';
+import {VideoCallProvider} from './video-call/useVideoCall';
+import {ChatUIDataProvider} from '../components/useChatUI';
+import {useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
 import VideoArrayRenderer from './video-call/VideoArrayRenderer';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';

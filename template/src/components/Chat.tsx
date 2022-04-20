@@ -26,7 +26,8 @@ import ColorContext from './ColorContext';
 import chatContext, {chatInputProps} from './ChatContext';
 import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
-import {useChatUIData, useFpe} from 'fpe-api';
+import {useFpe} from 'fpe-api';
+import {useChatUIData} from './useChatUI';
 import {useString} from '../utils/useString';
 import {getCmpTypeGuard, isIOS, isWeb} from '../utils/common';
 

@@ -25,7 +25,8 @@ import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/mobileWebTest';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {useVideoCall, RecordingProvider} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {RecordingProvider} from '../subComponents/recording/useRecording';
 import {useString} from '../utils/useString';
 import {isIOS, isWeb} from '../utils/common';
 

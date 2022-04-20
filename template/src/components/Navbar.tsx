@@ -23,7 +23,8 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
-import {useVideoCall, useChatUIData} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useChatUIData} from '../components/useChatUI';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
 

@@ -19,7 +19,6 @@ import {useParams} from '../components/Router';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
-import {useShareLink} from 'fpe-api';
 import {MeetingInviteInterface} from 'src/language/default-labels/videoCallScreenLabels';
 
 const SHARE = gql`

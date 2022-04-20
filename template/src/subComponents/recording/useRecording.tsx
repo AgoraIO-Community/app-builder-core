@@ -17,7 +17,7 @@ import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../../pages/video-call/useVideoCall';
 
 export interface RecordingContextInterface {
   startRecording: () => void;

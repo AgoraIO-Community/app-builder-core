@@ -13,7 +13,7 @@ import React from 'react';
 import {View, Text, StyleSheet, Platform} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWeb} from '../utils/common';
