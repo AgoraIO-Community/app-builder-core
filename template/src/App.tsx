@@ -13,40 +13,19 @@ import React from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
-import Authenticate from './pages/Authenticate';
-import {Router, Route, Switch, Redirect} from './components/Router';
+import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
-import Navigation from './components/Navigation';
 import StoreToken from './components/StoreToken';
-import {StorageProvider} from './components/StorageContext';
-import GraphQLProvider from './components/GraphQLProvider';
-// import JoinPhrase from './components/JoinPhrase';
-import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
-import ColorConfigure from './components/ColorConfigure';
-import Toast from '../react-native-toast-message';
-import ToastConfig from './subComponents/toastConfig';
 import {
   shouldAuthenticate,
   cmpTypeGuard,
-  getCmpTypeGuard,
   isValidElementType,
   isIOS,
 } from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
-import DimensionProvider from './components/dimension/DimensionProvider';
-import Error from './components/common/Error';
-import {ErrorProvider} from './components/common';
-import {
-  useFpe,
-  CustomRoutesInterface,
-  CUSTOM_ROUTES_PREFIX,
-  FpeProvider,
-  fpeConfig,
-} from 'fpe-api';
-import {LanguageProvider} from './language/useLanguage';
-
+import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
+import AppWrapper from './AppWrapper';
 if (isIOS) {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
@@ -64,120 +43,53 @@ const App: React.FC = () => {
       : undefined,
   );
   const CustomRoutes = useFpe((data) => data?.customRoutes);
-  const AppRoot = useFpe((data) => data?.appRoot);
   const CreateCmp = cmpTypeGuard(Create, create);
-  const RootWrapper = getCmpTypeGuard(React.Fragment, AppRoot);
-  return (
-    <RootWrapper>
-      <ImageBackground
-        source={{uri: $config.BG}}
-        style={{flex: 1}}
-        resizeMode={'cover'}>
-        <SafeAreaView style={{flex: 1}}>
-          <StatusBar hidden={true} />
-          <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
-          <StorageProvider>
-            <GraphQLProvider>
-              <Router>
-                <SessionProvider>
-                  <ColorConfigure>
-                    <DimensionProvider>
-                      <LanguageProvider>
-                        <ErrorProvider>
-                          <Error />
-                          <Navigation />
-                          <Switch>
-                            {CustomRoutes?.map(
-                              (
-                                customRoute: CustomRoutesInterface,
-                                i: number,
-                              ) => {
-                                if (customRoute?.isPrivateRoute) {
-                                  return (
-                                    <PrivateRoute
-                                      path={
-                                        CUSTOM_ROUTES_PREFIX + customRoute.path
-                                      }
-                                      exact={customRoute.exact}
-                                      key={i}
-                                      failureRedirectTo={
-                                        customRoute.failureRedirectTo
-                                          ? customRoute.failureRedirectTo
-                                          : '/'
-                                      }
-                                      {...customRoute.routeProps}>
-                                      <customRoute.component
-                                        {...customRoute.componentProps}
-                                      />
-                                    </PrivateRoute>
-                                  );
-                                } else {
-                                  return (
-                                    <Route
-                                      path={
-                                        CUSTOM_ROUTES_PREFIX + customRoute.path
-                                      }
-                                      exact={customRoute.exact}
-                                      key={i}
-                                      {...customRoute.routeProps}>
-                                      <customRoute.component
-                                        {...customRoute.componentProps}
-                                      />
-                                    </Route>
-                                  );
-                                }
-                              },
-                            )}
-                            <Route exact path={'/'}>
-                              <Redirect to={'/create'} />
-                            </Route>
-                            <Route exact path={'/authenticate'}>
-                              {shouldAuthenticate ? (
-                                <OAuth />
-                              ) : (
-                                <Redirect to={'/'} />
-                              )}
-                            </Route>
-                            <Route path={'/auth-token/:token'}>
-                              <StoreToken />
-                            </Route>
-                            <Route exact path={'/join'}>
-                              {cmpTypeGuard(Join, join)}
-                            </Route>
-                            {shouldAuthenticate ? (
-                              <PrivateRoute
-                                path={'/create'}
-                                failureRedirectTo={'/authenticate'}>
-                                {CreateCmp}
-                              </PrivateRoute>
-                            ) : (
-                              <Route path={'/create'}>{CreateCmp}</Route>
-                            )}
-                            <Route path={'/:phrase'}>
-                              {cmpTypeGuard(VideoCall, videoCall)}
-                            </Route>
-                          </Switch>
-                        </ErrorProvider>
-                      </LanguageProvider>
-                    </DimensionProvider>
-                  </ColorConfigure>
-                </SessionProvider>
-              </Router>
-            </GraphQLProvider>
-          </StorageProvider>
-        </SafeAreaView>
-      </ImageBackground>
-    </RootWrapper>
-  );
-  // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
-};
 
-const AppWithFpeProvider: React.FC = () => {
+  const RenderCustomRoutes = () => {
+    return CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
+      let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+      return (
+        <RouteComponent
+          path={CUSTOM_ROUTES_PREFIX + item.path}
+          exact={item.exact}
+          key={i}
+          failureRedirectTo={
+            item.failureRedirectTo ? item.failureRedirectTo : '/'
+          }
+          {...item.routeProps}>
+          <item.component {...item.componentProps} />
+        </RouteComponent>
+      );
+    });
+  };
+
   return (
-    <FpeProvider value={fpeConfig}>
-      <App />
-    </FpeProvider>
+    <AppWrapper>
+      <Switch>
+        {RenderCustomRoutes()}
+        <Route exact path={'/'}>
+          <Redirect to={'/create'} />
+        </Route>
+        <Route exact path={'/authenticate'}>
+          {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
+        </Route>
+        <Route path={'/auth-token/:token'}>
+          <StoreToken />
+        </Route>
+        <Route exact path={'/join'}>
+          {cmpTypeGuard(Join, join)}
+        </Route>
+        {shouldAuthenticate ? (
+          <PrivateRoute path={'/create'} failureRedirectTo={'/authenticate'}>
+            {CreateCmp}
+          </PrivateRoute>
+        ) : (
+          <Route path={'/create'}>{CreateCmp}</Route>
+        )}
+        <Route path={'/:phrase'}>{cmpTypeGuard(VideoCall, videoCall)}</Route>
+      </Switch>
+    </AppWrapper>
   );
 };
 
-export default AppWithFpeProvider;
+export default App;
