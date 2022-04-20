@@ -9,15 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import ChatContext from '../../src/components/ChatContext';
-
+import useUserList from './useUserList';
 /**
  * This hook will return the function to check whether the current user is a PSTN user or not
  * @returns function
  */
 function useIsPSTN() {
-  const {userList} = useContext(ChatContext);
+  const userList = useUserList();
   /**
    *
    * @param uid number | string

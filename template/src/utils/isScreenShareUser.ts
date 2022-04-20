@@ -9,16 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import ChatContext from '../../src/components/ChatContext';
 import {UserType} from '../../src/components/RTMConfigure';
-
+import useUserList from './useUserList';
 /**
  * This hook will return the function to check whether the screen is shared or not
  * @returns function
  */
 function useIsScreenShare() {
-  const {userList} = useContext(ChatContext);
+  const userList = useUserList();
   /**
    *
    * @param uid number | string
