@@ -12,6 +12,8 @@
 /**
  * @format
  */
+import React, {useEffect, useState} from 'react';
+import {installFPE as createFPE} from 'fpe-api/install';
 import App from './src/App';
 import {installFPE} from 'fpe-api/install';
 import {SDKEvents} from './src/utils/SdkEvents'
