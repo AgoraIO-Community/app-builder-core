@@ -65,6 +65,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   audienceLabel?: I18nBaseType;
   raiseHandStatusText?: I18nConditionalType;
   noUserFoundLabel?: I18nBaseType;
+  userOfflineLabel?: I18nBaseType;
   raiseHandRequestMessage?: I18nBaseType;
   raiseHandRequestReceivedMessage?: I18nConditionalType;
   raiseHandRequestAcceptedMessage?: I18nBaseType;
@@ -109,6 +110,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   hostLabel: 'Host',
   audienceLabel: 'Audience',
   noUserFoundLabel: 'User not found',
+  userOfflineLabel: 'User is offline',
   raiseHandRequestMessage:
     'You have raised your hand. Request sent to host for approval',
   raiseHandRequestReceivedMessage: (name) => `${name} has raised their hand`,
