@@ -20,7 +20,6 @@ export interface ShareLinkContextInterface {
   isSeparateHostLink: boolean;
   joinPhrase: string | null;
   roomTitle: string;
-  children: React.ReactNode;
 }
 const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
   attendeeUrl: '',
@@ -32,13 +31,17 @@ const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
   isSeparateHostLink: false,
   joinPhrase: '',
   roomTitle: '',
-  children: null,
 });
 
-const ShareLinkProvider = (props: ShareLinkContextInterface) => {
+interface ShareLinkProvideProps {
+  children: React.ReactNode;
+  value: ShareLinkContextInterface;
+}
+
+const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   return (
-    <ShareLinkContext.Provider value={{...props}}>
-      {true ? props.children : <></>}
+    <ShareLinkContext.Provider value={{...props.value}}>
+      {props.children}
     </ShareLinkContext.Provider>
   );
 };

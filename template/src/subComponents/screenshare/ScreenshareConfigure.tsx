@@ -34,7 +34,7 @@ function usePrevious(value: any) {
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: any) => {
+export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {userList} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);

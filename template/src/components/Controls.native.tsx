@@ -26,9 +26,7 @@ import {useVideoCall} from 'fpe-api';
 import {useString} from '../utils/useString';
 
 const Controls = () => {
-  const {setRecordingActive, recordingActive, isHost} = useVideoCall(
-    (data) => data,
-  );
+  const {isHost} = useVideoCall();
   const {rtcProps} = useContext(PropsContext);
 
   return (
@@ -58,10 +56,7 @@ const Controls = () => {
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
-                <Recording
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
+                <Recording />
               </View>
             )}
             <View style={{alignSelf: 'center'}}>

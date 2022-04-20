@@ -173,12 +173,14 @@ const Create = () => {
         </View>
       ) : (
         <ShareLinkProvider
-          attendeeUrl={urlView}
-          hostUrl={urlHost}
-          pstn={pstn}
-          isSeparateHostLink={hostControlCheckbox}
-          joinPhrase={joinPhrase}
-          roomTitle={roomTitle}>
+          value={{
+            attendeeUrl: urlView,
+            hostUrl: urlHost,
+            isSeparateHostLink: hostControlCheckbox,
+            pstn,
+            joinPhrase,
+            roomTitle,
+          }}>
           {cmpTypeGuard(ShareLink, share)}
         </ShareLinkProvider>
       )}

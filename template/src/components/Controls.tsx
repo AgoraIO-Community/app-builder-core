@@ -28,7 +28,7 @@ import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {useVideoCall, RecordingProvider} from 'fpe-api';
 import {useString} from '../utils/useString';
 
-const Controls = (props: any) => {
+const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
 
   let onLayout = (e: any) => {
@@ -40,9 +40,7 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {setRecordingActive, recordingActive, isHost, setLayout} = useVideoCall(
-    (data) => data,
-  );
+  const {isHost} = useVideoCall((data) => data);
 
   return (
     <LocalUserContext>
@@ -89,9 +87,7 @@ const Controls = (props: any) => {
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
-                <RecordingProvider
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}>
+                <RecordingProvider>
                   <Recording />
                 </RecordingProvider>
               </View>
