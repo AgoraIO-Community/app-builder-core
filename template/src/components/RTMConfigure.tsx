@@ -29,7 +29,7 @@ import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
 import {filterObject} from '../utils';
 import {useString} from '../utils/useString';
-import {isAndroid} from '../utils/common';
+import {isAndroid, isWeb} from '../utils/common';
 
 export enum UserType {
   Normal,
@@ -123,7 +123,7 @@ const RtmConfigure = (props: any) => {
       engine.current.leaveChannel(rtcProps.channel);
     };
 
-    if (Platform.OS !== 'web') return;
+    if (!isWeb) return;
     window.addEventListener('beforeunload', handBrowserClose);
     // cleanup this component
     return () => {

@@ -37,6 +37,7 @@ import {
   hasBrandLogo,
   isAndroid,
   isValidElementType,
+  isWeb,
 } from '../utils/common';
 import ChatContext, {
   messageActionType,
@@ -548,7 +549,7 @@ const VideoCall: React.FC = () => {
                                         )}
                                       </CustomUserContextHolder>
                                     </View>
-                                    {Platform.OS !== 'web' &&
+                                    {!isWeb &&
                                     sidePanel === SidePanelType.Chat ? (
                                       <></>
                                     ) : (

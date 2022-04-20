@@ -12,6 +12,7 @@ import {
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
+import {isWeb} from '../utils/common';
 
 /**
  *
@@ -83,7 +84,7 @@ const PlatformSpecificWrapper = ({
   setNetworkTextVisible,
   children,
 }: any) => {
-  return Platform.OS !== 'web' ? (
+  return !isWeb ? (
     <Pressable
       style={{
         height: '100%',

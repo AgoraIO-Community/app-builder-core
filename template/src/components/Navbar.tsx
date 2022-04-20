@@ -25,7 +25,7 @@ import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useVideoCall, useChatUIData} from 'fpe-api';
 import useCustomLayout from '../pages/video-call/CustomLayout';
-import {isIOS, isWeb} from '../utils/common';
+import {isAndroid, isIOS, isWeb} from '../utils/common';
 
 const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -281,7 +281,7 @@ const Navbar = () => {
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
            * hide in android/ios  */}
-          {Platform.OS !== 'android' && Platform.OS !== 'ios' && (
+          {!isAndroid && isIOS && (
             <>
               {renderSeparator()}
               <View style={[style.navItem, style.navSmItem]}>
