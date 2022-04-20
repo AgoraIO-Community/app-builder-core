@@ -81,25 +81,25 @@ const ChatContainer = (props: any) => {
           scrollViewRef.current?.scrollToEnd({animated: true});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any) => {
+          messageStore.map((message: any) => (
             <ChatBubbleFpe
               isLocal={localUid === message.uid}
               message={message.msg}
               timestamp={message.ts}
               uid={message.uid}
               key={message.ts}
-            />;
-          })
+            />
+          ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any) => {
+          privateMessageStore[selectedUserID].map((message: any) => (
             <ChatBubbleFpe
               isLocal={localUid === message.uid}
               message={message.msg}
               timestamp={message.ts}
               uid={message.uid}
               key={message.ts}
-            />;
-          })
+            />
+          ))
         ) : (
           <></>
         )}
