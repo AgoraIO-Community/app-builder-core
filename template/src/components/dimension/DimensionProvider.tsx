@@ -13,17 +13,14 @@ import React from 'react';
 import {Dimensions} from 'react-native';
 import DimensionContext from './DimensionContext';
 
-const DimensionProvider = (props: any) => {
-  const getDimensionData = (
-    width?: number,
-    height?: number,
-  ): {dim: (number | boolean)[]; isDesktop: boolean} => {
+const DimensionProvider = (props: {children: React.ReactNode}) => {
+  const getDimensionData = (width?: number, height?: number) => {
     (width = width ? width : Dimensions.get('window').width),
       (height = height ? height : Dimensions.get('window').height);
-    const dim = [width, height, width > height];
+    const dim: [number, number, boolean] = [width, height, width > height];
     return {
       dim: dim,
-      isDesktop: dim[0] < dim[1] + 150 ? false : true,
+      isDesktop: width < height + 150 ? false : true,
     };
   };
 
