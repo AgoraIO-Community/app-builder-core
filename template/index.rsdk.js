@@ -13,9 +13,9 @@
  * @format
  */
 import React, {useEffect, useState} from 'react';
+import {fpeConfig} from 'fpe-api';
 import {installFPE as createFPE} from 'fpe-api/install';
 import App from './src/App';
-import {installFPE} from 'fpe-api/install';
 import {SDKEvents} from './src/utils/SdkEvents'
 
 const AppBuilderView = () => {
@@ -28,17 +28,17 @@ const AppBuilderView = () => {
   }, []);
   return (
     <>
-      <App fpeOverride={fpe} />
+      <App fpeConfig={fpe} />
     </>
   );
 };
 
-const AppBuilder = {
+const AppBuilderMethods = {
   View: AppBuilderView,
-  addFpe: (fpeConfig) => {
+  addFPE: (fpeConfig) => {
     SDKEvents.emit('addFpe', fpeConfig);
   },
-  createFpe: installFPE,
+  createFPE,
 };
 
-export default AppBuilder;
+export default AppBuilderMethods;

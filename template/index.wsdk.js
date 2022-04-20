@@ -4,7 +4,7 @@ import App from './src/App';
 
 import {fpeConfig} from 'fpe-api';
 import {SDKEvents} from './src/utils/SdkEvents'
-import {installFPE} from 'fpe-api/install';
+import {installFPE as createFPE} from 'fpe-api/install';
 
 const AppBuilderView = () => {
   const [fpe, setFpe] = useState(fpeConfig);
@@ -16,16 +16,16 @@ const AppBuilderView = () => {
   }, []);
   return (
     <>
-      <App fpeOverride={fpe} />
+      <App fpeConfig={fpe} />
     </>
   );
 };
 
 const AppBuilderMethods = {
-  addFpe: (fpeConfig) => {
+  addFPE: (fpeConfig) => {
     SDKEvents.emit('addFpe', fpeConfig);
   },
-  createFpe: installFPE,
+  createFPE,
 };
 
 // init code
