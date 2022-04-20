@@ -14,6 +14,7 @@ const {spawn} = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const del = require('del');
+const config = require('./config.json')
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -24,6 +25,8 @@ const BUILD_PATH =
     ? path.join(__dirname, '../Builds/web-sdk')
     : process.env.TARGET === 'rsdk'
     ? path.join(__dirname, '../Builds/react-sdk')
+    : process.env.TARGET === 'android'
+    ? path.join(__dirname, '../Builds/android')
     : path.join(__dirname, '../Builds/.electron');
 
 const runCli = (cmd, cb) => {
@@ -86,7 +89,7 @@ const general = {
     );
     return;
   },
-  directory: () => {
+  createBuildDirectory: () => {
     return fs.mkdir(BUILD_PATH, {recursive: true});
   },
 };
@@ -134,10 +137,39 @@ const webSdk = {
   },
 };
 
+const android = {
+  gradleBuildUnix: (cb) => {
+    runCli('cd android && ./gradlew assembleRelease', cb);
+  },
+  gradleBuildWin: (cb) => {
+    runCli('cd android && gradlew.bat assembleRelease', cb);
+  },
+  copyBuild: (cb) => {
+    fs.copyFile(
+      path.resolve(
+        'android',
+        'app',
+        'build',
+        'outputs',
+        'apk',
+        'release',
+        'app-release.apk',
+      ),
+      path.resolve(BUILD_PATH, `${config.PRODUCT_ID}.apk`),
+    )
+      .then(() => {
+        cb();
+      })
+      .catch((err) => {
+        cb(new Error('Error in copying build',err))
+      });
+  },
+};
+
 // electron
 module.exports.electron_build = series(
   general.clean,
-  general.directory,
+  general.createBuildDirectory,
   parallel(
     electron.webpack_renderer,
     electron.webpack_main,
@@ -148,7 +180,7 @@ module.exports.electron_build = series(
 
 module.exports.electron_development = series(
   general.clean,
-  general.directory,
+  general.createBuildDirectory,
   electron.devServer,
   electron.webpack_main,
   electron.start,
@@ -157,7 +189,7 @@ module.exports.electron_development = series(
 // react-sdk
 module.exports.reactSdk = series(
   general.clean,
-  general.directory,
+  general.createBuildDirectory,
   general.packageJson,
   reactSdk.webpack,
 );
@@ -165,7 +197,21 @@ module.exports.reactSdk = series(
 // web-sdk
 module.exports.webSdk = series(
   general.clean,
-  general.directory,
+  general.createBuildDirectory,
   general.packageJson,
   webSdk.webpack,
+);
+
+module.exports.androidUnix = series(
+  general.clean,
+  general.createBuildDirectory,
+  // android.gradleBuildUnix,
+  android.copyBuild,
+);
+
+module.exports.androidWin = series(
+  general.clean,
+  general.createBuildDirectory,
+  android.gradleBuildWin,
+  android.copyBuild,
 );

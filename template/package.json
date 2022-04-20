@@ -6,8 +6,8 @@
   "scripts": {
     "android": "react-native run-android",
     "android:build": "npm run android:build:unix",
-    "android:build:unix": "cd android && ./gradlew assembleRelease",
-    "android:build:windows": "cd android && gradlew.bat assembleRelease",
+    "android:build:unix": "cross-env TARGET=android gulp androidUnix",
+    "android:build:windows": "cross-env TARGET=android gulp androidWin",
     "ios": "cd ios && ls | grep .xcworkspace | xargs open",
     "ios:build": "cd ios && ls | grep .xcworkspace | xargs open",
     "start": "react-native start",
