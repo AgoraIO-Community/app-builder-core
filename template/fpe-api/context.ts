@@ -20,8 +20,6 @@ export const useLocalContext = createHook(LocalContext);
 export const useDeviceContext = createHook(DeviceContext);
 export const useStorageContext = createHook(StorageContext);
 
-export {LocalUserContext} from '../agora-rn-uikit';
-
 /**
  * UI contexts
  */

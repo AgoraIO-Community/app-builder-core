@@ -56,6 +56,8 @@ import VideoArrayRenderer from './video-call/VideoArrayRenderer';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useVideoCall} from './video-call/useVideoCall';
 import {useString} from '../utils/useString';
+import {DefaultLayouts} from './video-call/DefaultLayouts';
+import useCustomLayout from './video-call/CustomLayout';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -275,7 +277,6 @@ const VideoCall: React.FC = () => {
   );
   const chat =
     typeof ChatFPE !== 'object' ? isValidElementType(ChatFPE) : undefined;
-  const defaultLayouts = useVideoCall((data) => data.layouts);
   const PreCallScreenFpe = useFpe((data) =>
     typeof data?.components?.precall !== 'object'
       ? isValidElementType(data?.components?.precall)
@@ -324,23 +325,7 @@ const VideoCall: React.FC = () => {
     },
   );
 
-  const fpeLayouts = useFpe((config) => {
-    if (
-      typeof config?.components?.videoCall === 'object' &&
-      config?.components?.videoCall?.customLayout
-    ) {
-      return config.components.videoCall.customLayout([
-        {name: 'Grid', iconName: 'gridLayoutIcon', component: GridVideo},
-        {
-          name: 'PinnedVideo',
-          iconName: 'pinnedLayoutIcon',
-          component: PinnedVideo,
-        },
-      ]);
-    } else {
-      return defaultLayouts;
-    }
-  });
+  const fpeLayouts = useCustomLayout();
 
   React.useEffect(() => {
     if (error) {
@@ -456,15 +441,16 @@ const VideoCall: React.FC = () => {
                                 setPrivateMessageLastSeen,
                               }) => (
                                 <VideoCallProvider
-                                  sidePanel={sidePanel}
-                                  setSidePanel={setSidePanel}
-                                  layout={layout}
-                                  setLayout={setLayout}
-                                  recordingActive={recordingActive}
-                                  setRecordingActive={setRecordingActive}
-                                  isHost={isHost}
-                                  title={title}
-                                  layouts={fpeLayouts}>
+                                  value={{
+                                    sidePanel,
+                                    setSidePanel,
+                                    layout,
+                                    setLayout,
+                                    recordingActive,
+                                    setRecordingActive,
+                                    isHost,
+                                    title,
+                                  }}>
                                   <ChatUIDataProvider
                                     privateMessageCountMap={
                                       privateMessageCountMap

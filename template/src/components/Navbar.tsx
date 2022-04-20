@@ -24,22 +24,23 @@ import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useVideoCall, useChatUIData} from 'fpe-api';
+import useCustomLayout from '../pages/video-call/CustomLayout';
 
-const Navbar = (props: any) => {
+const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-
+  const layouts = useCustomLayout();
   const {
     recordingActive,
     sidePanel,
     setSidePanel,
     layout,
     setLayout,
-    layouts,
     isHost,
     title,
   } = useVideoCall((data) => data);
+
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(
     (data) => data,
   );
@@ -250,7 +251,7 @@ const Navbar = (props: any) => {
           )}
           {renderSeparator()}
           <View style={[style.navItem, style.navSmItem]}>
-            {layouts[layout].iconName ? (
+            {layouts[layout]?.iconName ? (
               <BtnTemplate
                 style={style.btnHolder}
                 onPress={() => {
@@ -262,7 +263,7 @@ const Navbar = (props: any) => {
                     }
                   });
                 }}
-                name={layouts[layout].iconName}
+                name={layouts[layout]?.iconName}
               />
             ) : (
               <BtnTemplate
@@ -276,7 +277,7 @@ const Navbar = (props: any) => {
                     }
                   });
                 }}
-                icon={layouts[layout].icon}
+                icon={layouts[layout]?.icon}
               />
             )}
           </View>
