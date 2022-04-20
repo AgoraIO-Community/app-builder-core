@@ -281,7 +281,7 @@ const Navbar = () => {
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
            * hide in android/ios  */}
-          {!isAndroid && isIOS && (
+          {!isAndroid && !isIOS && (
             <>
               {renderSeparator()}
               <View style={[style.navItem, style.navSmItem]}>
