@@ -26,14 +26,13 @@ export interface RecordingContextInterface {
   stopRecording: () => void;
 }
 
-const RecordingContext: React.Context<RecordingContextInterface> =
-  createContext({
-    children: <></>,
-    recordingActive: false,
-    setRecordingActive: () => {},
-    startRecording: () => {},
-    stopRecording: () => {},
-  } as RecordingContextInterface);
+const RecordingContext = createContext<RecordingContextInterface>({
+  children: <></>,
+  recordingActive: false,
+  setRecordingActive: () => {},
+  startRecording: () => {},
+  stopRecording: () => {},
+});
 
 const START_RECORDING = gql`
   mutation startRecordingSession($passphrase: String!, $secret: String) {

@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useParams} from '../../components/Router';
 import ChatContext from '../../components/ChatContext';
 import {
@@ -16,6 +10,7 @@ import {
 import Layout from '../LayoutEnum';
 import {gql, useMutation} from '@apollo/client';
 import ScreenshareContext from './ScreenshareContext';
+import {useVideoCall} from '../../pages/video-call/useVideoCall';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -39,7 +34,7 @@ function usePrevious(value: any) {
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: any) => {
+export const ScreenshareConfigure = () => {
   const {userList} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);
@@ -49,7 +44,7 @@ export const ScreenshareConfigure = (props: any) => {
   const users = [...max, ...min];
   const prevUsers = usePrevious({users});
   const {phrase} = useParams<any>();
-  const {setLayout, recordingActive} = props;
+  const {setLayout, recordingActive} = useVideoCall((data) => data);
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 

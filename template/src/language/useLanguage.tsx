@@ -24,11 +24,10 @@ export interface LanguagePropsInterface {
   children: React.ReactNode;
 }
 
-const LanguageContext: React.Context<LanguageContextInterface> = createContext({
+const LanguageContext = createContext<LanguageContextInterface>({
   languageCode: DEFAULT_I18_DATA.locale,
   setLanguageCode: () => {},
-  children: null,
-} as LanguageContextInterface);
+});
 
 const LanguageProvider = (props: LanguagePropsInterface) => {
   const {store, setStore} = useContext(StorageContext);

@@ -435,9 +435,7 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <ScreenshareConfigure
-                      setLayout={setLayout}
-                      recordingActive={recordingActive}>
+                    <ScreenshareConfigure>
                       <LiveStreamContextProvider
                         setRtcProps={setRtcProps}
                         isHost={isHost}>

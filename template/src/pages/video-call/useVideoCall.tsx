@@ -31,7 +31,7 @@ export interface VideoCallContextInterface {
   layouts: LayoutObjectInterface[];
 }
 
-const VideoCallContext = React.createContext({
+const VideoCallContext = React.createContext<VideoCallContextInterface>({
   recordingActive: false,
   sidePanel: SidePanelType.None,
   layout: Layout.Grid,
@@ -45,7 +45,7 @@ const VideoCallContext = React.createContext({
     {name: 'GridLayout', icon: 'gridLayoutIcon', component: GridVideo},
     {name: 'PinnedLayout', icon: 'pinnedLayoutIcon', component: PinnedVideo},
   ],
-} as VideoCallContextInterface);
+});
 
 const VideoCallProvider = (props: VideoCallContextInterface) => {
   return (

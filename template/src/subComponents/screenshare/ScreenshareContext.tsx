@@ -17,7 +17,9 @@ export interface ScreenshareContextInterface {
   stopUserScreenShare: () => void;
 }
 
-const ScreenshareContext = createContext(
-  null as unknown as ScreenshareContextInterface,
-);
+const ScreenshareContext = createContext<ScreenshareContextInterface>({
+  screenshareActive: false,
+  startUserScreenshare: () => {},
+  stopUserScreenShare: () => {},
+});
 export default ScreenshareContext;

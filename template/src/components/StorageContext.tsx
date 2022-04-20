@@ -19,7 +19,7 @@ export interface StoreInterface {
   selectedLanguageCode: null | string;
 }
 
-interface StorageContextInterface {
+export interface StorageContextInterface {
   store: StoreInterface;
   setStore: React.Dispatch<React.SetStateAction<StoreInterface>> | null;
 }
@@ -27,7 +27,7 @@ interface StorageContextInterface {
 const initStoreValue: StoreInterface = {
   token: null,
   displayName: '',
-  selectedLanguageCode: ''
+  selectedLanguageCode: '',
 };
 
 const initStorageContextValue = {
