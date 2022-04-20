@@ -89,7 +89,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         deviceList,
         setDeviceList,
       }}>
-      {true ? props.children : <></>}
+      {props.children}
     </DeviceContext.Provider>
   );
 };

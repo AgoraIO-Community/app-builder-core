@@ -77,7 +77,7 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
 
   return (
     <LanguageContext.Provider value={{languageCode, setLanguageCode}}>
-      {true ? props.children : <></>}
+      {props.children}
     </LanguageContext.Provider>
   );
 };

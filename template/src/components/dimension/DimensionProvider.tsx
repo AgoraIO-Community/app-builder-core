@@ -10,30 +10,26 @@
 *********************************************
 */
 import React from 'react';
-import {Dimensions} from 'react-native'
+import {Dimensions} from 'react-native';
 import DimensionContext from './DimensionContext';
 
-const DimensionProvider = (props:any) => {
-
-  const getDimensionData = (width?: number, height?: number):{dim:(number | boolean)[],isDesktop: boolean} => {
-    width = width ? width : Dimensions.get('window').width,
-    height = height ? height : Dimensions.get('window').height
-    const dim = [
-      width,
-      height,
-      width > height,
-    ]
+const DimensionProvider = (props: any) => {
+  const getDimensionData = (
+    width?: number,
+    height?: number,
+  ): {dim: (number | boolean)[]; isDesktop: boolean} => {
+    (width = width ? width : Dimensions.get('window').width),
+      (height = height ? height : Dimensions.get('window').height);
+    const dim = [width, height, width > height];
     return {
       dim: dim,
-      isDesktop: dim[0] < (dim[1] + 150) ? false : true
-    }
-  }
-  
+      isDesktop: dim[0] < dim[1] + 150 ? false : true,
+    };
+  };
+
   return (
-    <DimensionContext.Provider
-      value={{getDimensionData}}
-    >
-      {true ? props.children : <></>}
+    <DimensionContext.Provider value={{getDimensionData}}>
+      {props.children}
     </DimensionContext.Provider>
   );
 };

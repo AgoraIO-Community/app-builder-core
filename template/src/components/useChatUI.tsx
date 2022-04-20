@@ -43,7 +43,7 @@ const ChatUIDataContext = React.createContext<ChatUIDataInterface>({
 const ChatUIDataProvider = (props: any) => {
   return (
     <ChatUIDataContext.Provider value={{...props}}>
-      {true ? props.children : <></>}
+      {props.children}
     </ChatUIDataContext.Provider>
   );
 };
