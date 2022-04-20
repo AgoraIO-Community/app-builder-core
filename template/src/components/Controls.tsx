@@ -22,7 +22,7 @@ import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import isMobileOrTablet from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {useVideoCall} from '../pages/video-call/useVideoCall';

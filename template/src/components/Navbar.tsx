@@ -18,7 +18,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
-import isMobileOrTablet from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
