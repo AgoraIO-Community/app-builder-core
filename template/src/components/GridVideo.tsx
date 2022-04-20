@@ -36,17 +36,11 @@ const layout = (len: number, isDesktop: boolean = true) => {
   };
 };
 
-interface GridVideoProps {
-  setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
-  minVideoArray: React.FC[];
-  maxVideoArray: React.FC[];
-}
-
 const GridVideo: layoutComponent = ({
   minVideoArray,
   maxVideoArray,
   setLayout,
-}: GridVideoProps) => {
+}) => {
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
