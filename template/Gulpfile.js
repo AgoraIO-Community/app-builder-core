@@ -78,7 +78,7 @@ const general = {
       newPackage.main = 'app-builder-react-sdk.js';
     }
     if (process.env.TARGET === 'wsdk') {
-      newPackage.main = 'app-builder-web-sdk.commonjs2.js';
+      newPackage.main = 'app-builder-web-sdk.umd2.js';
     }
     await fs.writeFile(
       path.join(BUILD_PATH, 'package.json'),

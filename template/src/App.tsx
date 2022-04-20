@@ -32,7 +32,7 @@ import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error'
 import { ErrorProvider } from './components/common';
-import { useFpe, ComponentsInterface, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX, FpeProvider, fpeConfig} from 'fpe-api';
+import { useFpe, ComponentsInterface, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX, FpeProvider, fpeConfig, FpeApiInterface} from 'fpe-api';
 import { LanguageProvider } from './language/useLanguage';
 
 if (Platform.OS === 'ios') {
@@ -135,12 +135,14 @@ const App: React.FC = () => {
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
 
-const AppWithFpeProvider: React.FC = () => {
-  return(
-    <FpeProvider value={fpeConfig}>
-      <App/>
+const AppWithFpeProvider: React.FC<{fpeOverride: FpeApiInterface}> = (
+  fpeOverride,
+) => {
+  return (
+    <FpeProvider value={fpeOverride ? fpeOverride : fpeConfig}>
+      <App />
     </FpeProvider>
-  )
-}
+  );
+};
 
 export default AppWithFpeProvider;

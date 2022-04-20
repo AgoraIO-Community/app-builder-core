@@ -1,8 +1,31 @@
 import {AppRegistry} from 'react-native';
-import Video from './src/App';
+import React, {useEffect, useState} from 'react';
+import App from './src/App';
 
-export const methods = {
-  logger: (message) => console.log(message),
+import {fpeConfig} from 'fpe-api';
+import {SDKEvents} from './src/utils/SdkEvents'
+import {installFPE} from 'fpe-api/install';
+
+const AppBuilderView = () => {
+  const [fpe, setFpe] = useState(fpeConfig);
+  useEffect(() => {
+    SDKEvents.on('addFpe', (sdkFpeConfig) => {
+      console.log('DEBUG(aditya)-SDKEvents: event called');
+      setFpe(sdkFpeConfig);
+    });
+  }, []);
+  return (
+    <>
+      <App fpeOverride={fpe} />
+    </>
+  );
+};
+
+const AppBuilderMethods = {
+  addFpe: (fpeConfig) => {
+    SDKEvents.emit('addFpe', fpeConfig);
+  },
+  createFpe: installFPE,
 };
 
 // init code
@@ -12,7 +35,7 @@ class AppBuilder extends HTMLElement {
     this.style.width = '100%';
     this.style.display = 'flex';
     this.style.flex = '1';
-    AppRegistry.registerComponent('App', () => Video);
+    AppRegistry.registerComponent('App', () => AppBuilderView);
     AppRegistry.runApplication('App', {
       // initialProps: {passphrase: this.getAttribute('passphrase')},
       rootTag: this,
@@ -21,3 +44,5 @@ class AppBuilder extends HTMLElement {
 }
 
 customElements.define('app-builder', AppBuilder);
+
+export default AppBuilderMethods;
