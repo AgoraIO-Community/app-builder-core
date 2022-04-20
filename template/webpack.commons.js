@@ -12,7 +12,6 @@
 /**
  * Common Webpack configuration to be used across web and electron's renderer process
  */
-
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
@@ -69,6 +68,19 @@ module.exports = {
   devtool: isDevelopment ? 'cheap-module-eval-source-map' : undefined,
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules|\.d\.ts$/,
+        options: {
+          configFile: 'tsconfig.json',
+          reportFiles: ['fpe-api/*'],
+        },
+      },
+      {
+        test: /\.d\.ts$/,
+        loader: 'ignore-loader',
+      },
       {
         // Use babel to transpile all js, ts, jsx and tsx files
         test: /\.[jt]sx?$/,
