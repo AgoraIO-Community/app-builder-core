@@ -24,6 +24,7 @@ import ChatContext from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
+import {isWeb} from '../utils/common';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -150,7 +151,7 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
+    fontWeight: isWeb ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,

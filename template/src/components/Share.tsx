@@ -33,6 +33,7 @@ import styles from './styles';
 import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
+import {isWeb} from '../utils/common';
 
 const Share = () => {
   const history = useHistory();
@@ -153,11 +154,7 @@ const Share = () => {
                   : useString('attendeeIdLabel')()}
               </Text>
               <View style={style.urlHolder}>
-                <Text
-                  style={[
-                    style.url,
-                    Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                  ]}>
+                <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                   {$config.FRONTEND_ENDPOINT
                     ? `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`
                     : platform === 'web'
@@ -205,11 +202,7 @@ const Share = () => {
                 : meetingIdText}
             </Text>
             <View style={style.urlHolder}>
-              <Text
-                style={[
-                  style.url,
-                  Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                ]}>
+              <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                 {$config.FRONTEND_ENDPOINT
                   ? `${$config.FRONTEND_ENDPOINT}/${hostUrl}`
                   : platform === 'web'
@@ -251,21 +244,13 @@ const Share = () => {
                   <Text style={style.urlTitle}>
                     {useString('pstnNumberLabel')()}:{' '}
                   </Text>
-                  <Text
-                    style={[
-                      style.url,
-                      Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                    ]}>
+                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {pstn?.number}
                   </Text>
                 </View>
                 <View style={style.pstnHolder}>
                   <Text style={style.urlTitle}>{useString('pin')()}: </Text>
-                  <Text
-                    style={[
-                      style.url,
-                      Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                    ]}>
+                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {pstn?.dtmf}
                   </Text>
                 </View>

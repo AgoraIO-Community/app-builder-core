@@ -12,7 +12,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
-  Platform,
   Text,
   StyleSheet,
   TouchableOpacity,
@@ -29,6 +28,7 @@ import {UserType} from './RTMConfigure';
 import TextWithTooltip from '../subComponents/TextWithTooltip';
 import {useChatUIData, useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
+import {isIOS, isWeb} from '../utils/common';
 
 const Chat = () => {
   const ChatInputFpe = useFpe((data) =>
@@ -91,7 +91,7 @@ const Chat = () => {
   return (
     <View
       style={
-        Platform.OS === 'web'
+        isWeb
           ? !isSmall
             ? style.chatView
             : style.chatViewNative
@@ -319,7 +319,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,
@@ -333,7 +333,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

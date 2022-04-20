@@ -23,7 +23,7 @@ import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 // import JoinPhrase from './components/JoinPhrase';
 import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
+import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
@@ -32,6 +32,7 @@ import {
   cmpTypeGuard,
   getCmpTypeGuard,
   isValidElementType,
+  isIOS,
 } from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import DimensionProvider from './components/dimension/DimensionProvider';
@@ -46,7 +47,7 @@ import {
 } from 'fpe-api';
 import {LanguageProvider} from './language/useLanguage';
 
-if (Platform.OS === 'ios') {
+if (isIOS) {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
   KeyboardManager.setShouldShowToolbarPlaceholder(false);

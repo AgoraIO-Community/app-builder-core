@@ -10,9 +10,9 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
-import {cmpTypeGuard} from '../utils/common';
+import {cmpTypeGuard, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {usePreCall} from './precall/usePreCall';
 import PreCallLogo from './common/Logo';
@@ -61,7 +61,7 @@ const Precall = () => {
   };
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       if (title) {
         document.title = title + ' | ' + $config.APP_NAME;
       }

@@ -9,15 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { layoutComponent } from 'fpe-api';
+import {layoutComponent} from 'fpe-api';
 import React, {useMemo, useContext, useState} from 'react';
-import {
-  View,
-  Platform,
-  StyleSheet,
-  Dimensions,
-  Pressable,
-} from 'react-native';
+import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
+import {isWeb} from '../utils/common';
 import {MinUidContext} from '../../agora-rn-uikit';
 import {MaxUidContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
@@ -43,11 +38,15 @@ const layout = (len: number, isDesktop: boolean = true) => {
 
 interface GridVideoProps {
   setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
-  minVideoArray: React.FC[],
-  maxVideoArray: React.FC[],
+  minVideoArray: React.FC[];
+  maxVideoArray: React.FC[];
 }
 
-const GridVideo:layoutComponent = ({minVideoArray,maxVideoArray,setLayout}: GridVideoProps) => {
+const GridVideo: layoutComponent = ({
+  minVideoArray,
+  maxVideoArray,
+  setLayout,
+}: GridVideoProps) => {
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
@@ -66,7 +65,7 @@ const GridVideo:layoutComponent = ({minVideoArray,maxVideoArray,setLayout}: Grid
     () => layout(users.length, isDesktop),
     [users.length, isDesktop],
   );
-  const combinedUsers = [...maxVideoArray,...minVideoArray];
+  const combinedUsers = [...maxVideoArray, ...minVideoArray];
   return (
     <View
       style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
@@ -85,7 +84,7 @@ const GridVideo:layoutComponent = ({minVideoArray,maxVideoArray,setLayout}: Grid
                 setLayout && setLayout(Layout.Pinned);
               }}
               style={{
-                flex: Platform.OS === 'web' ? 1 / dims.c : 1,
+                flex: isWeb ? 1 / dims.c : 1,
                 marginHorizontal: 'auto',
               }}
               key={cidx}>

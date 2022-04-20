@@ -16,14 +16,12 @@ import HostControlView from './HostControlView';
 import {useVideoCall} from 'fpe-api';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
+import {isWeb} from '../utils/common';
 
 const SettingsView = () => {
   const {isHost} = useVideoCall((data) => data);
   return (
-    <View
-      style={
-        Platform.OS === 'web' ? style.settingsView : style.settingsViewNative
-      }>
+    <View style={isWeb ? style.settingsView : style.settingsViewNative}>
       <View style={style.main}>
         <View>
           <Text style={style.heading}>

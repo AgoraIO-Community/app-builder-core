@@ -29,6 +29,7 @@ import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
 import {filterObject} from '../utils';
 import {useString} from '../utils/useString';
+import {isAndroid} from '../utils/common';
 
 export enum UserType {
   Normal,
@@ -387,7 +388,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = timeNow();
 
-      const userUID = Platform.OS === 'android' ? arr[0] : peerId;
+      const userUID = isAndroid ? arr[0] : peerId;
 
       if (type === messageActionType.Control) {
         try {

@@ -11,7 +11,8 @@
 */
 
 import React from 'react';
-import {View, StyleSheet, Text, Platform} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
+import {isWeb} from '../../utils/common';
 import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
@@ -24,7 +25,7 @@ const selectDevice: React.FC = () => {
       <View
         style={{
           flex: 1,
-          maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
+          maxWidth: isWeb ? '25vw' : 'auto',
           marginVertical: 30,
         }}>
         <SelectDevice />

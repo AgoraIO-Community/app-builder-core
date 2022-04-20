@@ -32,7 +32,12 @@ import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import {cmpTypeGuard, hasBrandLogo, isValidElementType} from '../utils/common';
+import {
+  cmpTypeGuard,
+  hasBrandLogo,
+  isAndroid,
+  isValidElementType,
+} from '../utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
@@ -115,7 +120,7 @@ const NotificationControl = ({
     (acc, curItem) => {
       let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
         (total, item) => {
-          if (Platform.OS === 'android') {
+          if (isAndroid) {
             //In template/src/components/RTMConfigure.tsx
             //on messageReceived event - For android platform we are passing uid as number type. so checking == for android
             return item.uid == curItem ? total + 1 : total;

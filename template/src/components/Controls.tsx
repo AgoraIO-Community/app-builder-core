@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {View, Dimensions, Platform, StyleSheet} from 'react-native';
+import {View, Dimensions, StyleSheet} from 'react-native';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
@@ -27,6 +27,7 @@ import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {useVideoCall, RecordingProvider} from 'fpe-api';
 import {useString} from '../utils/useString';
+import {isIOS, isWeb} from '../utils/common';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -104,7 +105,7 @@ const Controls = () => {
 
 const style = StyleSheet.create({
   controlsHolder: {
-    flex: Platform.OS === 'web' ? 1.3 : 1.6,
+    flex: isWeb ? 1.3 : 1.6,
     ...controlsHolder,
   },
   chatNotification: {
@@ -115,7 +116,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,

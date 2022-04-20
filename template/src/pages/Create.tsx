@@ -23,7 +23,7 @@ import {ErrorContext} from '../components/common';
 import {ShareLinkProvider} from './ShareLink';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {cmpTypeGuard} from '../utils/common';
+import {cmpTypeGuard, isWeb} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
 
@@ -74,7 +74,7 @@ const Create = () => {
   console.log('mutation data', data);
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       document.title = $config.APP_NAME;
     }
   }, []);

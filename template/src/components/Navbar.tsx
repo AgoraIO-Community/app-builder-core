@@ -25,6 +25,7 @@ import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useVideoCall, useChatUIData} from 'fpe-api';
 import useCustomLayout from '../pages/video-call/CustomLayout';
+import {isIOS, isWeb} from '../utils/common';
 
 const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -55,7 +56,7 @@ const Navbar = () => {
   const isDesktop = dim[0] > 1224;
 
   const renderSeparator = () => {
-    return Platform.OS === 'web' && isDesktop ? (
+    return isWeb && isDesktop ? (
       <View style={style.navItem}>
         <View style={style.navItemSeparator}></View>
       </View>
@@ -69,7 +70,7 @@ const Navbar = () => {
       <View
         style={{
           position: 'absolute',
-          top: Platform.OS === 'web' ? -10 : 2,
+          top: isWeb ? -10 : 2,
         }}>
         <View style={style.badge}>
           <Text
@@ -88,9 +89,9 @@ const Navbar = () => {
     <View
       onLayout={onLayout}
       style={[
-        Platform.OS === 'web' ? style.navHolder : style.navHolderNative,
+        isWeb ? style.navHolder : style.navHolderNative,
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
-        Platform.OS === 'web'
+        isWeb
           ? {
               justifyContent: isMobileOrTablet() ? 'space-between' : 'flex-end',
             }
@@ -113,7 +114,7 @@ const Navbar = () => {
           />
           <Text
             style={{
-              fontSize: Platform.OS === 'web' ? 16 : 12,
+              fontSize: isWeb ? 16 : 12,
               color: '#FD0845',
               fontWeight: '400',
               alignSelf: 'center',
@@ -129,11 +130,11 @@ const Navbar = () => {
       <View
         style={[
           style.roomNameContainer,
-          Platform.OS === 'web' && !isMobileOrTablet()
+          isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
-        {Platform.OS === 'web' ? (
+        {isWeb ? (
           <View
             style={{
               flexDirection: 'row',
@@ -174,11 +175,7 @@ const Navbar = () => {
             style.navContainer,
             {
               minWidth:
-                Platform.OS === 'web' && isDesktop
-                  ? 300
-                  : isMobileOrTablet()
-                  ? 160
-                  : 200,
+                isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
             },
           ]}>
           {onlineUsersCount !== 0 && (
@@ -214,7 +211,7 @@ const Navbar = () => {
                 <View
                   style={{
                     position: 'absolute',
-                    top: Platform.OS === 'web' ? -10 : 2,
+                    top: isWeb ? -10 : 2,
                   }}>
                   <View style={[style.badge, {paddingHorizontal: 3}]}>
                     <ImageIcon
@@ -361,7 +358,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     paddingHorizontal: 5,
@@ -379,7 +376,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   chipText: {
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_FONT_COLOR,
   },
@@ -393,10 +390,9 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor:
-      Platform.OS === 'web'
-        ? $config.SECONDARY_FONT_COLOR
-        : $config.SECONDARY_FONT_COLOR + '00',
+    backgroundColor: isWeb
+      ? $config.SECONDARY_FONT_COLOR
+      : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,
     paddingHorizontal: isMobileOrTablet() ? 0 : 10,
     minHeight: 35,
