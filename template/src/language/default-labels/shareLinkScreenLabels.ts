@@ -1,17 +1,17 @@
 import {I18nBaseType} from '../i18nTypes';
 
 export interface I18nShareLinkScreenLabelsInterface {
-  attendeeUrlLabel?: I18nBaseType;
-  hostUrlLabel?: I18nBaseType;
-  enterMeetingAfterCreateButton?: I18nBaseType;
-  copyInvite?: I18nBaseType;
-  pstnLabel?: I18nBaseType;
-  pstnNumberLabel?: I18nBaseType;
-  meetingUrlLabel?: I18nBaseType;
-  hostIdLabel?: I18nBaseType;
-  meetingIdLabel?: I18nBaseType;
-  attendeeIdLabel?: I18nBaseType;
-  copiedToClipboardNotificationLabel?: I18nBaseType;
+  attendeeUrlLabel?: I18nBaseType; //
+  hostUrlLabel?: I18nBaseType; //
+  enterMeetingAfterCreateButton?: I18nBaseType; //
+  copyInviteButton?: I18nBaseType; //
+  pstnLabel?: I18nBaseType; //
+  pstnNumberLabel?: I18nBaseType; //
+  meetingUrlLabel?: I18nBaseType; //
+  hostIdLabel?: I18nBaseType; //
+  meetingIdLabel?: I18nBaseType; //
+  attendeeIdLabel?: I18nBaseType; //
+  copiedToClipboardNotificationLabel?: I18nBaseType; //
   PSTNNumber?: I18nBaseType;
   PSTNPin?: I18nBaseType;
   meeting?: I18nBaseType;
@@ -25,7 +25,7 @@ export const ShareLinkScreenLabels: I18nShareLinkScreenLabelsInterface = {
   attendeeUrlLabel: 'Attendee URL',
   hostUrlLabel: 'Host URL',
   enterMeetingAfterCreateButton: 'Start Meeting (as host)',
-  copyInvite: 'Copy invite to clipboard',
+  copyInviteButton: 'Copy invite to clipboard',
   pstnLabel: 'PSTN',
   pstnNumberLabel: 'Number',
   meetingUrlLabel: 'Meeting URL',

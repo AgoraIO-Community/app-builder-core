@@ -33,11 +33,11 @@ const PreCallLocalMute: React.FC = () => {
   return (
     <LocalUserContext>
       <View style={style.width50}>
-        <AudioCmp btnText={useString('audio')()} />
+        <AudioCmp btnText={useString('toggleAudioButton')()} />
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        <VideoCmp btnText={useString('video')()} />
+        <VideoCmp btnText={useString('toggleVideoButton')()} />
       </View>
       <View style={style.width50} />
       <View style={style.width50}>

@@ -25,62 +25,60 @@ export interface MeetingInviteInterface {
   };
 }
 export interface I18nVideoCallScreenLabelsInterface {
-  video?: I18nBaseType;
-  audio?: I18nBaseType;
-  screenShareButton?: I18nBaseType;
-  record?: I18nBaseType;
-  recording?: I18nBaseType;
-  recordingNotificationLabel?: I18nBaseType;
-  endCallButton?: I18nBaseType;
-  participantsLabel?: I18nBaseType;
-  groupChatLabel?: I18nBaseType;
-  privateChatLabel?: I18nBaseType;
-  chatMessageInputPlaceholder?: I18nBaseType;
-  hostControlsLabel?: I18nBaseType;
-  muteAllVideoButton?: I18nBaseType;
-  muteAllAudioButton?: I18nBaseType;
-  switchCameraButton?: I18nBaseType;
-  localScreenshareDefaultLabel?: I18nBaseType;
-  localUserDefaultLabel?: I18nBaseType;
-  remoteUserDefaultLabel?: I18nBaseType;
-  pstnUserLabel?: I18nBaseType;
-  authenticationSuccessLabel?: I18nBaseType;
-  meetingCreatedNotificationLabel?: I18nBaseType;
-  joiningLoaderLabel?: I18nBaseType;
-  oauthLoginLabel?: I18nBaseType;
-  oauthProviderLabel?: I18nBaseType;
-  copyMeetingInviteButton?: I18nBaseType;
+  toggleVideoButton?: I18nBaseType; //
+  toggleAudioButton?: I18nBaseType; //
+  screenShareButton?: I18nBaseType; //
+  recordingNotificationLabel?: I18nBaseType; //
+  endCallButton?: I18nBaseType; //
+  participantsLabel?: I18nBaseType; //
+  groupChatLabel?: I18nBaseType; //
+  privateChatLabel?: I18nBaseType; //
+  chatMessageInputPlaceholder?: I18nBaseType; //
+  hostControlsLabel?: I18nBaseType; //
+  muteAllVideoButton?: I18nBaseType; //
+  muteAllAudioButton?: I18nBaseType; //
+  switchCameraButton?: I18nBaseType; //
+  localScreenshareDefaultLabel?: I18nBaseType; //
+  localUserDefaultLabel?: I18nBaseType; //
+  remoteUserDefaultLabel?: I18nBaseType; //
+  pstnUserLabel?: I18nBaseType; //
+  authenticationSuccessLabel?: I18nBaseType; //
+  meetingCreatedNotificationLabel?: I18nBaseType; //
+  joiningLoaderLabel?: I18nBaseType; //
+  oauthLoginLabel?: I18nBaseType; //
+  oauthProviderLabel?: I18nBaseType; //
+  copyMeetingInviteButton?: I18nBaseType; //
   pin?: I18nBaseType;
   language?: I18nBaseType;
-  screensharingActiveOverlayLabel?: I18nBaseType;
-  recordingButton?: I18nConditionalType;
-  screenshareUserName?: I18nDynamicType;
-  messageSenderNotificationLabel?: I18nDynamicType;
-  networkQualityLabel?: I18nBaseType<NetworkQualities>;
-  meetingInviteText?: I18nBaseType<MeetingInviteInterface>;
-  noOneJoinedLabel?: I18nBaseType;
-  noLiveStreamingRequests?: I18nBaseType;
-  liveStreamingRequest?: I18nBaseType;
-  hostLabel?: I18nBaseType;
-  audienceLabel?: I18nBaseType;
-  raiseHandStatusText?: I18nConditionalType;
+  screensharingActiveOverlayLabel?: I18nBaseType; //
+  recordingButton?: I18nConditionalType; //
+  screenshareUserName?: I18nDynamicType; //
+  messageSenderNotificationLabel?: I18nDynamicType; //
+  networkQualityLabel?: I18nBaseType<NetworkQualities>; //
+  meetingInviteText?: I18nBaseType<MeetingInviteInterface>; //
+  participantListPlaceholder?: I18nBaseType; //
+  raisedHandsListPlaceholder?: I18nBaseType; //
+  raisedHandsListTitleLabel?: I18nBaseType; //
+  hostLabel?: I18nBaseType; //
+  audienceLabel?: I18nBaseType; //
+  raiseHandButton?: I18nConditionalType; //
   noUserFoundLabel?: I18nBaseType;
   userOfflineLabel?: I18nBaseType;
-  raiseHandRequestMessage?: I18nBaseType;
-  raiseHandRequestReceivedMessage?: I18nConditionalType;
-  raiseHandRequestAcceptedMessage?: I18nBaseType;
-  raiseHandRequestRejectedMessage?: I18nBaseType;
-  raiseHandRequestRecallMessage?: I18nConditionalType;
-  raiseHandRequestRecallLocalMessage?: I18nBaseType;
-  raiseHandApprovedRequestRecallMessage?: I18nBaseType;
+  raiseHandLocalNotification?: I18nBaseType; //
+  raiseHandRemoteHostNotification?: I18nConditionalType; //
+  raiseHandApprovedLocalNotification?: I18nBaseType; //
+  raiseHandRejectedLocalNotification?: I18nBaseType; //
+  lowerHandRemoteHostNotification?: I18nConditionalType; //
+  lowerHandsLocalNotification?: I18nBaseType; //
+  raiseHandRevokedLocalNotification?: I18nBaseType; //
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
-  video: 'Video',
-  audio: 'Audio',
+  //need to check
+  //remoteScreenshareDefaultLabel - User's screenshare
+  toggleVideoButton: 'Video',
+  toggleAudioButton: 'Audio',
   screenShareButton: 'Share',
-  record: 'Record',
-  recording: 'Recording',
   switchCameraButton: 'Switch',
   recordingNotificationLabel: 'Recording Started',
   endCallButton: 'Hang Up',
@@ -104,27 +102,26 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   muteAllAudioButton: 'Mute all audios',
   muteAllVideoButton: 'Mute all videos',
   screensharingActiveOverlayLabel: 'Your screen share is active.',
-  noOneJoinedLabel: 'No one has joined yet',
-  noLiveStreamingRequests: 'No streaming request(s)',
-  liveStreamingRequest: 'Streaming Request',
+  participantListPlaceholder: 'No one has joined yet',
+  raisedHandsListPlaceholder: 'No streaming request(s)',
+  raisedHandsListTitleLabel: 'Streaming Request',
   hostLabel: 'Host',
   audienceLabel: 'Audience',
   noUserFoundLabel: 'User not found',
   userOfflineLabel: 'User is offline',
-  raiseHandRequestMessage:
+  raiseHandLocalNotification:
     'You have raised your hand. Request sent to host for approval',
-  raiseHandRequestReceivedMessage: (name) => `${name} has raised their hand`,
-  raiseHandRequestAcceptedMessage:
+  raiseHandRemoteHostNotification: (name) => `${name} has raised their hand`,
+  raiseHandApprovedLocalNotification:
     'Your request was approved, unmute to start talking',
-  raiseHandRequestRejectedMessage: 'Your request was rejected by the host',
-  raiseHandRequestRecallMessage: (name) => `${name} has lowered their hand`,
-  raiseHandRequestRecallLocalMessage: 'You have lowered your hand',
-  raiseHandApprovedRequestRecallMessage:
+  raiseHandRejectedLocalNotification: 'Your request was rejected by the host',
+  lowerHandRemoteHostNotification: (name) => `${name} has lowered their hand`,
+  lowerHandsLocalNotification: 'You have lowered your hand',
+  raiseHandRevokedLocalNotification:
     'The host has revoked streaming permissions',
-  screenshareUserName: (name) => `${name}'s screenshare`,
+  screenshareUserName: (name) => `${name}'s screenshare`, //
   recordingButton: (recording) => (recording ? 'Recording' : 'Record'),
-  raiseHandStatusText: (handStatus) =>
-    handStatus ? 'Lower hand' : 'Raise Hand',
+  raiseHandButton: (toggle) => (toggle ? 'Lower hand' : 'Raise Hand'),
   messageSenderNotificationLabel: (name) => `From : ${name}`,
   networkQualityLabel: (quality) => {
     switch (quality) {

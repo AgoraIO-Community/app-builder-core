@@ -9,7 +9,9 @@ import ParticipantSectionTitle from '../../components/participants/ParticipantSe
 import {useString} from '../../utils/useString';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
-  const noLiveStreamingRequestsLabel = useString('noLiveStreamingRequests')();
+  const noLiveStreamingRequestsLabel = useString(
+    'raisedHandsListPlaceholder',
+  )();
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const noUserFoundLabel = useString('noUserFoundLabel')();
   const {userList, p_style} = props;
@@ -37,7 +39,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   return (
     <>
       <ParticipantSectionTitle
-        title={useString('liveStreamingRequest')() + ' '}
+        title={useString('raisedHandsListTitleLabel')() + ' '}
         count={Object.keys(activeLiveStreamRequests).length}
       />
       <View style={p_style.participantContainer}>

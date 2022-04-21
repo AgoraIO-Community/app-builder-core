@@ -44,8 +44,8 @@ const Controls = () => {
   const isDesktop = dim[0] > 1224;
   const {isHost} = useVideoCall((data) => data);
 
-  const audioLabel = useString('audio')();
-  const videoLabel = useString('video')();
+  const audioLabel = useString('toggleAudioButton')();
+  const videoLabel = useString('toggleVideoButton')();
 
   return (
     <LocalUserContext>

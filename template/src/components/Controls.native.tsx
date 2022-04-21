@@ -29,8 +29,8 @@ import {RecordingProvider} from '../subComponents/recording/useRecording';
 const Controls = () => {
   const {isHost} = useVideoCall();
   const {rtcProps} = useContext(PropsContext);
-  const audioLabel = useString('audio')();
-  const videoLabel = useString('video')();
+  const audioLabel = useString('toggleAudioButton')();
+  const videoLabel = useString('toggleVideoButton')();
   const switchCameraButtonText = useString('switchCameraButton')();
   return (
     <LocalUserContext>

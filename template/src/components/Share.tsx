@@ -298,7 +298,7 @@ const Share = () => {
         <View style={{height: 10}} />
         <SecondaryButton
           onPress={() => copyToClipboard()}
-          text={useString('copyInvite')()}
+          text={useString('copyInviteButton')()}
         />
       </View>
       {/* {dim[0] > dim[1] + 150 ? (

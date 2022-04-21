@@ -67,6 +67,7 @@ const Create = () => {
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
+  const pstnToggle = useString<boolean>('pstnToggle');
   useEffect(() => {
     setGlobalErrorMessage(error);
   }, [error]);
@@ -148,7 +149,7 @@ const Create = () => {
                       onValueChange={setPstnCheckbox}
                     />
                     <Text style={style.checkboxTitle}>
-                      {useString('usePSTN')()}
+                      {pstnToggle(pstnCheckbox)}
                     </Text>
                   </View>
                 ) : (

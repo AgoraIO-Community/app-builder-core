@@ -29,10 +29,10 @@ const PreCallLocalMute: React.FC = () => {
     <View style={style.precallControls}>
       <LocalUserContext>
         <View style={{alignSelf: 'center'}}>
-          <AudioCmp btnText={useString('audio')()} />
+          <AudioCmp btnText={useString('toggleAudioButton')()} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <VideoCmp btnText={useString('video')()} />
+          <VideoCmp btnText={useString('toggleVideoButton')()} />
         </View>
       </LocalUserContext>
     </View>
