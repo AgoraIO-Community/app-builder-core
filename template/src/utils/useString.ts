@@ -18,26 +18,25 @@ export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
 ) {
   const languageData = useFpe((data) => data?.i18n);
-  if (languageData && languageData.length) {
-    if (selectedLanguageCode) {
-      let selectedLanguageData = languageData.find(
-        (item) => item.locale === selectedLanguageCode,
-      );
-      if (selectedLanguageData && selectedLanguageData.data) {
-        return {
-          ...DEFAULT_I18_DATA.data,
-          ...selectedLanguageData.data,
-        };
-      } else {
-        return DEFAULT_I18_DATA.data;
-      }
+  if (
+    !selectedLanguageCode ||
+    !languageData ||
+    (languageData && Array.isArray(languageData) && !languageData.length)
+  ) {
+    return DEFAULT_I18_DATA.data;
+  } else {
+    let selectedLanguageData = languageData.find(
+      (item) => item.locale === selectedLanguageCode,
+    );
+    if (selectedLanguageData && selectedLanguageData.data) {
+      return {
+        ...DEFAULT_I18_DATA.data,
+        ...selectedLanguageData.data,
+      };
+    } else {
+      return DEFAULT_I18_DATA.data;
     }
-    return {
-      ...DEFAULT_I18_DATA.data,
-      ...languageData[0].data,
-    };
   }
-  return DEFAULT_I18_DATA.data;
 }
 
 export function useString<T = string>(
@@ -45,19 +44,17 @@ export function useString<T = string>(
 ): (input?: T) => string {
   const lanCode = useLanguage((data) => data.languageCode);
   const textData = usei18nData(lanCode);
-
   const getString = (input?: T) => {
-    if (textData[keyName]) {
-      let keyValue = textData[keyName];
-      if (typeof keyValue === 'function') {
-        return keyValue(input);
-      } else if (typeof keyValue === 'string') {
-        return keyValue;
-      } else {
-        return '';
-      }
+    let keyValue = textData ? textData[keyName] : undefined;
+    if (!keyValue) {
+      return '';
+    } else if (typeof keyValue === 'function') {
+      return keyValue(input);
+    } else if (typeof keyValue === 'string') {
+      return keyValue;
+    } else {
+      return '';
     }
-    return '';
   };
   return getString;
 }
