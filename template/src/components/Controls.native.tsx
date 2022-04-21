@@ -24,6 +24,7 @@ import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
+import {RecordingProvider} from '../subComponents/recording/useRecording';
 
 const Controls = () => {
   const {isHost} = useVideoCall();
@@ -58,7 +59,9 @@ const Controls = () => {
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
-                <Recording />
+                <RecordingProvider>
+                  <Recording />
+                </RecordingProvider>
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
