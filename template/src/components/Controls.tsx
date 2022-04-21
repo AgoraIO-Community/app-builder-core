@@ -44,6 +44,9 @@ const Controls = () => {
   const isDesktop = dim[0] > 1224;
   const {isHost} = useVideoCall((data) => data);
 
+  const audioLabel = useString('audio')();
+  const videoLabel = useString('video')();
+
   return (
     <LocalUserContext>
       <View
@@ -72,10 +75,10 @@ const Controls = () => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={useString('audio')()} />
+              <LocalAudioMute btnText={audioLabel} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={useString('video')()} />
+              <LocalVideoMute btnText={videoLabel} />
             </View>
             {isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>

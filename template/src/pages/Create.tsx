@@ -63,7 +63,7 @@ const Create = () => {
   const [urlHost, setUrlHost] = useState('');
   const [pstn, setPstn] = useState({number: '', dtmf: ''});
   const [roomCreated, setRoomCreated] = useState(false);
-  const [joinPhrase, setJoinPhrase] = useState(null);
+  const [joinPhrase, setJoinPhrase] = useState('');
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -91,6 +91,7 @@ const Create = () => {
       })
         .then((res: any) => {
           Toast.show({
+            type: 'success',
             text1: createdText + ': ' + roomTitle,
             visibilityTime: 1000,
           });

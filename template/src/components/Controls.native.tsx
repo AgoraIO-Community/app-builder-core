@@ -28,7 +28,9 @@ import {useString} from '../utils/useString';
 const Controls = () => {
   const {isHost} = useVideoCall();
   const {rtcProps} = useContext(PropsContext);
-
+  const audioLabel = useString('audio')();
+  const videoLabel = useString('video')();
+  const switchCameraButtonText = useString('switchCameraButton')();
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
@@ -49,10 +51,10 @@ const Controls = () => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={useString('audio')()} />
+              <LocalAudioMute btnText={audioLabel} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={useString('video')()} />
+              <LocalVideoMute btnText={videoLabel} />
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
@@ -60,7 +62,7 @@ const Controls = () => {
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
-              <SwitchCamera btnText={useString('switchCameraButton')()} />
+              <SwitchCamera btnText={switchCameraButtonText} />
             </View>
           </>
         )}

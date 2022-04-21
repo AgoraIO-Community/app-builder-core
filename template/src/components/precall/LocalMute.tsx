@@ -12,9 +12,10 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
-import {cmpTypeGuard} from '../../utils/common';
+import {getCmpTypeGuard} from '../../utils/common';
 import {LocalAudioMute, LocalVideoMute} from '../../../agora-rn-uikit';
 import {LocalUserContext} from '../../../agora-rn-uikit';
+import {useString} from '../../utils/useString';
 
 const PreCallLocalMute: React.FC = () => {
   const {videoMute, audioMute} = useFpe((data) =>
@@ -22,14 +23,16 @@ const PreCallLocalMute: React.FC = () => {
       ? data.components?.precall
       : {},
   );
+  const AudioCmp = getCmpTypeGuard(LocalAudioMute, audioMute);
+  const VideoCmp = getCmpTypeGuard(LocalVideoMute, videoMute);
   return (
     <View style={style.precallControls}>
       <LocalUserContext>
         <View style={{alignSelf: 'center'}}>
-          {cmpTypeGuard(LocalAudioMute, audioMute)}
+          <AudioCmp btnText={useString('audio')()} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          {cmpTypeGuard(LocalVideoMute, videoMute)}
+          <VideoCmp btnText={useString('video')()} />
         </View>
       </LocalUserContext>
     </View>
