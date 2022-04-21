@@ -149,18 +149,25 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   meetingInviteText: ({meetingName, id, url, pstn}) => {
     let inviteContent = '';
     if (url) {
+      // if host data is present generate links for both host and attendee
       if (url?.host) {
         inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
-      } else {
+      }
+      // if host data is not present then generate link for attendee alone
+      else {
         inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.attendee}`;
       }
     } else {
+      // if host data is present generate meeting ID for both host and attendee
       if (id?.host) {
         inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
-      } else {
+      }
+      // if host data is not present then generate meeting ID for attendee alone
+      else {
         inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.attendee}`;
       }
     }
+    // Adding pstn data into meeting data if present
     if (pstn?.number && pstn?.pin) {
       inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
     }

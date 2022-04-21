@@ -20,6 +20,10 @@ import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from 'src/language/default-labels/videoCallScreenLabels';
+import {
+  GetMeetingInviteID,
+  GetMeetingInviteURL,
+} from '../utils/getMeetingInvite';
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -49,31 +53,31 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   const meetingInviteText =
     useString<MeetingInviteInterface>('meetingInviteText');
   const copyToClipboard = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     if (data && !loading) {
       let baseURL =
         platform === 'web'
           ? $config.FRONTEND_ENDPOINT || window.location.origin
-          : null;
+          : undefined;
+
       let stringToCopy = meetingInviteText({
         meetingName: data.share.title,
         url: baseURL
-          ? data.share.passphrase.host
-            ? {
-                host: `${baseURL}/${data.share.passphrase.host}`,
-                attendee: `${baseURL}/${data.share.passphrase.view}`,
-              }
-            : {
-                attendee: `${baseURL}/${data.share.passphrase.view}`,
-              }
+          ? GetMeetingInviteURL(
+              baseURL,
+              data.share.passphrase.view,
+              data.share.passphrase.host,
+            )
           : undefined,
         id: !baseURL
-          ? data.share.passphrase.host
-            ? {
-                host: data.share.passphrase.host,
-                attendee: data.share.passphrase.view,
-              }
-            : {attendee: data.share.passphrase.view}
+          ? GetMeetingInviteID(
+              data.share.passphrase.view,
+              data.share.passphrase.host,
+            )
           : undefined,
         pstn: data.share.pstn
           ? {

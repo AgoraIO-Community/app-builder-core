@@ -34,6 +34,10 @@ import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import {isWeb} from '../utils/common';
+import {
+  GetMeetingInviteID,
+  GetMeetingInviteURL,
+} from '../utils/getMeetingInvite';
 
 const Share = () => {
   const history = useHistory();
@@ -64,32 +68,29 @@ const Share = () => {
   };
 
   const copyToClipboard = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let baseURL =
       platform === 'web'
         ? $config.FRONTEND_ENDPOINT || window.location.origin
-        : null;
+        : undefined;
     let stringToCopy = meetingInviteText({
       meetingName: roomTitle,
       url: baseURL
-        ? isSeparateHostLink
-          ? {
-              attendee: `${baseURL}/${attendeeUrl}`,
-              host: `${baseURL}/${hostUrl}`,
-            }
-          : {
-              attendee: `${baseURL}/${attendeeUrl}`,
-            }
+        ? GetMeetingInviteURL(
+            baseURL,
+            attendeeUrl,
+            isSeparateHostLink ? hostUrl : undefined,
+          )
         : undefined,
       id: !baseURL
-        ? isSeparateHostLink
-          ? {
-              attendee: attendeeUrl,
-              host: hostUrl,
-            }
-          : {
-              attendee: attendeeUrl,
-            }
+        ? GetMeetingInviteID(
+            attendeeUrl,
+            isSeparateHostLink ? hostUrl : undefined,
+          )
         : undefined,
       pstn: pstn
         ? {
@@ -102,7 +103,11 @@ const Share = () => {
   };
 
   const copyHostUrl = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
       ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostUrl}`)
@@ -113,7 +118,11 @@ const Share = () => {
   };
 
   const copyAttendeeURL = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
       ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`)
@@ -124,7 +133,11 @@ const Share = () => {
   };
 
   const copyPstn = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let stringToCopy = `${PSTNNumberText}: ${pstn?.number} ${PSTNPinText}: ${pstn?.dtmf}`;
     Clipboard.setString(stringToCopy);
   };
