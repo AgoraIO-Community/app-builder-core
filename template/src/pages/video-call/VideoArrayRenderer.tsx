@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {MinUidContext, MaxUidContext} from '../../../agora-rn-uikit';
 import RenderComponent from './RenderComponent';
-import {useFpe} from 'fpe-api';
+import {renderComponentObjectInterface, useFpe} from 'fpe-api';
 import {isValidElementType} from '../../utils/common';
 
 const VideoArrayRenderer = ({children}: {children: React.FC<any>}) => {
@@ -15,27 +15,31 @@ const VideoArrayRenderer = ({children}: {children: React.FC<any>}) => {
       : undefined,
   );
 
-  const minArray = min.map((user, index) => {
-    const MinComponent =
+  const getRenderComponent = (type: keyof renderComponentObjectInterface) => {
+    //checking FPE providing the render component and whether its valid react element
+    const FPEComp =
       FpeRenderComponent &&
-      FpeRenderComponent[user.type] &&
-      isValidElementType(FpeRenderComponent[user.type])
-        ? FpeRenderComponent[user.type]
-        : RenderComponent[user.type]
-        ? RenderComponent[user.type]
+      FpeRenderComponent[type] &&
+      isValidElementType(FpeRenderComponent[type])
+        ? FpeRenderComponent[type]
+        : false;
+    //if its valid element then return fpe comp other return the default component
+    if (FPEComp) {
+      return FPEComp;
+    } else {
+      return RenderComponent[type]
+        ? RenderComponent[type]
         : RenderComponent['rtc'];
+    }
+  };
+
+  const minArray = min.map((user, index) => {
+    const MinComponent = getRenderComponent(user.type);
     return <MinComponent user={user} isMax={false} index={index} />;
   });
 
   const maxArray = max.map((user, index) => {
-    const MaxComponent =
-      FpeRenderComponent &&
-      FpeRenderComponent[user.type] &&
-      isValidElementType(FpeRenderComponent[user.type])
-        ? FpeRenderComponent[user.type]
-        : RenderComponent[user.type]
-        ? RenderComponent[user.type]
-        : RenderComponent['rtc'];
+    const MaxComponent = getRenderComponent(user.type);
     return <MaxComponent user={user} isMax={false} index={index} />;
   });
 
