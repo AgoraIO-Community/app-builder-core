@@ -1,3 +1,5 @@
+import {from} from '@apollo/client';
+
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
@@ -19,3 +21,7 @@ export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
 export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
 export {default as useSetName} from '../src/utils/useSetName';
+export {
+  default as useUnreadMessageCount,
+  UNREAD_MESSAGE_COUNT_TYPE,
+} from '../src/utils/useUnreadMessageCount';

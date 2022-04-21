@@ -20,8 +20,8 @@ export interface ChatUIDataInterface {
   pendingMessageLength: number;
   pendingPrivateNotification: number;
   pendingPublicNotification: number;
-  lastCheckedPrivateState: object;
-  privateMessageCountMap: object;
+  lastCheckedPrivateState: {[key: string | number]: number};
+  privateMessageCountMap: {[key: string | number]: number};
   setLastCheckedPublicState: React.Dispatch<SetStateAction<number>>;
   setPrivateMessageLastSeen: React.Dispatch<
     SetStateAction<privateMsgLastSeenInterface>
