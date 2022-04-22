@@ -73,5 +73,5 @@ dist/
 .webpack/
 out/
 
-#FPE plugin folder TODO:hari rename folder later
+#FPE plugin folder
 template/test-fpe/*

@@ -1,0 +1,7 @@
+1. test-fpe name should be changed 
+  - template/_gitignore
+  - babel.config.js
+  - webpack.config.js
+  - fpe.config.js
+  - fpe-api index.ts
+  - fpe-api useFPE
