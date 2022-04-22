@@ -424,37 +424,37 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <ScreenshareConfigure>
-                      <LiveStreamContextProvider
-                        setRtcProps={setRtcProps}
-                        isHost={isHost}>
-                        {callActive ? (
-                          <View style={style.full}>
-                            <NotificationControl
-                              setSidePanel={setSidePanel}
-                              chatDisplayed={sidePanel === SidePanelType.Chat}
-                              isPrivateChatDisplayed={isPrivateChatDisplayed}>
-                              {({
-                                pendingPublicNotification,
-                                pendingPrivateNotification,
-                                setLastCheckedPublicState,
-                                lastCheckedPublicState,
-                                lastCheckedPrivateState,
-                                setLastCheckedPrivateState,
-                                privateMessageCountMap,
-                                setPrivateMessageLastSeen,
-                              }) => (
-                                <VideoCallProvider
-                                  value={{
-                                    sidePanel,
-                                    setSidePanel,
-                                    layout,
-                                    setLayout,
-                                    recordingActive,
-                                    setRecordingActive,
-                                    isHost,
-                                    title,
-                                  }}>
+                    <VideoCallProvider
+                      value={{
+                        sidePanel,
+                        setSidePanel,
+                        layout,
+                        setLayout,
+                        recordingActive,
+                        setRecordingActive,
+                        isHost,
+                        title,
+                      }}>
+                      <ScreenshareConfigure>
+                        <LiveStreamContextProvider
+                          setRtcProps={setRtcProps}
+                          isHost={isHost}>
+                          {callActive ? (
+                            <View style={style.full}>
+                              <NotificationControl
+                                setSidePanel={setSidePanel}
+                                chatDisplayed={sidePanel === SidePanelType.Chat}
+                                isPrivateChatDisplayed={isPrivateChatDisplayed}>
+                                {({
+                                  pendingPublicNotification,
+                                  pendingPrivateNotification,
+                                  setLastCheckedPublicState,
+                                  lastCheckedPublicState,
+                                  lastCheckedPrivateState,
+                                  setLastCheckedPrivateState,
+                                  privateMessageCountMap,
+                                  setPrivateMessageLastSeen,
+                                }) => (
                                   <ChatUIDataProvider
                                     privateMessageCountMap={
                                       privateMessageCountMap
@@ -554,28 +554,28 @@ const VideoCall: React.FC = () => {
                                       cmpTypeGuard(Controls, bottomBar)
                                     )}
                                   </ChatUIDataProvider>
-                                </VideoCallProvider>
-                              )}
-                            </NotificationControl>
-                          </View>
-                        ) : $config.PRECALL ? (
-                          <PreCallProvider
-                            value={{
-                              username,
-                              setUsername,
-                              callActive,
-                              setCallActive,
-                              queryComplete,
-                              title,
-                              error,
-                            }}>
-                            {cmpTypeGuard(Precall, PreCallScreenFpe)}
-                          </PreCallProvider>
-                        ) : (
-                          <></>
-                        )}
-                      </LiveStreamContextProvider>
-                    </ScreenshareConfigure>
+                                )}
+                              </NotificationControl>
+                            </View>
+                          ) : $config.PRECALL ? (
+                            <PreCallProvider
+                              value={{
+                                username,
+                                setUsername,
+                                callActive,
+                                setCallActive,
+                                queryComplete,
+                                title,
+                                error,
+                              }}>
+                              {cmpTypeGuard(Precall, PreCallScreenFpe)}
+                            </PreCallProvider>
+                          ) : (
+                            <></>
+                          )}
+                        </LiveStreamContextProvider>
+                      </ScreenshareConfigure>
+                    </VideoCallProvider>
                   </RtmConfigure>
                 </DeviceConfigure>
               </RtcConfigure>

@@ -5,3 +5,10 @@
   - fpe.config.js
   - fpe-api index.ts
   - fpe-api useFPE
+2. What if user called custom context without wrapping provider
+  - useContext will return the default vaule. so we can't identify whether is wrapped with the provider or not.
+3. CustomUserContext 
+4. Add sibling into view without overriding
+5. Translation labels
+  - some of keys
+6.Layout dropdown implementation
