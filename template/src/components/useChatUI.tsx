@@ -10,45 +10,44 @@
 *********************************************
 */
 import {createHook} from 'fpe-implementation';
-import React,{createContext, SetStateAction} from 'react';
+import React, {SetStateAction} from 'react';
 
 export interface privateMsgLastSeenInterface {
-  userId: string | number,
-  lastSeenCount: number
+  userId: string | number;
+  lastSeenCount: number;
 }
 export interface ChatUIDataInterface {
-  pendingMessageLength: number,
-  pendingPrivateNotification: number,
-  pendingPublicNotification: number,
-  lastCheckedPrivateState: object,
-  privateMessageCountMap: object ,
-  setLastCheckedPublicState: React.Dispatch<SetStateAction<number>>,
-  setPrivateMessageLastSeen: React.Dispatch<SetStateAction<privateMsgLastSeenInterface>>,
-  setPrivateChatDisplayed: React.Dispatch<SetStateAction<boolean>>
+  pendingMessageLength: number;
+  pendingPrivateNotification: number;
+  pendingPublicNotification: number;
+  lastCheckedPrivateState: object;
+  privateMessageCountMap: object;
+  setLastCheckedPublicState: React.Dispatch<SetStateAction<number>>;
+  setPrivateMessageLastSeen: React.Dispatch<
+    SetStateAction<privateMsgLastSeenInterface>
+  >;
+  setPrivateChatDisplayed: React.Dispatch<SetStateAction<boolean>>;
 }
 
-const ChatUIDataContext = createContext({
-  pendingMessageLength: 0, 
+const ChatUIDataContext = React.createContext<ChatUIDataInterface>({
+  pendingMessageLength: 0,
   pendingPrivateNotification: 0,
-  pendingPublicNotification: 0, 
+  pendingPublicNotification: 0,
   lastCheckedPrivateState: {},
   privateMessageCountMap: {},
   setLastCheckedPublicState: () => {},
   setPrivateMessageLastSeen: () => {},
   setPrivateChatDisplayed: () => {},
- } as ChatUIDataInterface);
+});
 
-const ChatUIDataProvider = (props:any) => {
+const ChatUIDataProvider = (props: any) => {
   return (
-    <ChatUIDataContext.Provider
-      value={{...props}}
-    >
+    <ChatUIDataContext.Provider value={{...props}}>
       {true ? props.children : <></>}
     </ChatUIDataContext.Provider>
   );
 };
 
-const useChatUIData = createHook(ChatUIDataContext)
+const useChatUIData = createHook(ChatUIDataContext);
 
-export {ChatUIDataProvider,useChatUIData};
-
+export {ChatUIDataProvider, useChatUIData};

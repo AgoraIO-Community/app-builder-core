@@ -10,48 +10,46 @@
 *********************************************
 */
 
-import React, { SetStateAction } from 'react';
-import { SidePanelType } from '../../subComponents/SidePanelEnum';
+import React, {SetStateAction} from 'react';
+import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import Layout from '../../subComponents/LayoutEnum';
 import {createHook} from 'fpe-implementation';
-import {layoutObjectInterface} from 'fpe-api';
+import {LayoutObjectInterface} from 'fpe-api';
 import PinnedVideo from '../../components/PinnedVideo';
 import GridVideo from '../../components/GridVideo';
 
 export interface VideoCallContextInterface {
-  recordingActive: boolean,
-  sidePanel: SidePanelType,
-  layout: Layout,
-  isHost: boolean,
-  title: string,
-  children: React.ReactNode,
-  setRecordingActive: React.Dispatch<SetStateAction<boolean>>,
-  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>,
-  setLayout: React.Dispatch<SetStateAction<any>>,
-  layouts: layoutObjectInterface[]
+  recordingActive: boolean;
+  sidePanel: SidePanelType;
+  layout: Layout;
+  isHost: boolean;
+  title: string;
+  children: React.ReactNode;
+  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
+  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
+  setLayout: React.Dispatch<SetStateAction<any>>;
+  layouts: LayoutObjectInterface[];
 }
 
-const VideoCallContext = React.createContext({
+const VideoCallContext = React.createContext<VideoCallContextInterface>({
   recordingActive: false,
   sidePanel: SidePanelType.None,
   layout: Layout.Grid,
   isHost: false,
   title: '',
   children: null,
-  setRecordingActive: () => { },
-  setSidePanel: () => { },
-  setLayout: () => { },
+  setRecordingActive: () => {},
+  setSidePanel: () => {},
+  setLayout: () => {},
   layouts: [
     {name: 'GridLayout', icon: 'gridLayoutIcon', component: GridVideo},
-    {name: 'PinnedLayout', icon: 'pinnedLayoutIcon', component: PinnedVideo}
-  ]
-} as VideoCallContextInterface);
+    {name: 'PinnedLayout', icon: 'pinnedLayoutIcon', component: PinnedVideo},
+  ],
+});
 
 const VideoCallProvider = (props: VideoCallContextInterface) => {
   return (
-    <VideoCallContext.Provider
-      value={{ ...props }}
-    >
+    <VideoCallContext.Provider value={{...props}}>
       {true ? props.children : <></>}
     </VideoCallContext.Provider>
   );
@@ -59,6 +57,4 @@ const VideoCallProvider = (props: VideoCallContextInterface) => {
 
 const useVideoCall = createHook(VideoCallContext);
 
-export { VideoCallProvider, useVideoCall };
-
-
+export {VideoCallProvider, useVideoCall};

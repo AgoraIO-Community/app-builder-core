@@ -36,6 +36,8 @@ import {useVideoCall} from 'fpe-api';
 const ParticipantView = () => {
   const {userList} = useContext(chatContext);
   const {rtcProps} = useContext(PropsContext);
+  const hostLabel = useString('hostLabel')();
+  const audienceLabel = useString('audienceLabel')();
   const {isHost} = useVideoCall((data) => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -44,11 +46,6 @@ const ParticipantView = () => {
   ]);
   const isSmall = dim[0] < 700;
   let fontSize = Platform.OS === 'web' ? 14 : 16;
-  const youText = useString('localUserDefaultLabel');
-  const screenShareNameCallBack = useString('screenshareUserName');
-  const yourScreenshareText = useString('localScreenshareDefaultLabel');
-  const PSTNUserText = useString('pstnUserLabel');
-  const userText = useString('remoteUserDefaultLabel');
   return (
     <View
       style={
@@ -61,7 +58,7 @@ const ParticipantView = () => {
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
           <Text style={style.mainHeading}>
-            {useString('participantsLabel')}
+            {useString('participantsLabel')()}
           </Text>
         </View>
       </View>
@@ -91,7 +88,7 @@ const ParticipantView = () => {
                       return (
                         <View style={style.participantsection}>
                           <ParticipantSectionTitle
-                            title="Host"
+                            title={hostLabel}
                             count={hostCount}
                           />
                           <View style={style.participantContainer}>
@@ -114,7 +111,7 @@ const ParticipantView = () => {
                     return (
                       <View style={style.participantsection}>
                         <ParticipantSectionTitle
-                          title="Host"
+                          title={hostLabel}
                           count={hostCount}
                         />
                         <AllAudienceParticipants
@@ -135,7 +132,10 @@ const ParticipantView = () => {
                 {({hostList, hostCount}) => {
                   return (
                     <View style={style.participantsection}>
-                      <ParticipantSectionTitle title="Host" count={hostCount} />
+                      <ParticipantSectionTitle
+                        title={hostLabel}
+                        count={hostCount}
+                      />
                       <AllAudienceParticipants
                         participantList={hostList}
                         p_style={style}
@@ -152,7 +152,7 @@ const ParticipantView = () => {
                 return (
                   <View style={style.participantsection}>
                     <ParticipantSectionTitle
-                      title="Audience"
+                      title={audienceLabel}
                       count={audienceCount}
                     />
                     <AllAudienceParticipants

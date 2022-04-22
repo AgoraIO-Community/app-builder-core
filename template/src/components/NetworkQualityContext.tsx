@@ -13,7 +13,7 @@ import React, {createContext, useContext, useState} from 'react';
 import {RtcContext} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
-import { NetworkQualityTextInterface } from '../language';
+import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
@@ -31,7 +31,7 @@ export const networkIconsObject: {
   [key: number]: {
     icon: string;
     tint: string;
-    text: keyof NetworkQualityTextInterface;    
+    text: NetworkQualities;
   };
 } = {
   0: {
@@ -109,8 +109,8 @@ export const NetworkQualityProvider: React.FC = (props) => {
         const updatedNetworkQualityStats = {...prevNetworkQualityStats};
         if (uid === 0) {
           const displayedNetworkQuality =
-          // check if either are unsupported (0)
-          // if not then display whichever is poorer
+            // check if either are unsupported (0)
+            // if not then display whichever is poorer
             downlinkQuality * uplinkQuality !== 0
               ? downlinkQuality < uplinkQuality
                 ? uplinkQuality

@@ -13,8 +13,8 @@ import React, {useContext} from 'react';
 import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {ImageIcon} from '../../agora-rn-uikit';
-import { useScreenShare } from './screen-share/useScreenShare';
-import { useString } from '../utils/useString';
+import {useScreenshare} from './screenshare/index';
+import {useString} from '../utils/useString';
 
 /**
  * A component to start and stop screen sharing on web clients.
@@ -23,10 +23,12 @@ import { useString } from '../utils/useString';
  */
 const ScreenshareButton = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {screenshareActive, startScreenShare } = useScreenShare(data => data)
+  const {screenshareActive, startUserScreenshare} = useScreenshare(
+    (data) => data,
+  );
   return (
     <TouchableOpacity
-      onPress={() => startScreenShare && startScreenShare()}>
+      onPress={() => startUserScreenshare && startUserScreenshare()}>
       <View
         style={
           screenshareActive
@@ -44,7 +46,7 @@ const ScreenshareButton = () => {
           marginTop: 5,
           color: $config.PRIMARY_COLOR,
         }}>
-        {useString('screenShareButton')}
+        {useString('screenShareButton')()}
       </Text>
     </TouchableOpacity>
   );

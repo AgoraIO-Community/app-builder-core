@@ -32,7 +32,7 @@ import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import {cmpTypeGuard, hasBrandLogo} from '../utils/common';
+import {cmpTypeGuard, hasBrandLogo, isValidElementType} from '../utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
@@ -56,7 +56,6 @@ import VideoArrayRenderer from './video-call/VideoArrayRenderer';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useVideoCall} from './video-call/useVideoCall';
 import {useString} from '../utils/useString';
-
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -262,14 +261,26 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const {chat, bottomBar, participantsPanel, settingsPanel, topBar} = useFpe(
-    (data) =>
-      typeof data.components?.videoCall === 'object'
-        ? data.components?.videoCall
-        : {},
+  const {
+    chat: ChatFPE,
+    bottomBar,
+    participantsPanel,
+    settingsPanel,
+    topBar,
+  } = useFpe((data) =>
+    data?.components?.videoCall &&
+    typeof data?.components?.videoCall === 'object'
+      ? data.components?.videoCall
+      : {},
   );
+  const chat =
+    typeof ChatFPE !== 'object' ? isValidElementType(ChatFPE) : undefined;
   const defaultLayouts = useVideoCall((data) => data.layouts);
-  const PreCallScreenFpe = useFpe((data) => data.components?.precall);
+  const PreCallScreenFpe = useFpe((data) =>
+    typeof data?.components?.precall !== 'object'
+      ? isValidElementType(data?.components?.precall)
+      : undefined,
+  );
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
@@ -314,11 +325,17 @@ const VideoCall: React.FC = () => {
   );
 
   const fpeLayouts = useFpe((config) => {
-    const videocall = config.components?.videoCall;
-    if (videocall && typeof videocall === 'object' && videocall.customLayout) {
-      return videocall.customLayout([
-        {name: 'Grid', icon: 'gridLayoutIcon', component: GridVideo},
-        {name: 'PinnedVideo', icon: 'pinnedLayoutIcon', component: PinnedVideo},
+    if (
+      typeof config?.components?.videoCall === 'object' &&
+      config?.components?.videoCall?.customLayout
+    ) {
+      return config.components.videoCall.customLayout([
+        {name: 'Grid', iconName: 'gridLayoutIcon', component: GridVideo},
+        {
+          name: 'PinnedVideo',
+          iconName: 'pinnedLayoutIcon',
+          component: PinnedVideo,
+        },
       ]);
     } else {
       return defaultLayouts;
@@ -418,9 +435,7 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <ScreenshareConfigure
-                      setLayout={setLayout}
-                      recordingActive={recordingActive}>
+                    <ScreenshareConfigure>
                       <LiveStreamContextProvider
                         setRtcProps={setRtcProps}
                         isHost={isHost}>
@@ -476,7 +491,7 @@ const VideoCall: React.FC = () => {
                                     setPrivateChatDisplayed={
                                       setPrivateChatDisplayed
                                     }>
-                                    {cmpTypeGuard(Navbar,topBar)}
+                                    {cmpTypeGuard(Navbar, topBar)}
                                     <View
                                       style={[
                                         style.videoView,
@@ -516,7 +531,7 @@ const VideoCall: React.FC = () => {
                                           SidePanelType.Participants ? (
                                             cmpTypeGuard(
                                               ParticipantsView,
-                                              participantsPanel
+                                              participantsPanel,
                                             )
                                           ) : (
                                             <></>
@@ -524,7 +539,7 @@ const VideoCall: React.FC = () => {
                                         </NetworkQualityProvider>
                                         {sidePanel === SidePanelType.Chat ? (
                                           $config.CHAT ? (
-                                            cmpTypeGuard(Chat,chat)
+                                            cmpTypeGuard(Chat, chat)
                                           ) : (
                                             <></>
                                           )
@@ -535,7 +550,7 @@ const VideoCall: React.FC = () => {
                                         SidePanelType.Settings ? (
                                           cmpTypeGuard(
                                             SettingsView,
-                                            settingsPanel
+                                            settingsPanel,
                                           )
                                         ) : (
                                           <></>
@@ -546,7 +561,7 @@ const VideoCall: React.FC = () => {
                                     sidePanel === SidePanelType.Chat ? (
                                       <></>
                                     ) : (
-                                      cmpTypeGuard(Controls,bottomBar)
+                                      cmpTypeGuard(Controls, bottomBar)
                                     )}
                                   </ChatUIDataProvider>
                                 </VideoCallProvider>
@@ -555,13 +570,16 @@ const VideoCall: React.FC = () => {
                           </View>
                         ) : $config.PRECALL ? (
                           <PreCallProvider
-                            username={username}
-                            setUsername={setUsername}
-                            setCallActive={setCallActive}
-                            queryComplete={queryComplete}
-                            title={title}
-                            error={error}>
-                            {cmpTypeGuard(Precall,PreCallScreenFpe)}
+                            value={{
+                              username,
+                              setUsername,
+                              callActive,
+                              setCallActive,
+                              queryComplete,
+                              title,
+                              error,
+                            }}>
+                            {cmpTypeGuard(Precall, PreCallScreenFpe)}
                           </PreCallProvider>
                         ) : (
                           <></>
@@ -577,7 +595,7 @@ const VideoCall: React.FC = () => {
           <View style={style.loader}>
             <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
             <Text style={style.loaderText}>
-              {useString('joiningLoaderLabel')}
+              {useString('joiningLoaderLabel')()}
             </Text>
           </View>
         )

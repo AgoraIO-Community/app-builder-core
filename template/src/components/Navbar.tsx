@@ -23,7 +23,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
-import { useVideoCall, useChatUIData } from 'fpe-api';
+import {useVideoCall, useChatUIData} from 'fpe-api';
 
 const Navbar = (props: any) => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -39,8 +39,10 @@ const Navbar = (props: any) => {
     layouts,
     isHost,
     title,
-  } = useVideoCall(data => data);
-  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(data => data);
+  } = useVideoCall((data) => data);
+  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(
+    (data) => data,
+  );
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -89,9 +91,7 @@ const Navbar = (props: any) => {
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
         Platform.OS === 'web'
           ? {
-              justifyContent: isMobileOrTablet()
-                ? 'space-between'
-                : 'flex-end',
+              justifyContent: isMobileOrTablet() ? 'space-between' : 'flex-end',
             }
           : {},
       ]}>
@@ -250,19 +250,35 @@ const Navbar = (props: any) => {
           )}
           {renderSeparator()}
           <View style={[style.navItem, style.navSmItem]}>
-            <BtnTemplate
-              style={style.btnHolder}
-              onPress={() => {
-                setLayout((l: Layout) => {
-                  if (l < layouts?.length - 1 ) {
-                    return l + 1;
-                  } else {
-                    return 0;
-                  }
-                });
-              }}
-              name={layouts[layout].icon}
-            />
+            {layouts[layout].iconName ? (
+              <BtnTemplate
+                style={style.btnHolder}
+                onPress={() => {
+                  setLayout((l: Layout) => {
+                    if (l < layouts?.length - 1) {
+                      return l + 1;
+                    } else {
+                      return 0;
+                    }
+                  });
+                }}
+                name={layouts[layout].iconName}
+              />
+            ) : (
+              <BtnTemplate
+                style={style.btnHolder}
+                onPress={() => {
+                  setLayout((l: Layout) => {
+                    if (l < layouts?.length - 1) {
+                      return l + 1;
+                    } else {
+                      return 0;
+                    }
+                  });
+                }}
+                icon={layouts[layout].icon}
+              />
+            )}
           </View>
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web

@@ -9,18 +9,17 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { useContext, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
-import { useString } from '../utils/useString';
-import { ErrorContext } from '../components/common';
-import { useHistory } from '../components/Router';
+import React, {useContext, useState} from 'react';
+import {View, Text, TouchableOpacity} from 'react-native';
+import {useString} from '../utils/useString';
+import {ErrorContext} from '../components/common';
+import {useHistory} from '../components/Router';
 
-const Error = (props: { error: { name: string; message: string }, showBack?: boolean }) => {
-  const {resetError} = useContext(ErrorContext)
+const Error = (props: {
+  error: {name: string; message: string};
+  showBack?: boolean;
+}) => {
+  const {resetError} = useContext(ErrorContext);
   const history = useHistory();
   return (
     <View
@@ -47,24 +46,27 @@ const Error = (props: { error: { name: string; message: string }, showBack?: boo
         }}>
         {props.error.name}
       </Text>
-      <Text style={{ textAlign: 'center', padding:4 }}>{props.error.message}</Text>
-      {props.showBack ? <TouchableOpacity
-        style={{ alignSelf: 'center' }}
-        onPress={() => {
-          resetError && resetError();
-          history.replace('./')
-          }
-        }>
-        <Text
-          style={{
-            fontWeight: '500',
-            textAlign: 'center',
-            textDecorationLine: 'underline',
+      <Text style={{textAlign: 'center', padding: 4}}>
+        {props.error.message}
+      </Text>
+      {props.showBack ? (
+        <TouchableOpacity
+          style={{alignSelf: 'center'}}
+          onPress={() => {
+            resetError && resetError();
+            history.replace('./');
           }}>
-          {useString('goBackButton')}
-                </Text>
-      </TouchableOpacity> : null}
+          <Text
+            style={{
+              fontWeight: '500',
+              textAlign: 'center',
+              textDecorationLine: 'underline',
+            }}>
+            {useString('goBackButton')()}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
-  )
-}
+  );
+};
 export default Error;

@@ -19,20 +19,20 @@ import {
   TextInput as Ti,
   UIManager,
 } from 'react-native';
-import ChatContext from '../components/ChatContext';
+import ChatContext, {chatInputProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 
 /**
  * Input component for the Chat interface
  */
-const ChatInput = (props: any) => {
+const ChatInput = (props: chatInputProps) => {
   const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
   // const [height, setHeight] = useState(0);
-  const {privateActive, selectedUserID} = props;
+  const {privateActive, selectedUserId} = props;
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
 
   return (
@@ -62,11 +62,11 @@ const ChatInput = (props: any) => {
             sendMessage(message);
             onChangeMessage('');
           } else {
-            sendMessageToUid(message, selectedUserID);
+            sendMessageToUid(message, selectedUserId);
             onChangeMessage('');
           }
         }}
-        placeholder={useString('chatMessageInputPlaceholder')}
+        placeholder={useString('chatMessageInputPlaceholder')()}
         placeholderTextColor={$config.PRIMARY_FONT_COLOR}
         autoCorrect={false}
       />
@@ -78,7 +78,7 @@ const ChatInput = (props: any) => {
             onChangeMessage('');
             // setHeight(40);
           } else {
-            sendMessageToUid(message, selectedUserID);
+            sendMessageToUid(message, selectedUserId);
             onChangeMessage('');
             // setHeight(40);
           }

@@ -9,10 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import {createHook} from 'fpe-implementation';
-import { useFpe } from 'fpe-api';
-import { DEFAULT_I18_DATA } from './index';
+import {useFpe} from 'fpe-api';
+import {DEFAULT_I18_DATA} from './index';
 import StorageContext from '../components/StorageContext';
 
 export interface LanguageContextInterface {
@@ -24,51 +24,63 @@ export interface LanguagePropsInterface {
   children: React.ReactNode;
 }
 
-const LanguageContext: React.Context<LanguageContextInterface> = createContext({
+const LanguageContext = createContext<LanguageContextInterface>({
   languageCode: DEFAULT_I18_DATA.locale,
-  setLanguageCode: () => { },
-  children: null
-} as LanguageContextInterface);
+  setLanguageCode: () => {},
+});
 
 const LanguageProvider = (props: LanguagePropsInterface) => {
-
   const {store, setStore} = useContext(StorageContext);
-  const i18nData = useFpe(data => data.i18n);
+  const i18nData = useFpe((data) => data?.i18n);
 
   //If language code is stored in the localstorage no longer available in fpe data
   //then we will update the localstorage value to default value
-  let storedCode = i18nData?.find((item) => item.locale === store.selectedLanguageCode) ? store.selectedLanguageCode : undefined
+  let storedCode = i18nData?.find(
+    (item) => item.locale === store.selectedLanguageCode,
+  )
+    ? store.selectedLanguageCode
+    : undefined;
 
-  const [languageCode, setLanguageCodeLocal] = useState(storedCode || (i18nData && i18nData.length ? i18nData[0].locale : false ) || DEFAULT_I18_DATA.locale);
+  const [languageCode, setLanguageCodeLocal] = useState(
+    storedCode ||
+      (i18nData && i18nData.length ? i18nData[0].locale : false) ||
+      DEFAULT_I18_DATA.locale,
+  );
 
   useEffect(() => {
-    if(setStore){
+    if (setStore) {
       setStore((prevState) => {
         return {
           ...prevState,
-          selectedLanguageCode: languageCode
-        }
+          selectedLanguageCode: languageCode,
+        };
       });
-    } 
+    }
   }, [languageCode]);
 
   useEffect(() => {
-    let storedCode = i18nData?.find((item) => item.locale === store.selectedLanguageCode) ? store.selectedLanguageCode : undefined
-    setLanguageCodeLocal(storedCode || (i18nData && i18nData.length ? i18nData[0].locale : false ) || DEFAULT_I18_DATA.locale)
+    let storedCode = i18nData?.find(
+      (item) => item.locale === store.selectedLanguageCode,
+    )
+      ? store.selectedLanguageCode
+      : undefined;
+    setLanguageCodeLocal(
+      storedCode ||
+        (i18nData && i18nData.length ? i18nData[0].locale : false) ||
+        DEFAULT_I18_DATA.locale,
+    );
   }, [i18nData]);
-  
+
   const setLanguageCode = (langCode: string) => {
     setLanguageCodeLocal(langCode);
-  }
+  };
 
   return (
-    <LanguageContext.Provider
-      value={{ languageCode, setLanguageCode }}
-    >
+    <LanguageContext.Provider value={{languageCode, setLanguageCode}}>
       {true ? props.children : <></>}
     </LanguageContext.Provider>
   );
 };
 const useLanguage = createHook(LanguageContext);
 
-export { LanguageProvider, useLanguage };
+export {LanguageProvider, useLanguage};

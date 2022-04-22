@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 import {RtcContext} from '../../agora-rn-uikit';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {LocalContext} from '../../agora-rn-uikit';
@@ -11,8 +11,8 @@ function SwitchCamera() {
   return (
     <BtnTemplate
       name={'switchCamera'}
-      btnText={useString('switchCameraButton')}
-      disabled={local.video ? false : true }
+      btnText={useString('switchCameraButton')()}
+      disabled={local.video ? false : true}
       style={{
         backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
         borderRadius: 23,

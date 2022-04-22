@@ -10,27 +10,31 @@
 *********************************************
 */
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { useFpe } from 'fpe-api';
-import { cmpTypeGuard } from '../../utils/common';
-import { LocalAudioMute, LocalVideoMute } from '../../../agora-rn-uikit';
-import { LocalUserContext } from '../../../agora-rn-uikit';
+import {View, StyleSheet} from 'react-native';
+import {useFpe} from 'fpe-api';
+import {cmpTypeGuard} from '../../utils/common';
+import {LocalAudioMute, LocalVideoMute} from '../../../agora-rn-uikit';
+import {LocalUserContext} from '../../../agora-rn-uikit';
 
 const PreCallLocalMute: React.FC = () => {
-  const { videoMute, audioMute } = useFpe(data => data.components?.precall && typeof data.components?.precall === 'object' ? data.components?.precall : {});
+  const {videoMute, audioMute} = useFpe((data) =>
+    typeof data?.components?.precall === 'object'
+      ? data.components?.precall
+      : {},
+  );
   return (
     <View style={style.precallControls}>
       <LocalUserContext>
-        <View style={{ alignSelf: 'center' }}>
-          {cmpTypeGuard(LocalAudioMute,audioMute)}
+        <View style={{alignSelf: 'center'}}>
+          {cmpTypeGuard(LocalAudioMute, audioMute)}
         </View>
-        <View style={{ alignSelf: 'center' }}>
-          {cmpTypeGuard(LocalVideoMute,videoMute)}
+        <View style={{alignSelf: 'center'}}>
+          {cmpTypeGuard(LocalVideoMute, videoMute)}
         </View>
       </LocalUserContext>
     </View>
-  )
-}
+  );
+};
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({

@@ -11,16 +11,29 @@
 */
 import React from 'react';
 import {Platform} from 'react-native';
+import * as ReactIs from 'react-is';
 
-const cmpTypeGuard = <T,>(
+const isValidElementType = (component?: React.ElementType) =>
+  ReactIs.isValidElementType(component) ? component : undefined;
+
+const cmpTypeGuard = (
   FallBackComponent: React.ComponentType,
-  FpeComponent?: T,
+  FpeComponent?: React.ElementType,
 ) => {
-  return FpeComponent && typeof FpeComponent === 'function' ? (
+  return FpeComponent && ReactIs.isValidElementType(FpeComponent) ? (
     <FpeComponent />
   ) : (
     <FallBackComponent />
   );
+};
+
+const getCmpTypeGuard = (
+  FallBackComponent: React.ComponentType,
+  FpeComponent?: React.ElementType,
+) => {
+  return FpeComponent && ReactIs.isValidElementType(FpeComponent)
+    ? FpeComponent
+    : FallBackComponent;
 };
 
 const hasBrandLogo: boolean = !!$config.LOGO;
@@ -34,7 +47,6 @@ const shouldAuthenticate: boolean =
 const isWeb = Platform.OS === 'web';
 const isAndroid = Platform.OS === 'android';
 const isIOS = Platform.OS === 'ios';
-//TODO:hari export check for desktop platform
 export {
   hasBrandLogo,
   shouldAuthenticate,
@@ -42,4 +54,6 @@ export {
   isIOS,
   isAndroid,
   cmpTypeGuard,
+  getCmpTypeGuard,
+  isValidElementType,
 };

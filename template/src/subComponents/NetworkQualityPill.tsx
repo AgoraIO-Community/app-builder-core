@@ -9,8 +9,9 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
+import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 
 /**
  *
@@ -34,7 +35,7 @@ export const NetworkQualityPill = ({
   rootStyle?: StyleProp<ViewStyle>;
 }) => {
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
-  const getLabel = useString('networkQualityLabel')
+  const getLabel = useString<NetworkQualities>('networkQualityLabel');
   return (
     <View
       style={[
@@ -43,8 +44,7 @@ export const NetworkQualityPill = ({
           opacity: networkTextVisible ? 1 : 0.8,
         },
         rootStyle,
-      ]}
-    >
+      ]}>
       <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
         <View style={[style.networkIndicatorBackdrop]}>
           <Image
@@ -69,9 +69,8 @@ export const NetworkQualityPill = ({
             style={[
               style.networkPillText,
               {fontSize: small ? 14 : 15, userSelect: 'none'},
-            ]}
-          >
-            {getLabel(networkIconsObject[networkStat].text)}            
+            ]}>
+            {getLabel(networkIconsObject[networkStat].text)}
           </Text>
         )}
       </PlatformSpecificWrapper>
@@ -94,8 +93,7 @@ const PlatformSpecificWrapper = ({
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
-      }}
-    >
+      }}>
       {children}
     </Pressable>
   ) : (
@@ -115,8 +113,7 @@ const PlatformSpecificWrapper = ({
       }}
       onMouseLeave={() => {
         setNetworkTextVisible(false);
-      }}
-    >
+      }}>
       {children}
     </div>
   );

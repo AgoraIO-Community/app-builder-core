@@ -14,7 +14,7 @@ import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 import StorageContext from '../components/StorageContext';
 import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
-import { useString } from '../utils/useString';
+import {useString} from '../utils/useString';
 
 const LOGOUT = gql`
   mutation logoutSession($token: String!) {
@@ -32,7 +32,7 @@ const LogoutButton = () => {
 
   const logout = () => {
     if (setStore) {
-      setStore({token: null, displayName: ''});
+      setStore({token: null, displayName: '', selectedLanguageCode: ''});
     }
     logoutQuery({variables: {token}}).catch((e) => {
       console.log(e);
@@ -47,11 +47,11 @@ const LogoutButton = () => {
     <>
       {token === null ? (
         <TouchableOpacity style={style.btn} onPress={() => login()}>
-          <Text style={style.btnText}>{useString('oauthLoginLabel')}</Text>
+          <Text style={style.btnText}>{useString('oauthLoginLabel')()}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={style.btn} onPress={() => logout()}>
-          <Text style={style.btnText}>{useString('logoutButton')}</Text>
+          <Text style={style.btnText}>{useString('logoutButton')()}</Text>
         </TouchableOpacity>
       )}
     </>

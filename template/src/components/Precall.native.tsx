@@ -30,17 +30,16 @@ const Precall = () => {
   rtc.RtcEngine.startPreview();
 
   const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
-    data.components?.precall && typeof data.components?.precall === 'object'
-      ? data.components.precall
+    typeof data?.components?.precall === 'object'
+      ? data?.components.precall
       : {},
   );
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
-
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>{useString('precallLabel')} </Text>
+        <Text style={style.headingText}>{useString('precallLabel')()} </Text>
       </View>
       {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
       {!isAudienceInLiveStreaming() && (

@@ -28,7 +28,7 @@ import {
 
 const JoinRoomInputView = () => {
   const {textBox, joinButton} = useFpe((data) =>
-    typeof data.components?.precall === 'object' && data.components?.precall
+    typeof data?.components?.precall === 'object'
       ? data.components?.precall
       : {},
   );
@@ -45,7 +45,7 @@ const Precall = () => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {preview, deviceSelect, meetingName} = useFpe((data) =>
-    data.components?.precall && typeof data.components?.precall === 'object'
+    typeof data?.components?.precall === 'object'
       ? data.components.precall
       : {},
   );

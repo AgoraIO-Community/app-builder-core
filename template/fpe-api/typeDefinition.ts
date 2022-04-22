@@ -10,10 +10,12 @@
 *********************************************
 */
 import React from 'react';
-import { channelMessage, chatInputInterface } from '../src/components/ChatContext';
-import { TextDataInterface, ConditionalTextInferface, DynamicTextInterface, NetworkQualityStatusInterface, MeetingInviteParam } from 'src/language';
+import {chatBubbleProps, chatInputProps} from '../src/components/ChatContext';
 import Layout from '../src/subComponents/LayoutEnum';
-import { UidInterface } from '../agora-rn-uikit/src';
+import {UidInterface} from '../agora-rn-uikit';
+import {i18nInterface} from '../src/language/i18nTypes';
+import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
+
 export const CUSTOM_ROUTES_PREFIX = '/r';
 
 export interface PreCallInterface {
@@ -27,8 +29,8 @@ export interface PreCallInterface {
 }
 
 export interface ChatCmpInterface {
-  chatBubble?: React.ComponentType<channelMessage>;
-  chatInput?: React.ComponentType<chatInputInterface>;
+  chatBubble?: React.ComponentType<chatBubbleProps>;
+  chatInput?: React.ComponentType<chatInputProps>;
 }
 
 export interface renderComponentInterface {
@@ -42,7 +44,7 @@ export interface renderComponentInterface {
 }
 
 export interface renderComponentObjectInterface {
-  [key: string]: React.ComponentType<renderComponentInterface>
+  [key: string]: React.ComponentType<renderComponentInterface>;
 }
 
 export type layoutComponent = React.ComponentType<{
@@ -51,9 +53,10 @@ export type layoutComponent = React.ComponentType<{
   setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
 }>;
 
-export interface layoutObjectInterface {
+export interface LayoutObjectInterface {
   name: string;
   icon?: string;
+  iconName?: keyof IconsInterface;
   component: layoutComponent;
 }
 export interface VideoCallInterface {
@@ -63,43 +66,28 @@ export interface VideoCallInterface {
   bottomBar?: React.ComponentType;
   chat?: ChatCmpInterface | React.ComponentType;
   renderComponentObject?: renderComponentObjectInterface;
-  customLayout?: (layouts: layoutObjectInterface[]) => layoutObjectInterface[];
+  customLayout?: (layouts: LayoutObjectInterface[]) => LayoutObjectInterface[];
 }
 
 export type ComponentsInterface = {
-  precall?: PreCallInterface | React.ComponentType
+  precall?: PreCallInterface | React.ComponentType;
   create?: React.ComponentType;
   share?: React.ComponentType;
   join?: React.ComponentType;
   videoCall?: VideoCallInterface | React.ComponentType;
-}
+};
 
 export interface CustomRoutesInterface {
   path: string;
   component: React.ComponentType;
   exact?: boolean;
   componentProps?: object;
-  privateRoute?: boolean;
+  isPrivateRoute?: boolean;
   routeProps?: object;
   failureRedirectTo?: string;
-};
-
-export interface i18nInterface {
-  label?: string;
-  locale: string;
-  data: {
-    [key in keyof TextDataInterface]: string
-  } | {
-    [key in keyof ConditionalTextInferface]: (input: boolean) => string
-  } | {
-    [key in keyof DynamicTextInterface]: (input: string) => string
-  } | {
-    meetingInviteText?: (invite: MeetingInviteParam) => string,
-    networkQualityLabel?: (quality: keyof NetworkQualityStatusInterface) => string,
-  }
 }
 
-export type CustomHookType = () => () => Promise<void>
+export type CustomHookType = () => () => Promise<void>;
 
 export interface FpeApiInterface {
   /**
@@ -113,23 +101,19 @@ export interface FpeApiInterface {
   /**
    * Custom context/api provider wrapped in root level
    */
-  appRoot?: React.ReactNode;
+  appRoot?: React.ComponentType;
   /**
-   * 
+   * Internationlization
    */
-  i18n?: i18nInterface[],
+  i18n?: i18nInterface[];
   /**
    * Life cycle events
    */
   lifecycle?: {
-    useBeforeJoin?: CustomHookType,
-    useBeforeCreate?: CustomHookType
-  }
-  /**
-   * message callback used to listen for incoming message from private or public 
-   */
-  //message_callback?: //TODO:hari;
+    useBeforeJoin?: CustomHookType;
+    useBeforeCreate?: CustomHookType;
+  };
   customUserContext?: {
-    useUserContext: () => any
-  }
-};
+    useUserContext: () => any;
+  };
+}
