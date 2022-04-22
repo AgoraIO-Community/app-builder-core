@@ -426,15 +426,18 @@ export default class RtcEngine {
         // If there no mutex lock, procure a lock
         this.muteLocalAudioMutex = true;
         didProcureMutexLock = true;
-        /** setEnabled
+        /** setMuted
          *  The SDK does NOT stop audio or video capture.
-         *   The camera light stays on for video
+         *  The camera light stays on for video
          *  It takes less time for the audio or video to resume.
          */
         await this.localStream.audio?.setMuted(muted);
         // Release the lock once done
         this.muteLocalAudioMutex = false;
         this.isAudioEnabled = !muted;
+        if (muted) {
+          this.isAudioPublished = false;
+        }
         // Unpublish only after when the user has joined the call
         if (!muted && !this.isAudioPublished && this.isJoined) {
           await this.publish();
