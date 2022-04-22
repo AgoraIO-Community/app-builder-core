@@ -343,8 +343,13 @@ class Toast extends Component {
   }
 
   getBaseStyle(position = 'bottom', keyboardHeight) {
-    const { topOffset, bottomOffset, keyboardOffset, height, animation } =
-      this.state;
+    const {
+      topOffset,
+      bottomOffset,
+      keyboardOffset,
+      height,
+      animation
+    } = this.state;
     const offset = position === 'bottom' ? bottomOffset : topOffset;
 
     // +5 px to completely hide the toast under StatusBar (on Android)
@@ -353,14 +358,14 @@ class Toast extends Component {
 
     const translateY = animation.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [0, 1, 0]
+      outputRange
     });
 
     return [
       styles.base,
       styles[position],
       {
-        opacity: translateY
+        transform: [{ translateY }]
       }
     ];
   }
@@ -378,11 +383,7 @@ class Toast extends Component {
       <Animated.View
         testID='animatedView'
         onLayout={this.onLayout}
-        style={[
-          baseStyle,
-          style,
-          { zIndex: 100, display: this.state.isVisible || this.state.inProgress ? 'flex' : 'none', backgroundColor:'red' }
-        ]} //added zindex
+        style={[baseStyle, style, {zIndex: 100}]} //added zindex
         {...this.panResponder.panHandlers}>
         {this.renderContent(this.props)}
       </Animated.View>
