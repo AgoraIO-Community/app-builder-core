@@ -202,8 +202,7 @@ export default class RtcEngine {
         let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
         this.localStream.audio = localAudio;
       } catch (error) {
-        e = error;
-        audioError = true;
+        audioError = error;
       }
       try {
         let localVideo = await AgoraRTC.createCameraVideoTrack({
@@ -211,8 +210,7 @@ export default class RtcEngine {
         });
         this.localStream.video = localVideo;
       } catch (error) {
-        e = error;
-        videoError = true;
+        videoError = error;
       }
       e.status = {audioError, videoError};
       throw e;
