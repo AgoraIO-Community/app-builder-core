@@ -13,7 +13,7 @@ module.exports = merge(commons, {
   externals: {react: 'react', 'react-dom': 'react-dom'},
   // Main entry point for the web application
   entry: {
-    main: './index.rsdk.js',
+    main: './index.rsdk.tsx',
   },
   target: 'node',
   output: {

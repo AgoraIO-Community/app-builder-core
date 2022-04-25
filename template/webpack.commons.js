@@ -84,15 +84,12 @@ module.exports = {
       {
         test: /\.tsx?$/,
         loader: 'ts-loader',
+        // loader: 'ts-loader',
         exclude: /node_modules|\.d\.ts$/,
         options: {
           configFile: 'tsconfig.json',
-          reportFiles: ['fpe-api/*'],
+          // ignoreDiagnostics: [2554,2539,2339,2551,2769,2305,2614,2322,2362,2369,2698]
         },
-      },
-      {
-        test: /\.d\.ts$/,
-        loader: 'ignore-loader',
       },
       {
         // Use babel to transpile all js, ts, jsx and tsx files

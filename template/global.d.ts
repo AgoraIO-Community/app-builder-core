@@ -75,3 +75,7 @@ interface ConfigInterface {
   RAISE_HAND: boolean;
 }
 declare var $config: ConfigInterface;
+declare module 'test-fpe'{
+  const data:{}
+  export default data;
+}

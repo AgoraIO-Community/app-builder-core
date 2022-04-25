@@ -30,5 +30,8 @@ module.exports = merge(commons, {
     port: 9000,
     historyApiFallback: true, // Support for react-router
     static: './', // same as contentBase from webpack v4 config
+    client:{
+      overlay: false
+    }
   },
 });
