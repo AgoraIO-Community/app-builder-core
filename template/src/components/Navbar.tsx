@@ -10,20 +10,9 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Image,
-  Text,
-  Platform,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
-// import {MinUidConsumer} from '../../agora-rn-uikit';
-// import {PropsContext} from '../../agora-rn-uikit';
+import {View, Text, Platform, StyleSheet, Dimensions} from 'react-native';
 import icons from '../assets/icons';
 import Settings from './Settings';
-import ColorContext from './ColorContext';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
@@ -32,13 +21,15 @@ import ChatContext from '../components/ChatContext';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
+import LiveStreamContext from './livestream';
+import {numFormatter} from '../utils/index';
 
 const Navbar = (props: any) => {
-  const {primaryColor} = useContext(ColorContext);
-  const {messageStore} = useContext(ChatContext);
+  const {messageStore, onlineUsersCount} = useContext(ChatContext);
+  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
+    useContext(LiveStreamContext);
+
   const {
-    // participantsView,
-    // setParticipantsView,
     recordingActive,
     sidePanel,
     setSidePanel,
@@ -46,8 +37,6 @@ const Navbar = (props: any) => {
     setLayout,
     pendingMessageLength,
     setLastCheckedPublicState,
-    // setChatDisplayed,
-    // chatDisplayed,
     isHost,
     title,
   } = props;
@@ -60,6 +49,37 @@ const Navbar = (props: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
   const isDesktop = dim[0] > 1224;
+
+  const renderSeparator = () => {
+    return Platform.OS === 'web' && isDesktop ? (
+      <View style={style.navItem}>
+        <View style={style.navItemSeparator}></View>
+      </View>
+    ) : (
+      <View style={{marginHorizontal: 2}}></View>
+    );
+  };
+
+  const renderBadge = (badgeCount: any) => {
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          top: Platform.OS === 'web' ? -10 : 2,
+        }}>
+        <View style={style.badge}>
+          <Text
+            style={{
+              color: $config.SECONDARY_FONT_COLOR,
+              fontSize: 12,
+            }}>
+            {numFormatter(badgeCount)}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View
       onLayout={onLayout}
@@ -87,7 +107,7 @@ const Navbar = (props: any) => {
               height: 20,
               margin: 1,
             }}
-            color='#FD0845'
+            color="#FD0845"
           />
           <Text
             style={{
@@ -118,13 +138,16 @@ const Navbar = (props: any) => {
               justifyContent: 'flex-start',
               paddingLeft: 5,
             }}>
-            <Text style={style.roomNameText}>
-              {mobileAndTabletCheck()
-                ? title.length > 13
-                  ? title.slice(0, 13) + '..'
-                  : title
-                : title}
-            </Text>
+            <View>
+              <Text style={style.roomNameText}>
+                {mobileAndTabletCheck()
+                  ? title.length > 13
+                    ? title.slice(0, 13) + '..'
+                    : title
+                  : title}
+              </Text>
+            </View>
+            <View />
             <View
               style={{
                 backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
@@ -138,50 +161,43 @@ const Navbar = (props: any) => {
             </View>
           </View>
         ) : (
-          <Text style={style.roomNameText}>{title}</Text>
+          <View>
+            <Text style={style.roomNameText}>{title}</Text>
+          </View>
         )}
       </View>
-      <View
-        style={{
-          width: '50%',
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          zIndex: 9,
-          // flex: 1,
-          // minWidth: Platform.OS === 'web' ? (isDesktop ? 400 : 280) : 40,
-          // backgroundColor: '#f00',
-        }}>
+      <View style={style.navControlBar}>
         <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor:
-              Platform.OS === 'web'
-                ? $config.SECONDARY_FONT_COLOR
-                : $config.SECONDARY_FONT_COLOR + '00',
-            paddingVertical: 4,
-            paddingHorizontal: mobileAndTabletCheck() ? 0 : 4,
-            minHeight: 35,
-            // height: 40,
-            // backgroundColor: '#f0f',
-            // paddingHorizontal: 16,
-            borderRadius: 10,
-            minWidth:
-              Platform.OS === 'web' && isDesktop
-                ? 300
-                : mobileAndTabletCheck()
-                ? 160
-                : 200,
-            // borderTopLeftRadius: 10,
-            // borderBottomLeftRadius: 10,
-            justifyContent: 'space-evenly',
-          }}>
-          <View style={{width: '20%', height: '100%'}}>
+          style={[
+            style.navContainer,
+            {
+              minWidth:
+                Platform.OS === 'web' && isDesktop
+                  ? 300
+                  : mobileAndTabletCheck()
+                  ? 160
+                  : 200,
+            },
+          ]}>
+          {onlineUsersCount !== 0 && (
+            <View style={[style.navItem, {justifyContent: 'center'}]}>
+              <View style={style.chip}>
+                {onlineUsersCount > 0 && (
+                  <Text style={style.chipText}>
+                    {numFormatter(onlineUsersCount)}
+                  </Text>
+                )}
+              </View>
+            </View>
+          )}
+          <View style={[style.navItem, style.navSmItem]}>
             <BtnTemplate
               onPress={() => {
                 sidePanel === SidePanelType.Participants
                   ? setSidePanel(SidePanelType.None)
                   : setSidePanel(SidePanelType.Participants);
+                $config.EVENT_MODE && $config.RAISE_HAND;
+                setLastCheckedRequestTimestamp(new Date().getTime());
               }}
               style={style.btnHolder}
               name={
@@ -190,98 +206,66 @@ const Navbar = (props: any) => {
                   : 'participantIcon'
               }
             />
-          </View>
-          {$config.CHAT ? (
-            <>
-              {Platform.OS === 'web' && isDesktop ? (
+            {$config.EVENT_MODE &&
+              $config.RAISE_HAND &&
+              isPendingRequestToReview && (
                 <View
                   style={{
-                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                    width: 1,
-                    height: '100%',
-                    marginHorizontal: 10,
-                    alignSelf: 'center',
-                    opacity: 0.8,
-                  }}
-                />
-              ) : (
-                <></>
-              )}
-              <View style={{width: '20%', height: '100%', position: 'relative'}}>
-                    <BtnTemplate
-                      style={style.btnHolder}
-                      onPress={() => {
-                        setLastCheckedPublicState(messageStore.length);
-                        sidePanel === SidePanelType.Chat
-                          ? setSidePanel(SidePanelType.None)
-                          : setSidePanel(SidePanelType.Chat);
-                      }}
-                      name={
-                        sidePanel === SidePanelType.Chat
-                          ? 'chatIconFilled'
-                          : 'chatIcon'
-                      }
+                    position: 'absolute',
+                    top: Platform.OS === 'web' ? -10 : 2,
+                  }}>
+                  <View style={[style.badge, {paddingHorizontal: 3}]}>
+                    <ImageIcon
+                      icon={icons['exclamationIcon']}
+                      color={$config.SECONDARY_FONT_COLOR}
                     />
-                    <View style={{position: 'absolute', top: Platform.OS === 'web' ? 1 : -15, left: ( Platform.OS === 'web' && isDesktop) ? 10 : 1 }}>
-                      {sidePanel !== SidePanelType.Chat &&
-                      pendingMessageLength !== 0 ? (
-                        <View style={style.chatNotification}>
-                          <Text style={{color: $config.SECONDARY_FONT_COLOR}}>
-                            {pendingMessageLength}
-                          </Text>
-                        </View>
-                      ) : (
-                        <></>
-                      )}
-                    </View>
                   </View>
+                </View>
+              )}
+          </View>
+          {$config.CHAT && (
+            <>
+              {renderSeparator()}
+              <View style={[style.navItem, style.navSmItem]}>
+                <BtnTemplate
+                  style={style.btnHolder}
+                  onPress={() => {
+                    setLastCheckedPublicState(messageStore.length);
+                    sidePanel === SidePanelType.Chat
+                      ? setSidePanel(SidePanelType.None)
+                      : setSidePanel(SidePanelType.Chat);
+                  }}
+                  name={
+                    sidePanel === SidePanelType.Chat
+                      ? 'chatIconFilled'
+                      : 'chatIcon'
+                  }
+                />
+                {sidePanel !== SidePanelType.Chat &&
+                  pendingMessageLength !== 0 &&
+                  renderBadge(pendingMessageLength)}
+              </View>
             </>
-          ) : (
-            <></>
           )}
-          {Platform.OS === 'web' && isDesktop ? (
-            <View
-              style={{
-                backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                width: 1,
-                height: '100%',
-                marginHorizontal: 10,
-                alignSelf: 'center',
-                opacity: 0.8,
+          {renderSeparator()}
+          <View style={[style.navItem, style.navSmItem]}>
+            <BtnTemplate
+              style={style.btnHolder}
+              onPress={() => {
+                setLayout((l: Layout) =>
+                  l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
+                );
               }}
+              name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
             />
-          ) : (
-            <></>
-          )}
-          <View style={{width: '20%', height: '100%'}}>
-              <BtnTemplate
-                style={style.btnHolder}
-                onPress={() => {
-                  setLayout((l: Layout) =>
-                    l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-                  );
-                }}
-                name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
-              />
           </View>
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
            * hide in android/ios  */}
-          {Platform.OS !== 'android' && Platform.OS !== 'ios' ? (
+          {Platform.OS !== 'android' && Platform.OS !== 'ios' && (
             <>
-              {Platform.OS === 'web' && isDesktop && (
-                <View
-                  style={{
-                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                    width: 1,
-                    height: '100%',
-                    marginHorizontal: 10,
-                    alignSelf: 'center',
-                    opacity: 0.8,
-                  }}
-                />
-              )}
-              <View style={{width: '20%', height: '100%'}}>
+              {renderSeparator()}
+              <View style={[style.navItem, style.navSmItem]}>
                 <Settings
                   sidePanel={sidePanel}
                   setSidePanel={setSidePanel}
@@ -289,8 +273,6 @@ const Navbar = (props: any) => {
                 />
               </View>
             </>
-          ) : (
-            <></>
           )}
         </View>
       </View>
@@ -306,27 +288,20 @@ const style = StyleSheet.create({
     backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
     flexDirection: 'row',
     alignItems: 'center',
-    // marginHorizontal: 10,
     paddingHorizontal: 10,
     justifyContent: 'space-between',
   },
   recordingView: {
-    // flex: 0.25,
-    // maxWidth: 150,
-    // paddingHorizontal: 2,
     height: 35,
     maxHeight: 30,
     position: 'absolute',
     left: 10,
-    // alignSelf: 'center',
     paddingHorizontal: 5,
-    // marginVertical: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    // marginHorizontal: 5,
   },
   recordingIcon: {
     width: 20,
@@ -334,100 +309,31 @@ const style = StyleSheet.create({
     margin: 1,
     resizeMode: 'contain',
   },
-  btnHolder: {   
-    marginHorizontal: mobileAndTabletCheck() ? 2 : 0, 
+  btnHolder: {
+    marginHorizontal: mobileAndTabletCheck() ? 2 : 0,
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
   },
-  // participantBtnHolder: {
-  //   backgroundColor: '#fff',
-  //   // flex: 0.5,
-  //   width: 90,
-  //   paddingHorizontal: 5,
-  //   // marginHorizontal: 5,
-  //   height: 30,
-  //   alignSelf: 'center',
-  //   // borderWidth: 2,
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   alignContent: 'center',
-  //   borderRadius: 3,
-  // },
-  // participantBtn: {
-  //   height: '100%',
-  //   // width: '100%',
-  //   flexDirection: 'row',
-  //   alignContent: 'center',
-  //   justifyContent: 'center',
-  //   alignSelf: 'center',
-  //   flex: 1,
-  // },
-  // participantBtnIcon: {
-  //   height: '100%',
-  //   width: '100%',
-  //   // margin: 1,
-  //   tintColor: $config.PRIMARY_COLOR,
-  //   resizeMode: 'contain',
-  // },
-  // participantText: {
-  //   fontSize: Platform.OS === 'web' ? 20 : 18,
-  //   fontWeight: '400',
-  //   alignSelf: 'center',
-  //   textAlign: 'center',
-  //   flex: 1,
-  // },
   roomNameContainer: {
     paddingHorizontal: 1,
     marginHorizontal: 1,
     height: 35,
     maxHeight: 30,
     flexDirection: 'row',
-    // width: '20%',
     justifyContent: 'flex-end',
     alignItems: 'center',
     zIndex: 10,
-    maxWidth: '50%',
   },
   roomNameText: {
     fontSize: 18,
-    // flex: 10,
-    // width: 50,
-    // color: '#fff',
     color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '500',
   },
-  // layoutBtnHolder: {
-  //   width: 30,
-  //   height: 30,
-  //   flexDirection: 'row',
-  //   justifyContent: 'center',
-  //   // marginLeft: 'auto',
-  //   // marginRight: 1,
-  // },
-  // layoutBtn: {
-  //   height: 30,
-  //   alignSelf: 'center',
-  //   width: 30,
-  //   // marginRight: 5,
-  // },
-  // localButton: {
-  //   // backgroundColor: '#f0f',
-  //   height: 30,
-  //   alignSelf: 'center',
-  //   width: 30,
-  //   // marginRight: 5,
-  // },
-  // layoutBtnIcon: {
-  //   flex: 1,
-  //   height: 30,
-  //   alignSelf: 'center',
-  //   width: 30,
-  //   resizeMode: 'contain',
-  // },
-  chatNotification: {
-    width: 20,
+  badge: {
+    lineHeight: 1,
     height: 20,
+    minWidth: 20,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -436,8 +342,61 @@ const style = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
-    left: 20,
-    top: Platform.OS === 'web' ? -8 : 18,
+    paddingHorizontal: 5,
+    top: 0,
+    left: -2,
+  },
+  chip: {
+    backgroundColor: $config.PRIMARY_COLOR,
+    borderRadius: 2.5,
+    paddingHorizontal: 5,
+    marginHorizontal: 5,
+    paddingVertical: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chipText: {
+    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontSize: 12,
+    color: $config.SECONDARY_FONT_COLOR,
+  },
+  navControlBar: {
+    width: '50%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    zIndex: 9,
+  },
+  navContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor:
+      Platform.OS === 'web'
+        ? $config.SECONDARY_FONT_COLOR
+        : $config.SECONDARY_FONT_COLOR + '00',
+    paddingVertical: 4,
+    paddingHorizontal: mobileAndTabletCheck() ? 0 : 10,
+    minHeight: 35,
+    borderRadius: 10,
+  },
+  navItem: {
+    height: '100%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  navSmItem: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: '15%',
+  },
+  navItemSeparator: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: 1,
+    height: '100%',
+    marginHorizontal: 10,
+    alignSelf: 'center',
+    opacity: 0.8,
   },
 });
 

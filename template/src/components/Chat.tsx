@@ -16,20 +16,15 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Dimensions,
-  useWindowDimensions
+  useWindowDimensions,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
-import {MinUidConsumer} from '../../agora-rn-uikit';
-import {MaxUidConsumer} from '../../agora-rn-uikit';
-import icons from '../assets/icons';
+import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
-import {UserType} from './RTMConfigure';
-import TextWithTooltip from '../subComponents/TextWithTooltip';
 
 const Chat = (props: any) => {
   const {height, width} = useWindowDimensions();
@@ -40,7 +35,8 @@ const Chat = (props: any) => {
   ]);
   const isSmall = dim[0] < 700;
 
-  const {userList, localUid} = useContext(chatContext);
+  const {userList} = useContext(chatContext);
+
   const {
     setChatDisplayed,
     pendingPrivateNotification,
@@ -48,21 +44,23 @@ const Chat = (props: any) => {
     lastCheckedPrivateState,
     privateMessageCountMap,
     setPrivateMessageLastSeen,
-    setPrivateChatDisplayed
+    setPrivateChatDisplayed,
   } = props;
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
-  const [selectedUser, setSelectedUser] = useState({uid: null});
-  //initally private state should be false
-  useEffect(()=>{
-    setPrivateChatDisplayed(false)
-  },[])
+  const [selectedUserID, setSelectedUser] = useState('');
+
+  //Initally private state should be false
   useEffect(() => {
-    if (privateActive) {
+    setPrivateChatDisplayed(false);
+  }, []);
+
+  useEffect(() => {
+    if (privateActive && selectedUserID) {
       setPrivateMessageLastSeen({
-        userId: selectedUser.uid,
-        lastSeenCount: privateMessageCountMap[selectedUser.uid],
+        userId: selectedUserID,
+        lastSeenCount: privateMessageCountMap[selectedUserID],
       });
     }
   }, [pendingPrivateNotification]);
@@ -70,31 +68,26 @@ const Chat = (props: any) => {
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
-    setPrivateChatDisplayed(false)
+    setPrivateChatDisplayed(false);
   };
   const selectPrivate = () => {
     setGroupActive(false);
-    setPrivateChatDisplayed(true)
+    setPrivateChatDisplayed(true);
   };
-  const selectUser = (user: any) => {
-    setSelectedUser(user);
+  const selectUser = (userUID: any) => {
+    setSelectedUser(userUID);
     setPrivateActive(true);
   };
+
   return (
     <View
-    style={Platform.OS === 'web' ? !isSmall ? style.chatView : style.chatViewNative: style.chatViewNative}>
-      {/* <View style={style.heading}>
-        <TouchableOpacity
-          style={style.backButton}
-          onPress={() => setChatDisplayed(false)}>
-          <Image
-            resizeMode={'contain'}
-            style={style.backIcon}
-            source={{uri: icons.backBtn}}
-          />
-          <Text style={style.headingText}>Chats</Text>
-        </TouchableOpacity>
-      </View> */}
+      style={
+        Platform.OS === 'web'
+          ? !isSmall
+            ? style.chatView
+            : style.chatViewNative
+          : style.chatViewNative
+      }>
       <View style={style.chatNav}>
         <TouchableOpacity
           onPress={selectGroup}
@@ -133,9 +126,7 @@ const Chat = (props: any) => {
           }>
           {pendingPrivateNotification !== 0 ? (
             <View style={style.chatNotification}>
-              <Text>
-                {pendingPrivateNotification}
-              </Text>
+              <Text>{pendingPrivateNotification}</Text>
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
@@ -146,131 +137,44 @@ const Chat = (props: any) => {
       {groupActive ? (
         <>
           <ChatContainer privateActive={privateActive} />
-          <View
-            style={{
-              backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-              width: '100%',
-              height: 1,
-              marginHorizontal: -20,
-              alignSelf: 'center',
-              opacity: 0.5,
-            }}
-          />
-          {Platform.OS === 'ios' ? (
-            <View>
-              <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
-                <View
-                  style={{
-                    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                    width: '100%',
-                    height: 1,
-                    marginHorizontal: -20,
-                    alignSelf: 'center',
-                    opacity: 0.3,
-                    marginBottom: 10,
-                  }}
-                />
-                <ChatInput privateActive={privateActive} />
-              </View>
-            </View>
-          ) : (
-            <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                  width: '100%',
-                  height: 1,
-                  marginHorizontal: -20,
-                  alignSelf: 'center',
-                  opacity: 0.5,
-                  marginBottom: 10,
-                }}
-              />
+          <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
+          <View>
+            <View style={style.chatInputContainer}>
+              <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
               <ChatInput privateActive={privateActive} />
             </View>
-          )}
+          </View>
         </>
       ) : (
         <>
           {!privateActive ? (
-            <ScrollView>
-            <MinUidConsumer>
-              {(minUsers) => (
-                <MaxUidConsumer>
-                  {(maxUser) =>
-                    [...minUsers, ...maxUser].map((user) => {
-                      if (
-                        user.uid !== 'local' &&
-                        user.uid !== 1 &&
-                        userList[user.uid]?.type !== UserType.ScreenShare
-                      ) {
-                        return (
-                          <TouchableOpacity
-                            style={style.participantContainer}
-                            key={user.uid}
-                            onPress={() => {
-                              selectUser(user);
-                              setPrivateMessageLastSeen({
-                                userId: user.uid,
-                                lastSeenCount: privateMessageCountMap[user.uid],
-                              });
-                            }}>
-                            {(privateMessageCountMap[user.uid] || 0) -
-                              (lastCheckedPrivateState[user.uid] || 0) !==
-                            0 ? (
-                              <View style={style.chatNotificationPrivate}>
-                                <Text>{(privateMessageCountMap[user.uid] || 0) -
-                                  (lastCheckedPrivateState[user.uid] || 0)}</Text>
-                              </View>
-                            ) : null}
-                            <View style={{flex:1}}>
-                              <TextWithTooltip touchable={false}  style={[style.participantText,{
-                                fontSize: RFValue(16, height > width ? height : width)
-                              }]} value={userList[user.uid]
-                                  ? userList[user.uid].name + ' '
-                                  : 'User '} 
-                              />
-                            </View>
-                            <View>
-                              <Text style={{color: $config.PRIMARY_FONT_COLOR, fontSize: 18}}>{`>`}</Text>
-                            </View>                            
-                          </TouchableOpacity>
-                        );
-                      }
-                    })
-                  }
-                </MaxUidConsumer>
-              )}
-            </MinUidConsumer>
-            </ScrollView>
+            <ChatParticipants
+              selectUser={selectUser}
+              setPrivateMessageLastSeen={setPrivateMessageLastSeen}
+              privateMessageCountMap={privateMessageCountMap}
+              lastCheckedPrivateState={lastCheckedPrivateState}
+            />
           ) : (
             <>
               <ChatContainer
                 privateActive={privateActive}
                 setPrivateActive={setPrivateActive}
-                selectedUser={selectedUser}
+                selectedUserID={selectedUserID}
                 selectedUsername={
-                  userList[selectedUser.uid]
-                    ? userList[selectedUser.uid].name + ' '
+                  userList[selectedUserID]
+                    ? userList[selectedUserID]?.name + ' '
                     : 'User '
                 }
               />
-                <View>
-                <View style={{backgroundColor: $config.SECONDARY_FONT_COLOR, paddingBottom: 10}}>
+              <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
+              <View>
+                <View style={style.chatInputContainer}>
                   <View
-                    style={{
-                      backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                      width: '100%',
-                      height: 1,
-                      marginHorizontal: -20,
-                      alignSelf: 'center',
-                      opacity: 0.3,
-                      marginBottom: 10,
-                    }}
+                    style={[style.chatInputLineSeparator, {opacity: 0.3}]}
                   />
                   <ChatInput
                     privateActive={privateActive}
-                    selectedUser={selectedUser}
+                    selectedUserID={selectedUserID}
                   />
                 </View>
               </View>
@@ -279,7 +183,6 @@ const Chat = (props: any) => {
         </>
       )}
     </View>
-    // </KeyboardAvoidingView>
   );
 };
 
@@ -290,7 +193,6 @@ const style = StyleSheet.create({
     maxWidth: 300,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
-    // paddingTop: 20,
     shadowColor: $config.PRIMARY_FONT_COLOR + '80',
     shadowOpacity: 0.5,
     shadowOffset: {width: -2, height: 1},
@@ -301,9 +203,7 @@ const style = StyleSheet.create({
     zIndex: 5,
     width: '100%',
     height: '100%',
-    // flex: 1,
     right: 0,
-    // top: 0,
     bottom: 0,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
@@ -327,13 +227,27 @@ const style = StyleSheet.create({
   chatNav: {
     flexDirection: 'row',
     height: '6%',
-    // marginBottom: 15,
+  },
+  chatInputContainer: {
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    paddingBottom: 10,
+  },
+  chatInputLineSeparator: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: '100%',
+    height: 1,
+    marginHorizontal: -20,
+    alignSelf: 'center',
+    opacity: 0.5,
+    marginBottom: 10,
   },
   groupActive: {
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
     height: '100%',
     textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   group: {
     backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
@@ -341,19 +255,23 @@ const style = StyleSheet.create({
     height: '100%',
     textAlign: 'center',
     borderBottomRightRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   privateActive: {
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
     height: '100%',
-    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   private: {
     backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
     flex: 1,
     height: '100%',
-    textAlign: 'center',
     borderBottomLeftRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   groupTextActive: {
     marginVertical: 'auto',
@@ -373,38 +291,6 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     color: $config.PRIMARY_FONT_COLOR + 50,
   },
-  participantContainer: {
-    flexDirection: 'row',
-    flex: 1,
-    height: 20,
-    marginTop: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    overflow: 'hidden',
-    marginHorizontal: 10,
-  },
-  participantText: {
-    flex: 1,
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
-    flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 20,
-    textAlign:'left',
-    flexShrink: 1 ,
-    marginRight: 30
-  },
-  backButton: {
-    // marginLeft: 5,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  backIcon: {
-    width: 20,
-    height: 12,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    tintColor: $config.PRIMARY_FONT_COLOR,
-  },
   chatNotification: {
     width: 20,
     height: 20,
@@ -419,7 +305,7 @@ const style = StyleSheet.create({
     left: 25,
     top: -5,
   },
-  chatNotificationPrivate:{
+  chatNotificationPrivate: {
     width: 20,
     height: 20,
     display: 'flex',
@@ -432,7 +318,7 @@ const style = StyleSheet.create({
     position: 'absolute',
     right: 20,
     top: 0,
-  }
+  },
 });
 
 export default Chat;

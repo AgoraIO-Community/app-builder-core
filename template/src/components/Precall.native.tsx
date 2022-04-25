@@ -9,39 +9,60 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  Platform,
-} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {View, Text, StyleSheet} from 'react-native';
 import {MaxUidContext} from '../../agora-rn-uikit';
 import {MaxVideoView} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
   LocalVideoMute,
   SwitchCamera,
+  ClientRole,
+  PropsContext,
 } from '../../agora-rn-uikit';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
-// import ColorContext from './ColorContext';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import PrimaryButton from '../atoms/PrimaryButton';
 
 const Precall = (props: any) => {
-  // const {primaryColor} = useContext(ColorContext);
   const maxUsers = useContext(MaxUidContext);
   const rtc = useContext(RtcContext);
+  const {rtcProps} = useContext(PropsContext);
   rtc.RtcEngine.startPreview();
-  const {setCallActive, queryComplete, username, setUsername, error} = props;
+
+  const {setCallActive, queryComplete, username, setUsername, error, title} =
+    props;
+
+  const [buttonText, setButtonText] = React.useState('Join Room');
+
+  useEffect(() => {
+    let clientRole = '';
+    if (rtcProps?.role == 1) {
+      clientRole = 'Host';
+    }
+    if (rtcProps?.role == 2) {
+      clientRole = 'Audience';
+    }
+    setButtonText(
+      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
+    );
+  }, [rtcProps?.role]);
+
+  const isAudienceInLiveStreaming = () =>
+    $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
+
+  const meetingTitle = () => (
+    <>
+      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
+        {title}
+      </Text>
+      <View style={{height: 25}} />
+    </>
+  );
+
   return (
-    // <ImageBackground
-    //   style={style.full}
-    //   resizeMode={'cover'}>
     <View style={style.full}>
       <View style={style.heading}>
         <Text style={style.headingText}>Precall </Text>
@@ -57,70 +78,59 @@ const Precall = (props: any) => {
         }}>
         {error ? <Error error={error} showBack={true} /> : <></>}
       </View>
-      <View style={style.full}>
-        <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-      </View>
-      {Platform.OS === 'ios' ? (
-        <View style={style.textInputHolder}>
-          <TextInput
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-            }}
-            onSubmitEditing={() => {}}
-            placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-          />
-        </View>
-      ) : (
-        <View style={style.textInputHolder}>
-          <TextInput
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-            }}
-            onSubmitEditing={() => {}}
-            placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-            editable={queryComplete}
-          />
+      {meetingTitle()}
+      {!isAudienceInLiveStreaming() && (
+        <View style={style.full}>
+          <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
         </View>
       )}
-      <View style={{height: 20}} />
-      <View style={style.controls}>
-        <LocalUserContext>
-          <View style={style.width50}>
-            <LocalVideoMute />
-          </View>
-          <View style={style.width50} />
-          <View style={style.width50}>
-            <LocalAudioMute />
-          </View>
-          <View style={style.width50} />
-          <View style={style.width50}>
-            <SwitchCamera />
-          </View>
-        </LocalUserContext>
+      <View style={style.textInputHolder}>
+        <TextInput
+          value={username}
+          onChangeText={(text) => {
+            setUsername(text);
+          }}
+          onSubmitEditing={() => {}}
+          placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
+          editable={queryComplete}
+        />
       </View>
-      <View
-        // onPress={() => setCallActive(true)}
-        // disabled={!queryComplete}
-        style={{marginBottom: 50}}>
-        {/* <Text style={style.buttonText}> */}
-        {/* {queryComplete ? 'Join Room' : 'Loading...'} */}
-        {/* </Text> */}
-        {/* </TouchableOpacity> */}
+      <View style={{height: 20}} />
+      {!isAudienceInLiveStreaming() && (
+        <View style={style.controls}>
+          <LocalUserContext>
+            <View style={style.width50}>
+              <LocalVideoMute />
+            </View>
+            <View style={style.width50} />
+            <View style={style.width50}>
+              <LocalAudioMute />
+            </View>
+            <View style={style.width50} />
+            <View style={style.width50}>
+              <SwitchCamera />
+            </View>
+          </LocalUserContext>
+        </View>
+      )}
+      <View style={{marginBottom: 50, alignItems: 'center'}}>
         <PrimaryButton
-          text={'Join Room'}
+          text={buttonText}
           disabled={!queryComplete || username.trim() === ''}
           onPress={() => setCallActive(true)}
         />
       </View>
-      {/* </ImageBackground> */}
     </View>
   );
 };
 
 const style = StyleSheet.create({
-  full: {flex: 1},
+  full: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    justifyContent: 'center',
+  },
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {
     fontSize: 24,
@@ -130,7 +140,7 @@ const style = StyleSheet.create({
   },
   textInputHolder: {
     flex: 0.1,
-    alignSelf: 'center',
+    alignItems: 'center',
     paddingTop: 20,
     width: '100%',
   },
@@ -141,8 +151,6 @@ const style = StyleSheet.create({
     borderWidth: 2,
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 16,
-    // marginBottom: 15,
-    // maxWidth: 400,
     minHeight: 45,
     alignSelf: 'center',
   },
@@ -178,6 +186,12 @@ const style = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
+    color: $config.SECONDARY_FONT_COLOR,
+  },
+  titleHeading: {
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
     color: $config.SECONDARY_FONT_COLOR,
   },
 });

@@ -31,15 +31,11 @@ const ChatInput = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
   // const [height, setHeight] = useState(0);
-  const {privateActive, selectedUser} = props;
+  const {privateActive, selectedUserID} = props;
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
 
   return (
-    <View
-      style={[
-        style.inputView,
-        {borderColor: primaryColor, height: 40}
-      ]}>
+    <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
       <TextInput
         value={message}
         // onContentSizeChange={(event) => {
@@ -64,13 +60,10 @@ const ChatInput = (props: any) => {
           if (!privateActive) {
             sendMessage(message);
             onChangeMessage('');
-            // setHeight(40);
           } else {
-            sendMessageToUid(message, selectedUser.uid);
+            sendMessageToUid(message, selectedUserID);
             onChangeMessage('');
-            // setHeight(40);
           }
-          // UIManager.focus(inputRef.current);
         }}
         placeholder="Type your message.."
         placeholderTextColor={$config.PRIMARY_FONT_COLOR}
@@ -84,7 +77,7 @@ const ChatInput = (props: any) => {
             onChangeMessage('');
             // setHeight(40);
           } else {
-            sendMessageToUid(message, selectedUser.uid);
+            sendMessageToUid(message, selectedUserID);
             onChangeMessage('');
             // setHeight(40);
           }
@@ -116,7 +109,6 @@ const style = StyleSheet.create({
   },
   chatInputButton: {
     width: 30,
-    // width: '10%',
     marginRight: 0,
     height: 30,
     borderRadius: 30,

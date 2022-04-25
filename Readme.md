@@ -6,6 +6,7 @@ This repository is a part of [RTE app builder](https://appbuilder.agora.io).
 
 2. Navigate into project directory and run:
     ```
-    npm run dev-setup
+    npm run dev-setup -- meeting
+    npm run dev-setup -- live-streaming
     ```
     This command will automatically set everything up for development

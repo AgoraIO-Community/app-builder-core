@@ -9,7 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {
+  ChannelAttributeOptions,
+  RtmAttribute,
+  RtmChannelAttribute,
+  Subscription,
+} from 'agora-react-native-rtm';
+import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
+
+type callbackType = (args?: any) => void;
 
 export default class RtmEngine {
   public appId: string;
@@ -21,6 +30,7 @@ export default class RtmEngine {
     ['channelMessageReceived', () => null],
     ['channelMemberJoined', () => null],
     ['channelMemberLeft', () => null],
+    ['ChannelAttributesUpdated', () => null],
   ]);
   public clientEventsMap = new Map<string, any>([
     ['connectionStateChanged', () => null],
@@ -50,7 +60,8 @@ export default class RtmEngine {
     if (
       event === 'channelMessageReceived' ||
       event === 'channelMemberJoined' ||
-      event === 'channelMemberLeft'
+      event === 'channelMemberLeft' ||
+      event === 'ChannelAttributesUpdated'
     ) {
       this.channelEventsMap.set(event, listener);
     } else if (
@@ -181,6 +192,22 @@ export default class RtmEngine {
       console.log('Member Left', this.channelEventsMap);
       this.channelEventsMap.get('channelMemberLeft')({uid});
     });
+    this.channelMap
+      .get(channelId)
+      .on('AttributesUpdated', (attributes: RtmChannelAttribute) => {
+        /**
+         * a) The following piece of code is commented for future reference.
+         * b) To be used in future implementations of channel attributes
+         * c) Kindly note the below event listener 'ChannelAttributesUpdated' expects type
+         *    RtmChannelAttribute[] (array of objects [{key: 'valueOfKey', value: 'valueOfValue}])
+         *    whereas the above listener 'AttributesUpdated' receives attributes in object form
+         *    {[valueOfKey]: valueOfValue} of type RtmChannelAttribute
+         * d) Hence in this bridge the data should be modified to keep in sync with both the
+         *    listeners for web and listener for native
+         */
+        // this.channelEventsMap.get('ChannelAttributesUpdated')(attributes); //RN expect evt: any
+      });
+
     return this.channelMap.get(channelId).join();
   }
 
@@ -290,6 +317,40 @@ export default class RtmEngine {
     return this.client.setLocalUserAttributes({...formattedAttributes});
   }
 
+  async addOrUpdateLocalUserAttributes(attributes: RtmAttribute[]) {
+    let formattedAttributes: any = {};
+    attributes.map((attribute) => {
+      let key = Object.values(attribute)[0];
+      let value = Object.values(attribute)[1];
+      formattedAttributes[key] = value;
+    });
+    return this.client.addOrUpdateLocalUserAttributes({...formattedAttributes});
+  }
+
+  addOrUpdateChannelAttributes(
+    channelId: string,
+    attributes: RtmChannelAttribute[],
+    option: ChannelAttributeOptions,
+  ): Promise<void> {
+    /**
+     * The following piece of code is commented and not deleted
+     * to be used in future implementations of channel attributes
+     */
+
+    // let formattedAttributes: any = {};
+    // attributes.map((attribute) => {
+    //   let key = Object.values(attribute)[0];
+    //   let value = Object.values(attribute)[1];
+    //   formattedAttributes[key] = value;
+    // });
+    // return this.client.addOrUpdateChannelAttributes(
+    //   channelId,
+    //   {...formattedAttributes},
+    //   option,
+    // );
+    return Promise.resolve(); // remove this line when functionality is added to the above function
+  }
+
   async sendLocalInvitation(invitationProps: any) {
     let invite = this.client.createLocalInvitation(invitationProps.uid);
     this.localInvititations.set(invitationProps.uid, invite);
@@ -391,5 +452,21 @@ export default class RtmEngine {
 
   getSdkVersion(callback: (version: string) => void) {
     callback(VERSION);
+  }
+
+  addListener<EventType extends keyof RtmClientEvents>(
+    event: EventType,
+    listener: RtmClientEvents[EventType],
+  ): Subscription {
+    if (event === 'ChannelAttributesUpdated') {
+      this.channelEventsMap.set(event, listener as callbackType);
+    }
+    return {
+      remove: () => {
+        console.log(
+          'Use destroy method to remove all the event listeners from the RtcEngine instead.',
+        );
+      },
+    };
   }
 }

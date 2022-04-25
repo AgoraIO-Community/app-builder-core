@@ -10,7 +10,14 @@
 *********************************************
 */
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, ScrollView, Platform} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
 import {gql, useMutation} from '@apollo/client';
@@ -74,10 +81,10 @@ const Create = () => {
   console.log('mutation data', data);
 
   useEffect(() => {
-    if(Platform.OS === 'web'){
+    if (Platform.OS === 'web') {
       document.title = $config.APP_NAME;
     }
-  },[])
+  }, []);
 
   const createRoom = () => {
     if (roomTitle !== '') {
@@ -121,7 +128,7 @@ const Create = () => {
     //   style={style.full}
     //   resizeMode={'cover'}>
     // <KeyboardAvoidingView behavior={'height'} style={style.main}>
-    <ScrollView contentContainerStyle={style.main}>      
+    <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
         {hasBrandLogo && <Logo />}
         {error ? <Error error={error} /> : <></>}
@@ -141,16 +148,20 @@ const Create = () => {
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
-                  <Checkbox
-                    value={hostControlCheckbox}
-                    onValueChange={setHostControlCheckbox}
-                  />
-                  <Text style={style.checkboxTitle}>
-                    Restrict Host Controls{' '}
-                    {!hostControlCheckbox
-                      ? '(Everyone is a Host)'
-                      : '(Separate host link)'}
-                  </Text>
+                  {$config.EVENT_MODE ? (
+                    <></>
+                  ) : (
+                    <>
+                      <Checkbox
+                        disabled={$config.EVENT_MODE}
+                        value={hostControlCheckbox}
+                        onValueChange={setHostControlCheckbox}
+                      />
+                      <Text style={style.checkboxTitle}>
+                        Restrict Host Controls (Separate host link)
+                      </Text>
+                    </>
+                  )}
                 </View>
                 {$config.PSTN ? (
                   <View style={style.checkboxHolder}>

@@ -16,19 +16,20 @@ import AgoraRTC, {
   IRemoteAudioTrack,
   IRemoteVideoTrack,
   UID,
-  CameraVideoTrackInitConfig,
   ScreenVideoTrackInitConfig,
   RemoteStreamType,
-  ClientConfig,
   ICameraVideoTrack,
   EncryptionMode,
   ILocalTrack,
+  ClientRoleOptions,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
   Subscription,
 } from 'react-native-agora/lib/typescript/src/common/RtcEvents';
 import {VideoProfile} from '../quality';
+import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
+import {role, mode} from './Types';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -43,6 +44,7 @@ declare global {
     engine: RtcEngine;
   }
 }
+
 export enum AREAS {
   /**
    * China.
@@ -141,8 +143,8 @@ AgoraRTC.setArea({
 export default class RtcEngine {
   public appId: string;
   // public AgoraRTC: any;
-  public client: IAgoraRTCClient;
-  public screenClient: IAgoraRTCClient;
+  public client: any | IAgoraRTCClient;
+  public screenClient: any | IAgoraRTCClient;
   public eventsMap = new Map<string, callbackType>([
     ['UserJoined', () => null],
     ['UserOffline', () => null],
@@ -155,12 +157,7 @@ export default class RtcEngine {
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
-  // public streamSpec: AgoraRTC.StreamSpec;
-  // public streamSpecScreenshare: ScreenVideoTrackInitConfig;
   private inScreenshare: Boolean = false;
-  // private removeStream = (uid: UID) => {
-
-  // };
   private videoProfile: VideoProfile = '480p_9';
   private isPublished = false;
   private isAudioEnabled = true;
@@ -170,46 +167,18 @@ export default class RtcEngine {
   private isJoined = false;
   private deviceId = '';
   private muteLocalVideoMutex = false;
+  private muteLocalAudioMutex = false;
+
+  // Create channel profile and set it here
 
   constructor(appId: string) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
-    this.client = AgoraRTC.createClient({
-      codec: 'vp8',
-      mode: 'rtc',
-    });
-    this.screenClient = AgoraRTC.createClient({
-      codec: 'vp8',
-      mode: 'rtc',
-    });
-    // this.streamSpec = {
-    //   video: true,
-    //   audio: true,
-    // };
-    // this.streamSpecScreenshare = {
-    //   audio: false,
-    //   video: false,
-    //   screen: true,
-    //   screenAudio: true,
-    // };
   }
+
   static async create(appId: string): Promise<RtcEngine> {
     let engine = new RtcEngine(appId);
     window.engine = engine;
-    // let init = new Promise((resolve, reject) => {
-    //   engine.client.init(
-    //     appId,
-    //     function () {
-    //       window.engine = engine;
-    //       resolve();
-    //     },
-    //     function (err) {
-    //       console.error(err);
-    //       reject();
-    //     },
-    //   );
-    // });
-    // await init;
     return engine;
   }
 
@@ -224,8 +193,6 @@ export default class RtcEngine {
           {},
           {encoderConfig: this.videoProfile},
         );
-
-      // localVideo.setEncoderConfiguration(this.videoProfile);
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
@@ -255,17 +222,8 @@ export default class RtcEngine {
       //     audioError ? 'No Microphone found' : 'No Video device found',
       //   );
     }
-    // let enable = new Promise((resolve, reject) => {
-    //   this.streams.set(0, );
-    //   (this.streams.get(0) as AgoraRTC.Stream).setVideoProfile(
-    //     this.videoProfile,
-    //   );
-    //   (this.streams.get(0) as AgoraRTC.Stream).init(() => {
-    //     resolve();
-    //   }, reject);
-    // });
-    // await enable;
   }
+
   async publish() {
     if (this.localStream.audio || this.localStream.video) {
       try {
@@ -278,7 +236,6 @@ export default class RtcEngine {
           tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
-          console.log('publishing now');
           await this.client.publish(tracks);
           if (tracks[0].trackMediaType === 'audio') {
             this.isAudioPublished = true;
@@ -310,6 +267,7 @@ export default class RtcEngine {
     optionalInfo: string,
     optionalUid: number,
   ): Promise<void> {
+    // TODO create agora client here
     this.client.on('user-joined', (user) => {
       const uid = this.inScreenshare
         ? user.uid !== this.screenClient.uid
@@ -337,7 +295,6 @@ export default class RtcEngine {
           ? user.uid
           : 1
         : user.uid;
-
       // if (uid ===1) {
       //   this.screenStream.audio?.close();
       //   this.screenStream.video?.close();
@@ -362,7 +319,6 @@ export default class RtcEngine {
       } else {
         await this.client.subscribe(user, mediaType);
       }
-
       // If the subscribed track is an audio track
       if (mediaType === 'audio') {
         const audioTrack = user.audioTrack;
@@ -454,6 +410,7 @@ export default class RtcEngine {
       optionalUid || null,
     );
     this.isJoined = true;
+
     await this.publish();
   }
 
@@ -491,17 +448,30 @@ export default class RtcEngine {
   }
 
   async muteLocalAudioStream(muted: boolean): Promise<void> {
+    let didProcureMutexLock = false;
     try {
-      // await this.localStream.audio?.setEnabled(!muted);
-      if (muted) {
-        await this.client.unpublish(this.localStream.audio);
-        this.isAudioPublished = false;
-      }
-      this.isAudioEnabled = !muted;
-      if (!muted && !this.isAudioPublished && this.isJoined) {
-        await this.publish();
+      if (!this.muteLocalAudioMutex) {
+        // If there no mutex lock, procure a lock
+        this.muteLocalAudioMutex = true;
+        didProcureMutexLock = true;
+        /** setEnabled
+         *  The SDK does NOT stop audio or video capture.
+         *   The camera light stays on for video
+         *  It takes less time for the audio or video to resume.
+         */
+        await this.localStream.audio?.setMuted(muted);
+        // Release the lock once done
+        this.muteLocalAudioMutex = false;
+        this.isAudioEnabled = !muted;
+        // Unpublish only after when the user has joined the call
+        if (!muted && !this.isAudioPublished && this.isJoined) {
+          await this.publish();
+        }
       }
     } catch (e) {
+      if (didProcureMutexLock) {
+        this.muteLocalAudioMutex = false;
+      }
       console.error(
         e,
         '\n Be sure to invoke the enableVideo method before using this method.',
@@ -516,12 +486,18 @@ export default class RtcEngine {
         // If there no mutex lock, procure a lock
         this.muteLocalVideoMutex = true;
         didProcureMutexLock = true;
+        /** setEnabled
+         *  The SDK stops audio or video capture.
+         *  The indicator light of the camera turns off and stays off.
+         *  It takes more time for the audio or video to resume.
+         */
         await this.localStream.video?.setEnabled(!muted);
         // Release the lock once done
         this.muteLocalVideoMutex = false;
 
         this.isVideoEnabled = !muted;
-        if (!muted && !this.isVideoPublished) {
+        // Unpublish only after when the user has joined the call
+        if (!muted && !this.isVideoPublished && this.isJoined) {
           await this.publish();
         }
       }
@@ -560,6 +536,44 @@ export default class RtcEngine {
     const devices: Array<MediaDeviceInfo> = await AgoraRTC.getDevices(true);
     callback && callback(devices);
     return devices;
+  }
+
+  async setChannelProfile(profile: ChannelProfile): Promise<void> {
+    try {
+      this.client = AgoraRTC.createClient({
+        codec: 'vp8',
+        mode:
+          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+      });
+      this.screenClient = AgoraRTC.createClient({
+        codec: 'vp8',
+        mode:
+          profile === ChannelProfile.LiveBroadcasting ? mode.live : mode.rtc,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async setClientRole(
+    clientRole: ClientRole,
+    options?: ClientRoleOptions,
+  ): Promise<void> {
+    try {
+      if (clientRole == ClientRole.Audience) {
+        if (this.isJoined) {
+          // Unpublish the streams when role is changed to Audience
+          await this.client.unpublish();
+        }
+        await this.client.setClientRole(role.audience, options);
+        await this.screenClient.setClientRole(role.audience, options);
+      } else if (clientRole == ClientRole.Broadcaster) {
+        await this.client.setClientRole(role.host);
+        await this.screenClient.setClientRole(role.host);
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   async changeCamera(cameraId, callback, error): Promise<void> {
