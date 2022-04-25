@@ -9,14 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useState} from 'react';
-import {View, Text, Platform, StyleSheet, Dimensions} from 'react-native';
+import React, {useContext, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Modal,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import icons from '../assets/icons';
 import Settings from './Settings';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
-import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {BtnTemplate} from '../../agora-rn-uikit';
@@ -27,9 +33,16 @@ import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useChatUIData} from '../components/useChatUI';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
+import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 
 const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    left: number;
+    top: number;
+  }>({left: 0, top: 0});
+  const dropdownRef = useRef(null);
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
@@ -37,12 +50,13 @@ const Navbar = () => {
     recordingActive,
     sidePanel,
     setSidePanel,
-    layout,
-    setLayout,
+    activeLayoutName,
+    setActiveLayoutName,
     isHost,
     title,
   } = useVideoCall((data) => data);
-
+  const changeLayout = useChangeDefaultLayout();
+  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(
     (data) => data,
   );
@@ -60,6 +74,17 @@ const Navbar = () => {
     return isWeb && isDesktop ? (
       <View style={style.navItem}>
         <View style={style.navItemSeparator}></View>
+      </View>
+    ) : (
+      <View style={{marginHorizontal: 2}}></View>
+    );
+  };
+
+  // used for icon dropdown - custom layout
+  const renderSeparatorHorizontal = () => {
+    return isWeb && isDesktop ? (
+      <View style={style.navItem}>
+        <View style={style.navItemSeparatorHorizontal}></View>
       </View>
     ) : (
       <View style={{marginHorizontal: 2}}></View>
@@ -84,6 +109,134 @@ const Navbar = () => {
         </View>
       </View>
     );
+  };
+
+  const renderDropdown = () => {
+    const layoutToDisplay =
+      layouts && Array.isArray(layouts) && layouts.length
+        ? layouts.filter((item) => item.name !== activeLayoutName)
+        : [];
+    /**
+     * By default 0th layout icon will be dislayed in the UI.
+     * so filering the active layout from the layouts list
+     * and creating the dropdown with remaining data
+     */
+    const data = layoutToDisplay.map((item, index) => {
+      let content = [];
+      content.push(
+        item?.iconName ? (
+          <View
+            style={style.dropdownIconContainer}
+            key={'navLayoutIcon' + index}>
+            <BtnTemplate
+              style={style.btnHolderCustom}
+              onPress={() => {
+                setActiveLayoutName(item.name);
+                setShowDropdown(false);
+              }}
+              name={item?.iconName}
+            />
+          </View>
+        ) : (
+          <View
+            style={style.dropdownIconContainer}
+            key={'navLayoutIcon' + index}>
+            <BtnTemplate
+              style={style.btnHolderCustom}
+              onPress={() => {
+                setActiveLayoutName(item.name);
+                setShowDropdown(false);
+              }}
+              icon={item.icon}
+            />
+          </View>
+        ),
+      );
+      if (layoutToDisplay.length - 1 !== index) {
+        content.push(
+          <View
+            style={style.separaterContainer}
+            key={'navLayoutIconSeparater' + index}>
+            {renderSeparatorHorizontal()}
+          </View>,
+        );
+      }
+      return content;
+    });
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showDropdown}
+        onRequestClose={() => {
+          setShowDropdown(false);
+        }}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setShowDropdown(false);
+          }}>
+          <View style={style.backDrop} />
+        </TouchableWithoutFeedback>
+        <View
+          style={[
+            style.dropdownContainer,
+            {
+              top: dropdownPosition.top,
+              left: dropdownPosition.left - (isWeb && isDesktop ? 0 : 6),
+            },
+          ]}>
+          {data}
+        </View>
+      </Modal>
+    );
+  };
+  const renderLayoutIcon = (showDropdown?: boolean) => {
+    let onPress = () => {};
+    let renderContent = [];
+    if (!showDropdown) {
+      onPress = () => {
+        changeLayout();
+      };
+    } else {
+      onPress = () => {
+        dropdownRef?.current?.measure(
+          (
+            fx: number,
+            fy: number,
+            localWidth: number,
+            localHeight: number,
+            px: number,
+            py: number,
+          ) => {
+            if (py && px && localHeight) {
+              setDropdownPosition({
+                top: py + localHeight,
+                left: px,
+              });
+            }
+          },
+        );
+        setShowDropdown(true);
+      };
+    }
+    renderContent.push(
+      layouts[layout]?.iconName ? (
+        <BtnTemplate
+          key={'defaultLayoutIconWithName'}
+          style={style.btnHolder}
+          onPress={onPress}
+          name={layouts[layout]?.iconName}
+        />
+      ) : (
+        <BtnTemplate
+          key={'defaultLayoutIconWithIcon'}
+          style={style.btnHolder}
+          onPress={onPress}
+          icon={layouts[layout]?.icon}
+        />
+      ),
+    );
+    return renderContent;
   };
 
   return (
@@ -248,36 +401,25 @@ const Navbar = () => {
             </>
           )}
           {renderSeparator()}
-          <View style={[style.navItem, style.navSmItem]}>
-            {layouts[layout]?.iconName ? (
-              <BtnTemplate
-                style={style.btnHolder}
-                onPress={() => {
-                  setLayout((l: Layout) => {
-                    if (l < layouts?.length - 1) {
-                      return l + 1;
-                    } else {
-                      return 0;
-                    }
-                  });
-                }}
-                name={layouts[layout]?.iconName}
-              />
-            ) : (
-              <BtnTemplate
-                style={style.btnHolder}
-                onPress={() => {
-                  setLayout((l: Layout) => {
-                    if (l < layouts?.length - 1) {
-                      return l + 1;
-                    } else {
-                      return 0;
-                    }
-                  });
-                }}
-                icon={layouts[layout]?.icon}
-              />
-            )}
+          <View
+            style={[style.navItem, style.navSmItem]}
+            ref={dropdownRef}
+            /**
+             * .measure returns undefined on Android unless collapsable=false or onLayout are specified
+             * so added collapsable property
+             * https://github.com/facebook/react-native/issues/29712
+             * */
+            collapsable={false}>
+            {/**
+             * Based on the flag. it will render the dropdown
+             */}
+            {showDropdown ? renderDropdown() : <></>}
+            {/**
+             * If layout contains more than 2 data. it will render the dropdown.
+             */}
+            {layouts && Array.isArray(layouts) && layouts.length > 2
+              ? renderLayoutIcon(true)
+              : renderLayoutIcon(false)}
           </View>
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
@@ -300,6 +442,14 @@ const Navbar = () => {
   );
 };
 const style = StyleSheet.create({
+  backDrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
   navHolder: navHolder,
   navHolderNative: {
     position: 'relative',
@@ -331,6 +481,11 @@ const style = StyleSheet.create({
   },
   btnHolder: {
     marginHorizontal: isMobileOrTablet() ? 2 : 0,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  btnHolderCustom: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
@@ -416,6 +571,31 @@ const style = StyleSheet.create({
     marginHorizontal: 10,
     alignSelf: 'center',
     opacity: 0.8,
+  },
+  navItemSeparatorHorizontal: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: '100%',
+    height: 1,
+    marginVertical: 10,
+    alignSelf: 'center',
+    opacity: 0.8,
+  },
+  dropdownIconContainer: {
+    flex: 1,
+    paddingHorizontal: 5,
+  },
+  separaterContainer: {
+    flex: 0.5,
+    paddingHorizontal: 5,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    marginTop: 5,
+    width: 40,
+    height: 90,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    paddingVertical: 10,
   },
 });
 

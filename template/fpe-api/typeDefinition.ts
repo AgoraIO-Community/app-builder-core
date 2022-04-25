@@ -50,7 +50,6 @@ export interface renderComponentObjectInterface {
 export type layoutComponent = React.ComponentType<{
   maxVideoArray: React.ComponentType[];
   minVideoArray: React.ComponentType[];
-  setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
 }>;
 
 export interface layoutObjectBase {

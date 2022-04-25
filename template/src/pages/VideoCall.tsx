@@ -45,7 +45,6 @@ import ChatContext, {
 } from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
-import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -54,13 +53,11 @@ import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {VideoCallProvider} from './video-call/useVideoCall';
 import {ChatUIDataProvider} from '../components/useChatUI';
-import {useFpe} from 'fpe-api';
+import {layoutObjectType, useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
 import VideoArrayRenderer from './video-call/VideoArrayRenderer';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
-import {useVideoCall} from './video-call/useVideoCall';
 import {useString} from '../utils/useString';
-import {DefaultLayouts} from './video-call/DefaultLayouts';
 import useCustomLayout from './video-call/CustomLayout';
 
 const useChatNotification = (
@@ -293,7 +290,25 @@ const VideoCall: React.FC = () => {
   const [username, setUsername] = useState(getInitialUsername);
   const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
-  const [layout, setLayout] = useState(Layout.Grid);
+  const layouts = useCustomLayout();
+  const checkLayoutsData = (layoutData: layoutObjectType[]) => {
+    return layoutData && Array.isArray(layoutData) && layoutData.length
+      ? true
+      : false;
+  };
+  const defaultLayoutName = checkLayoutsData(layouts) ? layouts[0].name : '';
+  const [layout, setLayoutIndex] = useState(0);
+  const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
+
+  useEffect(() => {
+    if (checkLayoutsData(layouts)) {
+      let index = layouts.findIndex((item) => item.name === activeLayoutName);
+      if (index >= 0) {
+        setLayoutIndex(index);
+      }
+    }
+  }, [activeLayoutName]);
+
   const [recordingActive, setRecordingActive] = useState(false);
   const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
@@ -428,8 +443,8 @@ const VideoCall: React.FC = () => {
                       value={{
                         sidePanel,
                         setSidePanel,
-                        layout,
-                        setLayout,
+                        activeLayoutName,
+                        setActiveLayoutName,
                         recordingActive,
                         setRecordingActive,
                         isHost,
