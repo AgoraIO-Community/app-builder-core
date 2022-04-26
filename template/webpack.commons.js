@@ -82,16 +82,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        // loader: 'ts-loader',
-        exclude: /node_modules|\.d\.ts$/,
-        options: {
-          configFile: 'tsconfig.json',
-          // ignoreDiagnostics: [2554,2539,2339,2551,2769,2305,2614,2322,2362,2369,2698]
-        },
-      },
-      {
         // Use babel to transpile all js, ts, jsx and tsx files
         test: /\.[jt]sx?$/,
         exclude: /node_modules/, // don't transpile the files under node_modules
