@@ -455,31 +455,18 @@ const VideoCall: React.FC = () => {
                                   setPrivateMessageLastSeen,
                                 }) => (
                                   <ChatUIDataProvider
-                                    privateMessageCountMap={
-                                      privateMessageCountMap
-                                    }
-                                    pendingPublicNotification={
-                                      pendingPublicNotification
-                                    }
-                                    pendingPrivateNotification={
-                                      pendingPrivateNotification
-                                    }
-                                    lastCheckedPrivateState={
-                                      lastCheckedPrivateState
-                                    }
-                                    pendingMessageLength={
-                                      pendingPublicNotification +
-                                      pendingPrivateNotification
-                                    }
-                                    setLastCheckedPublicState={
-                                      setLastCheckedPublicState
-                                    }
-                                    setPrivateMessageLastSeen={
-                                      setPrivateMessageLastSeen
-                                    }
-                                    setPrivateChatDisplayed={
-                                      setPrivateChatDisplayed
-                                    }>
+                                    value={{
+                                      privateMessageCountMap,
+                                      pendingPublicNotification,
+                                      pendingPrivateNotification,
+                                      lastCheckedPrivateState,
+                                      pendingMessageLength:
+                                        pendingPublicNotification +
+                                        pendingPrivateNotification,
+                                      setLastCheckedPublicState,
+                                      setPrivateMessageLastSeen,
+                                      setPrivateChatDisplayed,
+                                    }}>
                                     {cmpTypeGuard(Navbar, topBar)}
                                     <View
                                       style={[
