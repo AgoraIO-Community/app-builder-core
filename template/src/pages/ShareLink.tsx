@@ -14,16 +14,16 @@ import {createHook} from 'fpe-implementation';
 import React from 'react';
 
 export interface ShareLinkContextInterface {
-  attendeeUrl: string;
-  hostUrl: string;
+  attendeePassphrase: string;
+  hostPassphrase: string;
   pstn: {number: string; dtmf: string};
   isSeparateHostLink: boolean;
   joinPhrase: string;
   roomTitle: string;
 }
 const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
-  attendeeUrl: '',
-  hostUrl: '',
+  attendeePassphrase: '',
+  hostPassphrase: '',
   pstn: {
     number: '',
     dtmf: '',

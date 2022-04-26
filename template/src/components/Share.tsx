@@ -30,8 +30,8 @@ import {
 const Share = () => {
   const history = useHistory();
   const {
-    attendeeUrl,
-    hostUrl,
+    attendeePassphrase,
+    hostPassphrase,
     pstn,
     joinPhrase,
     roomTitle,
@@ -60,7 +60,7 @@ const Share = () => {
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
-    if (hostUrl) {
+    if (hostPassphrase) {
       history.push(`/${joinPhrase}`);
     }
   };
@@ -80,14 +80,14 @@ const Share = () => {
       url: baseURL
         ? GetMeetingInviteURL(
             baseURL,
-            attendeeUrl,
-            isSeparateHostLink ? hostUrl : undefined,
+            attendeePassphrase,
+            isSeparateHostLink ? hostPassphrase : undefined,
           )
         : undefined,
       id: !baseURL
         ? GetMeetingInviteID(
-            attendeeUrl,
-            isSeparateHostLink ? hostUrl : undefined,
+            attendeePassphrase,
+            isSeparateHostLink ? hostPassphrase : undefined,
           )
         : undefined,
       pstn: pstn
@@ -108,10 +108,10 @@ const Share = () => {
     });
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostUrl}`)
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`)
       : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${hostUrl}`)
-      : (stringToCopy += `${meetingIdText}: ${hostUrl}`);
+      ? (stringToCopy += `${window.location.origin}/${hostPassphrase}`)
+      : (stringToCopy += `${meetingIdText}: ${hostPassphrase}`);
     Clipboard.setString(stringToCopy);
   };
 
@@ -123,10 +123,10 @@ const Share = () => {
     });
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`)
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`)
       : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${attendeeUrl}`)
-      : (stringToCopy += `${meetingIdText}: ${attendeeUrl}`);
+      ? (stringToCopy += `${window.location.origin}/${attendeePassphrase}`)
+      : (stringToCopy += `${meetingIdText}: ${attendeePassphrase}`);
     Clipboard.setString(stringToCopy);
   };
 
@@ -167,10 +167,10 @@ const Share = () => {
               <View style={style.urlHolder}>
                 <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                   {$config.FRONTEND_ENDPOINT
-                    ? `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`
+                    ? `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`
                     : platform === 'web'
-                    ? `${window.location.origin}/${attendeeUrl}`
-                    : attendeeUrl}
+                    ? `${window.location.origin}/${attendeePassphrase}`
+                    : attendeePassphrase}
                 </Text>
               </View>
             </View>
@@ -215,10 +215,10 @@ const Share = () => {
             <View style={style.urlHolder}>
               <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                 {$config.FRONTEND_ENDPOINT
-                  ? `${$config.FRONTEND_ENDPOINT}/${hostUrl}`
+                  ? `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`
                   : platform === 'web'
-                  ? `${window.location.origin}/${hostUrl}`
-                  : hostUrl}
+                  ? `${window.location.origin}/${hostPassphrase}`
+                  : hostPassphrase}
               </Text>
             </View>
           </View>

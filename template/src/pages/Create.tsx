@@ -178,8 +178,8 @@ const Create = () => {
       ) : (
         <ShareLinkProvider
           value={{
-            attendeeUrl: urlView,
-            hostUrl: urlHost,
+            attendeePassphrase: urlView,
+            hostPassphrase: urlHost,
             isSeparateHostLink: hostControlCheckbox,
             pstn,
             joinPhrase,
