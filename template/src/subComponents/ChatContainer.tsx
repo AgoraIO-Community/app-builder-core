@@ -50,6 +50,7 @@ const ChatContainer = (props: any) => {
         : undefined,
     ),
   );
+  const userOfflineLabel = useString('userOfflineLabel');
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -105,7 +106,7 @@ const ChatContainer = (props: any) => {
         )}
         {userList[selectedUserID]?.offline && (
           <View style={style.infoTextView}>
-            <Text style={style.infoText}>{useString('userOfflineLabel')}</Text>
+            <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>
         )}
       </ScrollView>

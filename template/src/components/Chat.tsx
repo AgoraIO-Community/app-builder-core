@@ -18,20 +18,20 @@ import {
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import chatContext, {chatInputProps} from './ChatContext';
-import {UserType} from './RTMConfigure';
-import TextWithTooltip from '../subComponents/TextWithTooltip';
 import {useFpe} from 'fpe-api';
 import {useChatUIData} from './useChatUI';
 import {useString} from '../utils/useString';
 import {getCmpTypeGuard, isIOS, isWeb} from '../utils/common';
 
 const Chat = () => {
+  const groupChatLabel = useString('groupChatLabel')();
+  const privateChatLabel = useString('privateChatLabel')();
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const ChatInputFpe = getCmpTypeGuard<chatInputProps>(
     ChatInput,
     useFpe((data) =>
@@ -121,7 +121,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
-            {useString('groupChatLabel')()}
+            {groupChatLabel}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -143,7 +143,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
-            {useString('privateChatLabel')()}
+            {privateChatLabel}
           </Text>
         </TouchableOpacity>
       </View>
@@ -176,7 +176,7 @@ const Chat = () => {
                 selectedUsername={
                   userList[selectedUserID]
                     ? userList[selectedUserID]?.name + ' '
-                    : useString('remoteUserDefaultLabel')() + ' '
+                    : remoteUserDefaultLabel + ' '
                 }
               />
               <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />

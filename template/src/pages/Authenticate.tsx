@@ -34,6 +34,8 @@ const Authenticate = () => {
     );
     setIsDesktop(isDesktop);
   };
+  const oauthLoginLabel = useString('oauthLoginLabel')();
+  const oauthProviderLabel = useString('oauthProviderLabel')();
   return (
     <ImageBackground
       onLayout={onLayout}
@@ -44,10 +46,8 @@ const Authenticate = () => {
         <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
         <View style={style.content}>
           <View style={style.leftContent}>
-            <Text style={style.heading}>{useString('oauthLoginLabel')()}</Text>
-            <Text style={style.headline}>
-              {useString('oauthProviderLabel')()}
-            </Text>
+            <Text style={style.heading}>{oauthLoginLabel}</Text>
+            <Text style={style.headline}>{oauthProviderLabel}</Text>
             <OAuth />
           </View>
           {isDesktop ? (

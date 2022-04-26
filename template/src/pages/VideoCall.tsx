@@ -267,6 +267,7 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const {
     chat: ChatFPE,
     bottomBar,
@@ -291,11 +292,9 @@ const VideoCall: React.FC = () => {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
-  const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
-  const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
@@ -584,9 +583,7 @@ const VideoCall: React.FC = () => {
         ) : (
           <View style={style.loader}>
             <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
-            <Text style={style.loaderText}>
-              {useString('joiningLoaderLabel')()}
-            </Text>
+            <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
           </View>
         )
       ) : (

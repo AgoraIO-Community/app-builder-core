@@ -24,7 +24,7 @@ const ScreenshareButton = () => {
   const {screenshareActive, startUserScreenshare} =
     useContext(ScreenshareContext);
   const {primaryColor} = useContext(ColorContext);
-
+  const screenShareButton = useString('screenShareButton')();
   return (
     <TouchableOpacity onPress={() => startUserScreenshare()}>
       <View
@@ -44,7 +44,7 @@ const ScreenshareButton = () => {
           marginTop: 5,
           color: $config.PRIMARY_COLOR,
         }}>
-        {useString('screenShareButton')()}
+        {screenShareButton}
       </Text>
     </TouchableOpacity>
   );

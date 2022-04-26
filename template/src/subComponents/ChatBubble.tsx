@@ -32,14 +32,13 @@ const ChatBubble = (props: chatBubbleProps) => {
       Linking.openURL(url);
     }
   };
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   return (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid]
-            ? userList[uid].name
-            : useString('remoteUserDefaultLabel')()}{' '}
-          | {time + ' '}
+          {userList[uid] ? userList[uid].name : remoteUserDefaultLabel} |{' '}
+          {time + ' '}
         </Text>
       </View>
       <View

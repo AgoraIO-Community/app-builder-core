@@ -68,6 +68,12 @@ const Create = () => {
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
   const pstnToggle = useString<boolean>('pstnToggle');
+  const meetingNameInputPlaceholder = useString(
+    'meetingNameInputPlaceholder',
+  )();
+  const loadingWithDots = useString('loadingWithDots')();
+  const createMeetingButton = useString('createMeetingButton')();
+  const haveMeetingID = useString('haveMeetingID')();
   useEffect(() => {
     setGlobalErrorMessage(error);
   }, [error]);
@@ -122,7 +128,7 @@ const Create = () => {
                 value={roomTitle}
                 onChangeText={(text) => onChangeRoomTitle(text)}
                 onSubmitEditing={() => createRoom()}
-                placeholder={useString('meetingNameInputPlaceholder')()}
+                placeholder={meetingNameInputPlaceholder}
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
@@ -159,16 +165,12 @@ const Create = () => {
               <PrimaryButton
                 disabled={roomTitle === '' || loading}
                 onPress={() => createRoom()}
-                text={
-                  loading
-                    ? useString('loadingWithDots')()
-                    : useString('createMeetingButton')()
-                }
+                text={loading ? loadingWithDots : createMeetingButton}
               />
               <HorizontalRule />
               <SecondaryButton
                 onPress={() => history.push('/join')}
-                text={useString('haveMeetingID')()}
+                text={haveMeetingID}
               />
             </View>
           </View>

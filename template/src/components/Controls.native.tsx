@@ -32,6 +32,7 @@ const Controls = () => {
   const audioLabel = useString('toggleAudioButton')();
   const videoLabel = useString('toggleVideoButton')();
   const switchCameraButtonText = useString('switchCameraButton')();
+  const endCallButton = useString('endCallButton')();
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
@@ -70,7 +71,7 @@ const Controls = () => {
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('endCallButton')()} />
+          <Endcall btnText={endCallButton} />
         </View>
       </View>
     </LocalUserContext>

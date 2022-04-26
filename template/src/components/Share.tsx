@@ -9,27 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Image,
-  Platform,
-} from 'react-native';
-// import ColorContext from './ColorContext';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
-// import Illustration from '../subComponents/Illustration';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
-import icons from '../assets/icons';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
-import styles from './styles';
 import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
@@ -59,6 +47,16 @@ const Share = () => {
   const PSTNPinText = useString('PSTNPin')();
   const meetingIdText = useString('meetingIdLabel')();
   const hostIdText = useString('hostIdLabel')();
+  const attendeeUrlLabel = useString('attendeeUrlLabel')();
+  const attendeeIdLabel = useString('attendeeIdLabel')();
+  const hostUrlLabel = useString('hostUrlLabel')();
+  const pstnLabel = useString('pstnLabel')();
+  const pstnNumberLabel = useString('pstnNumberLabel')();
+  const pinLabel = useString('pin')();
+  const enterMeetingAfterCreateButton = useString(
+    'enterMeetingAfterCreateButton',
+  )();
+  const copyInviteButton = useString('copyInviteButton')();
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
@@ -163,8 +161,8 @@ const Share = () => {
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
                 {$config.FRONTEND_ENDPOINT || platform === 'web'
-                  ? useString('attendeeUrlLabel')()
-                  : useString('attendeeIdLabel')()}
+                  ? attendeeUrlLabel
+                  : attendeeIdLabel}
               </Text>
               <View style={style.urlHolder}>
                 <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
@@ -208,7 +206,7 @@ const Share = () => {
             <Text style={style.urlTitle}>
               {$config.FRONTEND_ENDPOINT || platform === 'web'
                 ? isSeparateHostLink
-                  ? useString('hostUrlLabel')()
+                  ? hostUrlLabel
                   : meetingUrlText
                 : isSeparateHostLink
                 ? hostIdText
@@ -251,18 +249,16 @@ const Share = () => {
         {pstn ? (
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{useString('pstnLabel')()}</Text>
+              <Text style={style.urlTitle}>{pstnLabel}</Text>
               <View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>
-                    {useString('pstnNumberLabel')()}:{' '}
-                  </Text>
+                  <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
                   <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {pstn?.number}
                   </Text>
                 </View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{useString('pin')()}: </Text>
+                  <Text style={style.urlTitle}>{pinLabel}: </Text>
                   <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {pstn?.dtmf}
                   </Text>
@@ -293,12 +289,12 @@ const Share = () => {
         )}
         <PrimaryButton
           onPress={() => enterMeeting()}
-          text={useString('enterMeetingAfterCreateButton')()}
+          text={enterMeetingAfterCreateButton}
         />
         <View style={{height: 10}} />
         <SecondaryButton
           onPress={() => copyToClipboard()}
-          text={useString('copyInviteButton')()}
+          text={copyInviteButton}
         />
       </View>
       {/* {dim[0] > dim[1] + 150 ? (

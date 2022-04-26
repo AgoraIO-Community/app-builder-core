@@ -25,14 +25,16 @@ const PreCallLocalMute: React.FC = () => {
   );
   const AudioCmp = getCmpTypeGuard(LocalAudioMute, audioMute);
   const VideoCmp = getCmpTypeGuard(LocalVideoMute, videoMute);
+  const toggleAudioButton = useString('toggleAudioButton')();
+  const toggleVideoButton = useString('toggleVideoButton')();
   return (
     <View style={style.precallControls}>
       <LocalUserContext>
         <View style={{alignSelf: 'center'}}>
-          <AudioCmp btnText={useString('toggleAudioButton')()} />
+          <AudioCmp btnText={toggleAudioButton} />
         </View>
         <View style={{alignSelf: 'center'}}>
-          <VideoCmp btnText={useString('toggleVideoButton')()} />
+          <VideoCmp btnText={toggleVideoButton} />
         </View>
       </LocalUserContext>
     </View>

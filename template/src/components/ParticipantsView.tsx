@@ -31,6 +31,7 @@ const ParticipantView = () => {
   const {rtcProps} = useContext(PropsContext);
   const hostLabel = useString('hostLabel')();
   const audienceLabel = useString('audienceLabel')();
+  const participantsLabel = useString('participantsLabel')();
   const {isHost} = useVideoCall((data) => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -49,9 +50,7 @@ const ParticipantView = () => {
       }>
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>
-            {useString('participantsLabel')()}
-          </Text>
+          <Text style={style.mainHeading}>{participantsLabel}</Text>
         </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>

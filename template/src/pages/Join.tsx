@@ -13,13 +13,10 @@ import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
 import SessionContext from '../components/SessionContext';
-// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
 import {hasBrandLogo} from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
 import ColorContext from '../components/ColorContext';
-// import Illustration from '../subComponents/Illustration';
-// import {secondaryBtn} from '../../theme.json';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
@@ -27,11 +24,13 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {shouldAuthenticate} from '../utils/common';
 import {useString} from '../utils/useString';
-// const joinFlag = 0;
+
 const Join = () => {
+  const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
+  const enterMeetingButton = useString('enterMeetingButton')();
+  const createMeetingButton = useString('createMeetingButton')();
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
-  const {primaryColor} = useContext(ColorContext);
   const {joinSession} = useContext(SessionContext);
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
@@ -60,18 +59,18 @@ const Join = () => {
               value={phrase}
               onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder={useString('meetingIdInputPlaceholder')()}
+              placeholder={meetingIdInputPlaceholder}
             />
             <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={useString('enterMeetingButton')()}
+              text={enterMeetingButton}
             />
             <HorizontalRule />
             <SecondaryButton
               onPress={() => createMeeting()}
-              text={useString('createMeetingButton')()}
+              text={createMeetingButton}
             />
             {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?
