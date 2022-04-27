@@ -435,9 +435,6 @@ export default class RtcEngine {
         // Release the lock once done
         this.muteLocalAudioMutex = false;
         this.isAudioEnabled = !muted;
-        if (muted) {
-          this.isAudioPublished = false;
-        }
         // Unpublish only after when the user has joined the call
         if (!muted && !this.isAudioPublished && this.isJoined) {
           await this.publish();
@@ -539,6 +536,9 @@ export default class RtcEngine {
         if (this.isJoined) {
           // Unpublish the streams when role is changed to Audience
           await this.client.unpublish();
+          this.isAudioPublished = false;
+          this.isVideoPublished = false;
+          this.isPublished = false;
         }
         await this.client.setClientRole(role.audience, options);
         await this.screenClient.setClientRole(role.audience, options);
