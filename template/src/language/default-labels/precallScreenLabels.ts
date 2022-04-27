@@ -7,12 +7,12 @@ export interface JoinRoomButtonTextInterface {
   role?: ClientRole;
 }
 export interface I18nPrecallScreenLabelsInterface {
-  precallLabel?: I18nBaseType;
-  selectInputDeviceLabel?: I18nBaseType;
-  userNamePlaceholder?: I18nBaseType;
-  fetchingNamePlaceholder?: I18nBaseType;
+  precallLabel?: I18nBaseType; //
+  selectInputDeviceLabel?: I18nBaseType; //
+  userNamePlaceholder?: I18nBaseType; //
+  fetchingNamePlaceholder?: I18nBaseType; //
   loadingWithDots?: I18nBaseType;
-  joinRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>;
+  joinRoomButton?: I18nBaseType<JoinRoomButtonTextInterface>; // need to check
 }
 
 export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {

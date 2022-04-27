@@ -20,8 +20,6 @@ export const useLocalContext = createHook(LocalContext);
 export const useDeviceContext = createHook(DeviceContext);
 export const useStorageContext = createHook(StorageContext);
 
-export {LocalUserContext} from '../agora-rn-uikit';
-
 /**
  * UI contexts
  */
@@ -35,11 +33,6 @@ export {
   useVideoCall,
 } from '../src/pages/video-call/useVideoCall';
 export type {VideoCallContextInterface} from '../src/pages/video-call/useVideoCall';
-export {ChatUIDataProvider, useChatUIData} from '../src/components/useChatUI';
-export type {
-  ChatUIDataInterface,
-  privateMsgLastSeenInterface,
-} from '../src/components/useChatUI';
 export {useShareLink, ShareLinkProvider} from '../src/pages/ShareLink';
 export type {ShareLinkContextInterface} from '../src/pages/ShareLink';
 export {

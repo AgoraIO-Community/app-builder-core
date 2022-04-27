@@ -32,16 +32,15 @@ const PreCallContext = createContext<PreCallContextInterface>({
   title: '',
 });
 
-const PreCallProvider = ({
-  value,
-  children,
-}: {
+interface PreCallProviderProps {
   value: PreCallContextInterface;
   children: React.ReactNode;
-}) => {
+}
+
+const PreCallProvider = (props: PreCallProviderProps) => {
   return (
-    <PreCallContext.Provider value={{...value}}>
-      {true ? children : <></>}
+    <PreCallContext.Provider value={{...props.value}}>
+      {props.children}
     </PreCallContext.Provider>
   );
 };

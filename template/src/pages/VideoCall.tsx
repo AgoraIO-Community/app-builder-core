@@ -32,7 +32,13 @@ import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import {cmpTypeGuard, hasBrandLogo, isValidElementType} from '../utils/common';
+import {
+  cmpTypeGuard,
+  hasBrandLogo,
+  isAndroid,
+  isValidElementType,
+  isWeb,
+} from '../utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
@@ -45,17 +51,17 @@ import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 import {ErrorContext} from '.././components/common/index';
-import {
-  PreCallProvider,
-  useFpe,
-  VideoCallProvider,
-  ChatUIDataProvider,
-} from 'fpe-api';
+import {PreCallProvider} from '../components/precall/usePreCall';
+import {VideoCallProvider} from './video-call/useVideoCall';
+import {ChatUIDataProvider} from '../components/useChatUI';
+import {useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
 import VideoArrayRenderer from './video-call/VideoArrayRenderer';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useVideoCall} from './video-call/useVideoCall';
 import {useString} from '../utils/useString';
+import {DefaultLayouts} from './video-call/DefaultLayouts';
+import useCustomLayout from './video-call/CustomLayout';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -113,7 +119,7 @@ const NotificationControl = ({
     (acc, curItem) => {
       let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
         (total, item) => {
-          if (Platform.OS === 'android') {
+          if (isAndroid) {
             //In template/src/components/RTMConfigure.tsx
             //on messageReceived event - For android platform we are passing uid as number type. so checking == for android
             return item.uid == curItem ? total + 1 : total;
@@ -261,6 +267,7 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const {
     chat: ChatFPE,
     bottomBar,
@@ -275,7 +282,6 @@ const VideoCall: React.FC = () => {
   );
   const chat =
     typeof ChatFPE !== 'object' ? isValidElementType(ChatFPE) : undefined;
-  const defaultLayouts = useVideoCall((data) => data.layouts);
   const PreCallScreenFpe = useFpe((data) =>
     typeof data?.components?.precall !== 'object'
       ? isValidElementType(data?.components?.precall)
@@ -286,11 +292,9 @@ const VideoCall: React.FC = () => {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
-  const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
   const [layout, setLayout] = useState(Layout.Grid);
   const [recordingActive, setRecordingActive] = useState(false);
-  const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
@@ -324,23 +328,7 @@ const VideoCall: React.FC = () => {
     },
   );
 
-  const fpeLayouts = useFpe((config) => {
-    if (
-      typeof config?.components?.videoCall === 'object' &&
-      config?.components?.videoCall?.customLayout
-    ) {
-      return config.components.videoCall.customLayout([
-        {name: 'Grid', iconName: 'gridLayoutIcon', component: GridVideo},
-        {
-          name: 'PinnedVideo',
-          iconName: 'pinnedLayoutIcon',
-          component: PinnedVideo,
-        },
-      ]);
-    } else {
-      return defaultLayouts;
-    }
-  });
+  const fpeLayouts = useCustomLayout();
 
   React.useEffect(() => {
     if (error) {
@@ -435,62 +423,50 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <ScreenshareConfigure>
-                      <LiveStreamContextProvider
-                        setRtcProps={setRtcProps}
-                        isHost={isHost}>
-                        {callActive ? (
-                          <View style={style.full}>
-                            <NotificationControl
-                              setSidePanel={setSidePanel}
-                              chatDisplayed={sidePanel === SidePanelType.Chat}
-                              isPrivateChatDisplayed={isPrivateChatDisplayed}>
-                              {({
-                                pendingPublicNotification,
-                                pendingPrivateNotification,
-                                setLastCheckedPublicState,
-                                lastCheckedPublicState,
-                                lastCheckedPrivateState,
-                                setLastCheckedPrivateState,
-                                privateMessageCountMap,
-                                setPrivateMessageLastSeen,
-                              }) => (
-                                <VideoCallProvider
-                                  sidePanel={sidePanel}
-                                  setSidePanel={setSidePanel}
-                                  layout={layout}
-                                  setLayout={setLayout}
-                                  recordingActive={recordingActive}
-                                  setRecordingActive={setRecordingActive}
-                                  isHost={isHost}
-                                  title={title}
-                                  layouts={fpeLayouts}>
+                    <VideoCallProvider
+                      value={{
+                        sidePanel,
+                        setSidePanel,
+                        layout,
+                        setLayout,
+                        recordingActive,
+                        setRecordingActive,
+                        isHost,
+                        title,
+                      }}>
+                      <ScreenshareConfigure>
+                        <LiveStreamContextProvider
+                          setRtcProps={setRtcProps}
+                          isHost={isHost}>
+                          {callActive ? (
+                            <View style={style.full}>
+                              <NotificationControl
+                                setSidePanel={setSidePanel}
+                                chatDisplayed={sidePanel === SidePanelType.Chat}
+                                isPrivateChatDisplayed={isPrivateChatDisplayed}>
+                                {({
+                                  pendingPublicNotification,
+                                  pendingPrivateNotification,
+                                  setLastCheckedPublicState,
+                                  lastCheckedPublicState,
+                                  lastCheckedPrivateState,
+                                  setLastCheckedPrivateState,
+                                  privateMessageCountMap,
+                                  setPrivateMessageLastSeen,
+                                }) => (
                                   <ChatUIDataProvider
-                                    privateMessageCountMap={
-                                      privateMessageCountMap
-                                    }
-                                    pendingPublicNotification={
-                                      pendingPublicNotification
-                                    }
-                                    pendingPrivateNotification={
-                                      pendingPrivateNotification
-                                    }
-                                    lastCheckedPrivateState={
-                                      lastCheckedPrivateState
-                                    }
-                                    pendingMessageLength={
-                                      pendingPublicNotification +
-                                      pendingPrivateNotification
-                                    }
-                                    setLastCheckedPublicState={
-                                      setLastCheckedPublicState
-                                    }
-                                    setPrivateMessageLastSeen={
-                                      setPrivateMessageLastSeen
-                                    }
-                                    setPrivateChatDisplayed={
-                                      setPrivateChatDisplayed
-                                    }>
+                                    value={{
+                                      privateMessageCountMap,
+                                      pendingPublicNotification,
+                                      pendingPrivateNotification,
+                                      lastCheckedPrivateState,
+                                      pendingMessageLength:
+                                        pendingPublicNotification +
+                                        pendingPrivateNotification,
+                                      setLastCheckedPublicState,
+                                      setPrivateMessageLastSeen,
+                                      setPrivateChatDisplayed,
+                                    }}>
                                     {cmpTypeGuard(Navbar, topBar)}
                                     <View
                                       style={[
@@ -557,35 +533,35 @@ const VideoCall: React.FC = () => {
                                         )}
                                       </CustomUserContextHolder>
                                     </View>
-                                    {Platform.OS !== 'web' &&
+                                    {!isWeb &&
                                     sidePanel === SidePanelType.Chat ? (
                                       <></>
                                     ) : (
                                       cmpTypeGuard(Controls, bottomBar)
                                     )}
                                   </ChatUIDataProvider>
-                                </VideoCallProvider>
-                              )}
-                            </NotificationControl>
-                          </View>
-                        ) : $config.PRECALL ? (
-                          <PreCallProvider
-                            value={{
-                              username,
-                              setUsername,
-                              callActive,
-                              setCallActive,
-                              queryComplete,
-                              title,
-                              error,
-                            }}>
-                            {cmpTypeGuard(Precall, PreCallScreenFpe)}
-                          </PreCallProvider>
-                        ) : (
-                          <></>
-                        )}
-                      </LiveStreamContextProvider>
-                    </ScreenshareConfigure>
+                                )}
+                              </NotificationControl>
+                            </View>
+                          ) : $config.PRECALL ? (
+                            <PreCallProvider
+                              value={{
+                                username,
+                                setUsername,
+                                callActive,
+                                setCallActive,
+                                queryComplete,
+                                title,
+                                error,
+                              }}>
+                              {cmpTypeGuard(Precall, PreCallScreenFpe)}
+                            </PreCallProvider>
+                          ) : (
+                            <></>
+                          )}
+                        </LiveStreamContextProvider>
+                      </ScreenshareConfigure>
+                    </VideoCallProvider>
                   </RtmConfigure>
                 </DeviceConfigure>
               </RtcConfigure>
@@ -594,9 +570,7 @@ const VideoCall: React.FC = () => {
         ) : (
           <View style={style.loader}>
             <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
-            <Text style={style.loaderText}>
-              {useString('joiningLoaderLabel')()}
-            </Text>
+            <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
           </View>
         )
       ) : (

@@ -11,6 +11,7 @@ import {ImageIcon} from '../../../agora-rn-uikit';
 import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import networkQualityContext from '../../components/NetworkQualityContext';
 import {NetworkQualityPill} from '../../subComponents/NetworkQualityPill';
+import {useString} from '../../utils/useString';
 
 interface MaxVideoRendererInterface {
   user: UidInterface;
@@ -29,7 +30,6 @@ const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({
   const {userList, localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
   const networkQualityStat = useContext(networkQualityContext);
-
   return (
     <View style={maxStyle.container}>
       <ScreenShareNotice uid={user.uid} />
@@ -153,6 +153,10 @@ const MinVideoRenderer = ({
   const {primaryColor} = useContext(ColorContext);
   const {isSidePinnedlayout, dim, height, width} = viewProps;
   const networkQualityStat = useContext(networkQualityContext);
+  const screenshareUserName = useString('screenshareUserName');
+  const pstnUserLabel = useString('pstnUserLabel')();
+  const localUserDefaultLabel = useString('localUserDefaultLabel')();
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
 
   return (
     <Pressable
@@ -194,7 +198,7 @@ const MinVideoRenderer = ({
             if (user.uid === 'local') {
               return FallbackLogo(userList[localUid]?.name);
             } else if (String(user.uid)[0] === '1') {
-              return FallbackLogo('PSTN User');
+              return FallbackLogo(pstnUserLabel);
             } else {
               return FallbackLogo(userList[user.uid]?.name);
             }
@@ -216,14 +220,14 @@ const MinVideoRenderer = ({
                 user.uid === 'local'
                   ? userList[localUid]
                     ? userList[localUid].name + ' '
-                    : 'You '
+                    : localUserDefaultLabel + ' '
                   : userList[user.uid]
                   ? userList[user.uid].name + ' '
                   : user.uid === 1
-                  ? userList[localUid]?.name + "'s screen "
+                  ? screenshareUserName(userList[localUid]?.name) + ' '
                   : String(user.uid)[0] === '1'
-                  ? 'PSTN User '
-                  : 'User '
+                  ? pstnUserLabel + ' '
+                  : remoteUserDefaultLabel + ' '
               }
               style={[
                 minStyle.name,

@@ -14,17 +14,16 @@ import {createHook} from 'fpe-implementation';
 import React from 'react';
 
 export interface ShareLinkContextInterface {
-  attendeeUrl: string;
-  hostUrl: string;
+  attendeePassphrase: string;
+  hostPassphrase: string;
   pstn: {number: string; dtmf: string};
   isSeparateHostLink: boolean;
-  joinPhrase: string | null;
+  joinPhrase: string;
   roomTitle: string;
-  children: React.ReactNode;
 }
 const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
-  attendeeUrl: '',
-  hostUrl: '',
+  attendeePassphrase: '',
+  hostPassphrase: '',
   pstn: {
     number: '',
     dtmf: '',
@@ -32,13 +31,17 @@ const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
   isSeparateHostLink: false,
   joinPhrase: '',
   roomTitle: '',
-  children: null,
 });
 
-const ShareLinkProvider = (props: ShareLinkContextInterface) => {
+interface ShareLinkProvideProps {
+  children: React.ReactNode;
+  value: ShareLinkContextInterface;
+}
+
+const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   return (
-    <ShareLinkContext.Provider value={{...props}}>
-      {true ? props.children : <></>}
+    <ShareLinkContext.Provider value={{...props.value}}>
+      {props.children}
     </ShareLinkContext.Provider>
   );
 };

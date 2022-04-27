@@ -20,11 +20,11 @@ interface Props {
 const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedCam, setSelectedCam] = useState('');
   const [selectedMic, setSelectedMic] = useState('');
-  const [deviceList, setDeviceList] = useState([]);
+  const [deviceList, setDeviceList] = useState<MediaDeviceInfo[]>([]);
   const rtc = useContext(RtcContext);
 
   const refreshDevices = useCallback(async () => {
-    rtc.RtcEngine.getDevices(function (devices: any) {
+    rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
       console.log('set devices');
       setDeviceList(devices);
       for (const i in devices) {
@@ -89,7 +89,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         deviceList,
         setDeviceList,
       }}>
-      {true ? props.children : <></>}
+      {props.children}
     </DeviceContext.Provider>
   );
 };

@@ -37,7 +37,7 @@ const ErrorProvider = (props: {children: React.ReactNode}) => {
   };
   return (
     <ErrorContext.Provider value={{error, setGlobalErrorMessage, resetError}}>
-      {true ? props.children : <></>}
+      {props.children}
     </ErrorContext.Provider>
   );
 };

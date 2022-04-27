@@ -43,7 +43,9 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
 
   const [languageCode, setLanguageCodeLocal] = useState(
     storedCode ||
-      (i18nData && i18nData.length ? i18nData[0].locale : false) ||
+      (i18nData && Array.isArray(i18nData) && i18nData.length
+        ? i18nData[0].locale
+        : false) ||
       DEFAULT_I18_DATA.locale,
   );
 
@@ -77,7 +79,7 @@ const LanguageProvider = (props: LanguagePropsInterface) => {
 
   return (
     <LanguageContext.Provider value={{languageCode, setLanguageCode}}>
-      {true ? props.children : <></>}
+      {props.children}
     </LanguageContext.Provider>
   );
 };

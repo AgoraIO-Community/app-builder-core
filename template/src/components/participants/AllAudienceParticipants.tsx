@@ -8,11 +8,11 @@ import {useString} from '../../utils/useString';
 const AllAudienceParticipants = (props: any) => {
   const {p_style, isHost, participantList} = props;
   const {localUid} = useContext(chatContext);
-  const noOneJoinedLabel = useString('noOneJoinedLabel')();
+  const participantListPlaceholder = useString('participantListPlaceholder')();
   return (
     <View style={p_style.participantContainer}>
       {Object.keys(participantList).length == 0 ? (
-        <Text style={p_style.infoText}>{noOneJoinedLabel}</Text>
+        <Text style={p_style.infoText}>{participantListPlaceholder}</Text>
       ) : (
         <>
           {/* Audience should see his name first */}

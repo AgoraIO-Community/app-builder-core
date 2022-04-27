@@ -16,36 +16,36 @@ import {
   liveStreamPropsInterface,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
-import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
+import {useScreenshare} from 'fpe-api';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
 export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
-  const raiseHandRequestReceivedMessage = useString(
-    'raiseHandRequestReceivedMessage',
+  const raiseHandRemoteHostNotification = useString(
+    'raiseHandRemoteHostNotification',
   );
-  const raiseHandRequestRecallMessage = useString(
-    'raiseHandRequestRecallMessage',
+  const lowerHandRemoteHostNotification = useString(
+    'lowerHandRemoteHostNotification',
   );
-  const raiseHandRequestAcceptedMessage = useString(
-    'raiseHandRequestAcceptedMessage',
+  const raiseHandApprovedLocalNotification = useString(
+    'raiseHandApprovedLocalNotification',
   )();
-  const raiseHandRequestRejectedMessage = useString(
-    'raiseHandRequestRejectedMessage',
+  const raiseHandRejectedLocalNotification = useString(
+    'raiseHandRejectedLocalNotification',
   )();
-  const raiseHandApprovedRequestRecallMessage = useString(
-    'raiseHandApprovedRequestRecallMessage',
+  const raiseHandRevokedLocalNotification = useString(
+    'raiseHandRevokedLocalNotification',
   )();
-  const raiseHandRequestMessage = useString('raiseHandRequestMessage')();
-  const raiseHandRequestRecallLocalMessage = useString(
-    'raiseHandRequestRecallLocalMessage',
+  const raiseHandLocalNotification = useString('raiseHandLocalNotification')();
+  const lowerHandsLocalNotification = useString(
+    'lowerHandsLocalNotification',
   )();
 
-  const screenshareContextInstance = useContext(ScreenshareContext);
+  const screenshareContextInstance = useScreenshare();
 
   const {
     userList,
@@ -206,7 +206,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           // 1. All Hosts in channel add the audience request with 'Awaiting action' status
           case LiveStreamControlMessageEnum.raiseHandRequest:
             showToast(
-              raiseHandRequestReceivedMessage(getAttendeeName(data.uid)),
+              raiseHandRemoteHostNotification(getAttendeeName(data.uid)),
             );
             addOrUpdateLiveStreamRequest({
               uid: data.uid,
@@ -216,7 +216,9 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
             break;
           // 2. All Hosts in channel update their status when a audience recalls his request
           case LiveStreamControlMessageEnum.raiseHandRequestRecall:
-            showToast(raiseHandRequestRecallMessage(getAttendeeName(data.uid)));
+            showToast(
+              lowerHandRemoteHostNotification(getAttendeeName(data.uid)),
+            );
             addOrUpdateLiveStreamRequest({
               uid: data.uid,
               ts: data.ts,
@@ -253,7 +255,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           // 1. Audience receives this when the request is accepted by host
           case LiveStreamControlMessageEnum.raiseHandRequestAccepted:
             if (!raiseHandRequestActive) return;
-            showToast(raiseHandRequestAcceptedMessage);
+            showToast(raiseHandApprovedLocalNotification);
             // Audience notfies all host when request is approved
             notifyAllHostsInChannel(
               LiveStreamControlMessageEnum.notifyAllRequestApproved,
@@ -264,7 +266,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
             break;
           // 2. Audience receives this when the request is cancelled by host
           case LiveStreamControlMessageEnum.raiseHandRequestRejected:
-            showToast(raiseHandRequestRejectedMessage);
+            showToast(raiseHandRejectedLocalNotification);
             setRaiseHandRequestActive(false);
             // Audience notfies all host when request is approved
             notifyAllHostsInChannel(
@@ -275,7 +277,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
             break;
           // 3. Audience receives this when host demotes (canceled after approval)
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
-            showToast(raiseHandApprovedRequestRecallMessage);
+            showToast(raiseHandRevokedLocalNotification);
             screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
             setRaiseHandRequestActive(false);
             // Audience notfies all host when request is rejected
@@ -368,7 +370,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
    */
 
   const audienceSendsRequest = () => {
-    showToast(raiseHandRequestMessage);
+    showToast(raiseHandLocalNotification);
     setRaiseHandRequestActive(true);
     sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
     updateLocalUserAttributes(attrRequestStatus.RaiseHand_AwaitingAction);
@@ -396,7 +398,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
     }
     updateLocalUserAttributes(attrRequestTypes.none);
-    showToast(raiseHandRequestRecallLocalMessage);
+    showToast(lowerHandsLocalNotification);
   };
 
   const updateLocalUserAttributes = (

@@ -20,7 +20,7 @@ const ColorConfigure: React.FC = (props: any) => {
       value={{
         primaryColor: primaryColor,
       }}>
-      {true ? props.children : <></>}
+      {props.children}
     </ColorContext.Provider>
   );
 };

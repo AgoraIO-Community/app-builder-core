@@ -13,13 +13,14 @@ import {useFpe} from 'fpe-api';
 
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
-import {cmpTypeGuard} from '../../utils/common';
+import {getCmpTypeGuard} from '../../utils/common';
 import {
   LocalAudioMute,
   LocalVideoMute,
   SwitchCamera,
 } from '../../../agora-rn-uikit';
 import {LocalUserContext} from '../../../agora-rn-uikit';
+import {useString} from '../../utils/useString';
 
 const PreCallLocalMute: React.FC = () => {
   const {videoMute, audioMute} = useFpe((data) =>
@@ -27,18 +28,23 @@ const PreCallLocalMute: React.FC = () => {
       ? data.components?.precall
       : {},
   );
+  const AudioCmp = getCmpTypeGuard(LocalAudioMute, audioMute);
+  const VideoCmp = getCmpTypeGuard(LocalVideoMute, videoMute);
+  const toggleAudioButton = useString('toggleAudioButton')();
+  const toggleVideoButton = useString('toggleVideoButton')();
+  const switchCameraButton = useString('switchCameraButton')();
   return (
     <LocalUserContext>
       <View style={style.width50}>
-        {cmpTypeGuard(LocalAudioMute, audioMute)}
+        <AudioCmp btnText={toggleAudioButton} />
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        {cmpTypeGuard(LocalVideoMute, videoMute)}
+        <VideoCmp btnText={toggleVideoButton} />
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        <SwitchCamera />
+        <SwitchCamera btnText={switchCameraButton} />
       </View>
     </LocalUserContext>
   );

@@ -20,8 +20,8 @@ export interface ChatUIDataInterface {
   pendingMessageLength: number;
   pendingPrivateNotification: number;
   pendingPublicNotification: number;
-  lastCheckedPrivateState: object;
-  privateMessageCountMap: object;
+  lastCheckedPrivateState: {[key: string | number]: number};
+  privateMessageCountMap: {[key: string | number]: number};
   setLastCheckedPublicState: React.Dispatch<SetStateAction<number>>;
   setPrivateMessageLastSeen: React.Dispatch<
     SetStateAction<privateMsgLastSeenInterface>
@@ -40,10 +40,15 @@ const ChatUIDataContext = React.createContext<ChatUIDataInterface>({
   setPrivateChatDisplayed: () => {},
 });
 
-const ChatUIDataProvider = (props: any) => {
+interface ChatUIDataProviderProps {
+  children: React.ReactNode;
+  value: ChatUIDataInterface;
+}
+
+const ChatUIDataProvider = (props: ChatUIDataProviderProps) => {
   return (
-    <ChatUIDataContext.Provider value={{...props}}>
-      {true ? props.children : <></>}
+    <ChatUIDataContext.Provider value={{...props.value}}>
+      {props.children}
     </ChatUIDataContext.Provider>
   );
 };

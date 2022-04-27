@@ -12,30 +12,34 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {
   View,
-  Platform,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
-import chatContext from './ChatContext';
-import {UserType} from './RTMConfigure';
-import TextWithTooltip from '../subComponents/TextWithTooltip';
-import {useChatUIData, useFpe} from 'fpe-api';
+import chatContext, {chatInputProps} from './ChatContext';
+import {useFpe} from 'fpe-api';
+import {useChatUIData} from './useChatUI';
 import {useString} from '../utils/useString';
+import {getCmpTypeGuard, isIOS, isWeb} from '../utils/common';
 
 const Chat = () => {
-  const ChatInputFpe = useFpe((data) =>
-    typeof data?.components?.videoCall === 'object' &&
-    typeof data?.components?.videoCall?.chat === 'object'
-      ? data?.components?.videoCall?.chat?.chatInput
-      : undefined,
+  const groupChatLabel = useString('groupChatLabel')();
+  const privateChatLabel = useString('privateChatLabel')();
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const ChatInputFpe = getCmpTypeGuard<chatInputProps>(
+    ChatInput,
+    useFpe((data) =>
+      typeof data?.components?.videoCall === 'object' &&
+      typeof data?.components?.videoCall?.chat === 'object'
+        ? data?.components?.videoCall?.chat?.chatInput
+        : undefined,
+    ),
   );
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
@@ -91,7 +95,7 @@ const Chat = () => {
   return (
     <View
       style={
-        Platform.OS === 'web'
+        isWeb
           ? !isSmall
             ? style.chatView
             : style.chatViewNative
@@ -117,7 +121,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
-            {useString('groupChatLabel')()}
+            {groupChatLabel}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -139,7 +143,7 @@ const Chat = () => {
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
-            {useString('privateChatLabel')()}
+            {privateChatLabel}
           </Text>
         </TouchableOpacity>
       </View>
@@ -150,11 +154,7 @@ const Chat = () => {
           <View>
             <View style={style.chatInputContainer}>
               <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
-              {ChatInputFpe ? (
-                <ChatInputFpe privateActive={privateActive} />
-              ) : (
-                <ChatInput privateActive={privateActive} />
-              )}
+              <ChatInputFpe privateActive={privateActive} />
             </View>
           </View>
         </>
@@ -176,7 +176,7 @@ const Chat = () => {
                 selectedUsername={
                   userList[selectedUserID]
                     ? userList[selectedUserID]?.name + ' '
-                    : useString('remoteUserDefaultLabel')() + ' '
+                    : remoteUserDefaultLabel + ' '
                 }
               />
               <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
@@ -185,17 +185,10 @@ const Chat = () => {
                   <View
                     style={[style.chatInputLineSeparator, {opacity: 0.3}]}
                   />
-                  {ChatInputFpe ? (
-                    <ChatInputFpe
-                      privateActive={privateActive}
-                      selectedUserId={selectedUserID}
-                    />
-                  ) : (
-                    <ChatInput
-                      privateActive={privateActive}
-                      selectedUserId={selectedUserID}
-                    />
-                  )}
+                  <ChatInputFpe
+                    privateActive={privateActive}
+                    selectedUserId={selectedUserID}
+                  />
                 </View>
               </View>
             </>
@@ -319,7 +312,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,
@@ -333,7 +326,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

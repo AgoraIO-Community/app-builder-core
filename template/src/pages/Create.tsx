@@ -23,7 +23,7 @@ import {ErrorContext} from '../components/common';
 import {ShareLinkProvider} from './ShareLink';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {cmpTypeGuard} from '../utils/common';
+import {cmpTypeGuard, isWeb} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
 
@@ -63,10 +63,17 @@ const Create = () => {
   const [urlHost, setUrlHost] = useState('');
   const [pstn, setPstn] = useState({number: '', dtmf: ''});
   const [roomCreated, setRoomCreated] = useState(false);
-  const [joinPhrase, setJoinPhrase] = useState(null);
+  const [joinPhrase, setJoinPhrase] = useState('');
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
+  const pstnToggle = useString<boolean>('pstnToggle');
+  const meetingNameInputPlaceholder = useString(
+    'meetingNameInputPlaceholder',
+  )();
+  const loadingWithDots = useString('loadingWithDots')();
+  const createMeetingButton = useString('createMeetingButton')();
+  const haveMeetingID = useString('haveMeetingID')();
   useEffect(() => {
     setGlobalErrorMessage(error);
   }, [error]);
@@ -74,7 +81,7 @@ const Create = () => {
   console.log('mutation data', data);
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       document.title = $config.APP_NAME;
     }
   }, []);
@@ -91,6 +98,7 @@ const Create = () => {
       })
         .then((res: any) => {
           Toast.show({
+            type: 'success',
             text1: createdText + ': ' + roomTitle,
             visibilityTime: 1000,
           });
@@ -120,7 +128,7 @@ const Create = () => {
                 value={roomTitle}
                 onChangeText={(text) => onChangeRoomTitle(text)}
                 onSubmitEditing={() => createRoom()}
-                placeholder={useString('meetingNameInputPlaceholder')()}
+                placeholder={meetingNameInputPlaceholder}
               />
               <View style={{paddingVertical: 10}}>
                 <View style={style.checkboxHolder}>
@@ -147,7 +155,7 @@ const Create = () => {
                       onValueChange={setPstnCheckbox}
                     />
                     <Text style={style.checkboxTitle}>
-                      {useString('usePSTN')()}
+                      {pstnToggle(pstnCheckbox)}
                     </Text>
                   </View>
                 ) : (
@@ -157,28 +165,26 @@ const Create = () => {
               <PrimaryButton
                 disabled={roomTitle === '' || loading}
                 onPress={() => createRoom()}
-                text={
-                  loading
-                    ? useString('loadingWithDots')()
-                    : useString('createMeetingButton')()
-                }
+                text={loading ? loadingWithDots : createMeetingButton}
               />
               <HorizontalRule />
               <SecondaryButton
                 onPress={() => history.push('/join')}
-                text={useString('haveMeetingID')()}
+                text={haveMeetingID}
               />
             </View>
           </View>
         </View>
       ) : (
         <ShareLinkProvider
-          attendeeUrl={urlView}
-          hostUrl={urlHost}
-          pstn={pstn}
-          isSeparateHostLink={hostControlCheckbox}
-          joinPhrase={joinPhrase}
-          roomTitle={roomTitle}>
+          value={{
+            attendeePassphrase: urlView,
+            hostPassphrase: urlHost,
+            isSeparateHostLink: hostControlCheckbox,
+            pstn,
+            joinPhrase,
+            roomTitle,
+          }}>
           {cmpTypeGuard(ShareLink, share)}
         </ShareLinkProvider>
       )}

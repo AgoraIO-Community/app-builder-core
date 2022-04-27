@@ -11,20 +11,20 @@
 */
 
 import React from 'react';
-import {View, StyleSheet, Text, Platform} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
+import {isWeb} from '../../utils/common';
 import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
+  const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   return (
     <>
-      <Text style={style.subHeading}>
-        {useString('selectInputDeviceLabel')()}
-      </Text>
+      <Text style={style.subHeading}>{selectInputDeviceLabel}</Text>
       <View
         style={{
           flex: 1,
-          maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
+          maxWidth: isWeb ? '25vw' : 'auto',
           marginVertical: 30,
         }}>
         <SelectDevice />

@@ -12,10 +12,12 @@
 
 import React from 'react';
 import TextInput from '../../atoms/TextInput';
-import {usePreCall} from 'fpe-api';
+import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 
 const PreCallTextInput: React.FC = () => {
+  const userNamePlaceholder = useString('userNamePlaceholder')();
+  const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
   const {username, setUsername, queryComplete, error} = usePreCall(
     (data) => data,
   );
@@ -26,9 +28,7 @@ const PreCallTextInput: React.FC = () => {
       onChangeText={(text) => setUsername(text ? text.trim() : text)}
       onSubmitEditing={() => {}}
       placeholder={
-        queryComplete
-          ? useString('userNamePlaceholder')()
-          : useString('fetchingNamePlaceholder')()
+        queryComplete ? userNamePlaceholder : fetchingNamePlaceholder
       }
       editable={queryComplete && !error}
     />

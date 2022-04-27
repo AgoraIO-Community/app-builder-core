@@ -12,7 +12,7 @@
 
 import React, {useContext, useEffect} from 'react';
 import PrimaryButton from '../../atoms/PrimaryButton';
-import {usePreCall} from 'fpe-api';
+import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';

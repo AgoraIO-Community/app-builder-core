@@ -10,7 +10,7 @@
 *********************************************
 */
 import {ClientRole} from '../../agora-rn-uikit';
-import {useUserList} from 'fpe-api';
+import useUserList from './useUserList';
 
 function useIsAttendee() {
   const userList = useUserList();

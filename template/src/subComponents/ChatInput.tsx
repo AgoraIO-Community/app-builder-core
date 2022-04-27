@@ -34,7 +34,9 @@ const ChatInput = (props: chatInputProps) => {
   // const [height, setHeight] = useState(0);
   const {privateActive, selectedUserId} = props;
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
-
+  const chatMessageInputPlaceholder = useString(
+    'chatMessageInputPlaceholder',
+  )();
   return (
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
       <TextInput
@@ -66,7 +68,7 @@ const ChatInput = (props: chatInputProps) => {
             onChangeMessage('');
           }
         }}
-        placeholder={useString('chatMessageInputPlaceholder')()}
+        placeholder={chatMessageInputPlaceholder}
         placeholderTextColor={$config.PRIMARY_FONT_COLOR}
         autoCorrect={false}
       />

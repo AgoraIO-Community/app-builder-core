@@ -27,8 +27,8 @@ const cmpTypeGuard = (
   );
 };
 
-const getCmpTypeGuard = (
-  FallBackComponent: React.ComponentType,
+const getCmpTypeGuard = <T,>(
+  FallBackComponent: React.ComponentType<T>,
   FpeComponent?: React.ElementType,
 ) => {
   return FpeComponent && ReactIs.isValidElementType(FpeComponent)

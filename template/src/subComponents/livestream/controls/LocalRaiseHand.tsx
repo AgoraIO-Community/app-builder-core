@@ -24,7 +24,7 @@ const LocalRaiseHand = () => {
   const {localBtnStyles} = styleProps || {};
   const {theme} = styleProps || {};
   const {muteLocalAudio} = localBtnStyles || {};
-  const handStatusText = useString<boolean>('raiseHandStatusText');
+  const handStatusText = useString<boolean>('raiseHandButton');
   return (
     <BtnTemplate
       icon={icons['raiseHandIcon']}

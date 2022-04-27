@@ -20,10 +20,12 @@ import {
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext from '../components/ChatContext';
+import ChatContext, {chatBubbleProps} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
+import {getCmpTypeGuard, isWeb} from '../utils/common';
+import {useString} from '../utils/useString';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -39,12 +41,16 @@ const ChatContainer = (props: any) => {
 
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const ChatBubbleFpe = useFpe((data) =>
-    typeof data?.components?.videoCall === 'object' &&
-    typeof data?.components?.videoCall?.chat === 'object'
-      ? data?.components?.videoCall?.chat?.chatBubble
-      : undefined,
+  const ChatBubbleFpe = getCmpTypeGuard<chatBubbleProps>(
+    ChatBubble,
+    useFpe((data) =>
+      typeof data?.components?.videoCall === 'object' &&
+      typeof data?.components?.videoCall?.chat === 'object'
+        ? data?.components?.videoCall?.chat?.chatBubble
+        : undefined,
+    ),
   );
+  const userOfflineLabel = useString('userOfflineLabel');
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -76,51 +82,31 @@ const ChatContainer = (props: any) => {
           scrollViewRef.current?.scrollToEnd({animated: true});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any) => {
-            return ChatBubbleFpe ? (
-              <ChatBubbleFpe
-                isLocal={localUid === message.uid}
-                message={message.msg}
-                timestamp={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-            ) : (
-              <ChatBubble
-                isLocal={localUid === message.uid}
-                message={message.msg}
-                timestamp={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-            );
-          })
+          messageStore.map((message: any) => (
+            <ChatBubbleFpe
+              isLocal={localUid === message.uid}
+              message={message.msg}
+              timestamp={message.ts}
+              uid={message.uid}
+              key={message.ts}
+            />
+          ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any) => {
-            return ChatBubbleFpe ? (
-              <ChatBubbleFpe
-                isLocal={localUid === message.uid}
-                message={message.msg}
-                timestamp={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-            ) : (
-              <ChatBubble
-                isLocal={localUid === message.uid}
-                message={message.msg}
-                timestamp={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-            );
-          })
+          privateMessageStore[selectedUserID].map((message: any) => (
+            <ChatBubbleFpe
+              isLocal={localUid === message.uid}
+              message={message.msg}
+              timestamp={message.ts}
+              uid={message.uid}
+              key={message.ts}
+            />
+          ))
         ) : (
           <></>
         )}
         {userList[selectedUserID]?.offline && (
           <View style={style.infoTextView}>
-            <Text style={style.infoText}>User is offline</Text>
+            <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>
         )}
       </ScrollView>
@@ -150,7 +136,7 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
+    fontWeight: isWeb ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,

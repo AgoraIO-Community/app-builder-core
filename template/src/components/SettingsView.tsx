@@ -10,25 +10,22 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
+import {isWeb} from '../utils/common';
 
 const SettingsView = () => {
   const {isHost} = useVideoCall((data) => data);
+  const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   return (
-    <View
-      style={
-        Platform.OS === 'web' ? style.settingsView : style.settingsViewNative
-      }>
+    <View style={isWeb ? style.settingsView : style.settingsViewNative}>
       <View style={style.main}>
         <View>
-          <Text style={style.heading}>
-            {useString('selectInputDeviceLabel')()}
-          </Text>
+          <Text style={style.heading}>{selectInputDeviceLabel}</Text>
           <View style={style.popupPickerHolder}>
             <SelectDevice />
           </View>

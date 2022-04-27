@@ -18,28 +18,31 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
-import isMobileOrTablet from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
-import {useVideoCall, useChatUIData} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useChatUIData} from '../components/useChatUI';
+import useCustomLayout from '../pages/video-call/CustomLayout';
+import {isAndroid, isIOS, isWeb} from '../utils/common';
 
-const Navbar = (props: any) => {
+const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-
+  const layouts = useCustomLayout();
   const {
     recordingActive,
     sidePanel,
     setSidePanel,
     layout,
     setLayout,
-    layouts,
     isHost,
     title,
   } = useVideoCall((data) => data);
+
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(
     (data) => data,
   );
@@ -54,7 +57,7 @@ const Navbar = (props: any) => {
   const isDesktop = dim[0] > 1224;
 
   const renderSeparator = () => {
-    return Platform.OS === 'web' && isDesktop ? (
+    return isWeb && isDesktop ? (
       <View style={style.navItem}>
         <View style={style.navItemSeparator}></View>
       </View>
@@ -68,7 +71,7 @@ const Navbar = (props: any) => {
       <View
         style={{
           position: 'absolute',
-          top: Platform.OS === 'web' ? -10 : 2,
+          top: isWeb ? -10 : 2,
         }}>
         <View style={style.badge}>
           <Text
@@ -87,9 +90,9 @@ const Navbar = (props: any) => {
     <View
       onLayout={onLayout}
       style={[
-        Platform.OS === 'web' ? style.navHolder : style.navHolderNative,
+        isWeb ? style.navHolder : style.navHolderNative,
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
-        Platform.OS === 'web'
+        isWeb
           ? {
               justifyContent: isMobileOrTablet() ? 'space-between' : 'flex-end',
             }
@@ -112,7 +115,7 @@ const Navbar = (props: any) => {
           />
           <Text
             style={{
-              fontSize: Platform.OS === 'web' ? 16 : 12,
+              fontSize: isWeb ? 16 : 12,
               color: '#FD0845',
               fontWeight: '400',
               alignSelf: 'center',
@@ -128,11 +131,11 @@ const Navbar = (props: any) => {
       <View
         style={[
           style.roomNameContainer,
-          Platform.OS === 'web' && !isMobileOrTablet()
+          isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
-        {Platform.OS === 'web' ? (
+        {isWeb ? (
           <View
             style={{
               flexDirection: 'row',
@@ -173,11 +176,7 @@ const Navbar = (props: any) => {
             style.navContainer,
             {
               minWidth:
-                Platform.OS === 'web' && isDesktop
-                  ? 300
-                  : isMobileOrTablet()
-                  ? 160
-                  : 200,
+                isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
             },
           ]}>
           {onlineUsersCount !== 0 && (
@@ -213,7 +212,7 @@ const Navbar = (props: any) => {
                 <View
                   style={{
                     position: 'absolute',
-                    top: Platform.OS === 'web' ? -10 : 2,
+                    top: isWeb ? -10 : 2,
                   }}>
                   <View style={[style.badge, {paddingHorizontal: 3}]}>
                     <ImageIcon
@@ -250,7 +249,7 @@ const Navbar = (props: any) => {
           )}
           {renderSeparator()}
           <View style={[style.navItem, style.navSmItem]}>
-            {layouts[layout].iconName ? (
+            {layouts[layout]?.iconName ? (
               <BtnTemplate
                 style={style.btnHolder}
                 onPress={() => {
@@ -262,7 +261,7 @@ const Navbar = (props: any) => {
                     }
                   });
                 }}
-                name={layouts[layout].iconName}
+                name={layouts[layout]?.iconName}
               />
             ) : (
               <BtnTemplate
@@ -276,14 +275,14 @@ const Navbar = (props: any) => {
                     }
                   });
                 }}
-                icon={layouts[layout].icon}
+                icon={layouts[layout]?.icon}
               />
             )}
           </View>
           {/** Show setting icon only in non native apps
            * show in web/electron/mobile web
            * hide in android/ios  */}
-          {Platform.OS !== 'android' && Platform.OS !== 'ios' && (
+          {!isAndroid && !isIOS && (
             <>
               {renderSeparator()}
               <View style={[style.navItem, style.navSmItem]}>
@@ -360,7 +359,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     paddingHorizontal: 5,
@@ -378,7 +377,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   chipText: {
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_FONT_COLOR,
   },
@@ -392,10 +391,9 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor:
-      Platform.OS === 'web'
-        ? $config.SECONDARY_FONT_COLOR
-        : $config.SECONDARY_FONT_COLOR + '00',
+    backgroundColor: isWeb
+      ? $config.SECONDARY_FONT_COLOR
+      : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,
     paddingHorizontal: isMobileOrTablet() ? 0 : 10,
     minHeight: 35,

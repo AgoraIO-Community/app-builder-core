@@ -10,15 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  ScrollView,
-  Dimensions,
-  useWindowDimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import chatContext from './ChatContext';
@@ -31,13 +23,15 @@ import {
   ParticipantContextConsumer,
 } from './participants/context/ParticipantContext';
 import {useString} from '../utils/useString';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {isWeb} from '../utils/common';
 
 const ParticipantView = () => {
   const {userList} = useContext(chatContext);
   const {rtcProps} = useContext(PropsContext);
   const hostLabel = useString('hostLabel')();
   const audienceLabel = useString('audienceLabel')();
+  const participantsLabel = useString('participantsLabel')();
   const {isHost} = useVideoCall((data) => data);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -45,11 +39,10 @@ const ParticipantView = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  let fontSize = Platform.OS === 'web' ? 14 : 16;
   return (
     <View
       style={
-        Platform.OS === 'web'
+        isWeb
           ? isSmall
             ? style.participantViewNative
             : style.participantView
@@ -57,9 +50,7 @@ const ParticipantView = () => {
       }>
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>
-            {useString('participantsLabel')()}
-          </Text>
+          <Text style={style.mainHeading}>{participantsLabel}</Text>
         </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
@@ -260,14 +251,14 @@ const style = StyleSheet.create({
   },
   participantText: {
     lineHeight: 24,
-    fontSize: Platform.OS === 'web' ? 18 : 16,
+    fontSize: isWeb ? 18 : 16,
     flexDirection: 'row',
     letterSpacing: 0.3,
     color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '300',
   },
   participantTextSmall: {
-    fontSize: Platform.OS === 'web' ? 14 : 12,
+    fontSize: isWeb ? 14 : 12,
   },
   dummyView: {
     flex: 0.5,

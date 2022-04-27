@@ -21,6 +21,7 @@ const Error = (props: {
 }) => {
   const {resetError} = useContext(ErrorContext);
   const history = useHistory();
+  const goBackButton = useString('goBackButton')();
   return (
     <View
       style={{
@@ -62,7 +63,7 @@ const Error = (props: {
               textAlign: 'center',
               textDecorationLine: 'underline',
             }}>
-            {useString('goBackButton')()}
+            {goBackButton}
           </Text>
         </TouchableOpacity>
       ) : null}

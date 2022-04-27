@@ -22,15 +22,17 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {useVideoCall} from 'fpe-api';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
+import {RecordingProvider} from '../subComponents/recording/useRecording';
 
 const Controls = () => {
-  const {setRecordingActive, recordingActive, isHost} = useVideoCall(
-    (data) => data,
-  );
+  const {isHost} = useVideoCall();
   const {rtcProps} = useContext(PropsContext);
-
+  const audioLabel = useString('toggleAudioButton')();
+  const videoLabel = useString('toggleVideoButton')();
+  const switchCameraButtonText = useString('switchCameraButton')();
+  const endCallButton = useString('endCallButton')();
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
@@ -51,26 +53,25 @@ const Controls = () => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={useString('audio')()} />
+              <LocalAudioMute btnText={audioLabel} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={useString('video')()} />
+              <LocalVideoMute btnText={videoLabel} />
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
-                <Recording
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
+                <RecordingProvider>
+                  <Recording />
+                </RecordingProvider>
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
-              <SwitchCamera btnText={useString('switchCameraButton')()} />
+              <SwitchCamera btnText={switchCameraButtonText} />
             </View>
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('endCallButton')()} />
+          <Endcall btnText={endCallButton} />
         </View>
       </View>
     </LocalUserContext>

@@ -21,7 +21,7 @@ const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage((data) => data);
   const languageData = useFpe((data) => data?.i18n);
-
+  const languageText = useString('language')();
   if (!languageData || !languageData.length) {
     return <></>;
   }
@@ -35,7 +35,7 @@ const LanguageSelector = () => {
 
   return (
     <>
-      <Text style={style.heading}>{useString('')}</Text>
+      <Text style={style.heading}>{languageText}</Text>
       <Picker
         selectedValue={languageCode}
         style={[{borderColor: primaryColor}, style.popupPicker]}

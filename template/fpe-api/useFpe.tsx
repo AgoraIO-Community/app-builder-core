@@ -25,7 +25,7 @@ export interface FpeProviderInterface {
 const FpeProvider = (props: FpeProviderInterface) => {
   return (
     <FpeContext.Provider value={props.value}>
-      {true ? props.children : <></>}
+      {props.children}
     </FpeContext.Provider>
   );
 };

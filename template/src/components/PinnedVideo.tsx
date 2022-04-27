@@ -22,15 +22,10 @@ import {RtcContext} from '../../agora-rn-uikit';
 import {MinUidContext} from '../../agora-rn-uikit';
 import {MaxUidContext} from '../../agora-rn-uikit';
 import {layoutProps} from '../../theme.json';
-import { layoutComponent } from 'fpe-api';
+import {layoutComponent} from 'fpe-api';
 const {topPinned} = layoutProps;
 
-interface PinnedVideoProps {
-  minVideoArray: React.FC[],
-  maxVideoArray: React.FC[],
-}
-
-const PinnedVideo:layoutComponent = ({maxVideoArray, minVideoArray}: PinnedVideoProps) => {
+const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -120,7 +115,7 @@ const PinnedVideo:layoutComponent = ({maxVideoArray, minVideoArray}: PinnedVideo
                       paddingVertical: 4,
                     }
               }
-              key={"minVideo"+i}
+              key={'minVideo' + i}
               onPress={() => {
                 dispatch({type: 'SwapVideo', value: [min[i]]});
               }}>
@@ -138,7 +133,7 @@ const PinnedVideo:layoutComponent = ({maxVideoArray, minVideoArray}: PinnedVideo
             : style.flex4
         }>
         {maxVideoArray.map((maxVideo, i) => (
-          <View style={style.flex1} key={'maxVideo'+ i}>
+          <View style={style.flex1} key={'maxVideo' + i}>
             {maxVideo}
           </View>
         ))}

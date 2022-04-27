@@ -9,36 +9,29 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Image,
-  Platform,
-} from 'react-native';
-// import ColorContext from './ColorContext';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {useHistory} from './Router';
 import Clipboard from '../subComponents/Clipboard';
-// import Illustration from '../subComponents/Illustration';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
-import icons from '../assets/icons';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
-import styles from './styles';
 import {useShareLink} from '../pages/ShareLink';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
+import {isWeb} from '../utils/common';
+import {
+  GetMeetingInviteID,
+  GetMeetingInviteURL,
+} from '../utils/getMeetingInvite';
 
 const Share = () => {
   const history = useHistory();
   const {
-    attendeeUrl,
-    hostUrl,
+    attendeePassphrase,
+    hostPassphrase,
     pstn,
     joinPhrase,
     roomTitle,
@@ -54,41 +47,48 @@ const Share = () => {
   const PSTNPinText = useString('PSTNPin')();
   const meetingIdText = useString('meetingIdLabel')();
   const hostIdText = useString('hostIdLabel')();
+  const attendeeUrlLabel = useString('attendeeUrlLabel')();
+  const attendeeIdLabel = useString('attendeeIdLabel')();
+  const hostUrlLabel = useString('hostUrlLabel')();
+  const pstnLabel = useString('pstnLabel')();
+  const pstnNumberLabel = useString('pstnNumberLabel')();
+  const pinLabel = useString('pin')();
+  const enterMeetingAfterCreateButton = useString(
+    'enterMeetingAfterCreateButton',
+  )();
+  const copyInviteButton = useString('copyInviteButton')();
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
-    if (hostUrl) {
+    if (hostPassphrase) {
       history.push(`/${joinPhrase}`);
     }
   };
 
   const copyToClipboard = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let baseURL =
       platform === 'web'
         ? $config.FRONTEND_ENDPOINT || window.location.origin
-        : null;
+        : undefined;
     let stringToCopy = meetingInviteText({
       meetingName: roomTitle,
       url: baseURL
-        ? isSeparateHostLink
-          ? {
-              attendee: `${baseURL}/${attendeeUrl}`,
-              host: `${baseURL}/${hostUrl}`,
-            }
-          : {
-              attendee: `${baseURL}/${attendeeUrl}`,
-            }
+        ? GetMeetingInviteURL(
+            baseURL,
+            attendeePassphrase,
+            isSeparateHostLink ? hostPassphrase : undefined,
+          )
         : undefined,
       id: !baseURL
-        ? isSeparateHostLink
-          ? {
-              attendee: attendeeUrl,
-              host: hostUrl,
-            }
-          : {
-              attendee: attendeeUrl,
-            }
+        ? GetMeetingInviteID(
+            attendeePassphrase,
+            isSeparateHostLink ? hostPassphrase : undefined,
+          )
         : undefined,
       pstn: pstn
         ? {
@@ -101,29 +101,41 @@ const Share = () => {
   };
 
   const copyHostUrl = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostUrl}`)
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`)
       : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${hostUrl}`)
-      : (stringToCopy += `${meetingIdText}: ${hostUrl}`);
+      ? (stringToCopy += `${window.location.origin}/${hostPassphrase}`)
+      : (stringToCopy += `${meetingIdText}: ${hostPassphrase}`);
     Clipboard.setString(stringToCopy);
   };
 
   const copyAttendeeURL = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`)
+      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`)
       : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${attendeeUrl}`)
-      : (stringToCopy += `${meetingIdText}: ${attendeeUrl}`);
+      ? (stringToCopy += `${window.location.origin}/${attendeePassphrase}`)
+      : (stringToCopy += `${meetingIdText}: ${attendeePassphrase}`);
     Clipboard.setString(stringToCopy);
   };
 
   const copyPstn = () => {
-    Toast.show({text1: copiedToClipboardText, visibilityTime: 1000});
+    Toast.show({
+      type: 'success',
+      text1: copiedToClipboardText,
+      visibilityTime: 1000,
+    });
     let stringToCopy = `${PSTNNumberText}: ${pstn?.number} ${PSTNPinText}: ${pstn?.dtmf}`;
     Clipboard.setString(stringToCopy);
   };
@@ -149,20 +161,16 @@ const Share = () => {
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
                 {$config.FRONTEND_ENDPOINT || platform === 'web'
-                  ? useString('attendeeUrlLabel')()
-                  : useString('attendeeIdLabel')()}
+                  ? attendeeUrlLabel
+                  : attendeeIdLabel}
               </Text>
               <View style={style.urlHolder}>
-                <Text
-                  style={[
-                    style.url,
-                    Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                  ]}>
+                <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                   {$config.FRONTEND_ENDPOINT
-                    ? `${$config.FRONTEND_ENDPOINT}/${attendeeUrl}`
+                    ? `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`
                     : platform === 'web'
-                    ? `${window.location.origin}/${attendeeUrl}`
-                    : attendeeUrl}
+                    ? `${window.location.origin}/${attendeePassphrase}`
+                    : attendeePassphrase}
                 </Text>
               </View>
             </View>
@@ -198,23 +206,19 @@ const Share = () => {
             <Text style={style.urlTitle}>
               {$config.FRONTEND_ENDPOINT || platform === 'web'
                 ? isSeparateHostLink
-                  ? useString('hostUrlLabel')()
+                  ? hostUrlLabel
                   : meetingUrlText
                 : isSeparateHostLink
                 ? hostIdText
                 : meetingIdText}
             </Text>
             <View style={style.urlHolder}>
-              <Text
-                style={[
-                  style.url,
-                  Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                ]}>
+              <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                 {$config.FRONTEND_ENDPOINT
-                  ? `${$config.FRONTEND_ENDPOINT}/${hostUrl}`
+                  ? `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`
                   : platform === 'web'
-                  ? `${window.location.origin}/${hostUrl}`
-                  : hostUrl}
+                  ? `${window.location.origin}/${hostPassphrase}`
+                  : hostPassphrase}
               </Text>
             </View>
           </View>
@@ -245,27 +249,17 @@ const Share = () => {
         {pstn ? (
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{useString('pstnLabel')()}</Text>
+              <Text style={style.urlTitle}>{pstnLabel}</Text>
               <View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>
-                    {useString('pstnNumberLabel')()}:{' '}
-                  </Text>
-                  <Text
-                    style={[
-                      style.url,
-                      Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                    ]}>
+                  <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
+                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {pstn?.number}
                   </Text>
                 </View>
                 <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{useString('pin')()}: </Text>
-                  <Text
-                    style={[
-                      style.url,
-                      Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                    ]}>
+                  <Text style={style.urlTitle}>{pinLabel}: </Text>
+                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {pstn?.dtmf}
                   </Text>
                 </View>
@@ -295,12 +289,12 @@ const Share = () => {
         )}
         <PrimaryButton
           onPress={() => enterMeeting()}
-          text={useString('enterMeetingAfterCreateButton')()}
+          text={enterMeetingAfterCreateButton}
         />
         <View style={{height: 10}} />
         <SecondaryButton
           onPress={() => copyToClipboard()}
-          text={useString('copyInvite')()}
+          text={copyInviteButton}
         />
       </View>
       {/* {dim[0] > dim[1] + 150 ? (

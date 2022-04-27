@@ -17,19 +17,14 @@ import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
+import {useVideoCall} from '../../pages/video-call/useVideoCall';
 
 export interface RecordingContextInterface {
-  children: React.ReactNode;
-  recordingActive: boolean;
-  setRecordingActive: React.Dispatch<React.SetStateAction<boolean>>;
   startRecording: () => void;
   stopRecording: () => void;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
-  children: <></>,
-  recordingActive: false,
-  setRecordingActive: () => {},
   startRecording: () => {},
   stopRecording: () => {},
 });
@@ -64,10 +59,9 @@ function usePrevious(value: any) {
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
-const RecordingProvider = (props: any) => {
+const RecordingProvider = (props: {children: React.ReactNode}) => {
   const {rtcProps} = useContext(PropsContext);
-  const setRecordingActive = props.setRecordingActive;
-  const recordingActive = props.recordingActive;
+  const {setRecordingActive, recordingActive} = useVideoCall();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -83,7 +77,11 @@ const RecordingProvider = (props: any) => {
      */
     if (prevRecordingState && recordingActive) {
       if (prevRecordingState?.recordingActive === recordingActive) return;
-      Toast.show({text1: recordingStartedText, visibilityTime: 1000});
+      Toast.show({
+        type: 'success',
+        text1: recordingStartedText,
+        visibilityTime: 1000,
+      });
     }
   }, [recordingActive]);
 
@@ -133,8 +131,11 @@ const RecordingProvider = (props: any) => {
 
   return (
     <RecordingContext.Provider
-      value={{...props, startRecording, stopRecording, recordingActive}}>
-      {true ? props.children : <></>}
+      value={{
+        startRecording,
+        stopRecording,
+      }}>
+      {props.children}
     </RecordingContext.Provider>
   );
 };

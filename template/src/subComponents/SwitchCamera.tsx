@@ -8,10 +8,11 @@ import {LocalContext} from '../../agora-rn-uikit';
 function SwitchCamera() {
   const {RtcEngine} = useContext(RtcContext);
   const local = useContext(LocalContext);
+  const switchCameraButton = useString('switchCameraButton')();
   return (
     <BtnTemplate
       name={'switchCamera'}
-      btnText={useString('switchCameraButton')()}
+      btnText={switchCameraButton}
       disabled={local.video ? false : true}
       style={{
         backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
