@@ -25,7 +25,7 @@ function useUnreadMessageCount() {
     pendingPublicNotification,
     privateMessageCountMap,
     lastCheckedPrivateState,
-  } = useChatUIData();
+  } = useChatUIData((data) => data);
 
   const getUnreadCount = (type: UNREAD_MESSAGE_COUNT_TYPE, uid?: string) => {
     switch (type) {

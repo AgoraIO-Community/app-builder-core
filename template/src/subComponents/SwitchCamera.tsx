@@ -13,7 +13,7 @@ function SwitchCamera() {
     <BtnTemplate
       name={'switchCamera'}
       btnText={switchCameraButton}
-      disabled={local.video ? false : true}
+      disabled={local?.video ? false : true}
       style={{
         backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
         borderRadius: 23,

@@ -46,9 +46,13 @@ const GridVideo: layoutComponent = ({
   const min = useContext(MinUidContext);
   const users = [...max, ...min];
   let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+    setDim([
+      e.nativeEvent.layout.width,
+      e.nativeEvent.layout.height,
+      e.nativeEvent.layout.width > e.nativeEvent.layout.height,
+    ]);
   };
-  const [dim, setDim] = useState([
+  const [dim, setDim] = useState<[number, number, boolean]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,

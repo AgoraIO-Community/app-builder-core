@@ -13,8 +13,8 @@ import {useMaxUidContext, useMinUidContext} from 'fpe-api';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 function useIsAudioEnabled() {
-  const minUsers = useMinUidContext();
-  const maxUsers = useMaxUidContext();
+  const minUsers = useMinUidContext((data) => data);
+  const maxUsers = useMaxUidContext((data) => data);
   const users = [...minUsers, ...maxUsers];
   /**
    *
