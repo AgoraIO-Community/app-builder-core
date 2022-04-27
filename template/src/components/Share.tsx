@@ -33,7 +33,6 @@ const Share = () => {
     attendeePassphrase,
     hostPassphrase,
     pstn,
-    joinPhrase,
     roomTitle,
     isSeparateHostLink,
   } = useShareLink((data) => data);
@@ -61,7 +60,7 @@ const Share = () => {
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
     if (hostPassphrase) {
-      history.push(`/${joinPhrase}`);
+      history.push(`/${hostPassphrase}`);
     }
   };
 

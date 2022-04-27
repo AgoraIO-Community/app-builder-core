@@ -63,7 +63,6 @@ const Create = () => {
   const [urlHost, setUrlHost] = useState('');
   const [pstn, setPstn] = useState({number: '', dtmf: ''});
   const [roomCreated, setRoomCreated] = useState(false);
-  const [joinPhrase, setJoinPhrase] = useState('');
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -106,7 +105,6 @@ const Create = () => {
           setUrlView(res.data.createChannel.passphrase.view);
           setUrlHost(res.data.createChannel.passphrase.host);
           setPstn(res.data.createChannel.pstn);
-          setJoinPhrase(res.data.createChannel.passphrase.host);
           setRoomCreated(true);
         })
         .catch((e) => {
@@ -182,7 +180,6 @@ const Create = () => {
             hostPassphrase: urlHost,
             isSeparateHostLink: hostControlCheckbox,
             pstn,
-            joinPhrase,
             roomTitle,
           }}>
           {cmpTypeGuard(ShareLink, share)}

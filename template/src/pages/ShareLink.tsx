@@ -18,7 +18,6 @@ export interface ShareLinkContextInterface {
   hostPassphrase: string;
   pstn: {number: string; dtmf: string};
   isSeparateHostLink: boolean;
-  joinPhrase: string;
   roomTitle: string;
 }
 const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
@@ -29,7 +28,6 @@ const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
     dtmf: '',
   },
   isSeparateHostLink: false,
-  joinPhrase: '',
   roomTitle: '',
 });
 
