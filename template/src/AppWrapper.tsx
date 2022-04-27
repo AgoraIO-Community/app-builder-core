@@ -23,11 +23,12 @@ import {getCmpTypeGuard} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
-import {useFpe, FpeProvider, fpeConfig} from 'fpe-api';
+import {useFpe, FpeProvider, fpeConfig, FpeApiInterface} from 'fpe-api';
 import {LanguageProvider} from './language/useLanguage';
 
 interface AppWrapperProps {
   children: React.ReactNode;
+  fpeConfig?: FpeApiInterface;
 }
 
 const AppWrapper = (props: AppWrapperProps) => {
@@ -69,8 +70,9 @@ const AppWrapper = (props: AppWrapperProps) => {
 };
 
 const AppWithFpeProvider = (props: AppWrapperProps) => {
+  const value = props?.fpeConfig || fpeConfig;
   return (
-    <FpeProvider value={fpeConfig}>
+    <FpeProvider value={value}>
       <AppWrapper {...props} />
     </FpeProvider>
   );
