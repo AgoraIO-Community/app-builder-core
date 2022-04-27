@@ -23,25 +23,13 @@ export const useStorageContext = createHook(StorageContext);
 /**
  * UI contexts
  */
-export {
-  PreCallProvider,
-  usePreCall,
-} from '../src/components/precall/usePreCall';
+export {usePreCall} from '../src/components/precall/usePreCall';
 export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
-export {
-  VideoCallProvider,
-  useVideoCall,
-} from '../src/pages/video-call/useVideoCall';
+export {useVideoCall} from '../src/pages/video-call/useVideoCall';
 export type {VideoCallContextInterface} from '../src/pages/video-call/useVideoCall';
-export {useShareLink, ShareLinkProvider} from '../src/pages/ShareLink';
+export {useShareLink} from '../src/pages/ShareLink';
 export type {ShareLinkContextInterface} from '../src/pages/ShareLink';
-export {
-  useScreenshare,
-  ScreenshareProvider,
-} from '../src/subComponents/screenshare/index';
+export {useScreenshare} from '../src/subComponents/screenshare/index';
 export type {ScreenshareContextInterface} from '../src/subComponents/screenshare/index';
-export {
-  useRecording,
-  RecordingProvider,
-} from '../src/subComponents/recording/useRecording';
+export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
