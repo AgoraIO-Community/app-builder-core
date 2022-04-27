@@ -1,10 +1,10 @@
 {
   // --------------------------------------------------------
   // Use with webpack loader
-  "files":["./fpe-api/index.ts","./global.d.ts","./bridge/rtm/web/index.ts","./bridge/rtc/webNg/index.ts"],
+  // "files":["./fpe-api/index.ts","./global.d.ts","./bridge/rtm/web/index.ts","./bridge/rtc/webNg/index.ts"],
   // --------------------------------------------------------
   // Use with typescript tsc command
-  // "files":["./fpe-api/index.ts","./global.d.ts"],
+  "files":["./fpe-api/index.ts","./global.d.ts"],
   // --------------------------------------------------------
   "compilerOptions": {
     /* Basic Options */
@@ -73,22 +73,22 @@
     // ---------------------CONFIG CHANGES---------------------
     // --------------------------------------------------------
     // Use with webpack loader
-    "isolatedModules": true,
-    "emitDeclarationOnly": false
+    // "isolatedModules": true,
+    // "emitDeclarationOnly": false
     // --------------------------------------------------------
     // Use with typescript tsc command
-    // "isolatedModules": false,
-    // "emitDeclarationOnly": true,
-    // "skipLibCheck": true,
-    // "paths":{
-    //   "agora-react-native-rtm":["./bridge/rtm/web/index.ts"],
-    //   "react-native-agora":["./bridge/rtc/webNg/index.ts"],
-    //   "react-native":["react-native-web"],
-    //   "fpe-api":["./fpe-api/index.ts"],
-    //   "fpe-api/install":["./fpe-api/install.ts"],
-    //   "fpe-implementation":["./fpe-implementation/index.ts"],
-    //   "./RtcContext":["agora-rn-uikit/src/index"]
-    // }
+    "isolatedModules": false,
+    "emitDeclarationOnly": true,
+    "skipLibCheck": true,
+    "paths":{
+      "agora-react-native-rtm":["./bridge/rtm/web/index.ts"],
+      "react-native-agora":["./bridge/rtc/webNg/index.ts"],
+      "react-native":["react-native-web"],
+      "fpe-api":["./fpe-api/index.ts"],
+      "fpe-api/install":["./fpe-api/install.ts"],
+      "fpe-implementation":["./fpe-implementation/index.ts"],
+      "./RtcContext":["agora-rn-uikit/src/index"]
+    }
     // --------------------------------------------------------
   },
   "exclude": [
