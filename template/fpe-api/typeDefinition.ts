@@ -11,7 +11,6 @@
 */
 import React from 'react';
 import {chatBubbleProps, chatInputProps} from '../src/components/ChatContext';
-import Layout from '../src/subComponents/LayoutEnum';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
