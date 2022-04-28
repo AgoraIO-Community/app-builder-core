@@ -9,7 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useContext, useEffect, useRef} from 'react';
+import React, {
+  createContext,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import ChatContext, {controlMessageEnum} from '../../components/ChatContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
@@ -22,11 +28,15 @@ import {useVideoCall} from '../../pages/video-call/useVideoCall';
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
+  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
+  recordingActive: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
+  setRecordingActive: () => {},
+  recordingActive: false,
 });
 
 const START_RECORDING = gql`
@@ -53,15 +63,22 @@ function usePrevious(value: any) {
   });
   return ref.current;
 }
+interface RecordingProviderProps {
+  children: React.ReactNode;
+  value: {
+    setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
+    recordingActive: boolean;
+  };
+}
 
 /**
  * Component to start / stop Agora cloud recording.
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
-const RecordingProvider = (props: {children: React.ReactNode}) => {
+const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
-  const {setRecordingActive, recordingActive} = useVideoCall();
+  const {setRecordingActive, recordingActive} = props?.value;
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -134,6 +151,8 @@ const RecordingProvider = (props: {children: React.ReactNode}) => {
       value={{
         startRecording,
         stopRecording,
+        recordingActive,
+        setRecordingActive,
       }}>
       {props.children}
     </RecordingContext.Provider>

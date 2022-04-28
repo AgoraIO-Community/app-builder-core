@@ -27,21 +27,16 @@ import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useChatUIData} from '../components/useChatUI';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
+import {useRecording} from '../subComponents/recording/useRecording';
 
 const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
-  const {
-    recordingActive,
-    sidePanel,
-    setSidePanel,
-    layout,
-    setLayout,
-    isHost,
-    title,
-  } = useVideoCall((data) => data);
+  const {sidePanel, setSidePanel, layout, setLayout, isHost, title} =
+    useVideoCall((data) => data);
+  const {recordingActive} = useRecording((data) => data);
 
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(
     (data) => data,

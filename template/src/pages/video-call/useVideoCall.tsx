@@ -16,23 +16,19 @@ import Layout from '../../subComponents/LayoutEnum';
 import {createHook} from 'fpe-implementation';
 
 export interface VideoCallContextInterface {
-  recordingActive: boolean;
   sidePanel: SidePanelType;
   layout: Layout;
   isHost: boolean;
   title: string;
-  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
   setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
   setLayout: React.Dispatch<SetStateAction<any>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
-  recordingActive: false,
   sidePanel: SidePanelType.None,
   layout: Layout.Grid,
   isHost: false,
   title: '',
-  setRecordingActive: () => {},
   setSidePanel: () => {},
   setLayout: () => {},
 });

@@ -10,15 +10,14 @@
 *********************************************
 */
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {useHistory} from './Router';
+import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import Clipboard from '../subComponents/Clipboard';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
-import {useShareLink} from '../pages/ShareLink';
+import {useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import {isWeb} from '../utils/common';
@@ -26,9 +25,9 @@ import {
   GetMeetingInviteID,
   GetMeetingInviteURL,
 } from '../utils/getMeetingInvite';
-
+import useJoinMeeting from '../utils/useJoinMeeting';
+import Logo from '../components/common/Logo';
 const Share = () => {
-  const history = useHistory();
   const {
     attendeePassphrase,
     hostPassphrase,
@@ -56,11 +55,12 @@ const Share = () => {
     'enterMeetingAfterCreateButton',
   )();
   const copyInviteButton = useString('copyInviteButton')();
+  const useJoin = useJoinMeeting();
   // const {primaryColor} = useContext(ColorContext);
   // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
     if (hostPassphrase) {
-      history.push(`/${hostPassphrase}`);
+      useJoin(hostPassphrase);
     }
   };
 
@@ -149,27 +149,77 @@ const Share = () => {
   };
 
   return (
-    <View style={style.content} onLayout={onLayout}>
-      <View style={style.leftContent}>
-        <View>
-          <Text style={style.heading}>{$config.APP_NAME}</Text>
-          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-        </View>
-        {isSeparateHostLink ? (
+    <ScrollView contentContainerStyle={style.scrollMain}>
+      <Logo />
+      <View style={style.content} onLayout={onLayout}>
+        <View style={style.leftContent}>
+          <View>
+            <Text style={style.heading}>{$config.APP_NAME}</Text>
+            <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
+          </View>
+          {isSeparateHostLink ? (
+            <View style={style.urlContainer}>
+              <View style={{width: '80%'}}>
+                <Text style={style.urlTitle}>
+                  {$config.FRONTEND_ENDPOINT || platform === 'web'
+                    ? attendeeUrlLabel
+                    : attendeeIdLabel}
+                </Text>
+                <View style={style.urlHolder}>
+                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                    {$config.FRONTEND_ENDPOINT
+                      ? `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`
+                      : platform === 'web'
+                      ? `${window.location.origin}/${attendeePassphrase}`
+                      : attendeePassphrase}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  marginLeft: 'auto',
+                  flexDirection: 'row',
+                  alignSelf: 'center',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: $config.PRIMARY_COLOR + '80',
+                    width: 1,
+                    height: 'auto',
+                    marginRight: 15,
+                  }}
+                />
+                <View style={style.clipboardIconHolder}>
+                  <BtnTemplate
+                    style={style.clipboardIcon}
+                    color={$config.PRIMARY_COLOR}
+                    name={'clipboard'}
+                    onPress={() => copyAttendeeURL()}
+                  />
+                </View>
+              </View>
+            </View>
+          ) : (
+            <></>
+          )}
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
                 {$config.FRONTEND_ENDPOINT || platform === 'web'
-                  ? attendeeUrlLabel
-                  : attendeeIdLabel}
+                  ? isSeparateHostLink
+                    ? hostUrlLabel
+                    : meetingUrlText
+                  : isSeparateHostLink
+                  ? hostIdText
+                  : meetingIdText}
               </Text>
               <View style={style.urlHolder}>
                 <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                   {$config.FRONTEND_ENDPOINT
-                    ? `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`
+                    ? `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`
                     : platform === 'web'
-                    ? `${window.location.origin}/${attendeePassphrase}`
-                    : attendeePassphrase}
+                    ? `${window.location.origin}/${hostPassphrase}`
+                    : hostPassphrase}
                 </Text>
               </View>
             </View>
@@ -192,124 +242,84 @@ const Share = () => {
                   style={style.clipboardIcon}
                   color={$config.PRIMARY_COLOR}
                   name={'clipboard'}
-                  onPress={() => copyAttendeeURL()}
+                  onPress={() => copyHostUrl()}
                 />
               </View>
             </View>
           </View>
-        ) : (
-          <></>
-        )}
-        <View style={style.urlContainer}>
-          <View style={{width: '80%'}}>
-            <Text style={style.urlTitle}>
-              {$config.FRONTEND_ENDPOINT || platform === 'web'
-                ? isSeparateHostLink
-                  ? hostUrlLabel
-                  : meetingUrlText
-                : isSeparateHostLink
-                ? hostIdText
-                : meetingIdText}
-            </Text>
-            <View style={style.urlHolder}>
-              <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                {$config.FRONTEND_ENDPOINT
-                  ? `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`
-                  : platform === 'web'
-                  ? `${window.location.origin}/${hostPassphrase}`
-                  : hostPassphrase}
-              </Text>
+          {pstn ? (
+            <View style={style.urlContainer}>
+              <View style={{width: '80%'}}>
+                <Text style={style.urlTitle}>{pstnLabel}</Text>
+                <View>
+                  <View style={style.pstnHolder}>
+                    <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
+                    <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                      {pstn?.number}
+                    </Text>
+                  </View>
+                  <View style={style.pstnHolder}>
+                    <Text style={style.urlTitle}>{pinLabel}: </Text>
+                    <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                      {pstn?.dtmf}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
+                <View
+                  style={{
+                    backgroundColor: $config.PRIMARY_COLOR + '80',
+                    width: 1,
+                    height: 'auto',
+                    marginRight: 15,
+                  }}
+                />
+                <View style={style.clipboardIconHolder}>
+                  <BtnTemplate
+                    style={style.clipboardIcon}
+                    color={$config.PRIMARY_COLOR}
+                    name={'clipboard'}
+                    onPress={() => copyPstn()}
+                  />
+                </View>
+              </View>
             </View>
-          </View>
-          <View
-            style={{
-              marginLeft: 'auto',
-              flexDirection: 'row',
-              alignSelf: 'center',
-            }}>
-            <View
-              style={{
-                backgroundColor: $config.PRIMARY_COLOR + '80',
-                width: 1,
-                height: 'auto',
-                marginRight: 15,
-              }}
-            />
-            <View style={style.clipboardIconHolder}>
-              <BtnTemplate
-                style={style.clipboardIcon}
-                color={$config.PRIMARY_COLOR}
-                name={'clipboard'}
-                onPress={() => copyHostUrl()}
-              />
-            </View>
-          </View>
+          ) : (
+            <></>
+          )}
+          <PrimaryButton
+            onPress={() => enterMeeting()}
+            text={enterMeetingAfterCreateButton}
+          />
+          <View style={{height: 10}} />
+          <SecondaryButton
+            onPress={() => copyToClipboard()}
+            text={copyInviteButton}
+          />
         </View>
-        {pstn ? (
-          <View style={style.urlContainer}>
-            <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{pstnLabel}</Text>
-              <View>
-                <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
-                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                    {pstn?.number}
-                  </Text>
-                </View>
-                <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>{pinLabel}: </Text>
-                  <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                    {pstn?.dtmf}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_COLOR + '80',
-                  width: 1,
-                  height: 'auto',
-                  marginRight: 15,
-                }}
-              />
-              <View style={style.clipboardIconHolder}>
-                <BtnTemplate
-                  style={style.clipboardIcon}
-                  color={$config.PRIMARY_COLOR}
-                  name={'clipboard'}
-                  onPress={() => copyPstn()}
-                />
-              </View>
-            </View>
-          </View>
-        ) : (
-          <></>
-        )}
-        <PrimaryButton
-          onPress={() => enterMeeting()}
-          text={enterMeetingAfterCreateButton}
-        />
-        <View style={{height: 10}} />
-        <SecondaryButton
-          onPress={() => copyToClipboard()}
-          text={copyInviteButton}
-        />
-      </View>
-      {/* {dim[0] > dim[1] + 150 ? (
+        {/* {dim[0] > dim[1] + 150 ? (
         <View style={style.full}>
           <Illustration />
         </View>
       ) : (
         <></>
       )} */}
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 const urlWeb = {wordBreak: 'break-all'};
 
 const style = StyleSheet.create({
   full: {flex: 1},
+  scrollMain: {
+    paddingVertical: '8%',
+    marginHorizontal: '8%',
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
+  },
   main: {
     flex: 2,
     justifyContent: 'space-evenly',

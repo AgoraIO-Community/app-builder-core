@@ -11,6 +11,7 @@ import Layout from '../LayoutEnum';
 import {gql, useMutation} from '@apollo/client';
 import ScreenshareContext from './ScreenshareContext';
 import {useVideoCall} from '../../pages/video-call/useVideoCall';
+import {useRecording} from '../recording/useRecording';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -44,7 +45,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const users = [...max, ...min];
   const prevUsers = usePrevious({users});
   const {phrase} = useParams<any>();
-  const {setLayout, recordingActive} = useVideoCall((data) => data);
+  const {setLayout} = useVideoCall((data) => data);
+  const {recordingActive} = useRecording();
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
