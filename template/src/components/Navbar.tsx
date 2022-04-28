@@ -131,6 +131,7 @@ const Navbar = () => {
       <View
         style={[
           style.roomNameContainer,
+          // @ts-ignore
           isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
@@ -300,6 +301,7 @@ const Navbar = () => {
   );
 };
 const style = StyleSheet.create({
+  // @ts-ignore
   navHolder: navHolder,
   navHolderNative: {
     position: 'relative',

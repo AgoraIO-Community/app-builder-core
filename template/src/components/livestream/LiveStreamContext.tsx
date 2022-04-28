@@ -24,7 +24,7 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
-export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
+export const LiveStreamContextProvider:React.FC<liveStreamPropsInterface> = (props) => {
   const raiseHandRemoteHostNotification = useString(
     'raiseHandRemoteHostNotification',
   );
@@ -344,9 +344,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       ts: new Date().getTime(),
       status: requestStatus.Cancelled,
     });
+    // todo(adictya): fix TS later
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      uid,
+      uid as unknown as number,
     );
   };
 
@@ -356,9 +357,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       ts: new Date().getTime(),
       status: requestStatus.Cancelled,
     });
+    // todo(adictya): fix TS later
     sendControlMessageToUid(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
-      uid,
+      uid as unknown as number,
     );
   };
 

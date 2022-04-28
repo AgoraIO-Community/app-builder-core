@@ -14,6 +14,20 @@ export enum VideoRenderMode {
   Fit,
   Adaptive,
 }
+export enum VideoMirrorMode {
+  /**
+   * 0: (Default) The SDK determines the mirror mode.
+   */
+  Auto = 0,
+  /**
+   * 1: Enables mirror mode.
+   */
+  Enabled = 1,
+  /**
+   * 2: Disables mirror mode.
+   */
+  Disabled = 2
+}
 /**
  *
  * The latency level of an audience member in a live interactive streaming. Takes effect only when the user role is `"audience"`.

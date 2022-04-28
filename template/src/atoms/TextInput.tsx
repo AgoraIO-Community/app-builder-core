@@ -38,6 +38,7 @@ export default PrimaryButton;
 
 const styles = StyleSheet.create({
   textInput,
+  // @ts-ignore
   noOutline: isWeb ? {outlineStyle: 'none'} : {},
   textWrapFix: Platform.select({
     ios: {

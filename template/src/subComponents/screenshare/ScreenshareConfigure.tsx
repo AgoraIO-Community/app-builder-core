@@ -6,11 +6,13 @@ import {
   PropsContext,
   MinUidContext,
   MaxUidContext,
+  UidInterface,
 } from '../../../agora-rn-uikit/src';
 import Layout from '../LayoutEnum';
 import {gql, useMutation} from '@apollo/client';
 import ScreenshareContext from './ScreenshareContext';
 import {useVideoCall} from '../../pages/video-call/useVideoCall';
+import { IAgoraRTC } from 'agora-rtc-sdk-ng';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -24,8 +26,8 @@ const SET_NORMAL = gql`
   }
 `;
 
-function usePrevious(value: any) {
-  const ref = useRef();
+function usePrevious<T = any>(value: any) {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
@@ -33,6 +35,13 @@ function usePrevious(value: any) {
 }
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
+
+declare module 'agora-rn-uikit'{
+  interface RtcPropsInterface{
+    screenShareUid: number,
+    screenShareToken: string,
+  }
+}
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {userList} = useContext(ChatContext);
@@ -42,7 +51,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
   const users = [...max, ...min];
-  const prevUsers = usePrevious({users});
+  const prevUsers = usePrevious<{users:UidInterface[]}>({users});
   const {phrase} = useParams<any>();
   const {setLayout, recordingActive} = useVideoCall((data) => data);
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
@@ -52,6 +61,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [setNormalQuery] = useMutation(SET_NORMAL);
 
   useEffect(() => {
+    // @ts-ignore
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
@@ -157,7 +167,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         null,
         screenShareUid,
         appId,
-        rtc.RtcEngine,
+        rtc.RtcEngine as unknown as IAgoraRTC,
         encryption,
       );
       !isScreenActive && setScreenshareActive(true);

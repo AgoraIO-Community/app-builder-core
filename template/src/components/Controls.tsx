@@ -109,6 +109,7 @@ const Controls = () => {
 };
 
 const style = StyleSheet.create({
+  // @ts-ignore
   controlsHolder: {
     flex: isWeb ? 1.3 : 1.6,
     ...controlsHolder,

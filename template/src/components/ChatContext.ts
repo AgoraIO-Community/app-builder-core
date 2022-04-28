@@ -58,7 +58,7 @@ export interface chatContext {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
   sendMessage: (msg: string) => void;
-  sendMessageToUid: (msg: string, uid: number) => void;
+  sendMessageToUid: (msg: string, uid: number | string) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
   addOrUpdateLocalUserAttributes: (attributes: RtmAttribute[]) => void;

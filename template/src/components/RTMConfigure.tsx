@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine, {
   RtmChannelAttribute,
@@ -30,15 +31,21 @@ import events from './RTMEvents';
 import {filterObject} from '../utils';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
+import { typeOf } from 'react-is';
 
 export enum UserType {
   Normal,
   ScreenShare,
 }
 
-const adjustUID = (number: number) => {
-  if (number < 0) {
-    number = 0xffffffff + number + 1;
+const adjustUID = (uid: number | string) => {
+  let number: number | string;
+  if (typeof uid === "string") number = uid;
+  else {
+    number = uid;
+    if (number < 0) {
+      number = 0xffffffff + number + 1;
+    }
   }
   return number;
 };
@@ -430,7 +437,7 @@ const RtmConfigure = (props: any) => {
             userUID,
             {
               body: `${type}${msg}`,
-              ts: timestamp,
+              ts: `${timestamp}`,
             },
             false,
           );
@@ -589,11 +596,11 @@ const RtmConfigure = (props: any) => {
     );
     addMessageToStore(localUid.current, {
       body: messageActionType.Normal + msg,
-      ts: timeNow(),
+      ts: `${timeNow()}`,
     });
   };
 
-  const sendMessageToUid = async (msg: string, uid: number) => {
+  const sendMessageToUid = async (msg: string, uid: number | string) => {
     if (msg.trim() === '') return;
     let adjustedUID = uid;
     if (adjustedUID < 0) {
@@ -610,10 +617,10 @@ const RtmConfigure = (props: any) => {
       text,
     });
     addMessageToPrivateStore(
-      uid,
+      `${uid}`,
       {
         body: messageActionType.Normal + msg,
-        ts: timeNow(),
+        ts: `${timeNow()}`,
       },
       true,
     );

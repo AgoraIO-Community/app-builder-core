@@ -51,7 +51,7 @@ const joinCallBtn: React.FC = () => {
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
-      disabled={!queryComplete || username === '' || error}
+      disabled={!queryComplete || username === '' || error? true: false}
       text={buttonText}
     />
   );

@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
+// @ts-nocheck
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -139,6 +140,11 @@ AgoraRTC.setArea({
   areaCode: AREAS.GLOBAL,
   excludedArea: AREAS.CHINA,
 });
+
+interface CustomEvents {
+  ScreenshareStopped: callbackType
+}
+
 
 export default class RtcEngine {
   public appId: string;
@@ -699,7 +705,7 @@ export default class RtcEngine {
     appId: string,
     engine: typeof AgoraRTC,
     encryption: {
-      screenKey: string;
+      key: string;
       mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb';
     },
     config: ScreenVideoTrackInitConfig = {},

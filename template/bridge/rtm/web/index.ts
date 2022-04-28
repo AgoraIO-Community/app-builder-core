@@ -9,14 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import {
   ChannelAttributeOptions,
   RtmAttribute,
   RtmChannelAttribute,
   Subscription,
-} from 'agora-react-native-rtm';
+} from 'agora-react-native-rtm/lib/typescript/src';
 import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
+export {RtmAttribute}
 
 type callbackType = (args?: any) => void;
 
