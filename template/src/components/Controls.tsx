@@ -26,7 +26,6 @@ import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {useVideoCall} from '../pages/video-call/useVideoCall';
-import {RecordingProvider} from '../subComponents/recording/useRecording';
 import {useString} from '../utils/useString';
 import {isIOS, isWeb} from '../utils/common';
 
@@ -46,6 +45,7 @@ const Controls = () => {
 
   const audioLabel = useString('toggleAudioButton')();
   const videoLabel = useString('toggleVideoButton')();
+  const endCallButton = useString('endCallButton')();
 
   return (
     <LocalUserContext>
@@ -92,15 +92,13 @@ const Controls = () => {
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
-                <RecordingProvider>
-                  <Recording />
-                </RecordingProvider>
+                <Recording />
               </View>
             )}
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('endCallButton')()} />
+          <Endcall btnText={endCallButton} />
         </View>
       </View>
     </LocalUserContext>

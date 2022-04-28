@@ -52,6 +52,7 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   )();
   const meetingInviteText =
     useString<MeetingInviteInterface>('meetingInviteText');
+  const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyToClipboard = () => {
     Toast.show({
       type: 'success',
@@ -97,7 +98,7 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
       style={style.backButton}
       onPress={() => copyToClipboard()}
       name={'clipboard'}
-      btnText={props.showText ? useString('copyMeetingInviteButton')() : ''}
+      btnText={props.showText ? copyMeetingInviteButton : ''}
       color={$config.PRIMARY_FONT_COLOR}
     />
   );

@@ -14,6 +14,7 @@ import {
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
+import {useRecording} from '../recording/useRecording';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -47,7 +48,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const users = [...max, ...min];
   const prevUsers = usePrevious({users});
   const {phrase} = useParams<any>();
-  const {recordingActive} = useVideoCall((data) => data);
+  const {recordingActive} = useRecording();
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {channel, appId, screenShareUid, screenShareToken, encryption} =

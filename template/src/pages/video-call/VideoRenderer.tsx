@@ -155,6 +155,9 @@ const MinVideoRenderer = ({
   const networkQualityStat = useContext(networkQualityContext);
   const screenshareUserName = useString('screenshareUserName');
   const pstnUserLabel = useString('pstnUserLabel')();
+  const localUserDefaultLabel = useString('localUserDefaultLabel')();
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+
   return (
     <Pressable
       style={
@@ -217,14 +220,14 @@ const MinVideoRenderer = ({
                 user.uid === 'local'
                   ? userList[localUid]
                     ? userList[localUid].name + ' '
-                    : useString('localUserDefaultLabel')() + ' '
+                    : localUserDefaultLabel + ' '
                   : userList[user.uid]
                   ? userList[user.uid].name + ' '
                   : user.uid === 1
                   ? screenshareUserName(userList[localUid]?.name) + ' '
                   : String(user.uid)[0] === '1'
-                  ? useString('pstnUserLabel')() + ' '
-                  : useString('remoteUserDefaultLabel')() + ' '
+                  ? pstnUserLabel + ' '
+                  : remoteUserDefaultLabel + ' '
               }
               style={[
                 minStyle.name,

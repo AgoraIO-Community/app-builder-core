@@ -13,18 +13,17 @@ import React, {useContext} from 'react';
 import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
 import ColorContext from '../../components/ColorContext';
 import {ImageIcon} from '../../../agora-rn-uikit';
-import ScreenshareContext from './ScreenshareContext';
 import {useString} from '../../utils/useString';
+import {useScreenshare} from './index';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
  * Electron has it's own screen sharing component
  */
 const ScreenshareButton = () => {
-  const {screenshareActive, startUserScreenshare} =
-    useContext(ScreenshareContext);
+  const {screenshareActive, startUserScreenshare} = useScreenshare();
   const {primaryColor} = useContext(ColorContext);
-
+  const screenShareButton = useString('screenShareButton')();
   return (
     <TouchableOpacity onPress={() => startUserScreenshare()}>
       <View
@@ -44,7 +43,7 @@ const ScreenshareButton = () => {
           marginTop: 5,
           color: $config.PRIMARY_COLOR,
         }}>
-        {useString('screenShareButton')()}
+        {screenShareButton}
       </Text>
     </TouchableOpacity>
   );

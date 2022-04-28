@@ -24,7 +24,6 @@ import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
 import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
-import {RecordingProvider} from '../subComponents/recording/useRecording';
 
 const Controls = () => {
   const {isHost} = useVideoCall();
@@ -32,6 +31,7 @@ const Controls = () => {
   const audioLabel = useString('toggleAudioButton')();
   const videoLabel = useString('toggleVideoButton')();
   const switchCameraButtonText = useString('switchCameraButton')();
+  const endCallButton = useString('endCallButton')();
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
@@ -59,9 +59,7 @@ const Controls = () => {
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
-                <RecordingProvider>
-                  <Recording />
-                </RecordingProvider>
+                <Recording />
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
@@ -70,7 +68,7 @@ const Controls = () => {
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={useString('endCallButton')()} />
+          <Endcall btnText={endCallButton} />
         </View>
       </View>
     </LocalUserContext>

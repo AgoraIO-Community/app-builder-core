@@ -17,11 +17,10 @@ import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
+  const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   return (
     <>
-      <Text style={style.subHeading}>
-        {useString('selectInputDeviceLabel')()}
-      </Text>
+      <Text style={style.subHeading}>{selectInputDeviceLabel}</Text>
       <View
         style={{
           flex: 1,

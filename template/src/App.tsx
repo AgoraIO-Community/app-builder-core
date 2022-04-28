@@ -17,12 +17,7 @@ import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
 import StoreToken from './components/StoreToken';
-import {
-  shouldAuthenticate,
-  cmpTypeGuard,
-  isValidElementType,
-  isIOS,
-} from './utils/common';
+import {shouldAuthenticate, cmpTypeGuard, isIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
 import AppWrapper from './AppWrapper';
@@ -34,17 +29,10 @@ if (isIOS) {
 }
 
 const App: React.FC = () => {
-  const {join, create} = useFpe((data) =>
+  const {join: FpeJoinComponent} = useFpe((data) =>
     data?.components ? data.components : {},
   );
-  const videoCall = useFpe((data) =>
-    typeof data?.components?.videoCall !== 'object'
-      ? isValidElementType(data?.components?.videoCall)
-      : undefined,
-  );
   const CustomRoutes = useFpe((data) => data?.customRoutes);
-  const CreateCmp = cmpTypeGuard(Create, create);
-
   const RenderCustomRoutes = () => {
     return CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
       let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
@@ -77,16 +65,20 @@ const App: React.FC = () => {
           <StoreToken />
         </Route>
         <Route exact path={'/join'}>
-          {cmpTypeGuard(Join, join)}
+          {cmpTypeGuard(Join, FpeJoinComponent)}
         </Route>
         {shouldAuthenticate ? (
           <PrivateRoute path={'/create'} failureRedirectTo={'/authenticate'}>
-            {CreateCmp}
+            <Create />
           </PrivateRoute>
         ) : (
-          <Route path={'/create'}>{CreateCmp}</Route>
+          <Route path={'/create'}>
+            <Create />
+          </Route>
         )}
-        <Route path={'/:phrase'}>{cmpTypeGuard(VideoCall, videoCall)}</Route>
+        <Route path={'/:phrase'}>
+          <VideoCall />
+        </Route>
       </Switch>
     </AppWrapper>
   );

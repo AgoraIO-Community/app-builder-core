@@ -34,6 +34,7 @@ import {useChatUIData} from '../components/useChatUI';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
+import {useRecording} from '../subComponents/recording/useRecording';
 
 const Navbar = () => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
@@ -47,7 +48,6 @@ const Navbar = () => {
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
   const {
-    recordingActive,
     sidePanel,
     setSidePanel,
     activeLayoutName,
@@ -55,6 +55,7 @@ const Navbar = () => {
     isHost,
     title,
   } = useVideoCall((data) => data);
+  const {recordingActive} = useRecording((data) => data);
   const changeLayout = useChangeDefaultLayout();
   const layout = layouts.findIndex((item) => item.name === activeLayoutName);
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(

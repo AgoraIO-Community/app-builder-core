@@ -16,9 +16,9 @@ import {
   liveStreamPropsInterface,
 } from './Types';
 import {ClientRole} from '../../../agora-rn-uikit';
-import ScreenshareContext from '../../subComponents/screenshare/ScreenshareContext';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
+import {useScreenshare} from 'fpe-api';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -45,7 +45,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     'lowerHandsLocalNotification',
   )();
 
-  const screenshareContextInstance = useContext(ScreenshareContext);
+  const screenshareContextInstance = useScreenshare();
 
   const {
     userList,

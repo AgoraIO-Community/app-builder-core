@@ -15,23 +15,19 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {createHook} from 'fpe-implementation';
 
 export interface VideoCallContextInterface {
-  recordingActive: boolean;
   sidePanel: SidePanelType;
   activeLayoutName: string;
   isHost: boolean;
   title: string;
-  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
   setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
   setActiveLayoutName: React.Dispatch<SetStateAction<string>>;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
-  recordingActive: false,
   sidePanel: SidePanelType.None,
   activeLayoutName: '',
   isHost: false,
   title: '',
-  setRecordingActive: () => {},
   setSidePanel: () => {},
   setActiveLayoutName: () => {},
 });

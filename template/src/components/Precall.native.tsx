@@ -27,6 +27,7 @@ import {
 const Precall = () => {
   const rtc = useContext(RtcContext);
   const {rtcProps} = useContext(PropsContext);
+  const precallLabel = useString('precallLabel')();
   rtc.RtcEngine.startPreview();
 
   const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
@@ -39,7 +40,7 @@ const Precall = () => {
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>{useString('precallLabel')()} </Text>
+        <Text style={style.headingText}>{precallLabel}</Text>
       </View>
       {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
       {!isAudienceInLiveStreaming() && (

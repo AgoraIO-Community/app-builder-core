@@ -14,6 +14,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   )();
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const noUserFoundLabel = useString('noUserFoundLabel')();
+  const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
   const {userList, p_style} = props;
   const {currLiveStreamRequest, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
@@ -39,7 +40,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   return (
     <>
       <ParticipantSectionTitle
-        title={useString('raisedHandsListTitleLabel')() + ' '}
+        title={raisedHandsListTitleLabel + ' '}
         count={Object.keys(activeLiveStreamRequests).length}
       />
       <View style={p_style.participantContainer}>

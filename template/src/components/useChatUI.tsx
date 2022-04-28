@@ -40,9 +40,14 @@ const ChatUIDataContext = React.createContext<ChatUIDataInterface>({
   setPrivateChatDisplayed: () => {},
 });
 
-const ChatUIDataProvider = (props: any) => {
+interface ChatUIDataProviderProps {
+  children: React.ReactNode;
+  value: ChatUIDataInterface;
+}
+
+const ChatUIDataProvider = (props: ChatUIDataProviderProps) => {
   return (
-    <ChatUIDataContext.Provider value={{...props}}>
+    <ChatUIDataContext.Provider value={{...props.value}}>
       {props.children}
     </ChatUIDataContext.Provider>
   );
