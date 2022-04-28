@@ -9,14 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
-import SessionContext from '../components/SessionContext';
 import Logo from '../subComponents/Logo';
 import {hasBrandLogo} from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
-import ColorContext from '../components/ColorContext';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
@@ -24,6 +22,7 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {shouldAuthenticate} from '../utils/common';
 import {useString} from '../utils/useString';
+import useJoinMeeting from '../utils/useJoinMeeting';
 
 const Join = () => {
   const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
@@ -31,7 +30,7 @@ const Join = () => {
   const createMeetingButton = useString('createMeetingButton')();
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
-  const {joinSession} = useContext(SessionContext);
+  const useJoin = useJoinMeeting();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
@@ -41,7 +40,7 @@ const Join = () => {
   };
 
   const startCall = async () => {
-    joinSession({phrase});
+    useJoin(phrase);
   };
 
   return (
