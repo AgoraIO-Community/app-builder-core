@@ -24,7 +24,7 @@ const getFpePath = require('./fpe.config');
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 const isReactSdk = process.env.TARGET === 'rsdk';
 const isWebSdk = process.env.TARGET === 'wsdk';
-const isSdk = isReactSdk || isWebSdk
+const isSdk = isReactSdk || isWebSdk;
 
 module.exports = {
   // Adds React Refresh webpack plugin for webpack dev server hmr
@@ -50,7 +50,7 @@ module.exports = {
       // Using react-native web to translate UI
       'react-native$': 'react-native-web',
       // Using rtm bridge to translate React Native RTM SDK calls to web SDK calls
-      'agora-react-native-rtm': path.join(__dirname, 'bridge/rtm/web/index.ts'),
+      'agora-react-native-rtm$': path.join(__dirname, 'bridge/rtm/web/index.ts'),
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
@@ -58,6 +58,10 @@ module.exports = {
       'fpe-api': path.join(__dirname, 'fpe-api/index.ts'),
       'fpe-implementation': path.join(__dirname, 'fpe-implementation/index.ts'),
       'test-fpe': path.join(__dirname, getFpePath()),
+      'agora-react-native-rtm/lib/typescript/src': path.join(
+        __dirname,
+        'bridge/rtm/web/index.ts',
+      ),
     },
     // Adds platform specific extensions and OS specific extensions
     // .web.tsx works for web specific code

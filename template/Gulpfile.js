@@ -9,12 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-const {series, parallel} = require('gulp');
+const {series, parallel, src, dest} = require('gulp');
 const {spawn} = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const del = require('del');
-const config = require('./config.json')
+const config = require('./config.json');
+const replace = require('gulp-replace');
+const concat = require('gulp-concat');
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -28,6 +30,8 @@ const BUILD_PATH =
     : process.env.TARGET === 'android'
     ? path.join(__dirname, '../Builds/android')
     : path.join(__dirname, '../Builds/.electron');
+
+let PRODUCT_NAME;
 
 const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
@@ -55,6 +59,7 @@ const general = {
       dependencies,
       optionalDependencies,
     } = package;
+    PRODUCT_NAME = name;
     let nativeDeps = require('./nativeDeps').default;
     let natives = {};
     let searchDeps = {
@@ -78,7 +83,7 @@ const general = {
       // },
     };
     if (process.env.TARGET === 'rsdk') {
-      newPackage.main = 'app-builder-react-sdk.js';
+      newPackage.main = 'index.js';
     }
     if (process.env.TARGET === 'wsdk') {
       newPackage.main = 'app-builder-web-sdk.umd2.js';
@@ -91,6 +96,20 @@ const general = {
   },
   createBuildDirectory: () => {
     return fs.mkdir(BUILD_PATH, {recursive: true});
+  },
+  typescript: (cb) => {
+    runCli(
+      'npx -p typescript tsc --project tsconfig.json --outFile ../Builds/fpe-api.d.ts',
+      cb,
+    );
+  },
+  typescriptFix: () => {
+    return src('../Builds/fpe-api.d.ts')
+      .pipe(replace('"agora-rn-uikit"', '"agora-rn-uikit/src/index"'))
+      .pipe(dest('../Builds/'));
+  },
+  typescriptClean: () => {
+    return del([`${path.join(BUILD_PATH, '../', '/')}*.d.ts`], {force: true});
   },
 };
 
@@ -129,6 +148,19 @@ const reactSdk = {
   webpack: (cb) => {
     runCli('webpack --config ./webpack.rsdk.config.js', cb);
   },
+  typescript: (cb) => {
+    runCli(
+      //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
+      'npx -p typescript tsc --project tsconfig_index.json --outFile ../Builds/temp.d.ts',
+      () => cb(),
+    );
+  },
+  typescriptFix: () => {
+    return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
+      .pipe(concat('index.d.ts'))
+      .pipe(replace('"index.rsdk"', `"${PRODUCT_NAME}"`))
+      .pipe(dest('../Builds/react-sdk/'));
+  },
 };
 
 const webSdk = {
@@ -161,7 +193,7 @@ const android = {
         cb();
       })
       .catch((err) => {
-        cb(new Error('Error in copying build',err))
+        cb(new Error('Error in copying build', err));
       });
   },
 };
@@ -192,6 +224,11 @@ module.exports.reactSdk = series(
   general.createBuildDirectory,
   general.packageJson,
   reactSdk.webpack,
+  general.typescript,
+  general.typescriptFix,
+  reactSdk.typescript,
+  reactSdk.typescriptFix,
+  general.typescriptClean,
 );
 
 // web-sdk
@@ -215,3 +252,5 @@ module.exports.androidWin = series(
   android.gradleBuildWin,
   android.copyBuild,
 );
+
+module.exports.test = series(general.typescriptClean);

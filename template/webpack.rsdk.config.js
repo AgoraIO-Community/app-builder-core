@@ -18,7 +18,7 @@ module.exports = merge(commons, {
   target: 'node',
   output: {
     path: path.resolve(__dirname, `../Builds/react-sdk`),
-    filename: 'app-builder-react-sdk.js',
+    filename: 'index.js',
     library:{
       type: 'commonjs2',
     } 
