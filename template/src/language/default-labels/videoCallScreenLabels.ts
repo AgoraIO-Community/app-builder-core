@@ -71,6 +71,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   lowerHandRemoteHostNotification?: I18nConditionalType; //
   lowerHandsLocalNotification?: I18nBaseType; //
   raiseHandRevokedLocalNotification?: I18nBaseType; //
+  recordingLabel?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -80,6 +81,7 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   toggleAudioButton: 'Audio',
   screenShareButton: 'Share',
   switchCameraButton: 'Switch',
+  recordingLabel: 'Recording',
   recordingNotificationLabel: 'Recording Started',
   endCallButton: 'Hang Up',
   participantsLabel: 'Participants',

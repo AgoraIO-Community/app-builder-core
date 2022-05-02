@@ -53,6 +53,7 @@ export type layoutComponent = React.ComponentType<{
 
 export interface layoutObjectBase {
   name: string;
+  label: string;
   component: layoutComponent;
 }
 

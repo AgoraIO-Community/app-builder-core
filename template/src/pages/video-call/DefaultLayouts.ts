@@ -5,8 +5,18 @@ import useCustomLayout from './CustomLayout';
 import {useVideoCall} from './useVideoCall';
 
 export const DefaultLayouts: layoutObjectType[] = [
-  {name: 'grid', iconName: 'gridLayoutIcon', component: GridVideo},
-  {name: 'pinned', iconName: 'pinnedLayoutIcon', component: PinnedVideo},
+  {
+    name: 'grid',
+    label: 'Grid Layout',
+    iconName: 'gridLayoutIcon',
+    component: GridVideo,
+  },
+  {
+    name: 'pinned',
+    label: 'Pinned Layout',
+    iconName: 'pinnedLayoutIcon',
+    component: PinnedVideo,
+  },
 ];
 
 export const getPinnedLayoutName = () => DefaultLayouts[1].name;

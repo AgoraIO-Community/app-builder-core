@@ -35,18 +35,23 @@ import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
+import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
+import DimensionContext from './dimension/DimensionContext';
+import {useString} from '../utils/useString';
 
 const Navbar = () => {
+  const recordingLabel = useString('recordingLabel')();
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<{
-    left: number;
+    right: number;
     top: number;
-  }>({left: 0, top: 0});
+  }>({right: 0, top: 0});
   const dropdownRef = useRef(null);
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
+  const {getDimensionData} = useContext(DimensionContext);
   const {
     sidePanel,
     setSidePanel,
@@ -112,85 +117,6 @@ const Navbar = () => {
     );
   };
 
-  const renderDropdown = () => {
-    const layoutToDisplay =
-      layouts && Array.isArray(layouts) && layouts.length
-        ? layouts.filter((item) => item.name !== activeLayoutName)
-        : [];
-    /**
-     * By default 0th layout icon will be dislayed in the UI.
-     * so filering the active layout from the layouts list
-     * and creating the dropdown with remaining data
-     */
-    const data = layoutToDisplay.map((item, index) => {
-      let content = [];
-      content.push(
-        item?.iconName ? (
-          <View
-            style={style.dropdownIconContainer}
-            key={'navLayoutIcon' + index}>
-            <BtnTemplate
-              style={style.btnHolderCustom}
-              onPress={() => {
-                setActiveLayoutName(item.name);
-                setShowDropdown(false);
-              }}
-              name={item?.iconName}
-            />
-          </View>
-        ) : (
-          <View
-            style={style.dropdownIconContainer}
-            key={'navLayoutIcon' + index}>
-            <BtnTemplate
-              style={style.btnHolderCustom}
-              onPress={() => {
-                setActiveLayoutName(item.name);
-                setShowDropdown(false);
-              }}
-              icon={item.icon}
-            />
-          </View>
-        ),
-      );
-      if (layoutToDisplay.length - 1 !== index) {
-        content.push(
-          <View
-            style={style.separaterContainer}
-            key={'navLayoutIconSeparater' + index}>
-            {renderSeparatorHorizontal()}
-          </View>,
-        );
-      }
-      return content;
-    });
-    return (
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showDropdown}
-        onRequestClose={() => {
-          setShowDropdown(false);
-        }}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setShowDropdown(false);
-          }}>
-          <View style={style.backDrop} />
-        </TouchableWithoutFeedback>
-        <View
-          style={[
-            style.dropdownContainer,
-            {
-              top: dropdownPosition.top,
-              left: dropdownPosition.left - (isWeb && isDesktop ? 0 : 6),
-            },
-          ]}>
-          {data}
-        </View>
-      </Modal>
-    );
-  };
   const renderLayoutIcon = (showDropdown?: boolean) => {
     let onPress = () => {};
     let renderContent = [];
@@ -199,6 +125,7 @@ const Navbar = () => {
         changeLayout();
       };
     } else {
+      const {dim} = getDimensionData();
       onPress = () => {
         dropdownRef?.current?.measure(
           (
@@ -209,10 +136,14 @@ const Navbar = () => {
             px: number,
             py: number,
           ) => {
-            if (py && px && localHeight) {
+            if (
+              py !== undefined &&
+              px !== undefined &&
+              localHeight !== undefined
+            ) {
               setDropdownPosition({
-                top: py + localHeight,
-                left: px,
+                top: py + localHeight + 5,
+                right: dim[0] - px - (isDesktop ? 30 : 20),
               });
             }
           },
@@ -276,7 +207,7 @@ const Navbar = () => {
               textAlign: 'center',
               flex: 1,
             }}>
-            Recording
+            {recordingLabel}
           </Text>
         </View>
       ) : (
@@ -404,7 +335,6 @@ const Navbar = () => {
           {renderSeparator()}
           <View
             style={[style.navItem, style.navSmItem]}
-            ref={dropdownRef}
             /**
              * .measure returns undefined on Android unless collapsable=false or onLayout are specified
              * so added collapsable property
@@ -414,7 +344,11 @@ const Navbar = () => {
             {/**
              * Based on the flag. it will render the dropdown
              */}
-            {showDropdown ? renderDropdown() : <></>}
+            <LayoutIconDropdown
+              showDropdown={showDropdown}
+              setShowDropdown={setShowDropdown}
+              dropdownPosition={dropdownPosition}
+            />
             {/**
              * If layout contains more than 2 data. it will render the dropdown.
              */}
@@ -428,7 +362,7 @@ const Navbar = () => {
           {!isAndroid && !isIOS && (
             <>
               {renderSeparator()}
-              <View style={[style.navItem, style.navSmItem]}>
+              <View style={[style.navItem, style.navSmItem]} ref={dropdownRef}>
                 <Settings
                   sidePanel={sidePanel}
                   setSidePanel={setSidePanel}
