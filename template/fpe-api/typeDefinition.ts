@@ -15,7 +15,7 @@ import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 
-export const CUSTOM_ROUTES_PREFIX = '/r';
+export const CUSTOM_ROUTES_PREFIX = '/r/';
 
 export interface PreCallInterface {
   preview?: React.ComponentType;
