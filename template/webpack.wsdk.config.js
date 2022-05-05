@@ -11,7 +11,7 @@ const baseConfig = {
   mode: isDevelopment ? 'development' : 'production',
   // Main entry point for the web application
   entry: {
-    main: './index.wsdk.js',
+    main: './index.wsdk.tsx',
   },
   output: {
     path: path.resolve(__dirname, `../Builds/web-sdk`),

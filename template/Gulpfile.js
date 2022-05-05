@@ -84,9 +84,11 @@ const general = {
     };
     if (process.env.TARGET === 'rsdk') {
       newPackage.main = 'index.js';
+      newPackage.types = 'index.d.ts';
     }
     if (process.env.TARGET === 'wsdk') {
       newPackage.main = 'app-builder-web-sdk.umd2.js';
+      newPackage.types = 'index.d.ts';
     }
     await fs.writeFile(
       path.join(BUILD_PATH, 'package.json'),
@@ -99,7 +101,7 @@ const general = {
   },
   typescript: (cb) => {
     runCli(
-      'npx -p typescript tsc --project tsconfig.json --outFile ../Builds/fpe-api.d.ts',
+      'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/fpe-api.d.ts',
       cb,
     );
   },
@@ -151,21 +153,33 @@ const reactSdk = {
   typescript: (cb) => {
     runCli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
-      'npx -p typescript tsc --project tsconfig_index.json --outFile ../Builds/temp.d.ts',
+      'npx -p typescript tsc --project tsconfig_rsdk_index.json --outFile ../Builds/temp.d.ts',
       () => cb(),
     );
   },
   typescriptFix: () => {
     return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
       .pipe(concat('index.d.ts'))
-      .pipe(replace('"index.rsdk"', `"${PRODUCT_NAME}"`))
-      .pipe(dest('../Builds/react-sdk/'));
+      .pipe(replace('declare module "index.rsdk"', `declare module "${PRODUCT_NAME}"`))
+      .pipe(dest(BUILD_PATH));
   },
 };
 
 const webSdk = {
   webpack: (cb) => {
     runCli('webpack --config ./webpack.wsdk.config.js', cb);
+  },
+  typescript: (cb) => {
+    runCli(
+      'npx -p typescript tsc --project tsconfig_wsdk_index.json --outFile ../Builds/temp.d.ts',
+      () => cb(),
+    );
+  },
+  typescriptFix: () => {
+    return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
+      .pipe(concat('index.d.ts'))
+      .pipe(replace('declare module "index.wsdk"', `declare module "${PRODUCT_NAME}"`))
+      .pipe(dest(BUILD_PATH));
   },
 };
 
@@ -237,6 +251,11 @@ module.exports.webSdk = series(
   general.createBuildDirectory,
   general.packageJson,
   webSdk.webpack,
+  general.typescript,
+  general.typescriptFix,
+  webSdk.typescript,
+  webSdk.typescriptFix,
+  general.typescriptClean
 );
 
 module.exports.androidUnix = series(

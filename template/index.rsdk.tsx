@@ -13,11 +13,10 @@
  * @format
  */
 import React, {useEffect, useState} from 'react';
-import {fpeConfig} from 'fpe-api';
+import {fpeConfig, FpeApiInterface} from 'fpe-api';
 import {installFPE as createFPE} from 'fpe-api/install';
 import App from './src/App';
 import {SDKEvents} from './src/utils/SdkEvents'
-import {FpeApiInterface} from 'fpe-api/typeDefinition'
 
 const AppBuilderView:React.FC = () => {
   const [fpe, setFpe] = useState<FpeApiInterface>(fpeConfig);

@@ -2,7 +2,7 @@ import {AppRegistry} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import App from './src/App';
 
-import {fpeConfig} from 'fpe-api';
+import {fpeConfig, FpeApiInterface} from 'fpe-api';
 import {SDKEvents} from './src/utils/SdkEvents'
 import {installFPE as createFPE} from 'fpe-api/install';
 
@@ -21,8 +21,13 @@ const AppBuilderView = () => {
   );
 };
 
-const AppBuilderMethods = {
-  addFPE: (fpeConfig) => {
+interface AppBuilderMethodsInterface{
+  addFPE: (fpe:FpeApiInterface) => void;
+  createFPE: (fpe:FpeApiInterface) => FpeApiInterface;
+}
+
+const AppBuilderMethods:AppBuilderMethodsInterface = {
+  addFPE: (fpeConfig: FpeApiInterface) => {
     SDKEvents.emit('addFpe', fpeConfig);
   },
   createFPE,
