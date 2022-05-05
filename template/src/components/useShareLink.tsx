@@ -12,24 +12,15 @@
 
 import {createHook} from 'fpe-implementation';
 import React from 'react';
+import {CreateMeetingDataInterface} from '../utils/useCreateMeeting';
 
-export interface ShareLinkContextInterface {
-  attendeePassphrase: string;
-  hostPassphrase: string;
-  pstn: {number: string; dtmf: string};
+export interface ShareLinkContextInterface extends CreateMeetingDataInterface {
   isSeparateHostLink: boolean;
-  joinPhrase: string;
   roomTitle: string;
 }
 const ShareLinkContext = React.createContext<ShareLinkContextInterface>({
   attendeePassphrase: '',
-  hostPassphrase: '',
-  pstn: {
-    number: '',
-    dtmf: '',
-  },
   isSeparateHostLink: false,
-  joinPhrase: '',
   roomTitle: '',
 });
 

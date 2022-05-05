@@ -69,13 +69,4 @@ const AppWrapper = (props: AppWrapperProps) => {
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
 
-const AppWithFpeProvider = (props: AppWrapperProps) => {
-  const value = props?.fpeConfig || fpeConfig;
-  return (
-    <FpeProvider value={value}>
-      <AppWrapper {...props} />
-    </FpeProvider>
-  );
-};
-
-export default AppWithFpeProvider;
+export default AppWrapper;

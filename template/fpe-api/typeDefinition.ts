@@ -11,12 +11,11 @@
 */
 import React from 'react';
 import {chatBubbleProps, chatInputProps} from '../src/components/ChatContext';
-import Layout from '../src/subComponents/LayoutEnum';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 
-export const CUSTOM_ROUTES_PREFIX = '/r';
+export const CUSTOM_ROUTES_PREFIX = '/r/';
 
 export interface PreCallInterface {
   preview?: React.ComponentType;
@@ -50,11 +49,11 @@ export interface renderComponentObjectInterface {
 export type layoutComponent = React.ComponentType<{
   maxVideoArray: React.ComponentType[];
   minVideoArray: React.ComponentType[];
-  setLayout?: React.Dispatch<React.SetStateAction<Layout>>;
 }>;
 
 export interface layoutObjectBase {
   name: string;
+  label: string;
   component: layoutComponent;
 }
 

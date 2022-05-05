@@ -25,3 +25,5 @@ export {
   default as useUnreadMessageCount,
   UNREAD_MESSAGE_COUNT_TYPE,
 } from '../src/utils/useUnreadMessageCount';
+export {default as useNavigateTo} from '../src/utils/useNavigateTo';
+export {default as useNavParams} from '../src/utils/useNavParams';

@@ -16,7 +16,7 @@ import {isWeb} from '../utils/common';
 import {MinUidContext} from '../../agora-rn-uikit';
 import {MaxUidContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
-import Layout from '../subComponents/LayoutEnum';
+import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -36,11 +36,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
   };
 };
 
-const GridVideo: layoutComponent = ({
-  minVideoArray,
-  maxVideoArray,
-  setLayout,
-}) => {
+const GridVideo: layoutComponent = ({minVideoArray, maxVideoArray}) => {
   const {dispatch} = useContext(RtcContext);
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
@@ -64,6 +60,7 @@ const GridVideo: layoutComponent = ({
     [users.length, isDesktop],
   );
   const combinedUsers = [...maxVideoArray, ...minVideoArray];
+  const setPinnedLayout = useSetPinnedLayout();
   return (
     <View
       style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
@@ -79,7 +76,7 @@ const GridVideo: layoutComponent = ({
                     value: [users[ridx * dims.c + cidx]],
                   });
                 }
-                setLayout && setLayout(Layout.Pinned);
+                setPinnedLayout();
               }}
               style={{
                 flex: isWeb ? 1 / dims.c : 1,

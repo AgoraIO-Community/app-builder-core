@@ -15,12 +15,10 @@ import ColorContext from '../components/ColorContext';
 import {ImageIcon} from '../../agora-rn-uikit';
 import {useRecording} from './recording/useRecording';
 import {useString} from '../utils/useString';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
 
 const Recording = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {startRecording, stopRecording} = useRecording();
-  const {recordingActive} = useVideoCall();
+  const {startRecording, stopRecording, recordingActive} = useRecording();
   const recordingButton = useString<boolean>('recordingButton');
   return (
     <TouchableOpacity

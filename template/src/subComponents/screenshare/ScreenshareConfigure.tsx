@@ -8,11 +8,14 @@ import {
   MaxUidContext,
   UidInterface,
 } from '../../../agora-rn-uikit/src';
-import Layout from '../LayoutEnum';
 import {gql, useMutation} from '@apollo/client';
 import ScreenshareContext from './ScreenshareContext';
 import {useVideoCall} from '../../pages/video-call/useVideoCall';
-import { IAgoraRTC } from 'agora-rtc-sdk-ng';
+import {
+  useChangeDefaultLayout,
+  useSetPinnedLayout,
+} from '../../pages/video-call/DefaultLayouts';
+import {useRecording} from '../recording/useRecording';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -53,7 +56,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const users = [...max, ...min];
   const prevUsers = usePrevious<{users:UidInterface[]}>({users});
   const {phrase} = useParams<any>();
-  const {setLayout, recordingActive} = useVideoCall((data) => data);
+  const {recordingActive} = useRecording();
+  const setPinnedLayout = useSetPinnedLayout();
+  const changeLayout = useChangeDefaultLayout();
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
@@ -65,9 +70,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
-      setLayout((l: Layout) =>
-        l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-      );
+      changeLayout();
       setNormalQuery({variables: {passphrase: phrase}})
         .then((res) => {
           console.log(res.data);
@@ -96,7 +99,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             type: 'SwapVideo',
             value: [joinedUser[0]],
           });
-          setLayout(Layout.Pinned);
+          setPinnedLayout();
         } else if (newUserUid === 1) {
           if (newUserUid !== users[0].uid) {
             dispatch({
@@ -104,16 +107,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               value: [joinedUser[0]],
             });
           }
-          setLayout(Layout.Pinned);
+          setPinnedLayout();
         }
       }
 
       if (leftUser.length === 1) {
         const leftUserUid = leftUser[0].uid;
         if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
-          setLayout((l: Layout) =>
-            l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-          );
+          changeLayout();
         }
       }
     }
