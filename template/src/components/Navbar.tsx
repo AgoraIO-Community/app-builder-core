@@ -17,6 +17,7 @@ import {
   Dimensions,
   Modal,
   TouchableWithoutFeedback,
+  ViewStyle,
 } from 'react-native';
 import icons from '../assets/icons';
 import Settings from './Settings';
@@ -386,7 +387,7 @@ const style = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  navHolder: navHolder,
+  navHolder: navHolder as ViewStyle,
   navHolderNative: {
     position: 'relative',
     width: '100%',

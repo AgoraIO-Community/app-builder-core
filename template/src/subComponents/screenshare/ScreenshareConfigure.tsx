@@ -16,6 +16,7 @@ import {
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
+import { IAgoraRTC } from 'agora-rtc-sdk-ng';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
