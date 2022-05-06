@@ -39,6 +39,7 @@ import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import DimensionContext from './dimension/DimensionContext';
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useSidePanel} from '../pages/video-call/useSidePanel';
 
 const Navbar = () => {
   const recordingLabel = useString('recordingLabel')();
@@ -53,7 +54,8 @@ const Navbar = () => {
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
   const {getDimensionData} = useContext(DimensionContext);
-  const {sidePanel, setSidePanel, activeLayoutName} = useLayout((data) => data);
+  const {activeLayoutName} = useLayout((data) => data);
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {meetingTitle, isHost} = useMeetingInfo();
   const {recordingActive} = useRecording((data) => data);
   const changeLayout = useChangeDefaultLayout();

@@ -61,6 +61,7 @@ import useCustomLayout from './video-call/CustomLayout';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {SidePanelProvider} from './video-call/useSidePanel';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -384,155 +385,162 @@ const VideoCall: React.FC = () => {
                     callActive={callActive}>
                     <LayoutProvider
                       value={{
-                        sidePanel,
-                        setSidePanel,
                         activeLayoutName,
                         setActiveLayoutName,
                       }}>
-                      <RecordingProvider
-                        value={{setRecordingActive, recordingActive}}>
-                        <ScreenshareConfigure>
-                          <LiveStreamContextProvider setRtcProps={setRtcProps}>
-                            {callActive ? (
-                              FpeVideocallComponent &&
-                              isValidElementType(FpeVideocallComponent) ? (
-                                <FpeVideocallComponent />
-                              ) : (
-                                <View style={style.full}>
-                                  <NotificationControl
-                                    setSidePanel={setSidePanel}
-                                    chatDisplayed={
-                                      sidePanel === SidePanelType.Chat
-                                    }
-                                    isPrivateChatDisplayed={
-                                      isPrivateChatDisplayed
-                                    }>
-                                    {({
-                                      pendingPublicNotification,
-                                      pendingPrivateNotification,
-                                      setLastCheckedPublicState,
-                                      lastCheckedPublicState,
-                                      lastCheckedPrivateState,
-                                      setLastCheckedPrivateState,
-                                      privateMessageCountMap,
-                                      setPrivateMessageLastSeen,
-                                    }) => (
-                                      <ChatUIDataProvider
-                                        value={{
-                                          privateMessageCountMap,
-                                          pendingPublicNotification,
-                                          pendingPrivateNotification,
-                                          lastCheckedPrivateState,
-                                          pendingMessageLength:
-                                            pendingPublicNotification +
+                      <SidePanelProvider
+                        value={{
+                          sidePanel,
+                          setSidePanel,
+                        }}>
+                        <RecordingProvider
+                          value={{setRecordingActive, recordingActive}}>
+                          <ScreenshareConfigure>
+                            <LiveStreamContextProvider
+                              setRtcProps={setRtcProps}>
+                              {callActive ? (
+                                FpeVideocallComponent &&
+                                isValidElementType(FpeVideocallComponent) ? (
+                                  <FpeVideocallComponent />
+                                ) : (
+                                  <View style={style.full}>
+                                    <NotificationControl
+                                      setSidePanel={setSidePanel}
+                                      chatDisplayed={
+                                        sidePanel === SidePanelType.Chat
+                                      }
+                                      isPrivateChatDisplayed={
+                                        isPrivateChatDisplayed
+                                      }>
+                                      {({
+                                        pendingPublicNotification,
+                                        pendingPrivateNotification,
+                                        setLastCheckedPublicState,
+                                        lastCheckedPublicState,
+                                        lastCheckedPrivateState,
+                                        setLastCheckedPrivateState,
+                                        privateMessageCountMap,
+                                        setPrivateMessageLastSeen,
+                                      }) => (
+                                        <ChatUIDataProvider
+                                          value={{
+                                            privateMessageCountMap,
+                                            pendingPublicNotification,
                                             pendingPrivateNotification,
-                                          setLastCheckedPublicState,
-                                          setPrivateMessageLastSeen,
-                                          setPrivateChatDisplayed,
-                                        }}>
-                                        {cmpTypeGuard(
-                                          Navbar,
-                                          FpeTopbarComponent,
-                                        )}
-                                        <View
-                                          style={[
-                                            style.videoView,
-                                            {backgroundColor: '#ffffff00'},
-                                          ]}>
-                                          <CustomUserContextHolder>
-                                            <NetworkQualityProvider>
-                                              <VideoArrayRenderer>
-                                                {(
-                                                  minVideoArray: React.FC[],
-                                                  maxVideoArray: React.FC[],
-                                                ) => {
-                                                  if (
-                                                    fpeLayouts &&
-                                                    fpeLayouts[layout] &&
-                                                    typeof fpeLayouts[layout]
-                                                      .component === 'function'
-                                                  ) {
-                                                    const CurrentLayout =
-                                                      fpeLayouts[layout]
-                                                        .component;
-                                                    return (
-                                                      <CurrentLayout
-                                                        minVideoArray={
-                                                          minVideoArray
-                                                        }
-                                                        maxVideoArray={
-                                                          maxVideoArray
-                                                        }
-                                                      />
-                                                    );
-                                                  } else {
-                                                    return <></>;
-                                                  }
-                                                }}
-                                              </VideoArrayRenderer>
-                                              {sidePanel ===
-                                              SidePanelType.Participants ? (
+                                            lastCheckedPrivateState,
+                                            pendingMessageLength:
+                                              pendingPublicNotification +
+                                              pendingPrivateNotification,
+                                            setLastCheckedPublicState,
+                                            setPrivateMessageLastSeen,
+                                            setPrivateChatDisplayed,
+                                          }}>
+                                          {cmpTypeGuard(
+                                            Navbar,
+                                            FpeTopbarComponent,
+                                          )}
+                                          <View
+                                            style={[
+                                              style.videoView,
+                                              {backgroundColor: '#ffffff00'},
+                                            ]}>
+                                            <CustomUserContextHolder>
+                                              <NetworkQualityProvider>
+                                                <VideoArrayRenderer>
+                                                  {(
+                                                    minVideoArray: React.FC[],
+                                                    maxVideoArray: React.FC[],
+                                                  ) => {
+                                                    if (
+                                                      fpeLayouts &&
+                                                      fpeLayouts[layout] &&
+                                                      typeof fpeLayouts[layout]
+                                                        .component ===
+                                                        'function'
+                                                    ) {
+                                                      const CurrentLayout =
+                                                        fpeLayouts[layout]
+                                                          .component;
+                                                      return (
+                                                        <CurrentLayout
+                                                          minVideoArray={
+                                                            minVideoArray
+                                                          }
+                                                          maxVideoArray={
+                                                            maxVideoArray
+                                                          }
+                                                        />
+                                                      );
+                                                    } else {
+                                                      return <></>;
+                                                    }
+                                                  }}
+                                                </VideoArrayRenderer>
+                                                {sidePanel ===
+                                                SidePanelType.Participants ? (
+                                                  cmpTypeGuard(
+                                                    ParticipantsView,
+                                                    FpeParticipantsComponent,
+                                                  )
+                                                ) : (
+                                                  <></>
+                                                )}
+                                              </NetworkQualityProvider>
+                                            </CustomUserContextHolder>
+                                            {sidePanel ===
+                                            SidePanelType.Chat ? (
+                                              $config.CHAT ? (
                                                 cmpTypeGuard(
-                                                  ParticipantsView,
-                                                  FpeParticipantsComponent,
+                                                  Chat,
+                                                  FpeChatComponent,
                                                 )
                                               ) : (
                                                 <></>
-                                              )}
-                                            </NetworkQualityProvider>
-                                          </CustomUserContextHolder>
-                                          {sidePanel === SidePanelType.Chat ? (
-                                            $config.CHAT ? (
-                                              cmpTypeGuard(
-                                                Chat,
-                                                FpeChatComponent,
                                               )
                                             ) : (
                                               <></>
-                                            )
-                                          ) : (
+                                            )}
+                                            {sidePanel ===
+                                            SidePanelType.Settings ? (
+                                              cmpTypeGuard(
+                                                SettingsView,
+                                                FpeSettingsComponent,
+                                              )
+                                            ) : (
+                                              <></>
+                                            )}
+                                          </View>
+                                          {!isWeb &&
+                                          sidePanel === SidePanelType.Chat ? (
                                             <></>
-                                          )}
-                                          {sidePanel ===
-                                          SidePanelType.Settings ? (
+                                          ) : (
                                             cmpTypeGuard(
-                                              SettingsView,
-                                              FpeSettingsComponent,
+                                              Controls,
+                                              FpeBottombarComponent,
                                             )
-                                          ) : (
-                                            <></>
                                           )}
-                                        </View>
-                                        {!isWeb &&
-                                        sidePanel === SidePanelType.Chat ? (
-                                          <></>
-                                        ) : (
-                                          cmpTypeGuard(
-                                            Controls,
-                                            FpeBottombarComponent,
-                                          )
-                                        )}
-                                      </ChatUIDataProvider>
-                                    )}
-                                  </NotificationControl>
-                                </View>
-                              )
-                            ) : $config.PRECALL ? (
-                              <PreCallProvider
-                                value={{
-                                  username,
-                                  setUsername,
-                                  callActive,
-                                  setCallActive,
-                                }}>
-                                {cmpTypeGuard(Precall, FpePrecallComponent)}
-                              </PreCallProvider>
-                            ) : (
-                              <></>
-                            )}
-                          </LiveStreamContextProvider>
-                        </ScreenshareConfigure>
-                      </RecordingProvider>
+                                        </ChatUIDataProvider>
+                                      )}
+                                    </NotificationControl>
+                                  </View>
+                                )
+                              ) : $config.PRECALL ? (
+                                <PreCallProvider
+                                  value={{
+                                    username,
+                                    setUsername,
+                                    callActive,
+                                    setCallActive,
+                                  }}>
+                                  {cmpTypeGuard(Precall, FpePrecallComponent)}
+                                </PreCallProvider>
+                              ) : (
+                                <></>
+                              )}
+                            </LiveStreamContextProvider>
+                          </ScreenshareConfigure>
+                        </RecordingProvider>
+                      </SidePanelProvider>
                     </LayoutProvider>
                   </RtmConfigure>
                 </DeviceConfigure>

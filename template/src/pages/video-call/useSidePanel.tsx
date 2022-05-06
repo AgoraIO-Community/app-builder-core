@@ -11,30 +11,31 @@
 */
 
 import React, {SetStateAction} from 'react';
+import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {createHook} from 'fpe-implementation';
 
-export interface LayoutContextInterface {
-  activeLayoutName: string;
-  setActiveLayoutName: React.Dispatch<SetStateAction<string>>;
+export interface SidePanelContextInterface {
+  sidePanel: SidePanelType;
+  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
 }
 
-const LayoutContext = React.createContext<LayoutContextInterface>({
-  activeLayoutName: '',
-  setActiveLayoutName: () => {},
+const SidePanelContext = React.createContext<SidePanelContextInterface>({
+  sidePanel: SidePanelType.None,
+  setSidePanel: () => {},
 });
 
-interface LayoutProviderProps {
-  value: LayoutContextInterface;
+interface SidePanelProviderProps {
+  value: SidePanelContextInterface;
   children: React.ReactNode;
 }
-const LayoutProvider = (props: LayoutProviderProps) => {
+const SidePanelProvider = (props: SidePanelProviderProps) => {
   return (
-    <LayoutContext.Provider value={{...props.value}}>
+    <SidePanelContext.Provider value={{...props.value}}>
       {props.children}
-    </LayoutContext.Provider>
+    </SidePanelContext.Provider>
   );
 };
 
-const useLayout = createHook(LayoutContext);
+const useSidePanel = createHook(SidePanelContext);
 
-export {LayoutProvider, useLayout};
+export {SidePanelProvider, useSidePanel};
