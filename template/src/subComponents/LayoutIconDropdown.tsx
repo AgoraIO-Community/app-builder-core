@@ -10,7 +10,7 @@ import {
 import {isWeb} from '../utils/common';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import useCustomLayout from '../pages/video-call/CustomLayout';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useLayout} from '../pages/video-call/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
 
 interface LayoutIconDropdownProps {
@@ -28,7 +28,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {isDesktop, dim} = getDimensionData();
 
   const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useVideoCall((data) => data);
+  const {activeLayoutName, setActiveLayoutName} = useLayout((data) => data);
   const renderSeparatorHorizontal = () => {
     return isWeb && isDesktop ? (
       <View style={style.navItem}>

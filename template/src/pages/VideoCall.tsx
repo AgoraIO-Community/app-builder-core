@@ -29,7 +29,6 @@ import {useParams, useHistory} from '../components/Router';
 import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
-import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import {
@@ -51,7 +50,7 @@ import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
-import {VideoCallProvider} from './video-call/useVideoCall';
+import {LayoutProvider} from './video-call/useLayout';
 import {ChatUIDataProvider} from '../components/useChatUI';
 import {layoutObjectType, useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
@@ -60,6 +59,8 @@ import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useString} from '../utils/useString';
 import useCustomLayout from './video-call/CustomLayout';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
+import useJoinMeeting from '../utils/useJoinMeeting';
+import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -193,51 +194,6 @@ const NotificationControl = ({
   });
 };
 
-const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
-      channel
-      title
-      isHost
-      secret
-      mainUser {
-        rtc
-        rtm
-        uid
-      }
-      screenShare {
-        rtc
-        rtm
-        uid
-      }
-    }
-    getUser {
-      name
-      email
-    }
-  }
-`;
-
-const JOIN_CHANNEL_PHRASE = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
-      channel
-      title
-      isHost
-      secret
-      mainUser {
-        rtc
-        rtm
-        uid
-      }
-      screenShare {
-        rtc
-        rtm
-        uid
-      }
-    }
-  }
-`;
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -319,10 +275,7 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
-  const {phrase} = useParams();
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [isHost, setIsHost] = React.useState(false);
-  const [title, setTitle] = React.useState('');
+  const {phrase} = useParams<{phrase: string}>();
   const lifecycle = useFpe((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
@@ -340,64 +293,49 @@ const VideoCall: React.FC = () => {
     role: ClientRole.Broadcaster,
   });
 
-  const {data, loading, error} = useQuery(
-    store.token === null
-      ? JOIN_CHANNEL_PHRASE
-      : JOIN_CHANNEL_PHRASE_AND_GET_USER,
-    {
-      variables: {passphrase: phrase},
-    },
-  );
-
   const fpeLayouts = useCustomLayout();
 
-  React.useEffect(() => {
-    if (error) {
-      console.log('error', error);
-      // console.log('error data', data);
-      if (!errorMessage) {
-        setGlobalErrorMessage && setGlobalErrorMessage(error);
-        queryComplete ? {} : setQueryComplete(true);
-      }
-      return;
-    }
+  const useJoin = useJoinMeeting();
 
-    if (!loading && data) {
-      console.log('token:', rtcProps.token);
-      console.log('error', data.error);
+  useEffect(() => {
+    try {
+      useJoin(phrase);
+    } catch (error) {
+      setGlobalErrorMessage(error);
+    }
+  }, []);
+
+  const data = useMeetingInfo();
+
+  React.useEffect(() => {
+    if (data.isJoinDataFetched === true) {
       setRtcProps({
         appId: $config.APP_ID,
-        channel: data.joinChannel.channel,
-        uid: data.joinChannel.mainUser.uid,
-        token: data.joinChannel.mainUser.rtc,
-        rtm: data.joinChannel.mainUser.rtm,
+        channel: data.channel,
+        uid: data.uid,
+        token: data.token,
+        rtm: data.rtm,
         dual: true,
         profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
-              key: data.joinChannel.secret,
+              key: data.secret,
               mode: RnEncryptionEnum.AES128XTS,
-              screenKey: data.joinChannel.secret,
+              screenKey: data.secret,
             }
           : false,
-        screenShareUid: data.joinChannel.screenShare.uid,
-        screenShareToken: data.joinChannel.screenShare.rtc,
-        role: data.joinChannel.isHost
-          ? ClientRole.Broadcaster
-          : ClientRole.Audience,
+        screenShareUid: data.screenShareUid,
+        screenShareToken: data.screenShareToken,
+        role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
       });
-      setIsHost(data.joinChannel.isHost);
-      setTitle(data.joinChannel.title);
 
-      console.log('query done: ', data, queryComplete);
       // 1. Store the display name from API
-      if (data.getUser) {
-        setUsername(data.getUser.name);
-      }
-      console.log('token:', rtcProps.token);
-      queryComplete ? {} : setQueryComplete(true);
+      // if (data.username) {
+      //   setUsername(data.username);
+      // }
+      queryComplete ? {} : setQueryComplete(data.isJoinDataFetched);
     }
-  }, [error, loading, data]);
+  }, [data?.isJoinDataFetched]);
 
   const history = useHistory();
   const callbacks = {
@@ -444,23 +382,20 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <VideoCallProvider
+                    <LayoutProvider
                       value={{
                         sidePanel,
                         setSidePanel,
                         activeLayoutName,
                         setActiveLayoutName,
-                        isHost,
-                        title,
                       }}>
                       <RecordingProvider
                         value={{setRecordingActive, recordingActive}}>
                         <ScreenshareConfigure>
-                          <LiveStreamContextProvider
-                            setRtcProps={setRtcProps}
-                            isHost={isHost}>
+                          <LiveStreamContextProvider setRtcProps={setRtcProps}>
                             {callActive ? (
-                              FpeVideocallComponent ? (
+                              FpeVideocallComponent &&
+                              isValidElementType(FpeVideocallComponent) ? (
                                 <FpeVideocallComponent />
                               ) : (
                                 <View style={style.full}>
@@ -545,29 +480,28 @@ const VideoCall: React.FC = () => {
                                                 <></>
                                               )}
                                             </NetworkQualityProvider>
-                                            {sidePanel ===
-                                            SidePanelType.Chat ? (
-                                              $config.CHAT ? (
-                                                cmpTypeGuard(
-                                                  Chat,
-                                                  FpeChatComponent,
-                                                )
-                                              ) : (
-                                                <></>
-                                              )
-                                            ) : (
-                                              <></>
-                                            )}
-                                            {sidePanel ===
-                                            SidePanelType.Settings ? (
-                                              cmpTypeGuard(
-                                                SettingsView,
-                                                FpeSettingsComponent,
-                                              )
-                                            ) : (
-                                              <></>
-                                            )}
                                           </CustomUserContextHolder>
+                                          {sidePanel === SidePanelType.Chat ? (
+                                            $config.CHAT ? (
+                                              cmpTypeGuard(
+                                                Chat,
+                                                FpeChatComponent,
+                                              )
+                                            ) : (
+                                              <></>
+                                            )
+                                          ) : (
+                                            <></>
+                                          )}
+                                          {sidePanel ===
+                                          SidePanelType.Settings ? (
+                                            cmpTypeGuard(
+                                              SettingsView,
+                                              FpeSettingsComponent,
+                                            )
+                                          ) : (
+                                            <></>
+                                          )}
                                         </View>
                                         {!isWeb &&
                                         sidePanel === SidePanelType.Chat ? (
@@ -590,9 +524,6 @@ const VideoCall: React.FC = () => {
                                   setUsername,
                                   callActive,
                                   setCallActive,
-                                  queryComplete,
-                                  title,
-                                  error,
                                 }}>
                                 {cmpTypeGuard(Precall, FpePrecallComponent)}
                               </PreCallProvider>
@@ -602,7 +533,7 @@ const VideoCall: React.FC = () => {
                           </LiveStreamContextProvider>
                         </ScreenshareConfigure>
                       </RecordingProvider>
-                    </VideoCallProvider>
+                    </LayoutProvider>
                   </RtmConfigure>
                 </DeviceConfigure>
               </RtcConfigure>

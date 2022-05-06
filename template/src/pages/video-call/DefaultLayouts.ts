@@ -2,7 +2,7 @@ import {layoutObjectType} from 'fpe-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
 import useCustomLayout from './CustomLayout';
-import {useVideoCall} from './useVideoCall';
+import {useLayout} from './useLayout';
 
 export const DefaultLayouts: layoutObjectType[] = [
   {
@@ -23,7 +23,7 @@ export const getPinnedLayoutName = () => DefaultLayouts[1].name;
 export const getGridLayoutName = () => DefaultLayouts[0].name;
 
 export const useSetPinnedLayout = () => {
-  const {setActiveLayoutName} = useVideoCall();
+  const {setActiveLayoutName} = useLayout();
   const layouts = useCustomLayout();
   const pinnedLayoutName = getPinnedLayoutName();
   let checkPinnedLayoutExist = false;
@@ -42,7 +42,7 @@ export const useSetPinnedLayout = () => {
 };
 
 export const useChangeDefaultLayout = () => {
-  const {setActiveLayoutName} = useVideoCall();
+  const {setActiveLayoutName} = useLayout();
   const layout = useCustomLayout();
 
   if (!layout) {

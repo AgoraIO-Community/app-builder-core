@@ -22,11 +22,11 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const Controls = () => {
-  const {isHost} = useVideoCall();
+  const {isHost} = useMeetingInfo();
   const {rtcProps} = useContext(PropsContext);
   const audioLabel = useString('toggleAudioButton')();
   const videoLabel = useString('toggleVideoButton')();

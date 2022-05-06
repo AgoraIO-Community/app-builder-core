@@ -20,7 +20,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 
 const Settings = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
-  const {isHost, sidePanel, setSidePanel} = props;
+  const {sidePanel, setSidePanel} = props;
 
   return (
     <BtnTemplate
@@ -107,11 +107,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     resizeMode: 'contain',
   },
-  localButtonWithMatchingStyle:{    
+  localButtonWithMatchingStyle: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-  }
+  },
 });
 
 export default Settings;

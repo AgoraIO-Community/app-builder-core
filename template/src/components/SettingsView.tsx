@@ -13,13 +13,13 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWeb} from '../utils/common';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const SettingsView = () => {
-  const {isHost} = useVideoCall((data) => data);
+  const {isHost} = useMeetingInfo();
   const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   return (
     <View style={isWeb ? style.settingsView : style.settingsViewNative}>

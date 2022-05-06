@@ -27,3 +27,5 @@ export {
 } from '../src/utils/useUnreadMessageCount';
 export {default as useNavigateTo} from '../src/utils/useNavigateTo';
 export {default as useNavParams} from '../src/utils/useNavParams';
+export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
+export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';

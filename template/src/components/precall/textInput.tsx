@@ -14,13 +14,13 @@ import React from 'react';
 import TextInput from '../../atoms/TextInput';
 import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 const PreCallTextInput: React.FC = () => {
   const userNamePlaceholder = useString('userNamePlaceholder')();
   const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
-  const {username, setUsername, queryComplete, error} = usePreCall(
-    (data) => data,
-  );
+  const {username, setUsername} = usePreCall((data) => data);
+  const {isJoinDataFetched} = useMeetingInfo();
 
   return (
     <TextInput
@@ -28,9 +28,9 @@ const PreCallTextInput: React.FC = () => {
       onChangeText={(text) => setUsername(text ? text.trim() : text)}
       onSubmitEditing={() => {}}
       placeholder={
-        queryComplete ? userNamePlaceholder : fetchingNamePlaceholder
+        isJoinDataFetched ? userNamePlaceholder : fetchingNamePlaceholder
       }
-      editable={queryComplete && !error}
+      editable={isJoinDataFetched}
     />
   );
 };

@@ -9,29 +9,30 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext} from 'react';
+import React, {createContext, SetStateAction} from 'react';
 import {createHook} from 'fpe-implementation';
+import {MeetingInfoContextInterface} from './useMeetingInfo';
 
-export interface CreateContextInterface {
-  showShareScreen: () => void;
+export interface SetMeetingInfoContextInterface {
+  setMeetingInfo: React.Dispatch<SetStateAction<MeetingInfoContextInterface>>;
 }
 
-const CreateContext = createContext<CreateContextInterface>({
-  showShareScreen: () => {},
+const SetMeetingInfoContext = createContext<SetMeetingInfoContextInterface>({
+  setMeetingInfo: () => {},
 });
 
-interface CreateProviderProps {
-  value: CreateContextInterface;
+interface SetMeetingInfoProviderProps {
   children: React.ReactNode;
+  value: SetMeetingInfoContextInterface;
 }
 
-const CreateProvider = (props: CreateProviderProps) => {
+const SetMeetingInfoProvider = (props: SetMeetingInfoProviderProps) => {
   return (
-    <CreateContext.Provider value={{...props.value}}>
+    <SetMeetingInfoContext.Provider value={{...props.value}}>
       {props.children}
-    </CreateContext.Provider>
+    </SetMeetingInfoContext.Provider>
   );
 };
-const useCreate = createHook(CreateContext);
+const useSetMeetingInfo = createHook(SetMeetingInfoContext);
 
-export {CreateProvider, useCreate};
+export {SetMeetingInfoProvider, useSetMeetingInfo};

@@ -25,11 +25,16 @@ export const useStorageContext = createHook(StorageContext);
  */
 export {usePreCall} from '../src/components/precall/usePreCall';
 export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
-export {useVideoCall} from '../src/pages/video-call/useVideoCall';
-export type {VideoCallContextInterface} from '../src/pages/video-call/useVideoCall';
-export {useShareLink} from '../src/components/useShareLink';
+export {useLayout} from '../src/pages/video-call/useLayout';
+export type {LayoutContextInterface} from '../src/pages/video-call/useLayout';
+export {
+  useShareLink,
+  SHARE_LINK_CONTENT_TYPE,
+} from '../src/components/useShareLink';
 export type {ShareLinkContextInterface} from '../src/components/useShareLink';
 export {useScreenshare} from '../src/subComponents/screenshare/index';
 export type {ScreenshareContextInterface} from '../src/subComponents/screenshare/index';
 export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
+export {useMeetingInfo} from '../src/components/meeting-info/useMeetingInfo';
+export type {MeetingInfoContextInterface} from '../src/components/meeting-info/useMeetingInfo';

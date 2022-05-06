@@ -9,7 +9,6 @@ import {
 } from '../../../agora-rn-uikit/src';
 import {gql, useMutation} from '@apollo/client';
 import ScreenshareContext from './ScreenshareContext';
-import {useVideoCall} from '../../pages/video-call/useVideoCall';
 import {
   useChangeDefaultLayout,
   useSetPinnedLayout,

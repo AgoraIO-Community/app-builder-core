@@ -18,8 +18,6 @@ export interface PreCallContextInterface {
   setUsername: React.Dispatch<React.SetStateAction<string>>;
   callActive: boolean;
   setCallActive: React.Dispatch<React.SetStateAction<boolean>>;
-  queryComplete: boolean;
-  title: string;
   error?: ApolloError;
 }
 
@@ -28,8 +26,6 @@ const PreCallContext = createContext<PreCallContextInterface>({
   setUsername: () => {},
   callActive: false,
   setCallActive: () => {},
-  queryComplete: false,
-  title: '',
 });
 
 interface PreCallProviderProps {

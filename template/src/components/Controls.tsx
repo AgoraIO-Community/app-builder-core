@@ -25,9 +25,9 @@ import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {useString} from '../utils/useString';
 import {isIOS, isWeb} from '../utils/common';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -41,7 +41,7 @@ const Controls = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {isHost} = useVideoCall((data) => data);
+  const {isHost} = useMeetingInfo();
 
   const audioLabel = useString('toggleAudioButton')();
   const videoLabel = useString('toggleVideoButton')();

@@ -18,7 +18,8 @@ import {
 import {ClientRole} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
-import {useScreenshare} from 'fpe-api';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useScreenshare} from '../../subComponents/screenshare/index';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -57,7 +58,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     events,
   } = useContext(ChatContext);
 
-  const {isHost, setRtcProps} = props;
+  const {setRtcProps} = props;
+  const {isHost} = useMeetingInfo();
 
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
     Partial<Record<string, requestInterface>>

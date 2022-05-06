@@ -1,4 +1,6 @@
 import {gql, useMutation} from '@apollo/client';
+import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
@@ -24,17 +26,14 @@ const CREATE_CHANNEL = gql`
     }
   }
 `;
-export interface CreateMeetingDataInterface {
-  hostPassphrase?: string;
-  attendeePassphrase: string;
-  pstn?: {
-    number: string;
-    dtmf: string;
-  };
-}
 export default function useCreateMeeting() {
   const [createChannel, {error}] = useMutation(CREATE_CHANNEL);
-  return async (roomTitle: string, enablePSTN?: boolean) => {
+  const {setMeetingInfo} = useSetMeetingInfo();
+  return async (
+    roomTitle: string,
+    enablePSTN?: boolean,
+    isSeparateHostLink?: boolean,
+  ) => {
     const res = await createChannel({
       variables: {
         title: roomTitle,
@@ -46,20 +45,28 @@ export default function useCreateMeeting() {
       throw error;
     }
     if (res && res?.data && res?.data?.createChannel) {
-      let returnData: CreateMeetingDataInterface = {
-        attendeePassphrase: '',
-      };
-      if (res?.data?.createChannel?.passphrase) {
-        returnData.hostPassphrase = res.data.createChannel.passphrase.host;
-        returnData.attendeePassphrase = res.data.createChannel.passphrase.view;
+      let meetingInfoPassPhrase: MeetingInfoContextInterface['meetingPassphrase'] =
+        {
+          attendee: '',
+        };
+      if (res?.data?.createChannel?.passphrase?.view) {
+        meetingInfoPassPhrase.attendee = res.data.createChannel.passphrase.view;
+      }
+      if (res?.data?.createChannel?.passphrase?.host) {
+        meetingInfoPassPhrase.host = res.data.createChannel.passphrase.host;
       }
       if (enablePSTN === true && res?.data?.createChannel?.pstn) {
-        returnData.pstn = {
+        meetingInfoPassPhrase.pstn = {
           number: res.data.createChannel.pstn.number,
-          dtmf: res.data.createChannel.pstn.dtmf,
+          pin: res.data.createChannel.pstn.dtmf,
         };
       }
-      return returnData;
+      setMeetingInfo({
+        isHost: true,
+        isSeparateHostLink: isSeparateHostLink ? true : false,
+        meetingTitle: roomTitle,
+        meetingPassphrase: meetingInfoPassPhrase,
+      });
     } else {
       throw new Error(`An error occurred in parsing the channel data.`);
     }

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useState} from 'react';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
@@ -21,6 +21,13 @@ import {shouldAuthenticate, cmpTypeGuard, isIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
 import AppWrapper from './AppWrapper';
+import {
+  MeetingInfoContextInterface,
+  MeetingInfoDefaultValue,
+  MeetingInfoProvider,
+} from './components/meeting-info/useMeetingInfo';
+import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
+import {ShareLinkProvider} from './components/useShareLink';
 if (isIOS) {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
@@ -50,36 +57,47 @@ const App: React.FC = () => {
       );
     });
   };
+  const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
+    MeetingInfoDefaultValue,
+  );
 
   return (
     <AppWrapper>
-      <Switch>
-        {RenderCustomRoutes()}
-        <Route exact path={'/'}>
-          <Redirect to={'/create'} />
-        </Route>
-        <Route exact path={'/authenticate'}>
-          {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
-        </Route>
-        <Route path={'/auth-token/:token'}>
-          <StoreToken />
-        </Route>
-        <Route exact path={'/join'}>
-          {cmpTypeGuard(Join, FpeJoinComponent)}
-        </Route>
-        {shouldAuthenticate ? (
-          <PrivateRoute path={'/create'} failureRedirectTo={'/authenticate'}>
-            <Create />
-          </PrivateRoute>
-        ) : (
-          <Route path={'/create'}>
-            <Create />
-          </Route>
-        )}
-        <Route path={'/:phrase'}>
-          <VideoCall />
-        </Route>
-      </Switch>
+      <SetMeetingInfoProvider value={{setMeetingInfo}}>
+        <MeetingInfoProvider value={{...meetingInfo}}>
+          <ShareLinkProvider>
+            <Switch>
+              {RenderCustomRoutes()}
+              <Route exact path={'/'}>
+                <Redirect to={'/create'} />
+              </Route>
+              <Route exact path={'/authenticate'}>
+                {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
+              </Route>
+              <Route path={'/auth-token/:token'}>
+                <StoreToken />
+              </Route>
+              <Route exact path={'/join'}>
+                {cmpTypeGuard(Join, FpeJoinComponent)}
+              </Route>
+              {shouldAuthenticate ? (
+                <PrivateRoute
+                  path={'/create'}
+                  failureRedirectTo={'/authenticate'}>
+                  <Create />
+                </PrivateRoute>
+              ) : (
+                <Route path={'/create'}>
+                  <Create />
+                </Route>
+              )}
+              <Route path={'/:phrase'}>
+                <VideoCall />
+              </Route>
+            </Switch>
+          </ShareLinkProvider>
+        </MeetingInfoProvider>
+      </SetMeetingInfoProvider>
     </AppWrapper>
   );
 };

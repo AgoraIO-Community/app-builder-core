@@ -29,7 +29,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useLayout} from '../pages/video-call/useLayout';
 import {useChatUIData} from '../components/useChatUI';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
@@ -38,6 +38,7 @@ import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import DimensionContext from './dimension/DimensionContext';
 import {useString} from '../utils/useString';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const Navbar = () => {
   const recordingLabel = useString('recordingLabel')();
@@ -52,14 +53,8 @@ const Navbar = () => {
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
   const {getDimensionData} = useContext(DimensionContext);
-  const {
-    sidePanel,
-    setSidePanel,
-    activeLayoutName,
-    setActiveLayoutName,
-    isHost,
-    title,
-  } = useVideoCall((data) => data);
+  const {sidePanel, setSidePanel, activeLayoutName} = useLayout((data) => data);
+  const {meetingTitle, isHost} = useMeetingInfo();
   const {recordingActive} = useRecording((data) => data);
   const changeLayout = useChangeDefaultLayout();
   const layout = layouts.findIndex((item) => item.name === activeLayoutName);
@@ -230,10 +225,10 @@ const Navbar = () => {
             <View>
               <Text style={style.roomNameText}>
                 {isMobileOrTablet()
-                  ? title.length > 13
-                    ? title.slice(0, 13) + '..'
-                    : title
-                  : title}
+                  ? meetingTitle.length > 13
+                    ? meetingTitle.slice(0, 13) + '..'
+                    : meetingTitle
+                  : meetingTitle}
               </Text>
             </View>
             <View />
@@ -251,7 +246,7 @@ const Navbar = () => {
           </View>
         ) : (
           <View>
-            <Text style={style.roomNameText}>{title}</Text>
+            <Text style={style.roomNameText}>{meetingTitle}</Text>
           </View>
         )}
       </View>

@@ -1,13 +1,13 @@
 import React from 'react';
 import {Text, StyleSheet, View} from 'react-native';
-import {usePreCall} from './usePreCall';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 const MeetingTitle: React.FC = () => {
-  const title = usePreCall((data) => data.title);
+  const {meetingTitle} = useMeetingInfo();
   return (
     <>
       <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-        {title}
+        {meetingTitle}
       </Text>
       <View style={{height: 50}} />
     </>
