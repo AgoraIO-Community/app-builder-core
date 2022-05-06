@@ -35,6 +35,7 @@ import {
   cmpTypeGuard,
   hasBrandLogo,
   isAndroid,
+  isArray,
   isValidElementType,
   isWeb,
 } from '../utils/common';
@@ -45,7 +46,6 @@ import ChatContext, {
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Toast from '../../react-native-toast-message';
-import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 import {ErrorContext} from '.././components/common/index';
@@ -54,14 +54,13 @@ import {LayoutProvider} from './video-call/useLayout';
 import {ChatUIDataProvider} from '../components/useChatUI';
 import {layoutObjectType, useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
-import VideoArrayRenderer from './video-call/VideoArrayRenderer';
-import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useString} from '../utils/useString';
 import useCustomLayout from './video-call/CustomLayout';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {SidePanelProvider} from './video-call/useSidePanel';
+import VideoComponent from './video-call/VideoComponent';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -253,24 +252,12 @@ const VideoCall: React.FC = () => {
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
-  const layouts = useCustomLayout();
-  const checkLayoutsData = (layoutData: layoutObjectType[]) => {
-    return layoutData && Array.isArray(layoutData) && layoutData.length
-      ? true
-      : false;
-  };
-  const defaultLayoutName = checkLayoutsData(layouts) ? layouts[0].name : '';
-  const [layout, setLayoutIndex] = useState(0);
-  const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
 
-  useEffect(() => {
-    if (checkLayoutsData(layouts)) {
-      let index = layouts.findIndex((item) => item.name === activeLayoutName);
-      if (index >= 0) {
-        setLayoutIndex(index);
-      }
-    }
-  }, [activeLayoutName]);
+  //layouts
+  const layouts = useCustomLayout();
+  const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
+  const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
+  //layouts
 
   const [recordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
@@ -293,8 +280,6 @@ const VideoCall: React.FC = () => {
       : false,
     role: ClientRole.Broadcaster,
   });
-
-  const fpeLayouts = useCustomLayout();
 
   const useJoin = useJoinMeeting();
 
@@ -444,49 +429,16 @@ const VideoCall: React.FC = () => {
                                               style.videoView,
                                               {backgroundColor: '#ffffff00'},
                                             ]}>
-                                            <CustomUserContextHolder>
-                                              <NetworkQualityProvider>
-                                                <VideoArrayRenderer>
-                                                  {(
-                                                    minVideoArray: React.FC[],
-                                                    maxVideoArray: React.FC[],
-                                                  ) => {
-                                                    if (
-                                                      fpeLayouts &&
-                                                      fpeLayouts[layout] &&
-                                                      typeof fpeLayouts[layout]
-                                                        .component ===
-                                                        'function'
-                                                    ) {
-                                                      const CurrentLayout =
-                                                        fpeLayouts[layout]
-                                                          .component;
-                                                      return (
-                                                        <CurrentLayout
-                                                          minVideoArray={
-                                                            minVideoArray
-                                                          }
-                                                          maxVideoArray={
-                                                            maxVideoArray
-                                                          }
-                                                        />
-                                                      );
-                                                    } else {
-                                                      return <></>;
-                                                    }
-                                                  }}
-                                                </VideoArrayRenderer>
-                                                {sidePanel ===
-                                                SidePanelType.Participants ? (
-                                                  cmpTypeGuard(
-                                                    ParticipantsView,
-                                                    FpeParticipantsComponent,
-                                                  )
-                                                ) : (
-                                                  <></>
-                                                )}
-                                              </NetworkQualityProvider>
-                                            </CustomUserContextHolder>
+                                            <VideoComponent />
+                                            {sidePanel ===
+                                            SidePanelType.Participants ? (
+                                              cmpTypeGuard(
+                                                ParticipantsView,
+                                                FpeParticipantsComponent,
+                                              )
+                                            ) : (
+                                              <></>
+                                            )}
                                             {sidePanel ===
                                             SidePanelType.Chat ? (
                                               $config.CHAT ? (
