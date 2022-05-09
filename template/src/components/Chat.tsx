@@ -58,7 +58,7 @@ const Chat = () => {
     privateMessageCountMap,
     setPrivateMessageLastSeen,
     setPrivateChatDisplayed,
-  } = useChatUIData((data) => data);
+  } = useChatUIData();
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);

@@ -19,7 +19,7 @@ import {DEFAULT_I18_DATA} from '../language';
 
 const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {languageCode, setLanguageCode} = useLanguage((data) => data);
+  const {languageCode, setLanguageCode} = useLanguage();
   const languageData = useFpe((data) => data?.i18n);
   const languageText = useString('language')();
   if (!languageData || !languageData.length) {
