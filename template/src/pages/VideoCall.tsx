@@ -51,7 +51,7 @@ import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
-import {LayoutProvider} from './video-call/useLayout';
+import {LayoutProvider} from '../utils/useLayout';
 import {ChatUIDataProvider} from '../components/useChatUI';
 import {layoutObjectType, useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
@@ -60,7 +60,7 @@ import useCustomLayout from './video-call/CustomLayout';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import {SidePanelProvider} from './video-call/useSidePanel';
+import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoComponent from './video-call/VideoComponent';
 
 const useChatNotification = (

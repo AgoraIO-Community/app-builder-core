@@ -2,7 +2,7 @@ import {layoutObjectType} from 'fpe-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
 import useCustomLayout from './CustomLayout';
-import {useLayout} from './useLayout';
+import {useLayout} from '../../utils/useLayout';
 
 export const DefaultLayouts: layoutObjectType[] = [
   {

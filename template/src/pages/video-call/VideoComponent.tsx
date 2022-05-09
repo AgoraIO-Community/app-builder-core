@@ -4,7 +4,7 @@ import VideoArrayRenderer from './VideoArrayRenderer';
 import CustomUserContextHolder from './CustomUserContextHolder';
 import useCustomLayout from './CustomLayout';
 import {isArray, isValidElementType} from '../../utils/common';
-import {useLayout} from './useLayout';
+import {useLayout} from '../../utils/useLayout';
 
 const VideoComponent = () => {
   const [layout, setLayoutIndex] = useState(0);

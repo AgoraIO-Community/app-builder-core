@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import useCustomLayout from '../pages/video-call/CustomLayout';
-import {useLayout} from '../pages/video-call/useLayout';
+import {useLayout} from '../utils/useLayout';
 
 const deviceHeight = Dimensions.get('screen').height;
 interface LayoutIconDropdownProps {

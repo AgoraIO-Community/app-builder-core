@@ -29,7 +29,7 @@ import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
-import {useLayout} from '../pages/video-call/useLayout';
+import {useLayout} from '../utils/useLayout';
 import {useChatUIData} from '../components/useChatUI';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
@@ -39,7 +39,7 @@ import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import DimensionContext from './dimension/DimensionContext';
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import {useSidePanel} from '../pages/video-call/useSidePanel';
+import {useSidePanel} from '../utils/useSidePanel';
 
 const Navbar = () => {
   const recordingLabel = useString('recordingLabel')();

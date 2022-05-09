@@ -25,8 +25,8 @@ export const useStorageContext = createHook(StorageContext);
  */
 export {usePreCall} from '../src/components/precall/usePreCall';
 export type {PreCallContextInterface} from '../src/components/precall/usePreCall';
-export {useLayout} from '../src/pages/video-call/useLayout';
-export type {LayoutContextInterface} from '../src/pages/video-call/useLayout';
+export {useLayout} from '../src/utils/useLayout';
+export type {LayoutContextInterface} from '../src/utils/useLayout';
 export {
   useShareLink,
   SHARE_LINK_CONTENT_TYPE,

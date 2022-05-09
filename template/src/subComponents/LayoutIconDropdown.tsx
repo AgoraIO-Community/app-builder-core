@@ -10,7 +10,7 @@ import {
 import {isWeb} from '../utils/common';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import useCustomLayout from '../pages/video-call/CustomLayout';
-import {useLayout} from '../pages/video-call/useLayout';
+import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
 
 interface LayoutIconDropdownProps {
