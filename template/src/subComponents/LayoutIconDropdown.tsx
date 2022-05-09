@@ -28,7 +28,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {isDesktop, dim} = getDimensionData();
 
   const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useLayout((data) => data);
+  const {activeLayoutName, setActiveLayoutName} = useLayout();
   const renderSeparatorHorizontal = () => {
     return isWeb && isDesktop ? (
       <View style={style.navItem}>

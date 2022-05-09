@@ -20,7 +20,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive, username} = usePreCall((data) => data);
+  const {setCallActive, username} = usePreCall();
   const {isJoinDataFetched} = useMeetingInfo();
   const getMode = () =>
     $config.EVENT_MODE

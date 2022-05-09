@@ -19,7 +19,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 const PreCallTextInput: React.FC = () => {
   const userNamePlaceholder = useString('userNamePlaceholder')();
   const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
-  const {username, setUsername} = usePreCall((data) => data);
+  const {username, setUsername} = usePreCall();
   const {isJoinDataFetched} = useMeetingInfo();
 
   return (

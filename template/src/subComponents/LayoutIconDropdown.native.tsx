@@ -25,7 +25,7 @@ interface LayoutIconDropdownProps {
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {showDropdown, setShowDropdown} = props;
   const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useLayout((data) => data);
+  const {activeLayoutName, setActiveLayoutName} = useLayout();
   const selectedItemHighlighter = (isSelected: boolean) => {
     return <View style={isSelected ? style.highlighter : {}} />;
   };

@@ -54,15 +54,13 @@ const Navbar = () => {
     useContext(LiveStreamContext);
   const layouts = useCustomLayout();
   const {getDimensionData} = useContext(DimensionContext);
-  const {activeLayoutName} = useLayout((data) => data);
+  const {activeLayoutName} = useLayout();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {meetingTitle, isHost} = useMeetingInfo();
-  const {recordingActive} = useRecording((data) => data);
+  const {recordingActive} = useRecording();
   const changeLayout = useChangeDefaultLayout();
   const layout = layouts.findIndex((item) => item.name === activeLayoutName);
-  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData(
-    (data) => data,
-  );
+  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,

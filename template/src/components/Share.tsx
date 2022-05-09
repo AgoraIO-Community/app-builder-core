@@ -22,7 +22,7 @@ import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import useNavigateTo from '../utils/useNavigateTo';
 
 const Share = () => {
-  const {copyShareLinkToClipboard, getShareLink} = useShareLink((data) => data);
+  const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {meetingPassphrase, isSeparateHostLink} = useMeetingInfo();
   const meetingUrlText = useString('meetingUrlLabel')();
   const meetingIdText = useString('meetingIdLabel')();
