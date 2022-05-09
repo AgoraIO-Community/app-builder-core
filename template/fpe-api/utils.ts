@@ -29,3 +29,7 @@ export {default as useNavigateTo} from '../src/utils/useNavigateTo';
 export {default as useNavParams} from '../src/utils/useNavParams';
 export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
 export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
+export {
+  default as useSendMessage,
+  MESSAGE_TYPE,
+} from '../src/utils/useSendMessage';

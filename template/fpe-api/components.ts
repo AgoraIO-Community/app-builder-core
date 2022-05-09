@@ -15,7 +15,7 @@ export * from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';
 export {default as VideoComponentWithDefaultLayout} from '../src/pages/video-call/VideoComponent';
-export {MaxVideoRenderer as VideoContentComponent} from '../src/pages/video-call/VideoRenderer';
+export {MaxVideoRenderer as MaxVideoView} from '../src/pages/video-call/VideoRenderer';
 
 //Settings screen
 export {default as HostControlView} from '../src/components/HostControlView';
