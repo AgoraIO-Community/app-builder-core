@@ -61,15 +61,13 @@ const Share = () => {
     if (isSeparateHostLink) {
       if (isWeb) {
         return hostUrlLabel;
-      } else {
-        return hostIdText;
       }
+      return hostIdText;
     } else {
       if (isWeb) {
         return meetingUrlText;
-      } else {
-        return meetingIdText;
       }
+      return meetingIdText;
     }
   };
   return (
