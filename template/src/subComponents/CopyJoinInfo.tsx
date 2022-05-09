@@ -9,94 +9,33 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
-import Clipboard from './Clipboard';
-import {gql, useQuery} from '@apollo/client';
-import icons from '../assets/icons';
-import platform from '../subComponents/Platform';
+import React, {useEffect} from 'react';
+import {StyleSheet} from 'react-native';
 import {useParams} from '../components/Router';
-import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
-import {MeetingInviteInterface} from 'src/language/default-labels/videoCallScreenLabels';
+import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
 import {
-  GetMeetingInviteID,
-  GetMeetingInviteURL,
-} from '../utils/getMeetingInvite';
-
-const SHARE = gql`
-  query share($passphrase: String!) {
-    share(passphrase: $passphrase) {
-      passphrase {
-        host
-        view
-      }
-      channel
-      title
-      pstn {
-        number
-        dtmf
-      }
-    }
-  }
-`;
+  SHARE_LINK_CONTENT_TYPE,
+  useShareLink,
+} from '../components/useShareLink';
 
 const CopyJoinInfo = (props: {showText?: boolean}) => {
   const {phrase} = useParams<{phrase: string}>();
-  const {data, loading, error} = useQuery(SHARE, {
-    variables: {passphrase: phrase},
-  });
-  const copiedToClipboardText = useString(
-    'copiedToClipboardNotificationLabel',
-  )();
-  const meetingInviteText =
-    useString<MeetingInviteInterface>('meetingInviteText');
+  const getMeeting = useGetMeetingPhrase();
+  const {copyShareLinkToClipboard} = useShareLink();
   const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
-  const copyToClipboard = () => {
-    Toast.show({
-      type: 'success',
-      text1: copiedToClipboardText,
-      visibilityTime: 1000,
-    });
-    if (data && !loading) {
-      let baseURL =
-        platform === 'web'
-          ? $config.FRONTEND_ENDPOINT || window.location.origin
-          : undefined;
 
-      let stringToCopy = meetingInviteText({
-        meetingName: data.share.title,
-        url: baseURL
-          ? GetMeetingInviteURL(
-              baseURL,
-              data.share.passphrase.view,
-              data.share.passphrase.host,
-            )
-          : undefined,
-        id: !baseURL
-          ? GetMeetingInviteID(
-              data.share.passphrase.view,
-              data.share.passphrase.host,
-            )
-          : undefined,
-        pstn: data.share.pstn
-          ? {
-              number: data.share.pstn.number,
-              pin: data.share.pstn.dtmf,
-            }
-          : undefined,
-      });
-      console.log('Copying string to clipboard:', stringToCopy);
-      Clipboard.setString(stringToCopy);
-    }
-  };
+  useEffect(() => {
+    getMeeting(phrase);
+  }, [phrase]);
 
   return (
     <BtnTemplate
-      disabled={!data}
       style={style.backButton}
-      onPress={() => copyToClipboard()}
+      onPress={() =>
+        copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+      }
       name={'clipboard'}
       btnText={props.showText ? copyMeetingInviteButton : ''}
       color={$config.PRIMARY_FONT_COLOR}
