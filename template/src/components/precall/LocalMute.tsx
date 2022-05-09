@@ -14,7 +14,6 @@ import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
 import {getCmpTypeGuard} from '../../utils/common';
 import {LocalAudioMute, LocalVideoMute} from '../../../agora-rn-uikit';
-import {LocalUserContext} from '../../../agora-rn-uikit';
 import {useString} from '../../utils/useString';
 
 const PreCallLocalMute: React.FC = () => {
@@ -29,14 +28,12 @@ const PreCallLocalMute: React.FC = () => {
   const toggleVideoButton = useString('toggleVideoButton')();
   return (
     <View style={style.precallControls}>
-      <LocalUserContext>
-        <View style={{alignSelf: 'center'}}>
-          <AudioCmp btnText={toggleAudioButton} />
-        </View>
-        <View style={{alignSelf: 'center'}}>
-          <VideoCmp btnText={toggleVideoButton} />
-        </View>
-      </LocalUserContext>
+      <View style={{alignSelf: 'center'}}>
+        <AudioCmp btnText={toggleAudioButton} />
+      </View>
+      <View style={{alignSelf: 'center'}}>
+        <VideoCmp btnText={toggleVideoButton} />
+      </View>
     </View>
   );
 };

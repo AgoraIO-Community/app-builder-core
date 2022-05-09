@@ -19,7 +19,6 @@ import {
   LocalVideoMute,
   SwitchCamera,
 } from '../../../agora-rn-uikit';
-import {LocalUserContext} from '../../../agora-rn-uikit';
 import {useString} from '../../utils/useString';
 
 const PreCallLocalMute: React.FC = () => {
@@ -34,7 +33,7 @@ const PreCallLocalMute: React.FC = () => {
   const toggleVideoButton = useString('toggleVideoButton')();
   const switchCameraButton = useString('switchCameraButton')();
   return (
-    <LocalUserContext>
+    <>
       <View style={style.width50}>
         <AudioCmp btnText={toggleAudioButton} />
       </View>
@@ -46,7 +45,7 @@ const PreCallLocalMute: React.FC = () => {
       <View style={style.width50}>
         <SwitchCamera btnText={switchCameraButton} />
       </View>
-    </LocalUserContext>
+    </>
   );
 };
 export default PreCallLocalMute;

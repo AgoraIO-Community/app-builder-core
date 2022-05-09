@@ -33,3 +33,8 @@ export {
   default as useSendMessage,
   MESSAGE_TYPE,
 } from '../src/utils/useSendMessage';
+export {
+  MUTE_LOCAL_TYPE,
+  default as useMuteToggleLocal,
+} from '../src/utils/useMuteToggleLocal';
+export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';

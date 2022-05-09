@@ -11,7 +11,6 @@
 */
 import React, {useState, useContext} from 'react';
 import {View, Dimensions, StyleSheet} from 'react-native';
-import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
   LocalVideoMute,
@@ -48,60 +47,56 @@ const Controls = () => {
   const endCallButton = useString('endCallButton')();
 
   return (
-    <LocalUserContext>
-      <View
-        style={[
-          style.controlsHolder,
-          {
-            paddingHorizontal: isDesktop ? '25%' : '1%',
-            backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
-          },
-        ]}
-        onLayout={onLayout}>
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} />
-        ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
+    <View
+      style={[
+        style.controlsHolder,
+        {
+          paddingHorizontal: isDesktop ? '25%' : '1%',
+          backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+        },
+      ]}
+      onLayout={onLayout}>
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <LiveStreamControls showControls={true} />
+      ) : (
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE && (
+            <LiveStreamControls
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          )}
+          <View style={{alignSelf: 'center'}}>
+            <LocalAudioMute btnText={audioLabel} />
+          </View>
+          <View style={{alignSelf: 'center'}}>
+            <LocalVideoMute btnText={videoLabel} />
+          </View>
+          {isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={audioLabel} />
+              <SwitchCamera />
             </View>
+          )}
+          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={videoLabel} />
+              <ScreenshareButton />
             </View>
-            {isMobileOrTablet() && (
-              <View style={{alignSelf: 'center'}}>
-                <SwitchCamera />
-              </View>
-            )}
-            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-              <View style={{alignSelf: 'center'}}>
-                <ScreenshareButton />
-              </View>
-            )}
-            {isHost && $config.CLOUD_RECORDING && (
-              <View style={{alignSelf: 'center'}}>
-                <Recording />
-              </View>
-            )}
-          </>
-        )}
-        <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={endCallButton} />
-        </View>
+          )}
+          {isHost && $config.CLOUD_RECORDING && (
+            <View style={{alignSelf: 'center'}}>
+              <Recording />
+            </View>
+          )}
+        </>
+      )}
+      <View style={{alignSelf: 'center'}}>
+        <Endcall btnText={endCallButton} />
       </View>
-    </LocalUserContext>
+    </View>
   );
 };
 

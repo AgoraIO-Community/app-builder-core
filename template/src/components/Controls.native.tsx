@@ -11,7 +11,6 @@
 */
 import React, {useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
   LocalVideoMute,
@@ -33,45 +32,41 @@ const Controls = () => {
   const switchCameraButtonText = useString('switchCameraButton')();
   const endCallButton = useString('endCallButton')();
   return (
-    <LocalUserContext>
-      <View style={style.bottomBar}>
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} />
-        ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
-            <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={audioLabel} />
+    <View style={style.bottomBar}>
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <LiveStreamControls showControls={true} />
+      ) : (
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE && (
+            <LiveStreamControls
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          )}
+          <View style={{alignSelf: 'center'}}>
+            <LocalAudioMute btnText={audioLabel} />
+          </View>
+          <View style={{alignSelf: 'center'}}>
+            <LocalVideoMute btnText={videoLabel} />
+          </View>
+          {isHost && $config.CLOUD_RECORDING && (
+            <View style={{alignSelf: 'baseline'}}>
+              <Recording />
             </View>
-            <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={videoLabel} />
-            </View>
-            {isHost && $config.CLOUD_RECORDING && (
-              <View style={{alignSelf: 'baseline'}}>
-                <Recording />
-              </View>
-            )}
-            <View style={{alignSelf: 'center'}}>
-              <SwitchCamera btnText={switchCameraButtonText} />
-            </View>
-          </>
-        )}
-        <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={endCallButton} />
-        </View>
+          )}
+          <View style={{alignSelf: 'center'}}>
+            <SwitchCamera btnText={switchCameraButtonText} />
+          </View>
+        </>
+      )}
+      <View style={{alignSelf: 'center'}}>
+        <Endcall btnText={endCallButton} />
       </View>
-    </LocalUserContext>
+    </View>
   );
 };
 
