@@ -11,16 +11,15 @@
 */
 
 import React, {SetStateAction} from 'react';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {createHook} from 'fpe-implementation';
 
 export interface SidePanelContextInterface {
-  sidePanel: SidePanelType;
-  setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
+  sidePanel: string;
+  setSidePanel: React.Dispatch<SetStateAction<string>>;
 }
 
 const SidePanelContext = React.createContext<SidePanelContextInterface>({
-  sidePanel: SidePanelType.None,
+  sidePanel: '',
   setSidePanel: () => {},
 });
 

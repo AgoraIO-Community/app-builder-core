@@ -21,7 +21,6 @@ import {
 import icons from '../assets/icons';
 import Settings from './Settings';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
@@ -40,6 +39,10 @@ import DimensionContext from './dimension/DimensionContext';
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
+import {
+  getSidepanelNameForChatView,
+  getSidepanelNameForParticipantView,
+} from '../pages/video-call/DefaultSidePanels';
 
 const Navbar = () => {
   const recordingLabel = useString('recordingLabel')();
@@ -273,15 +276,15 @@ const Navbar = () => {
           <View style={[style.navItem, style.navSmItem]}>
             <BtnTemplate
               onPress={() => {
-                sidePanel === SidePanelType.Participants
-                  ? setSidePanel(SidePanelType.None)
-                  : setSidePanel(SidePanelType.Participants);
+                sidePanel === getSidepanelNameForParticipantView()
+                  ? setSidePanel('')
+                  : setSidePanel(getSidepanelNameForParticipantView());
                 $config.EVENT_MODE && $config.RAISE_HAND;
                 setLastCheckedRequestTimestamp(new Date().getTime());
               }}
               style={style.btnHolder}
               name={
-                sidePanel === SidePanelType.Participants
+                sidePanel === getSidepanelNameForParticipantView()
                   ? 'participantFilledIcon'
                   : 'participantIcon'
               }
@@ -311,17 +314,17 @@ const Navbar = () => {
                   style={style.btnHolder}
                   onPress={() => {
                     setLastCheckedPublicState(messageStore.length);
-                    sidePanel === SidePanelType.Chat
-                      ? setSidePanel(SidePanelType.None)
-                      : setSidePanel(SidePanelType.Chat);
+                    sidePanel === getSidepanelNameForChatView()
+                      ? setSidePanel('')
+                      : setSidePanel(getSidepanelNameForChatView());
                   }}
                   name={
-                    sidePanel === SidePanelType.Chat
+                    sidePanel === getSidepanelNameForChatView()
                       ? 'chatIconFilled'
                       : 'chatIcon'
                   }
                 />
-                {sidePanel !== SidePanelType.Chat &&
+                {sidePanel !== getSidepanelNameForChatView() &&
                   pendingMessageLength !== 0 &&
                   renderBadge(pendingMessageLength)}
               </View>

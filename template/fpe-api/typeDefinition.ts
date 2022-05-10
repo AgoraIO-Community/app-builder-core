@@ -67,6 +67,25 @@ export interface layoutObjectWithIconName extends layoutObjectBase {
 }
 export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
+interface sidePanelObjectBase {
+  name: string;
+  component: React.ComponentType;
+}
+
+interface sidePanelObjectWithIcon extends sidePanelObjectBase {
+  icon: (isPanelActive: boolean) => string;
+  iconName?: (isPanelActive: boolean) => never;
+}
+
+interface sidePanelObjectWithIconName extends sidePanelObjectBase {
+  icon?: (isPanelActive: boolean) => never;
+  iconName: (isPanelActive: boolean) => keyof IconsInterface;
+}
+
+export type SidePanelType =
+  | sidePanelObjectWithIcon
+  | sidePanelObjectWithIconName;
+
 export interface VideoCallInterface {
   topBar?: React.ComponentType;
   settingsPanel?: React.ComponentType;
@@ -75,6 +94,7 @@ export interface VideoCallInterface {
   chat?: ChatCmpInterface | React.ComponentType;
   renderComponentObject?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
+  customSidePanel?: (sidepanels: SidePanelType[]) => SidePanelType[];
 }
 
 export type ComponentsInterface = {

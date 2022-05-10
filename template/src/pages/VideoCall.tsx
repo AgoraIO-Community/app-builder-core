@@ -44,7 +44,6 @@ import ChatContext, {
   messageActionType,
   messageChannelType,
 } from '../components/ChatContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import Toast from '../../react-native-toast-message';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -62,6 +61,8 @@ import useJoinMeeting from '../utils/useJoinMeeting';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoComponent from './video-call/VideoComponent';
+import {getSidepanelNameForChatView} from './video-call/DefaultSidePanels';
+import SidePanelComponent from './video-call/SidepanelComponent';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -153,7 +154,7 @@ const NotificationControl = ({
           text2: userList[uid]?.name ? fromText(userList[uid]?.name) : '',
           visibilityTime: 1000,
           onPress: () => {
-            setSidePanel(SidePanelType.Chat);
+            setSidePanel(getSidepanelNameForChatView());
             setLastCheckedPublicState(messageStore.length);
           },
         });
@@ -262,7 +263,7 @@ const VideoCall: React.FC = () => {
 
   const [recordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
-  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
+  const [sidePanel, setSidePanel] = useState('');
   const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
   const {phrase} = useParams<{phrase: string}>();
   const lifecycle = useFpe((data) => data.lifecycle);
@@ -394,7 +395,8 @@ const VideoCall: React.FC = () => {
                                       <NotificationControl
                                         setSidePanel={setSidePanel}
                                         chatDisplayed={
-                                          sidePanel === SidePanelType.Chat
+                                          sidePanel ===
+                                          getSidepanelNameForChatView()
                                         }
                                         isPrivateChatDisplayed={
                                           isPrivateChatDisplayed
@@ -432,40 +434,15 @@ const VideoCall: React.FC = () => {
                                                 {backgroundColor: '#ffffff00'},
                                               ]}>
                                               <VideoComponent />
-                                              {sidePanel ===
-                                              SidePanelType.Participants ? (
-                                                cmpTypeGuard(
-                                                  ParticipantsView,
-                                                  FpeParticipantsComponent,
-                                                )
-                                              ) : (
+                                              {!sidePanel ? (
                                                 <></>
-                                              )}
-                                              {sidePanel ===
-                                              SidePanelType.Chat ? (
-                                                $config.CHAT ? (
-                                                  cmpTypeGuard(
-                                                    Chat,
-                                                    FpeChatComponent,
-                                                  )
-                                                ) : (
-                                                  <></>
-                                                )
                                               ) : (
-                                                <></>
-                                              )}
-                                              {sidePanel ===
-                                              SidePanelType.Settings ? (
-                                                cmpTypeGuard(
-                                                  SettingsView,
-                                                  FpeSettingsComponent,
-                                                )
-                                              ) : (
-                                                <></>
+                                                <SidePanelComponent />
                                               )}
                                             </View>
                                             {!isWeb &&
-                                            sidePanel === SidePanelType.Chat ? (
+                                            sidePanel ===
+                                              getSidepanelNameForChatView() ? (
                                               <></>
                                             ) : (
                                               cmpTypeGuard(

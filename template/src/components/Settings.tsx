@@ -9,30 +9,25 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {View, TouchableOpacity, Text, Image, StyleSheet} from 'react-native';
-import icons from '../assets/icons';
-import SelectDevice from '../subComponents/SelectDevice';
-import HostControlView from './HostControlView';
+import React, {useContext} from 'react';
+import {StyleSheet} from 'react-native';
 import ColorContext from './ColorContext';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {BtnTemplate} from '../../agora-rn-uikit';
+import {getSidepanelNameForSettingView} from '../pages/video-call/DefaultSidePanels';
 
 const Settings = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {sidePanel, setSidePanel} = props;
-
+  const settingViewName = getSidepanelNameForSettingView();
   return (
     <BtnTemplate
       style={[style.localButtonWithMatchingStyle, {borderColor: primaryColor}]}
       onPress={() => {
-        sidePanel === SidePanelType.Settings
-          ? setSidePanel(SidePanelType.None)
-          : setSidePanel(SidePanelType.Settings);
+        sidePanel === settingViewName
+          ? setSidePanel('')
+          : setSidePanel(settingViewName);
       }}
-      name={
-        sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings'
-      }
+      name={sidePanel === settingViewName ? 'settingsFilled' : 'settings'}
     />
   );
 };
