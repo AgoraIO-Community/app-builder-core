@@ -426,9 +426,9 @@ export default class RtcEngine {
         // If there no mutex lock, procure a lock
         this.muteLocalAudioMutex = true;
         didProcureMutexLock = true;
-        /** setEnabled
+        /** setMuted
          *  The SDK does NOT stop audio or video capture.
-         *   The camera light stays on for video
+         *  The camera light stays on for video
          *  It takes less time for the audio or video to resume.
          */
         await this.localStream.audio?.setMuted(muted);
@@ -536,6 +536,9 @@ export default class RtcEngine {
         if (this.isJoined) {
           // Unpublish the streams when role is changed to Audience
           await this.client.unpublish();
+          this.isAudioPublished = false;
+          this.isVideoPublished = false;
+          this.isPublished = false;
         }
         await this.client.setClientRole(role.audience, options);
         await this.screenClient.setClientRole(role.audience, options);
