@@ -25,10 +25,8 @@ import {
 } from './precall/index';
 
 const Precall = () => {
-  const rtc = useContext(RtcContext);
   const {rtcProps} = useContext(PropsContext);
   const precallLabel = useString('precallLabel')();
-  rtc.RtcEngine.startPreview();
 
   const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
     typeof data?.components?.precall === 'object'
