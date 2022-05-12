@@ -47,7 +47,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const users = [...max, ...min];
   const prevUsers = usePrevious({users});
   const {phrase} = useParams<any>();
-  const {recordingActive} = useRecording();
+  const {isRecordingActive} = useRecording();
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
@@ -148,7 +148,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const startUserScreenshare = async () => {
     const isScreenActive = screenshareActive;
-    if (recordingActive) {
+    if (isRecordingActive) {
       executeRecordingQuery(isScreenActive);
     }
     try {

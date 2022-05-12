@@ -28,14 +28,14 @@ export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
   setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
-  recordingActive: boolean;
+  isRecordingActive: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
   setRecordingActive: () => {},
-  recordingActive: false,
+  isRecordingActive: false,
 });
 
 const START_RECORDING = gql`
@@ -64,10 +64,7 @@ function usePrevious(value: any) {
 }
 interface RecordingProviderProps {
   children: React.ReactNode;
-  value: {
-    setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
-    recordingActive: boolean;
-  };
+  value: Omit<RecordingContextInterface, 'startRecording' | 'stopRecording'>;
 }
 
 /**
@@ -77,12 +74,12 @@ interface RecordingProviderProps {
  */
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
-  const {setRecordingActive, recordingActive} = props?.value;
+  const {setRecordingActive, isRecordingActive} = props?.value;
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
-  const prevRecordingState = usePrevious({recordingActive});
+  const prevRecordingState = usePrevious({isRecordingActive});
   const recordingStartedText = useString('recordingNotificationLabel')();
   useEffect(() => {
     /**
@@ -91,15 +88,15 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * when chat icon is toggle, as Controls component is hidden and
      * shown
      */
-    if (prevRecordingState && recordingActive) {
-      if (prevRecordingState?.recordingActive === recordingActive) return;
+    if (prevRecordingState && isRecordingActive) {
+      if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
       Toast.show({
         type: 'success',
         text1: recordingStartedText,
         visibilityTime: 1000,
       });
     }
-  }, [recordingActive]);
+  }, [isRecordingActive]);
 
   const startRecording = () => {
     // If recording is not going on, start the recording by executing the graphql query
@@ -150,7 +147,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       value={{
         startRecording,
         stopRecording,
-        recordingActive,
+        isRecordingActive,
         setRecordingActive,
       }}>
       {props.children}

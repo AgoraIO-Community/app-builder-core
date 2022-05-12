@@ -57,7 +57,7 @@ const Navbar = () => {
   const {activeLayoutName} = useLayout();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {meetingTitle, isHost} = useMeetingInfo();
-  const {recordingActive} = useRecording();
+  const {isRecordingActive} = useRecording();
   const changeLayout = useChangeDefaultLayout();
   const layout = layouts.findIndex((item) => item.name === activeLayoutName);
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData();
@@ -178,7 +178,7 @@ const Navbar = () => {
             }
           : {},
       ]}>
-      {recordingActive && !isMobileOrTablet() ? (
+      {isRecordingActive && !isMobileOrTablet() ? (
         <View
           style={[
             style.recordingView,

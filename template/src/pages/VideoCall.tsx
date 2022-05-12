@@ -260,7 +260,7 @@ const VideoCall: React.FC = () => {
   const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
   //layouts
 
-  const [recordingActive, setRecordingActive] = useState(false);
+  const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
@@ -380,7 +380,7 @@ const VideoCall: React.FC = () => {
                           setSidePanel,
                         }}>
                         <RecordingProvider
-                          value={{setRecordingActive, recordingActive}}>
+                          value={{setRecordingActive, isRecordingActive}}>
                           <ScreenshareConfigure>
                             <LiveStreamContextProvider
                               setRtcProps={setRtcProps}>
