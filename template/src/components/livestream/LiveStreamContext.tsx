@@ -19,7 +19,7 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
-import {useScreenshare} from '../../subComponents/screenshare/index';
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 

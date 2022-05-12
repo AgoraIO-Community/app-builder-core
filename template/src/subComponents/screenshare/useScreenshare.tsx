@@ -10,16 +10,20 @@
 *********************************************
 */
 import {createContext} from 'react';
+import {createHook} from 'fpe-implementation';
 
 export interface ScreenshareContextInterface {
-  screenshareActive: boolean;
+  isScreenshareActive: boolean;
   startUserScreenshare: () => void;
   stopUserScreenShare: () => void;
 }
 
-const ScreenshareContext = createContext<ScreenshareContextInterface>({
-  screenshareActive: false,
+export const ScreenshareContext = createContext<ScreenshareContextInterface>({
+  isScreenshareActive: false,
   startUserScreenshare: () => {},
   stopUserScreenShare: () => {},
 });
-export default ScreenshareContext;
+
+const useScreenshare = createHook(ScreenshareContext);
+
+export {useScreenshare};

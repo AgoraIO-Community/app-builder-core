@@ -8,7 +8,7 @@ import {
   MaxUidContext,
 } from '../../../agora-rn-uikit/src';
 import {gql, useMutation} from '@apollo/client';
-import ScreenshareContext from './ScreenshareContext';
+import {ScreenshareContext} from './useScreenshare';
 import {
   useChangeDefaultLayout,
   useSetPinnedLayout,
@@ -35,11 +35,9 @@ function usePrevious(value: any) {
   return ref.current;
 }
 
-export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
-
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {userList} = useContext(ChatContext);
-  const [screenshareActive, setScreenshareActive] = useState(false);
+  const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);
   const {dispatch} = rtc;
   const max = useContext(MaxUidContext);
@@ -141,13 +139,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const stopUserScreenShare = () => {
-    if (screenshareActive) {
+    if (isScreenshareActive) {
       startUserScreenshare();
     }
   };
 
   const startUserScreenshare = async () => {
-    const isScreenActive = screenshareActive;
+    const isScreenActive = isScreenshareActive;
     if (isRecordingActive) {
       executeRecordingQuery(isScreenActive);
     }
@@ -184,7 +182,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   return (
     <ScreenshareContext.Provider
       value={{
-        screenshareActive,
+        isScreenshareActive,
         startUserScreenshare,
         stopUserScreenShare,
       }}>
