@@ -32,8 +32,8 @@ export {
   SHARE_LINK_CONTENT_TYPE,
 } from '../src/components/useShareLink';
 export type {ShareLinkContextInterface} from '../src/components/useShareLink';
-export {useScreenshare} from '../src/subComponents/screenshare/index';
-export type {ScreenshareContextInterface} from '../src/subComponents/screenshare/index';
+export {useScreenshare} from '../src/subComponents/screenshare/useScreenshare';
+export type {ScreenshareContextInterface} from '../src/subComponents/screenshare/useScreenshare';
 export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
 export {useMeetingInfo} from '../src/components/meeting-info/useMeetingInfo';
