@@ -21,6 +21,7 @@ export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
 export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
 export {default as useSetName} from '../src/utils/useSetName';
+export {default as useGetName} from '../src/utils/useGetName';
 export {
   default as useUnreadMessageCount,
   UNREAD_MESSAGE_COUNT_TYPE,

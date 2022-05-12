@@ -12,14 +12,16 @@
 
 import React from 'react';
 import TextInput from '../../atoms/TextInput';
-import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import useSetName from '../../utils/useSetName';
+import useGetName from '../../utils/useGetName';
 
 const PreCallTextInput: React.FC = () => {
   const userNamePlaceholder = useString('userNamePlaceholder')();
   const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
-  const {username, setUsername} = usePreCall();
+  const username = useGetName();
+  const setUsername = useSetName();
   const {isJoinDataFetched} = useMeetingInfo();
 
   return (

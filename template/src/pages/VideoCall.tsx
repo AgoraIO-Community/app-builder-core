@@ -10,8 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, Text, Platform} from 'react-native';
-
+import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
   PropsProvider,
@@ -22,15 +21,12 @@ import {
 import Navbar from '../components/Navbar';
 import ParticipantsView from '../components/ParticipantsView';
 import SettingsView from '../components/SettingsView';
-import PinnedVideo from '../components/PinnedVideo';
 import Controls from '../components/Controls';
-import GridVideo from '../components/GridVideo';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
 import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
-import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
 import {
   cmpTypeGuard,
@@ -53,7 +49,7 @@ import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {LayoutProvider} from '../utils/useLayout';
 import {ChatUIDataProvider} from '../components/useChatUI';
-import {layoutObjectType, useFpe} from 'fpe-api';
+import {useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
 import {useString} from '../utils/useString';
 import useCustomLayout from './video-call/CustomLayout';
@@ -248,10 +244,6 @@ const VideoCall: React.FC = () => {
       : undefined,
   );
   const {setGlobalErrorMessage} = useContext(ErrorContext);
-  const {store, setStore} = useContext(StorageContext);
-  const getInitialUsername = () =>
-    store?.displayName ? store.displayName : '';
-  const [username, setUsername] = useState(getInitialUsername);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
   //layouts
@@ -332,19 +324,6 @@ const VideoCall: React.FC = () => {
       }, 0),
   };
 
-  React.useEffect(() => {
-    // Update the username in localstorage when username changes
-    if (setStore) {
-      setStore((prevState) => {
-        return {
-          ...prevState,
-          token: store?.token || null,
-          displayName: username,
-        };
-      });
-    }
-  }, [username]);
-
   return (
     <>
       {queryComplete ? (
@@ -367,7 +346,6 @@ const VideoCall: React.FC = () => {
                 <DeviceConfigure userRole={rtcProps.role}>
                   <RtmConfigure
                     setRecordingActive={setRecordingActive}
-                    name={username}
                     callActive={callActive}>
                     <LayoutProvider
                       value={{
@@ -481,8 +459,6 @@ const VideoCall: React.FC = () => {
                                 ) : $config.PRECALL ? (
                                   <PreCallProvider
                                     value={{
-                                      username,
-                                      setUsername,
                                       callActive,
                                       setCallActive,
                                     }}>
