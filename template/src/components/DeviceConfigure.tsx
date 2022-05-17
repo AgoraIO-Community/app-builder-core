@@ -12,6 +12,7 @@
 import React, {useState, useContext, useEffect, useCallback} from 'react';
 import {RtcContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
+import AgoraRTC from 'agora-rtc-sdk-ng';
 
 interface Props {
   userRole: ClientRole;
@@ -20,27 +21,56 @@ interface Props {
 const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedCam, setSelectedCam] = useState('');
   const [selectedMic, setSelectedMic] = useState('');
-  const [deviceList, setDeviceList] = useState([]);
+  const [deviceList, setDeviceList] = useState<any>([]);
   const rtc = useContext(RtcContext);
 
   const refreshDevices = useCallback(async () => {
     rtc.RtcEngine.getDevices(function (devices: any) {
       console.log('set devices');
       setDeviceList(devices);
-      for (const i in devices) {
-        if (devices[i].kind === 'videoinput') {
-          setSelectedCam(devices[i].deviceId);
-          break;
-        }
-      }
-      for (const i in devices) {
-        if (devices[i].kind === 'audioinput') {
-          setSelectedMic(devices[i].deviceId);
-          break;
-        }
-      }
     });
   }, []);
+
+  useEffect(() => {
+    AgoraRTC.onMicrophoneChanged = async (changedDevice: any) => {
+      // When new audio device is plugged in ,refresh the devices list.
+      refreshDevices();
+      if (changedDevice && changedDevice.state === 'ACTIVE') {
+        if (changedDevice.device?.kind === 'audioinput') {
+          setSelectedMic(changedDevice.device?.deviceId);
+        }
+      }
+    };
+    AgoraRTC.onCameraChanged = async (changedDevice: any) => {
+      // When new video device is plugged in ,refresh the devices list.
+      refreshDevices();
+      if (changedDevice && changedDevice.state === 'ACTIVE') {
+        if (changedDevice.device?.kind === 'videoinput') {
+          setSelectedCam(changedDevice.device?.deviceId);
+        }
+      }
+    };
+  });
+
+  useEffect(() => {
+    if (!selectedMic || selectedMic.trim().length == 0) {
+      for (const i in deviceList) {
+        if (deviceList[i].kind === 'audioinput') {
+          setSelectedMic(deviceList[i].deviceId);
+          break;
+        }
+      }
+    }
+    if (!selectedCam || selectedCam.trim().length == 0) {
+      for (const i in deviceList) {
+        if (deviceList[i].kind === 'videoinput') {
+          setSelectedCam(deviceList[i].deviceId);
+          break;
+        }
+      }
+    }
+    console.log('deviceList', deviceList);
+  }, [deviceList]);
 
   useEffect(() => {
     if (selectedCam.length !== 0) {
