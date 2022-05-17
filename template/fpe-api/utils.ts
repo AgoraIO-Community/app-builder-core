@@ -22,6 +22,8 @@ export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
 export {default as useSetName} from '../src/utils/useSetName';
 export {default as useGetName} from '../src/utils/useGetName';
+export {useSidePanel} from '../src/utils/useSidePanel';
+export {useLayout} from '../src/utils/useLayout';
 export {
   default as useUnreadMessageCount,
   UNREAD_MESSAGE_COUNT_TYPE,

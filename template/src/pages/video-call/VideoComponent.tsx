@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {NetworkQualityProvider} from '../../components/NetworkQualityContext';
 import VideoArrayRenderer from './VideoArrayRenderer';
-import CustomUserContextHolder from './CustomUserContextHolder';
 import useCustomLayout from './CustomLayout';
 import {isArray, isValidElementType} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
@@ -21,29 +19,25 @@ const VideoComponent = () => {
     }
   }, [activeLayoutName]);
   return (
-    <CustomUserContextHolder>
-      <NetworkQualityProvider>
-        <VideoArrayRenderer>
-          {(minVideoArray: React.FC[], maxVideoArray: React.FC[]) => {
-            if (
-              fpeLayouts &&
-              fpeLayouts[layout] &&
-              isValidElementType(fpeLayouts[layout].component)
-            ) {
-              const CurrentLayout = fpeLayouts[layout].component;
-              return (
-                <CurrentLayout
-                  minVideoArray={minVideoArray}
-                  maxVideoArray={maxVideoArray}
-                />
-              );
-            } else {
-              return <></>;
-            }
-          }}
-        </VideoArrayRenderer>
-      </NetworkQualityProvider>
-    </CustomUserContextHolder>
+    <VideoArrayRenderer>
+      {(minVideoArray: React.FC[], maxVideoArray: React.FC[]) => {
+        if (
+          fpeLayouts &&
+          fpeLayouts[layout] &&
+          isValidElementType(fpeLayouts[layout].component)
+        ) {
+          const CurrentLayout = fpeLayouts[layout].component;
+          return (
+            <CurrentLayout
+              minVideoArray={minVideoArray}
+              maxVideoArray={maxVideoArray}
+            />
+          );
+        } else {
+          return <></>;
+        }
+      }}
+    </VideoArrayRenderer>
   );
 };
 export default VideoComponent;

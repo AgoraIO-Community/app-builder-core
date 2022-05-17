@@ -16,6 +16,10 @@ export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';
 export {default as VideoComponent} from '../src/pages/video-call/VideoComponent';
 export {MaxVideoRenderer as MaxVideoView} from '../src/pages/video-call/VideoRenderer';
+export {NameWithMicStatus} from '../src/pages/video-call/NameWithMicStatus';
+export {NetworkQualityPill} from '../src/subComponents/NetworkQualityPill';
+//videocall screen
+export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScreen';
 
 //Settings screen
 export {default as HostControlView} from '../src/components/HostControlView';
