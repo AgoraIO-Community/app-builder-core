@@ -23,4 +23,8 @@ export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScree
 
 //Settings screen
 export {default as HostControlView} from '../src/components/HostControlView';
-export {default as SelectDevice} from '../src/subComponents/SelectDevice';
+export {
+  default as SelectDevice,
+  SelectDeviceComponentsArray,
+} from '../src/subComponents/SelectDevice';
+export {default as LanguageSelector} from '../src/subComponents/LanguageSelector';
