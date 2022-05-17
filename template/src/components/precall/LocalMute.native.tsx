@@ -48,6 +48,11 @@ const PreCallLocalMute: React.FC = () => {
     </>
   );
 };
+export const PreCallLocalMuteComponentsArray = [
+  LocalAudioMute,
+  LocalVideoMute,
+  SwitchCamera,
+];
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({

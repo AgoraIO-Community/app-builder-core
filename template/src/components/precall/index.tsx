@@ -10,17 +10,18 @@
 *********************************************
 */
 
-import PreCallLocalMute from './LocalMute';
+import PreCallLocalMute, {PreCallLocalMuteComponentsArray} from './LocalMute';
 import PreCallVideoPreview from './VideoPreview';
 import PreCallSelectDevice from './selectDevice';
-import PreCallJoinBtn from './joinCallBtn'
+import PreCallJoinBtn from './joinCallBtn';
 import PreCallTextInput from './textInput';
-import PreCallMeetingTitle from './meetingTitle'
+import PreCallMeetingTitle from './meetingTitle';
 export {
+  PreCallLocalMuteComponentsArray,
   PreCallLocalMute,
   PreCallVideoPreview,
   PreCallSelectDevice,
   PreCallJoinBtn,
   PreCallTextInput,
-  PreCallMeetingTitle
+  PreCallMeetingTitle,
 };
