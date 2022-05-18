@@ -10,7 +10,7 @@ pipeline {
                     steps {
                         sh "chmod 755 scripts/run-tests-mac.sh"
 	                    sh "ls -la"
-                        sh "run-tests-mac.sh"
+                        sh "scripts/run-tests-mac.sh"
                     }
                 }
                 stage('Test On Linux') {
@@ -20,7 +20,7 @@ pipeline {
                     steps {
                         sh "chmod 755 scripts/run-tests-lnx.sh"
 	                    sh "ls -la"
-                        sh "run-tests-lnx.sh"
+                        sh "scripts/run-tests-lnx.sh"
                     }
                 }
             }
