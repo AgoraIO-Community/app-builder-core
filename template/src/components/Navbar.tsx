@@ -9,15 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Modal,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {View, Text, StyleSheet, TextStyle} from 'react-native';
 import icons from '../assets/icons';
 import Settings from './Settings';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
@@ -41,69 +34,135 @@ import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 
-const Navbar = () => {
-  const recordingLabel = useString('recordingLabel')();
-  const {messageStore, onlineUsersCount} = useContext(ChatContext);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState<{
-    right: number;
-    top: number;
-  }>({right: 0, top: 0});
-  const dropdownRef = useRef(null);
+const RenderSeparator = () => {
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
+  return isWeb && isDesktop ? (
+    <View style={style.navItem}>
+      <View style={style.navItemSeparator}></View>
+    </View>
+  ) : (
+    <View style={{marginHorizontal: 2}}></View>
+  );
+};
+
+const ParticipantsCountView = () => {
+  const {onlineUsersCount} = useContext(ChatContext);
+  return (
+    <>
+      {onlineUsersCount !== 0 && (
+        <View style={[style.navItem, {justifyContent: 'center'}]}>
+          <View style={style.chip}>
+            {onlineUsersCount > 0 && (
+              <Text style={style.chipText}>
+                {numFormatter(onlineUsersCount)}
+              </Text>
+            )}
+          </View>
+        </View>
+      )}
+    </>
+  );
+};
+
+interface ParticipantsIconButtonInterface {
+  liveStreamingRequestAlertIconPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+}
+const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
+  const {
+    liveStreamingRequestAlertIconPosition = {
+      top: isWeb ? -10 : 2,
+      left: undefined,
+      right: undefined,
+      bottom: undefined,
+    },
+  } = props;
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-  const layouts = useCustomLayout();
-  const {getDimensionData} = useContext(DimensionContext);
-  const {activeLayoutName} = useLayout();
+  return (
+    <>
+      <BtnTemplate
+        onPress={() => {
+          sidePanel === SidePanelType.Participants
+            ? setSidePanel(SidePanelType.None)
+            : setSidePanel(SidePanelType.Participants);
+          $config.EVENT_MODE && $config.RAISE_HAND;
+          setLastCheckedRequestTimestamp(new Date().getTime());
+        }}
+        style={style.btnHolder}
+        name={
+          sidePanel === SidePanelType.Participants
+            ? 'participantFilledIcon'
+            : 'participantIcon'
+        }
+      />
+      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
+        <View
+          style={{
+            position: 'absolute',
+            top: liveStreamingRequestAlertIconPosition.top,
+            bottom: liveStreamingRequestAlertIconPosition.bottom,
+            right: liveStreamingRequestAlertIconPosition.right,
+            left: liveStreamingRequestAlertIconPosition.left,
+          }}>
+          <View style={[style.badge, {paddingHorizontal: 3}]}>
+            <ImageIcon
+              icon={icons['exclamationIcon']}
+              color={$config.SECONDARY_FONT_COLOR}
+            />
+          </View>
+        </View>
+      )}
+    </>
+  );
+};
+
+interface ChatIconButtonInterface {
+  badgeContainerPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+  badgeTextStyle?: TextStyle;
+}
+
+const ChatIconButton = (props: ChatIconButtonInterface) => {
+  const {
+    badgeContainerPosition = {
+      top: isWeb ? -10 : 2,
+      left: undefined,
+      right: undefined,
+      bottom: undefined,
+    },
+    badgeTextStyle = {
+      color: $config.SECONDARY_FONT_COLOR,
+      fontSize: 12,
+    },
+  } = props;
+  const {messageStore} = useContext(ChatContext);
   const {sidePanel, setSidePanel} = useSidePanel();
-  const {meetingTitle, isHost} = useMeetingInfo();
-  const {isRecordingActive} = useRecording();
-  const changeLayout = useChangeDefaultLayout();
-  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
   const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData();
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const isDesktop = dim[0] > 1224;
-
-  const renderSeparator = () => {
-    return isWeb && isDesktop ? (
-      <View style={style.navItem}>
-        <View style={style.navItemSeparator}></View>
-      </View>
-    ) : (
-      <View style={{marginHorizontal: 2}}></View>
-    );
-  };
-
-  // used for icon dropdown - custom layout
-  const renderSeparatorHorizontal = () => {
-    return isWeb && isDesktop ? (
-      <View style={style.navItem}>
-        <View style={style.navItemSeparatorHorizontal}></View>
-      </View>
-    ) : (
-      <View style={{marginHorizontal: 2}}></View>
-    );
-  };
-
   const renderBadge = (badgeCount: any) => {
     return (
       <View
         style={{
           position: 'absolute',
-          top: isWeb ? -10 : 2,
+          top: badgeContainerPosition?.top,
+          bottom: badgeContainerPosition?.bottom,
+          left: badgeContainerPosition?.left,
+          right: badgeContainerPosition?.right,
         }}>
         <View style={style.badge}>
           <Text
             style={{
-              color: $config.SECONDARY_FONT_COLOR,
-              fontSize: 12,
+              ...badgeTextStyle,
             }}>
             {numFormatter(badgeCount)}
           </Text>
@@ -111,7 +170,41 @@ const Navbar = () => {
       </View>
     );
   };
+  return (
+    <>
+      <BtnTemplate
+        style={style.btnHolder}
+        onPress={() => {
+          setLastCheckedPublicState(messageStore.length);
+          sidePanel === SidePanelType.Chat
+            ? setSidePanel(SidePanelType.None)
+            : setSidePanel(SidePanelType.Chat);
+        }}
+        name={sidePanel === SidePanelType.Chat ? 'chatIconFilled' : 'chatIcon'}
+      />
+      {sidePanel !== SidePanelType.Chat &&
+        pendingMessageLength !== 0 &&
+        renderBadge(pendingMessageLength)}
+    </>
+  );
+};
 
+interface LayoutIconButtonInterface {
+  modalPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+}
+
+const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+  const {modalPosition} = props;
+  const [showDropdown, setShowDropdown] = useState(false);
+  const layouts = useCustomLayout();
+  const changeLayout = useChangeDefaultLayout();
+  const {activeLayoutName} = useLayout();
+  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
   const renderLayoutIcon = (showDropdown?: boolean) => {
     let onPress = () => {};
     let renderContent = [];
@@ -120,29 +213,7 @@ const Navbar = () => {
         changeLayout();
       };
     } else {
-      const {dim} = getDimensionData();
       onPress = () => {
-        dropdownRef?.current?.measure(
-          (
-            fx: number,
-            fy: number,
-            localWidth: number,
-            localHeight: number,
-            px: number,
-            py: number,
-          ) => {
-            if (
-              py !== undefined &&
-              px !== undefined &&
-              localHeight !== undefined
-            ) {
-              setDropdownPosition({
-                top: py + localHeight + 5,
-                right: dim[0] - px - (isDesktop ? 30 : 20),
-              });
-            }
-          },
-        );
         setShowDropdown(true);
       };
     }
@@ -165,10 +236,39 @@ const Navbar = () => {
     );
     return renderContent;
   };
+  return (
+    <>
+      {/**
+       * Based on the flag. it will render the dropdown
+       */}
+      <LayoutIconDropdown
+        showDropdown={showDropdown}
+        setShowDropdown={setShowDropdown}
+        modalPosition={modalPosition}
+      />
+      {/**
+       * If layout contains more than 2 data. it will render the dropdown.
+       */}
+      {layouts && Array.isArray(layouts) && layouts.length > 2
+        ? renderLayoutIcon(true)
+        : renderLayoutIcon(false)}
+    </>
+  );
+};
+
+const SettingsIconButton = () => {
+  return <Settings />;
+};
+
+const Navbar = () => {
+  const recordingLabel = useString('recordingLabel')();
+  const {meetingTitle} = useMeetingInfo();
+  const {isRecordingActive} = useRecording();
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
 
   return (
     <View
-      onLayout={onLayout}
       style={[
         isWeb ? style.navHolder : style.navHolderNative,
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
@@ -259,75 +359,21 @@ const Navbar = () => {
                 isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
             },
           ]}>
-          {onlineUsersCount !== 0 && (
-            <View style={[style.navItem, {justifyContent: 'center'}]}>
-              <View style={style.chip}>
-                {onlineUsersCount > 0 && (
-                  <Text style={style.chipText}>
-                    {numFormatter(onlineUsersCount)}
-                  </Text>
-                )}
-              </View>
-            </View>
-          )}
+          <ParticipantsCountView />
           <View style={[style.navItem, style.navSmItem]}>
-            <BtnTemplate
-              onPress={() => {
-                sidePanel === SidePanelType.Participants
-                  ? setSidePanel(SidePanelType.None)
-                  : setSidePanel(SidePanelType.Participants);
-                $config.EVENT_MODE && $config.RAISE_HAND;
-                setLastCheckedRequestTimestamp(new Date().getTime());
-              }}
-              style={style.btnHolder}
-              name={
-                sidePanel === SidePanelType.Participants
-                  ? 'participantFilledIcon'
-                  : 'participantIcon'
-              }
-            />
-            {$config.EVENT_MODE &&
-              $config.RAISE_HAND &&
-              isPendingRequestToReview && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: isWeb ? -10 : 2,
-                  }}>
-                  <View style={[style.badge, {paddingHorizontal: 3}]}>
-                    <ImageIcon
-                      icon={icons['exclamationIcon']}
-                      color={$config.SECONDARY_FONT_COLOR}
-                    />
-                  </View>
-                </View>
-              )}
+            <ParticipantsIconButton />
           </View>
-          {$config.CHAT && (
+          {$config.CHAT ? (
             <>
-              {renderSeparator()}
+              <RenderSeparator />
               <View style={[style.navItem, style.navSmItem]}>
-                <BtnTemplate
-                  style={style.btnHolder}
-                  onPress={() => {
-                    setLastCheckedPublicState(messageStore.length);
-                    sidePanel === SidePanelType.Chat
-                      ? setSidePanel(SidePanelType.None)
-                      : setSidePanel(SidePanelType.Chat);
-                  }}
-                  name={
-                    sidePanel === SidePanelType.Chat
-                      ? 'chatIconFilled'
-                      : 'chatIcon'
-                  }
-                />
-                {sidePanel !== SidePanelType.Chat &&
-                  pendingMessageLength !== 0 &&
-                  renderBadge(pendingMessageLength)}
+                <ChatIconButton />
               </View>
             </>
+          ) : (
+            <></>
           )}
-          {renderSeparator()}
+          <RenderSeparator />
           <View
             style={[style.navItem, style.navSmItem]}
             /**
@@ -336,41 +382,32 @@ const Navbar = () => {
              * https://github.com/facebook/react-native/issues/29712
              * */
             collapsable={false}>
-            {/**
-             * Based on the flag. it will render the dropdown
-             */}
-            <LayoutIconDropdown
-              showDropdown={showDropdown}
-              setShowDropdown={setShowDropdown}
-              dropdownPosition={dropdownPosition}
-            />
-            {/**
-             * If layout contains more than 2 data. it will render the dropdown.
-             */}
-            {layouts && Array.isArray(layouts) && layouts.length > 2
-              ? renderLayoutIcon(true)
-              : renderLayoutIcon(false)}
+            <LayoutIconButton />
           </View>
-          {/** Show setting icon only in non native apps
-           * show in web/electron/mobile web
-           * hide in android/ios  */}
-          {!isAndroid && !isIOS && (
-            <>
-              {renderSeparator()}
-              <View style={[style.navItem, style.navSmItem]} ref={dropdownRef}>
-                <Settings
-                  sidePanel={sidePanel}
-                  setSidePanel={setSidePanel}
-                  isHost={isHost}
-                />
-              </View>
-            </>
-          )}
+          <RenderSeparator />
+          <View style={[style.navItem, style.navSmItem]}>
+            <SettingsIconButton />
+          </View>
         </View>
       </View>
     </View>
   );
 };
+export const NavBarComponentsArray: [
+  (props: {showText?: boolean}) => JSX.Element,
+  () => JSX.Element,
+  (props: ParticipantsIconButtonInterface) => JSX.Element,
+  (props: ChatIconButtonInterface) => JSX.Element,
+  (props: LayoutIconButtonInterface) => JSX.Element,
+  () => JSX.Element,
+] = [
+  CopyJoinInfo,
+  ParticipantsCountView,
+  ParticipantsIconButton,
+  ChatIconButton,
+  LayoutIconButton,
+  SettingsIconButton,
+];
 const style = StyleSheet.create({
   backDrop: {
     position: 'absolute',

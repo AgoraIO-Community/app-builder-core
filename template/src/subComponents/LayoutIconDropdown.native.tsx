@@ -8,7 +8,7 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {useLayout} from '../utils/useLayout';
 
@@ -38,17 +38,15 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       let content = [];
       let BtnTemplateLocal = [
         item?.iconName ? (
-          <BtnTemplate
+          <ImageIcon
             key={'btnTemplateNameDropdown' + index}
             style={style.btnHolderCustom}
-            onPress={onPress}
             name={item?.iconName}
           />
         ) : (
-          <BtnTemplate
+          <ImageIcon
             key={'btnTemplateIconDropdown' + index}
             style={style.btnHolderCustom}
-            onPress={onPress}
             icon={item.icon}
           />
         ),

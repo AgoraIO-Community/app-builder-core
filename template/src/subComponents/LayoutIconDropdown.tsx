@@ -8,22 +8,28 @@ import {
   Modal,
 } from 'react-native';
 import {isWeb} from '../utils/common';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
 
 interface LayoutIconDropdownProps {
-  dropdownPosition: {
-    top: number;
-    right: number;
+  modalPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
   };
   showDropdown: boolean;
   setShowDropdown: React.Dispatch<SetStateAction<boolean>>;
 }
 
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
-  const {dropdownPosition, showDropdown, setShowDropdown} = props;
+  const {
+    showDropdown,
+    setShowDropdown,
+    modalPosition = {top: 45, right: 15, bottom: undefined, left: undefined},
+  } = props;
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop, dim} = getDimensionData();
 
@@ -50,17 +56,15 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       let content = [];
       let BtnTemplateLocal = [
         item?.iconName ? (
-          <BtnTemplate
+          <ImageIcon
             key={'btnTemplateNameDropdown' + index}
             style={style.btnHolderCustom}
-            onPress={onPress}
             name={item?.iconName}
           />
         ) : (
-          <BtnTemplate
+          <ImageIcon
             key={'btnTemplateIconDropdown' + index}
             style={style.btnHolderCustom}
-            onPress={onPress}
             icon={item.icon}
           />
         ),
@@ -112,8 +116,10 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           style={[
             style.dropdownContainer,
             {
-              top: dropdownPosition.top,
-              right: dropdownPosition.right,
+              top: modalPosition?.top,
+              right: modalPosition?.right,
+              left: modalPosition?.left,
+              bottom: modalPosition?.bottom,
             },
           ]}>
           {data}
