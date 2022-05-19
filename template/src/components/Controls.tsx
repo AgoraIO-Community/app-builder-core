@@ -16,6 +16,9 @@ import {
   LocalVideoMute,
   Endcall,
   PropsContext,
+  LocalAudioMuteProps,
+  LocalVideoMuteProps,
+  EndCallProps,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
@@ -23,7 +26,9 @@ import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
-import LiveStreamControls from './livestream/views/LiveStreamControls';
+import LiveStreamControls, {
+  LiveStreamControlsProps,
+} from './livestream/views/LiveStreamControls';
 import {useString} from '../utils/useString';
 import {isIOS, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
@@ -99,6 +104,24 @@ const Controls = () => {
     </View>
   );
 };
+
+export const ControlsComponentsArray: [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+  () => JSX.Element,
+  () => JSX.Element,
+  () => JSX.Element,
+  (props?: EndCallProps) => JSX.Element,
+  (props: LiveStreamControlsProps) => JSX.Element,
+] = [
+  LocalAudioMute,
+  LocalVideoMute,
+  SwitchCamera,
+  ScreenshareButton,
+  Recording,
+  Endcall,
+  LiveStreamControls,
+];
 
 const style = StyleSheet.create({
   controlsHolder: {

@@ -18,12 +18,17 @@ import {
   Endcall,
   PropsContext,
   ClientRole,
+  LocalAudioMuteProps,
+  LocalVideoMuteProps,
+  EndCallProps,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
-import LiveStreamControls from './livestream/views/LiveStreamControls';
+import LiveStreamControls, {
+  LiveStreamControlsProps,
+} from './livestream/views/LiveStreamControls';
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-
+import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 const Controls = () => {
   const {isHost} = useMeetingInfo();
   const {rtcProps} = useContext(PropsContext);
@@ -69,7 +74,23 @@ const Controls = () => {
     </View>
   );
 };
-
+export const ControlsComponentsArray: [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+  () => JSX.Element,
+  () => JSX.Element,
+  () => JSX.Element,
+  (props?: EndCallProps) => JSX.Element,
+  (props: LiveStreamControlsProps) => JSX.Element,
+] = [
+  LocalAudioMute,
+  LocalVideoMute,
+  SwitchCamera,
+  ScreenshareButton,
+  Recording,
+  Endcall,
+  LiveStreamControls,
+];
 const style = StyleSheet.create({
   bottomBar: {
     flex: 1,
