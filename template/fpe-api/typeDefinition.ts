@@ -10,7 +10,8 @@
 *********************************************
 */
 import React from 'react';
-import {chatBubbleProps, chatInputProps} from '../src/components/ChatContext';
+import {chatBubbleProps} from '../src/components/ChatContext';
+import {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
@@ -26,10 +27,9 @@ export interface PreCallInterface {
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
 }
-
 export interface ChatCmpInterface {
   chatBubble?: React.ComponentType<chatBubbleProps>;
-  chatInput?: React.ComponentType<chatInputProps>;
+  chatInput?: React.ComponentType<ChatTextInputProps>;
 }
 
 export interface renderComponentInterface {
