@@ -1,27 +1,8 @@
 import {AppRegistry} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import App from './src/App';
-
-import {fpeConfig, FpeApiInterface, FpeProvider} from 'fpe-api';
+import {FpeApiInterface} from 'fpe-api';
 import {SDKEvents} from './src/utils/SdkEvents';
 import {installFPE as createFPE} from 'fpe-api/install';
-
-const AppBuilderView = () => {
-  const [fpe, setFpe] = useState(fpeConfig);
-  useEffect(() => {
-    SDKEvents.on('addFpe', (sdkFpeConfig) => {
-      console.log('DEBUG(aditya)-SDKEvents: event called');
-      setFpe(sdkFpeConfig);
-    });
-  }, []);
-  return (
-    <>
-      <FpeProvider value={fpe}>
-        <App />
-      </FpeProvider>
-    </>
-  );
-};
+import SDKAppWrapper from './src/SDKAppWrapper';
 
 interface AppBuilderMethodsInterface {
   addFPE: (fpe: FpeApiInterface) => void;
@@ -42,7 +23,7 @@ class AppBuilder extends HTMLElement {
     this.style.width = '100%';
     this.style.display = 'flex';
     this.style.flex = '1';
-    AppRegistry.registerComponent('App', () => AppBuilderView);
+    AppRegistry.registerComponent('App', () => SDKAppWrapper);
     AppRegistry.runApplication('App', {
       // initialProps: {passphrase: this.getAttribute('passphrase')},
       rootTag: this,

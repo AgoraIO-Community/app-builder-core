@@ -12,36 +12,20 @@
 /**
  * @format
  */
-import React, {useEffect, useState} from 'react';
-import {fpeConfig, FpeApiInterface} from 'fpe-api';
+import {FpeApiInterface} from 'fpe-api';
 import {installFPE as createFPE} from 'fpe-api/install';
-import App from './src/App';
-import {SDKEvents} from './src/utils/SdkEvents'
+import {SDKEvents} from './src/utils/SdkEvents';
+import SDKAppWrapper from './src/SDKAppWrapper';
 
-const AppBuilderView:React.FC = () => {
-  const [fpe, setFpe] = useState<FpeApiInterface>(fpeConfig);
-  useEffect(() => {
-    SDKEvents.on('addFpe', (sdkFpeConfig) => {
-      console.log('DEBUG(aditya)-SDKEvents: event callback:','addFpe');
-      setFpe(sdkFpeConfig);
-    });
-  }, []);
-  return (
-    <>
-      <App fpeConfig={fpe} />
-    </>
-  );
-};
-
-interface AppBuilderMethodsInterface{
-  View: React.FC,
-  addFPE: (fpe:FpeApiInterface) => void;
-  createFPE: (fpe:FpeApiInterface) => FpeApiInterface;
+interface AppBuilderMethodsInterface {
+  View: React.FC;
+  addFPE: (fpe: FpeApiInterface) => void;
+  createFPE: (fpe: FpeApiInterface) => FpeApiInterface;
 }
 
-const AppBuilderMethods:AppBuilderMethodsInterface = {
-  View: AppBuilderView,
-  addFPE: (fpeConfig:FpeApiInterface) => {
+const AppBuilderMethods: AppBuilderMethodsInterface = {
+  View: SDKAppWrapper,
+  addFPE: (fpeConfig: FpeApiInterface) => {
     SDKEvents.emit('addFpe', fpeConfig);
   },
   createFPE,
