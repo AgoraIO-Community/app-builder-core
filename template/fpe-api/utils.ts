@@ -43,4 +43,9 @@ export {
   MUTE_LOCAL_TYPE,
   default as useMuteToggleLocal,
 } from '../src/utils/useMuteToggleLocal';
+export {default as useRemoteEndcall} from '../src/utils/useRemoteEndcall';
+export {
+  default as useRemoteMute,
+  MUTE_REMOTE_TYPE,
+} from '../src/utils/useRemoteMute';
 export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';
