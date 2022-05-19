@@ -160,7 +160,12 @@ const reactSdk = {
   typescriptFix: () => {
     return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
       .pipe(concat('index.d.ts'))
-      .pipe(replace('declare module "index.rsdk"', `declare module "${PRODUCT_NAME}"`))
+      .pipe(
+        replace(
+          'declare module "index.rsdk"',
+          `declare module "${PRODUCT_NAME}"`,
+        ),
+      )
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -178,7 +183,12 @@ const webSdk = {
   typescriptFix: () => {
     return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
       .pipe(concat('index.d.ts'))
-      .pipe(replace('declare module "index.wsdk"', `declare module "${PRODUCT_NAME}"`))
+      .pipe(
+        replace(
+          'declare module "index.wsdk"',
+          `declare module "${PRODUCT_NAME}"`,
+        ),
+      )
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -237,12 +247,16 @@ module.exports.reactSdk = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
-  reactSdk.webpack,
-  general.typescript,
-  general.typescriptFix,
-  reactSdk.typescript,
-  reactSdk.typescriptFix,
-  general.typescriptClean,
+  parallel(
+    reactSdk.webpack,
+    series(
+      general.typescript,
+      general.typescriptFix,
+      reactSdk.typescript,
+      reactSdk.typescriptFix,
+      general.typescriptClean,
+    ),
+  ),
 );
 
 // web-sdk
@@ -250,12 +264,16 @@ module.exports.webSdk = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
-  webSdk.webpack,
-  general.typescript,
-  general.typescriptFix,
-  webSdk.typescript,
-  webSdk.typescriptFix,
-  general.typescriptClean
+  parallel(
+    webSdk.webpack,
+    series(
+      general.typescript,
+      general.typescriptFix,
+      webSdk.typescript,
+      webSdk.typescriptFix,
+      general.typescriptClean,
+    ),
+  ),
 );
 
 module.exports.androidUnix = series(

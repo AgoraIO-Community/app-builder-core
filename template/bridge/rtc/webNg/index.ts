@@ -27,4 +27,6 @@ export const RtcRemoteView = {
 export const VideoRenderMode = {...Types.VideoRenderMode};
 export const VideoMirrorMode = {...Types.VideoRenderMode};
 
+export {RnEncryptionEnum as EncryptionMode} from './RtcEngine';
+
 export default RtcEngine;

@@ -28,8 +28,8 @@ module.exports = merge(commons, {
         // loader: 'ts-loader',
         exclude: /node_modules|\.d\.ts$/,
         options: {
-          configFile: 'tsconfig_bkp.json',
-          ignoreDiagnostics: [2339,2554,2539]
+          configFile: 'tsconfig.json',
+          ignoreDiagnostics: [2339,2554,2539,1005]
           // ignoreDiagnostics: [2554,2539,2339,2551,2769,2305,2614,2322,2362,2369,2698]
         }
       },

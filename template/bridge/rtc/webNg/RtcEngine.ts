@@ -117,6 +117,18 @@ export enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 5: 128-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES128GCM = 5,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES256GCM = 6
 }
 
 export enum VideoStreamType {

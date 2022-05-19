@@ -42,8 +42,8 @@ export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 declare module 'agora-rn-uikit'{
   interface RtcPropsInterface{
-    screenShareUid: number,
-    screenShareToken: string,
+    screenShareUid?: number,
+    screenShareToken?: string,
   }
 }
 
@@ -170,7 +170,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         screenShareUid,
         appId,
         rtc.RtcEngine as unknown as IAgoraRTC,
-        encryption,
+        encryption as unknown as any,
       );
       !isScreenActive && setScreenshareActive(true);
     } catch (e) {

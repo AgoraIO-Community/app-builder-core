@@ -2,8 +2,8 @@ import {AppRegistry} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import App from './src/App';
 
-import {fpeConfig, FpeApiInterface} from 'fpe-api';
-import {SDKEvents} from './src/utils/SdkEvents'
+import {fpeConfig, FpeApiInterface, FpeProvider} from 'fpe-api';
+import {SDKEvents} from './src/utils/SdkEvents';
 import {installFPE as createFPE} from 'fpe-api/install';
 
 const AppBuilderView = () => {
@@ -16,17 +16,19 @@ const AppBuilderView = () => {
   }, []);
   return (
     <>
-      <App fpeConfig={fpe} />
+      <FpeProvider value={fpe}>
+        <App />
+      </FpeProvider>
     </>
   );
 };
 
-interface AppBuilderMethodsInterface{
-  addFPE: (fpe:FpeApiInterface) => void;
-  createFPE: (fpe:FpeApiInterface) => FpeApiInterface;
+interface AppBuilderMethodsInterface {
+  addFPE: (fpe: FpeApiInterface) => void;
+  createFPE: (fpe: FpeApiInterface) => FpeApiInterface;
 }
 
-const AppBuilderMethods:AppBuilderMethodsInterface = {
+const AppBuilderMethods: AppBuilderMethodsInterface = {
   addFPE: (fpeConfig: FpeApiInterface) => {
     SDKEvents.emit('addFpe', fpeConfig);
   },
