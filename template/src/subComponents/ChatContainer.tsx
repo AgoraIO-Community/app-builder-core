@@ -14,6 +14,7 @@ import {
   View,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
@@ -21,7 +22,7 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import ChatContext from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 
 /**
@@ -41,13 +42,11 @@ const ChatContainer = (props: any) => {
   return (
     <View style={style.containerView}>
       {privateActive && (
-        <View style={style.row}>
+        <TouchableOpacity
+          style={style.row}
+          onPress={() => setPrivateActive(false)}>
           <View style={style.backButton}>
-            <BtnTemplate
-              style={[style.backIcon]}
-              onPress={() => setPrivateActive(false)}
-              name={'backBtn'}
-            />
+            <ImageIcon style={[style.backIcon]} name={'backBtn'} />
           </View>
           <View style={{flex: 1}}>
             <TextWithTooltip
@@ -61,7 +60,7 @@ const ChatContainer = (props: any) => {
               value={selectedUsername}
             />
           </View>
-        </View>
+        </TouchableOpacity>
       )}
       <ScrollView
         ref={scrollViewRef}
