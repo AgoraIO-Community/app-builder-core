@@ -10,7 +10,9 @@
 *********************************************
 */
 import React from 'react';
+export type {chatBubbleProps} from '../src/components/ChatContext';
 import {chatBubbleProps} from '../src/components/ChatContext';
+export type {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';

@@ -21,13 +21,13 @@ import useSendMessage, {MESSAGE_TYPE} from '../utils/useSendMessage';
 import {getCmpTypeGuard} from '../utils/common';
 import {useFpe} from 'fpe-api';
 
-interface ChatSendButtonProps {
+export interface ChatSendButtonProps {
   message: string;
   selectedUserId?: UidInterface['uid'];
   clearInputMessage?: React.Dispatch<SetStateAction<string>>;
 }
 
-const ChatSendButton = (props: ChatSendButtonProps) => {
+export const ChatSendButton = (props: ChatSendButtonProps) => {
   const {message, selectedUserId, clearInputMessage} = props;
   const sendMessage = useSendMessage();
   return (

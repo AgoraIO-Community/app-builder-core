@@ -28,3 +28,6 @@ export {
   SelectDeviceComponentsArray,
 } from '../src/subComponents/SelectDevice';
 export {default as LanguageSelector} from '../src/subComponents/LanguageSelector';
+
+//Sidepanel buttons
+export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';

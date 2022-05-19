@@ -4,7 +4,12 @@ import {BtnTemplate} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
 import icons from '../../../assets/icons';
 
-const RemoteLiveStreamApprovedRequestRecall = (props: {uid: number}) => {
+export interface RemoteLiveStreamApprovedRequestRecallProps {
+  uid: number;
+}
+const RemoteLiveStreamApprovedRequestRecall = (
+  props: RemoteLiveStreamApprovedRequestRecallProps,
+) => {
   const {sendControlMessageToUid} = useContext(ChatContext);
   return (
     <BtnTemplate

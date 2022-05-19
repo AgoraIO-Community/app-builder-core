@@ -25,17 +25,17 @@ const MUTE_PSTN = gql`
     }
   }
 `;
-
+export interface RemoteAudioMuteProps {
+  uid: number;
+  audio: boolean;
+  isHost: boolean;
+}
 /**
  * Component to mute / unmute remote audio.
  * Sends a control message to another user over RTM if the local user is a host.
  * If the local user is not a host, it simply renders an image
  */
-const RemoteAudioMute = (props: {
-  uid: number;
-  audio: boolean;
-  isHost: boolean;
-}) => {
+const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const {isHost = false} = props;
   const {primaryColor} = useContext(ColorContext);
   const {sendControlMessageToUid} = useContext(ChatContext);
