@@ -10,7 +10,8 @@
 *********************************************
 */
 import {useContext} from 'react';
-import ChatContext from '../../src/components/ChatContext';
+import ChatContext from '../components/ChatContext';
+import {UidInterface} from '../../agora-rn-uikit';
 
 export enum MESSAGE_TYPE {
   group,
@@ -18,7 +19,7 @@ export enum MESSAGE_TYPE {
 }
 function useSendMessage() {
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
-  return (type: MESSAGE_TYPE, message: string, uid?: number) => {
+  return (type: MESSAGE_TYPE, message: string, uid?: UidInterface['uid']) => {
     switch (type) {
       case MESSAGE_TYPE.group:
         sendMessage(message);
@@ -29,6 +30,8 @@ function useSendMessage() {
         } else {
           console.error('To send the private message, UID should be passed');
         }
+        break;
+      default:
         break;
     }
   };

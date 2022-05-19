@@ -1,5 +1,3 @@
-import {from} from '@apollo/client';
-
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
@@ -36,6 +34,11 @@ export {
   default as useSendMessage,
   MESSAGE_TYPE,
 } from '../src/utils/useSendMessage';
+export {controlMessageEnum} from '../src/components/ChatContext';
+export {
+  default as useSendControlMessage,
+  CONTROL_MESSAGE_TYPE,
+} from '../src/utils/useSendControlMessage';
 export {
   MUTE_LOCAL_TYPE,
   default as useMuteToggleLocal,
