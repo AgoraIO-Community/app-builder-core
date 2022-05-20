@@ -153,12 +153,12 @@ const reactSdk = {
   typescript: (cb) => {
     runCli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
-      'npx -p typescript tsc --project tsconfig_rsdk_index.json --outFile ../Builds/temp.d.ts',
+      'npx -p typescript tsc --project tsconfig_rsdk_index.json --outFile ../Builds/reactSdk.d.ts',
       () => cb(),
     );
   },
   typescriptFix: () => {
-    return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
+    return src(['../Builds/fpe-api.d.ts', '../Builds/reactSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
@@ -176,12 +176,12 @@ const webSdk = {
   },
   typescript: (cb) => {
     runCli(
-      'npx -p typescript tsc --project tsconfig_wsdk_index.json --outFile ../Builds/temp.d.ts',
+      'npx -p typescript tsc --project tsconfig_wsdk_index.json --outFile ../Builds/webSdk.d.ts',
       () => cb(),
     );
   },
   typescriptFix: () => {
-    return src(['../Builds/fpe-api.d.ts', '../Builds/temp.d.ts'])
+    return src(['../Builds/fpe-api.d.ts', '../Builds/webSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
@@ -247,17 +247,19 @@ module.exports.reactSdk = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
-  parallel(
-    reactSdk.webpack,
-    series(
-      general.typescript,
-      general.typescriptFix,
-      reactSdk.typescript,
-      reactSdk.typescriptFix,
-      general.typescriptClean,
-    ),
-  ),
+  reactSdk.webpack,
+  general.typescript,
+  general.typescriptFix,
+  reactSdk.typescript,
+  reactSdk.typescriptFix,
+  general.typescriptClean,
 );
+
+module.exports.test = series(
+  reactSdk.typescript,
+  general.typescript,
+  webSdk.typescript,
+)
 
 // web-sdk
 module.exports.webSdk = series(
@@ -289,5 +291,3 @@ module.exports.androidWin = series(
   android.gradleBuildWin,
   android.copyBuild,
 );
-
-module.exports.test = series(general.typescriptClean);
