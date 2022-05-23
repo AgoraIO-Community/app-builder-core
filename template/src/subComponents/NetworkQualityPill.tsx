@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Image,
@@ -13,6 +13,8 @@ import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 import {isWeb} from '../utils/common';
+import NetworkQualityContext from '../components/NetworkQualityContext';
+import {UidInterface} from '../../agora-rn-uikit';
 
 /**
  *
@@ -25,18 +27,25 @@ import {isWeb} from '../utils/common';
  *
  */
 export const NetworkQualityPill = ({
-  networkStat,
+  user,
   primaryColor,
   small,
   rootStyle,
 }: {
-  networkStat: number;
+  user: UidInterface;
   primaryColor: any;
   small?: boolean;
   rootStyle?: StyleProp<ViewStyle>;
 }) => {
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   const getLabel = useString<NetworkQualities>('networkQualityLabel');
+  const networkQualityStat = useContext(NetworkQualityContext);
+  const networkStat = networkQualityStat[user.uid]
+    ? networkQualityStat[user.uid]
+    : user.audio || user.video
+    ? 8
+    : 7;
+
   return (
     <View
       style={[

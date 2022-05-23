@@ -19,15 +19,12 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
-import {ShareLinkProvider} from '../components/useShareLink';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
 import {cmpTypeGuard, isWeb, isValidElementType} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
-import useCreateMeeting, {
-  CreateMeetingDataInterface,
-} from '../utils/useCreateMeeting';
+import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 
 const Create = () => {
@@ -41,9 +38,6 @@ const Create = () => {
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
-  const [urlView, setUrlView] = useState('');
-  const [urlHost, setUrlHost] = useState('');
-  const [pstn, setPstn] = useState<CreateMeetingDataInterface['pstn']>();
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const createdText = useString('meetingCreatedNotificationLabel')();
@@ -62,47 +56,26 @@ const Create = () => {
     }
   }, []);
 
-  const showShareScreen = (
-    {attendeePassphrase, hostPassphrase, pstn}: CreateMeetingDataInterface,
-    roomTitle: string,
-    isSeparateHostLink: boolean,
-  ) => {
-    setUrlView(attendeePassphrase);
-    if (hostPassphrase) {
-      setUrlHost(hostPassphrase);
-    }
-    if (pstn) {
-      setPstn(pstn);
-    }
-    onChangeRoomTitle(roomTitle);
-    setHostControlCheckbox(isSeparateHostLink);
+  const showShareScreen = () => {
     setRoomCreated(true);
   };
 
   const createRoomAndNavigateToShare = async (
     roomTitle: string,
-    isSeparateHostLink: boolean,
     enablePSTN: boolean,
+    isSeparateHostLink: boolean,
   ) => {
     if (roomTitle !== '') {
       setLoading(true);
       try {
-        const res = await createRoomFun(roomTitle, enablePSTN);
+        await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({
           type: 'success',
           text1: createdText + ': ' + roomTitle,
           visibilityTime: 1000,
         });
-        showShareScreen(
-          {
-            attendeePassphrase: res.attendeePassphrase,
-            hostPassphrase: res.hostPassphrase,
-            pstn: res.pstn,
-          },
-          roomTitle,
-          isSeparateHostLink,
-        );
+        showShareScreen();
       } catch (error) {
         setLoading(false);
         setGlobalErrorMessage(error);
@@ -114,7 +87,6 @@ const Create = () => {
     <CreateProvider
       value={{
         showShareScreen,
-        useCreateMeeting,
       }}>
       {!roomCreated ? (
         FpeCreateComponent && isValidElementType(FpeCreateComponent) ? (
@@ -135,8 +107,8 @@ const Create = () => {
                     onSubmitEditing={() =>
                       createRoomAndNavigateToShare(
                         roomTitle,
-                        hostControlCheckbox,
                         pstnCheckbox,
+                        hostControlCheckbox,
                       )
                     }
                     placeholder={meetingNameInputPlaceholder}
@@ -178,8 +150,8 @@ const Create = () => {
                     onPress={() =>
                       createRoomAndNavigateToShare(
                         roomTitle,
-                        hostControlCheckbox,
                         pstnCheckbox,
+                        hostControlCheckbox,
                       )
                     }
                     text={loading ? loadingWithDots : createMeetingButton}
@@ -197,20 +169,7 @@ const Create = () => {
       ) : (
         <></>
       )}
-      {roomCreated ? (
-        <ShareLinkProvider
-          value={{
-            attendeePassphrase: urlView,
-            hostPassphrase: urlHost,
-            isSeparateHostLink: hostControlCheckbox,
-            pstn,
-            roomTitle,
-          }}>
-          {cmpTypeGuard(ShareLink, FpeShareComponent)}
-        </ShareLinkProvider>
-      ) : (
-        <></>
-      )}
+      {roomCreated ? <>{cmpTypeGuard(ShareLink, FpeShareComponent)}</> : <></>}
     </CreateProvider>
   );
 };

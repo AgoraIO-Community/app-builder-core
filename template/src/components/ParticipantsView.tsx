@@ -23,8 +23,8 @@ import {
   ParticipantContextConsumer,
 } from './participants/context/ParticipantContext';
 import {useString} from '../utils/useString';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
 import {isWeb} from '../utils/common';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const ParticipantView = () => {
   const {userList} = useContext(chatContext);
@@ -32,7 +32,7 @@ const ParticipantView = () => {
   const hostLabel = useString('hostLabel')();
   const audienceLabel = useString('audienceLabel')();
   const participantsLabel = useString('participantsLabel')();
-  const {isHost} = useVideoCall((data) => data);
+  const {isHost} = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,

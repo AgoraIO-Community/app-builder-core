@@ -8,9 +8,9 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 import useCustomLayout from '../pages/video-call/CustomLayout';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useLayout} from '../utils/useLayout';
 
 const deviceHeight = Dimensions.get('screen').height;
 interface LayoutIconDropdownProps {
@@ -25,7 +25,7 @@ interface LayoutIconDropdownProps {
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {showDropdown, setShowDropdown} = props;
   const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useVideoCall((data) => data);
+  const {activeLayoutName, setActiveLayoutName} = useLayout();
   const selectedItemHighlighter = (isSelected: boolean) => {
     return <View style={isSelected ? style.highlighter : {}} />;
   };
@@ -38,17 +38,15 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       let content = [];
       let BtnTemplateLocal = [
         item?.iconName ? (
-          <BtnTemplate
+          <ImageIcon
             key={'btnTemplateNameDropdown' + index}
             style={style.btnHolderCustom}
-            onPress={onPress}
             name={item?.iconName}
           />
         ) : (
-          <BtnTemplate
+          <ImageIcon
             key={'btnTemplateIconDropdown' + index}
             style={style.btnHolderCustom}
-            onPress={onPress}
             icon={item.icon}
           />
         ),

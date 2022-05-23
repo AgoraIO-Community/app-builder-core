@@ -71,6 +71,7 @@ export interface chatContext {
   userList: any;
   onlineUsersCount: number;
   events: rtmEventsInterface;
+  displayName: string;
   setDisplayName: React.Dispatch<SetStateAction<string>>;
 }
 

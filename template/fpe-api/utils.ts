@@ -1,5 +1,3 @@
-import {from} from '@apollo/client';
-
 /*
 ********************************************
  Copyright © 2021 Agora Lab, Inc., all rights reserved.
@@ -21,9 +19,33 @@ export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
 export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
 export {default as useSetName} from '../src/utils/useSetName';
+export {default as useGetName} from '../src/utils/useGetName';
+export {useSidePanel} from '../src/utils/useSidePanel';
+export {useLayout} from '../src/utils/useLayout';
 export {
   default as useUnreadMessageCount,
   UNREAD_MESSAGE_COUNT_TYPE,
 } from '../src/utils/useUnreadMessageCount';
 export {default as useNavigateTo} from '../src/utils/useNavigateTo';
 export {default as useNavParams} from '../src/utils/useNavParams';
+export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
+export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
+export {
+  default as useSendMessage,
+  MESSAGE_TYPE,
+} from '../src/utils/useSendMessage';
+export {controlMessageEnum} from '../src/components/ChatContext';
+export {
+  default as useSendControlMessage,
+  CONTROL_MESSAGE_TYPE,
+} from '../src/utils/useSendControlMessage';
+export {
+  MUTE_LOCAL_TYPE,
+  default as useMuteToggleLocal,
+} from '../src/utils/useMuteToggleLocal';
+export {default as useRemoteEndcall} from '../src/utils/useRemoteEndCall';
+export {
+  default as useRemoteMute,
+  MUTE_REMOTE_TYPE,
+} from '../src/utils/useRemoteMute';
+export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';

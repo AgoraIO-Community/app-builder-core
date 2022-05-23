@@ -47,6 +47,8 @@ const shouldAuthenticate: boolean =
 const isWeb = Platform.OS === 'web';
 const isAndroid = Platform.OS === 'android';
 const isIOS = Platform.OS === 'ios';
+const isArray = (data: any[]) =>
+  data && Array.isArray(data) && data.length ? true : false ? true : false;
 export {
   hasBrandLogo,
   shouldAuthenticate,
@@ -56,4 +58,5 @@ export {
   cmpTypeGuard,
   getCmpTypeGuard,
   isValidElementType,
+  isArray,
 };

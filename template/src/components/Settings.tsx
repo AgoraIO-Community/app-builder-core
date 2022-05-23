@@ -9,18 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {View, TouchableOpacity, Text, Image, StyleSheet} from 'react-native';
-import icons from '../assets/icons';
-import SelectDevice from '../subComponents/SelectDevice';
-import HostControlView from './HostControlView';
+import React, {useContext} from 'react';
+import {StyleSheet} from 'react-native';
 import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {BtnTemplate} from '../../agora-rn-uikit';
+import {useSidePanel} from '../utils/useSidePanel';
 
-const Settings = (props: any) => {
+const Settings = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {isHost, sidePanel, setSidePanel} = props;
+  const {sidePanel, setSidePanel} = useSidePanel();
 
   return (
     <BtnTemplate
@@ -107,11 +105,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     resizeMode: 'contain',
   },
-  localButtonWithMatchingStyle:{    
+  localButtonWithMatchingStyle: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-  }
+  },
 });
 
 export default Settings;

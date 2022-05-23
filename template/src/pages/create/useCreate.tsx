@@ -11,23 +11,14 @@
 */
 import React, {createContext} from 'react';
 import {createHook} from 'fpe-implementation';
-import {CreateMeetingDataInterface} from '../../utils/useCreateMeeting';
 
 export interface CreateContextInterface {
-  useCreateMeeting: () => (
-    roomTitle: string,
-    enablePSTN?: boolean,
-  ) => Promise<CreateMeetingDataInterface>;
-  showShareScreen: (
-    createMeetingData: CreateMeetingDataInterface,
-    roomTitle: string,
-    isSeparateHostLink: boolean,
-  ) => void;
+  showShareScreen: () => void;
 }
 
-const CreateContext = createContext<CreateContextInterface>(
-  {} as CreateContextInterface,
-);
+const CreateContext = createContext<CreateContextInterface>({
+  showShareScreen: () => {},
+});
 
 interface CreateProviderProps {
   value: CreateContextInterface;

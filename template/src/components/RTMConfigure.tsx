@@ -30,6 +30,7 @@ import events from './RTMEvents';
 import {filterObject} from '../utils';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
+import StorageContext from './StorageContext';
 
 export enum UserType {
   Normal,
@@ -79,7 +80,7 @@ function safeJsonParse(str: string) {
 const timeNow = () => new Date().getTime();
 
 const RtmConfigure = (props: any) => {
-  const {setRecordingActive, callActive, name} = props;
+  const {setRecordingActive, callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
@@ -94,17 +95,22 @@ const RtmConfigure = (props: any) => {
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
 
-  const [displayName, setDisplayName] = useState<string>(name);
-
-  /**
-   * By default displayName will hold name stored in the local storage
-   * Added useEffect to Update displayName when user type something in precall screen
-   */
-  useEffect(() => {
-    setDisplayName(name);
-  }, [name]);
+  const {store, setStore} = useContext(StorageContext);
+  const getInitialUsername = () =>
+    store?.displayName ? store.displayName : '';
+  const [displayName, setDisplayName] = useState(getInitialUsername());
 
   useEffect(() => {
+    // Update the username in localstorage when username changes
+    if (setStore) {
+      setStore((prevState) => {
+        return {
+          ...prevState,
+          token: store?.token || null,
+          displayName: displayName,
+        };
+      });
+    }
     if (callActive) {
       broadcastUserAttributes(
         [
@@ -192,7 +198,7 @@ const RtmConfigure = (props: any) => {
   const setAttribute = async () => {
     try {
       await engine.current.setLocalUserAttributes([
-        {key: 'name', value: name || userText},
+        {key: 'name', value: displayName || userText},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
         {key: 'role', value: String(rtcProps?.role)},
         {key: 'requests', value: attrRequestTypes.none}, // stores Uid who have raised a request
@@ -744,6 +750,7 @@ const RtmConfigure = (props: any) => {
         onlineUsersCount,
         events,
         setDisplayName,
+        displayName,
       }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>

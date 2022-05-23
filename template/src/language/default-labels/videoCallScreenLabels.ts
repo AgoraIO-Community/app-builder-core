@@ -72,6 +72,7 @@ export interface I18nVideoCallScreenLabelsInterface {
   lowerHandsLocalNotification?: I18nBaseType; //
   raiseHandRevokedLocalNotification?: I18nBaseType; //
   recordingLabel?: I18nBaseType;
+  settingScreenInfoMessage?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -121,6 +122,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   lowerHandsLocalNotification: 'You have lowered your hand',
   raiseHandRevokedLocalNotification:
     'The host has revoked streaming permissions',
+  settingScreenInfoMessage:
+    'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.',
   screenshareUserName: (name) => `${name}'s screenshare`, //
   recordingButton: (recording) => (recording ? 'Recording' : 'Record'),
   raiseHandButton: (toggle) => (toggle ? 'Lower hand' : 'Raise Hand'),

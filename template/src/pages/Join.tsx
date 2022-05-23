@@ -22,7 +22,7 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {shouldAuthenticate} from '../utils/common';
 import {useString} from '../utils/useString';
-import useJoinMeeting from '../utils/useJoinMeeting';
+import useNavigateTo from '../utils/useNavigateTo';
 
 const Join = () => {
   const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
@@ -30,7 +30,7 @@ const Join = () => {
   const createMeetingButton = useString('createMeetingButton')();
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
-  const useJoin = useJoinMeeting();
+  const navigateTo = useNavigateTo();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
@@ -40,7 +40,7 @@ const Join = () => {
   };
 
   const startCall = async () => {
-    useJoin(phrase);
+    navigateTo(phrase);
   };
 
   return (

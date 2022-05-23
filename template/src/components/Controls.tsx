@@ -11,12 +11,14 @@
 */
 import React, {useState, useContext} from 'react';
 import {View, Dimensions, StyleSheet} from 'react-native';
-import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
   LocalVideoMute,
   Endcall,
   PropsContext,
+  LocalAudioMuteProps,
+  LocalVideoMuteProps,
+  EndCallProps,
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
@@ -24,10 +26,12 @@ import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
-import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {useVideoCall} from '../pages/video-call/useVideoCall';
+import LiveStreamControls, {
+  LiveStreamControlsProps,
+} from './livestream/views/LiveStreamControls';
 import {useString} from '../utils/useString';
 import {isIOS, isWeb} from '../utils/common';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -41,69 +45,83 @@ const Controls = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {isHost} = useVideoCall((data) => data);
+  const {isHost} = useMeetingInfo();
 
   const audioLabel = useString('toggleAudioButton')();
   const videoLabel = useString('toggleVideoButton')();
   const endCallButton = useString('endCallButton')();
 
   return (
-    <LocalUserContext>
-      <View
-        style={[
-          style.controlsHolder,
-          {
-            paddingHorizontal: isDesktop ? '25%' : '1%',
-            backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
-          },
-        ]}
-        onLayout={onLayout}>
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} />
-        ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
+    <View
+      style={[
+        style.controlsHolder,
+        {
+          paddingHorizontal: isDesktop ? '25%' : '1%',
+          backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+        },
+      ]}
+      onLayout={onLayout}>
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <LiveStreamControls showControls={true} />
+      ) : (
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE && (
+            <LiveStreamControls
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          )}
+          <View style={{alignSelf: 'center'}}>
+            <LocalAudioMute btnText={audioLabel} />
+          </View>
+          <View style={{alignSelf: 'center'}}>
+            <LocalVideoMute btnText={videoLabel} />
+          </View>
+          {isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={audioLabel} />
+              <SwitchCamera />
             </View>
+          )}
+          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={videoLabel} />
+              <ScreenshareButton />
             </View>
-            {isMobileOrTablet() && (
-              <View style={{alignSelf: 'center'}}>
-                <SwitchCamera />
-              </View>
-            )}
-            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-              <View style={{alignSelf: 'center'}}>
-                <ScreenshareButton />
-              </View>
-            )}
-            {isHost && $config.CLOUD_RECORDING && (
-              <View style={{alignSelf: 'center'}}>
-                <Recording />
-              </View>
-            )}
-          </>
-        )}
-        <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={endCallButton} />
-        </View>
+          )}
+          {isHost && $config.CLOUD_RECORDING && (
+            <View style={{alignSelf: 'center'}}>
+              <Recording />
+            </View>
+          )}
+        </>
+      )}
+      <View style={{alignSelf: 'center'}}>
+        <Endcall btnText={endCallButton} />
       </View>
-    </LocalUserContext>
+    </View>
   );
 };
+
+export const ControlsComponentsArray: [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+  () => JSX.Element,
+  () => JSX.Element,
+  () => JSX.Element,
+  (props?: EndCallProps) => JSX.Element,
+  (props: LiveStreamControlsProps) => JSX.Element,
+] = [
+  LocalAudioMute,
+  LocalVideoMute,
+  SwitchCamera,
+  ScreenshareButton,
+  Recording,
+  Endcall,
+  LiveStreamControls,
+];
 
 const style = StyleSheet.create({
   controlsHolder: {

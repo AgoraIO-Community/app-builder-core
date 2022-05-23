@@ -9,17 +9,26 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createContext} from 'react';
 
-export interface ScreenshareContextInterface {
-  screenshareActive: boolean;
-  startUserScreenshare: () => void;
-  stopUserScreenShare: () => void;
-}
+import React, {useContext, useEffect} from 'react';
+import {View} from 'react-native';
+import {
+  MaxUidConsumer,
+  MaxVideoView,
+  RtcContext,
+} from '../../../agora-rn-uikit';
 
-const ScreenshareContext = createContext<ScreenshareContextInterface>({
-  screenshareActive: false,
-  startUserScreenshare: () => {},
-  stopUserScreenShare: () => {},
-});
-export default ScreenshareContext;
+const VideoPreview: React.FC = () => {
+  const rtc = useContext(RtcContext);
+  rtc?.RtcEngine?.startPreview();
+  return (
+    <MaxUidConsumer>
+      {(maxUsers) => (
+        <View style={{borderRadius: 10, flex: 1}}>
+          <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+        </View>
+      )}
+    </MaxUidConsumer>
+  );
+};
+export default VideoPreview;

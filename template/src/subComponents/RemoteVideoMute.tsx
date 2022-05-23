@@ -19,11 +19,12 @@ import {BtnTemplate} from '../../agora-rn-uikit';
  * Sends a control message to another user over RTM if the local user is a host.
  * If the local user is not a host, it simply renders an image
  */
-const RemoteVideoMute = (props: {
+export interface RemoteVideoMuteProps {
   uid: number;
   video: boolean;
   isHost: boolean;
-}) => {
+}
+const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const {isHost = false} = props;
   const {sendControlMessageToUid} = useContext(ChatContext);
 

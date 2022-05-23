@@ -22,25 +22,15 @@ import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
-import chatContext, {chatInputProps} from './ChatContext';
-import {useFpe} from 'fpe-api';
+import chatContext from './ChatContext';
 import {useChatUIData} from './useChatUI';
 import {useString} from '../utils/useString';
-import {getCmpTypeGuard, isIOS, isWeb} from '../utils/common';
+import {isIOS, isWeb} from '../utils/common';
 
 const Chat = () => {
   const groupChatLabel = useString('groupChatLabel')();
   const privateChatLabel = useString('privateChatLabel')();
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const ChatInputFpe = getCmpTypeGuard<chatInputProps>(
-    ChatInput,
-    useFpe((data) =>
-      typeof data?.components?.videoCall === 'object' &&
-      typeof data?.components?.videoCall?.chat === 'object'
-        ? data?.components?.videoCall?.chat?.chatInput
-        : undefined,
-    ),
-  );
   const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -58,7 +48,7 @@ const Chat = () => {
     privateMessageCountMap,
     setPrivateMessageLastSeen,
     setPrivateChatDisplayed,
-  } = useChatUIData((data) => data);
+  } = useChatUIData();
   const {primaryColor} = useContext(ColorContext);
   const [groupActive, setGroupActive] = useState(true);
   const [privateActive, setPrivateActive] = useState(false);
@@ -154,7 +144,7 @@ const Chat = () => {
           <View>
             <View style={style.chatInputContainer}>
               <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
-              <ChatInputFpe privateActive={privateActive} />
+              <ChatInput privateActive={privateActive} />
             </View>
           </View>
         </>
@@ -185,7 +175,7 @@ const Chat = () => {
                   <View
                     style={[style.chatInputLineSeparator, {opacity: 0.3}]}
                   />
-                  <ChatInputFpe
+                  <ChatInput
                     privateActive={privateActive}
                     selectedUserId={selectedUserID}
                   />

@@ -16,12 +16,12 @@ import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive, queryComplete, username, error} = usePreCall(
-    (data) => data,
-  );
+  const {setCallActive, username} = usePreCall();
+  const {isJoinDataFetched} = useMeetingInfo();
   const getMode = () =>
     $config.EVENT_MODE
       ? ChannelProfile.LiveBroadcasting
@@ -31,7 +31,7 @@ const joinCallBtn: React.FC = () => {
 
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({
-      ready: queryComplete,
+      ready: isJoinDataFetched,
       mode: getMode(),
       role: rtcProps.role,
     }),
@@ -40,7 +40,7 @@ const joinCallBtn: React.FC = () => {
     if (rtcProps?.role) {
       setButtonText(
         joinRoomButton({
-          ready: queryComplete,
+          ready: isJoinDataFetched,
           mode: getMode(),
           role: rtcProps.role,
         }),
@@ -51,7 +51,7 @@ const joinCallBtn: React.FC = () => {
   return (
     <PrimaryButton
       onPress={() => setCallActive(true)}
-      disabled={!queryComplete || username === '' || error}
+      disabled={!isJoinDataFetched || username === ''}
       text={buttonText}
     />
   );

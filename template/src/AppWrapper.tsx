@@ -23,7 +23,7 @@ import {getCmpTypeGuard} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
-import {useFpe, FpeProvider, fpeConfig} from 'fpe-api';
+import {useFpe} from 'fpe-api';
 import {LanguageProvider} from './language/useLanguage';
 
 interface AppWrapperProps {

@@ -14,7 +14,11 @@ import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 
-const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
+export interface RemoteEndCallProps {
+  uid: number;
+  isHost: boolean;
+}
+const RemoteEndCall = (props: RemoteEndCallProps) => {
   const {sendControlMessageToUid} = useContext(ChatContext);
   return props.isHost && String(props.uid)[0] !== '1' ? (
     <BtnTemplate
@@ -22,7 +26,7 @@ const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
       onPress={() => {
         sendControlMessageToUid(controlMessageEnum.kickUser, props.uid);
       }}
-      color='#FD0845'
+      color="#FD0845"
       name={'remoteEndCall'} // earlier was endCall, added remoteEndCall
     />
   ) : (

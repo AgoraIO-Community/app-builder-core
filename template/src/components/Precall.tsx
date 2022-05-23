@@ -14,7 +14,7 @@ import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {cmpTypeGuard, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
-import {usePreCall} from './precall/usePreCall';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import PreCallLogo from './common/Logo';
 import {useFpe} from 'fpe-api';
 import VideoPreview from './precall/VideoPreview';
@@ -49,7 +49,8 @@ const Precall = () => {
       ? data.components.precall
       : {},
   );
-  const {queryComplete, title} = usePreCall((data) => data);
+  const {isJoinDataFetched} = useMeetingInfo();
+  const {meetingTitle} = useMeetingInfo();
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -62,15 +63,15 @@ const Precall = () => {
 
   useEffect(() => {
     if (isWeb) {
-      if (title) {
-        document.title = title + ' | ' + $config.APP_NAME;
+      if (meetingTitle) {
+        document.title = meetingTitle + ' | ' + $config.APP_NAME;
       }
     }
   });
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 
-  if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
+  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
 
   const brandHolder = () => <PreCallLogo />;
 

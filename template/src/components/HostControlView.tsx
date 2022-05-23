@@ -15,26 +15,39 @@ import chatContext, {controlMessageEnum} from './ChatContext';
 import SecondaryButton from '../atoms/SecondaryButton';
 import {useString} from '../utils/useString';
 
-const HostControlView = () => {
+export const MuteAllAudioButton = () => {
   const {sendControlMessage} = useContext(chatContext);
-  const hostControlsLabel = useString('hostControlsLabel')();
   const muteAllAudioButton = useString('muteAllAudioButton')();
+  return (
+    <SecondaryButton
+      onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
+      text={muteAllAudioButton}
+    />
+  );
+};
+
+export const MuteAllVideoButton = () => {
   const muteAllVideoButton = useString('muteAllVideoButton')();
+  const {sendControlMessage} = useContext(chatContext);
+  return (
+    <SecondaryButton
+      onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
+      text={muteAllVideoButton}
+    />
+  );
+};
+
+const HostControlView = () => {
+  const hostControlsLabel = useString('hostControlsLabel')();
   return (
     <>
       <Text style={style.heading}>{hostControlsLabel}</Text>
       <View>
         <View style={style.btnContainer}>
-          <SecondaryButton
-            onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
-            text={muteAllAudioButton}
-          />
+          <MuteAllAudioButton />
         </View>
         <View style={style.btnContainer}>
-          <SecondaryButton
-            onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
-            text={muteAllVideoButton}
-          />
+          <MuteAllVideoButton />
         </View>
       </View>
     </>

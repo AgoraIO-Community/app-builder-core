@@ -11,39 +11,31 @@
 */
 
 import React, {SetStateAction} from 'react';
-import {SidePanelType} from '../../subComponents/SidePanelEnum';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {createHook} from 'fpe-implementation';
 
-export interface VideoCallContextInterface {
+export interface SidePanelContextInterface {
   sidePanel: SidePanelType;
-  activeLayoutName: string;
-  isHost: boolean;
-  title: string;
   setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
-  setActiveLayoutName: React.Dispatch<SetStateAction<string>>;
 }
 
-const VideoCallContext = React.createContext<VideoCallContextInterface>({
+const SidePanelContext = React.createContext<SidePanelContextInterface>({
   sidePanel: SidePanelType.None,
-  activeLayoutName: '',
-  isHost: false,
-  title: '',
   setSidePanel: () => {},
-  setActiveLayoutName: () => {},
 });
 
-interface VideoCallProviderProps {
-  value: VideoCallContextInterface;
+interface SidePanelProviderProps {
+  value: SidePanelContextInterface;
   children: React.ReactNode;
 }
-const VideoCallProvider = (props: VideoCallProviderProps) => {
+const SidePanelProvider = (props: SidePanelProviderProps) => {
   return (
-    <VideoCallContext.Provider value={{...props.value}}>
+    <SidePanelContext.Provider value={{...props.value}}>
       {props.children}
-    </VideoCallContext.Provider>
+    </SidePanelContext.Provider>
   );
 };
 
-const useVideoCall = createHook(VideoCallContext);
+const useSidePanel = createHook(SidePanelContext);
 
-export {VideoCallProvider, useVideoCall};
+export {SidePanelProvider, useSidePanel};

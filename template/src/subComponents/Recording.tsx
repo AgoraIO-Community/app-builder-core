@@ -18,12 +18,12 @@ import {useString} from '../utils/useString';
 
 const Recording = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {startRecording, stopRecording, recordingActive} = useRecording();
+  const {startRecording, stopRecording, isRecordingActive} = useRecording();
   const recordingButton = useString<boolean>('recordingButton');
   return (
     <TouchableOpacity
       onPress={() => {
-        if (!recordingActive) {
+        if (!isRecordingActive) {
           startRecording && startRecording();
         } else {
           stopRecording && stopRecording();
@@ -31,18 +31,18 @@ const Recording = () => {
       }}>
       <View style={[style.localButton, {borderColor: primaryColor}]}>
         <ImageIcon
-          name={recordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
+          name={isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
           style={[style.buttonIcon]}
-          color={recordingActive ? '#FD0845' : $config.PRIMARY_COLOR}
+          color={isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR}
         />
       </View>
       <Text
         style={{
           textAlign: 'center',
           marginTop: 5,
-          color: recordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
+          color: isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
         }}>
-        {recordingButton(recordingActive)}
+        {recordingButton(isRecordingActive)}
       </Text>
     </TouchableOpacity>
   );

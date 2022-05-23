@@ -8,31 +8,32 @@ import {
 import LiveStreamContext from '../../../components/livestream';
 import icons from '../../../assets/icons';
 
-interface RemoteLiveStreamControlInterface {
+export interface RemoteLiveStreamControlInterface {
   user: UidInterface;
 }
 
-const RemoteLiveStreamRequestApprove: React.FC<RemoteLiveStreamControlInterface> =
-  (props) => {
-    const {user} = props;
-    const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
-    const {styleProps} = useContext(PropsContext);
-    const {remoteBtnStyles} = styleProps || {};
+const RemoteLiveStreamRequestApprove = (
+  props: RemoteLiveStreamControlInterface,
+) => {
+  const {user} = props;
+  const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
+  const {styleProps} = useContext(PropsContext);
+  const {remoteBtnStyles} = styleProps || {};
 
-    const {liveStreamHostControlBtns} = remoteBtnStyles || {};
+  const {liveStreamHostControlBtns} = remoteBtnStyles || {};
 
-    return (
-      <View style={{...(liveStreamHostControlBtns as object), marginRight: 15}}>
-        <BtnTemplate
-          disabled={!user?.uid}
-          icon={icons['checkCircleIcon']}
-          style={{...(liveStreamHostControlBtns as object)}}
-          onPress={() => {
-            hostApprovesRequestOfUID(user?.uid);
-          }}
-        />
-      </View>
-    );
-  };
+  return (
+    <View style={{...(liveStreamHostControlBtns as object), marginRight: 15}}>
+      <BtnTemplate
+        disabled={!user?.uid}
+        icon={icons['checkCircleIcon']}
+        style={{...(liveStreamHostControlBtns as object)}}
+        onPress={() => {
+          hostApprovesRequestOfUID(user?.uid);
+        }}
+      />
+    </View>
+  );
+};
 
 export default RemoteLiveStreamRequestApprove;
