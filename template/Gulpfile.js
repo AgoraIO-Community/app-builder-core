@@ -71,7 +71,7 @@ const general = {
     });
 
     let newPackage = {
-      name,
+      name: 'agora-app-builder-sdk',
       version,
       private,
       author,
@@ -163,9 +163,10 @@ const reactSdk = {
       .pipe(
         replace(
           'declare module "index.rsdk"',
-          `declare module "${PRODUCT_NAME}"`,
+          `declare module "agora-app-builder-sdk"`,
         ),
       )
+      .pipe(replace("'fpe-api'", "'fpe-api/index'"))
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -186,9 +187,10 @@ const webSdk = {
       .pipe(
         replace(
           'declare module "index.wsdk"',
-          `declare module "${PRODUCT_NAME}"`,
+          `declare module "agora-app-builder-sdk"`,
         ),
       )
+      .pipe(replace("'fpe-api'", "'fpe-api/index'"))
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -259,7 +261,7 @@ module.exports.test = series(
   reactSdk.typescript,
   general.typescript,
   webSdk.typescript,
-)
+);
 
 // web-sdk
 module.exports.webSdk = series(
