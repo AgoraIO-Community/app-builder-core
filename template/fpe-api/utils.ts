@@ -26,6 +26,10 @@ export {
   default as useUnreadMessageCount,
   UNREAD_MESSAGE_COUNT_TYPE,
 } from '../src/utils/useUnreadMessageCount';
+export {
+  default as useSetUnreadMessageCount,
+  SET_UNREAD_MESSAGE_COUNT_TYPE,
+} from '../src/utils/useSetUnreadMessageCount';
 export {default as useNavigateTo} from '../src/utils/useNavigateTo';
 export {default as useNavParams} from '../src/utils/useNavParams';
 export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';

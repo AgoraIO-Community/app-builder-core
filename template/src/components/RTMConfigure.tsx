@@ -31,7 +31,11 @@ import {filterObject} from '../utils';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
-
+import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {useChatNotification} from './chat-notification/useChatNotification';
+import Toast from '../../react-native-toast-message';
+import {useSidePanel} from 'fpe-api';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 export enum UserType {
   Normal,
   ScreenShare,
@@ -84,6 +88,28 @@ const RtmConfigure = (props: any) => {
   const {rtcProps} = useContext(PropsContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
+
+  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
+    useChatNotification();
+  const {groupActive, selectedChatUserId, setGroupActive} = useChatUIControl();
+
+  const groupActiveRef = useRef<boolean>();
+  const individualActiveRef = useRef<string | number>();
+
+  /**
+   *  engine on channelMessageReceived callback won't be receiving update react state value so using ref
+   */
+  useEffect(() => {
+    groupActiveRef.current = groupActive;
+  }, [groupActive]);
+
+  /**
+   * engine on messageReceived callback won't be receiving update react state value so using ref
+   */
+  useEffect(() => {
+    individualActiveRef.current = selectedChatUserId;
+  }, [selectedChatUserId]);
+
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
   const [userList, setUserList] = useState<{[key: string]: any}>({});
@@ -91,6 +117,8 @@ const RtmConfigure = (props: any) => {
 
   const userText = useString('remoteUserDefaultLabel')();
   const getScreenShareName = useString('screenshareUserName');
+  const fromText = useString('messageSenderNotificationLabel');
+
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
@@ -99,6 +127,49 @@ const RtmConfigure = (props: any) => {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
+
+  const {setSidePanel} = useSidePanel();
+
+  React.useEffect(() => {
+    const showMessageNotification = (data: any) => {
+      if (data.type === messageActionType.Normal) {
+        const {uid, msg} = data;
+        Toast.show({
+          type: 'success',
+          text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
+          text2: userList[uid]?.name ? fromText(userList[uid]?.name) : '',
+          visibilityTime: 1000,
+          onPress: () => {
+            setSidePanel(SidePanelType.Chat);
+            setUnreadGroupMessageCount(0);
+            setGroupActive(true);
+          },
+        });
+      }
+    };
+    events.on(
+      messageChannelType.Public,
+      'onPublicMessageReceived',
+      (data: any, error: any) => {
+        if (!data) return;
+        showMessageNotification(data);
+      },
+    );
+    events.on(
+      messageChannelType.Private,
+      'onPrivateMessageReceived',
+      (data: any, error: any) => {
+        if (!data) return;
+        if (data.uid === localUid) return;
+        showMessageNotification(data);
+      },
+    );
+    return () => {
+      // Cleanup the listeners
+      events.off(messageChannelType.Public, 'onPublicMessageReceived');
+      events.off(messageChannelType.Private, 'onPrivateMessageReceived');
+    };
+  }, [userList, messageStore]);
 
   useEffect(() => {
     // Update the username in localstorage when username changes
@@ -440,6 +511,20 @@ const RtmConfigure = (props: any) => {
             },
             false,
           );
+          /**
+           * If individual chat window is not active
+           * then increment unread count based on uid
+           */
+          if (!(individualActiveRef.current === userUID)) {
+            setUnreadIndividualMessageCount((prevState) => {
+              const prevCount =
+                prevState && prevState[userUID] ? prevState[userUID] : 0;
+              return {
+                ...prevState,
+                [userUID]: prevCount + 1,
+              };
+            });
+          }
         } catch (e) {
           events.emit(messageChannelType.Private, null, {
             msg: `Error while adding ${messageChannelType.Private} message to store`,
@@ -550,6 +635,15 @@ const RtmConfigure = (props: any) => {
         } else if (type === messageActionType.Normal) {
           try {
             addMessageToStore(userUID, {body: `${type}${msg}`, ts: timestamp});
+            /**
+             * if chat group window is not active.
+             * then we will increment the unread count
+             */
+            if (!groupActiveRef.current) {
+              setUnreadGroupMessageCount((prevState) => {
+                return prevState + 1;
+              });
+            }
           } catch (e) {
             events.emit(messageChannelType.Public, null, {
               msg: `Error while adding ${messageChannelType.Public}  message to store`,

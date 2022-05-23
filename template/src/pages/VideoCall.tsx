@@ -26,23 +26,16 @@ import Logo from '../subComponents/Logo';
 import {
   cmpTypeGuard,
   hasBrandLogo,
-  isAndroid,
   isArray,
   isValidElementType,
 } from '../utils/common';
-import ChatContext, {
-  messageActionType,
-  messageChannelType,
-} from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
-import Toast from '../../react-native-toast-message';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
 import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {LayoutProvider} from '../utils/useLayout';
-import {ChatUIDataProvider} from '../components/useChatUI';
 import {useFpe} from 'fpe-api';
 import Precall from '../components/Precall';
 import {useString} from '../utils/useString';
@@ -54,138 +47,8 @@ import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
-
-const useChatNotification = (
-  messageStore: string | any[],
-  privateMessageStore: string | any[],
-  chatDisplayed: boolean,
-  isPrivateChatDisplayed: boolean,
-) => {
-  // store the last checked state from the messagestore, to identify unread messages
-  const [lastCheckedPublicState, setLastCheckedPublicState] = useState(0);
-  const [lastCheckedPrivateState, setLastCheckedPrivateState] = useState({});
-  useEffect(() => {
-    if (chatDisplayed && !isPrivateChatDisplayed) {
-      setLastCheckedPublicState(messageStore.length);
-    }
-  }, [messageStore, isPrivateChatDisplayed]);
-
-  const setPrivateMessageLastSeen = ({userId, lastSeenCount}) => {
-    setLastCheckedPrivateState((prevState) => {
-      return {...prevState, [userId]: lastSeenCount || 0};
-    });
-  };
-  return [
-    lastCheckedPublicState,
-    setLastCheckedPublicState,
-    lastCheckedPrivateState,
-    setLastCheckedPrivateState,
-    setPrivateMessageLastSeen,
-  ];
-};
-
-const NotificationControl = ({
-  children,
-  chatDisplayed,
-  setSidePanel,
-  isPrivateChatDisplayed,
-}) => {
-  const {messageStore, privateMessageStore, userList, localUid, events} =
-    useContext(ChatContext);
-  const [
-    lastCheckedPublicState,
-    setLastCheckedPublicState,
-    lastCheckedPrivateState,
-    setLastCheckedPrivateState,
-    setPrivateMessageLastSeen,
-  ] = useChatNotification(
-    messageStore,
-    privateMessageStore,
-    chatDisplayed,
-    isPrivateChatDisplayed,
-  );
-  const fromText = useString('messageSenderNotificationLabel');
-  const pendingPublicNotification =
-    messageStore.length - lastCheckedPublicState;
-  const privateMessageCountMap = Object.keys(privateMessageStore).reduce(
-    (acc, curItem) => {
-      let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
-        (total, item) => {
-          if (isAndroid) {
-            //In template/src/components/RTMConfigure.tsx
-            //on messageReceived event - For android platform we are passing uid as number type. so checking == for android
-            return item.uid == curItem ? total + 1 : total;
-          } else {
-            return item.uid === curItem ? total + 1 : total;
-          }
-        },
-        0,
-      );
-      return {...acc, [curItem]: individualPrivateMessageCount};
-    },
-    {},
-  );
-  const totalPrivateMessage = Object.keys(privateMessageCountMap).reduce(
-    (acc, item) => acc + privateMessageCountMap[item],
-    0,
-  );
-  const totalPrivateLastSeen = Object.keys(lastCheckedPrivateState).reduce(
-    (acc, item) => acc + lastCheckedPrivateState[item],
-    0,
-  );
-  const pendingPrivateNotification = totalPrivateMessage - totalPrivateLastSeen;
-
-  React.useEffect(() => {
-    const showMessageNotification = (data: any) => {
-      if (data.type === messageActionType.Normal) {
-        const {uid, msg} = data;
-        Toast.show({
-          type: 'success',
-          text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
-          text2: userList[uid]?.name ? fromText(userList[uid]?.name) : '',
-          visibilityTime: 1000,
-          onPress: () => {
-            setSidePanel(SidePanelType.Chat);
-            setLastCheckedPublicState(messageStore.length);
-          },
-        });
-      }
-    };
-    events.on(
-      messageChannelType.Public,
-      'onPublicMessageReceived',
-      (data: any, error: any) => {
-        if (!data) return;
-        showMessageNotification(data);
-      },
-    );
-    events.on(
-      messageChannelType.Private,
-      'onPrivateMessageReceived',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (data.uid === localUid) return;
-        showMessageNotification(data);
-      },
-    );
-    return () => {
-      // Cleanup the listeners
-      events.off(messageChannelType.Public, 'onPublicMessageReceived');
-      events.off(messageChannelType.Private, 'onPrivateMessageReceived');
-    };
-  }, [userList, messageStore]);
-
-  return children({
-    pendingPublicNotification,
-    pendingPrivateNotification,
-    lastCheckedPublicState,
-    setLastCheckedPublicState,
-    lastCheckedPrivateState,
-    setLastCheckedPrivateState,
-    privateMessageCountMap,
-    setPrivateMessageLastSeen,
-  });
-};
+import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
+import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
 
 enum RnEncryptionEnum {
   /**
@@ -237,7 +100,6 @@ const VideoCall: React.FC = () => {
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
-  const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
   const {phrase} = useParams<{phrase: string}>();
   const lifecycle = useFpe((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -326,89 +188,59 @@ const VideoCall: React.FC = () => {
               }}>
               <RtcConfigure>
                 <DeviceConfigure userRole={rtcProps.role}>
-                  <RtmConfigure
-                    setRecordingActive={setRecordingActive}
-                    callActive={callActive}>
-                    <LayoutProvider
-                      value={{
-                        activeLayoutName,
-                        setActiveLayoutName,
-                      }}>
+                  <ChatUIControlProvider>
+                    <ChatNotificationProvider>
                       <SidePanelProvider
                         value={{
                           sidePanel,
                           setSidePanel,
                         }}>
-                        <RecordingProvider
-                          value={{setRecordingActive, isRecordingActive}}>
-                          <ScreenshareConfigure>
-                            <LiveStreamContextProvider
-                              setRtcProps={setRtcProps}>
-                              <LocalUserContext>
-                                <NotificationControl
-                                  setSidePanel={setSidePanel}
-                                  chatDisplayed={
-                                    sidePanel === SidePanelType.Chat
-                                  }
-                                  isPrivateChatDisplayed={
-                                    isPrivateChatDisplayed
-                                  }>
-                                  {({
-                                    pendingPublicNotification,
-                                    pendingPrivateNotification,
-                                    setLastCheckedPublicState,
-                                    lastCheckedPublicState,
-                                    lastCheckedPrivateState,
-                                    setLastCheckedPrivateState,
-                                    privateMessageCountMap,
-                                    setPrivateMessageLastSeen,
-                                  }) => (
-                                    <ChatUIDataProvider
-                                      value={{
-                                        privateMessageCountMap,
-                                        pendingPublicNotification,
-                                        pendingPrivateNotification,
-                                        lastCheckedPrivateState,
-                                        pendingMessageLength:
-                                          pendingPublicNotification +
-                                          pendingPrivateNotification,
-                                        setLastCheckedPublicState,
-                                        setPrivateMessageLastSeen,
-                                        setPrivateChatDisplayed,
-                                      }}>
-                                      <CustomUserContextHolder>
-                                        <NetworkQualityProvider>
-                                          {callActive ? (
-                                            cmpTypeGuard(
-                                              VideoCallScreen,
-                                              FpeVideocallComponent,
-                                            )
-                                          ) : $config.PRECALL ? (
-                                            <PreCallProvider
-                                              value={{
-                                                callActive,
-                                                setCallActive,
-                                              }}>
-                                              {cmpTypeGuard(
-                                                Precall,
-                                                FpePrecallComponent,
-                                              )}
-                                            </PreCallProvider>
-                                          ) : (
-                                            <></>
-                                          )}
-                                        </NetworkQualityProvider>
-                                      </CustomUserContextHolder>
-                                    </ChatUIDataProvider>
-                                  )}
-                                </NotificationControl>
-                              </LocalUserContext>
-                            </LiveStreamContextProvider>
-                          </ScreenshareConfigure>
-                        </RecordingProvider>
+                        <RtmConfigure
+                          setRecordingActive={setRecordingActive}
+                          callActive={callActive}>
+                          <LayoutProvider
+                            value={{
+                              activeLayoutName,
+                              setActiveLayoutName,
+                            }}>
+                            <RecordingProvider
+                              value={{setRecordingActive, isRecordingActive}}>
+                              <ScreenshareConfigure>
+                                <LiveStreamContextProvider
+                                  setRtcProps={setRtcProps}>
+                                  <LocalUserContext>
+                                    <CustomUserContextHolder>
+                                      <NetworkQualityProvider>
+                                        {callActive ? (
+                                          cmpTypeGuard(
+                                            VideoCallScreen,
+                                            FpeVideocallComponent,
+                                          )
+                                        ) : $config.PRECALL ? (
+                                          <PreCallProvider
+                                            value={{
+                                              callActive,
+                                              setCallActive,
+                                            }}>
+                                            {cmpTypeGuard(
+                                              Precall,
+                                              FpePrecallComponent,
+                                            )}
+                                          </PreCallProvider>
+                                        ) : (
+                                          <></>
+                                        )}
+                                      </NetworkQualityProvider>
+                                    </CustomUserContextHolder>
+                                  </LocalUserContext>
+                                </LiveStreamContextProvider>
+                              </ScreenshareConfigure>
+                            </RecordingProvider>
+                          </LayoutProvider>
+                        </RtmConfigure>
                       </SidePanelProvider>
-                    </LayoutProvider>
-                  </RtmConfigure>
+                    </ChatNotificationProvider>
+                  </ChatUIControlProvider>
                 </DeviceConfigure>
               </RtcConfigure>
             </PropsProvider>

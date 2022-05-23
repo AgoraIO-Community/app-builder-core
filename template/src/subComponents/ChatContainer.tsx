@@ -35,7 +35,7 @@ import {useString} from '../utils/useString';
 const ChatContainer = (props: any) => {
   const {userList} = useContext(ChatContext);
   const {height, width} = useWindowDimensions();
-  const {selectedUserID, privateActive, setPrivateActive, selectedUsername} =
+  const {selectedUserID, privateActive, selectPrivate, selectedUsername} =
     props;
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
 
@@ -58,7 +58,9 @@ const ChatContainer = (props: any) => {
           <View style={style.backButton}>
             <BtnTemplate
               style={[style.backIcon]}
-              onPress={() => setPrivateActive(false)}
+              onPress={() => {
+                selectPrivate();
+              }}
               name={'backBtn'}
             />
           </View>

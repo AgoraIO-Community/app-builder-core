@@ -14,17 +14,14 @@ import TextWithTooltip from '../TextWithTooltip';
 import chatContext from '../../components/ChatContext';
 import {useString} from '../../utils/useString';
 import {isIOS, isWeb} from '../../utils/common';
+import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 
 const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const {
-    selectUser,
-    setPrivateMessageLastSeen,
-    privateMessageCountMap,
-    lastCheckedPrivateState,
-  } = props;
+  const {selectUser} = props;
   const {height, width} = useWindowDimensions();
   const {userList, localUid} = useContext(chatContext);
+  const {unreadIndividualMessageCount} = useChatNotification();
 
   const isChatUser = (userId: string, userInfo: any) => {
     return (
@@ -45,19 +42,11 @@ const ChatParticipants = (props: any) => {
               key={uid}
               onPress={() => {
                 selectUser(uid);
-                setPrivateMessageLastSeen({
-                  userId: uid,
-                  lastSeenCount: privateMessageCountMap[uid],
-                });
               }}>
-              {(privateMessageCountMap[uid] || 0) -
-                (lastCheckedPrivateState[uid] || 0) !==
-              0 ? (
+              {unreadIndividualMessageCount &&
+              unreadIndividualMessageCount[uid] ? (
                 <View style={style.chatNotificationPrivate}>
-                  <Text>
-                    {(privateMessageCountMap[uid] || 0) -
-                      (lastCheckedPrivateState[uid] || 0)}
-                  </Text>
+                  <Text>{unreadIndividualMessageCount[uid]}</Text>
                 </View>
               ) : null}
               <View style={{flex: 1}}>

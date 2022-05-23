@@ -23,7 +23,7 @@ import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
-import {useChatUIData} from '../components/useChatUI';
+import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useCustomLayout from '../pages/video-call/CustomLayout';
 import {isAndroid, isIOS, isWeb} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
@@ -33,6 +33,7 @@ import DimensionContext from './dimension/DimensionContext';
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
+import {useChatUIControl} from './chat-ui/useChatUIControl';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
@@ -146,9 +147,10 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
       fontSize: 12,
     },
   } = props;
-  const {messageStore} = useContext(ChatContext);
+  const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
+  const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
+    useChatUIControl();
   const {sidePanel, setSidePanel} = useSidePanel();
-  const {pendingMessageLength, setLastCheckedPublicState} = useChatUIData();
   const renderBadge = (badgeCount: any) => {
     return (
       <View
@@ -175,16 +177,22 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
       <BtnTemplate
         style={style.btnHolder}
         onPress={() => {
-          setLastCheckedPublicState(messageStore.length);
-          sidePanel === SidePanelType.Chat
-            ? setSidePanel(SidePanelType.None)
-            : setSidePanel(SidePanelType.Chat);
+          if (sidePanel === SidePanelType.Chat) {
+            setSidePanel(SidePanelType.None);
+            setGroupActive(false);
+            setPrivateActive(false);
+            setSelectedChatUserId('');
+          } else {
+            setUnreadGroupMessageCount(0);
+            setGroupActive(true);
+            setSidePanel(SidePanelType.Chat);
+          }
         }}
         name={sidePanel === SidePanelType.Chat ? 'chatIconFilled' : 'chatIcon'}
       />
       {sidePanel !== SidePanelType.Chat &&
-        pendingMessageLength !== 0 &&
-        renderBadge(pendingMessageLength)}
+        totalUnreadCount !== 0 &&
+        renderBadge(totalUnreadCount)}
     </>
   );
 };

@@ -23,9 +23,10 @@ import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import chatContext from './ChatContext';
-import {useChatUIData} from './useChatUI';
+import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
 import {isIOS, isWeb} from '../utils/common';
+import {useChatUIControl} from './chat-ui/useChatUIControl';
 
 const Chat = () => {
   const groupChatLabel = useString('groupChatLabel')();
@@ -42,44 +43,47 @@ const Chat = () => {
   const {userList} = useContext(chatContext);
 
   const {
-    pendingPrivateNotification,
-    pendingPublicNotification,
-    lastCheckedPrivateState,
-    privateMessageCountMap,
-    setPrivateMessageLastSeen,
-    setPrivateChatDisplayed,
-  } = useChatUIData();
+    groupActive,
+    setGroupActive,
+    privateActive,
+    setPrivateActive,
+    selectedChatUserId: selectedUserID,
+    setSelectedChatUserId: setSelectedUser,
+  } = useChatUIControl();
+  const {
+    unreadGroupMessageCount,
+    setUnreadGroupMessageCount,
+    unreadPrivateMessageCount,
+    setUnreadPrivateMessageCount,
+    setUnreadIndividualMessageCount,
+    unreadIndividualMessageCount,
+  } = useChatNotification();
+
   const {primaryColor} = useContext(ColorContext);
-  const [groupActive, setGroupActive] = useState(true);
-  const [privateActive, setPrivateActive] = useState(false);
-  const [selectedUserID, setSelectedUser] = useState('');
-
-  //Initally private state should be false
-  useEffect(() => {
-    setPrivateChatDisplayed(false);
-  }, []);
-
-  useEffect(() => {
-    if (privateActive && selectedUserID) {
-      setPrivateMessageLastSeen({
-        userId: selectedUserID,
-        lastSeenCount: privateMessageCountMap[selectedUserID],
-      });
-    }
-  }, [pendingPrivateNotification]);
 
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
-    setPrivateChatDisplayed(false);
+    setUnreadGroupMessageCount(0);
+    setSelectedUser('');
   };
   const selectPrivate = () => {
     setGroupActive(false);
-    setPrivateChatDisplayed(true);
+    setSelectedUser('');
+    setPrivateActive(false);
   };
   const selectUser = (userUID: any) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
+    setUnreadIndividualMessageCount((prevState) => {
+      return {
+        ...prevState,
+        [userUID]: 0,
+      };
+    });
+    setUnreadPrivateMessageCount(
+      unreadPrivateMessageCount - (unreadIndividualMessageCount[userUID] || 0),
+    );
   };
 
   return (
@@ -105,9 +109,9 @@ const Chat = () => {
                   },
                 ]
           }>
-          {pendingPublicNotification !== 0 ? (
+          {unreadGroupMessageCount !== 0 ? (
             <View style={style.chatNotification}>
-              <Text>{pendingPublicNotification}</Text>
+              <Text>{unreadGroupMessageCount}</Text>
             </View>
           ) : null}
           <Text style={groupActive ? style.groupTextActive : style.groupText}>
@@ -127,9 +131,9 @@ const Chat = () => {
                   },
                 ]
           }>
-          {pendingPrivateNotification !== 0 ? (
+          {unreadPrivateMessageCount !== 0 ? (
             <View style={style.chatNotification}>
-              <Text>{pendingPrivateNotification}</Text>
+              <Text>{unreadPrivateMessageCount}</Text>
             </View>
           ) : null}
           <Text style={!groupActive ? style.groupTextActive : style.groupText}>
@@ -151,15 +155,11 @@ const Chat = () => {
       ) : (
         <>
           {!privateActive ? (
-            <ChatParticipants
-              selectUser={selectUser}
-              setPrivateMessageLastSeen={setPrivateMessageLastSeen}
-              privateMessageCountMap={privateMessageCountMap}
-              lastCheckedPrivateState={lastCheckedPrivateState}
-            />
+            <ChatParticipants selectUser={selectUser} />
           ) : (
             <>
               <ChatContainer
+                selectPrivate={selectPrivate}
                 privateActive={privateActive}
                 setPrivateActive={setPrivateActive}
                 selectedUserID={selectedUserID}
