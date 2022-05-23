@@ -163,10 +163,11 @@ const reactSdk = {
       .pipe(
         replace(
           'declare module "index.rsdk"',
-          `declare module "agora-app-builder-sdk"`,
+          'declare module "agora-app-builder-sdk"',
         ),
       )
       .pipe(replace("'fpe-api'", "'fpe-api/index'"))
+      .pipe(replace('"fpe-api"', '"fpe-api/index"'))
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -187,10 +188,11 @@ const webSdk = {
       .pipe(
         replace(
           'declare module "index.wsdk"',
-          `declare module "agora-app-builder-sdk"`,
+          'declare module "agora-app-builder-sdk"',
         ),
       )
       .pipe(replace("'fpe-api'", "'fpe-api/index'"))
+      .pipe(replace('"fpe-api"', '"fpe-api/index"'))
       .pipe(dest(BUILD_PATH));
   },
 };
