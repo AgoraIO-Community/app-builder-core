@@ -387,7 +387,7 @@ export default class RtcEngine {
 
     await this.publish();
     this.noSleep.enable();
-    console.log('enabling sleep');
+    console.log('enabling screen sleep');
   }
 
   async leaveChannel(): Promise<void> {
@@ -398,7 +398,7 @@ export default class RtcEngine {
     });
     this.remoteStreams.clear();
     this.noSleep.disable();
-    console.log('disabling sleep');
+    console.log('disabling screen sleep');
   }
 
   addListener<EventType extends keyof RtcEngineEvents>(
