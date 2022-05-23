@@ -30,6 +30,7 @@ import type {
 import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
+import NoSleep from 'nosleep.js';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -157,6 +158,7 @@ export default class RtcEngine {
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
   public remoteStreams = new Map<UID, RemoteStream>();
+  public noSleep = new NoSleep();
   private inScreenshare: Boolean = false;
   private videoProfile: VideoProfile = '480p_9';
   private isPublished = false;
@@ -384,6 +386,8 @@ export default class RtcEngine {
     this.isJoined = true;
 
     await this.publish();
+    this.noSleep.enable();
+    console.log('enabling sleep');
   }
 
   async leaveChannel(): Promise<void> {
@@ -393,6 +397,8 @@ export default class RtcEngine {
       stream.audio?.close();
     });
     this.remoteStreams.clear();
+    this.noSleep.disable();
+    console.log('disabling sleep');
   }
 
   addListener<EventType extends keyof RtcEngineEvents>(

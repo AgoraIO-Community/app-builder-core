@@ -34,6 +34,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   useEffect(() => {
     AgoraRTC.onMicrophoneChanged = async (changedDevice: any) => {
       // When new audio device is plugged in ,refresh the devices list.
+      console.log('audioTest on-microphone-changed');
       refreshDevices();
       if (changedDevice && changedDevice.state === 'ACTIVE') {
         if (changedDevice.device?.kind === 'audioinput') {
@@ -43,6 +44,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     };
     AgoraRTC.onCameraChanged = async (changedDevice: any) => {
       // When new video device is plugged in ,refresh the devices list.
+      console.log('videoTest on-camera-changed');
       refreshDevices();
       if (changedDevice && changedDevice.state === 'ACTIVE') {
         if (changedDevice.device?.kind === 'videoinput') {
@@ -50,7 +52,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         }
       }
     };
-  });
+  }, []);
 
   useEffect(() => {
     if (!selectedMic || selectedMic.trim().length == 0) {
