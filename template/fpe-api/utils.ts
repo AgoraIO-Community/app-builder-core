@@ -43,7 +43,7 @@ export {
   MUTE_LOCAL_TYPE,
   default as useMuteToggleLocal,
 } from '../src/utils/useMuteToggleLocal';
-export {default as useRemoteEndcall} from '../src/utils/useRemoteEndcall';
+export {default as useRemoteEndcall} from '../src/utils/useRemoteEndCall';
 export {
   default as useRemoteMute,
   MUTE_REMOTE_TYPE,
