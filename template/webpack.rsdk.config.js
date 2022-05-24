@@ -10,7 +10,13 @@ module.exports = merge(commons, {
   // externals: [
   //   nodeExternals({allowlist: [/agora.*/, /fpe.*/]}),
   // ],
-  externals: {react: 'react', 'react-dom': 'react-dom'},
+  externals: {
+    react: 'react',
+    'react-dom': 'react-dom',
+    'react-router': 'react-router',
+    'react-router-dom': 'react-router-dom',
+    '@apollo/client': '@apollo/client',
+  },
   // Main entry point for the web application
   entry: {
     main: './index.rsdk.tsx',
