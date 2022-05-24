@@ -41,29 +41,33 @@ export default function AllHostParticipants(props: any) {
         <MaxUidConsumer>
           {(maxUser) =>
             [...minUsers, ...maxUser].map((user) =>
-              user.uid === 'local' ? (
-                <MeParticipant
-                  name={getParticipantName(user.uid)}
-                  p_style={p_style}
-                  key={user.uid}
-                />
-              ) : user.uid === 1 ? (
-                <ScreenshareParticipants
-                  name={getParticipantName(user.uid)}
-                  p_styles={p_style}
-                  key={user.uid}
-                />
+              user.contentType === 'rtc' ? (
+                user.uid === 'local' ? (
+                  <MeParticipant
+                    name={getParticipantName(user.uid)}
+                    p_style={p_style}
+                    key={user.uid}
+                  />
+                ) : user.uid === 1 ? (
+                  <ScreenshareParticipants
+                    name={getParticipantName(user.uid)}
+                    p_styles={p_style}
+                    key={user.uid}
+                  />
+                ) : (
+                  <RemoteParticipants
+                    name={getParticipantName(user.uid)}
+                    p_styles={p_style}
+                    user={user}
+                    showControls={
+                      userList[user.uid]?.type !== UserType.ScreenShare
+                    }
+                    isHost={isHost}
+                    key={user.uid}
+                  />
+                )
               ) : (
-                <RemoteParticipants
-                  name={getParticipantName(user.uid)}
-                  p_styles={p_style}
-                  user={user}
-                  showControls={
-                    userList[user.uid]?.type !== UserType.ScreenShare
-                  }
-                  isHost={isHost}
-                  key={user.uid}
-                />
+                <></>
               ),
             )
           }

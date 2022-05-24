@@ -41,26 +41,28 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
   const max = useContext(MaxUidContext);
 
   useEffect(() => {
-    const hostList = [...min, ...max].reduce((acc, cur) => {
-      if (
-        cur.uid === 'local' &&
-        userList[localUid]?.role == ClientRole.Audience
-      ) {
-        // If local user skip
-        return acc;
-      }
-      const userUID =
-        cur.uid === 'local'
-          ? localUid
-          : cur.uid == 1
-          ? userList[localUid].screenUid
-          : cur.uid;
+    const hostList = [...min, ...max]
+      .filter((item) => item.contentType === 'rtc')
+      .reduce((acc, cur) => {
+        if (
+          cur.uid === 'local' &&
+          userList[localUid]?.role == ClientRole.Audience
+        ) {
+          // If local user skip
+          return acc;
+        }
+        const userUID =
+          cur.uid === 'local'
+            ? localUid
+            : cur.uid == 1
+            ? userList[localUid].screenUid
+            : cur.uid;
 
-      return {
-        ...acc,
-        [userUID]: {...userList[userUID]},
-      };
-    }, {});
+        return {
+          ...acc,
+          [userUID]: {...userList[userUID]},
+        };
+      }, {});
     setHostList(hostList);
     setHostCount(Object.keys(hostList).length);
   }, [min, max, userList]);
