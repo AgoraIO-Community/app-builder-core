@@ -34,12 +34,12 @@ const VideoArrayRenderer = ({children}: {children: React.FC<any>}) => {
   };
 
   const minArray = min.map((user, index) => {
-    const MinComponent = getRenderComponent(user.type);
+    const MinComponent = getRenderComponent(user.contentType);
     return <MinComponent user={user} isMax={false} index={index} />;
   });
 
   const maxArray = max.map((user, index) => {
-    const MaxComponent = getRenderComponent(user.type);
+    const MaxComponent = getRenderComponent(user.contentType);
     return <MaxComponent user={user} isMax={false} index={index} />;
   });
 
