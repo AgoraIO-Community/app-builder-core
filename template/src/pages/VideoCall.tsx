@@ -23,12 +23,7 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {
-  cmpTypeGuard,
-  hasBrandLogo,
-  isArray,
-  isValidElementType,
-} from '../utils/common';
+import {hasBrandLogo, isArray} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -78,16 +73,6 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const joiningLoaderLabel = useString('joiningLoaderLabel')();
-  const FpeVideocallComponent = useFpe((data) =>
-    typeof data?.components?.videoCall !== 'object'
-      ? isValidElementType(data?.components?.videoCall)
-      : undefined,
-  );
-  const FpePrecallComponent = useFpe((data) =>
-    typeof data?.components?.precall !== 'object'
-      ? isValidElementType(data?.components?.precall)
-      : undefined,
-  );
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
@@ -212,20 +197,14 @@ const VideoCall: React.FC = () => {
                                     <CustomUserContextHolder>
                                       <NetworkQualityProvider>
                                         {callActive ? (
-                                          cmpTypeGuard(
-                                            VideoCallScreen,
-                                            FpeVideocallComponent,
-                                          )
+                                          <VideoCallScreen />
                                         ) : $config.PRECALL ? (
                                           <PreCallProvider
                                             value={{
                                               callActive,
                                               setCallActive,
                                             }}>
-                                            {cmpTypeGuard(
-                                              Precall,
-                                              FpePrecallComponent,
-                                            )}
+                                            <Precall />
                                           </PreCallProvider>
                                         ) : (
                                           <></>

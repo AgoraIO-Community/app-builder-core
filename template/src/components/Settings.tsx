@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {BtnTemplate} from '../../agora-rn-uikit';
@@ -35,7 +35,25 @@ const Settings = () => {
   );
 };
 
+export const SettingsWithViewWrapper = () => {
+  return (
+    <View style={[style.navItem, style.navSmItem]}>
+      <Settings />
+    </View>
+  );
+};
+
 const style = StyleSheet.create({
+  navItem: {
+    height: '100%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  navSmItem: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: '15%',
+  },
   fullOverlay: {
     position: 'fixed',
     top: 0,

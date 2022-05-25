@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import VideoArrayRenderer from './VideoArrayRenderer';
 import useCustomLayout from './CustomLayout';
-import {isArray, isValidElementType} from '../../utils/common';
+import {isArray, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
 
 const VideoComponent = () => {
@@ -24,7 +24,7 @@ const VideoComponent = () => {
         if (
           fpeLayouts &&
           fpeLayouts[layout] &&
-          isValidElementType(fpeLayouts[layout].component)
+          isValidReactComponent(fpeLayouts[layout].component)
         ) {
           const CurrentLayout = fpeLayouts[layout].component;
           return (

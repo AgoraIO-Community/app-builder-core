@@ -12,27 +12,122 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
-import {getCmpTypeGuard} from '../../utils/common';
-import {LocalAudioMute, LocalVideoMute} from '../../../agora-rn-uikit';
+import {isValidReactComponent} from '../../utils/common';
+import {
+  LocalAudioMute,
+  LocalAudioMuteProps,
+  LocalVideoMute,
+  LocalVideoMuteProps,
+} from '../../../agora-rn-uikit';
 import {useString} from '../../utils/useString';
 
 const PreCallLocalMute: React.FC = () => {
-  const {videoMute, audioMute} = useFpe((data) =>
-    typeof data?.components?.precall === 'object'
-      ? data.components?.precall
-      : {},
-  );
-  const AudioCmp = getCmpTypeGuard(LocalAudioMute, audioMute);
-  const VideoCmp = getCmpTypeGuard(LocalVideoMute, videoMute);
+  const {
+    VideoMute,
+    AudioMute,
+    AudioMuteAfterView,
+    AudioMuteBeforeView,
+    VideoMuteAfterView,
+    VideoMuteBeforeView,
+  } = useFpe((data) => {
+    let components: {
+      VideoMuteBeforeView: React.ComponentType;
+      VideoMuteAfterView: React.ComponentType;
+      AudioMuteBeforeView: React.ComponentType;
+      AudioMuteAfterView: React.ComponentType;
+      VideoMute: React.ComponentType<LocalAudioMuteProps>;
+      AudioMute: React.ComponentType<LocalVideoMuteProps>;
+    } = {
+      AudioMuteAfterView: React.Fragment,
+      AudioMuteBeforeView: React.Fragment,
+      VideoMuteAfterView: React.Fragment,
+      VideoMuteBeforeView: React.Fragment,
+      AudioMute: LocalAudioMute,
+      VideoMute: LocalVideoMute,
+    };
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall === 'object'
+    ) {
+      if (
+        data.components?.precall?.audioMute &&
+        typeof data.components?.precall?.audioMute !== 'object'
+      ) {
+        if (
+          data.components?.precall?.audioMute &&
+          isValidReactComponent(data.components?.precall?.audioMute)
+        ) {
+          components.AudioMute = data.components?.precall?.audioMute;
+        }
+      }
+
+      if (
+        data.components?.precall?.audioMute &&
+        typeof data.components?.precall?.audioMute === 'object'
+      ) {
+        if (
+          data.components?.precall?.audioMute?.after &&
+          isValidReactComponent(data.components?.precall?.audioMute?.after)
+        ) {
+          components.AudioMuteAfterView =
+            data.components?.precall?.audioMute?.after;
+        }
+        if (
+          data.components?.precall?.audioMute?.before &&
+          isValidReactComponent(data.components?.precall?.audioMute?.before)
+        ) {
+          components.AudioMuteBeforeView =
+            data.components?.precall?.audioMute?.before;
+        }
+      }
+
+      if (
+        data.components?.precall?.videoMute &&
+        typeof data.components?.precall?.videoMute !== 'object'
+      ) {
+        if (
+          data.components?.precall?.videoMute &&
+          isValidReactComponent(data.components?.precall?.videoMute)
+        ) {
+          components.VideoMute = data.components?.precall?.videoMute;
+        }
+      }
+
+      if (
+        data.components?.precall?.videoMute &&
+        typeof data.components?.precall?.videoMute === 'object'
+      ) {
+        if (
+          data.components?.precall?.videoMute?.after &&
+          isValidReactComponent(data.components?.precall?.videoMute?.after)
+        ) {
+          components.VideoMuteAfterView =
+            data.components?.precall?.videoMute?.after;
+        }
+        if (
+          data.components?.precall?.videoMute?.before &&
+          isValidReactComponent(data.components?.precall?.videoMute?.before)
+        ) {
+          components.VideoMuteBeforeView =
+            data.components?.precall?.videoMute?.before;
+        }
+      }
+    }
+    return components;
+  });
   const toggleAudioButton = useString('toggleAudioButton')();
   const toggleVideoButton = useString('toggleVideoButton')();
   return (
     <View style={style.precallControls}>
       <View style={{alignSelf: 'center'}}>
-        <AudioCmp btnText={toggleAudioButton} />
+        <AudioMuteBeforeView />
+        <AudioMute btnText={toggleAudioButton} />
+        <AudioMuteAfterView />
       </View>
       <View style={{alignSelf: 'center'}}>
-        <VideoCmp btnText={toggleVideoButton} />
+        <VideoMuteBeforeView />
+        <VideoMute btnText={toggleVideoButton} />
+        <VideoMuteAfterView />
       </View>
     </View>
   );

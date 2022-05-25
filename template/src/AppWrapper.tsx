@@ -19,7 +19,7 @@ import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
-import {getCmpTypeGuard} from './utils/common';
+import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
@@ -31,10 +31,15 @@ interface AppWrapperProps {
 }
 
 const AppWrapper = (props: AppWrapperProps) => {
-  const AppRoot = useFpe((data) => data?.appRoot);
-  const RootWrapper = getCmpTypeGuard(React.Fragment, AppRoot);
+  const AppRoot = useFpe((data) => {
+    if (data?.appRoot && isValidReactComponent(data.appRoot)) {
+      return data.appRoot;
+    }
+    return React.Fragment;
+  });
+
   return (
-    <RootWrapper>
+    <AppRoot>
       <ImageBackground
         source={{uri: $config.BG}}
         style={{flex: 1}}
@@ -63,7 +68,7 @@ const AppWrapper = (props: AppWrapperProps) => {
           </StorageProvider>
         </SafeAreaView>
       </ImageBackground>
-    </RootWrapper>
+    </AppRoot>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };

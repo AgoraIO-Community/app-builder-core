@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {MinUidContext, MaxUidContext} from '../../../agora-rn-uikit';
 import RenderComponent from './RenderComponent';
 import {renderComponentObjectInterface, useFpe} from 'fpe-api';
-import {isValidElementType} from '../../utils/common';
+import {isValidReactComponent} from '../../utils/common';
 
 const VideoArrayRenderer = ({children}: {children: React.FC<any>}) => {
   const max = useContext(MaxUidContext);
@@ -20,7 +20,7 @@ const VideoArrayRenderer = ({children}: {children: React.FC<any>}) => {
     const FPEComp =
       FpeRenderComponent &&
       FpeRenderComponent[type] &&
-      isValidElementType(FpeRenderComponent[type])
+      isValidReactComponent(FpeRenderComponent[type])
         ? FpeRenderComponent[type]
         : false;
     //if its valid element then return fpe comp other return the default component

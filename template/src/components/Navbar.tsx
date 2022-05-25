@@ -12,7 +12,7 @@
 import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, TextStyle} from 'react-native';
 import icons from '../assets/icons';
-import Settings from './Settings';
+import Settings, {SettingsWithViewWrapper} from './Settings';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
@@ -25,7 +25,7 @@ import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useCustomLayout from '../pages/video-call/CustomLayout';
-import {isAndroid, isIOS, isWeb} from '../utils/common';
+import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
@@ -34,6 +34,7 @@ import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {useFpe} from 'fpe-api';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
@@ -267,6 +268,9 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
 const SettingsIconButton = () => {
   return <Settings />;
 };
+const SettingsIconButtonWithWrapper = () => {
+  return <SettingsWithViewWrapper />;
+};
 
 const Navbar = () => {
   const recordingLabel = useString('recordingLabel')();
@@ -274,131 +278,168 @@ const Navbar = () => {
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
-
+  const {NavbarAfterView, NavbarBeforeView} = useFpe((data) => {
+    let components: {
+      NavbarAfterView: React.ComponentType;
+      NavbarBeforeView: React.ComponentType;
+    } = {
+      NavbarAfterView: React.Fragment,
+      NavbarBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.topBar &&
+        typeof data?.components?.videoCall?.topBar === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.topBar?.after &&
+          isValidReactComponent(data?.components?.videoCall?.topBar?.after)
+        ) {
+          components.NavbarAfterView =
+            data?.components?.videoCall?.topBar?.after;
+        }
+        if (
+          data?.components?.videoCall?.topBar?.before &&
+          isValidReactComponent(data?.components?.videoCall?.topBar?.before)
+        ) {
+          components.NavbarBeforeView =
+            data?.components?.videoCall?.topBar?.before;
+        }
+      }
+    }
+    return components;
+  });
   return (
-    <View
-      style={[
-        isWeb ? style.navHolder : style.navHolderNative,
-        {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
-        isWeb
-          ? {
-              justifyContent: isMobileOrTablet() ? 'space-between' : 'flex-end',
-            }
-          : {},
-      ]}>
-      {isRecordingActive && !isMobileOrTablet() ? (
-        <View
-          style={[
-            style.recordingView,
-            {backgroundColor: $config.SECONDARY_FONT_COLOR},
-          ]}>
-          <ImageIcon
-            name={'recordingActiveIcon'}
-            style={{
-              width: 20,
-              height: 20,
-              margin: 1,
-            }}
-            color="#FD0845"
-          />
-          <Text
-            style={{
-              fontSize: isWeb ? 16 : 12,
-              color: '#FD0845',
-              fontWeight: '400',
-              alignSelf: 'center',
-              textAlign: 'center',
-              flex: 1,
-            }}>
-            {recordingLabel}
-          </Text>
-        </View>
-      ) : (
-        <></>
-      )}
+    <>
+      <NavbarBeforeView />
       <View
         style={[
-          style.roomNameContainer,
-          isWeb && !isMobileOrTablet()
-            ? {transform: [{translateX: '50%'}]}
+          isWeb ? style.navHolder : style.navHolderNative,
+          {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
+          isWeb
+            ? {
+                justifyContent: isMobileOrTablet()
+                  ? 'space-between'
+                  : 'flex-end',
+              }
             : {},
         ]}>
-        {isWeb ? (
+        {isRecordingActive && !isMobileOrTablet() ? (
           <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'flex-start',
-              paddingLeft: 5,
-            }}>
-            <View>
-              <Text style={style.roomNameText}>
-                {isMobileOrTablet()
-                  ? meetingTitle.length > 13
-                    ? meetingTitle.slice(0, 13) + '..'
-                    : meetingTitle
-                  : meetingTitle}
-              </Text>
-            </View>
-            <View />
-            <View
+            style={[
+              style.recordingView,
+              {backgroundColor: $config.SECONDARY_FONT_COLOR},
+            ]}>
+            <ImageIcon
+              name={'recordingActiveIcon'}
               style={{
-                backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-                width: 1,
-                height: 'auto',
-                marginHorizontal: 10,
+                width: 20,
+                height: 20,
+                margin: 1,
               }}
+              color="#FD0845"
             />
-            <View style={{width: 30}}>
-              <CopyJoinInfo />
-            </View>
+            <Text
+              style={{
+                fontSize: isWeb ? 16 : 12,
+                color: '#FD0845',
+                fontWeight: '400',
+                alignSelf: 'center',
+                textAlign: 'center',
+                flex: 1,
+              }}>
+              {recordingLabel}
+            </Text>
           </View>
         ) : (
-          <View>
-            <Text style={style.roomNameText}>{meetingTitle}</Text>
-          </View>
+          <></>
         )}
-      </View>
-      <View style={style.navControlBar}>
         <View
           style={[
-            style.navContainer,
-            {
-              minWidth:
-                isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
-            },
+            style.roomNameContainer,
+            isWeb && !isMobileOrTablet()
+              ? {transform: [{translateX: '50%'}]}
+              : {},
           ]}>
-          <ParticipantsCountView />
-          <View style={[style.navItem, style.navSmItem]}>
-            <ParticipantsIconButton />
-          </View>
-          {$config.CHAT ? (
-            <>
-              <RenderSeparator />
-              <View style={[style.navItem, style.navSmItem]}>
-                <ChatIconButton />
+          {isWeb ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                paddingLeft: 5,
+              }}>
+              <View>
+                <Text style={style.roomNameText}>
+                  {isMobileOrTablet()
+                    ? meetingTitle.length > 13
+                      ? meetingTitle.slice(0, 13) + '..'
+                      : meetingTitle
+                    : meetingTitle}
+                </Text>
               </View>
-            </>
+              <View />
+              <View
+                style={{
+                  backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+                  width: 1,
+                  height: 'auto',
+                  marginHorizontal: 10,
+                }}
+              />
+              <View style={{width: 30}}>
+                <CopyJoinInfo />
+              </View>
+            </View>
           ) : (
-            <></>
+            <View>
+              <Text style={style.roomNameText}>{meetingTitle}</Text>
+            </View>
           )}
-          <RenderSeparator />
+        </View>
+        <View style={style.navControlBar}>
           <View
-            style={[style.navItem, style.navSmItem]}
-            /**
-             * .measure returns undefined on Android unless collapsable=false or onLayout are specified
-             * so added collapsable property
-             * https://github.com/facebook/react-native/issues/29712
-             * */
-            collapsable={false}>
-            <LayoutIconButton />
-          </View>
-          <RenderSeparator />
-          <View style={[style.navItem, style.navSmItem]}>
-            <SettingsIconButton />
+            style={[
+              style.navContainer,
+              {
+                minWidth:
+                  isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
+              },
+            ]}>
+            <ParticipantsCountView />
+            <View style={[style.navItem, style.navSmItem]}>
+              <ParticipantsIconButton />
+            </View>
+            {$config.CHAT ? (
+              <>
+                <RenderSeparator />
+                <View style={[style.navItem, style.navSmItem]}>
+                  <ChatIconButton />
+                </View>
+              </>
+            ) : (
+              <></>
+            )}
+            <RenderSeparator />
+            <View
+              style={[style.navItem, style.navSmItem]}
+              /**
+               * .measure returns undefined on Android unless collapsable=false or onLayout are specified
+               * so added collapsable property
+               * https://github.com/facebook/react-native/issues/29712
+               * */
+              collapsable={false}>
+              <LayoutIconButton />
+            </View>
+            <RenderSeparator />
+            <SettingsIconButtonWithWrapper />
           </View>
         </View>
       </View>
-    </View>
+      <NavbarAfterView />
+    </>
   );
 };
 export const NavBarComponentsArray: [
