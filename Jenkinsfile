@@ -1,42 +1,43 @@
 pipeline {
     agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
     stages {
         stage('Run Tests') {
             parallel {
-                stage('Test On Mac') {
-                    parallel {
-                        stage('Test Meetings') {
-                            environment {
-                                KEYCHAIN_PASSKEY = credentials('amzn-macos-n1-keychain-password')
-                                }
-                            agent {
-                                label "amzn-macos-n1"
-                            }
-                            steps {
-                                sh "chmod 755 scripts/run-tests-mac-meetings.sh"
-                                sh "ls -la"
-                                sh "rm -rf ~/QA/Meeting/HelloWorld.xcarchive"
-                                sh "sudo security lock-keychain ~/Library/Keychains/login.keychain-db"
-                                sh "sudo security unlock-keychain -p ${KEYCHAIN_PASSKEY} ~/Library/Keychains/login.keychain-db"
-                                sh "scripts/run-tests-mac-meetings.sh"
-                            }
+                stage('Test Meetings - Mac') {
+                    environment {
+                        KEYCHAIN_PASSKEY = credentials('amzn-macos-n1-keychain-password')
                         }
-                        stage('Live Stream Meetings') {
-                            environment {
-                                KEYCHAIN_PASSKEY = credentials('amzn-macos-n1-keychain-password')
-                                }
-                            agent {
-                                label "amzn-macos-n1"
-                            }
-                            steps {
-                                sh "chmod 755 scripts/run-tests-live-stream.sh"
-                                sh "ls -la"
-                                sh "rm -rf ~/QA/LiveStreaming/HelloWorld.xcarchive"
-                                sh "sudo security lock-keychain ~/Library/Keychains/login.keychain-db"
-                                sh "sudo security unlock-keychain -p ${KEYCHAIN_PASSKEY} ~/Library/Keychains/login.keychain-db"
-                                sh "scripts/run-tests-mac-live-stream.sh"
-                            }
+                    agent {
+                        label "amzn-macos-n1"
+                    }
+                    steps {
+                        sh "chmod 755 scripts/run-tests-mac-meetings.sh"
+                        sh "ls -la"
+                        sh "rm -rf ~/QA/Meeting/HelloWorld.xcarchive"
+                        sh "sudo security lock-keychain ~/Library/Keychains/login.keychain-db"
+                        sh "sudo security unlock-keychain -p ${KEYCHAIN_PASSKEY} ~/Library/Keychains/login.keychain-db"
+                        sh "scripts/run-tests-mac-meetings.sh"
+                    }
+                }
+                stage('Live Stream Meetings - Mac') {
+                    environment {
+                        KEYCHAIN_PASSKEY = credentials('amzn-macos-n1-keychain-password')
                         }
+                    agent {
+                        label "amzn-macos-n1"
+                    }
+                    steps {
+                        sh "chmod 755 scripts/run-tests-live-stream.sh"
+                        sh "ls -la"
+                        sh "rm -rf ~/QA/LiveStreaming/HelloWorld.xcarchive"
+                        sh "sudo security lock-keychain ~/Library/Keychains/login.keychain-db"
+                        sh "sudo security unlock-keychain -p ${KEYCHAIN_PASSKEY} ~/Library/Keychains/login.keychain-db"
+                        sh "scripts/run-tests-mac-live-stream.sh"
                     }
                 }
                 stage('Test On Linux') {
@@ -45,13 +46,14 @@ pipeline {
                     }
                     steps {
                         sh "chmod 755 scripts/run-tests-lnx.sh"
-	                    sh "ls -la"
+                        sh "ls -la"
                         sh "scripts/run-tests-lnx.sh"
                     }
                 }
-            }
-        }
-    }
+            } //parallel
+        } //stage(run tests)
+    } // stages
+
 
     post {
         always {
