@@ -12,8 +12,8 @@ const useWakeLock = () => {
         console.log('enabled sleep successfully');
         set(noSleep.isEnabled);
       })
-      .catch(() => {
-        console.log('error enabling sleep');
+      .catch((e) => {
+        console.log('error enabling sleep', e);
       });
   }, []);
 

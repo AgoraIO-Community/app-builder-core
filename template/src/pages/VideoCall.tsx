@@ -294,13 +294,11 @@ const VideoCall: React.FC = () => {
   );
 
   React.useEffect(() => {
-    console.log('video call mounted');
-    // can't mix with other functions to make sure
-    // the video is played under a user interaction?
-    awake ? release() : request();
     return () => {
-      console.log('video call unmounted');
-      release();
+      console.log('Videocall unmounted');
+      if (awake) {
+        release();
+      }
     };
   }, []);
 

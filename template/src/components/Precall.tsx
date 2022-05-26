@@ -27,6 +27,8 @@ import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
+import {useWakeLock} from '../components/useWakeLock';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
 
 const JoinRoomInputView = (props: any) => {
   const {
@@ -37,6 +39,15 @@ const JoinRoomInputView = (props: any) => {
     buttonText,
     error,
   } = props;
+
+  const {awake, request} = useWakeLock();
+
+  const onSubmit = () => {
+    setCallActive(true);
+    if (mobileAndTabletCheck() && !awake) {
+      request();
+    }
+  };
 
   return (
     <View style={style.btnContainer}>
@@ -51,7 +62,7 @@ const JoinRoomInputView = (props: any) => {
       />
       <View style={{height: 20}} />
       <PrimaryButton
-        onPress={() => setCallActive(true)}
+        onPress={onSubmit}
         disabled={!queryComplete || username.trim() === '' || error}
         text={queryComplete ? buttonText : 'Loading...'}
       />
