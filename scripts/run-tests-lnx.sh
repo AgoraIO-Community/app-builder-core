@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+source $HOME/.bashrc
+
 echo "Android Build started for Live Stream"
 
 ls -la
