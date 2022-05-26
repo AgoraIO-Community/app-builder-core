@@ -10,6 +10,8 @@ pipeline {
                     steps {
                         sh "chmod 755 scripts/run-tests-mac.sh"
 	                    sh "ls -la"
+                        sh "sudo security lock-keychain ~/Library/Keychains/login.keychain-db"
+                        sh "sudo security unlock-keychain ~/Library/Keychains/login.keychain-db"
                         sh "scripts/run-tests-mac.sh"
                     }
                 }
