@@ -40,7 +40,7 @@ pipeline {
                 //         sh "scripts/run-tests-mac-live-stream.sh"
                 //     }
                 // }
-                stage('Test On Linux') {
+                stage('Test On dummy') {
                     agent {
                         label "amzn-macos-n1"
                     }
