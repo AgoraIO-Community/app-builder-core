@@ -2,8 +2,6 @@
 set -e
 
 echo "Android Build started for Live Stream"
-source $HOME/.zshrc
-#export node_options=--openssl-legacy-provider
 
 ls -la
 
