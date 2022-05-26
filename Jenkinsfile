@@ -32,7 +32,7 @@ pipeline {
                         label "amzn-macos-n1"
                     }
                     steps {
-                        sh "chmod 755 scripts/run-tests-live-stream.sh"
+                        sh "chmod 755 scripts/run-tests-mac-live-stream.sh"
                         sh "ls -la"
                         sh "rm -rf ~/QA/LiveStreaming/HelloWorld.xcarchive"
                         sh "sudo security lock-keychain ~/Library/Keychains/login.keychain-db"
