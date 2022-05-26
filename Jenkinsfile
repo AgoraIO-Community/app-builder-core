@@ -27,26 +27,6 @@ pipeline {
         }
     }
 
-
-    // stages {
-    //     stage('build-dev') {
-    //         environment {
-    //             DEPLOYMENT_ENV = 'dev'
-    //         }
-    //         when {
-                
-    //             branch 'dev'
-	// 	    }
-    //         steps {
-	// 			checkout scm
-	// 			script {
-	// 				sh "chmod 755 scripts/build.sh"
-	// 				sh "ls -la"
-	// 				sh "scripts/build.sh"
-    //                 }
-    //         }
-    //     }
-    // }
     post {
         always {
             echo 'cleaning up our workspace'
