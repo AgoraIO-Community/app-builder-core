@@ -196,16 +196,42 @@ export default class RtcEngine {
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
+      let audioError = false;
+      let videoError = false;
+      try {
+        let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+        this.localStream.audio = localAudio;
+      } catch (error) {
+        audioError = error;
+      }
+      try {
+        let localVideo = await AgoraRTC.createCameraVideoTrack({
+          encoderConfig: this.videoProfile,
+        });
+        this.localStream.video = localVideo;
+      } catch (error) {
+        videoError = error;
+      }
+      e.status = {audioError, videoError};
       throw e;
+      // if (audioError && videoError) throw e;
+      // else
+      //   throw new Error(
+      //     audioError ? 'No Microphone found' : 'No Video device found',
+      //   );
     }
   }
 
   async publish() {
-    if (this.localStream.audio && this.localStream.video) {
+    if (this.localStream.audio || this.localStream.video) {
       try {
         let tracks: Array<ILocalTrack> = [];
-        this.isAudioEnabled && tracks.push(this.localStream.audio);
-        this.isVideoEnabled && tracks.push(this.localStream.video);
+        this.localStream.audio &&
+          this.isAudioEnabled &&
+          tracks.push(this.localStream.audio);
+        this.localStream.video &&
+          this.isVideoEnabled &&
+          tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
           await this.client.publish(tracks);
