@@ -30,6 +30,10 @@ import Error from '../subComponents/Error';
 import {useWakeLock} from '../components/useWakeLock';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
 
+const audio = new Audio(
+  'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
+);
+
 const JoinRoomInputView = (props: any) => {
   const {
     username,
@@ -44,7 +48,17 @@ const JoinRoomInputView = (props: any) => {
 
   const onSubmit = () => {
     setCallActive(true);
+    // Play a sound to avoid autoblocking in safari
+    if (Platform.OS === 'web' || mobileAndTabletCheck()) {
+      audio.volume = 0;
+      audio.play().then(() => {
+        // pause directly once played
+        audio.pause();
+      });
+    }
+    // Avoid Sleep only on mobile browsers
     if (mobileAndTabletCheck() && !awake) {
+      // Request wake lock
       request();
     }
   };
