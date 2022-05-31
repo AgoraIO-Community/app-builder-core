@@ -20,25 +20,30 @@ import {isValidReactComponent} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 
-export const ChatSendButton = () => {
+export interface ChatSendButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+export const ChatSendButton = (props: ChatSendButtonProps) => {
   const {
     selectedChatUserId: selectedUserId,
     message,
     setMessage,
   } = useChatUIControl();
   const sendMessage = useSendMessage();
-  return (
-    <TouchableOpacity
-      style={style.chatInputButton}
-      onPress={() => {
-        if (!selectedUserId) {
-          sendMessage(MESSAGE_TYPE.group, message);
-          setMessage && setMessage('');
-        } else {
-          sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
-          setMessage && setMessage('');
-        }
-      }}>
+  const onPress = () => {
+    if (!selectedUserId) {
+      sendMessage(MESSAGE_TYPE.group, message);
+      setMessage && setMessage('');
+    } else {
+      sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
+      setMessage && setMessage('');
+    }
+  };
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <TouchableOpacity style={style.chatInputButton} onPress={onPress}>
       <Image
         source={{
           uri: icons.send,
@@ -49,8 +54,15 @@ export const ChatSendButton = () => {
     </TouchableOpacity>
   );
 };
-
-const ChatTextInput = () => {
+export interface ChatTextInputProps {
+  render?: (
+    message: string,
+    onChangeText: (text: string) => void,
+    onSubmitEditing: () => void,
+    chatMessageInputPlaceholder: string,
+  ) => JSX.Element;
+}
+export const ChatTextInput = (props: ChatTextInputProps) => {
   const {
     selectedChatUserId: selectedUserId,
     message,
@@ -60,10 +72,29 @@ const ChatTextInput = () => {
   const chatMessageInputPlaceholder = useString(
     'chatMessageInputPlaceholder',
   )();
-  return (
+
+  const onChangeText = (text: string) => setMessage(text);
+  const onSubmitEditing = () => {
+    if (!selectedUserId) {
+      sendMessage(MESSAGE_TYPE.group, message);
+      setMessage('');
+    } else {
+      sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
+      setMessage('');
+    }
+  };
+
+  return props?.render ? (
+    props.render(
+      message,
+      onChangeText,
+      onSubmitEditing,
+      chatMessageInputPlaceholder,
+    )
+  ) : (
     <TextInput
       value={message}
-      onChangeText={(text) => setMessage(text)}
+      onChangeText={onChangeText}
       style={{
         borderRadius: 10,
         backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
@@ -76,15 +107,7 @@ const ChatTextInput = () => {
         alignSelf: 'center',
       }}
       blurOnSubmit={false}
-      onSubmitEditing={() => {
-        if (!selectedUserId) {
-          sendMessage(MESSAGE_TYPE.group, message);
-          setMessage('');
-        } else {
-          sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
-          setMessage('');
-        }
-      }}
+      onSubmitEditing={onSubmitEditing}
       placeholder={chatMessageInputPlaceholder}
       placeholderTextColor={$config.PRIMARY_FONT_COLOR}
       autoCorrect={false}
@@ -97,15 +120,28 @@ const ChatTextInput = () => {
  */
 const ChatInput = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {ChatInputComponent, ChatAfterView, ChatBeforeView} = useFpe((data) => {
+  const {
+    ChatInputComponent,
+    ChatInputAfterView,
+    ChatInputBeforeView,
+    ChatSendButtonAfterView,
+    ChatSendButtonBeforeView,
+    ChatSendButtonComponent,
+  } = useFpe((data) => {
     let components: {
-      ChatInputComponent: React.ComponentType;
-      ChatBeforeView: React.ComponentType;
-      ChatAfterView: React.ComponentType;
+      ChatInputComponent: React.ComponentType<ChatTextInputProps>;
+      ChatInputBeforeView: React.ComponentType;
+      ChatInputAfterView: React.ComponentType;
+      ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
+      ChatSendButtonBeforeView: React.ComponentType;
+      ChatSendButtonAfterView: React.ComponentType;
     } = {
       ChatInputComponent: ChatTextInput,
-      ChatAfterView: React.Fragment,
-      ChatBeforeView: React.Fragment,
+      ChatInputAfterView: React.Fragment,
+      ChatInputBeforeView: React.Fragment,
+      ChatSendButtonComponent: ChatSendButton,
+      ChatSendButtonBeforeView: React.Fragment,
+      ChatSendButtonAfterView: React.Fragment,
     };
     if (
       data?.components?.videoCall &&
@@ -125,6 +161,18 @@ const ChatInput = () => {
         }
 
         if (
+          data?.components?.videoCall?.chat?.chatSentButton &&
+          typeof data?.components?.videoCall?.chat?.chatSentButton !==
+            'object' &&
+          isValidReactComponent(
+            data?.components?.videoCall?.chat?.chatSentButton,
+          )
+        ) {
+          components.ChatSendButtonComponent =
+            data?.components?.videoCall?.chat?.chatSentButton;
+        }
+
+        if (
           data?.components?.videoCall?.chat?.chatInput &&
           typeof data?.components?.videoCall?.chat?.chatInput === 'object'
         ) {
@@ -134,7 +182,7 @@ const ChatInput = () => {
               data?.components?.videoCall?.chat?.chatInput?.after,
             )
           ) {
-            components.ChatAfterView =
+            components.ChatInputAfterView =
               data?.components?.videoCall?.chat?.chatInput?.after;
           }
           if (
@@ -143,8 +191,32 @@ const ChatInput = () => {
               data?.components?.videoCall?.chat?.chatInput?.before,
             )
           ) {
-            components.ChatBeforeView =
+            components.ChatInputBeforeView =
               data?.components?.videoCall?.chat?.chatInput?.before;
+          }
+        }
+
+        if (
+          data?.components?.videoCall?.chat?.chatSentButton &&
+          typeof data?.components?.videoCall?.chat?.chatSentButton === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatSentButton?.after &&
+            isValidReactComponent(
+              data?.components?.videoCall?.chat?.chatSentButton?.after,
+            )
+          ) {
+            components.ChatSendButtonAfterView =
+              data?.components?.videoCall?.chat?.chatSentButton?.after;
+          }
+          if (
+            data?.components?.videoCall?.chat?.chatSentButton?.before &&
+            isValidReactComponent(
+              data?.components?.videoCall?.chat?.chatSentButton?.before,
+            )
+          ) {
+            components.ChatSendButtonBeforeView =
+              data?.components?.videoCall?.chat?.chatSentButton?.before;
           }
         }
       }
@@ -155,11 +227,15 @@ const ChatInput = () => {
   return (
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
       <>
-        <ChatBeforeView />
+        <ChatInputBeforeView />
         <ChatInputComponent />
-        <ChatAfterView />
+        <ChatInputAfterView />
       </>
-      <ChatSendButton />
+      <>
+        <ChatSendButtonBeforeView />
+        <ChatSendButtonComponent />
+        <ChatSendButtonAfterView />
+      </>
     </View>
   );
 };

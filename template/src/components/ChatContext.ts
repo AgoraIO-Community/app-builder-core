@@ -13,7 +13,7 @@ import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {createContext, SetStateAction} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
 
-export interface chatBubbleProps {
+export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
   timestamp: string;

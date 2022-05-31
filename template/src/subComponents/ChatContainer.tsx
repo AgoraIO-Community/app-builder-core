@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext, {chatBubbleProps} from '../components/ChatContext';
+import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
@@ -46,7 +46,7 @@ const ChatContainer = (props: any) => {
   const {ChatBubbleComponent, ChatBubbleAfterView, ChatBubbleBeforeView} =
     useFpe((data) => {
       let components: {
-        ChatBubbleComponent: React.ComponentType<chatBubbleProps>;
+        ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
         ChatBubbleBeforeView: React.ComponentType;
         ChatBubbleAfterView: React.ComponentType;
       } = {

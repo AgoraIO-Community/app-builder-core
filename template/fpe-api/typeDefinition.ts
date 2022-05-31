@@ -10,11 +10,19 @@
 *********************************************
 */
 import React from 'react';
-export type {chatBubbleProps} from '../src/components/ChatContext';
-import {chatBubbleProps} from '../src/components/ChatContext';
+export type {ChatBubbleProps} from '../src/components/ChatContext';
+import {ChatBubbleProps} from '../src/components/ChatContext';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
+export type {
+  ChatTextInputProps,
+  ChatSendButtonProps,
+} from '../src/subComponents/ChatInput';
+import {
+  ChatTextInputProps,
+  ChatSendButtonProps,
+} from '../src/subComponents/ChatInput';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -33,8 +41,11 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   textBox?: React.ComponentType | BeforeAndAfterInterface;
 }
 export interface ChatCmpInterface extends BeforeAndAfterInterface {
-  chatBubble?: React.ComponentType<chatBubbleProps> | BeforeAndAfterInterface;
-  chatInput?: React.ComponentType | BeforeAndAfterInterface;
+  chatBubble?: React.ComponentType<ChatBubbleProps> | BeforeAndAfterInterface;
+  chatInput?: React.ComponentType<ChatTextInputProps> | BeforeAndAfterInterface;
+  chatSentButton?:
+    | React.ComponentType<ChatSendButtonProps>
+    | BeforeAndAfterInterface;
 }
 
 export interface renderComponentInterface {
