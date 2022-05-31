@@ -20,11 +20,6 @@ export interface chatBubbleProps {
   uid: string;
 }
 
-export interface chatInputProps {
-  privateActive: boolean;
-  selectedUserId?: string | number;
-}
-
 export interface messageStoreInterface {
   ts: string;
   uid: string;

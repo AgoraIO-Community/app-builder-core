@@ -9,26 +9,23 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, SetStateAction} from 'react';
+import React, {useContext} from 'react';
 import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
-import {chatInputProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
 import {useString} from '../utils/useString';
-import {UidInterface} from '../../agora-rn-uikit';
 import useSendMessage, {MESSAGE_TYPE} from '../utils/useSendMessage';
 import {isValidReactComponent} from '../utils/common';
 import {useFpe} from 'fpe-api';
+import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 
-export interface ChatSendButtonProps {
-  message: string;
-  selectedUserId?: UidInterface['uid'];
-  clearInputMessage?: React.Dispatch<SetStateAction<string>>;
-}
-
-export const ChatSendButton = (props: ChatSendButtonProps) => {
-  const {message, selectedUserId, clearInputMessage} = props;
+export const ChatSendButton = () => {
+  const {
+    selectedChatUserId: selectedUserId,
+    message,
+    setMessage,
+  } = useChatUIControl();
   const sendMessage = useSendMessage();
   return (
     <TouchableOpacity
@@ -36,10 +33,10 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
       onPress={() => {
         if (!selectedUserId) {
           sendMessage(MESSAGE_TYPE.group, message);
-          clearInputMessage && clearInputMessage('');
+          setMessage && setMessage('');
         } else {
           sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
-          clearInputMessage && clearInputMessage('');
+          setMessage && setMessage('');
         }
       }}>
       <Image
@@ -53,14 +50,12 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   );
 };
 
-export interface ChatTextInputProps {
-  message: string;
-  onChangeMessage: React.Dispatch<SetStateAction<string>>;
-  selectedUserId?: UidInterface['uid'];
-}
-
-const ChatTextInput = (props: ChatTextInputProps) => {
-  const {message, selectedUserId, onChangeMessage} = props;
+const ChatTextInput = () => {
+  const {
+    selectedChatUserId: selectedUserId,
+    message,
+    setMessage,
+  } = useChatUIControl();
   const sendMessage = useSendMessage();
   const chatMessageInputPlaceholder = useString(
     'chatMessageInputPlaceholder',
@@ -68,7 +63,7 @@ const ChatTextInput = (props: ChatTextInputProps) => {
   return (
     <TextInput
       value={message}
-      onChangeText={(text) => onChangeMessage(text)}
+      onChangeText={(text) => setMessage(text)}
       style={{
         borderRadius: 10,
         backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
@@ -84,10 +79,10 @@ const ChatTextInput = (props: ChatTextInputProps) => {
       onSubmitEditing={() => {
         if (!selectedUserId) {
           sendMessage(MESSAGE_TYPE.group, message);
-          onChangeMessage('');
+          setMessage('');
         } else {
           sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
-          onChangeMessage('');
+          setMessage('');
         }
       }}
       placeholder={chatMessageInputPlaceholder}
@@ -100,13 +95,11 @@ const ChatTextInput = (props: ChatTextInputProps) => {
 /**
  * Input component for the Chat interface
  */
-const ChatInput = (props: chatInputProps) => {
+const ChatInput = () => {
   const {primaryColor} = useContext(ColorContext);
-  const [message, onChangeMessage] = useState('');
-  const {selectedUserId} = props;
   const {ChatInputComponent, ChatAfterView, ChatBeforeView} = useFpe((data) => {
     let components: {
-      ChatInputComponent: React.ComponentType<ChatTextInputProps>;
+      ChatInputComponent: React.ComponentType;
       ChatBeforeView: React.ComponentType;
       ChatAfterView: React.ComponentType;
     } = {
@@ -163,18 +156,10 @@ const ChatInput = (props: chatInputProps) => {
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
       <>
         <ChatBeforeView />
-        <ChatInputComponent
-          message={message}
-          onChangeMessage={onChangeMessage}
-          selectedUserId={selectedUserId}
-        />
+        <ChatInputComponent />
         <ChatAfterView />
       </>
-      <ChatSendButton
-        message={message}
-        clearInputMessage={onChangeMessage}
-        selectedUserId={selectedUserId}
-      />
+      <ChatSendButton />
     </View>
   );
 };

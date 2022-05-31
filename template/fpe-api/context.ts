@@ -38,3 +38,5 @@ export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
 export {useMeetingInfo} from '../src/components/meeting-info/useMeetingInfo';
 export type {MeetingInfoContextInterface} from '../src/components/meeting-info/useMeetingInfo';
+export {useChatUIControl} from '../src/components/chat-ui/useChatUIControl';
+export type {ChatUIControlInterface} from '../src/components/chat-ui/useChatUIControl';

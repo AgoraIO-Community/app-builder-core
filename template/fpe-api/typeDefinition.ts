@@ -12,8 +12,6 @@
 import React from 'react';
 export type {chatBubbleProps} from '../src/components/ChatContext';
 import {chatBubbleProps} from '../src/components/ChatContext';
-export type {ChatTextInputProps} from '../src/subComponents/ChatInput';
-import {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {UidInterface} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
@@ -36,7 +34,7 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
 }
 export interface ChatCmpInterface extends BeforeAndAfterInterface {
   chatBubble?: React.ComponentType<chatBubbleProps> | BeforeAndAfterInterface;
-  chatInput?: React.ComponentType<ChatTextInputProps> | BeforeAndAfterInterface;
+  chatInput?: React.ComponentType | BeforeAndAfterInterface;
 }
 
 export interface renderComponentInterface {

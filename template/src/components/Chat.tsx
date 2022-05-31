@@ -16,13 +16,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  useWindowDimensions,
 } from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
-import chatContext from './ChatContext';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
 import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
@@ -32,8 +30,6 @@ import {useFpe} from 'fpe-api';
 const Chat = () => {
   const groupChatLabel = useString('groupChatLabel')();
   const privateChatLabel = useString('privateChatLabel')();
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const {height, width} = useWindowDimensions();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -41,14 +37,11 @@ const Chat = () => {
   ]);
   const isSmall = dim[0] < 700;
 
-  const {userList} = useContext(chatContext);
-
   const {
     groupActive,
     setGroupActive,
     privateActive,
     setPrivateActive,
-    selectedChatUserId: selectedUserID,
     setSelectedChatUserId: setSelectedUser,
   } = useChatUIControl();
   const {
@@ -189,7 +182,7 @@ const Chat = () => {
             <View>
               <View style={style.chatInputContainer}>
                 <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
-                <ChatInput privateActive={privateActive} />
+                <ChatInput />
               </View>
             </View>
           </>
@@ -199,17 +192,7 @@ const Chat = () => {
               <ChatParticipants selectUser={selectUser} />
             ) : (
               <>
-                <ChatContainer
-                  selectPrivate={selectPrivate}
-                  privateActive={privateActive}
-                  setPrivateActive={setPrivateActive}
-                  selectedUserID={selectedUserID}
-                  selectedUsername={
-                    userList[selectedUserID]
-                      ? userList[selectedUserID]?.name + ' '
-                      : remoteUserDefaultLabel + ' '
-                  }
-                />
+                <ChatContainer selectPrivate={selectPrivate} />
                 <View
                   style={[style.chatInputLineSeparator, {marginBottom: 0}]}
                 />
@@ -218,10 +201,7 @@ const Chat = () => {
                     <View
                       style={[style.chatInputLineSeparator, {opacity: 0.3}]}
                     />
-                    <ChatInput
-                      privateActive={privateActive}
-                      selectedUserId={selectedUserID}
-                    />
+                    <ChatInput />
                   </View>
                 </View>
               </>

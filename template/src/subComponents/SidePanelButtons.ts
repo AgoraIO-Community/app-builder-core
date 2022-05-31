@@ -1,4 +1,4 @@
-import {ChatSendButton, ChatSendButtonProps} from './ChatInput';
+import {ChatSendButton} from './ChatInput';
 import {
   RemoteLiveStreamApprovedRequestRecall,
   RemoteLiveStreamRequestApprove,
@@ -21,7 +21,7 @@ export const SidePanelButtonsArray: [
   (props: RemoteLiveStreamApprovedRequestRecallProps) => JSX.Element,
   (props: RemoteLiveStreamControlInterface) => JSX.Element,
   (props: RemoteLiveStreamControlInterface) => JSX.Element,
-  (props: ChatSendButtonProps) => JSX.Element,
+  () => JSX.Element,
   () => JSX.Element,
   () => JSX.Element,
 ] = [
