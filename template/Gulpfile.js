@@ -21,6 +21,7 @@ const concat = require('gulp-concat');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
+const webpackRsdkConfig = require('./webpack.rsdk.config');
 
 const BUILD_PATH =
   process.env.TARGET === 'wsdk'
@@ -82,14 +83,25 @@ const general = {
       //   prebuilt: true,
       // },
     };
+
+    // Target specific changes
+
     if (process.env.TARGET === 'rsdk') {
       newPackage.main = 'index.js';
       newPackage.types = 'index.d.ts';
+
+      // Takes externals from the webpack config and applies them
+      // to react-sdk package as dependencies
+      newPackage.peerDependencies = Object.keys(dependencies)
+        .filter((key) => Object.keys(webpackRsdkConfig.externals).includes(key))
+        .reduce((res, key) => ((res[key] = `^${dependencies[key].split('.')[0]}`), res), {});
     }
+
     if (process.env.TARGET === 'wsdk') {
       newPackage.main = 'app-builder-web-sdk.umd2.js';
       newPackage.types = 'index.d.ts';
     }
+
     await fs.writeFile(
       path.join(BUILD_PATH, 'package.json'),
       JSON.stringify(newPackage, null, 2),
