@@ -3,7 +3,7 @@ import {FpeApiInterface} from 'fpe-api';
 import {SDKEvents} from './src/utils/SdkEvents';
 import {installFPE as createFPE} from 'fpe-api/install';
 import SDKAppWrapper from './src/SDKAppWrapper';
-export * as FpeApi from 'fpe-api';
+export * from 'fpe-api';
 
 interface AppBuilderMethodsInterface {
   addFPE: (fpe: FpeApiInterface) => void;

@@ -17,6 +17,7 @@ const del = require('del');
 const config = require('./config.json');
 const replace = require('gulp-replace');
 const concat = require('gulp-concat');
+const header = require('gulp-header');
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -91,10 +92,13 @@ const general = {
       newPackage.types = 'index.d.ts';
 
       // Takes externals from the webpack config and applies them
-      // to react-sdk package as dependencies
+      // to react-sdk package as peer dependencies
       newPackage.peerDependencies = Object.keys(dependencies)
         .filter((key) => Object.keys(webpackRsdkConfig.externals).includes(key))
-        .reduce((res, key) => ((res[key] = `^${dependencies[key].split('.')[0]}`), res), {});
+        .reduce((peerDependencies, key) => {
+          peerDependencies[key] = `^${dependencies[key].split('.')[0]}`;
+          return peerDependencies;
+        }, {});
     }
 
     if (process.env.TARGET === 'wsdk') {
@@ -180,6 +184,7 @@ const reactSdk = {
       )
       .pipe(replace("'fpe-api'", "'fpe-api/index'"))
       .pipe(replace('"fpe-api"', '"fpe-api/index"'))
+      .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -205,6 +210,7 @@ const webSdk = {
       )
       .pipe(replace("'fpe-api'", "'fpe-api/index'"))
       .pipe(replace('"fpe-api"', '"fpe-api/index"'))
+      .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
   },
 };
@@ -271,12 +277,6 @@ module.exports.reactSdk = series(
   general.typescriptClean,
 );
 
-module.exports.test = series(
-  reactSdk.typescript,
-  general.typescript,
-  webSdk.typescript,
-);
-
 // web-sdk
 module.exports.webSdk = series(
   general.clean,
@@ -306,4 +306,13 @@ module.exports.androidWin = series(
   general.createBuildDirectory,
   android.gradleBuildWin,
   android.copyBuild,
+);
+
+module.exports.test = series(
+  general.typescript,
+  general.typescriptFix,
+  reactSdk.typescript,
+  reactSdk.typescriptFix,
+  // webSdk.typescript,
+  // webSdk.typescriptFix,
 );

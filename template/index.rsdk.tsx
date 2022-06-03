@@ -17,7 +17,7 @@ import {installFPE as createFPE} from 'fpe-api/install';
 import {SDKEvents} from './src/utils/SdkEvents';
 import SDKAppWrapper from './src/SDKAppWrapper';
 import React from 'react';
-export * as FpeApi from 'fpe-api';
+export * from 'fpe-api';
 
 interface AppBuilderMethodsInterface {
   View: React.FC;
