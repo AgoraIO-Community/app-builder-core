@@ -29,6 +29,11 @@ import {useString} from '../utils/useString';
  */
 export interface LocalAudioMuteProps {
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isAudioEnabled: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -39,11 +44,14 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
 
+  const onPress = () => {
+    localMute(MUTE_LOCAL_TYPE.audio);
+  };
+  const isAudioEnabled = local.audio === ToggleState.enabled;
+
   let btnTemplateProps: BtnTemplateInterface = {
-    onPress: () => {
-      localMute(MUTE_LOCAL_TYPE.audio);
-    },
-    name: local.audio === ToggleState.enabled ? 'mic' : 'micOff',
+    onPress: onPress,
+    name: isAudioEnabled ? 'mic' : 'micOff',
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
@@ -53,7 +61,11 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     btnTemplateProps.btnText = audioLabel;
   }
 
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, isAudioEnabled, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 }
 
 export default LocalAudioMute;

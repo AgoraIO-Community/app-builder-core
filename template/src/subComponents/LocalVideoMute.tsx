@@ -29,6 +29,11 @@ import {useString} from '../utils/useString';
  */
 export interface LocalVideoMuteProps {
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isVideoEnabled: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -37,12 +42,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const videoLabel = useString('toggleVideoButton')();
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
-
+  const onPress = () => {
+    localMute(MUTE_LOCAL_TYPE.video);
+  };
+  const isVideoEnabled = local.video === ToggleState.enabled;
   let btnTemplateProps: BtnTemplateInterface = {
-    onPress: () => {
-      localMute(MUTE_LOCAL_TYPE.video);
-    },
-    name: local.video === ToggleState.enabled ? 'videocam' : 'videocamOff',
+    onPress: onPress,
+    name: isVideoEnabled ? 'videocam' : 'videocamOff',
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
@@ -52,7 +58,11 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     btnTemplateProps.btnText = videoLabel;
   }
 
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, isVideoEnabled, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 }
 
 export default LocalVideoMute;

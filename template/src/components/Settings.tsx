@@ -24,6 +24,11 @@ import Styles from './styles';
 
 export interface SettingsIconButtonProps {
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isPanelActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const Settings = (props: SettingsIconButtonProps) => {
@@ -32,13 +37,15 @@ const Settings = (props: SettingsIconButtonProps) => {
   const settingsLabel = useString('settingsLabel')();
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+  const isPanelActive = sidePanel === SidePanelType.Settings;
+  const onPress = () => {
+    isPanelActive
+      ? setSidePanel(SidePanelType.None)
+      : setSidePanel(SidePanelType.Settings);
+  };
   let btnTemplateProps: BtnTemplateInterface = {
-    onPress: () => {
-      sidePanel === SidePanelType.Settings
-        ? setSidePanel(SidePanelType.None)
-        : setSidePanel(SidePanelType.Settings);
-    },
-    name: sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings',
+    onPress: onPress,
+    name: isPanelActive ? 'settingsFilled' : 'settings',
   };
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
     btnTemplateProps.btnText = settingsLabel;
@@ -49,7 +56,11 @@ const Settings = (props: SettingsIconButtonProps) => {
       {borderColor: primaryColor},
     ];
   }
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, isPanelActive, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 };
 
 export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {

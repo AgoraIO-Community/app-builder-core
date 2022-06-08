@@ -13,6 +13,10 @@ import {useString} from '../utils/useString';
 
 export interface LocalEndcallProps {
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const LocalEndcall = (props: LocalEndcallProps) => {
@@ -20,15 +24,15 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const endCallLabel = useString('endCallButton')();
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
-
+  const onPress = () =>
+    dispatch({
+      type: 'EndCall',
+      value: [],
+    });
   let btnTemplateProps: BtnTemplateInterface = {
     name: 'callEnd',
     color: '#FD0845',
-    onPress: () =>
-      dispatch({
-        type: 'EndCall',
-        value: [],
-      }),
+    onPress: onPress,
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
@@ -37,6 +41,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     btnTemplateProps.btnText = endCallLabel;
     btnTemplateProps.style = Styles.endCall as Object;
   }
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 };
 export default LocalEndcall;

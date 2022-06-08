@@ -37,10 +37,21 @@ const useSelectDevice = (): [boolean, string] => {
   return [isPickerDisabled, btnTheme];
 };
 
-const SelectVideoDevice = () => {
+interface SelectVideoDeviceProps {
+  render?: (
+    selectedCam: string,
+    setSelectedCam: (cam: string) => void,
+    deviceList: MediaDeviceInfo[],
+    isDisabled: boolean,
+  ) => JSX.Element;
+}
+
+const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
-  return (
+  return props?.render ? (
+    props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
+  ) : (
     <Picker
       enabled={!isPickerDisabled}
       selectedValue={selectedCam}
@@ -61,10 +72,21 @@ const SelectVideoDevice = () => {
   );
 };
 
-const SelectAudioDevice = () => {
+interface SelectAudioDeviceProps {
+  render?: (
+    selectedMic: string,
+    setSelectedMic: (mic: string) => void,
+    deviceList: MediaDeviceInfo[],
+    isDisabled: boolean,
+  ) => JSX.Element;
+}
+
+const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
-  return (
+  return props?.render ? (
+    props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
+  ) : (
     <Picker
       enabled={!isPickerDisabled}
       selectedValue={selectedMic}
@@ -104,10 +126,11 @@ const SelectDevice = () => {
     </View>
   );
 };
-export const SelectDeviceComponentsArray = [
-  SelectVideoDevice,
-  SelectAudioDevice,
-];
+export const SelectDeviceComponentsArray: [
+  (props: SelectVideoDeviceProps) => JSX.Element,
+  (props: SelectAudioDeviceProps) => JSX.Element,
+] = [SelectVideoDevice, SelectAudioDevice];
+
 const style = StyleSheet.create({
   popupPicker: {
     height: 30,

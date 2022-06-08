@@ -86,6 +86,11 @@ interface ParticipantsIconButtonInterface {
     bottom?: number;
   };
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isPanelActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   const {
@@ -102,18 +107,17 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   const participantsLabel = useString('participantsLabel')();
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+  const isPanelActive = sidePanel === SidePanelType.Participants;
+  const onPress = () => {
+    isPanelActive
+      ? setSidePanel(SidePanelType.None)
+      : setSidePanel(SidePanelType.Participants);
+    $config.EVENT_MODE && $config.RAISE_HAND;
+    setLastCheckedRequestTimestamp(new Date().getTime());
+  };
   let btnTemplateProps: BtnTemplateInterface = {
-    onPress: () => {
-      sidePanel === SidePanelType.Participants
-        ? setSidePanel(SidePanelType.None)
-        : setSidePanel(SidePanelType.Participants);
-      $config.EVENT_MODE && $config.RAISE_HAND;
-      setLastCheckedRequestTimestamp(new Date().getTime());
-    },
-    name:
-      sidePanel === SidePanelType.Participants
-        ? 'participantFilledIcon'
-        : 'participantIcon',
+    onPress: onPress,
+    name: isPanelActive ? 'participantFilledIcon' : 'participantIcon',
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -122,7 +126,9 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   } else {
     btnTemplateProps.style = style.btnHolder;
   }
-  return (
+  return props?.render ? (
+    props.render(onPress, isPanelActive, buttonTemplateName)
+  ) : (
     <>
       <BtnTemplate {...btnTemplateProps} />
       {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
@@ -155,6 +161,12 @@ interface ChatIconButtonInterface {
   };
   badgeTextStyle?: TextStyle;
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isPanelActive: boolean,
+    totalUnreadCount: number,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const ChatIconButton = (props: ChatIconButtonInterface) => {
@@ -177,20 +189,22 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   const chatLabel = useString('chatLabel')();
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+  const isPanelActive = sidePanel === SidePanelType.Chat;
+  const onPress = () => {
+    if (isPanelActive) {
+      setSidePanel(SidePanelType.None);
+      setGroupActive(false);
+      setPrivateActive(false);
+      setSelectedChatUserId('');
+    } else {
+      setUnreadGroupMessageCount(0);
+      setGroupActive(true);
+      setSidePanel(SidePanelType.Chat);
+    }
+  };
   let btnTemplateProps: BtnTemplateInterface = {
-    onPress: () => {
-      if (sidePanel === SidePanelType.Chat) {
-        setSidePanel(SidePanelType.None);
-        setGroupActive(false);
-        setPrivateActive(false);
-        setSelectedChatUserId('');
-      } else {
-        setUnreadGroupMessageCount(0);
-        setGroupActive(true);
-        setSidePanel(SidePanelType.Chat);
-      }
-    },
-    name: sidePanel === SidePanelType.Chat ? 'chatIconFilled' : 'chatIcon',
+    onPress: onPress,
+    name: isPanelActive ? 'chatIconFilled' : 'chatIcon',
   };
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
     btnTemplateProps.btnText = chatLabel;
@@ -219,7 +233,9 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
       </View>
     );
   };
-  return (
+  return props?.render ? (
+    props.render(onPress, isPanelActive, totalUnreadCount, buttonTemplateName)
+  ) : (
     <>
       <BtnTemplate {...btnTemplateProps} />
       {sidePanel !== SidePanelType.Chat &&
@@ -237,6 +253,10 @@ interface LayoutIconButtonInterface {
     bottom?: number;
   };
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
@@ -271,7 +291,9 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       btnTemplateProps.style = style.btnHolder;
     }
     renderContent.push(
-      layouts[layout]?.iconName ? (
+      props?.render ? (
+        props.render(onPress, buttonTemplateName)
+      ) : layouts[layout]?.iconName ? (
         <BtnTemplate
           key={'defaultLayoutIconWithName'}
           name={layouts[layout]?.iconName}

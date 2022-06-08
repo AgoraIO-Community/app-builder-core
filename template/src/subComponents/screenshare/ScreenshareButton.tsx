@@ -26,6 +26,11 @@ import {
 
 export interface ScreenshareButtonProps {
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isScreenshareActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
@@ -33,10 +38,10 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const screenShareButton = useString('screenShareButton')();
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
-
+  const onPress = () => startUserScreenshare();
   let btnTemplateProps: BtnTemplateInterface = {
     name: isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon',
-    onPress: () => startUserScreenshare(),
+    onPress,
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
@@ -50,7 +55,11 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
       : style.localButton;
   }
 
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, isScreenshareActive, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 };
 
 const style = StyleSheet.create({

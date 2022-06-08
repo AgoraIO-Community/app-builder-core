@@ -23,8 +23,8 @@ import {isValidReactComponent} from '../../utils/common';
 
 export interface PreCallJoinCallBtnProps {
   render?: (
-    title: string,
     onPress: () => void,
+    title: string,
     disabled: boolean,
   ) => JSX.Element;
 }
@@ -99,7 +99,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const onPress = () => setCallActive(true);
   const disabled = !isJoinDataFetched || username === '';
   return props?.render ? (
-    props.render(title, onPress, disabled)
+    props.render(onPress, title, disabled)
   ) : (
     <>
       <JoinButtonBeforeView />

@@ -21,6 +21,11 @@ import Styles from '../components/styles';
 
 export interface RecordingButtonProps {
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isRecordingActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const Recording = (props: RecordingButtonProps) => {
@@ -28,15 +33,16 @@ const Recording = (props: RecordingButtonProps) => {
   const recordingButton = useString<boolean>('recordingButton');
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+  const onPress = () => {
+    if (!isRecordingActive) {
+      startRecording && startRecording();
+    } else {
+      stopRecording && stopRecording();
+    }
+  };
   let btnTemplateProps: BtnTemplateInterface = {
     name: isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon',
-    onPress: () => {
-      if (!isRecordingActive) {
-        startRecording && startRecording();
-      } else {
-        stopRecording && stopRecording();
-      }
-    },
+    onPress,
     color: isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
   };
 
@@ -47,7 +53,11 @@ const Recording = (props: RecordingButtonProps) => {
     btnTemplateProps.style = Styles.localButton as Object;
   }
 
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, isRecordingActive, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 };
 
 export default Recording;

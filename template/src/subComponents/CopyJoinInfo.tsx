@@ -24,9 +24,14 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import Styles from '../components/styles';
+
 export interface CopyJoinInfoProps {
   showText?: boolean;
   buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
@@ -40,9 +45,10 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     getMeeting(phrase);
   }, [phrase]);
 
+  const onPress = () =>
+    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
   let btnTemplateProps: BtnTemplateInterface = {
-    onPress: () =>
-      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE),
+    onPress: onPress,
     name: 'clipboard',
   };
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -54,7 +60,11 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
   }
 
-  return <BtnTemplate {...btnTemplateProps} />;
+  return props?.render ? (
+    props.render(onPress, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
 };
 
 const style = StyleSheet.create({
