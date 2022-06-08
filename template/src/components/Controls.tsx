@@ -11,28 +11,30 @@
 */
 import React, {useState, useContext} from 'react';
 import {View, Dimensions, StyleSheet} from 'react-native';
-import {
-  LocalAudioMute,
-  LocalVideoMute,
-  Endcall,
-  PropsContext,
+import {PropsContext} from '../../agora-rn-uikit';
+import LocalAudioMute, {
   LocalAudioMuteProps,
+} from '../subComponents/LocalAudioMute';
+import LocalVideoMute, {
   LocalVideoMuteProps,
-  EndCallProps,
-} from '../../agora-rn-uikit';
-import Recording from '../subComponents/Recording';
-import SwitchCamera from '../subComponents/SwitchCamera';
-import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
+} from '../subComponents/LocalVideoMute';
+import Recording, {RecordingButtonProps} from '../subComponents/Recording';
+import LocalSwitchCamera, {
+  LocalSwitchCameraProps,
+} from '../subComponents/LocalSwitchCamera';
+import ScreenshareButton, {
+  ScreenshareButtonProps,
+} from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {useString} from '../utils/useString';
 import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useFpe} from 'fpe-api';
+import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -47,10 +49,6 @@ const Controls = () => {
   ]);
   const isDesktop = dim[0] > 1224;
   const {isHost} = useMeetingInfo();
-
-  const audioLabel = useString('toggleAudioButton')();
-  const videoLabel = useString('toggleVideoButton')();
-  const endCallButton = useString('endCallButton')();
 
   const {ControlsAfterView, ControlsBeforeView} = useFpe((data) => {
     let components: {
@@ -116,14 +114,14 @@ const Controls = () => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={audioLabel} />
+              <LocalAudioMute />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={videoLabel} />
+              <LocalVideoMute />
             </View>
             {isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
-                <SwitchCamera />
+                <LocalSwitchCamera />
               </View>
             )}
             {$config.SCREEN_SHARING && !isMobileOrTablet() && (
@@ -139,7 +137,7 @@ const Controls = () => {
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={endCallButton} />
+          <LocalEndcall />
         </View>
       </View>
       <ControlsAfterView />
@@ -150,18 +148,18 @@ const Controls = () => {
 export const ControlsComponentsArray: [
   (props: LocalAudioMuteProps) => JSX.Element,
   (props: LocalVideoMuteProps) => JSX.Element,
-  () => JSX.Element,
-  () => JSX.Element,
-  () => JSX.Element,
-  (props?: EndCallProps) => JSX.Element,
+  (props: LocalSwitchCameraProps) => JSX.Element,
+  (props: ScreenshareButtonProps) => JSX.Element,
+  (props: RecordingButtonProps) => JSX.Element,
+  (props: LocalEndcallProps) => JSX.Element,
   (props: LiveStreamControlsProps) => JSX.Element,
 ] = [
   LocalAudioMute,
   LocalVideoMute,
-  SwitchCamera,
+  LocalSwitchCamera,
   ScreenshareButton,
   Recording,
-  Endcall,
+  LocalEndcall,
   LiveStreamControls,
 ];
 

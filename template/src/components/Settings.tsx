@@ -13,32 +13,49 @@ import React, {useContext} from 'react';
 import {StyleSheet, View} from 'react-native';
 import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import {useString} from '../utils/useString';
+import Styles from './styles';
 
-const Settings = () => {
+export interface SettingsIconButtonProps {
+  buttonTemplateName?: ButtonTemplateName;
+}
+
+const Settings = (props: SettingsIconButtonProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {sidePanel, setSidePanel} = useSidePanel();
-
-  return (
-    <BtnTemplate
-      style={[style.localButtonWithMatchingStyle, {borderColor: primaryColor}]}
-      onPress={() => {
-        sidePanel === SidePanelType.Settings
-          ? setSidePanel(SidePanelType.None)
-          : setSidePanel(SidePanelType.Settings);
-      }}
-      name={
-        sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings'
-      }
-    />
-  );
+  const settingsLabel = useString('settingsLabel')();
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: () => {
+      sidePanel === SidePanelType.Settings
+        ? setSidePanel(SidePanelType.None)
+        : setSidePanel(SidePanelType.Settings);
+    },
+    name: sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings',
+  };
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = settingsLabel;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.style = [
+      style.localButtonWithMatchingStyle,
+      {borderColor: primaryColor},
+    ];
+  }
+  return <BtnTemplate {...btnTemplateProps} />;
 };
 
-export const SettingsWithViewWrapper = () => {
+export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
   return (
     <View style={[style.navItem, style.navSmItem]}>
-      <Settings />
+      <Settings {...props} />
     </View>
   );
 };

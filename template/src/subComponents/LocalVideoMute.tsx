@@ -10,43 +10,49 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {RtcContext} from '../../agora-rn-uikit';
-import {LocalContext} from '../../agora-rn-uikit';
-import {Image, StyleSheet, TouchableOpacity} from 'react-native';
-import icons from '../assets/icons';
-import ColorContext from '../components/ColorContext';
+import {
+  BtnTemplate,
+  ToggleState,
+  LocalContext,
+  BtnTemplateInterface,
+} from '../../agora-rn-uikit';
+import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
+import Styles from '../components/styles';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import {useString} from '../utils/useString';
 
 /**
  * A component to mute / unmute the local video
  */
-function LocalVideoMute() {
-  const {primaryColor} = useContext(ColorContext);
-  const {dispatch} = useContext(RtcContext);
-  const local = useContext(LocalContext);
-
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [local.video],
-        });
-      }}>
-      <Image
-        style={[styles.icon, {tintColor: primaryColor}]}
-        source={{uri: local.video ? icons.videocam : icons.videocamOff}}
-      />
-    </TouchableOpacity>
-  );
+export interface LocalVideoMuteProps {
+  buttonTemplateName?: ButtonTemplateName;
 }
 
-const styles = StyleSheet.create({
-  icon: {
-    width: 25,
-    height: 22,
-    marginHorizontal: 3,
-    tintColor: $config.PRIMARY_COLOR,
-  },
-});
+function LocalVideoMute(props: LocalVideoMuteProps) {
+  const local = useContext(LocalContext);
+  const localMute = useMuteToggleLocal();
+  const videoLabel = useString('toggleVideoButton')();
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: () => {
+      localMute(MUTE_LOCAL_TYPE.video);
+    },
+    name: local.video === ToggleState.enabled ? 'videocam' : 'videocamOff',
+  };
+
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
+    btnTemplateProps.style = Styles.fullWidthButton as Object;
+  } else {
+    btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.btnText = videoLabel;
+  }
+
+  return <BtnTemplate {...btnTemplateProps} />;
+}
 
 export default LocalVideoMute;

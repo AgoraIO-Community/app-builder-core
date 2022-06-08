@@ -11,11 +11,6 @@
 */
 
 import PreCallLocalMute, {PreCallLocalMuteComponentsArray} from './LocalMute';
-import {
-  LocalAudioMute as PreCallAudioMute,
-  LocalVideoMute as PreCallVideoMute,
-  SwitchCamera as PreCallSwitchCamera,
-} from '../../../agora-rn-uikit';
 import PreCallVideoPreview from './VideoPreview';
 import PreCallSelectDevice from './selectDevice';
 import PreCallJoinBtn, {PreCallJoinCallBtnProps} from './joinCallBtn';
@@ -29,8 +24,5 @@ export {
   PreCallJoinBtn,
   PreCallTextInput,
   PreCallMeetingTitle,
-  PreCallAudioMute,
-  PreCallVideoMute,
-  PreCallSwitchCamera,
 };
 export type {PreCallJoinCallBtnProps};

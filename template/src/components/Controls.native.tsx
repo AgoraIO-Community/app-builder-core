@@ -11,33 +11,32 @@
 */
 import React, {useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {
-  LocalAudioMute,
-  LocalVideoMute,
-  SwitchCamera,
-  Endcall,
-  PropsContext,
-  ClientRole,
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import LocalAudioMute, {
   LocalAudioMuteProps,
+} from '../subComponents/LocalAudioMute';
+import LocalVideoMute, {
   LocalVideoMuteProps,
-  EndCallProps,
-} from '../../agora-rn-uikit';
-import Recording from '../subComponents/Recording';
+} from '../subComponents/LocalVideoMute';
+import Recording, {RecordingButtonProps} from '../subComponents/Recording';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
+import ScreenshareButton, {
+  ScreenshareButtonProps,
+} from '../subComponents/screenshare/ScreenshareButton';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent} from '../utils/common';
+import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
+import LocalSwitchCamera, {
+  LocalSwitchCameraProps,
+} from '../subComponents/LocalSwitchCamera';
+
 const Controls = () => {
   const {isHost} = useMeetingInfo();
   const {rtcProps} = useContext(PropsContext);
-  const audioLabel = useString('toggleAudioButton')();
-  const videoLabel = useString('toggleVideoButton')();
-  const switchCameraButtonText = useString('switchCameraButton')();
-  const endCallButton = useString('endCallButton')();
+
   const {ControlsAfterView, ControlsBeforeView} = useFpe((data) => {
     let components: {
       ControlsAfterView: React.ComponentType;
@@ -93,10 +92,10 @@ const Controls = () => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute btnText={audioLabel} />
+              <LocalAudioMute />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute btnText={videoLabel} />
+              <LocalVideoMute />
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
@@ -104,12 +103,12 @@ const Controls = () => {
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
-              <SwitchCamera btnText={switchCameraButtonText} />
+              <LocalSwitchCamera />
             </View>
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall btnText={endCallButton} />
+          <LocalEndcall />
         </View>
       </View>
       <ControlsAfterView />
@@ -119,18 +118,18 @@ const Controls = () => {
 export const ControlsComponentsArray: [
   (props: LocalAudioMuteProps) => JSX.Element,
   (props: LocalVideoMuteProps) => JSX.Element,
-  () => JSX.Element,
-  () => JSX.Element,
-  () => JSX.Element,
-  (props?: EndCallProps) => JSX.Element,
+  (props: LocalSwitchCameraProps) => JSX.Element,
+  (props: ScreenshareButtonProps) => JSX.Element,
+  (props: RecordingButtonProps) => JSX.Element,
+  (props: LocalEndcallProps) => JSX.Element,
   (props: LiveStreamControlsProps) => JSX.Element,
 ] = [
   LocalAudioMute,
   LocalVideoMute,
-  SwitchCamera,
+  LocalSwitchCamera,
   ScreenshareButton,
   Recording,
-  Endcall,
+  LocalEndcall,
   LiveStreamControls,
 ];
 const style = StyleSheet.create({
