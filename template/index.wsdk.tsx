@@ -1,21 +1,11 @@
 import {AppRegistry} from 'react-native';
-import {FpeApiInterface} from 'fpe-api';
-import {SDKEvents} from './src/utils/SdkEvents';
-import {installFPE as createFPE} from 'fpe-api/install';
-import SDKAppWrapper from './src/SDKAppWrapper';
+import SDKAppWrapper,{AppBuilderSdkApi,AppBuilderSdkApiInterface} from './src/SDKAppWrapper';
 export * from 'fpe-api';
 
-interface AppBuilderMethodsInterface {
-  addFPE: (fpe: FpeApiInterface) => void;
-  createFPE: (fpe: FpeApiInterface) => FpeApiInterface;
+interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {
 }
 
-const AppBuilderMethods: AppBuilderMethodsInterface = {
-  addFPE: (fpeConfig: FpeApiInterface) => {
-    SDKEvents.emit('addFpe', fpeConfig);
-  },
-  createFPE,
-};
+const AppBuilderWebSdkApi: AppBuilderWebSdkInterface = AppBuilderSdkApi;
 
 // init code
 class AppBuilder extends HTMLElement {
@@ -34,4 +24,4 @@ class AppBuilder extends HTMLElement {
 
 customElements.define('app-builder', AppBuilder);
 
-export default AppBuilderMethods;
+export default AppBuilderWebSdkApi;

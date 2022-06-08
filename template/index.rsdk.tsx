@@ -12,25 +12,16 @@
 /**
  * @format
  */
-import {FpeApiInterface} from 'fpe-api';
-import {installFPE as createFPE} from 'fpe-api/install';
-import {SDKEvents} from './src/utils/SdkEvents';
-import SDKAppWrapper from './src/SDKAppWrapper';
+import SDKAppWrapper,{AppBuilderSdkApi,AppBuilderSdkApiInterface} from './src/SDKAppWrapper';
 import React from 'react';
 export * from 'fpe-api';
 
-interface AppBuilderMethodsInterface {
+interface AppBuilderReactSdkInterface extends AppBuilderSdkApiInterface {
   View: React.FC;
-  addFPE: (fpe: FpeApiInterface) => void;
-  createFPE: (fpe: FpeApiInterface) => FpeApiInterface;
 }
 
-const AppBuilderMethods: AppBuilderMethodsInterface = {
-  View: SDKAppWrapper,
-  addFPE: (fpeConfig: FpeApiInterface) => {
-    SDKEvents.emit('addFpe', fpeConfig);
-  },
-  createFPE,
-};
-
-export default AppBuilderMethods;
+const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
+    ...AppBuilderSdkApi,
+    View: SDKAppWrapper,
+  }
+export default AppBuilderReactSdkApi;
