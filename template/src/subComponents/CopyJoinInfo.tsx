@@ -12,35 +12,49 @@
 import React, {useEffect} from 'react';
 import {StyleSheet} from 'react-native';
 import {useParams} from '../components/Router';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
 import {
   SHARE_LINK_CONTENT_TYPE,
   useShareLink,
 } from '../components/useShareLink';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import Styles from '../components/styles';
+export interface CopyJoinInfoProps {
+  showText?: boolean;
+  buttonTemplateName?: ButtonTemplateName;
+}
 
-const CopyJoinInfo = (props: {showText?: boolean}) => {
+const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {phrase} = useParams<{phrase: string}>();
   const getMeeting = useGetMeetingPhrase();
   const {copyShareLinkToClipboard} = useShareLink();
   const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
-
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
   useEffect(() => {
     getMeeting(phrase);
   }, [phrase]);
 
-  return (
-    <BtnTemplate
-      style={style.backButton}
-      onPress={() =>
-        copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-      }
-      name={'clipboard'}
-      btnText={props.showText ? copyMeetingInviteButton : ''}
-      color={$config.PRIMARY_FONT_COLOR}
-    />
-  );
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: () =>
+      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE),
+    name: 'clipboard',
+  };
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = copyMeetingInviteButton;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.color = $config.PRIMARY_FONT_COLOR;
+    btnTemplateProps.style = style.backButton;
+    btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
+  }
+
+  return <BtnTemplate {...btnTemplateProps} />;
 };
 
 const style = StyleSheet.create({

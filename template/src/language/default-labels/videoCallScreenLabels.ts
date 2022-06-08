@@ -73,6 +73,9 @@ export interface I18nVideoCallScreenLabelsInterface {
   raiseHandRevokedLocalNotification?: I18nBaseType; //
   recordingLabel?: I18nBaseType;
   settingScreenInfoMessage?: I18nBaseType;
+  chatLabel?: I18nBaseType;
+  settingsLabel?: I18nBaseType;
+  layoutLabel?: I18nBaseType;
 }
 
 export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
@@ -112,6 +115,9 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   audienceLabel: 'Audience',
   noUserFoundLabel: 'User not found',
   userOfflineLabel: 'User is offline',
+  chatLabel: 'Chat',
+  settingsLabel: 'Settings',
+  layoutLabel: 'Layouts',
   raiseHandLocalNotification:
     'You have raised your hand. Request sent to host for approval',
   raiseHandRemoteHostNotification: (name) => `${name} has raised their hand`,

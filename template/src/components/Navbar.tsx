@@ -12,14 +12,20 @@
 import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, TextStyle} from 'react-native';
 import icons from '../assets/icons';
-import Settings, {SettingsWithViewWrapper} from './Settings';
-import CopyJoinInfo from '../subComponents/CopyJoinInfo';
+import Settings, {
+  SettingsWithViewWrapper,
+  SettingsIconButtonProps,
+} from './Settings';
+import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import {BtnTemplate} from '../../agora-rn-uikit';
-import {ImageIcon} from '../../agora-rn-uikit';
+import {
+  BtnTemplate,
+  BtnTemplateInterface,
+  ImageIcon,
+} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
@@ -35,6 +41,11 @@ import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useFpe} from 'fpe-api';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import Styles from './styles';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
@@ -74,6 +85,7 @@ interface ParticipantsIconButtonInterface {
     left?: number;
     bottom?: number;
   };
+  buttonTemplateName?: ButtonTemplateName;
 }
 const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   const {
@@ -87,23 +99,32 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
+  const participantsLabel = useString('participantsLabel')();
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: () => {
+      sidePanel === SidePanelType.Participants
+        ? setSidePanel(SidePanelType.None)
+        : setSidePanel(SidePanelType.Participants);
+      $config.EVENT_MODE && $config.RAISE_HAND;
+      setLastCheckedRequestTimestamp(new Date().getTime());
+    },
+    name:
+      sidePanel === SidePanelType.Participants
+        ? 'participantFilledIcon'
+        : 'participantIcon',
+  };
+
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = participantsLabel;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.style = style.btnHolder;
+  }
   return (
     <>
-      <BtnTemplate
-        onPress={() => {
-          sidePanel === SidePanelType.Participants
-            ? setSidePanel(SidePanelType.None)
-            : setSidePanel(SidePanelType.Participants);
-          $config.EVENT_MODE && $config.RAISE_HAND;
-          setLastCheckedRequestTimestamp(new Date().getTime());
-        }}
-        style={style.btnHolder}
-        name={
-          sidePanel === SidePanelType.Participants
-            ? 'participantFilledIcon'
-            : 'participantIcon'
-        }
-      />
+      <BtnTemplate {...btnTemplateProps} />
       {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
         <View
           style={{
@@ -133,6 +154,7 @@ interface ChatIconButtonInterface {
     bottom?: number;
   };
   badgeTextStyle?: TextStyle;
+  buttonTemplateName?: ButtonTemplateName;
 }
 
 const ChatIconButton = (props: ChatIconButtonInterface) => {
@@ -152,6 +174,30 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
     useChatUIControl();
   const {sidePanel, setSidePanel} = useSidePanel();
+  const chatLabel = useString('chatLabel')();
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: () => {
+      if (sidePanel === SidePanelType.Chat) {
+        setSidePanel(SidePanelType.None);
+        setGroupActive(false);
+        setPrivateActive(false);
+        setSelectedChatUserId('');
+      } else {
+        setUnreadGroupMessageCount(0);
+        setGroupActive(true);
+        setSidePanel(SidePanelType.Chat);
+      }
+    },
+    name: sidePanel === SidePanelType.Chat ? 'chatIconFilled' : 'chatIcon',
+  };
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = chatLabel;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.style = style.btnHolder;
+  }
   const renderBadge = (badgeCount: any) => {
     return (
       <View
@@ -175,22 +221,7 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   };
   return (
     <>
-      <BtnTemplate
-        style={style.btnHolder}
-        onPress={() => {
-          if (sidePanel === SidePanelType.Chat) {
-            setSidePanel(SidePanelType.None);
-            setGroupActive(false);
-            setPrivateActive(false);
-            setSelectedChatUserId('');
-          } else {
-            setUnreadGroupMessageCount(0);
-            setGroupActive(true);
-            setSidePanel(SidePanelType.Chat);
-          }
-        }}
-        name={sidePanel === SidePanelType.Chat ? 'chatIconFilled' : 'chatIcon'}
-      />
+      <BtnTemplate {...btnTemplateProps} />
       {sidePanel !== SidePanelType.Chat &&
         totalUnreadCount !== 0 &&
         renderBadge(totalUnreadCount)}
@@ -205,10 +236,14 @@ interface LayoutIconButtonInterface {
     left?: number;
     bottom?: number;
   };
+  buttonTemplateName?: ButtonTemplateName;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const {modalPosition} = props;
+  const layoutLabel = useString('layoutLabel')('');
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
   const [showDropdown, setShowDropdown] = useState(false);
   const layouts = useCustomLayout();
   const changeLayout = useChangeDefaultLayout();
@@ -226,20 +261,27 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
+    let btnTemplateProps: BtnTemplateInterface = {
+      onPress: onPress,
+    };
+    if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+      btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+      btnTemplateProps.btnText = layoutLabel;
+    } else {
+      btnTemplateProps.style = style.btnHolder;
+    }
     renderContent.push(
       layouts[layout]?.iconName ? (
         <BtnTemplate
           key={'defaultLayoutIconWithName'}
-          style={style.btnHolder}
-          onPress={onPress}
           name={layouts[layout]?.iconName}
+          {...btnTemplateProps}
         />
       ) : (
         <BtnTemplate
           key={'defaultLayoutIconWithIcon'}
-          style={style.btnHolder}
-          onPress={onPress}
           icon={layouts[layout]?.icon}
+          {...btnTemplateProps}
         />
       ),
     );
@@ -265,11 +307,11 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   );
 };
 
-const SettingsIconButton = () => {
-  return <Settings />;
+const SettingsIconButton = (props: SettingsIconButtonProps) => {
+  return <Settings {...props} />;
 };
-const SettingsIconButtonWithWrapper = () => {
-  return <SettingsWithViewWrapper />;
+const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
+  return <SettingsWithViewWrapper {...props} />;
 };
 
 const Navbar = () => {
@@ -443,12 +485,12 @@ const Navbar = () => {
   );
 };
 export const NavBarComponentsArray: [
-  (props: {showText?: boolean}) => JSX.Element,
+  (props: CopyJoinInfoProps) => JSX.Element,
   () => JSX.Element,
   (props: ParticipantsIconButtonInterface) => JSX.Element,
   (props: ChatIconButtonInterface) => JSX.Element,
   (props: LayoutIconButtonInterface) => JSX.Element,
-  () => JSX.Element,
+  (props: SettingsIconButtonProps) => JSX.Element,
 ] = [
   CopyJoinInfo,
   ParticipantsCountView,

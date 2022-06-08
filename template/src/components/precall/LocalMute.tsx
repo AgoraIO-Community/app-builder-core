@@ -13,13 +13,12 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent} from '../../utils/common';
-import {
-  LocalAudioMute,
-  LocalAudioMuteProps,
-  LocalVideoMute,
+import LocalVideoMute, {
   LocalVideoMuteProps,
-} from '../../../agora-rn-uikit';
-import {useString} from '../../utils/useString';
+} from '../../subComponents/LocalVideoMute';
+import LocalAudioMute, {
+  LocalAudioMuteProps,
+} from '../../subComponents/LocalAudioMute';
 
 const PreCallLocalMute: React.FC = () => {
   const {
@@ -115,24 +114,26 @@ const PreCallLocalMute: React.FC = () => {
     }
     return components;
   });
-  const toggleAudioButton = useString('toggleAudioButton')();
-  const toggleVideoButton = useString('toggleVideoButton')();
   return (
     <View style={style.precallControls}>
       <View style={{alignSelf: 'center'}}>
         <AudioMuteBeforeView />
-        <AudioMute btnText={toggleAudioButton} />
+        <AudioMute />
         <AudioMuteAfterView />
       </View>
       <View style={{alignSelf: 'center'}}>
         <VideoMuteBeforeView />
-        <VideoMute btnText={toggleVideoButton} />
+        <VideoMute />
         <VideoMuteAfterView />
       </View>
     </View>
   );
 };
-export const PreCallLocalMuteComponentsArray = [LocalAudioMute, LocalVideoMute];
+export const PreCallLocalMuteComponentsArray: [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+] = [LocalAudioMute, LocalVideoMute];
+
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({
