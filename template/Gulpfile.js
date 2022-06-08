@@ -187,6 +187,9 @@ const reactSdk = {
       .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
   },
+  npmPack: (cb) => {
+    runCli('cd ../Builds/react-sdk && npm pack',cb)
+  }
 };
 
 const webSdk = {
@@ -213,6 +216,9 @@ const webSdk = {
       .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
   },
+  npmPack: (cb) => {
+    runCli('cd ../Builds/web-sdk && npm pack',cb)
+  }
 };
 
 const android = {
@@ -275,6 +281,7 @@ module.exports.reactSdk = series(
   reactSdk.typescript,
   reactSdk.typescriptFix,
   general.typescriptClean,
+  reactSdk.npmPack,
 );
 
 // web-sdk
@@ -292,6 +299,7 @@ module.exports.webSdk = series(
       general.typescriptClean,
     ),
   ),
+  webSdk.npmPack,
 );
 
 module.exports.androidUnix = series(
@@ -309,10 +317,11 @@ module.exports.androidWin = series(
 );
 
 module.exports.test = series(
-  general.typescript,
-  general.typescriptFix,
-  reactSdk.typescript,
-  reactSdk.typescriptFix,
+  reactSdk.npmPack,
+  // general.typescript,
+  // general.typescriptFix,
+  // reactSdk.typescript,
+  // reactSdk.typescriptFix,
   // webSdk.typescript,
   // webSdk.typescriptFix,
 );
