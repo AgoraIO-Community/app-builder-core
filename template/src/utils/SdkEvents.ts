@@ -15,17 +15,19 @@
 type callBackType = (...args: any[]) => void;
 interface eventsMapInterface {
   addFpe: callBackType;
+  join: (phrase:string) => void;
 }
 interface SDKEventsInterface {
   eventsMap: eventsMapInterface;
   eventSubs: {[key in keyof eventsMapInterface]: any};
   on: (eventName: keyof eventsMapInterface, cb: callBackType) => void;
   emit: (eventName: keyof eventsMapInterface, args: any) => void;
+  off: (eventName: keyof eventsMapInterface) => void;
 }
 
 const SDKEvents: SDKEventsInterface = {
-  eventsMap: {addFpe: () => {}},
-  eventSubs: {addFpe: null},
+  eventsMap: {addFpe: () => {}, join: (p)=>{}},
+  eventSubs: {addFpe: null, join: null},
   on: function (eventName, cb) {
     console.log('DEBUG(aditya)-SDKEvents: event registered:', eventName);
     this.eventsMap[eventName] = cb;
@@ -38,6 +40,10 @@ const SDKEvents: SDKEventsInterface = {
     this.eventsMap[eventName](...args);
     this.eventSubs[eventName] = args;
   },
+  off: function(eventName) {
+    console.log('DEBUG(aditya)-SDKEvents: event deregistered:', eventName);
+    this.eventSubs[eventName] = null;
+  }
 };
 
-export {SDKEvents};
+export default SDKEvents;

@@ -29,11 +29,15 @@ import useCreateMeeting, {
   CreateMeetingDataInterface,
 } from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
+import useJoinMeeting from '../utils/useJoinMeeting';
+import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
   const {share: FpeShareComponent, create: FpeCreateComponent} = useFpe(
     (data) => (data?.components ? data.components : {}),
   );
+
+  const useJoin = useJoinMeeting();
 
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
@@ -60,6 +64,13 @@ const Create = () => {
     if (isWeb) {
       document.title = $config.APP_NAME;
     }
+    SDKEvents.on('join', (phrase) => {
+      console.log('DEBUG(aditya)-SDKEvents: join event called..');
+      useJoin(phrase);
+    });
+    return () => {
+      SDKEvents.off('join');
+    };
   }, []);
 
   const showShareScreen = (
