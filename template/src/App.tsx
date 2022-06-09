@@ -38,21 +38,31 @@ if (isIOS) {
 const App: React.FC = () => {
   const CustomRoutes = useFpe((data) => data?.customRoutes);
   const RenderCustomRoutes = () => {
-    return CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
-      let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+    try {
       return (
-        <RouteComponent
-          path={CUSTOM_ROUTES_PREFIX + item.path}
-          exact={item.exact}
-          key={i}
-          failureRedirectTo={
-            item.failureRedirectTo ? item.failureRedirectTo : '/'
-          }
-          {...item.routeProps}>
-          <item.component {...item.componentProps} />
-        </RouteComponent>
+        CustomRoutes &&
+        Array.isArray(CustomRoutes) &&
+        CustomRoutes.length &&
+        CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
+          let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+          return (
+            <RouteComponent
+              path={CUSTOM_ROUTES_PREFIX + item.path}
+              exact={item.exact}
+              key={i}
+              failureRedirectTo={
+                item.failureRedirectTo ? item.failureRedirectTo : '/'
+              }
+              {...item.routeProps}>
+              <item.component {...item.componentProps} />
+            </RouteComponent>
+          );
+        })
       );
-    });
+    } catch (error) {
+      console.error('Error on rendering the custom routes');
+      return null;
+    }
   };
   const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
     MeetingInfoDefaultValue,
