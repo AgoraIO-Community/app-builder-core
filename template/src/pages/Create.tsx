@@ -65,7 +65,7 @@ const Create = () => {
       document.title = $config.APP_NAME;
     }
     SDKEvents.on('join', (phrase) => {
-      console.log('DEBUG(aditya)-SDKEvents: join event called..');
+      console.log('DEBUG(aditya)-SDKEvents: join event called');
       useJoin(phrase);
     });
     return () => {
