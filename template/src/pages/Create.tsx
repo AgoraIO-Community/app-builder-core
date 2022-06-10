@@ -9,200 +9,222 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
-  Platform,
-} from 'react-native';
+import React, {useEffect, useState, useContext} from 'react';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
 import Checkbox from '../subComponents/Checkbox';
-import {gql, useMutation} from '@apollo/client';
-import Logo from '../subComponents/Logo';
-// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
-import Share from '../components/Share';
-// import ColorContext from '../components/ColorContext';
-// import Illustration from '../subComponents/Illustration';
-// import {textInput} from '../../theme.json';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
-import Error from '../subComponents/Error';
 import Toast from '../../react-native-toast-message';
-import hasBrandLogo from '../utils/hasBrandLogo';
-
-type PasswordInput = {
-  host: string;
-  view: string;
-};
-
-const CREATE_CHANNEL = gql`
-  mutation CreateChannel(
-    $title: String!
-    $backendURL: String!
-    $enablePSTN: Boolean
-  ) {
-    createChannel(
-      title: $title
-      backendURL: $backendURL
-      enablePSTN: $enablePSTN
-    ) {
-      passphrase {
-        host
-        view
-      }
-      channel
-      title
-      pstn {
-        number
-        dtmf
-      }
-    }
-  }
-`;
+import {ErrorContext} from '../components/common';
+import {ShareLinkProvider} from '../components/useShareLink';
+import ShareLink from '../components/Share';
+import Logo from '../components/common/Logo';
+import {cmpTypeGuard, isWeb, isValidElementType} from '../utils/common';
+import {useFpe} from 'fpe-api';
+import {useString} from '../utils/useString';
+import useCreateMeeting, {
+  CreateMeetingDataInterface,
+} from '../utils/useCreateMeeting';
+import {CreateProvider} from './create/useCreate';
+import useJoinMeeting from '../utils/useJoinMeeting';
+import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
-  // const {primaryColor} = useContext(ColorContext);
+  const {share: FpeShareComponent, create: FpeCreateComponent} = useFpe(
+    (data) => (data?.components ? data.components : {}),
+  );
+
+  const useJoin = useJoinMeeting();
+
+  const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
+  const [loading, setLoading] = useState(false);
   const [roomTitle, onChangeRoomTitle] = useState('');
   const [pstnCheckbox, setPstnCheckbox] = useState(false);
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
-  const [urlView, setUrlView] = useState(null);
-  const [urlHost, setUrlHost] = useState(null);
-  const [pstn, setPstn] = useState(null);
+  const [urlView, setUrlView] = useState('');
+  const [urlHost, setUrlHost] = useState('');
+  const [pstn, setPstn] = useState<CreateMeetingDataInterface['pstn']>();
   const [roomCreated, setRoomCreated] = useState(false);
-  const [joinPhrase, setJoinPhrase] = useState(null);
-  const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
-
-  console.log('mutation data', data);
+  const createRoomFun = useCreateMeeting();
+  const createdText = useString('meetingCreatedNotificationLabel')();
+  const hostControlsToggle = useString<boolean>('hostControlsToggle');
+  const pstnToggle = useString<boolean>('pstnToggle');
+  const meetingNameInputPlaceholder = useString(
+    'meetingNameInputPlaceholder',
+  )();
+  const loadingWithDots = useString('loadingWithDots')();
+  const createMeetingButton = useString('createMeetingButton')();
+  const haveMeetingID = useString('haveMeetingID')();
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       document.title = $config.APP_NAME;
     }
+    SDKEvents.on('join', (phrase) => {
+      console.log('DEBUG(aditya)-SDKEvents: join event called..');
+      useJoin(phrase);
+    });
+    return () => {
+      SDKEvents.off('join');
+    };
   }, []);
 
-  const createRoom = () => {
-    if (roomTitle !== '') {
-      console.log('Create room invoked');
-      createChannel({
-        variables: {
-          title: roomTitle,
-          backendURL: $config.BACKEND_ENDPOINT,
-          enablePSTN: pstnCheckbox,
-        },
-      })
-        .then((res: any) => {
-          Toast.show({
-            text1: 'Created: ' + roomTitle,
-            visibilityTime: 1000,
-          });
-          console.log('promise data', res);
-          setUrlView(res.data.createChannel.passphrase.view);
-          setUrlHost(res.data.createChannel.passphrase.host);
-          setPstn(res.data.createChannel.pstn);
-          setJoinPhrase(res.data.createChannel.passphrase.host);
-          setRoomCreated(true);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
+  const showShareScreen = (
+    {attendeePassphrase, hostPassphrase, pstn}: CreateMeetingDataInterface,
+    roomTitle: string,
+    isSeparateHostLink: boolean,
+  ) => {
+    setUrlView(attendeePassphrase);
+    if (hostPassphrase) {
+      setUrlHost(hostPassphrase);
     }
+    if (pstn) {
+      setPstn(pstn);
+    }
+    onChangeRoomTitle(roomTitle);
+    setHostControlCheckbox(isSeparateHostLink);
+    setRoomCreated(true);
   };
 
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  const createRoomAndNavigateToShare = async (
+    roomTitle: string,
+    isSeparateHostLink: boolean,
+    enablePSTN: boolean,
+  ) => {
+    if (roomTitle !== '') {
+      setLoading(true);
+      try {
+        const res = await createRoomFun(roomTitle, enablePSTN);
+        setLoading(false);
+        Toast.show({
+          type: 'success',
+          text1: createdText + ': ' + roomTitle,
+          visibilityTime: 1000,
+        });
+        showShareScreen(
+          {
+            attendeePassphrase: res.attendeePassphrase,
+            hostPassphrase: res.hostPassphrase,
+            pstn: res.pstn,
+          },
+          roomTitle,
+          isSeparateHostLink,
+        );
+      } catch (error) {
+        setLoading(false);
+        setGlobalErrorMessage(error);
+      }
+    }
   };
 
   return (
-    // <ImageBackground
-    //   style={style.full}
-    //   resizeMode={'cover'}>
-    // <KeyboardAvoidingView behavior={'height'} style={style.main}>
-    <ScrollView contentContainerStyle={style.main}>
-      <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
-        {error ? <Error error={error} /> : <></>}
-        {/* <OpenInNativeButton /> */}
-      </View>
+    <CreateProvider
+      value={{
+        showShareScreen,
+        useCreateMeeting,
+      }}>
       {!roomCreated ? (
-        <View style={style.content} onLayout={onLayout}>
-          <View style={style.leftContent}>
-            <Text style={style.heading}>{$config.APP_NAME}</Text>
-            <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-            <View style={style.inputs}>
-              <TextInput
-                value={roomTitle}
-                onChangeText={(text) => onChangeRoomTitle(text)}
-                onSubmitEditing={() => createRoom()}
-                placeholder="Name your meeting"
-              />
-              <View style={{paddingVertical: 10}}>
-                <View style={style.checkboxHolder}>
-                  {$config.EVENT_MODE ? (
-                    <></>
-                  ) : (
-                    <>
-                      <Checkbox
-                        disabled={$config.EVENT_MODE}
-                        value={hostControlCheckbox}
-                        onValueChange={setHostControlCheckbox}
-                      />
-                      <Text style={style.checkboxTitle}>
-                        Restrict Host Controls (Separate host link)
-                      </Text>
-                    </>
-                  )}
-                </View>
-                {$config.PSTN ? (
-                  <View style={style.checkboxHolder}>
-                    <Checkbox
-                      value={pstnCheckbox}
-                      onValueChange={setPstnCheckbox}
-                    />
-                    <Text style={style.checkboxTitle}>
-                      Use PSTN (Join by dialing a number)
-                    </Text>
+        FpeCreateComponent && isValidElementType(FpeCreateComponent) ? (
+          <FpeCreateComponent />
+        ) : (
+          <ScrollView contentContainerStyle={style.main}>
+            <Logo />
+            <View style={style.content}>
+              <View style={style.leftContent}>
+                <Text style={style.heading}>{$config.APP_NAME}</Text>
+                <Text style={style.headline}>
+                  {$config.LANDING_SUB_HEADING}
+                </Text>
+                <View style={style.inputs}>
+                  <TextInput
+                    value={roomTitle}
+                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    onSubmitEditing={() =>
+                      createRoomAndNavigateToShare(
+                        roomTitle,
+                        hostControlCheckbox,
+                        pstnCheckbox,
+                      )
+                    }
+                    placeholder={meetingNameInputPlaceholder}
+                  />
+                  <View style={{paddingVertical: 10}}>
+                    <View style={style.checkboxHolder}>
+                      {$config.EVENT_MODE ? (
+                        <></>
+                      ) : (
+                        <>
+                          <Checkbox
+                            disabled={$config.EVENT_MODE}
+                            value={hostControlCheckbox}
+                            onValueChange={setHostControlCheckbox}
+                          />
+                          <Text style={style.checkboxTitle}>
+                            {/* Restrict Host Controls (Separate host link) */}
+                            {hostControlsToggle(hostControlCheckbox)}
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                    {$config.PSTN ? (
+                      <View style={style.checkboxHolder}>
+                        <Checkbox
+                          value={pstnCheckbox}
+                          onValueChange={setPstnCheckbox}
+                        />
+                        <Text style={style.checkboxTitle}>
+                          {pstnToggle(pstnCheckbox)}
+                        </Text>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
                   </View>
-                ) : (
-                  <></>
-                )}
-              </View>
-              <View style={style.btnContainer}>
-                <PrimaryButton
-                  disabled={roomTitle === '' || loading}
-                  onPress={() => createRoom()}
-                  text={loading ? 'Loading...' : 'Create Meeting'}
-                />
-                <HorizontalRule />
-                <SecondaryButton
-                  onPress={() => history.push('/join')}
-                  text={'Have a Meeting ID?'}
-                />
+                   <View style={style.btnContainer}>
+                    <PrimaryButton
+                      disabled={roomTitle === '' || loading}
+                      onPress={() =>
+                        createRoomAndNavigateToShare(
+                          roomTitle,
+                          hostControlCheckbox,
+                          pstnCheckbox,
+                        )
+                      }
+                      text={loading ? loadingWithDots : createMeetingButton}
+                    />
+                    <HorizontalRule />
+                    <SecondaryButton
+                      onPress={() => history.push('/join')}
+                      text={haveMeetingID}
+                    />
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
-        </View>
+          </ScrollView>
+        )
       ) : (
-        <Share
-          urlView={urlView}
-          urlHost={urlHost}
-          pstn={pstn}
-          hostControlCheckbox={hostControlCheckbox}
-          joinPhrase={joinPhrase}
-          roomTitle={roomTitle}
-        />
+        <></>
       )}
-    </ScrollView>
+      {roomCreated ? (
+        <ShareLinkProvider
+          value={{
+            attendeePassphrase: urlView,
+            hostPassphrase: urlHost,
+            isSeparateHostLink: hostControlCheckbox,
+            pstn,
+            roomTitle,
+          }}>
+          {cmpTypeGuard(ShareLink, FpeShareComponent)}
+        </ShareLinkProvider>
+      ) : (
+        <></>
+      )}
+    </CreateProvider>
   );
 };
 

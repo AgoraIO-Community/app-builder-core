@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {Platform} from 'react-native';
+import {isWeb} from '../utils/common';
 
 const styles = {
   temp: {
@@ -19,8 +19,8 @@ const styles = {
     borderRadius: 15,
   },
   bottomBar: {
-    flex: Platform.OS === 'web' ? 1.3 : 1.6,
-    paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
+    flex: isWeb ? 1.3 : 1.6,
+    paddingHorizontal: isWeb ? '20%' : '1%',
     backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
     flexDirection: 'row',
     justifyContent: 'space-evenly',

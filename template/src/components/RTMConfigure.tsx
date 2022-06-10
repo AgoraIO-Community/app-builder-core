@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine, {
   RtmChannelAttribute,
@@ -28,15 +29,23 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
 import {filterObject} from '../utils';
+import {useString} from '../utils/useString';
+import {isAndroid, isWeb} from '../utils/common';
+import { typeOf } from 'react-is';
 
 export enum UserType {
   Normal,
   ScreenShare,
 }
 
-const adjustUID = (number: number) => {
-  if (number < 0) {
-    number = 0xffffffff + number + 1;
+const adjustUID = (uid: number | string) => {
+  let number: number | string;
+  if (typeof uid === "string") number = uid;
+  else {
+    number = uid;
+    if (number < 0) {
+      number = 0xffffffff + number + 1;
+    }
   }
   return number;
 };
@@ -86,16 +95,42 @@ const RtmConfigure = (props: any) => {
   const [userList, setUserList] = useState<{[key: string]: any}>({});
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
+  const userText = useString('remoteUserDefaultLabel')();
+  const getScreenShareName = useString('screenshareUserName');
   let engine = useRef<RtmEngine>(null!);
   let localUid = useRef<string>('');
   const timerValueRef: any = useRef(5);
+
+  const [displayName, setDisplayName] = useState<string>(name);
+
+  /**
+   * By default displayName will hold name stored in the local storage
+   * Added useEffect to Update displayName when user type something in precall screen
+   */
+  useEffect(() => {
+    setDisplayName(name);
+  }, [name]);
+
+  useEffect(() => {
+    if (callActive) {
+      broadcastUserAttributes(
+        [
+          {
+            key: 'name',
+            value: displayName,
+          },
+        ],
+        controlMessageEnum.userNameChanged,
+      );
+    }
+  }, [displayName]);
 
   React.useEffect(() => {
     const handBrowserClose = () => {
       engine.current.leaveChannel(rtcProps.channel);
     };
 
-    if (Platform.OS !== 'web') return;
+    if (!isWeb) return;
     window.addEventListener('beforeunload', handBrowserClose);
     // cleanup this component
     return () => {
@@ -164,7 +199,7 @@ const RtmConfigure = (props: any) => {
   const setAttribute = async () => {
     try {
       await engine.current.setLocalUserAttributes([
-        {key: 'name', value: name || 'User'},
+        {key: 'name', value: name || userText},
         {key: 'screenUid', value: String(rtcProps.screenShareUid)},
         {key: 'role', value: String(rtcProps?.role)},
         {key: 'requests', value: attrRequestTypes.none}, // stores Uid who have raised a request
@@ -239,7 +274,7 @@ const RtmConfigure = (props: any) => {
                 return {
                   ...prevState,
                   [member.uid]: {
-                    name: attr?.attributes?.name || 'User',
+                    name: attr?.attributes?.name || userText,
                     type: UserType.Normal,
                     role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
@@ -247,7 +282,9 @@ const RtmConfigure = (props: any) => {
                     requests: attr?.attributes?.requests,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
-                    name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                    name: getScreenShareName(
+                      attr?.attributes?.name || userText,
+                    ),
                     type: UserType.ScreenShare,
                   },
                 };
@@ -311,7 +348,7 @@ const RtmConfigure = (props: any) => {
             return {
               ...prevState,
               [data.uid]: {
-                name: attr?.attributes?.name || 'User',
+                name: attr?.attributes?.name || userText,
                 type: UserType.Normal,
                 role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
@@ -319,7 +356,7 @@ const RtmConfigure = (props: any) => {
                 requests: attr?.attributes?.requests,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
-                name: `${attr?.attributes?.name || 'User'}'s screenshare`,
+                name: getScreenShareName(attr?.attributes?.name || userText),
                 type: UserType.ScreenShare,
               },
             };
@@ -358,7 +395,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = timeNow();
 
-      const userUID = Platform.OS === 'android' ? arr[0] : peerId;
+      const userUID = isAndroid ? arr[0] : peerId;
 
       if (type === messageActionType.Control) {
         try {
@@ -400,7 +437,7 @@ const RtmConfigure = (props: any) => {
             userUID,
             {
               body: `${type}${msg}`,
-              ts: timestamp,
+              ts: `${timestamp}`,
             },
             false,
           );
@@ -482,6 +519,24 @@ const RtmConfigure = (props: any) => {
                   }
                 }
                 break;
+              case controlMessageEnum.userNameChanged:
+                const {payload: payloadData} = JSON.parse(msg);
+                if (payloadData && payloadData.name) {
+                  setUserList((prevState) => {
+                    return {
+                      ...prevState,
+                      [uid]: {
+                        ...prevState[uid],
+                        name: payloadData.name,
+                      },
+                      [parseInt(prevState[uid].screenUid)]: {
+                        ...prevState[parseInt(prevState[uid].screenUid)],
+                        name: getScreenShareName(payloadData.name || userText),
+                      },
+                    };
+                  });
+                }
+                break;
               default:
                 break;
               //   throw new Error('Unsupported message type');
@@ -541,11 +596,11 @@ const RtmConfigure = (props: any) => {
     );
     addMessageToStore(localUid.current, {
       body: messageActionType.Normal + msg,
-      ts: timeNow(),
+      ts: `${timeNow()}`,
     });
   };
 
-  const sendMessageToUid = async (msg: string, uid: number) => {
+  const sendMessageToUid = async (msg: string, uid: number | string) => {
     if (msg.trim() === '') return;
     let adjustedUID = uid;
     if (adjustedUID < 0) {
@@ -562,10 +617,10 @@ const RtmConfigure = (props: any) => {
       text,
     });
     addMessageToPrivateStore(
-      uid,
+      `${uid}`,
       {
         body: messageActionType.Normal + msg,
-        ts: timeNow(),
+        ts: `${timeNow()}`,
       },
       true,
     );
@@ -650,12 +705,21 @@ const RtmConfigure = (props: any) => {
     });
     // 2. Update my attributes in user-list
     setUserList((prevState) => {
+      let screenShareObject: any = {};
+      //check if formattedAttributes has name then we need to update screenshare name.
+      if ('name' in formattedAttributes) {
+        screenShareObject[parseInt(prevState[localUid.current].screenUid)] = {
+          ...prevState[parseInt(prevState[localUid.current].screenUid)],
+          name: getScreenShareName(formattedAttributes['name'] || userText),
+        };
+      }
       return {
         ...prevState,
         [localUid.current]: {
           ...prevState[localUid.current],
           ...formattedAttributes,
         },
+        ...screenShareObject,
       };
     });
 
@@ -686,6 +750,7 @@ const RtmConfigure = (props: any) => {
         userList: userList,
         onlineUsersCount,
         events,
+        setDisplayName,
       }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>

@@ -13,19 +13,19 @@ import React, {createContext, ReactChildren, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import useMount from './useMount';
 
-interface StoreInterface {
-  token: null | string;
-  displayName: null | string;
+export interface StoreInterface {
+  [key: string]: string | null;
 }
 
-interface StorageContextInterface {
+export interface StorageContextInterface {
   store: StoreInterface;
   setStore: React.Dispatch<React.SetStateAction<StoreInterface>> | null;
 }
 
-const initStoreValue: StoreInterface = {
+export const initStoreValue: StoreInterface = {
   token: null,
   displayName: '',
+  selectedLanguageCode: '',
 };
 
 const initStorageContextValue = {

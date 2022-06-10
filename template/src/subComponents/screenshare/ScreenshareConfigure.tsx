@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useParams} from '../../components/Router';
 import ChatContext from '../../components/ChatContext';
 import {
@@ -12,10 +6,17 @@ import {
   PropsContext,
   MinUidContext,
   MaxUidContext,
+  UidInterface,
 } from '../../../agora-rn-uikit/src';
-import Layout from '../LayoutEnum';
 import {gql, useMutation} from '@apollo/client';
 import ScreenshareContext from './ScreenshareContext';
+import {useVideoCall} from '../../pages/video-call/useVideoCall';
+import {
+  useChangeDefaultLayout,
+  useSetPinnedLayout,
+} from '../../pages/video-call/DefaultLayouts';
+import {useRecording} from '../recording/useRecording';
+import { IAgoraRTC } from 'agora-rtc-sdk-ng';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -29,8 +30,8 @@ const SET_NORMAL = gql`
   }
 `;
 
-function usePrevious(value: any) {
-  const ref = useRef();
+function usePrevious<T = any>(value: any) {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
@@ -39,7 +40,14 @@ function usePrevious(value: any) {
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: any) => {
+declare module 'agora-rn-uikit'{
+  interface RtcPropsInterface{
+    screenShareUid?: number,
+    screenShareToken?: string,
+  }
+}
+
+export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {userList} = useContext(ChatContext);
   const [screenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);
@@ -47,9 +55,11 @@ export const ScreenshareConfigure = (props: any) => {
   const max = useContext(MaxUidContext);
   const min = useContext(MinUidContext);
   const users = [...max, ...min];
-  const prevUsers = usePrevious({users});
+  const prevUsers = usePrevious<{users:UidInterface[]}>({users});
   const {phrase} = useParams<any>();
-  const {setLayout, recordingActive} = props;
+  const {recordingActive} = useRecording();
+  const setPinnedLayout = useSetPinnedLayout();
+  const changeLayout = useChangeDefaultLayout();
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
@@ -57,12 +67,11 @@ export const ScreenshareConfigure = (props: any) => {
   const [setNormalQuery] = useMutation(SET_NORMAL);
 
   useEffect(() => {
+    // @ts-ignore
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
-      setLayout((l: Layout) =>
-        l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-      );
+      changeLayout();
       setNormalQuery({variables: {passphrase: phrase}})
         .then((res) => {
           console.log(res.data);
@@ -91,7 +100,7 @@ export const ScreenshareConfigure = (props: any) => {
             type: 'SwapVideo',
             value: [joinedUser[0]],
           });
-          setLayout(Layout.Pinned);
+          setPinnedLayout();
         } else if (newUserUid === 1) {
           if (newUserUid !== users[0].uid) {
             dispatch({
@@ -99,16 +108,14 @@ export const ScreenshareConfigure = (props: any) => {
               value: [joinedUser[0]],
             });
           }
-          setLayout(Layout.Pinned);
+          setPinnedLayout();
         }
       }
 
       if (leftUser.length === 1) {
         const leftUserUid = leftUser[0].uid;
         if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
-          setLayout((l: Layout) =>
-            l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-          );
+          changeLayout();
         }
       }
     }
@@ -162,8 +169,8 @@ export const ScreenshareConfigure = (props: any) => {
         null,
         screenShareUid,
         appId,
-        rtc.RtcEngine,
-        encryption,
+        rtc.RtcEngine as unknown as IAgoraRTC,
+        encryption as unknown as any,
       );
       !isScreenActive && setScreenshareActive(true);
     } catch (e) {

@@ -15,6 +15,7 @@ import LiveStreamContext from '../../../components/livestream';
 import {PropsContext} from '../../../../agora-rn-uikit';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
 import icons from '../../../assets/icons';
+import {useString} from '../../../utils/useString';
 
 const LocalRaiseHand = () => {
   const {styleProps} = useContext(PropsContext);
@@ -23,11 +24,11 @@ const LocalRaiseHand = () => {
   const {localBtnStyles} = styleProps || {};
   const {theme} = styleProps || {};
   const {muteLocalAudio} = localBtnStyles || {};
-
+  const handStatusText = useString<boolean>('raiseHandButton');
   return (
     <BtnTemplate
       icon={icons['raiseHandIcon']}
-      btnText={raiseHandRequestActive ? 'Lower hand' : 'Raise Hand'}
+      btnText={handStatusText(raiseHandRequestActive)}
       color={raiseHandRequestActive ? '#FD0845' : theme}
       style={{
         ...style.localBtn,

@@ -19,7 +19,6 @@ import {
   ChannelProfile,
 } from '../../agora-rn-uikit';
 import Navbar from '../components/Navbar';
-import Precall from '../components/Precall';
 import ParticipantsView from '../components/ParticipantsView';
 import SettingsView from '../components/SettingsView';
 import PinnedVideo from '../components/PinnedVideo';
@@ -33,18 +32,34 @@ import DeviceConfigure from '../components/DeviceConfigure';
 import {gql, useQuery} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {
+  cmpTypeGuard,
+  hasBrandLogo,
+  isAndroid,
+  isValidElementType,
+  isWeb,
+} from '../utils/common';
 import ChatContext, {
   messageActionType,
   messageChannelType,
 } from '../components/ChatContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
-import Layout from '../subComponents/LayoutEnum';
 import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
+import {ErrorContext} from '.././components/common/index';
+import {PreCallProvider} from '../components/precall/usePreCall';
+import {VideoCallProvider} from './video-call/useVideoCall';
+import {ChatUIDataProvider} from '../components/useChatUI';
+import {layoutObjectType, useFpe} from 'fpe-api';
+import Precall from '../components/Precall';
+import VideoArrayRenderer from './video-call/VideoArrayRenderer';
+import CustomUserContextHolder from './video-call/CustomUserContextHolder';
+import {useString} from '../utils/useString';
+import useCustomLayout from './video-call/CustomLayout';
+import {RecordingProvider} from '../subComponents/recording/useRecording';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -95,14 +110,14 @@ const NotificationControl = ({
     chatDisplayed,
     isPrivateChatDisplayed,
   );
-
+  const fromText = useString('messageSenderNotificationLabel');
   const pendingPublicNotification =
     messageStore.length - lastCheckedPublicState;
   const privateMessageCountMap = Object.keys(privateMessageStore).reduce(
     (acc, curItem) => {
       let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
         (total, item) => {
-          if (Platform.OS === 'android') {
+          if (isAndroid) {
             //In template/src/components/RTMConfigure.tsx
             //on messageReceived event - For android platform we are passing uid as number type. so checking == for android
             return item.uid == curItem ? total + 1 : total;
@@ -133,7 +148,7 @@ const NotificationControl = ({
         Toast.show({
           type: 'success',
           text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
-          text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
+          text2: userList[uid]?.name ? fromText(userList[uid]?.name) : '',
           visibilityTime: 1000,
           onPress: () => {
             setSidePanel(SidePanelType.Chat);
@@ -250,15 +265,57 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const joiningLoaderLabel = useString('joiningLoaderLabel')();
+  const FpeVideocallComponent = useFpe((data) =>
+    typeof data?.components?.videoCall !== 'object'
+      ? isValidElementType(data?.components?.videoCall)
+      : undefined,
+  );
+  const {
+    chat: ChatFPE,
+    bottomBar: FpeBottombarComponent,
+    participantsPanel: FpeParticipantsComponent,
+    settingsPanel: FpeSettingsComponent,
+    topBar: FpeTopbarComponent,
+  } = useFpe((data) =>
+    data?.components?.videoCall &&
+    typeof data?.components?.videoCall === 'object'
+      ? data.components?.videoCall
+      : {},
+  );
+  const FpeChatComponent =
+    typeof ChatFPE !== 'object' ? isValidElementType(ChatFPE) : undefined;
+  const FpePrecallComponent = useFpe((data) =>
+    typeof data?.components?.precall !== 'object'
+      ? isValidElementType(data?.components?.precall)
+      : undefined,
+  );
+  const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
-  const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
-  const [layout, setLayout] = useState(Layout.Grid);
+  const layouts = useCustomLayout();
+  const checkLayoutsData = (layoutData: layoutObjectType[]) => {
+    return layoutData && Array.isArray(layoutData) && layoutData.length
+      ? true
+      : false;
+  };
+  const defaultLayoutName = checkLayoutsData(layouts) ? layouts[0].name : '';
+  const [layout, setLayoutIndex] = useState(0);
+  const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
+
+  useEffect(() => {
+    if (checkLayoutsData(layouts)) {
+      let index = layouts.findIndex((item) => item.name === activeLayoutName);
+      if (index >= 0) {
+        setLayoutIndex(index);
+      }
+    }
+  }, [activeLayoutName]);
+
   const [recordingActive, setRecordingActive] = useState(false);
-  const [chatDisplayed, setChatDisplayed] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
@@ -266,6 +323,7 @@ const VideoCall: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isHost, setIsHost] = React.useState(false);
   const [title, setTitle] = React.useState('');
+  const lifecycle = useFpe((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -291,12 +349,14 @@ const VideoCall: React.FC = () => {
     },
   );
 
+  const fpeLayouts = useCustomLayout();
+
   React.useEffect(() => {
     if (error) {
       console.log('error', error);
       // console.log('error data', data);
       if (!errorMessage) {
-        setErrorMessage(error);
+        setGlobalErrorMessage && setGlobalErrorMessage(error);
         queryComplete ? {} : setQueryComplete(true);
       }
       return;
@@ -350,7 +410,13 @@ const VideoCall: React.FC = () => {
   React.useEffect(() => {
     // Update the username in localstorage when username changes
     if (setStore) {
-      setStore({token: store?.token || null, displayName: username});
+      setStore((prevState) => {
+        return {
+          ...prevState,
+          token: store?.token || null,
+          displayName: username,
+        };
+      });
     }
   }, [username]);
 
@@ -364,6 +430,7 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
+                  lifecycle,
                 },
                 callbacks,
                 styleProps,
@@ -377,148 +444,165 @@ const VideoCall: React.FC = () => {
                     setRecordingActive={setRecordingActive}
                     name={username}
                     callActive={callActive}>
-                    <ScreenshareConfigure
-                      setLayout={setLayout}
-                      recordingActive={recordingActive}>
-                      <LiveStreamContextProvider
-                        setRtcProps={setRtcProps}
-                        isHost={isHost}>
-                        {callActive ? (
-                          <View style={style.full}>
-                            <NotificationControl
-                              setSidePanel={setSidePanel}
-                              chatDisplayed={sidePanel === SidePanelType.Chat}
-                              isPrivateChatDisplayed={isPrivateChatDisplayed}>
-                              {({
-                                pendingPublicNotification,
-                                pendingPrivateNotification,
-                                setLastCheckedPublicState,
-                                lastCheckedPublicState,
-                                lastCheckedPrivateState,
-                                setLastCheckedPrivateState,
-                                privateMessageCountMap,
-                                setPrivateMessageLastSeen,
-                              }) => (
-                                <>
-                                  <Navbar
-                                    sidePanel={sidePanel}
+                    <VideoCallProvider
+                      value={{
+                        sidePanel,
+                        setSidePanel,
+                        activeLayoutName,
+                        setActiveLayoutName,
+                        isHost,
+                        title,
+                      }}>
+                      <RecordingProvider
+                        value={{setRecordingActive, recordingActive}}>
+                        <ScreenshareConfigure>
+                          <LiveStreamContextProvider
+                            setRtcProps={setRtcProps}
+                            isHost={isHost}>
+                            {callActive ? (
+                              FpeVideocallComponent ? (
+                                <FpeVideocallComponent />
+                              ) : (
+                                <View style={style.full}>
+                                  <NotificationControl
                                     setSidePanel={setSidePanel}
-                                    layout={layout}
-                                    setLayout={setLayout}
-                                    recordingActive={recordingActive}
-                                    setRecordingActive={setRecordingActive}
-                                    isHost={isHost}
-                                    title={title}
-                                    pendingMessageLength={
-                                      pendingPublicNotification +
-                                      pendingPrivateNotification
+                                    chatDisplayed={
+                                      sidePanel === SidePanelType.Chat
                                     }
-                                    setLastCheckedPublicState={
-                                      setLastCheckedPublicState
-                                    }
-                                  />
-                                  <NetworkQualityProvider>
-                                    <View
-                                      style={[
-                                        style.videoView,
-                                        {backgroundColor: '#ffffff00'},
-                                      ]}>
-                                      {layout === Layout.Pinned ? (
-                                        <PinnedVideo />
-                                      ) : (
-                                        <GridVideo setLayout={setLayout} />
-                                      )}
-                                      {sidePanel ===
-                                      SidePanelType.Participants ? (
-                                        <ParticipantsView
-                                          isHost={isHost}
-                                          // setParticipantsView={setParticipantsView}
-                                          setSidePanel={setSidePanel}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )}
-                                      {sidePanel === SidePanelType.Chat ? (
-                                        $config.CHAT ? (
-                                          <Chat
-                                            setPrivateChatDisplayed={
-                                              setPrivateChatDisplayed
-                                            }
-                                            privateMessageCountMap={
-                                              privateMessageCountMap
-                                            }
-                                            pendingPublicNotification={
-                                              pendingPublicNotification
-                                            }
-                                            pendingPrivateNotification={
-                                              pendingPrivateNotification
-                                            }
-                                            setPrivateMessageLastSeen={
-                                              setPrivateMessageLastSeen
-                                            }
-                                            lastCheckedPrivateState={
-                                              lastCheckedPrivateState
-                                            }
-                                          />
-                                        ) : (
+                                    isPrivateChatDisplayed={
+                                      isPrivateChatDisplayed
+                                    }>
+                                    {({
+                                      pendingPublicNotification,
+                                      pendingPrivateNotification,
+                                      setLastCheckedPublicState,
+                                      lastCheckedPublicState,
+                                      lastCheckedPrivateState,
+                                      setLastCheckedPrivateState,
+                                      privateMessageCountMap,
+                                      setPrivateMessageLastSeen,
+                                    }) => (
+                                      <ChatUIDataProvider
+                                        value={{
+                                          privateMessageCountMap,
+                                          pendingPublicNotification,
+                                          pendingPrivateNotification,
+                                          lastCheckedPrivateState,
+                                          pendingMessageLength:
+                                            pendingPublicNotification +
+                                            pendingPrivateNotification,
+                                          setLastCheckedPublicState,
+                                          setPrivateMessageLastSeen,
+                                          setPrivateChatDisplayed,
+                                        }}>
+                                        {cmpTypeGuard(
+                                          Navbar,
+                                          FpeTopbarComponent,
+                                        )}
+                                        <View
+                                          style={[
+                                            style.videoView,
+                                            {backgroundColor: '#ffffff00'},
+                                          ]}>
+                                          <CustomUserContextHolder>
+                                            <NetworkQualityProvider>
+                                              <VideoArrayRenderer>
+                                                {(
+                                                  minVideoArray: React.FC[],
+                                                  maxVideoArray: React.FC[],
+                                                ) => {
+                                                  if (
+                                                    fpeLayouts &&
+                                                    fpeLayouts[layout] &&
+                                                    typeof fpeLayouts[layout]
+                                                      .component === 'function'
+                                                  ) {
+                                                    const CurrentLayout =
+                                                      fpeLayouts[layout]
+                                                        .component;
+                                                    return (
+                                                      <CurrentLayout
+                                                        minVideoArray={
+                                                          minVideoArray
+                                                        }
+                                                        maxVideoArray={
+                                                          maxVideoArray
+                                                        }
+                                                      />
+                                                    );
+                                                  } else {
+                                                    return <></>;
+                                                  }
+                                                }}
+                                              </VideoArrayRenderer>
+                                              {sidePanel ===
+                                              SidePanelType.Participants ? (
+                                                cmpTypeGuard(
+                                                  ParticipantsView,
+                                                  FpeParticipantsComponent,
+                                                )
+                                              ) : (
+                                                <></>
+                                              )}
+                                            </NetworkQualityProvider>
+                                            {sidePanel ===
+                                            SidePanelType.Chat ? (
+                                              $config.CHAT ? (
+                                                cmpTypeGuard(
+                                                  Chat,
+                                                  FpeChatComponent,
+                                                )
+                                              ) : (
+                                                <></>
+                                              )
+                                            ) : (
+                                              <></>
+                                            )}
+                                            {sidePanel ===
+                                            SidePanelType.Settings ? (
+                                              cmpTypeGuard(
+                                                SettingsView,
+                                                FpeSettingsComponent,
+                                              )
+                                            ) : (
+                                              <></>
+                                            )}
+                                          </CustomUserContextHolder>
+                                        </View>
+                                        {!isWeb &&
+                                        sidePanel === SidePanelType.Chat ? (
                                           <></>
-                                        )
-                                      ) : (
-                                        <></>
-                                      )}
-                                      {sidePanel === SidePanelType.Settings ? (
-                                        <SettingsView
-                                          isHost={isHost}
-                                          // setParticipantsView={setParticipantsView}
-                                          setSidePanel={setSidePanel}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )}
-                                    </View>
-                                  </NetworkQualityProvider>
-                                  {Platform.OS !== 'web' &&
-                                  sidePanel === SidePanelType.Chat ? (
-                                    <></>
-                                  ) : (
-                                    <Controls
-                                      setLayout={setLayout}
-                                      recordingActive={recordingActive}
-                                      setRecordingActive={setRecordingActive}
-                                      // chatDisplayed={chatDisplayed}
-                                      // setChatDisplayed={setChatDisplayed}
-                                      isHost={isHost}
-                                      // participantsView={participantsView}
-                                      // setParticipantsView={setParticipantsView}
-                                      sidePanel={sidePanel}
-                                      setSidePanel={setSidePanel}
-                                      pendingMessageLength={
-                                        pendingPublicNotification +
-                                        pendingPrivateNotification
-                                      }
-                                      setLastCheckedPublicState={
-                                        setLastCheckedPublicState
-                                      }
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </NotificationControl>
-                          </View>
-                        ) : $config.PRECALL ? (
-                          <Precall
-                            error={errorMessage}
-                            username={username}
-                            setUsername={setUsername}
-                            setCallActive={setCallActive}
-                            queryComplete={queryComplete}
-                            title={title}
-                          />
-                        ) : (
-                          <></>
-                        )}
-                      </LiveStreamContextProvider>
-                    </ScreenshareConfigure>
+                                        ) : (
+                                          cmpTypeGuard(
+                                            Controls,
+                                            FpeBottombarComponent,
+                                          )
+                                        )}
+                                      </ChatUIDataProvider>
+                                    )}
+                                  </NotificationControl>
+                                </View>
+                              )
+                            ) : $config.PRECALL ? (
+                              <PreCallProvider
+                                value={{
+                                  username,
+                                  setUsername,
+                                  callActive,
+                                  setCallActive,
+                                  queryComplete,
+                                  title,
+                                  error,
+                                }}>
+                                {cmpTypeGuard(Precall, FpePrecallComponent)}
+                              </PreCallProvider>
+                            ) : (
+                              <></>
+                            )}
+                          </LiveStreamContextProvider>
+                        </ScreenshareConfigure>
+                      </RecordingProvider>
+                    </VideoCallProvider>
                   </RtmConfigure>
                 </DeviceConfigure>
               </RtcConfigure>
@@ -527,7 +611,7 @@ const VideoCall: React.FC = () => {
         ) : (
           <View style={style.loader}>
             <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
-            <Text style={style.loaderText}>Starting Call. Just a second.</Text>
+            <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
           </View>
         )
       ) : (

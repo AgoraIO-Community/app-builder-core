@@ -9,8 +9,27 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-enum Layout {
-  Grid,
-  Pinned,
-}
-export default Layout;
+
+import React from 'react';
+import {View, StyleSheet} from 'react-native';
+import Logo from '../../subComponents/Logo';
+import {hasBrandLogo} from '../../utils/common';
+
+const CommonLogo: React.FC = () => {
+  return (
+    <View style={style.nav}>
+      {hasBrandLogo && <Logo />}
+      {/* <OpenInNativeButton /> */}
+    </View>
+  );
+};
+export default CommonLogo;
+const style = StyleSheet.create({
+  nav: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

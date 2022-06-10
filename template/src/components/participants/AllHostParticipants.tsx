@@ -6,24 +6,33 @@ import MeParticipant from './MeParticipant';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
 import {UserType} from './../RTMConfigure';
+import {useString} from '../../utils/useString';
 
 export default function AllHostParticipants(props: any) {
   const {p_style, isHost} = props;
   const {userList, localUid} = useContext(chatContext);
-
+  const screenshareName = useString<boolean>('screenshareUserName');
+  const localUserDefaultLabel = useString('localUserDefaultLabel')();
+  const localScreenshareDefaultLabel = useString(
+    'localScreenshareDefaultLabel',
+  )();
+  const pstnUserLabel = useString('pstnUserLabel')();
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const getParticipantName = (userUID: number | string) => {
     if (userUID === 'local')
-      return userList[localUid] ? userList[localUid].name + ' ' : 'You ';
+      return userList[localUid]
+        ? userList[localUid].name + ' '
+        : localUserDefaultLabel + ' ';
     else if (userUID === 1)
       return userList[localUid]
-        ? userList[localUid].name + "'s screenshare "
-        : 'Your screenshare ';
+        ? screenshareName(userList[localUid].name) + ' '
+        : localScreenshareDefaultLabel + ' ';
     else
       return userList[userUID]
         ? userList[userUID].name + ' '
         : String(userUID)[0] === '1'
-        ? 'PSTN User '
-        : 'User ';
+        ? pstnUserLabel + ' '
+        : remoteUserDefaultLabel + ' ';
   };
 
   return (

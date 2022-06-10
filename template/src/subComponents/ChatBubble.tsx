@@ -12,29 +12,33 @@
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
-import ChatContext, {channelMessage} from '../components/ChatContext';
+import {useString} from '../utils/useString';
+import ChatContext, {chatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
+import {isWeb} from '../utils/common';
 
-const ChatBubble = (props: channelMessage) => {
+const ChatBubble = (props: chatBubbleProps) => {
   const {userList} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
-  let {isLocal, msg, ts, uid} = props;
+  let {isLocal, message, timestamp, uid} = props;
   let time =
-    new Date(parseInt(ts)).getHours() +
+    new Date(parseInt(timestamp)).getHours() +
     ':' +
-    new Date(parseInt(ts)).getMinutes();
+    new Date(parseInt(timestamp)).getMinutes();
   const handleUrl = (url: string) => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       window.open(url, '_blank');
     } else {
       Linking.openURL(url);
     }
   };
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   return (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid] ? userList[uid].name : 'User'} | {time + ' '}
+          {userList[uid] ? userList[uid].name : remoteUserDefaultLabel} |{' '}
+          {time + ' '}
         </Text>
       </View>
       <View
@@ -54,7 +58,7 @@ const ChatBubble = (props: channelMessage) => {
           <Text
             style={isLocal ? style.whiteText : style.blackText}
             selectable={true}>
-            {msg.slice(1) + ' '}
+            {message.slice(1) + ' '}
           </Text>
         </Hyperlink>
       </View>

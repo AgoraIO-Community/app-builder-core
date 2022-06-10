@@ -13,6 +13,7 @@ import React, {createContext, useContext, useState} from 'react';
 import {RtcContext} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
+import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
@@ -30,53 +31,53 @@ export const networkIconsObject: {
   [key: number]: {
     icon: string;
     tint: string;
-    text: string;
+    text: NetworkQualities;
   };
 } = {
   0: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Unknown',
+    text: 'unknown',
   },
   1: {
     icon: icons.networkIcons['Excellent'],
     tint: '#2BD900',
-    text: 'Excellent',
+    text: 'excellent',
   },
   2: {
     icon: icons.networkIcons['Good'],
     tint: '#FFEE00',
-    text: 'Good',
+    text: 'good',
   },
   3: {
     icon: icons.networkIcons['Bad'],
     tint: '#F8AA00',
-    text: 'Bad',
+    text: 'bad',
   },
   4: {
     icon: icons.networkIcons['Bad'],
     tint: '#F8AA00',
-    text: 'Bad',
+    text: 'bad',
   },
   5: {
     icon: icons.networkIcons['VeryBad'],
     tint: 'red',
-    text: 'Very Bad',
+    text: 'veryBad',
   },
   6: {
     icon: icons.networkIcons['VeryBad'],
     tint: 'red',
-    text: 'Very Bad',
+    text: 'veryBad',
   },
   7: {
     icon: icons.networkIcons['Unsupported'],
     tint: 'primary',
-    text: 'Unpublished',
+    text: 'unpublished',
   },
   8: {
     icon: icons.networkIcons['Loading'],
     tint: 'primary',
-    text: 'Loading',
+    text: 'loading',
   },
 };
 
@@ -108,8 +109,8 @@ export const NetworkQualityProvider: React.FC = (props) => {
         const updatedNetworkQualityStats = {...prevNetworkQualityStats};
         if (uid === 0) {
           const displayedNetworkQuality =
-          // check if either are unsupported (0)
-          // if not then display whichever is poorer
+            // check if either are unsupported (0)
+            // if not then display whichever is poorer
             downlinkQuality * uplinkQuality !== 0
               ? downlinkQuality < uplinkQuality
                 ? uplinkQuality

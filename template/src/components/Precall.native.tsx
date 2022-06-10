@@ -9,116 +9,56 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {MaxUidContext} from '../../agora-rn-uikit';
-import {MaxVideoView} from '../../agora-rn-uikit';
-import {
-  LocalAudioMute,
-  LocalVideoMute,
-  SwitchCamera,
-  ClientRole,
-  PropsContext,
-} from '../../agora-rn-uikit';
-import {LocalUserContext} from '../../agora-rn-uikit';
+import {ClientRole, PropsContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
-import TextInput from '../atoms/TextInput';
-import Error from '../subComponents/Error';
-import PrimaryButton from '../atoms/PrimaryButton';
+import {useFpe} from 'fpe-api';
+import {useString} from '../utils/useString';
+import {cmpTypeGuard} from '../utils/common';
+import {
+  PreCallJoinBtn,
+  PreCallVideoPreview,
+  PreCallTextInput,
+  PreCallLocalMute,
+  PreCallMeetingTitle,
+} from './precall/index';
 
-const Precall = (props: any) => {
-  const maxUsers = useContext(MaxUidContext);
+const Precall = () => {
   const rtc = useContext(RtcContext);
   const {rtcProps} = useContext(PropsContext);
+  const precallLabel = useString('precallLabel')();
   rtc.RtcEngine.startPreview();
 
-  const {setCallActive, queryComplete, username, setUsername, error, title} =
-    props;
-
-  const [buttonText, setButtonText] = React.useState('Join Room');
-
-  useEffect(() => {
-    let clientRole = '';
-    if (rtcProps?.role == 1) {
-      clientRole = 'Host';
-    }
-    if (rtcProps?.role == 2) {
-      clientRole = 'Audience';
-    }
-    setButtonText(
-      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
-    );
-  }, [rtcProps?.role]);
-
+  const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
+    typeof data?.components?.precall === 'object'
+      ? data?.components.precall
+      : {},
+  );
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
-
-  const meetingTitle = () => (
-    <>
-      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-        {title}
-      </Text>
-      <View style={{height: 25}} />
-    </>
-  );
-
   return (
     <View style={style.full}>
       <View style={style.heading}>
-        <Text style={style.headingText}>Precall </Text>
+        <Text style={style.headingText}>{precallLabel}</Text>
       </View>
-      <View
-        style={{
-          zIndex: 50,
-          position: 'absolute',
-          width: '100%',
-          left: '18%',
-          top: 10,
-          alignSelf: 'center',
-        }}>
-        {error ? <Error error={error} showBack={true} /> : <></>}
-      </View>
-      {meetingTitle()}
+      {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
       {!isAudienceInLiveStreaming() && (
         <View style={style.full}>
-          <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+          {cmpTypeGuard(PreCallVideoPreview, preview)}
         </View>
       )}
       <View style={style.textInputHolder}>
-        <TextInput
-          value={username}
-          onChangeText={(text) => {
-            setUsername(text);
-          }}
-          onSubmitEditing={() => {}}
-          placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-          editable={queryComplete}
-        />
+        {cmpTypeGuard(PreCallTextInput, textBox)}
       </View>
       <View style={{height: 20}} />
       {!isAudienceInLiveStreaming() && (
         <View style={style.controls}>
-          <LocalUserContext>
-            <View style={style.width50}>
-              <LocalVideoMute />
-            </View>
-            <View style={style.width50} />
-            <View style={style.width50}>
-              <LocalAudioMute />
-            </View>
-            <View style={style.width50} />
-            <View style={style.width50}>
-              <SwitchCamera />
-            </View>
-          </LocalUserContext>
+          <PreCallLocalMute />
         </View>
       )}
       <View style={{marginBottom: 50, alignItems: 'center'}}>
-        <PrimaryButton
-          text={buttonText}
-          disabled={!queryComplete || username.trim() === ''}
-          onPress={() => setCallActive(true)}
-        />
+        {cmpTypeGuard(PreCallJoinBtn, joinButton)}
       </View>
     </View>
   );

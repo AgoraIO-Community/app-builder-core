@@ -103,3 +103,7 @@ template/theme-dark.json
 
 # logflies
 *.log
+
+#FPE plugin folder: TODO:hari rename folder later
+template/test-fpe/*
+Builds

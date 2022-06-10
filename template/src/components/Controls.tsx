@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {View, Dimensions, Platform, StyleSheet} from 'react-native';
+import {View, Dimensions, StyleSheet} from 'react-native';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
@@ -22,11 +22,14 @@ import Recording from '../subComponents/Recording';
 import SwitchCamera from '../subComponents/SwitchCamera';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useString} from '../utils/useString';
+import {isIOS, isWeb} from '../utils/common';
 
-const Controls = (props: any) => {
+const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
 
   let onLayout = (e: any) => {
@@ -38,7 +41,11 @@ const Controls = (props: any) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {setRecordingActive, recordingActive, isHost} = props;
+  const {isHost} = useVideoCall((data) => data);
+
+  const audioLabel = useString('toggleAudioButton')();
+  const videoLabel = useString('toggleVideoButton')();
+  const endCallButton = useString('endCallButton')();
 
   return (
     <LocalUserContext>
@@ -68,33 +75,30 @@ const Controls = (props: any) => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
+              <LocalAudioMute btnText={audioLabel} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
+              <LocalVideoMute btnText={videoLabel} />
             </View>
-            {mobileAndTabletCheck() && (
+            {isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
                 <SwitchCamera />
               </View>
             )}
-            {$config.SCREEN_SHARING && !mobileAndTabletCheck() && (
+            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
               <View style={{alignSelf: 'center'}}>
                 <ScreenshareButton />
               </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'center'}}>
-                <Recording
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
+                <Recording />
               </View>
             )}
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall />
+          <Endcall btnText={endCallButton} />
         </View>
       </View>
     </LocalUserContext>
@@ -102,8 +106,9 @@ const Controls = (props: any) => {
 };
 
 const style = StyleSheet.create({
+  // @ts-ignore
   controlsHolder: {
-    flex: Platform.OS === 'web' ? 1.3 : 1.6,
+    flex: isWeb ? 1.3 : 1.6,
     ...controlsHolder,
   },
   chatNotification: {
@@ -114,7 +119,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,

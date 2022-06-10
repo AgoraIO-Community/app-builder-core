@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
+// @ts-nocheck
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -116,6 +117,18 @@ export enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 5: 128-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES128GCM = 5,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES256GCM = 6
 }
 
 export enum VideoStreamType {
@@ -139,6 +152,11 @@ AgoraRTC.setArea({
   areaCode: AREAS.GLOBAL,
   excludedArea: AREAS.CHINA,
 });
+
+interface CustomEvents {
+  ScreenshareStopped: callbackType
+}
+
 
 export default class RtcEngine {
   public appId: string;
@@ -168,6 +186,8 @@ export default class RtcEngine {
   private deviceId = '';
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
+
+  // Create channel profile and set it here
 
   // Create channel profile and set it here
 
@@ -752,7 +772,7 @@ export default class RtcEngine {
     appId: string,
     engine: typeof AgoraRTC,
     encryption: {
-      screenKey: string;
+      key: string;
       mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb';
     },
     config: ScreenVideoTrackInitConfig = {},

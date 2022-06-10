@@ -11,6 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {TextInputProps, StyleSheet, TextInput, Platform} from 'react-native';
+import {isWeb} from '../utils/common';
 import {textInput} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
 
@@ -19,7 +20,13 @@ const PrimaryButton = (props: TextInputProps) => {
   const {style, ...otherProps} = props;
   return (
     <TextInput
-      style={[styles.textInput, styles.textWrapFix, style, styles.noOutline, {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR}]}
+      style={[
+        styles.textInput,
+        styles.textWrapFix,
+        style,
+        styles.noOutline,
+        {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR},
+      ]}
       placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
       {...otherProps}
       autoCorrect={false}
@@ -31,10 +38,11 @@ export default PrimaryButton;
 
 const styles = StyleSheet.create({
   textInput,
-  noOutline: Platform.OS === 'web' ? { outlineStyle: "none" } : {},
+  // @ts-ignore
+  noOutline: isWeb ? {outlineStyle: 'none'} : {},
   textWrapFix: Platform.select({
     ios: {
-      paddingVertical: 5
-    }
-  })
+      paddingVertical: 5,
+    },
+  }),
 });

@@ -10,14 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {LocalUserContext} from '../../agora-rn-uikit';
 import {
   LocalAudioMute,
@@ -29,11 +22,16 @@ import {
 } from '../../agora-rn-uikit';
 import Recording from '../subComponents/Recording';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
+import {useVideoCall} from '../pages/video-call/useVideoCall';
+import {useString} from '../utils/useString';
 
-const Controls = (props: any) => {
-  const {setRecordingActive, recordingActive, isHost} = props;
+const Controls = () => {
+  const {isHost} = useVideoCall();
   const {rtcProps} = useContext(PropsContext);
-
+  const audioLabel = useString('toggleAudioButton')();
+  const videoLabel = useString('toggleVideoButton')();
+  const switchCameraButtonText = useString('switchCameraButton')();
+  const endCallButton = useString('endCallButton')();
   return (
     <LocalUserContext>
       <View style={style.bottomBar}>
@@ -54,26 +52,23 @@ const Controls = (props: any) => {
               />
             )}
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
+              <LocalAudioMute btnText={audioLabel} />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
+              <LocalVideoMute btnText={videoLabel} />
             </View>
             {isHost && $config.CLOUD_RECORDING && (
               <View style={{alignSelf: 'baseline'}}>
-                <Recording
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
+                <Recording />
               </View>
             )}
             <View style={{alignSelf: 'center'}}>
-              <SwitchCamera />
+              <SwitchCamera btnText={switchCameraButtonText} />
             </View>
           </>
         )}
         <View style={{alignSelf: 'center'}}>
-          <Endcall />
+          <Endcall btnText={endCallButton} />
         </View>
       </View>
     </LocalUserContext>

@@ -12,8 +12,11 @@ import {RFValue} from 'react-native-responsive-fontsize';
 import {UserType} from '../../components/RTMConfigure';
 import TextWithTooltip from '../TextWithTooltip';
 import chatContext from '../../components/ChatContext';
+import {useString} from '../../utils/useString';
+import {isIOS, isWeb} from '../../utils/common';
 
 const ChatParticipants = (props: any) => {
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const {
     selectUser,
     setPrivateMessageLastSeen,
@@ -66,7 +69,11 @@ const ChatParticipants = (props: any) => {
                       fontSize: RFValue(16, height > width ? height : width),
                     },
                   ]}
-                  value={userList[uid] ? userList[uid].name + ' ' : 'User '}
+                  value={
+                    userList[uid]
+                      ? userList[uid].name + ' '
+                      : remoteUserDefaultLabel + ' '
+                  }
                 />
               </View>
               <View>
@@ -96,7 +103,7 @@ const style = StyleSheet.create({
   },
   participantText: {
     flex: 1,
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
+    fontWeight: isWeb ? '500' : '700',
     flexDirection: 'row',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
@@ -111,7 +118,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

@@ -9,28 +9,33 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
   ImageBackground,
   StyleSheet,
-  Dimensions,
+  LayoutChangeEvent,
 } from 'react-native';
 import Logo from '../subComponents/Logo';
 import OAuth from '../components/OAuth';
 import Illustration from '../subComponents/Illustration';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {hasBrandLogo} from '../utils/common';
+import DimensionContext from '../components/dimension/DimensionContext';
+import {useString} from '../utils/useString';
 
 const Authenticate = () => {
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  const {getDimensionData} = useContext(DimensionContext);
+  const [isDesktop, setIsDesktop] = useState(false);
+  let onLayout = (e: LayoutChangeEvent) => {
+    const {isDesktop} = getDimensionData(
+      e.nativeEvent.layout.width,
+      e.nativeEvent.layout.height,
+    );
+    setIsDesktop(isDesktop);
   };
+  const oauthLoginLabel = useString('oauthLoginLabel')();
+  const oauthProviderLabel = useString('oauthProviderLabel')();
   return (
     <ImageBackground
       onLayout={onLayout}
@@ -41,13 +46,11 @@ const Authenticate = () => {
         <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
         <View style={style.content}>
           <View style={style.leftContent}>
-            <Text style={style.heading}>Login using OAuth</Text>
-            <Text style={style.headline}>
-              Please select an OAuth provider to login.
-            </Text>
+            <Text style={style.heading}>{oauthLoginLabel}</Text>
+            <Text style={style.headline}>{oauthProviderLabel}</Text>
             <OAuth />
           </View>
-          {dim[0] > dim[1] + 150 ? (
+          {isDesktop ? (
             <View style={style.full}>
               <Illustration />
             </View>
