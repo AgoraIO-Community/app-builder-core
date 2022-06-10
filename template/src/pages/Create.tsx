@@ -64,12 +64,12 @@ const Create = () => {
     if (isWeb) {
       document.title = $config.APP_NAME;
     }
-    SDKEvents.on('join', (phrase) => {
-      console.log('DEBUG(aditya)-SDKEvents: join event called');
+    SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
+      console.log('DEBUG(aditya)-SDKEvents: joinMeetingWithPhrase event called');
       useJoin(phrase);
     });
     return () => {
-      SDKEvents.off('join');
+      SDKEvents.off('joinMeetingWithPhrase');
     };
   }, []);
 
@@ -99,6 +99,7 @@ const Create = () => {
       setLoading(true);
       try {
         const res = await createRoomFun(roomTitle, enablePSTN);
+        SDKEvents.emit('create',res.hostPassphrase, res.attendeePassphrase, res.pstn)
         setLoading(false);
         Toast.show({
           type: 'success',

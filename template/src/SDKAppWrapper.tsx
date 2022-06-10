@@ -6,7 +6,7 @@ import App from './App';
 
 export interface userEventsMapInterface {
   leave: () => void;
-  create: () => void;
+  create: (hostPhrase: string, attendeePhrase?: string, pstnNumer?: string) => void;
   join: () => void;
 }
 
