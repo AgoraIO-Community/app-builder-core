@@ -454,6 +454,7 @@ const VideoCall: React.FC = () => {
                         setActiveLayoutName,
                         isHost,
                         title,
+                        callActive,
                       }}>
                       <RecordingProvider
                         value={{setRecordingActive, recordingActive}}>

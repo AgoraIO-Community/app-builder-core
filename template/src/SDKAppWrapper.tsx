@@ -6,8 +6,17 @@ import App from './App';
 
 export interface userEventsMapInterface {
   leave: () => void;
-  create: (hostPhrase: string, attendeePhrase?: string, pstnNumer?: string) => void;
-  join: () => void;
+  create: (
+    hostPhrase: string,
+    attendeePhrase?: string,
+    pstnNumer?: string,
+  ) => void;
+  preJoin: (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
+  join: (
+    meetingTitle: string,
+    devices: MediaDeviceInfo[],
+    isHost: boolean,
+  ) => void;
 }
 
 export interface AppBuilderSdkApiInterface {

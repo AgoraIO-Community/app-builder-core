@@ -33,6 +33,7 @@ const SDKEvents: SDKEventsInterface = {
     joinMeetingWithPhrase: (p) => {},
     leave: () => {},
     create: () => {},
+    preJoin: () => {},
     join: () => {},
   },
   eventSubs: {
@@ -40,6 +41,7 @@ const SDKEvents: SDKEventsInterface = {
     joinMeetingWithPhrase: null,
     leave: null,
     create: null,
+    preJoin: null,
     join: null,
   },
   on: function (eventName, cb) {

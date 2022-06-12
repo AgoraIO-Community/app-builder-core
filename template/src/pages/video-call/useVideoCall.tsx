@@ -10,9 +10,11 @@
 *********************************************
 */
 
-import React, {SetStateAction} from 'react';
+import React, {SetStateAction, useEffect, useContext} from 'react';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {createHook} from 'fpe-implementation';
+import SDKEvents from '../../utils/SdkEvents';
+import {RtcContext} from '../../../agora-rn-uikit';
 
 export interface VideoCallContextInterface {
   sidePanel: SidePanelType;
@@ -21,6 +23,7 @@ export interface VideoCallContextInterface {
   title: string;
   setSidePanel: React.Dispatch<SetStateAction<SidePanelType>>;
   setActiveLayoutName: React.Dispatch<SetStateAction<string>>;
+  callActive: boolean;
 }
 
 const VideoCallContext = React.createContext<VideoCallContextInterface>({
@@ -30,6 +33,7 @@ const VideoCallContext = React.createContext<VideoCallContextInterface>({
   title: '',
   setSidePanel: () => {},
   setActiveLayoutName: () => {},
+  callActive: false,
 });
 
 interface VideoCallProviderProps {
@@ -37,6 +41,18 @@ interface VideoCallProviderProps {
   children: React.ReactNode;
 }
 const VideoCallProvider = (props: VideoCallProviderProps) => {
+  const rtc = useContext(RtcContext);
+
+  useEffect(() => {
+    if (props.value.callActive)
+      new Promise((res) =>
+        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+          res(devices);
+        }),
+      ).then((devices: MediaDeviceInfo[]) => {
+        SDKEvents.emit('join', props.value.title, devices, props.value.isHost);
+      });
+  }, [props.value.callActive]);
   return (
     <VideoCallContext.Provider value={{...props.value}}>
       {props.children}
