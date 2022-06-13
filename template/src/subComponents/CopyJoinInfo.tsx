@@ -24,6 +24,7 @@ import {
   GetMeetingInviteID,
   GetMeetingInviteURL,
 } from '../utils/getMeetingInvite';
+import isSDKCheck from '../utils/isSDK'
 
 const SHARE = gql`
   query share($passphrase: String!) {
@@ -47,6 +48,8 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
   const {data, loading, error} = useQuery(SHARE, {
     variables: {passphrase: phrase},
   });
+  const isSDK = isSDKCheck();
+
   const copiedToClipboardText = useString(
     'copiedToClipboardNotificationLabel',
   )();
@@ -61,7 +64,7 @@ const CopyJoinInfo = (props: {showText?: boolean}) => {
     });
     if (data && !loading) {
       let baseURL =
-        platform === 'web'
+        platform === 'web' && !isSDK
           ? $config.FRONTEND_ENDPOINT || window.location.origin
           : undefined;
 

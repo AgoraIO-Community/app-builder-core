@@ -26,6 +26,7 @@ import {
   PreCallSelectDevice,
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
+import isSDKCheck from '../utils/isSDK';
 
 const JoinRoomInputView = () => {
   const {textBox, joinButton} = useFpe((data) =>
@@ -52,6 +53,7 @@ const Precall = () => {
       : {},
   );
   const {queryComplete, title} = usePreCall((data) => data);
+  const isSDK = isSDKCheck();
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -63,7 +65,7 @@ const Precall = () => {
   };
 
   useEffect(() => {
-    if (isWeb) {
+    if (isWeb && !isSDK) {
       if (title) {
         document.title = title + ' | ' + $config.APP_NAME;
       }

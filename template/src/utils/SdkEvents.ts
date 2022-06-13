@@ -45,7 +45,10 @@ const SDKEvents: SDKEventsInterface = {
     join: null,
   },
   on: function (eventName, cb) {
-    console.log('DEBUG(aditya)-SDKEvents: event registered:', eventName);
+    console.log(
+      'DEBUG(aditya)-SDKEvents: event registered:',
+      eventName,
+    );
     this.eventsMap[eventName] = cb;
     if (this.eventSubs[eventName]) {
       cb(...this.eventSubs[eventName]);

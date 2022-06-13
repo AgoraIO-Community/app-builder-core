@@ -30,12 +30,10 @@ module.exports = {
   // Adds React Refresh webpack plugin for webpack dev server hmr
   plugins: [
     // Using html webpack plugin to utilize our index.html
-    !isReactSdk &&
+    !isSdk &&
       new HtmlWebpackPlugin({
         title: configVars['$config.APP_NAME'],
-        template: isWebSdk
-          ? 'wsdk/index.html'
-          : isElectron
+        template: isElectron
           ? 'electron/index.html'
           : 'web/index.html',
       }),
@@ -50,7 +48,10 @@ module.exports = {
       // Using react-native web to translate UI
       'react-native$': 'react-native-web',
       // Using rtm bridge to translate React Native RTM SDK calls to web SDK calls
-      'agora-react-native-rtm$': path.join(__dirname, 'bridge/rtm/web/index.ts'),
+      'agora-react-native-rtm$': path.join(
+        __dirname,
+        'bridge/rtm/web/index.ts',
+      ),
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
@@ -72,8 +73,10 @@ module.exports = {
       `.${process.env.TARGET}.ts`,
       isElectron && '.electron.tsx',
       isElectron && '.electron.ts',
-      (isWebSdk || isReactSdk) && '.web.ts',
-      (isWebSdk || isReactSdk) && '.web.tsx',
+      isSdk && '.sdk.ts',
+      isSdk && '.sdk.tsx',
+      isSdk && '.web.ts',
+      isSdk && '.web.tsx',
       '.tsx',
       '.ts',
       '.jsx',

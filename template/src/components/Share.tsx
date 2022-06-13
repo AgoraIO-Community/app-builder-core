@@ -22,6 +22,7 @@ import {useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import {isWeb} from '../utils/common';
+import isSDKCheck from '../utils/isSDK';
 import {
   GetMeetingInviteID,
   GetMeetingInviteURL,
@@ -72,7 +73,7 @@ const Share = () => {
       visibilityTime: 1000,
     });
     let baseURL =
-      platform === 'web'
+      platform === 'web' && !isSDK
         ? $config.FRONTEND_ENDPOINT || window.location.origin
         : undefined;
     let stringToCopy = meetingInviteText({
@@ -109,7 +110,7 @@ const Share = () => {
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
       ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`)
-      : platform === 'web'
+      : platform === 'web' && !isSDK
       ? (stringToCopy += `${window.location.origin}/${hostPassphrase}`)
       : (stringToCopy += `${meetingIdText}: ${hostPassphrase}`);
     Clipboard.setString(stringToCopy);
@@ -124,7 +125,7 @@ const Share = () => {
     let stringToCopy = '';
     $config.FRONTEND_ENDPOINT
       ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`)
-      : platform === 'web'
+      : platform === 'web' && !isSDK
       ? (stringToCopy += `${window.location.origin}/${attendeePassphrase}`)
       : (stringToCopy += `${meetingIdText}: ${attendeePassphrase}`);
     Clipboard.setString(stringToCopy);
@@ -149,6 +150,8 @@ const Share = () => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
 
+  const isSDK = isSDKCheck();
+
   return (
     <ScrollView contentContainerStyle={style.scrollMain}>
       <Logo />
@@ -162,7 +165,7 @@ const Share = () => {
             <View style={style.urlContainer}>
               <View style={{width: '80%'}}>
                 <Text style={style.urlTitle}>
-                  {$config.FRONTEND_ENDPOINT || platform === 'web'
+                  {$config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK )
                     ? attendeeUrlLabel
                     : attendeeIdLabel}
                 </Text>
@@ -170,7 +173,7 @@ const Share = () => {
                   <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                     {$config.FRONTEND_ENDPOINT
                       ? `${$config.FRONTEND_ENDPOINT}/${attendeePassphrase}`
-                      : platform === 'web'
+                      : platform === 'web' && !isSDK
                       ? `${window.location.origin}/${attendeePassphrase}`
                       : attendeePassphrase}
                   </Text>
@@ -206,7 +209,7 @@ const Share = () => {
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
-                {$config.FRONTEND_ENDPOINT || platform === 'web'
+                {$config.FRONTEND_ENDPOINT || platform === 'web' || !isSDK
                   ? isSeparateHostLink
                     ? hostUrlLabel
                     : meetingUrlText
@@ -218,7 +221,7 @@ const Share = () => {
                 <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                   {$config.FRONTEND_ENDPOINT
                     ? `${$config.FRONTEND_ENDPOINT}/${hostPassphrase}`
-                    : platform === 'web'
+                    : platform === 'web' && !isSDK
                     ? `${window.location.origin}/${hostPassphrase}`
                     : hostPassphrase}
                 </Text>
