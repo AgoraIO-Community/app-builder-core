@@ -116,6 +116,7 @@ export const ScreenshareConfigure = (props: any) => {
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
     if (!isScreenActive) {
+      console.log('Set presenter query...');
       // If screen share is not going on, start the screen share by executing the graphql query
       setPresenterQuery({
         variables: {
@@ -131,6 +132,7 @@ export const ScreenshareConfigure = (props: any) => {
           console.log(err);
         });
     } else {
+      console.log('Set normal query...');
       // If recording is already going on, stop the recording by executing the graphql query.
       setNormalQuery({variables: {passphrase: phrase}})
         .then((res) => {

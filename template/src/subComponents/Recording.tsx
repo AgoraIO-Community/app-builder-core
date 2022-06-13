@@ -79,7 +79,9 @@ const Recording = (props: any) => {
     <TouchableOpacity
       onPress={() => {
         if (!recordingActive) {
+          console.log('Record not active...');
           if (screenshareActive) {
+            console.log('Screenshare active...');
             executeRecordingQuery(!screenshareActive);
           }
           // If recording is not going on, start the recording by executing the graphql query
@@ -116,9 +118,6 @@ const Recording = (props: any) => {
                 sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
                 // set the local recording state to false to update the UI
                 setRecordingActive(false);
-                if (screenshareActive) {
-                  executeRecordingQuery(screenshareActive);
-                }
               }
             })
             .catch((err) => {
