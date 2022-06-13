@@ -13,21 +13,37 @@
  * @format
  */
 type callBackType = (...args: any[]) => void;
-interface eventsMapInterface {
+import {userEventsMapInterface} from '../SDKAppWrapper';
+
+interface eventsMapInterface extends userEventsMapInterface {
   addFpe: callBackType;
-  join: (phrase:string) => void;
+  joinMeetingWithPhrase: (phrase: string) => void;
 }
 interface SDKEventsInterface {
   eventsMap: eventsMapInterface;
   eventSubs: {[key in keyof eventsMapInterface]: any};
+  emit: (eventName: keyof eventsMapInterface, ...args: any) => void;
   on: (eventName: keyof eventsMapInterface, cb: callBackType) => void;
-  emit: (eventName: keyof eventsMapInterface, args: any) => void;
   off: (eventName: keyof eventsMapInterface) => void;
 }
 
 const SDKEvents: SDKEventsInterface = {
-  eventsMap: {addFpe: () => {}, join: (p)=>{}},
-  eventSubs: {addFpe: null, join: null},
+  eventsMap: {
+    addFpe: () => {},
+    joinMeetingWithPhrase: (p) => {},
+    leave: () => {},
+    create: () => {},
+    preJoin: () => {},
+    join: () => {},
+  },
+  eventSubs: {
+    addFpe: null,
+    joinMeetingWithPhrase: null,
+    leave: null,
+    create: null,
+    preJoin: null,
+    join: null,
+  },
   on: function (eventName, cb) {
     console.log('DEBUG(aditya)-SDKEvents: event registered:', eventName);
     this.eventsMap[eventName] = cb;
@@ -40,10 +56,10 @@ const SDKEvents: SDKEventsInterface = {
     this.eventsMap[eventName](...args);
     this.eventSubs[eventName] = args;
   },
-  off: function(eventName) {
+  off: function (eventName) {
     console.log('DEBUG(aditya)-SDKEvents: event deregistered:', eventName);
     this.eventSubs[eventName] = null;
-  }
+  },
 };
 
 export default SDKEvents;

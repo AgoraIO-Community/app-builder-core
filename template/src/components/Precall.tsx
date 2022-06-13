@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {RtcContext, PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {cmpTypeGuard, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {usePreCall} from './precall/usePreCall';
@@ -25,6 +25,7 @@ import {
   PreCallMeetingTitle,
   PreCallSelectDevice,
 } from './precall/index';
+import SDKEvents from '../utils/SdkEvents';
 
 const JoinRoomInputView = () => {
   const {textBox, joinButton} = useFpe((data) =>
@@ -44,6 +45,7 @@ const JoinRoomInputView = () => {
 const Precall = () => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
+  const rtc = useContext(RtcContext);
   const {preview, deviceSelect, meetingName} = useFpe((data) =>
     typeof data?.components?.precall === 'object'
       ? data.components.precall
@@ -67,6 +69,19 @@ const Precall = () => {
       }
     }
   });
+
+  useEffect(() => {
+    if (queryComplete) {
+      new Promise((res) =>
+        // @ts-ignore
+        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+          res(devices);
+        }),
+      ).then((devices: MediaDeviceInfo[]) => {
+        SDKEvents.emit('preJoin', title, devices);
+      });
+    }
+  }, [queryComplete]);
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 

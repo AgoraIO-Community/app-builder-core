@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text, Platform} from 'react-native';
 
@@ -60,6 +61,7 @@ import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {useString} from '../utils/useString';
 import useCustomLayout from './video-call/CustomLayout';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
+import SDKEvents from '../utils/SdkEvents';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -403,6 +405,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {
+        SDKEvents.emit('leave');
         history.push('/');
       }, 0),
   };
@@ -452,6 +455,7 @@ const VideoCall: React.FC = () => {
                         setActiveLayoutName,
                         isHost,
                         title,
+                        callActive,
                       }}>
                       <RecordingProvider
                         value={{setRecordingActive, recordingActive}}>
