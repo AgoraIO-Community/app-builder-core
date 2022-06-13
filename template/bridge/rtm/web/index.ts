@@ -26,8 +26,6 @@ export {RtmAttributePlaceholder as RtmAttribute};
 
 type callbackType = (args?: any) => void;
 
-type callbackType = (args?: any) => void;
-
 export default class RtmEngine {
   public appId: string;
   public client: any;
