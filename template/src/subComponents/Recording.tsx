@@ -79,10 +79,13 @@ const Recording = (props: any) => {
     <TouchableOpacity
       onPress={() => {
         if (!recordingActive) {
-          console.log('Record not active...');
+          console.log(
+            'Record not active...',
+            screenshareActive ? 'screenshareActive' : 'screenshareNotActive',
+          );
           if (screenshareActive) {
             console.log('Screenshare active...');
-            executeRecordingQuery(!screenshareActive);
+            executeRecordingQuery(screenshareActive);
           }
           // If recording is not going on, start the recording by executing the graphql query
           startRecordingQuery({
