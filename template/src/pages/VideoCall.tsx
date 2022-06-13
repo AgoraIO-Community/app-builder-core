@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text, Platform} from 'react-native';
 

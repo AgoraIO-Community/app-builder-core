@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import Clipboard from '../subComponents/Clipboard';
