@@ -18,6 +18,7 @@ import {useParams} from '../components/Router';
 import {PropsContext} from '../../agora-rn-uikit';
 import Toast from '../../react-native-toast-message';
 import {ImageIcon} from '../../agora-rn-uikit';
+import ScreenshareContext from './screenshare/ScreenshareContext';
 
 const START_RECORDING = gql`
   mutation startRecordingSession($passphrase: String!, $secret: String) {
@@ -54,6 +55,8 @@ const Recording = (props: any) => {
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   const prevRecordingState = usePrevious({recordingActive});
+  const {screenshareActive, executeRecordingQuery} =
+    useContext(ScreenshareContext);
 
   useEffect(() => {
     /**
@@ -94,6 +97,9 @@ const Recording = (props: any) => {
                 sendControlMessage(controlMessageEnum.cloudRecordingActive);
                 // set the local recording state to true to update the UI
                 setRecordingActive(true);
+                if (screenshareActive) {
+                  executeRecordingQuery(screenshareActive);
+                }
               }
             })
             .catch((err) => {
@@ -110,6 +116,9 @@ const Recording = (props: any) => {
                 sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
                 // set the local recording state to false to update the UI
                 setRecordingActive(false);
+                if (screenshareActive) {
+                  executeRecordingQuery(screenshareActive);
+                }
               }
             })
             .catch((err) => {

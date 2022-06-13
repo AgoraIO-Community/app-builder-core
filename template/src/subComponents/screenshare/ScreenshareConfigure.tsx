@@ -191,6 +191,7 @@ export const ScreenshareConfigure = (props: any) => {
         screenshareActive,
         startUserScreenshare,
         stopUserScreenShare,
+        executeRecordingQuery,
       }}>
       {props.children}
     </ScreenshareContext.Provider>
