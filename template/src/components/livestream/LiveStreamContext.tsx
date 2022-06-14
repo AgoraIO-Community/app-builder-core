@@ -261,7 +261,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           // 3. Audience receives this when host demotes (canceled after approval)
           case LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall:
             showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-            screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
+            screenshareContextInstance?.toggleUserScreenshare(); // This will not exist on ios
             setRaiseHandRequestActive(false);
             // Audience notfies all host when request is rejected
             notifyAllHostsInChannel(
@@ -368,7 +368,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       localUserRef &&
       localUserRef.current?.status === requestStatus.Approved
     ) {
-      screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
+      screenshareContextInstance?.toggleUserScreenshare(); // This will not exist on ios
       setRaiseHandRequestActive(false);
       /// Change role and send message in channel notifying the same
       changeClientRoleTo(ClientRole.Audience);

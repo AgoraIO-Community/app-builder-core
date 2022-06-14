@@ -20,12 +20,12 @@ import ScreenshareContext from './ScreenshareContext';
  * Electron has it's own screen sharing component
  */
 const ScreenshareButton = () => {
-  const {screenshareActive, startUserScreenshare} =
+  const {screenshareActive, toggleUserScreenshare} =
     useContext(ScreenshareContext);
   const {primaryColor} = useContext(ColorContext);
 
   return (
-    <TouchableOpacity onPress={() => startUserScreenshare()}>
+    <TouchableOpacity onPress={() => toggleUserScreenshare()}>
       <View
         style={
           screenshareActive

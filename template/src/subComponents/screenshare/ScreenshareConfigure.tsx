@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useParams} from '../../components/Router';
 import ChatContext from '../../components/ChatContext';
 import {
@@ -55,25 +49,6 @@ export const ScreenshareConfigure = (props: any) => {
 
   const [setPresenterQuery] = useMutation(SET_PRESENTER);
   const [setNormalQuery] = useMutation(SET_NORMAL);
-
-  useEffect(() => {
-    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
-      setScreenshareActive(false);
-      console.log('STOPPED SHARING');
-      setLayout((l: Layout) =>
-        l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-      );
-      setNormalQuery({variables: {passphrase: phrase}})
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.stopRecordingSession === 'success') {
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
-  }, []);
 
   useEffect(() => {
     if (prevUsers !== undefined) {
@@ -176,44 +151,55 @@ export const ScreenshareConfigure = (props: any) => {
     }
   };
 
-  const stopUserScreenShare = () => {
-    if (screenshareActive) {
-      startUserScreenshare();
-    }
-  };
-
-  const startUserScreenshare = async () => {
+  const toggleUserScreenshare = async () => {
     const isScreenActive = screenshareActive;
-    if (recordingActive) {
-      executeRecordingQuery(isScreenActive);
-    }
-    try {
-      await rtc.RtcEngine.startScreenshare(
-        screenShareToken,
-        channel,
-        null,
-        screenShareUid,
-        appId,
-        rtc.RtcEngine,
-        encryption,
+    if (isScreenActive) {
+      setScreenshareActive(false);
+      console.log('STOPPED SHARING');
+      setLayout((l: Layout) =>
+        l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
       );
-      !isScreenActive && setScreenshareActive(true);
-    } catch (e) {
-      console.error("can't start the screen share", e);
       setNormalQuery({variables: {passphrase: phrase}})
         .then((res) => {
           console.log(res.data);
           if (res.data.stopRecordingSession === 'success') {
-            // Once the backend sucessfuly stops recording,
-            // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-            // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-            // set the local recording state to false to update the UI
-            // setScreenshareActive(false);
           }
         })
         .catch((err) => {
           console.log(err);
         });
+    } else {
+      if (recordingActive) {
+        executeRecordingQuery(isScreenActive);
+      }
+      try {
+        await rtc.RtcEngine.startScreenshare(
+          screenShareToken,
+          channel,
+          null,
+          screenShareUid,
+          appId,
+          rtc.RtcEngine,
+          encryption,
+        );
+        !isScreenActive && setScreenshareActive(true);
+      } catch (e) {
+        console.error("can't start the screen share", e);
+        setNormalQuery({variables: {passphrase: phrase}})
+          .then((res) => {
+            console.log(res.data);
+            if (res.data.stopRecordingSession === 'success') {
+              // Once the backend sucessfuly stops recording,
+              // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+              // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+              // set the local recording state to false to update the UI
+              // setScreenshareActive(false);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     }
   };
 
@@ -221,8 +207,7 @@ export const ScreenshareConfigure = (props: any) => {
     <ScreenshareContext.Provider
       value={{
         screenshareActive,
-        startUserScreenshare,
-        stopUserScreenShare,
+        toggleUserScreenshare,
         togglePresenterOrNormalMode,
       }}>
       {props.children}

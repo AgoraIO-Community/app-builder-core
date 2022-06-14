@@ -13,8 +13,7 @@ import {createContext} from 'react';
 
 interface ScreenshareContext {
   screenshareActive: boolean;
-  startUserScreenshare: () => void;
-  stopUserScreenShare: () => void;
+  toggleUserScreenshare: () => void;
   togglePresenterOrNormalMode: (isNormalMode: boolean) => void;
 }
 
