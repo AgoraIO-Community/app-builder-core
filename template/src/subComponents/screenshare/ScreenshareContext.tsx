@@ -15,6 +15,7 @@ interface ScreenshareContext {
   screenshareActive: boolean;
   startUserScreenshare: () => void;
   stopUserScreenShare: () => void;
+  togglePresenterOrNormalMode: (isNormalMode: boolean) => void;
 }
 
 const ScreenshareContext = createContext(null as unknown as ScreenshareContext);

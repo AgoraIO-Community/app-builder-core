@@ -144,6 +144,38 @@ export const ScreenshareConfigure = (props: any) => {
     }
   };
 
+  const togglePresenterOrNormalMode = (isNormalMode: boolean) => {
+    if (!isNormalMode) {
+      // If screen share is not going on, start the screen share by executing the graphql query
+      setPresenterQuery({
+        variables: {
+          uid: screenShareUid,
+          passphrase: phrase,
+        },
+      })
+        .then((res) => {
+          if (res.data.setPresenter === 'success') {
+            console.log('SET TO PRESENTER MODE');
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      // If recording is already going on, stop the recording by executing the graphql query.
+      setNormalQuery({variables: {passphrase: phrase}})
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.stopRecordingSession === 'success') {
+            console.log('SET TO NORMAL MODE');
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
   const stopUserScreenShare = () => {
     if (screenshareActive) {
       startUserScreenshare();
@@ -191,6 +223,7 @@ export const ScreenshareConfigure = (props: any) => {
         screenshareActive,
         startUserScreenshare,
         stopUserScreenShare,
+        togglePresenterOrNormalMode,
       }}>
       {props.children}
     </ScreenshareContext.Provider>
