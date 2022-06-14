@@ -118,7 +118,7 @@ const general = {
   typescript: (cb) => {
     runCli(
       'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/fpe-api.d.ts',
-      cb,
+      () => cb(),
     );
   },
   typescriptFix: () => {
