@@ -21,6 +21,7 @@ export function usei18nData(
   if (
     !selectedLanguageCode ||
     !languageData ||
+    (languageData && !Array.isArray(languageData)) ||
     (languageData && Array.isArray(languageData) && !languageData.length)
   ) {
     return DEFAULT_I18_DATA.data;
