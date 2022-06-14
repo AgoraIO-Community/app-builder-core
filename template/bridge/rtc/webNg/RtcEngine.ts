@@ -640,16 +640,10 @@ export default class RtcEngine {
     console.log('!set fallback');
   }
 
-  async enableEncryption(
-    enabled: boolean,
-    config: {
-      encryptionMode: RnEncryptionEnum;
-      encryptionKey: string;
-    },
-  ): Promise<void> {
+  getEncryptionMode = (enabled: boolean, encryptmode: RnEncryptionEnum) => {
     let mode: EncryptionMode;
     if (enabled) {
-      switch (config.encryptionMode) {
+      switch (encryptmode) {
         case RnEncryptionEnum.None:
           mode = 'none';
           break;
@@ -668,7 +662,18 @@ export default class RtcEngine {
     } else {
       mode = 'none';
     }
+    return mode;
+  };
 
+  async enableEncryption(
+    enabled: boolean,
+    config: {
+      encryptionMode: RnEncryptionEnum;
+      encryptionKey: string;
+    },
+  ): Promise<void> {
+    let mode: EncryptionMode;
+    mode = this.getEncryptionMode(enabled, config.encryptionMode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
@@ -753,7 +758,7 @@ export default class RtcEngine {
     engine: typeof AgoraRTC,
     encryption: {
       screenKey: string;
-      mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb';
+      mode: RnEncryptionEnum;
     },
     config: ScreenVideoTrackInitConfig = {},
     audio: 'enable' | 'disable' | 'auto' = 'auto',
@@ -761,6 +766,23 @@ export default class RtcEngine {
     if (!this.inScreenshare) {
       try {
         console.log('[screenshare]: creating stream');
+
+        let mode: EncryptionMode;
+        mode = this.getEncryptionMode(true, encryption.mode);
+        try {
+          /**
+           * Since version 4.7.0, if client leaves a call
+           * and joins again the encryption needs to be
+           * set again
+           */
+          await this.screenClient.setEncryptionConfig(
+            mode,
+            encryption.screenKey,
+          );
+        } catch (e) {
+          console.log('e: Encryption for screenshare failed', e);
+        }
+
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
           config,
           audio,
