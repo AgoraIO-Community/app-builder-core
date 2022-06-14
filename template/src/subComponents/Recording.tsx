@@ -82,10 +82,7 @@ const Recording = (props: any) => {
             'Record not active...',
             screenshareActive ? 'screenshareActive' : 'screenshareNotActive',
           );
-          if (screenshareActive) {
-            console.log('Screenshare active...');
-            setRecordingMode(!screenshareActive);
-          }
+
           // If recording is not going on, start the recording by executing the graphql query
           startRecordingQuery({
             variables: {
@@ -104,6 +101,10 @@ const Recording = (props: any) => {
                 sendControlMessage(controlMessageEnum.cloudRecordingActive);
                 // set the local recording state to true to update the UI
                 setRecordingActive(true);
+                if (screenshareActive) {
+                  console.log('Screenshare active...');
+                  setRecordingMode(!screenshareActive);
+                }
               }
             })
             .catch((err) => {
