@@ -18,7 +18,7 @@ import icons from '../assets/icons';
 import {useString} from '../utils/useString';
 import {UidInterface} from '../../agora-rn-uikit';
 import useSendMessage, {MESSAGE_TYPE} from '../utils/useSendMessage';
-import {getCmpTypeGuard} from '../utils/common';
+import {isValidReactComponent} from '../utils/common';
 import {useFpe} from 'fpe-api';
 
 export interface ChatSendButtonProps {
@@ -104,22 +104,72 @@ const ChatInput = (props: chatInputProps) => {
   const {primaryColor} = useContext(ColorContext);
   const [message, onChangeMessage] = useState('');
   const {selectedUserId} = props;
-  const ChatInputFpe = getCmpTypeGuard<ChatTextInputProps>(
-    ChatTextInput,
-    useFpe((data) =>
-      typeof data?.components?.videoCall === 'object' &&
-      typeof data?.components?.videoCall?.chat === 'object'
-        ? data?.components?.videoCall?.chat?.chatInput
-        : undefined,
-    ),
-  );
+  const {ChatInputComponent, ChatAfterView, ChatBeforeView} = useFpe((data) => {
+    let components: {
+      ChatInputComponent: React.ComponentType<ChatTextInputProps>;
+      ChatBeforeView: React.ComponentType;
+      ChatAfterView: React.ComponentType;
+    } = {
+      ChatInputComponent: ChatTextInput,
+      ChatAfterView: React.Fragment,
+      ChatBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.chat &&
+        typeof data?.components?.videoCall?.chat === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat?.chatInput &&
+          typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+        ) {
+          components.ChatInputComponent =
+            data?.components?.videoCall?.chat?.chatInput;
+        }
+
+        if (
+          data?.components?.videoCall?.chat?.chatInput &&
+          typeof data?.components?.videoCall?.chat?.chatInput === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatInput?.after &&
+            isValidReactComponent(
+              data?.components?.videoCall?.chat?.chatInput?.after,
+            )
+          ) {
+            components.ChatAfterView =
+              data?.components?.videoCall?.chat?.chatInput?.after;
+          }
+          if (
+            data?.components?.videoCall?.chat?.chatInput?.before &&
+            isValidReactComponent(
+              data?.components?.videoCall?.chat?.chatInput?.before,
+            )
+          ) {
+            components.ChatBeforeView =
+              data?.components?.videoCall?.chat?.chatInput?.before;
+          }
+        }
+      }
+    }
+    return components;
+  });
+
   return (
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
-      <ChatInputFpe
-        message={message}
-        onChangeMessage={onChangeMessage}
-        selectedUserId={selectedUserId}
-      />
+      <>
+        <ChatBeforeView />
+        <ChatInputComponent
+          message={message}
+          onChangeMessage={onChangeMessage}
+          selectedUserId={selectedUserId}
+        />
+        <ChatAfterView />
+      </>
       <ChatSendButton
         message={message}
         clearInputMessage={onChangeMessage}

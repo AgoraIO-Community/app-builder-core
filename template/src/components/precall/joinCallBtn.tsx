@@ -17,10 +17,14 @@ import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import useGetName from '../../utils/useGetName';
+import {useFpe} from 'fpe-api';
+import {isValidReactComponent} from '../../utils/common';
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
-  const {setCallActive, username} = usePreCall();
+  const {setCallActive} = usePreCall();
+  const username = useGetName();
   const {isJoinDataFetched} = useMeetingInfo();
   const getMode = () =>
     $config.EVENT_MODE
@@ -48,12 +52,51 @@ const joinCallBtn: React.FC = () => {
     }
   }, [rtcProps?.role]);
 
+  const {JoinButtonAfterView, JoinButtonBeforeView} = useFpe((data) => {
+    let components: {
+      JoinButtonAfterView: React.ComponentType;
+      JoinButtonBeforeView: React.ComponentType;
+    } = {
+      JoinButtonAfterView: React.Fragment,
+      JoinButtonBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall === 'object'
+    ) {
+      if (
+        data?.components?.precall?.joinButton &&
+        typeof data?.components?.precall?.joinButton === 'object'
+      ) {
+        if (
+          data?.components?.precall?.joinButton?.before &&
+          isValidReactComponent(data?.components?.precall?.joinButton?.before)
+        ) {
+          components.JoinButtonBeforeView =
+            data?.components?.precall?.joinButton?.before;
+        }
+        if (
+          data?.components?.precall?.joinButton?.after &&
+          isValidReactComponent(data?.components?.precall?.joinButton?.after)
+        ) {
+          components.JoinButtonAfterView =
+            data?.components?.precall?.joinButton?.after;
+        }
+      }
+    }
+    return components;
+  });
+
   return (
-    <PrimaryButton
-      onPress={() => setCallActive(true)}
-      disabled={!isJoinDataFetched || username === ''}
-      text={buttonText}
-    />
+    <>
+      <JoinButtonBeforeView />
+      <PrimaryButton
+        onPress={() => setCallActive(true)}
+        disabled={!isJoinDataFetched || username === ''}
+        text={buttonText}
+      />
+      <JoinButtonAfterView />
+    </>
   );
 };
 

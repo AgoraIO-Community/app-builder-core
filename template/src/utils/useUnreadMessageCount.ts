@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useChatUIData} from '../components/useChatUI';
+import {useChatNotification} from '../components/chat-notification/useChatNotification';
 
 export enum UNREAD_MESSAGE_COUNT_TYPE {
   GroupAndPrivateCount,
@@ -20,29 +20,23 @@ export enum UNREAD_MESSAGE_COUNT_TYPE {
 
 function useUnreadMessageCount() {
   const {
-    pendingMessageLength,
-    pendingPrivateNotification,
-    pendingPublicNotification,
-    privateMessageCountMap,
-    lastCheckedPrivateState,
-  } = useChatUIData();
+    totalUnreadCount,
+    unreadGroupMessageCount,
+    unreadPrivateMessageCount,
+    unreadIndividualMessageCount,
+  } = useChatNotification();
 
   const getUnreadCount = (type: UNREAD_MESSAGE_COUNT_TYPE, uid?: string) => {
     switch (type) {
       case UNREAD_MESSAGE_COUNT_TYPE.GroupAndPrivateCount:
-        return pendingMessageLength;
+        return totalUnreadCount;
       case UNREAD_MESSAGE_COUNT_TYPE.GroupCount:
-        return pendingPublicNotification;
+        return unreadGroupMessageCount;
       case UNREAD_MESSAGE_COUNT_TYPE.PrivateCount:
-        return pendingPrivateNotification;
+        return unreadPrivateMessageCount;
       case UNREAD_MESSAGE_COUNT_TYPE.PaticularUserUnReadCount:
-        return uid
-          ? (privateMessageCountMap && privateMessageCountMap[uid]
-              ? privateMessageCountMap[uid]
-              : 0) -
-              (lastCheckedPrivateState && lastCheckedPrivateState[uid]
-                ? lastCheckedPrivateState[uid]
-                : 0)
+        return uid && unreadIndividualMessageCount[uid]
+          ? unreadIndividualMessageCount[uid]
           : 0;
       default:
         return 0;

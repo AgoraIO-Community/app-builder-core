@@ -29,6 +29,8 @@ import LiveStreamControls, {
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
+import {useFpe} from 'fpe-api';
+import {isValidReactComponent} from '../utils/common';
 const Controls = () => {
   const {isHost} = useMeetingInfo();
   const {rtcProps} = useContext(PropsContext);
@@ -36,42 +38,82 @@ const Controls = () => {
   const videoLabel = useString('toggleVideoButton')();
   const switchCameraButtonText = useString('switchCameraButton')();
   const endCallButton = useString('endCallButton')();
+  const {ControlsAfterView, ControlsBeforeView} = useFpe((data) => {
+    let components: {
+      ControlsAfterView: React.ComponentType;
+      ControlsBeforeView: React.ComponentType;
+    } = {
+      ControlsAfterView: React.Fragment,
+      ControlsBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.bottomBar &&
+        typeof data?.components?.videoCall?.bottomBar === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.bottomBar?.after &&
+          isValidReactComponent(data?.components?.videoCall?.bottomBar?.after)
+        ) {
+          components.ControlsAfterView =
+            data?.components?.videoCall?.bottomBar?.after;
+        }
+        if (
+          data?.components?.videoCall?.bottomBar?.before &&
+          isValidReactComponent(data?.components?.videoCall?.bottomBar?.before)
+        ) {
+          components.ControlsBeforeView =
+            data?.components?.videoCall?.bottomBar?.before;
+        }
+      }
+    }
+    return components;
+  });
   return (
-    <View style={style.bottomBar}>
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-        <LiveStreamControls showControls={true} />
-      ) : (
-        <>
-          {/**
-           * In event mode when raise hand feature is active
-           * and audience is promoted to host, the audience can also
-           * demote himself
-           */}
-          {$config.EVENT_MODE && (
-            <LiveStreamControls
-              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
-            />
-          )}
-          <View style={{alignSelf: 'center'}}>
-            <LocalAudioMute btnText={audioLabel} />
-          </View>
-          <View style={{alignSelf: 'center'}}>
-            <LocalVideoMute btnText={videoLabel} />
-          </View>
-          {isHost && $config.CLOUD_RECORDING && (
-            <View style={{alignSelf: 'baseline'}}>
-              <Recording />
+    <>
+      <ControlsBeforeView />
+      <View style={style.bottomBar}>
+        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          <LiveStreamControls showControls={true} />
+        ) : (
+          <>
+            {/**
+             * In event mode when raise hand feature is active
+             * and audience is promoted to host, the audience can also
+             * demote himself
+             */}
+            {$config.EVENT_MODE && (
+              <LiveStreamControls
+                showControls={
+                  rtcProps?.role == ClientRole.Broadcaster && !isHost
+                }
+              />
+            )}
+            <View style={{alignSelf: 'center'}}>
+              <LocalAudioMute btnText={audioLabel} />
             </View>
-          )}
-          <View style={{alignSelf: 'center'}}>
-            <SwitchCamera btnText={switchCameraButtonText} />
-          </View>
-        </>
-      )}
-      <View style={{alignSelf: 'center'}}>
-        <Endcall btnText={endCallButton} />
+            <View style={{alignSelf: 'center'}}>
+              <LocalVideoMute btnText={videoLabel} />
+            </View>
+            {isHost && $config.CLOUD_RECORDING && (
+              <View style={{alignSelf: 'baseline'}}>
+                <Recording />
+              </View>
+            )}
+            <View style={{alignSelf: 'center'}}>
+              <SwitchCamera btnText={switchCameraButtonText} />
+            </View>
+          </>
+        )}
+        <View style={{alignSelf: 'center'}}>
+          <Endcall btnText={endCallButton} />
+        </View>
       </View>
-    </View>
+      <ControlsAfterView />
+    </>
   );
 };
 export const ControlsComponentsArray: [

@@ -15,25 +15,68 @@ import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWeb} from '../utils/common';
+import {isValidReactComponent, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useFpe} from 'fpe-api';
 
 const SettingsView = () => {
   const {isHost} = useMeetingInfo();
   const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
+  const {SettingsAfterView, SettingsBeforeView} = useFpe((data) => {
+    let components: {
+      SettingsAfterView: React.ComponentType;
+      SettingsBeforeView: React.ComponentType;
+    } = {
+      SettingsAfterView: React.Fragment,
+      SettingsBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.settingsPanel &&
+        typeof data?.components?.videoCall?.settingsPanel === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.settingsPanel?.after &&
+          isValidReactComponent(
+            data?.components?.videoCall?.settingsPanel?.after,
+          )
+        ) {
+          components.SettingsAfterView =
+            data?.components?.videoCall?.settingsPanel?.after;
+        }
+        if (
+          data?.components?.videoCall?.settingsPanel?.before &&
+          isValidReactComponent(
+            data?.components?.videoCall?.settingsPanel?.before,
+          )
+        ) {
+          components.SettingsBeforeView =
+            data?.components?.videoCall?.settingsPanel?.before;
+        }
+      }
+    }
+    return components;
+  });
   return (
-    <View style={isWeb ? style.settingsView : style.settingsViewNative}>
-      <View style={style.main}>
-        <View>
-          <Text style={style.heading}>{selectInputDeviceLabel}</Text>
-          <View style={style.popupPickerHolder}>
-            <SelectDevice />
+    <>
+      <SettingsBeforeView />
+      <View style={isWeb ? style.settingsView : style.settingsViewNative}>
+        <View style={style.main}>
+          <View>
+            <Text style={style.heading}>{selectInputDeviceLabel}</Text>
+            <View style={style.popupPickerHolder}>
+              <SelectDevice />
+            </View>
           </View>
+          {isHost ? <HostControlView /> : <></>}
+          <LanguageSelector />
         </View>
-        {isHost ? <HostControlView /> : <></>}
-        <LanguageSelector />
       </View>
-    </View>
+      <SettingsAfterView />
+    </>
   );
 };
 

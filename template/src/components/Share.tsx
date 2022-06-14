@@ -20,8 +20,51 @@ import {useString} from '../utils/useString';
 import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import useNavigateTo from '../utils/useNavigateTo';
+import {useFpe} from 'fpe-api';
+import {isValidReactComponent} from '../utils/common';
 
 const Share = () => {
+  const {ShareAfterView, ShareBeforeView, FpeShareComponent} = useFpe(
+    (data) => {
+      let components: {
+        ShareAfterView: React.ComponentType;
+        ShareBeforeView: React.ComponentType;
+        FpeShareComponent?: React.ElementType;
+      } = {
+        ShareAfterView: React.Fragment,
+        ShareBeforeView: React.Fragment,
+      };
+      if (
+        data?.components?.share &&
+        typeof data?.components?.share === 'object'
+      ) {
+        if (
+          data?.components?.share?.after &&
+          isValidReactComponent(data?.components?.share?.after)
+        ) {
+          components.ShareAfterView = data?.components?.share?.after;
+        }
+        if (
+          data?.components?.share?.before &&
+          isValidReactComponent(data?.components?.share?.before)
+        ) {
+          components.ShareBeforeView = data?.components?.share?.before;
+        }
+      }
+      if (
+        data?.components?.share &&
+        typeof data?.components?.share !== 'object'
+      ) {
+        if (
+          data?.components?.share &&
+          isValidReactComponent(data?.components?.share)
+        ) {
+          components.FpeShareComponent = data?.components?.share;
+        }
+      }
+      return components;
+    },
+  );
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {meetingPassphrase, isSeparateHostLink} = useMeetingInfo();
   const meetingUrlText = useString('meetingUrlLabel')();
@@ -70,22 +113,66 @@ const Share = () => {
       return meetingIdText;
     }
   };
-  return (
-    <ScrollView contentContainerStyle={style.scrollMain}>
-      <Logo />
-      <View style={style.content} onLayout={onLayout}>
-        <View style={style.leftContent}>
-          <View>
-            <Text style={style.heading}>{$config.APP_NAME}</Text>
-            <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-          </View>
-          {isSeparateHostLink ? (
+  return FpeShareComponent ? (
+    <FpeShareComponent />
+  ) : (
+    <>
+      <ShareBeforeView />
+      <ScrollView contentContainerStyle={style.scrollMain}>
+        <Logo />
+        <View style={style.content} onLayout={onLayout}>
+          <View style={style.leftContent}>
+            <View>
+              <Text style={style.heading}>{$config.APP_NAME}</Text>
+              <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
+            </View>
+            {isSeparateHostLink ? (
+              <View style={style.urlContainer}>
+                <View style={{width: '80%'}}>
+                  <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+                  <View style={style.urlHolder}>
+                    <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                      {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+                    </Text>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    marginLeft: 'auto',
+                    flexDirection: 'row',
+                    alignSelf: 'center',
+                  }}>
+                  <View
+                    style={{
+                      backgroundColor: $config.PRIMARY_COLOR + '80',
+                      width: 1,
+                      height: 'auto',
+                      marginRight: 15,
+                    }}
+                  />
+                  <View style={style.clipboardIconHolder}>
+                    <BtnTemplate
+                      style={style.clipboardIcon}
+                      color={$config.PRIMARY_COLOR}
+                      name={'clipboard'}
+                      onPress={() =>
+                        copyShareLinkToClipboard(
+                          SHARE_LINK_CONTENT_TYPE.ATTENDEE,
+                        )
+                      }
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <></>
+            )}
             <View style={style.urlContainer}>
               <View style={{width: '80%'}}>
-                <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+                <Text style={style.urlTitle}>{getHostLabel()}</Text>
                 <View style={style.urlHolder}>
                   <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                    {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+                    {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
                   </Text>
                 </View>
               </View>
@@ -109,107 +196,71 @@ const Share = () => {
                     color={$config.PRIMARY_COLOR}
                     name={'clipboard'}
                     onPress={() =>
-                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE)
+                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
                     }
                   />
                 </View>
               </View>
             </View>
-          ) : (
-            <></>
-          )}
-          <View style={style.urlContainer}>
-            <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{getHostLabel()}</Text>
-              <View style={style.urlHolder}>
-                <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                  {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
-                </Text>
+            {meetingPassphrase?.pstn ? (
+              <View style={style.urlContainer}>
+                <View style={{width: '80%'}}>
+                  <Text style={style.urlTitle}>{pstnLabel}</Text>
+                  <View>
+                    <View style={style.pstnHolder}>
+                      <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
+                      <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                        {meetingPassphrase?.pstn?.number}
+                      </Text>
+                    </View>
+                    <View style={style.pstnHolder}>
+                      <Text style={style.urlTitle}>{pinLabel}: </Text>
+                      <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                        {meetingPassphrase?.pstn?.pin}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
+                  <View
+                    style={{
+                      backgroundColor: $config.PRIMARY_COLOR + '80',
+                      width: 1,
+                      height: 'auto',
+                      marginRight: 15,
+                    }}
+                  />
+                  <View style={style.clipboardIconHolder}>
+                    <BtnTemplate
+                      style={style.clipboardIcon}
+                      color={$config.PRIMARY_COLOR}
+                      name={'clipboard'}
+                      onPress={() =>
+                        copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
+                      }
+                    />
+                  </View>
+                </View>
               </View>
-            </View>
-            <View
-              style={{
-                marginLeft: 'auto',
-                flexDirection: 'row',
-                alignSelf: 'center',
-              }}>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_COLOR + '80',
-                  width: 1,
-                  height: 'auto',
-                  marginRight: 15,
-                }}
-              />
-              <View style={style.clipboardIconHolder}>
-                <BtnTemplate
-                  style={style.clipboardIcon}
-                  color={$config.PRIMARY_COLOR}
-                  name={'clipboard'}
-                  onPress={() =>
-                    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
-                  }
-                />
-              </View>
-            </View>
+            ) : (
+              <></>
+            )}
+            <PrimaryButton
+              onPress={() => enterMeeting()}
+              text={enterMeetingAfterCreateButton}
+            />
+            <View style={{height: 10}} />
+            <SecondaryButton
+              onPress={() =>
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+              }
+              text={copyInviteButton}
+            />
           </View>
-          {meetingPassphrase?.pstn ? (
-            <View style={style.urlContainer}>
-              <View style={{width: '80%'}}>
-                <Text style={style.urlTitle}>{pstnLabel}</Text>
-                <View>
-                  <View style={style.pstnHolder}>
-                    <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
-                    <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                      {meetingPassphrase?.pstn?.number}
-                    </Text>
-                  </View>
-                  <View style={style.pstnHolder}>
-                    <Text style={style.urlTitle}>{pinLabel}: </Text>
-                    <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                      {meetingPassphrase?.pstn?.pin}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
-                <View
-                  style={{
-                    backgroundColor: $config.PRIMARY_COLOR + '80',
-                    width: 1,
-                    height: 'auto',
-                    marginRight: 15,
-                  }}
-                />
-                <View style={style.clipboardIconHolder}>
-                  <BtnTemplate
-                    style={style.clipboardIcon}
-                    color={$config.PRIMARY_COLOR}
-                    name={'clipboard'}
-                    onPress={() =>
-                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
-                    }
-                  />
-                </View>
-              </View>
-            </View>
-          ) : (
-            <></>
-          )}
-          <PrimaryButton
-            onPress={() => enterMeeting()}
-            text={enterMeetingAfterCreateButton}
-          />
-          <View style={{height: 10}} />
-          <SecondaryButton
-            onPress={() =>
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-            }
-            text={copyInviteButton}
-          />
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <ShareAfterView />
+    </>
   );
 };
 const urlWeb = {wordBreak: 'break-all'};

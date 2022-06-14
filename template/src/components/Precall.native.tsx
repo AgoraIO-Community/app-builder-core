@@ -12,10 +12,9 @@
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {ClientRole, PropsContext} from '../../agora-rn-uikit';
-import {RtcContext} from '../../agora-rn-uikit';
 import {useFpe} from 'fpe-api';
 import {useString} from '../utils/useString';
-import {cmpTypeGuard} from '../utils/common';
+import {isValidReactComponent} from '../utils/common';
 import {
   PreCallJoinBtn,
   PreCallVideoPreview,
@@ -28,37 +27,129 @@ const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
   const precallLabel = useString('precallLabel')();
 
-  const {preview, meetingName, joinButton, textBox} = useFpe((data) =>
-    typeof data?.components?.precall === 'object'
-      ? data?.components.precall
-      : {},
-  );
+  const {
+    VideoPreview,
+    MeetingName,
+    JoinButton,
+    Textbox,
+    PrecallAfterView,
+    PrecallBeforeView,
+  } = useFpe((data) => {
+    const components: {
+      PrecallAfterView: React.ComponentType;
+      PrecallBeforeView: React.ComponentType;
+      VideoPreview: React.ComponentType;
+      MeetingName: React.ComponentType;
+      JoinButton: React.ComponentType;
+      Textbox: React.ComponentType;
+    } = {
+      PrecallAfterView: React.Fragment,
+      PrecallBeforeView: React.Fragment,
+      JoinButton: PreCallJoinBtn,
+      MeetingName: PreCallMeetingTitle,
+      Textbox: PreCallTextInput,
+      VideoPreview: PreCallVideoPreview,
+    };
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall === 'object'
+    ) {
+      if (
+        data?.components?.precall?.after &&
+        isValidReactComponent(data?.components?.precall?.after)
+      ) {
+        components.PrecallAfterView = data?.components?.precall?.after;
+      }
+      if (
+        data?.components?.precall?.before &&
+        isValidReactComponent(data?.components?.precall?.before)
+      ) {
+        components.PrecallBeforeView = data?.components?.precall?.before;
+      }
+
+      if (
+        data?.components?.precall?.meetingName &&
+        typeof data?.components?.precall?.meetingName !== 'object'
+      ) {
+        if (isValidReactComponent(data?.components?.precall?.meetingName)) {
+          components.MeetingName = data?.components?.precall?.meetingName;
+        }
+      }
+
+      if (
+        data?.components?.precall?.joinButton &&
+        typeof data?.components?.precall?.joinButton !== 'object'
+      ) {
+        if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+          components.JoinButton = data?.components?.precall?.joinButton;
+        }
+      }
+
+      if (
+        data?.components?.precall?.textBox &&
+        typeof data?.components?.precall?.textBox !== 'object'
+      ) {
+        if (isValidReactComponent(data?.components?.precall?.textBox)) {
+          components.Textbox = data?.components?.precall?.textBox;
+        }
+      }
+
+      if (
+        data?.components?.precall?.preview &&
+        typeof data?.components?.precall?.preview !== 'object'
+      ) {
+        if (isValidReactComponent(data?.components?.precall?.preview)) {
+          components.VideoPreview = data?.components?.precall?.preview;
+        }
+      }
+    }
+    return components;
+  });
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
-  return (
-    <View style={style.full}>
-      <View style={style.heading}>
-        <Text style={style.headingText}>{precallLabel}</Text>
-      </View>
-      {cmpTypeGuard(PreCallMeetingTitle, meetingName)}
-      {!isAudienceInLiveStreaming() && (
-        <View style={style.full}>
-          {cmpTypeGuard(PreCallVideoPreview, preview)}
+
+  const FpePrecallComponent = useFpe((data) => {
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall !== 'object'
+    ) {
+      if (isValidReactComponent(data?.components?.precall)) {
+        return data?.components?.precall;
+      }
+      return undefined;
+    }
+  });
+
+  return FpePrecallComponent ? (
+    <FpePrecallComponent />
+  ) : (
+    <>
+      <PrecallBeforeView />
+      <View style={style.full}>
+        <View style={style.heading}>
+          <Text style={style.headingText}>{precallLabel}</Text>
         </View>
-      )}
-      <View style={style.textInputHolder}>
-        {cmpTypeGuard(PreCallTextInput, textBox)}
-      </View>
-      <View style={{height: 20}} />
-      {!isAudienceInLiveStreaming() && (
-        <View style={style.controls}>
-          <PreCallLocalMute />
+        <MeetingName />
+        {!isAudienceInLiveStreaming() && (
+          <View style={style.full}>
+            <VideoPreview />
+          </View>
+        )}
+        <View style={style.textInputHolder}>
+          <Textbox />
         </View>
-      )}
-      <View style={{marginBottom: 50, alignItems: 'center'}}>
-        {cmpTypeGuard(PreCallJoinBtn, joinButton)}
+        <View style={{height: 20}} />
+        {!isAudienceInLiveStreaming() && (
+          <View style={style.controls}>
+            <PreCallLocalMute />
+          </View>
+        )}
+        <View style={{marginBottom: 50, alignItems: 'center'}}>
+          <JoinButton />
+        </View>
       </View>
-    </View>
+      <PrecallAfterView />
+    </>
   );
 };
 

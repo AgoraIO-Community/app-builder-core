@@ -13,28 +13,8 @@ import React from 'react';
 import {Platform} from 'react-native';
 import * as ReactIs from 'react-is';
 
-const isValidElementType = (component?: React.ElementType) =>
-  ReactIs.isValidElementType(component) ? component : undefined;
-
-const cmpTypeGuard = (
-  FallBackComponent: React.ComponentType,
-  FpeComponent?: React.ElementType,
-) => {
-  return FpeComponent && ReactIs.isValidElementType(FpeComponent) ? (
-    <FpeComponent />
-  ) : (
-    <FallBackComponent />
-  );
-};
-
-const getCmpTypeGuard = <T,>(
-  FallBackComponent: React.ComponentType<T>,
-  FpeComponent?: React.ElementType,
-) => {
-  return FpeComponent && ReactIs.isValidElementType(FpeComponent)
-    ? FpeComponent
-    : FallBackComponent;
-};
+const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
+  Component && ReactIs.isValidElementType(Component) ? true : false;
 
 const hasBrandLogo: boolean = !!$config.LOGO;
 
@@ -55,8 +35,6 @@ export {
   isWeb,
   isIOS,
   isAndroid,
-  cmpTypeGuard,
-  getCmpTypeGuard,
-  isValidElementType,
   isArray,
+  isValidReactComponent,
 };
