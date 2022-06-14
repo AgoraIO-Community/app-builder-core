@@ -24,7 +24,7 @@ import ChatContext, {chatBubbleProps} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
-import {getCmpTypeGuard, isWeb} from '../utils/common';
+import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 
 /**
@@ -41,15 +41,62 @@ const ChatContainer = (props: any) => {
 
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const ChatBubbleFpe = getCmpTypeGuard<chatBubbleProps>(
-    ChatBubble,
-    useFpe((data) =>
-      typeof data?.components?.videoCall === 'object' &&
-      typeof data?.components?.videoCall?.chat === 'object'
-        ? data?.components?.videoCall?.chat?.chatBubble
-        : undefined,
-    ),
-  );
+  const {ChatBubbleComponent, ChatBubbleAfterView, ChatBubbleBeforeView} =
+    useFpe((data) => {
+      let components: {
+        ChatBubbleComponent: React.ComponentType<chatBubbleProps>;
+        ChatBubbleBeforeView: React.ComponentType;
+        ChatBubbleAfterView: React.ComponentType;
+      } = {
+        ChatBubbleAfterView: React.Fragment,
+        ChatBubbleBeforeView: React.Fragment,
+        ChatBubbleComponent: ChatBubble,
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat &&
+          typeof data?.components?.videoCall?.chat === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatBubble &&
+            typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
+            isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
+          ) {
+            components.ChatBubbleComponent =
+              data?.components?.videoCall?.chat?.chatBubble;
+          }
+
+          if (
+            data?.components?.videoCall?.chat?.chatInput &&
+            typeof data?.components?.videoCall?.chat?.chatInput === 'object'
+          ) {
+            if (
+              data?.components?.videoCall?.chat?.chatInput?.after &&
+              isValidReactComponent(
+                data?.components?.videoCall?.chat?.chatInput?.after,
+              )
+            ) {
+              components.ChatBubbleAfterView =
+                data?.components?.videoCall?.chat?.chatInput?.after;
+            }
+            if (
+              data?.components?.videoCall?.chat?.chatInput?.before &&
+              isValidReactComponent(
+                data?.components?.videoCall?.chat?.chatInput?.before,
+              )
+            ) {
+              components.ChatBubbleBeforeView =
+                data?.components?.videoCall?.chat?.chatInput?.before;
+            }
+          }
+        }
+      }
+      return components;
+    });
+
   const userOfflineLabel = useString('userOfflineLabel');
   return (
     <View style={style.containerView}>
@@ -85,23 +132,31 @@ const ChatContainer = (props: any) => {
         }}>
         {!privateActive ? (
           messageStore.map((message: any) => (
-            <ChatBubbleFpe
-              isLocal={localUid === message.uid}
-              message={message.msg}
-              timestamp={message.ts}
-              uid={message.uid}
-              key={message.ts}
-            />
+            <>
+              <ChatBubbleBeforeView />
+              <ChatBubbleComponent
+                isLocal={localUid === message.uid}
+                message={message.msg}
+                timestamp={message.ts}
+                uid={message.uid}
+                key={message.ts}
+              />
+              <ChatBubbleAfterView />
+            </>
           ))
         ) : privateMessageStore[selectedUserID] ? (
           privateMessageStore[selectedUserID].map((message: any) => (
-            <ChatBubbleFpe
-              isLocal={localUid === message.uid}
-              message={message.msg}
-              timestamp={message.ts}
-              uid={message.uid}
-              key={message.ts}
-            />
+            <>
+              <ChatBubbleBeforeView />
+              <ChatBubbleComponent
+                isLocal={localUid === message.uid}
+                message={message.msg}
+                timestamp={message.ts}
+                uid={message.uid}
+                key={message.ts}
+              />
+              <ChatBubbleAfterView />
+            </>
           ))
         ) : (
           <></>

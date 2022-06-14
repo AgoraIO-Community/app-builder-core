@@ -23,8 +23,9 @@ import {
   ParticipantContextConsumer,
 } from './participants/context/ParticipantContext';
 import {useString} from '../utils/useString';
-import {isWeb} from '../utils/common';
+import {isValidReactComponent, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useFpe} from 'fpe-api';
 
 const ParticipantView = () => {
   const {userList} = useContext(chatContext);
@@ -39,64 +40,130 @@ const ParticipantView = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
+  const {ParticipantAfterView, ParticipantBeforeView} = useFpe((data) => {
+    let components: {
+      ParticipantAfterView: React.ComponentType;
+      ParticipantBeforeView: React.ComponentType;
+    } = {
+      ParticipantAfterView: React.Fragment,
+      ParticipantBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      if (
+        data?.components?.videoCall?.participantsPanel &&
+        typeof data?.components?.videoCall?.participantsPanel === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.participantsPanel?.after &&
+          isValidReactComponent(
+            data?.components?.videoCall?.participantsPanel?.after,
+          )
+        ) {
+          components.ParticipantAfterView =
+            data?.components?.videoCall?.participantsPanel?.after;
+        }
+        if (
+          data?.components?.videoCall?.participantsPanel?.before &&
+          isValidReactComponent(
+            data?.components?.videoCall?.participantsPanel?.before,
+          )
+        ) {
+          components.ParticipantBeforeView =
+            data?.components?.videoCall?.participantsPanel?.before;
+        }
+      }
+    }
+    return components;
+  });
+
   return (
-    <View
-      style={
-        isWeb
-          ? isSmall
-            ? style.participantViewNative
-            : style.participantView
-          : style.participantViewNative
-      }>
-      <View style={[style.padding10]}>
-        <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>{participantsLabel}</Text>
+    <>
+      <View
+        style={
+          isWeb
+            ? isSmall
+              ? style.participantViewNative
+              : style.participantView
+            : style.participantViewNative
+        }>
+        {/**
+         * In Native device we are setting absolute view. so placed ParticipantBeforeView and ParticipantAfterView inside the main view
+         */}
+        <ParticipantBeforeView />
+        <View style={[style.padding10]}>
+          <View style={style.lineUnderHeading}>
+            <Text style={style.mainHeading}>{participantsLabel}</Text>
+          </View>
         </View>
-      </View>
-      <ScrollView style={[style.bodyContainer, style.padding10]}>
-        {$config.EVENT_MODE ? (
-          // Live streaming is true
-          <ParticipantContextProvider>
-            {/* Host and New host view */}
-            {rtcProps?.role == ClientRole.Broadcaster &&
-              (isHost ? (
-                /**
-                 * Original Host
-                 * a) Can view streaming requests
-                 * b) Can view all hosts with remote controls
-                 */
-                <>
-                  {/* a) Live streaming view */}
-                  <View style={style.participantsection}>
-                    <CurrentLiveStreamRequestsView
-                      p_style={style}
-                      userList={userList}
-                    />
-                  </View>
-                  {/* b) Host view with remote controls*/}
+        <ScrollView style={[style.bodyContainer, style.padding10]}>
+          {$config.EVENT_MODE ? (
+            // Live streaming is true
+            <ParticipantContextProvider>
+              {/* Host and New host view */}
+              {rtcProps?.role == ClientRole.Broadcaster &&
+                (isHost ? (
+                  /**
+                   * Original Host
+                   * a) Can view streaming requests
+                   * b) Can view all hosts with remote controls
+                   */
+                  <>
+                    {/* a) Live streaming view */}
+                    <View style={style.participantsection}>
+                      <CurrentLiveStreamRequestsView
+                        p_style={style}
+                        userList={userList}
+                      />
+                    </View>
+                    {/* b) Host view with remote controls*/}
+                    <ParticipantContextConsumer>
+                      {({hostCount}) => {
+                        return (
+                          <View style={style.participantsection}>
+                            <ParticipantSectionTitle
+                              title={hostLabel}
+                              count={hostCount}
+                            />
+                            <View style={style.participantContainer}>
+                              <AllHostParticipants
+                                p_style={style}
+                                isHost={isHost}
+                              />
+                            </View>
+                          </View>
+                        );
+                      }}
+                    </ParticipantContextConsumer>
+                  </>
+                ) : (
+                  /** New Host ( earlier was 'audience' and now is host )
+                   *  a) Can view all hosts without remote controls
+                   */
                   <ParticipantContextConsumer>
-                    {({hostCount}) => {
+                    {({hostList, hostCount}) => {
                       return (
                         <View style={style.participantsection}>
                           <ParticipantSectionTitle
                             title={hostLabel}
                             count={hostCount}
                           />
-                          <View style={style.participantContainer}>
-                            <AllHostParticipants
-                              p_style={style}
-                              isHost={isHost}
-                            />
-                          </View>
+                          <AllAudienceParticipants
+                            p_style={style}
+                            participantList={hostList}
+                            isHost={isHost}
+                          />
                         </View>
                       );
                     }}
                   </ParticipantContextConsumer>
-                </>
-              ) : (
-                /** New Host ( earlier was 'audience' and now is host )
-                 *  a) Can view all hosts without remote controls
-                 */
+                ))}
+              {/**
+               *  Audience views all hosts without remote controls
+               */}
+              {rtcProps?.role == ClientRole.Audience && (
                 <ParticipantContextConsumer>
                   {({hostList, hostCount}) => {
                     return (
@@ -106,76 +173,56 @@ const ParticipantView = () => {
                           count={hostCount}
                         />
                         <AllAudienceParticipants
-                          p_style={style}
                           participantList={hostList}
+                          p_style={style}
                           isHost={isHost}
                         />
                       </View>
                     );
                   }}
                 </ParticipantContextConsumer>
-              ))}
-            {/**
-             *  Audience views all hosts without remote controls
-             */}
-            {rtcProps?.role == ClientRole.Audience && (
+              )}
+              {/* Everyone can see audience */}
               <ParticipantContextConsumer>
-                {({hostList, hostCount}) => {
+                {({audienceList, audienceCount}) => {
                   return (
                     <View style={style.participantsection}>
                       <ParticipantSectionTitle
-                        title={hostLabel}
-                        count={hostCount}
+                        title={audienceLabel}
+                        count={audienceCount}
                       />
                       <AllAudienceParticipants
-                        participantList={hostList}
                         p_style={style}
+                        participantList={audienceList}
                         isHost={isHost}
                       />
                     </View>
                   );
                 }}
               </ParticipantContextConsumer>
-            )}
-            {/* Everyone can see audience */}
-            <ParticipantContextConsumer>
-              {({audienceList, audienceCount}) => {
-                return (
-                  <View style={style.participantsection}>
-                    <ParticipantSectionTitle
-                      title={audienceLabel}
-                      count={audienceCount}
-                    />
-                    <AllAudienceParticipants
-                      p_style={style}
-                      participantList={audienceList}
-                      isHost={isHost}
-                    />
-                  </View>
-                );
-              }}
-            </ParticipantContextConsumer>
-          </ParticipantContextProvider>
-        ) : (
-          <View style={style.participantsection}>
-            <View style={style.participantContainer}>
-              <AllHostParticipants p_style={style} isHost={isHost} />
+            </ParticipantContextProvider>
+          ) : (
+            <View style={style.participantsection}>
+              <View style={style.participantContainer}>
+                <AllHostParticipants p_style={style} isHost={isHost} />
+              </View>
             </View>
-          </View>
-        )}
-      </ScrollView>
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          alignSelf: 'flex-end',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <CopyJoinInfo showText={true} />
+          )}
+        </ScrollView>
+        <View
+          style={{
+            width: '100%',
+            height: 50,
+            alignSelf: 'flex-end',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <CopyJoinInfo showText={true} />
+        </View>
+        <ParticipantAfterView />
       </View>
-    </View>
+    </>
   );
 };
 

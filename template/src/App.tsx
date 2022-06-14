@@ -17,7 +17,7 @@ import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
 import StoreToken from './components/StoreToken';
-import {shouldAuthenticate, cmpTypeGuard, isIOS} from './utils/common';
+import {shouldAuthenticate, isIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
 import AppWrapper from './AppWrapper';
@@ -36,9 +36,6 @@ if (isIOS) {
 }
 
 const App: React.FC = () => {
-  const {join: FpeJoinComponent} = useFpe((data) =>
-    data?.components ? data.components : {},
-  );
   const CustomRoutes = useFpe((data) => data?.customRoutes);
   const RenderCustomRoutes = () => {
     return CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
@@ -78,7 +75,7 @@ const App: React.FC = () => {
                 <StoreToken />
               </Route>
               <Route exact path={'/join'}>
-                {cmpTypeGuard(Join, FpeJoinComponent)}
+                <Join />
               </Route>
               {shouldAuthenticate ? (
                 <PrivateRoute
