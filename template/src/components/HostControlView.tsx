@@ -15,25 +15,32 @@ import chatContext, {controlMessageEnum} from './ChatContext';
 import SecondaryButton from '../atoms/SecondaryButton';
 import {useString} from '../utils/useString';
 
-export const MuteAllAudioButton = () => {
+export interface MuteAllAudioButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   const {sendControlMessage} = useContext(chatContext);
   const muteAllAudioButton = useString('muteAllAudioButton')();
-  return (
-    <SecondaryButton
-      onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
-      text={muteAllAudioButton}
-    />
+  const onPress = () => sendControlMessage(controlMessageEnum.muteAudio);
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <SecondaryButton onPress={onPress} text={muteAllAudioButton} />
   );
 };
 
-export const MuteAllVideoButton = () => {
+export interface MuteAllVideoButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const muteAllVideoButton = useString('muteAllVideoButton')();
   const {sendControlMessage} = useContext(chatContext);
-  return (
-    <SecondaryButton
-      onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
-      text={muteAllVideoButton}
-    />
+  const onPress = () => sendControlMessage(controlMessageEnum.muteVideo);
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <SecondaryButton onPress={onPress} text={muteAllVideoButton} />
   );
 };
 

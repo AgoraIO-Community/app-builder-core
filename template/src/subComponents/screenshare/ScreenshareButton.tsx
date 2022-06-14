@@ -9,43 +9,56 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
-import ColorContext from '../../components/ColorContext';
-import {ImageIcon} from '../../../agora-rn-uikit';
+import React from 'react';
+import {StyleSheet} from 'react-native';
+import {BtnTemplate, BtnTemplateInterface} from '../../../agora-rn-uikit';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../../utils/useButtonTemplate';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
  * Electron has it's own screen sharing component
  */
-const ScreenshareButton = () => {
+
+export interface ScreenshareButtonProps {
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isScreenshareActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
+
+const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {isScreenshareActive, startUserScreenshare} = useScreenshare();
-  const {primaryColor} = useContext(ColorContext);
   const screenShareButton = useString('screenShareButton')();
-  return (
-    <TouchableOpacity onPress={() => startUserScreenshare()}>
-      <View
-        style={
-          isScreenshareActive
-            ? style.greenLocalButton
-            : [style.localButton, {borderColor: primaryColor}]
-        }>
-        <ImageIcon
-          name={isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon'}
-          style={[style.buttonIcon]}
-        />
-      </View>
-      <Text
-        style={{
-          textAlign: 'center',
-          marginTop: 5,
-          color: $config.PRIMARY_COLOR,
-        }}>
-        {screenShareButton}
-      </Text>
-    </TouchableOpacity>
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  const onPress = () => startUserScreenshare();
+  let btnTemplateProps: BtnTemplateInterface = {
+    name: isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon',
+    onPress,
+  };
+
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
+    btnTemplateProps.style = isScreenshareActive
+      ? (style.activeBtn as Object)
+      : (style.nonActiveBtn as Object);
+  } else {
+    btnTemplateProps.btnText = screenShareButton;
+    btnTemplateProps.style = isScreenshareActive
+      ? style.greenLocalButton
+      : style.localButton;
+  }
+
+  return props?.render ? (
+    props.render(onPress, isScreenshareActive, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
   );
 };
 
@@ -60,6 +73,19 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  activeBtn: {
+    backgroundColor: '#4BEB5B',
+    borderRadius: 20,
+    borderColor: '#F86051',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  nonActiveBtn: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   greenLocalButton: {
     backgroundColor: '#4BEB5B',

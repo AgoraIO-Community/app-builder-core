@@ -13,7 +13,7 @@
 import PreCallLocalMute, {PreCallLocalMuteComponentsArray} from './LocalMute';
 import PreCallVideoPreview from './VideoPreview';
 import PreCallSelectDevice from './selectDevice';
-import PreCallJoinBtn from './joinCallBtn';
+import PreCallJoinBtn, {PreCallJoinCallBtnProps} from './joinCallBtn';
 import PreCallTextInput from './textInput';
 import PreCallMeetingTitle from './meetingTitle';
 export {
@@ -25,3 +25,4 @@ export {
   PreCallTextInput,
   PreCallMeetingTitle,
 };
+export type {PreCallJoinCallBtnProps};

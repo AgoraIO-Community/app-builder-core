@@ -9,62 +9,55 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {TouchableOpacity, StyleSheet, View, Text} from 'react-native';
-import ColorContext from '../components/ColorContext';
-import {ImageIcon} from '../../agora-rn-uikit';
+import React from 'react';
+import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useRecording} from './recording/useRecording';
 import {useString} from '../utils/useString';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import Styles from '../components/styles';
 
-const Recording = () => {
-  const {primaryColor} = useContext(ColorContext);
+export interface RecordingButtonProps {
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isRecordingActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
+
+const Recording = (props: RecordingButtonProps) => {
   const {startRecording, stopRecording, isRecordingActive} = useRecording();
   const recordingButton = useString<boolean>('recordingButton');
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        if (!isRecordingActive) {
-          startRecording && startRecording();
-        } else {
-          stopRecording && stopRecording();
-        }
-      }}>
-      <View style={[style.localButton, {borderColor: primaryColor}]}>
-        <ImageIcon
-          name={isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon'}
-          style={[style.buttonIcon]}
-          color={isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR}
-        />
-      </View>
-      <Text
-        style={{
-          textAlign: 'center',
-          marginTop: 5,
-          color: isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
-        }}>
-        {recordingButton(isRecordingActive)}
-      </Text>
-    </TouchableOpacity>
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  const onPress = () => {
+    if (!isRecordingActive) {
+      startRecording && startRecording();
+    } else {
+      stopRecording && stopRecording();
+    }
+  };
+  let btnTemplateProps: BtnTemplateInterface = {
+    name: isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon',
+    onPress,
+    color: isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
+  };
+
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
+    btnTemplateProps.style = Styles.fullWidthButton as Object;
+  } else {
+    btnTemplateProps.btnText = recordingButton(isRecordingActive);
+    btnTemplateProps.style = Styles.localButton as Object;
+  }
+
+  return props?.render ? (
+    props.render(onPress, isRecordingActive, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
   );
 };
-
-const style = StyleSheet.create({
-  localButton: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    borderRadius: 23,
-    borderColor: $config.PRIMARY_COLOR,
-    borderWidth: 0,
-    width: 40,
-    height: 40,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonIcon: {
-    width: '90%',
-    height: '90%',
-  },
-});
 
 export default Recording;

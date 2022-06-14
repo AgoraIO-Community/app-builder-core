@@ -13,14 +13,15 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent} from '../../utils/common';
-import {
-  LocalAudioMute,
+import LocalAudioMute, {
   LocalAudioMuteProps,
-  LocalVideoMute,
+} from '../../subComponents/LocalAudioMute';
+import LocalVideoMute, {
   LocalVideoMuteProps,
-  SwitchCamera,
-} from '../../../agora-rn-uikit';
-import {useString} from '../../utils/useString';
+} from '../../subComponents/LocalVideoMute';
+import LocalSwitchCamera, {
+  LocalSwitchCameraProps,
+} from '../../subComponents/LocalSwitchCamera';
 
 const PreCallLocalMute: React.FC = () => {
   const {
@@ -116,34 +117,31 @@ const PreCallLocalMute: React.FC = () => {
     }
     return components;
   });
-  const toggleAudioButton = useString('toggleAudioButton')();
-  const toggleVideoButton = useString('toggleVideoButton')();
-  const switchCameraButton = useString('switchCameraButton')();
   return (
     <>
       <View style={style.width50}>
         <AudioMuteBeforeView />
-        <AudioMute btnText={toggleAudioButton} />
+        <AudioMute />
         <AudioMuteAfterView />
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
         <VideoMuteBeforeView />
-        <VideoMute btnText={toggleVideoButton} />
+        <VideoMute />
         <VideoMuteAfterView />
       </View>
       <View style={style.width50} />
       <View style={style.width50}>
-        <SwitchCamera btnText={switchCameraButton} />
+        <LocalSwitchCamera />
       </View>
     </>
   );
 };
-export const PreCallLocalMuteComponentsArray = [
-  LocalAudioMute,
-  LocalVideoMute,
-  SwitchCamera,
-];
+export const PreCallLocalMuteComponentsArray: [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+  (props: LocalSwitchCameraProps) => JSX.Element,
+] = [LocalAudioMute, LocalVideoMute, LocalSwitchCamera];
 export default PreCallLocalMute;
 
 const style = StyleSheet.create({

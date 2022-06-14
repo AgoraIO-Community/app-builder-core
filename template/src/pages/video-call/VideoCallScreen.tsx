@@ -11,6 +11,10 @@ import {isValidReactComponent, isWeb} from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
+import {
+  ButtonTemplateProvider,
+  ButtonTemplateName,
+} from '../../utils/useButtonTemplate';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -118,7 +122,10 @@ const VideoCallScreen = () => {
     <>
       <VideocallBeforeView />
       <View style={style.full}>
-        <TopbarComponent />
+        <ButtonTemplateProvider
+          value={{buttonTemplateName: ButtonTemplateName.topBar}}>
+          <TopbarComponent />
+        </ButtonTemplateProvider>
         <View style={[style.videoView, {backgroundColor: '#ffffff00'}]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
@@ -140,7 +147,10 @@ const VideoCallScreen = () => {
         {!isWeb && sidePanel === SidePanelType.Chat ? (
           <></>
         ) : (
-          <BottombarComponent />
+          <ButtonTemplateProvider
+            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
+            <BottombarComponent />
+          </ButtonTemplateProvider>
         )}
       </View>
       <VideocallAfterView />

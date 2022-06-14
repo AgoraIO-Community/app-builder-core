@@ -21,7 +21,15 @@ import useGetName from '../../utils/useGetName';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent} from '../../utils/common';
 
-const joinCallBtn: React.FC = () => {
+export interface PreCallJoinCallBtnProps {
+  render?: (
+    onPress: () => void,
+    title: string,
+    disabled: boolean,
+  ) => JSX.Element;
+}
+
+const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();
@@ -87,17 +95,18 @@ const joinCallBtn: React.FC = () => {
     return components;
   });
 
-  return (
+  const title = buttonText;
+  const onPress = () => setCallActive(true);
+  const disabled = !isJoinDataFetched || username === '';
+  return props?.render ? (
+    props.render(onPress, title, disabled)
+  ) : (
     <>
       <JoinButtonBeforeView />
-      <PrimaryButton
-        onPress={() => setCallActive(true)}
-        disabled={!isJoinDataFetched || username === ''}
-        text={buttonText}
-      />
+      <PrimaryButton onPress={onPress} disabled={disabled} text={title} />
       <JoinButtonAfterView />
     </>
   );
 };
 
-export default joinCallBtn;
+export default JoinCallBtn;

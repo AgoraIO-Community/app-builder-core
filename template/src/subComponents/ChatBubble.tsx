@@ -13,11 +13,11 @@ import React, {useContext} from 'react';
 import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
-import ChatContext, {chatBubbleProps} from '../components/ChatContext';
+import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWeb} from '../utils/common';
 
-const ChatBubble = (props: chatBubbleProps) => {
+const ChatBubble = (props: ChatBubbleProps) => {
   const {userList} = useContext(ChatContext);
   const {primaryColor} = useContext(ColorContext);
   let {isLocal, message, timestamp, uid} = props;

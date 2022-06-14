@@ -10,42 +10,62 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {RtcContext} from '../../agora-rn-uikit';
-import {LocalContext} from '../../agora-rn-uikit';
-import {Image, StyleSheet, TouchableOpacity} from 'react-native';
-import icons from '../assets/icons';
-import ColorContext from '../components/ColorContext';
+import {
+  BtnTemplate,
+  ToggleState,
+  LocalContext,
+  BtnTemplateInterface,
+} from '../../agora-rn-uikit';
+import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
+import Styles from '../components/styles';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import {useString} from '../utils/useString';
 
 /**
- * A component to mute / unmute the local mute
+ * A component to mute / unmute the local audio
  */
-function LocalAudioMute() {
-  const {primaryColor} = useContext(ColorContext);
-  const {dispatch} = useContext(RtcContext);
-  const local = useContext(LocalContext);
-
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        dispatch({
-          type: 'LocalMuteAudio',
-          value: [local.audio],
-        });
-      }}>
-      <Image
-        style={[styles.icon, {tintColor: primaryColor}]}
-        source={{uri: local.audio ? icons.mic : icons.micOff}}
-      />
-    </TouchableOpacity>
-  );
+export interface LocalAudioMuteProps {
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isAudioEnabled: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
 }
 
-const styles = StyleSheet.create({
-  icon: {
-    width: 24,
-    height: 24,
-    tintColor: $config.PRIMARY_COLOR,
-  },
-});
+function LocalAudioMute(props: LocalAudioMuteProps) {
+  const local = useContext(LocalContext);
+  const localMute = useMuteToggleLocal();
+  const audioLabel = useString('toggleAudioButton')();
+
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+
+  const onPress = () => {
+    localMute(MUTE_LOCAL_TYPE.audio);
+  };
+  const isAudioEnabled = local.audio === ToggleState.enabled;
+
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: onPress,
+    name: isAudioEnabled ? 'mic' : 'micOff',
+  };
+
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
+    btnTemplateProps.style = Styles.fullWidthButton as Object;
+  } else {
+    btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.btnText = audioLabel;
+  }
+
+  return props?.render ? (
+    props.render(onPress, isAudioEnabled, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
+}
 
 export default LocalAudioMute;

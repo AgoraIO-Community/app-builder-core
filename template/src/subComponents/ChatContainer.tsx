@@ -20,12 +20,13 @@ import {
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext, {chatBubbleProps} from '../components/ChatContext';
+import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
+import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -35,16 +36,17 @@ import {useString} from '../utils/useString';
 const ChatContainer = (props: any) => {
   const {userList} = useContext(ChatContext);
   const {height, width} = useWindowDimensions();
-  const {selectedUserID, privateActive, selectPrivate, selectedUsername} =
-    props;
+  const {selectPrivate} = props;
+  const {privateActive, selectedChatUserId: selectedUserID} =
+    useChatUIControl();
   const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
-
+  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const scrollViewRef = useRef<ScrollView>(null);
 
   const {ChatBubbleComponent, ChatBubbleAfterView, ChatBubbleBeforeView} =
     useFpe((data) => {
       let components: {
-        ChatBubbleComponent: React.ComponentType<chatBubbleProps>;
+        ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
         ChatBubbleBeforeView: React.ComponentType;
         ChatBubbleAfterView: React.ComponentType;
       } = {
@@ -120,7 +122,11 @@ const ChatContainer = (props: any) => {
                   fontSize: RFValue(16, height > width ? height : width),
                 },
               ]}
-              value={selectedUsername}
+              value={
+                userList[selectedUserID]
+                  ? userList[selectedUserID]?.name + ' '
+                  : remoteUserDefaultLabel + ' '
+              }
             />
           </View>
         </View>
