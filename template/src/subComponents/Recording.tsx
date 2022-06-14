@@ -55,8 +55,7 @@ const Recording = (props: any) => {
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   const prevRecordingState = usePrevious({recordingActive});
-  const {screenshareActive, executeRecordingQuery} =
-    useContext(ScreenshareContext);
+  const {screenshareActive, setRecordingMode} = useContext(ScreenshareContext);
 
   useEffect(() => {
     /**
@@ -85,7 +84,7 @@ const Recording = (props: any) => {
           );
           if (screenshareActive) {
             console.log('Screenshare active...');
-            executeRecordingQuery(screenshareActive);
+            setRecordingMode(!screenshareActive);
           }
           // If recording is not going on, start the recording by executing the graphql query
           startRecordingQuery({

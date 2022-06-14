@@ -15,7 +15,7 @@ interface ScreenshareContext {
   screenshareActive: boolean;
   startUserScreenshare: () => void;
   stopUserScreenShare: () => void;
-  executeRecordingQuery: (isScreenActive: boolean) => void;
+  setRecordingMode: (isPresenterMode: boolean) => void;
 }
 
 const ScreenshareContext = createContext(null as unknown as ScreenshareContext);

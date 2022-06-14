@@ -116,6 +116,36 @@ export const ScreenshareConfigure = (props: any) => {
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
     if (!isScreenActive) {
+      // If screen share is not going on, start the screen share by executing the graphql query
+      setPresenterQuery({
+        variables: {
+          uid: screenShareUid,
+          passphrase: phrase,
+        },
+      })
+        .then((res) => {
+          if (res.data.setPresenter === 'success') {
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      // If recording is already going on, stop the recording by executing the graphql query.
+      setNormalQuery({variables: {passphrase: phrase}})
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.stopRecordingSession === 'success') {
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const setRecordingMode = (isPresenterMode: boolean) => {
+    if (!isPresenterMode) {
       console.log('Set presenter query...');
       // If screen share is not going on, start the screen share by executing the graphql query
       setPresenterQuery({
@@ -193,7 +223,7 @@ export const ScreenshareConfigure = (props: any) => {
         screenshareActive,
         startUserScreenshare,
         stopUserScreenShare,
-        executeRecordingQuery,
+        setRecordingMode,
       }}>
       {props.children}
     </ScreenshareContext.Provider>
