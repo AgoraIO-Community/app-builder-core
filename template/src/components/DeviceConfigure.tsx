@@ -37,6 +37,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   const refreshDevices = useCallback(async () => {
     rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {
+      /**
+       * Some browsers list the same microphone twice with different Id's,
+       * their group Id's match as they are the same physical device.
+       * deviceId == default is an oddity in chrome which stores the user
+       * preference
+       */
+      /**
+       *  1. Fetch devices and filter so the deviceId with default value
+       *    are exluded for both audio and video devices
+       *  2. Store only unique devices with unique groupIds
+       */
+
       const uniqueDevices = devices
         .filter(
           (device: deviceInfo) =>
