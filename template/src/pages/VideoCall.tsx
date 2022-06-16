@@ -280,6 +280,7 @@ const VideoCall: React.FC = () => {
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
     role: ClientRole.Broadcaster,
+    geoFencing: $config.GEO_FENCING,
   });
 
   const {data, loading, error} = useQuery(
@@ -325,6 +326,7 @@ const VideoCall: React.FC = () => {
         role: data.joinChannel.isHost
           ? ClientRole.Broadcaster
           : ClientRole.Audience,
+        geoFencing: $config.GEO_FENCING,
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);
