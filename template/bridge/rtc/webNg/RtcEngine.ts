@@ -421,6 +421,7 @@ export default class RtcEngine {
     this.isJoined = true;
 
     await this.publish();
+    console.log('enabling screen sleep');
   }
 
   async leaveChannel(): Promise<void> {
@@ -430,6 +431,7 @@ export default class RtcEngine {
       stream.audio?.close();
     });
     this.remoteStreams.clear();
+    console.log('disabling screen sleep');
   }
 
   addListener<EventType extends keyof RtcEngineEvents>(

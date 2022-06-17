@@ -45,6 +45,7 @@ import Toast from '../../react-native-toast-message';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
+import {useWakeLock} from '../components/useWakeLock';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -251,6 +252,7 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {store, setStore} = useContext(StorageContext);
+  const {awake, request, release} = useWakeLock();
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
@@ -291,6 +293,15 @@ const VideoCall: React.FC = () => {
       variables: {passphrase: phrase},
     },
   );
+
+  React.useEffect(() => {
+    return () => {
+      console.log('Videocall unmounted');
+      if (awake) {
+        release();
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     if (error) {
