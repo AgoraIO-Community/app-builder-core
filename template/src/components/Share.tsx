@@ -209,7 +209,7 @@ const Share = () => {
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
-                {$config.FRONTEND_ENDPOINT || platform === 'web' || !isSDK
+                {$config.FRONTEND_ENDPOINT || platform === 'web' && !isSDK
                   ? isSeparateHostLink
                     ? hostUrlLabel
                     : meetingUrlText
