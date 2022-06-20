@@ -73,6 +73,8 @@ interface ConfigInterface {
   APPLE_CLIENT_ID: string;
   EVENT_MODE: boolean;
   RAISE_HAND: boolean;
+  GEO_FENCING: boolean;
+  LOG_ENABLED: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'test-fpe'{

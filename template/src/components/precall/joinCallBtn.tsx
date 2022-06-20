@@ -16,12 +16,21 @@ import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
+import mobileAndTabletCheck from '../../utils/isMobileOrTablet';
+import {isWeb} from '../../utils/common';
+import {useWakeLock} from '../../components/useWakeLock';
+
+const audio = new Audio(
+  'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
+);
 
 const joinCallBtn: React.FC = () => {
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive, queryComplete, username, error} = usePreCall(
     (data) => data,
   );
+  const {awake, request} = useWakeLock();
+
   const getMode = () =>
     $config.EVENT_MODE
       ? ChannelProfile.LiveBroadcasting
@@ -36,6 +45,24 @@ const joinCallBtn: React.FC = () => {
       role: rtcProps.role,
     }),
   );
+
+  const onSubmit = () => {
+    setCallActive(true);
+    // Play a sound to avoid autoblocking in safari
+    if (isWeb || mobileAndTabletCheck()) {
+      audio.volume = 0;
+      audio.play().then(() => {
+        // pause directly once played
+        audio.pause();
+      });
+    }
+    // Avoid Sleep only on mobile browsers
+    if (mobileAndTabletCheck() && !awake) {
+      // Request wake lock
+      request();
+    }
+  };
+
   useEffect(() => {
     if (rtcProps?.role) {
       setButtonText(
@@ -50,8 +77,8 @@ const joinCallBtn: React.FC = () => {
 
   return (
     <PrimaryButton
-      onPress={() => setCallActive(true)}
-      disabled={!queryComplete || username === '' || error? true: false}
+      onPress={onSubmit}
+      disabled={!queryComplete || username === '' || error ? true : false}
       text={buttonText}
     />
   );

@@ -62,6 +62,7 @@ import {useString} from '../utils/useString';
 import useCustomLayout from './video-call/CustomLayout';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import SDKEvents from '../utils/SdkEvents';
+import {useWakeLock} from '../components/useWakeLock';
 
 const useChatNotification = (
   messageStore: string | any[],
@@ -294,6 +295,7 @@ const VideoCall: React.FC = () => {
   );
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {store, setStore} = useContext(StorageContext);
+  const {awake, request, release} = useWakeLock();
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);
@@ -340,6 +342,7 @@ const VideoCall: React.FC = () => {
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
     role: ClientRole.Broadcaster,
+    geoFencing: $config.GEO_FENCING,
   });
 
   const {data, loading, error} = useQuery(
@@ -352,6 +355,15 @@ const VideoCall: React.FC = () => {
   );
 
   const fpeLayouts = useCustomLayout();
+
+  React.useEffect(() => {
+    return () => {
+      console.log('Videocall unmounted');
+      if (awake) {
+        release();
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     if (error) {
@@ -387,6 +399,7 @@ const VideoCall: React.FC = () => {
         role: data.joinChannel.isHost
           ? ClientRole.Broadcaster
           : ClientRole.Audience,
+        geoFencing: $config.GEO_FENCING,
       });
       setIsHost(data.joinChannel.isHost);
       setTitle(data.joinChannel.title);

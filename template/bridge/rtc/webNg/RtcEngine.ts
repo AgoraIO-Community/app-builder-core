@@ -31,7 +31,7 @@ import type {
 import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
-
+import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -148,10 +148,19 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-AgoraRTC.setArea({
-  areaCode: AREAS.GLOBAL,
-  excludedArea: AREAS.CHINA,
-});
+if (GEO_FENCING) {
+  AgoraRTC.setArea({
+    areaCode: AREAS.GLOBAL,
+    excludedArea: AREAS.CHINA,
+  });
+}
+
+if (LOG_ENABLED) {
+  AgoraRTC.setLogLevel(0);
+  AgoraRTC.enableLogUpload();
+} else {
+  AgoraRTC.disableLogUpload();
+}
 
 interface CustomEvents {
   ScreenshareStopped: callbackType
@@ -430,6 +439,7 @@ export default class RtcEngine {
     this.isJoined = true;
 
     await this.publish();
+    console.log('enabling screen sleep');
   }
 
   async leaveChannel(): Promise<void> {
@@ -439,6 +449,7 @@ export default class RtcEngine {
       stream.audio?.close();
     });
     this.remoteStreams.clear();
+    console.log('disabling screen sleep');
   }
 
   addListener<EventType extends keyof RtcEngineEvents>(
@@ -660,16 +671,10 @@ export default class RtcEngine {
     console.log('!set fallback');
   }
 
-  async enableEncryption(
-    enabled: boolean,
-    config: {
-      encryptionMode: RnEncryptionEnum;
-      encryptionKey: string;
-    },
-  ): Promise<void> {
+  getEncryptionMode = (enabled: boolean, encryptmode: RnEncryptionEnum) => {
     let mode: EncryptionMode;
     if (enabled) {
-      switch (config.encryptionMode) {
+      switch (encryptmode) {
         case RnEncryptionEnum.None:
           mode = 'none';
           break;
@@ -688,7 +693,18 @@ export default class RtcEngine {
     } else {
       mode = 'none';
     }
+    return mode;
+  };
 
+  async enableEncryption(
+    enabled: boolean,
+    config: {
+      encryptionMode: RnEncryptionEnum;
+      encryptionKey: string;
+    },
+  ): Promise<void> {
+    let mode: EncryptionMode;
+    mode = this.getEncryptionMode(enabled, config.encryptionMode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
@@ -772,8 +788,8 @@ export default class RtcEngine {
     appId: string,
     engine: typeof AgoraRTC,
     encryption: {
-      key: string;
-      mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb';
+      screenKey: string;
+      mode: RnEncryptionEnum;
     },
     config: ScreenVideoTrackInitConfig = {},
     audio: 'enable' | 'disable' | 'auto' = 'auto',
@@ -781,6 +797,23 @@ export default class RtcEngine {
     if (!this.inScreenshare) {
       try {
         console.log('[screenshare]: creating stream');
+
+        let mode: EncryptionMode;
+        mode = this.getEncryptionMode(true, encryption.mode);
+        try {
+          /**
+           * Since version 4.7.0, if client leaves a call
+           * and joins again the encryption needs to be
+           * set again
+           */
+          await this.screenClient.setEncryptionConfig(
+            mode,
+            encryption.screenKey,
+          );
+        } catch (e) {
+          console.log('e: Encryption for screenshare failed', e);
+        }
+
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
           config,
           audio,
