@@ -31,7 +31,6 @@ import type {
 import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
-import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -148,14 +147,14 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-if (GEO_FENCING) {
+if ($config.GEO_FENCING) {
   AgoraRTC.setArea({
     areaCode: AREAS.GLOBAL,
     excludedArea: AREAS.CHINA,
   });
 }
 
-if (LOG_ENABLED) {
+if ($config.LOG_ENABLED) {
   AgoraRTC.setLogLevel(0);
   AgoraRTC.enableLogUpload();
 } else {

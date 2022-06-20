@@ -29,5 +29,5 @@ module.exports = merge(commons, {
       type: 'commonjs2',
     } 
   },
-  watch: isDevelopment
+  // watch: isDevelopment
 });
