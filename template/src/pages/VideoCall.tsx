@@ -252,7 +252,7 @@ enum RnEncryptionEnum {
 
 const VideoCall: React.FC = () => {
   const {store, setStore} = useContext(StorageContext);
-  const {awake, request, release} = useWakeLock();
+  const {awake, release} = useWakeLock();
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [username, setUsername] = useState(getInitialUsername);

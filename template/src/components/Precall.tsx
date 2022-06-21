@@ -56,8 +56,8 @@ const JoinRoomInputView = (props: any) => {
         audio.pause();
       });
     }
-    // Avoid Sleep only on mobile browsers
-    if (mobileAndTabletCheck() && !awake) {
+    // Sleep only on mobile browsers
+    if (Platform.OS === 'web' && mobileAndTabletCheck() && !awake) {
       // Request wake lock
       request();
     }
