@@ -12,9 +12,24 @@
 import {AppRegistry} from 'react-native';
 import * as Sentry from '@sentry/browser';
 import Video from './src/App';
+import Logger, {commonMetadata, transportsEnum} from './src/utils/logger';
+import pkg from './package.json';
 
 Sentry.init({
   dsn: 'https://b5df0450fe284baa8376e62ace331580@o615358.ingest.sentry.io/5749898',
+});
+
+Logger.init({
+  transport: transportsEnum.Development,
+  metadata: {
+    ...commonMetadata,
+    sdk_version: {
+      rtm: pkg.dependencies['agora-rtm-sdk'],
+      rtc: pkg.dependencies['agora-rtc-sdk-ng'],
+    },
+    frontend_url: window.location.toString(),
+    OS: navigator.userAgent,
+  },
 });
 
 AppRegistry.registerComponent('App', () => Video);

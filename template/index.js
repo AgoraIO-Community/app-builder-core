@@ -13,12 +13,27 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import {AppRegistry, Platform} from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import App from './src/App';
 import {name as appName} from './app.json';
+import Logger, {commonMetadata, transportsEnum} from './src/utils/logger';
+import pkg from './package.json';
 
 Sentry.init({
   dsn: 'https://b5df0450fe284baa8376e62ace331580@o615358.ingest.sentry.io/5749898',
 });
+
+Logger.init({
+  transport: transportsEnum.Development,
+  metadata: {
+    ...commonMetadata,
+    sdk_version: {
+      rtm: pkg.dependencies['agora-react-native-rtm'],
+      rtc: pkg.dependencies['react-native-agora'],
+    },
+    OS: `${Platform.OS}-${Platform.Version}`,
+  },
+});
+
 AppRegistry.registerComponent(appName, () => App);

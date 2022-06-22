@@ -34,6 +34,7 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import Toast from '../../react-native-toast-message';
 import hasBrandLogo from '../utils/hasBrandLogo';
+import Logger from '../utils/logger';
 
 type PasswordInput = {
   host: string;
@@ -78,7 +79,8 @@ const Create = () => {
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
 
-  console.log('mutation data', data);
+  console.log('mutation data1', {test:'test'});
+  Logger.log('mutation data')
 
   useEffect(() => {
     if (Platform.OS === 'web') {
@@ -101,7 +103,6 @@ const Create = () => {
             text1: 'Created: ' + roomTitle,
             visibilityTime: 1000,
           });
-          console.log('promise data', res);
           setUrlView(res.data.createChannel.passphrase.view);
           setUrlHost(res.data.createChannel.passphrase.host);
           setPstn(res.data.createChannel.pstn);

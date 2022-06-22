@@ -47,6 +47,7 @@
     "@sentry/react": "6.5.1",
     "@sentry/react-native": "2.4.3",
     "@sentry/tracing": "6.2.1",
+    "@types/uuid": "^8.3.4",
     "agora-react-native-rtm": "1.5.0",
     "agora-rtc-sdk-ng": "4.12.0",
     "agora-rtm-sdk": "1.4.4",
@@ -60,6 +61,7 @@
     "react-dom": "16.13.1",
     "react-native": "0.63.3",
     "react-native-agora": "3.7.0",
+    "react-native-get-random-values": "^1.8.0",
     "react-native-hyperlink": "0.0.19",
     "react-native-inappbrowser-reborn": "3.5.1",
     "react-native-keep-awake": "4.0.0",
@@ -67,7 +69,8 @@
     "react-native-responsive-fontsize": "0.5.1",
     "react-native-web": "0.14.13",
     "react-router-dom": "5.2.0",
-    "react-router-native": "5.2.0"
+    "react-router-native": "5.2.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "7.14.3",
