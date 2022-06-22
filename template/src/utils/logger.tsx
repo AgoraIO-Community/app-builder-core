@@ -3,6 +3,12 @@ import {v4 as uuidv4} from 'uuid';
 import config from '../../config.json';
 import pkg from '../../package.json';
 
+var default_console = {...console};
+
+console.log = (...data: any) => {
+  default_console.log('Hijacked', ...data);
+};
+
 interface metaDataInterface {
   [key: string]: any;
 }
@@ -59,10 +65,10 @@ class Logger {
   metadata: metaDataInterface = {};
   setMetadata(param: metaDataInterface): void;
   setMetadata(param: (metadata: metaDataInterface) => metaDataInterface): void {
-    if (typeof param === 'object') {
-      this.metadata = param;
-    } else {
+    if (typeof param === 'function') {
       this.metadata = param(this.metadata);
+    } else {
+      this.metadata = param;
     }
   }
   transport: transportLogFunctionType;

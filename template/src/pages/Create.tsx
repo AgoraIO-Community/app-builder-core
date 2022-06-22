@@ -103,6 +103,7 @@ const Create = () => {
             text1: 'Created: ' + roomTitle,
             visibilityTime: 1000,
           });
+          console.log('promise data', res);
           setUrlView(res.data.createChannel.passphrase.view);
           setUrlHost(res.data.createChannel.passphrase.host);
           setPstn(res.data.createChannel.pstn);
