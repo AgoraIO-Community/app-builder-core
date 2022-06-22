@@ -119,8 +119,9 @@ export const ScreenshareConfigure = (props: any) => {
     }
   };
 
-  const togglePresenterOrNormalMode = (isNormalMode: boolean) => {
-    if (!isNormalMode) {
+  const togglePresenterOrNormalMode = (isScreenshareActive: boolean) => {
+    const isPresenterMode = isScreenshareActive;
+    if (isPresenterMode) {
       // If screen share is not going on, start the screen share by executing the graphql query
       setPresenterQuery({
         variables: {

@@ -99,7 +99,7 @@ const Recording = (props: any) => {
                 setRecordingActive(true);
                 // set the presenter mode if screen share is active
                 if (screenshareActive) {
-                  togglePresenterOrNormalMode(!screenshareActive);
+                  togglePresenterOrNormalMode(screenshareActive);
                 }
               }
             })

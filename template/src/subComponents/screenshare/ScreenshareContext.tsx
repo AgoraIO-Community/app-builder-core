@@ -14,7 +14,7 @@ import {createContext} from 'react';
 interface ScreenshareContext {
   screenshareActive: boolean;
   toggleUserScreenshare: () => void;
-  togglePresenterOrNormalMode: (isNormalMode: boolean) => void;
+  togglePresenterOrNormalMode: (isScreenshareActive: boolean) => void;
 }
 
 const ScreenshareContext = createContext(null as unknown as ScreenshareContext);
