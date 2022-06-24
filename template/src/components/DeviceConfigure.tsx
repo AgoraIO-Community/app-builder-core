@@ -37,6 +37,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   const refreshDevices = useCallback(async () => {
     rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {
+      console.log('DeviceTesting: fetching all devices: ', devices);
       /**
        * Some browsers list the same microphone twice with different Id's,
        * their group Id's match as they are the same physical device.
@@ -44,24 +45,19 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
        * preference
        */
       /**
-       *  1. Fetch devices and filter so the deviceId with default value
-       *    are exluded for both audio and video devices
+       *  1. Fetch devices and filter so the deviceId with default or empty
+       *     values are exluded for both audio and video devices. Also exclude
+       *     output devices. ex: Mac speakers are of type audiooutput(device.kind)
        *  2. Store only unique devices with unique groupIds
        */
 
-      const uniqueDevices = devices
-        .filter(
-          (device: deviceInfo) =>
-            device?.deviceId !== 'default' &&
-            (device.kind == 'audioinput' || device.kind == 'videoinput'),
-        )
-        .reduce((acc: deviceInfo[], device: deviceInfo) => {
-          if (!acc.some((obj: any) => obj.groupId === device.groupId)) {
-            acc.push(device);
-          }
-          return acc;
-        }, []);
-      console.log('DeviceTesting: set devices', uniqueDevices);
+      const uniqueDevices = devices.filter(
+        (device: deviceInfo) =>
+          device?.deviceId !== 'default' &&
+          device?.deviceId !== '' &&
+          (device.kind == 'audioinput' || device.kind == 'videoinput'),
+      );
+      console.log('DeviceTesting: set unique devices', uniqueDevices);
       setDeviceList(uniqueDevices);
     });
   }, []);
@@ -69,30 +65,32 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   useEffect(() => {
     AgoraRTC.onMicrophoneChanged = async (changedDevice: changedDeviceInfo) => {
       // When new audio device is plugged in ,refresh the devices list.
-      console.log('DeviceTesting: audioTest on-microphone-changed');
+      console.log('DeviceTesting: on-microphone-changed');
       if (changedDevice && changedDevice.state === 'ACTIVE') {
         if (changedDevice.device?.kind === 'audioinput') {
-          console.log('DeviceTesting: NEW device selected');
+          console.log('DeviceTesting: NEW audio device detected and selected');
           setSelectedMic(changedDevice.device?.deviceId);
         }
       }
       if (changedDevice && changedDevice.state === 'INACTIVE') {
         if (changedDevice.device?.kind === 'audioinput') {
-          console.log('DeviceTesting: device inactive');
+          console.log('DeviceTesting: audio device inactive');
           setSelectedMic('');
         }
       }
     };
     AgoraRTC.onCameraChanged = async (changedDevice: changedDeviceInfo) => {
       // When new video device is plugged in ,refresh the devices list.
-      console.log('videoTest on-camera-changed');
+      console.log('DeviceTesting: on-camera-changed');
       if (changedDevice && changedDevice.state === 'ACTIVE') {
         if (changedDevice.device?.kind === 'videoinput') {
+          console.log('DeviceTesting: NEW video device detected and selected');
           setSelectedCam(changedDevice.device?.deviceId);
         }
       }
       if (changedDevice && changedDevice.state === 'INACTIVE') {
         if (changedDevice.device?.kind === 'videoinput') {
+          console.log('DeviceTesting: video device inactive');
           setSelectedCam('');
         }
       }
@@ -107,7 +105,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     if (!selectedMic || selectedMic.trim().length == 0) {
       for (const i in deviceList) {
         if (deviceList[i].kind === 'audioinput') {
-          console.log('DeviceTesting: set selected device');
+          console.log('DeviceTesting: set selected audio');
           setSelectedMic(deviceList[i].deviceId);
           break;
         }
@@ -136,7 +134,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   }, [selectedCam]);
 
   useEffect(() => {
-    if (selectedCam.length !== 0) {
+    if (selectedMic.length !== 0) {
       rtc.RtcEngine.changeMic(
         selectedMic,
         () => {},
@@ -147,8 +145,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   }, [selectedMic]);
 
   useEffect(() => {
-    // See if device is empty
-    // If stream exists and deviceIds are empty, check for devices again
+    // If stream exists and deviceList are empty, check for devices again
     if (deviceList.length === 0) {
       refreshDevices();
     }
