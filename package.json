@@ -11,8 +11,9 @@
     "uikit": "rm -rf template/agora-rn-uikit && git clone https://github.com/Adictya/ReactNative-UIKit.git template/agora-rn-uikit && cd template/agora-rn-uikit && git checkout feature/fpe_changes",
     "deps": "cd template && npm i",
     "dev-setup": "npm run uikit && npm run deps && node devSetup.js",
+    "vercel-build": "cd template && npm run web:build && cd .. && npm run copy-vercel",
     "web-build": "cd template && npm run web:build && cd .. && npm run copy-vercel",
-    "copy-vercel": "cp vercel.json template/dist",
+    "copy-vercel": "cp vercel.json Builds/web",
     "pre-release": "cd template && cp package-lock.json _package-lock.json"
   },
   "author": {
