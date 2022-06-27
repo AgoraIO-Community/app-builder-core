@@ -166,6 +166,9 @@ const reactSdk = {
   webpack: (cb) => {
     runCli('webpack --config ./webpack.rsdk.config.js', cb);
   },
+  esbuild: (cb) => {
+    runCli('go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk', cb);
+  },
   typescript: (cb) => {
     runCli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
@@ -283,6 +286,20 @@ module.exports.reactSdk = series(
   general.typescriptClean,
   reactSdk.npmPack,
 );
+
+// react-sdk-esbuild
+module.exports.reactSdkEsbuild = series (
+  general.clean,
+  general.createBuildDirectory,
+  general.packageJson,
+  reactSdk.esbuild,
+  general.typescript,
+  general.typescriptFix,
+  reactSdk.typescript,
+  reactSdk.typescriptFix,
+  general.typescriptClean,
+  reactSdk.npmPack,
+)
 
 // web-sdk
 module.exports.webSdk = series(

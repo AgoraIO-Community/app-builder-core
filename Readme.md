@@ -10,3 +10,9 @@ This repository is a part of [RTE app builder](https://appbuilder.agora.io).
     npm run dev-setup -- live-streaming
     ```
     This command will automatically set everything up for development
+
+To build react sdk using esbuild,
+1. Install the go compiler from https://go.dev/doc/install
+2. Run `go mod tidy` to download dependencies
+
+You can now build react sdk using esbuild through npm script 

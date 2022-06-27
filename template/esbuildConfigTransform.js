@@ -9,24 +9,4 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtcEngine from './RtcEngine';
-import SurfaceView from './SurfaceView';
-import LocalView from './LocalView';
-import * as Types from './Types';
-
-export const RtcLocalView = {
-  SurfaceView: LocalView,
-  TextureView: LocalView,
-};
-
-export const RtcRemoteView = {
-  SurfaceView: SurfaceView as any,
-  TextureView: SurfaceView as any,
-};
-
-export const VideoRenderMode = {...Types.VideoRenderMode};
-export const VideoMirrorMode = {...Types.VideoRenderMode};
-
-export {RnEncryptionEnum as EncryptionMode} from './RtcEngine';
-export {AREAS as AreaCode} from './RtcEngine'
-export default RtcEngine;
+export let config = require('./config.json');
