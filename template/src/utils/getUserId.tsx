@@ -3,10 +3,10 @@ import {v4 as uuid} from 'uuid';
 import AsyncStorage from '@react-native-community/async-storage';
 
 export default async function getUserId() {
-  let userId = await AsyncStorage.getItem('UserId');
+  let userId = await AsyncStorage.getItem('AppBuilder_UserId');
   if (!userId) {
     userId = uuid();
-    await AsyncStorage.setItem('UserId', userId);
+    await AsyncStorage.setItem('AppBuilder_UserId', userId);
   }
   return userId;
 }

@@ -79,8 +79,7 @@ const Create = () => {
   const [joinPhrase, setJoinPhrase] = useState(null);
   const [createChannel, {data, loading, error}] = useMutation(CREATE_CHANNEL);
 
-  console.log('mutation data1', {test:'test'});
-  Logger.log('mutation data')
+  console.log('mutation data1',data);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
