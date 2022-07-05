@@ -89,9 +89,20 @@ const RtmConfigure = (props: any) => {
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
 
-  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
-    useChatNotification();
-  const {groupActive, selectedChatUserId, setGroupActive} = useChatUIControl();
+  const {
+    setUnreadGroupMessageCount,
+    setUnreadIndividualMessageCount,
+    unreadPrivateMessageCount,
+    unreadIndividualMessageCount,
+    setUnreadPrivateMessageCount,
+  } = useChatNotification();
+  const {
+    groupActive,
+    selectedChatUserId,
+    setSelectedChatUserId,
+    setPrivateActive,
+    setGroupActive,
+  } = useChatUIControl();
 
   const groupActiveRef = useRef<boolean>();
   const individualActiveRef = useRef<string | number>();
@@ -131,7 +142,7 @@ const RtmConfigure = (props: any) => {
   const {setSidePanel} = useSidePanel();
 
   React.useEffect(() => {
-    const showMessageNotification = (data: any) => {
+    const showMessageNotification = (data: any, privateMessage = false) => {
       if (data.type === messageActionType.Normal) {
         const {uid, msg} = data;
         Toast.show({
@@ -141,8 +152,26 @@ const RtmConfigure = (props: any) => {
           visibilityTime: 1000,
           onPress: () => {
             setSidePanel(SidePanelType.Chat);
-            setUnreadGroupMessageCount(0);
-            setGroupActive(true);
+            if (privateMessage) {
+              setUnreadIndividualMessageCount((prevState) => {
+                return {
+                  ...prevState,
+                  [data.uid]: 0,
+                };
+              });
+              setUnreadPrivateMessageCount(
+                unreadPrivateMessageCount -
+                  (unreadIndividualMessageCount[data.uid] || 0),
+              );
+              setGroupActive(false);
+              setSelectedChatUserId(data.uid);
+              setPrivateActive(true);
+            } else {
+              setUnreadGroupMessageCount(0);
+              setPrivateActive(false);
+              setSelectedChatUserId('');
+              setGroupActive(true);
+            }
           },
         });
       }
@@ -161,7 +190,7 @@ const RtmConfigure = (props: any) => {
       (data: any, error: any) => {
         if (!data) return;
         if (data.uid === localUid) return;
-        showMessageNotification(data);
+        showMessageNotification(data,true);
       },
     );
     return () => {
