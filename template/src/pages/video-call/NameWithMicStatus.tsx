@@ -6,9 +6,11 @@ import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import chatContext from '../../components/ChatContext';
 import ColorContext from '../../components/ColorContext';
 import {useString} from '../../utils/useString';
+import useUserList from '../../utils/useUserList';
 
 export const NameWithMicStatus = ({user}: {user: UidInterface}) => {
-  const {userList, localUid} = useContext(chatContext);
+  const userList = useUserList();
+  const {localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
   const {height, width} = useWindowDimensions();
   const localUserDefaultLabel = useString('localUserDefaultLabel')();

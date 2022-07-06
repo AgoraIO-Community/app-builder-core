@@ -9,12 +9,14 @@ import chatContext from '../../components/ChatContext';
 import {NetworkQualityPill} from '../../subComponents/NetworkQualityPill';
 import {NameWithMicStatus} from './NameWithMicStatus';
 import {useString} from '../../utils/useString';
+import useUserList from '../../utils/useUserList';
 
 interface MaxVideoRendererInterface {
   user: UidInterface;
 }
 const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
-  const {userList, localUid} = useContext(chatContext);
+  const userList = useUserList();
+  const {localUid} = useContext(chatContext);
   const {primaryColor} = useContext(ColorContext);
   const pstnUserLabel = useString('pstnUserLabel')();
   return (

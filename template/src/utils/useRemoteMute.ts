@@ -9,19 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
+import React from 'react';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {UidInterface} from '../../agora-rn-uikit';
-import ChatContext, {controlMessageEnum} from '../components/ChatContext';
+import {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './isPSTNUser';
 import useMutePSTN from './useMutePSTN';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../utils/useSendControlMessage';
 
 export enum MUTE_REMOTE_TYPE {
   audio,
   video,
 }
 function useRemoteMute() {
-  const {sendControlMessageToUid} = useContext(ChatContext);
+  const sendCtrlMsgToUid = useSendControlMessage();
   const {isHost} = useMeetingInfo();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
@@ -36,12 +39,20 @@ function useRemoteMute() {
               console.error('An error occurred while muting the PSTN user.');
             }
           } else {
-            sendControlMessageToUid(controlMessageEnum.muteAudio, uid);
+            sendCtrlMsgToUid(
+              CONTROL_MESSAGE_TYPE.controlMessageToUid,
+              controlMessageEnum.muteAudio,
+              uid,
+            );
           }
           break;
         case MUTE_REMOTE_TYPE.video:
           if (!isPSTN(uid)) {
-            sendControlMessageToUid(controlMessageEnum.muteVideo, uid);
+            sendCtrlMsgToUid(
+              CONTROL_MESSAGE_TYPE.controlMessageToUid,
+              controlMessageEnum.muteVideo,
+              uid,
+            );
           }
           break;
       }

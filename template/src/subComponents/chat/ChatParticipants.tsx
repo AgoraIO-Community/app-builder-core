@@ -6,7 +6,6 @@ import {
   ScrollView,
   useWindowDimensions,
   StyleSheet,
-  Platform,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import {UserType} from '../../components/RTMConfigure';
@@ -15,12 +14,14 @@ import chatContext from '../../components/ChatContext';
 import {useString} from '../../utils/useString';
 import {isIOS, isWeb} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
+import useUserList from '../../utils/useUserList';
 
 const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const {selectUser} = props;
+  const userList = useUserList();
   const {height, width} = useWindowDimensions();
-  const {userList, localUid} = useContext(chatContext);
+  const {localUid} = useContext(chatContext);
   const {unreadIndividualMessageCount} = useChatNotification();
 
   const isChatUser = (userId: string, userInfo: any) => {

@@ -1,6 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useParams} from '../../components/Router';
-import ChatContext from '../../components/ChatContext';
 import {
   RtcContext,
   PropsContext,
@@ -14,6 +13,7 @@ import {
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
+import useUserList from '../../utils/useUserList';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -36,7 +36,7 @@ function usePrevious(value: any) {
 }
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
-  const {userList} = useContext(ChatContext);
+  const userList = useUserList();
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);
   const {dispatch} = rtc;

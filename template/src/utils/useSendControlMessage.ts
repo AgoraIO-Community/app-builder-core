@@ -12,6 +12,7 @@
 import {UidInterface} from '../../agora-rn-uikit';
 import {useContext} from 'react';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
+import {LiveStreamControlMessageEnum} from '../components/livestream';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 
 export enum CONTROL_MESSAGE_TYPE {
@@ -23,7 +24,7 @@ function useSendControlMessage() {
   const {isHost} = useMeetingInfo();
   return (
     type: CONTROL_MESSAGE_TYPE,
-    message: controlMessageEnum,
+    message: controlMessageEnum | LiveStreamControlMessageEnum,
     uid?: UidInterface['uid'],
   ) => {
     if (isHost) {

@@ -9,12 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {StyleSheet} from 'react-native';
-import ChatContext, {controlMessageEnum} from '../components/ChatContext';
+import {controlMessageEnum} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/isPSTNUser';
 import useMutePSTN from '../utils/useMutePSTN';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../utils/useSendControlMessage';
 
 export interface RemoteAudioMuteProps {
   uid: number;
@@ -28,7 +31,7 @@ export interface RemoteAudioMuteProps {
  */
 const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const {isHost = false} = props;
-  const {sendControlMessageToUid} = useContext(ChatContext);
+  const sendCtrlMsgToUid = useSendControlMessage();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
   return (
@@ -42,7 +45,11 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
             console.error('An error occurred while muting the PSTN user.');
           }
         } else {
-          sendControlMessageToUid(controlMessageEnum.muteAudio, props.uid);
+          sendCtrlMsgToUid(
+            CONTROL_MESSAGE_TYPE.controlMessageToUid,
+            controlMessageEnum.muteAudio,
+            props.uid,
+          );
         }
       }}
       style={style.buttonIconMic}

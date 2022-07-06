@@ -1,8 +1,10 @@
-import React, {useContext} from 'react';
-import ChatContext from '../../../components/ChatContext';
+import React from 'react';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
 import icons from '../../../assets/icons';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../../../utils/useSendControlMessage';
 
 export interface RemoteLiveStreamApprovedRequestRecallProps {
   uid: number;
@@ -10,12 +12,13 @@ export interface RemoteLiveStreamApprovedRequestRecallProps {
 const RemoteLiveStreamApprovedRequestRecall = (
   props: RemoteLiveStreamApprovedRequestRecallProps,
 ) => {
-  const {sendControlMessageToUid} = useContext(ChatContext);
+  const sendCtrlMsgToUid = useSendControlMessage();
   return (
     <BtnTemplate
       style={{width: 24, height: 22}}
       onPress={() => {
-        sendControlMessageToUid(
+        sendCtrlMsgToUid(
+          CONTROL_MESSAGE_TYPE.controlMessageToUid,
           LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall,
           props.uid,
         );
