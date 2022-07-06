@@ -28,6 +28,8 @@ import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import useUserList from '../utils/useUserList';
+import useGroupMessages from '../utils/useGroupMessages';
+import usePrivateMessages from '../utils/usePrivateMessages';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -36,11 +38,13 @@ import useUserList from '../utils/useUserList';
  */
 const ChatContainer = (props: any) => {
   const userList = useUserList();
+  const messageStore = useGroupMessages();
+  const privateMessageStore = usePrivateMessages();
   const {height, width} = useWindowDimensions();
   const {selectPrivate} = props;
   const {privateActive, selectedChatUserId: selectedUserID} =
     useChatUIControl();
-  const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
+  const {localUid} = useContext(ChatContext);
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const scrollViewRef = useRef<ScrollView>(null);
 
