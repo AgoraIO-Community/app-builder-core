@@ -120,28 +120,13 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  */
 const ChatInput = () => {
   const {primaryColor} = useContext(ColorContext);
-  const {
-    ChatInputComponent,
-    ChatInputAfterView,
-    ChatInputBeforeView,
-    ChatSendButtonAfterView,
-    ChatSendButtonBeforeView,
-    ChatSendButtonComponent,
-  } = useFpe((data) => {
+  const {ChatInputComponent, ChatSendButtonComponent} = useFpe((data) => {
     let components: {
       ChatInputComponent: React.ComponentType<ChatTextInputProps>;
-      ChatInputBeforeView: React.ComponentType;
-      ChatInputAfterView: React.ComponentType;
       ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
-      ChatSendButtonBeforeView: React.ComponentType;
-      ChatSendButtonAfterView: React.ComponentType;
     } = {
       ChatInputComponent: ChatTextInput,
-      ChatInputAfterView: React.Fragment,
-      ChatInputBeforeView: React.Fragment,
       ChatSendButtonComponent: ChatSendButton,
-      ChatSendButtonBeforeView: React.Fragment,
-      ChatSendButtonAfterView: React.Fragment,
     };
     if (
       data?.components?.videoCall &&
@@ -171,54 +156,6 @@ const ChatInput = () => {
           components.ChatSendButtonComponent =
             data?.components?.videoCall?.chat?.chatSentButton;
         }
-
-        if (
-          data?.components?.videoCall?.chat?.chatInput &&
-          typeof data?.components?.videoCall?.chat?.chatInput === 'object'
-        ) {
-          if (
-            data?.components?.videoCall?.chat?.chatInput?.after &&
-            isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatInput?.after,
-            )
-          ) {
-            components.ChatInputAfterView =
-              data?.components?.videoCall?.chat?.chatInput?.after;
-          }
-          if (
-            data?.components?.videoCall?.chat?.chatInput?.before &&
-            isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatInput?.before,
-            )
-          ) {
-            components.ChatInputBeforeView =
-              data?.components?.videoCall?.chat?.chatInput?.before;
-          }
-        }
-
-        if (
-          data?.components?.videoCall?.chat?.chatSentButton &&
-          typeof data?.components?.videoCall?.chat?.chatSentButton === 'object'
-        ) {
-          if (
-            data?.components?.videoCall?.chat?.chatSentButton?.after &&
-            isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatSentButton?.after,
-            )
-          ) {
-            components.ChatSendButtonAfterView =
-              data?.components?.videoCall?.chat?.chatSentButton?.after;
-          }
-          if (
-            data?.components?.videoCall?.chat?.chatSentButton?.before &&
-            isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatSentButton?.before,
-            )
-          ) {
-            components.ChatSendButtonBeforeView =
-              data?.components?.videoCall?.chat?.chatSentButton?.before;
-          }
-        }
       }
     }
     return components;
@@ -226,16 +163,8 @@ const ChatInput = () => {
 
   return (
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
-      <>
-        <ChatInputBeforeView />
-        <ChatInputComponent />
-        <ChatInputAfterView />
-      </>
-      <>
-        <ChatSendButtonBeforeView />
-        <ChatSendButtonComponent />
-        <ChatSendButtonAfterView />
-      </>
+      <ChatInputComponent />
+      <ChatSendButtonComponent />
     </View>
   );
 };

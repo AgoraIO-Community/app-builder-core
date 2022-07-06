@@ -31,9 +31,8 @@ import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
+import {isIOS, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import {useFpe} from 'fpe-api';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 
 const Controls = () => {
@@ -50,98 +49,57 @@ const Controls = () => {
   const isDesktop = dim[0] > 1224;
   const {isHost} = useMeetingInfo();
 
-  const {ControlsAfterView, ControlsBeforeView} = useFpe((data) => {
-    let components: {
-      ControlsAfterView: React.ComponentType;
-      ControlsBeforeView: React.ComponentType;
-    } = {
-      ControlsAfterView: React.Fragment,
-      ControlsBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.videoCall &&
-      typeof data?.components?.videoCall === 'object'
-    ) {
-      if (
-        data?.components?.videoCall?.bottomBar &&
-        typeof data?.components?.videoCall?.bottomBar === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.bottomBar?.after &&
-          isValidReactComponent(data?.components?.videoCall?.bottomBar?.after)
-        ) {
-          components.ControlsAfterView =
-            data?.components?.videoCall?.bottomBar?.after;
-        }
-        if (
-          data?.components?.videoCall?.bottomBar?.before &&
-          isValidReactComponent(data?.components?.videoCall?.bottomBar?.before)
-        ) {
-          components.ControlsBeforeView =
-            data?.components?.videoCall?.bottomBar?.before;
-        }
-      }
-    }
-    return components;
-  });
-
   return (
-    <>
-      <ControlsBeforeView />
-      <View
-        style={[
-          style.controlsHolder,
-          {
-            paddingHorizontal: isDesktop ? '25%' : '1%',
-            backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
-          },
-        ]}
-        onLayout={onLayout}>
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} />
-        ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
+    <View
+      style={[
+        style.controlsHolder,
+        {
+          paddingHorizontal: isDesktop ? '25%' : '1%',
+          backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+        },
+      ]}
+      onLayout={onLayout}>
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <LiveStreamControls showControls={true} />
+      ) : (
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE && (
+            <LiveStreamControls
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          )}
+          <View style={{alignSelf: 'center'}}>
+            <LocalAudioMute />
+          </View>
+          <View style={{alignSelf: 'center'}}>
+            <LocalVideoMute />
+          </View>
+          {isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
+              <LocalSwitchCamera />
             </View>
+          )}
+          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
+              <ScreenshareButton />
             </View>
-            {isMobileOrTablet() && (
-              <View style={{alignSelf: 'center'}}>
-                <LocalSwitchCamera />
-              </View>
-            )}
-            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-              <View style={{alignSelf: 'center'}}>
-                <ScreenshareButton />
-              </View>
-            )}
-            {isHost && $config.CLOUD_RECORDING && (
-              <View style={{alignSelf: 'center'}}>
-                <Recording />
-              </View>
-            )}
-          </>
-        )}
-        <View style={{alignSelf: 'center'}}>
-          <LocalEndcall />
-        </View>
+          )}
+          {isHost && $config.CLOUD_RECORDING && (
+            <View style={{alignSelf: 'center'}}>
+              <Recording />
+            </View>
+          )}
+        </>
+      )}
+      <View style={{alignSelf: 'center'}}>
+        <LocalEndcall />
       </View>
-      <ControlsAfterView />
-    </>
+    </View>
   );
 };
 
