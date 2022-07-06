@@ -16,13 +16,16 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import ChatContext, {controlMessageEnum} from '../../components/ChatContext';
+import {controlMessageEnum} from '../../components/ChatContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../../utils/useSendControlMessage';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -78,7 +81,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
-  const {sendControlMessage} = useContext(ChatContext);
+  const sendCtrlMsg = useSendControlMessage();
   const prevRecordingState = usePrevious({isRecordingActive});
   const recordingStartedText = useString('recordingNotificationLabel')();
   useEffect(() => {
@@ -114,7 +117,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         if (res.data.startRecordingSession === 'success') {
           // Once the backend sucessfuly starts recording,
           // send a control message to everbody in the channel indicating that cloud recording is now active.
-          sendControlMessage(controlMessageEnum.cloudRecordingActive);
+          sendCtrlMsg(
+            CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+            controlMessageEnum.cloudRecordingActive,
+          );
           // set the local recording state to true to update the UI
           setRecordingActive(true);
         }
@@ -132,7 +138,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         if (res.data.stopRecordingSession === 'success') {
           // Once the backend sucessfuly stops recording,
           // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-          sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
+          sendCtrlMsg(
+            CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+            controlMessageEnum.cloudRecordingUnactive,
+          );
           // set the local recording state to false to update the UI
           setRecordingActive(false);
         }
