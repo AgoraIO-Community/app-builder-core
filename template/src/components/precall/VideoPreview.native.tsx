@@ -10,10 +10,8 @@
 *********************************************
 */
 
-import {useFpe} from 'fpe-api';
 import React, {useContext} from 'react';
 import {View} from 'react-native';
-import {isValidReactComponent} from '../../utils/common';
 import {
   MaxUidConsumer,
   MaxVideoView,
@@ -23,52 +21,14 @@ import {
 const VideoPreview: React.FC = () => {
   const rtc = useContext(RtcContext);
   rtc?.RtcEngine?.startPreview();
-  const {VideoPreviewAfterView, VideoPreviewBeforeView} = useFpe((data) => {
-    let components: {
-      VideoPreviewAfterView: React.ComponentType;
-      VideoPreviewBeforeView: React.ComponentType;
-    } = {
-      VideoPreviewAfterView: React.Fragment,
-      VideoPreviewBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data?.components?.precall?.preview &&
-        typeof data?.components?.precall?.preview === 'object'
-      ) {
-        if (
-          data?.components?.precall?.preview?.before &&
-          isValidReactComponent(data?.components?.precall?.preview?.before)
-        ) {
-          components.VideoPreviewBeforeView =
-            data?.components?.precall?.preview?.before;
-        }
-        if (
-          data?.components?.precall?.preview?.after &&
-          isValidReactComponent(data?.components?.precall?.preview?.after)
-        ) {
-          components.VideoPreviewAfterView =
-            data?.components?.precall?.preview?.after;
-        }
-      }
-    }
-    return components;
-  });
   return (
-    <>
-      <VideoPreviewBeforeView />
-      <MaxUidConsumer>
-        {(maxUsers) => (
-          <View style={{borderRadius: 10, flex: 1}}>
-            <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-          </View>
-        )}
-      </MaxUidConsumer>
-      <VideoPreviewAfterView />
-    </>
+    <MaxUidConsumer>
+      {(maxUsers) => (
+        <View style={{borderRadius: 10, flex: 1}}>
+          <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+        </View>
+      )}
+    </MaxUidConsumer>
   );
 };
 export default VideoPreview;

@@ -16,8 +16,6 @@ import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
-import {useFpe} from 'fpe-api';
-import {isValidReactComponent} from '../../utils/common';
 
 const PreCallTextInput: React.FC = () => {
   const userNamePlaceholder = useString('userNamePlaceholder')();
@@ -26,55 +24,16 @@ const PreCallTextInput: React.FC = () => {
   const setUsername = useSetName();
   const {isJoinDataFetched} = useMeetingInfo();
 
-  const {TextInputAfterView, TextInputBeforeView} = useFpe((data) => {
-    let components: {
-      TextInputAfterView: React.ComponentType;
-      TextInputBeforeView: React.ComponentType;
-    } = {
-      TextInputAfterView: React.Fragment,
-      TextInputBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data?.components?.precall?.textBox &&
-        typeof data?.components?.precall?.textBox === 'object'
-      ) {
-        if (
-          data?.components?.precall?.textBox?.before &&
-          isValidReactComponent(data?.components?.precall?.textBox?.before)
-        ) {
-          components.TextInputBeforeView =
-            data?.components?.precall?.textBox?.before;
-        }
-        if (
-          data?.components?.precall?.textBox?.after &&
-          isValidReactComponent(data?.components?.precall?.textBox?.after)
-        ) {
-          components.TextInputAfterView =
-            data?.components?.precall?.textBox?.after;
-        }
-      }
-    }
-    return components;
-  });
-
   return (
-    <>
-      <TextInputBeforeView />
-      <TextInput
-        value={username}
-        onChangeText={(text) => setUsername(text ? text.trim() : text)}
-        onSubmitEditing={() => {}}
-        placeholder={
-          isJoinDataFetched ? userNamePlaceholder : fetchingNamePlaceholder
-        }
-        editable={isJoinDataFetched}
-      />
-      <TextInputAfterView />
-    </>
+    <TextInput
+      value={username}
+      onChangeText={(text) => setUsername(text ? text.trim() : text)}
+      onSubmitEditing={() => {}}
+      placeholder={
+        isJoinDataFetched ? userNamePlaceholder : fetchingNamePlaceholder
+      }
+      editable={isJoinDataFetched}
+    />
   );
 };
 

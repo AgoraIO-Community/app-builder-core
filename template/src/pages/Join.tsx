@@ -46,13 +46,10 @@ const Join = () => {
   const startCall = async () => {
     navigateTo(phrase);
   };
-  const {JoinComponent, JoinBeforeView, JoinAfterView} = useFpe((data) => {
+  const {JoinComponent} = useFpe((data) => {
     let components: {
-      JoinBeforeView: React.ComponentType;
-      JoinAfterView: React.ComponentType;
       JoinComponent?: React.ComponentType;
-    } = {JoinAfterView: React.Fragment, JoinBeforeView: React.Fragment};
-
+    } = {};
     if (
       data?.components?.join &&
       typeof data?.components?.join !== 'object' &&
@@ -60,67 +57,48 @@ const Join = () => {
     ) {
       components.JoinComponent = data?.components?.join;
     }
-
-    if (data?.components?.join && typeof data?.components?.join === 'object') {
-      if (
-        data?.components?.join?.after &&
-        isValidReactComponent(data?.components?.join?.after)
-      ) {
-        components.JoinAfterView = data?.components?.join?.after;
-      }
-      if (
-        data?.components?.join?.before &&
-        isValidReactComponent(data?.components?.join?.before)
-      ) {
-        components.JoinBeforeView = data?.components?.join?.before;
-      }
-    }
     return components;
   });
 
   return JoinComponent ? (
     <JoinComponent />
   ) : (
-    <>
-      <JoinBeforeView />
-      <ScrollView contentContainerStyle={style.main}>
-        <View style={style.nav}>
-          {hasBrandLogo && <Logo />}
-          {error ? <Error error={error} /> : <></>}
-        </View>
-        <View style={style.content}>
-          <View style={style.leftContent}>
-            <Text style={style.heading}>{$config.APP_NAME}</Text>
-            <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-            <View style={style.inputs}>
-              <TextInput
-                value={phrase}
-                onChangeText={(text) => setPhrase(text)}
-                onSubmitEditing={() => startCall()}
-                placeholder={meetingIdInputPlaceholder}
-              />
-              <View style={{height: 10}} />
-              <PrimaryButton
-                disabled={phrase === ''}
-                onPress={() => startCall()}
-                text={enterMeetingButton}
-              />
-              <HorizontalRule />
-              <SecondaryButton
-                onPress={() => createMeeting()}
-                text={createMeetingButton}
-              />
-              {shouldAuthenticate ? (
-                <LogoutButton setError={setError} /> //setError not available in logout?
-              ) : (
-                <></>
-              )}
-            </View>
+    <ScrollView contentContainerStyle={style.main}>
+      <View style={style.nav}>
+        {hasBrandLogo && <Logo />}
+        {error ? <Error error={error} /> : <></>}
+      </View>
+      <View style={style.content}>
+        <View style={style.leftContent}>
+          <Text style={style.heading}>{$config.APP_NAME}</Text>
+          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
+          <View style={style.inputs}>
+            <TextInput
+              value={phrase}
+              onChangeText={(text) => setPhrase(text)}
+              onSubmitEditing={() => startCall()}
+              placeholder={meetingIdInputPlaceholder}
+            />
+            <View style={{height: 10}} />
+            <PrimaryButton
+              disabled={phrase === ''}
+              onPress={() => startCall()}
+              text={enterMeetingButton}
+            />
+            <HorizontalRule />
+            <SecondaryButton
+              onPress={() => createMeeting()}
+              text={createMeetingButton}
+            />
+            {shouldAuthenticate ? (
+              <LogoutButton setError={setError} /> //setError not available in logout?
+            ) : (
+              <></>
+            )}
           </View>
         </View>
-      </ScrollView>
-      <JoinAfterView />
-    </>
+      </View>
+    </ScrollView>
   );
 };
 
