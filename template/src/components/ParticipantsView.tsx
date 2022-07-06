@@ -13,7 +13,6 @@ import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import chatContext from './ChatContext';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
 import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
@@ -26,9 +25,10 @@ import {useString} from '../utils/useString';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useFpe} from 'fpe-api';
+import useUserList from '../utils/useUserList';
 
 const ParticipantView = () => {
-  const {userList} = useContext(chatContext);
+  const userList = useUserList();
   const {rtcProps} = useContext(PropsContext);
   const hostLabel = useString('hostLabel')();
   const audienceLabel = useString('audienceLabel')();

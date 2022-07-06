@@ -7,10 +7,12 @@ import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
 import {UserType} from './../RTMConfigure';
 import {useString} from '../../utils/useString';
+import useUserList from '../../utils/useUserList';
 
 export default function AllHostParticipants(props: any) {
+  const userList = useUserList();
   const {p_style, isHost} = props;
-  const {userList, localUid} = useContext(chatContext);
+  const {localUid} = useContext(chatContext);
   const screenshareName = useString<boolean>('screenshareUserName');
   const localUserDefaultLabel = useString('localUserDefaultLabel')();
   const localScreenshareDefaultLabel = useString(

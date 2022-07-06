@@ -27,6 +27,7 @@ import {useFpe} from 'fpe-api';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+import useUserList from '../utils/useUserList';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -34,7 +35,7 @@ import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
-  const {userList} = useContext(ChatContext);
+  const userList = useUserList();
   const {height, width} = useWindowDimensions();
   const {selectPrivate} = props;
   const {privateActive, selectedChatUserId: selectedUserID} =

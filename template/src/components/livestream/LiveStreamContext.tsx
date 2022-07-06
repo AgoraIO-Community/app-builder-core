@@ -19,6 +19,8 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import useUserList from '../../utils/useUserList';
+
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../../utils/useSendControlMessage';
@@ -52,8 +54,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
 
   const screenshareContextInstance = useScreenshare();
   const sendCtrlMsgToUid = useSendControlMessage();
+  const userList = useUserList();
   const {
-    userList,
     localUid,
     sendControlMessage,
     broadcastUserAttributes,

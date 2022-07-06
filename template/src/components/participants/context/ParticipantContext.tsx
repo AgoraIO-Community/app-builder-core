@@ -14,6 +14,7 @@ import React, {useState, useContext, useEffect} from 'react';
 import chatContext from '../../ChatContext';
 import {UserType} from '../../../components/RTMConfigure';
 import {filterObject} from '../../../utils';
+import useUserList from '../../../utils/useUserList';
 import {
   ClientRole,
   MinUidContext,
@@ -34,8 +35,8 @@ export const ParticipantContextProvider: React.FC = (props: any) => {
   const [hostList, setHostList] = useState({});
   const [audienceList, setAudienceList] = useState({});
   const [audienceCount, setAudienceCount] = useState(0);
-
-  const {userList, localUid} = useContext(chatContext);
+  const userList = useUserList();
+  const {localUid} = useContext(chatContext);
   // For host list which are publishing
   const min = useContext(MinUidContext);
   const max = useContext(MaxUidContext);
