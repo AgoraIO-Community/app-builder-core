@@ -1,6 +1,6 @@
 /*
 ********************************************
- Copyright © 2021 Agora Lab, Inc., all rights reserved.
+ Copyright © 2022 Agora Lab, Inc., all rights reserved.
  AppBuilder and all associated components, source code, APIs, services, and documentation 
  (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
  accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+
 import RtmEngine from 'agora-react-native-rtm';
 import {createContext} from 'react';
 
