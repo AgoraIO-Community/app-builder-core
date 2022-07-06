@@ -19,6 +19,10 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../../utils/useSendControlMessage';
+
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -47,11 +51,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   )();
 
   const screenshareContextInstance = useScreenshare();
-
+  const sendCtrlMsgToUid = useSendControlMessage();
   const {
     userList,
     localUid,
-    sendControlMessageToUid,
     sendControlMessage,
     broadcastUserAttributes,
     addOrUpdateLocalUserAttributes,
@@ -346,7 +349,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       ts: new Date().getTime(),
       status: requestStatus.Cancelled,
     });
-    sendControlMessageToUid(
+    sendCtrlMsgToUid(
+      CONTROL_MESSAGE_TYPE.controlMessageToUid,
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       uid,
     );
@@ -358,7 +362,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       ts: new Date().getTime(),
       status: requestStatus.Cancelled,
     });
-    sendControlMessageToUid(
+    sendCtrlMsgToUid(
+      CONTROL_MESSAGE_TYPE.controlMessageToUid,
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       uid,
     );
