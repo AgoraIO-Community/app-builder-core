@@ -19,7 +19,7 @@ interface IPeerMessageOptions {
 export type ToOptions = IChannelMessageOptions | IPeerMessageOptions;
 
 export interface EventOptions {
-  payload?: any;
-  level?: 2 | 3;
+  payload: any;
+  level: 2 | 3;
   source?: 'core' | 'fpe';
 }

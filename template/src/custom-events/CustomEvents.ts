@@ -97,11 +97,11 @@ class CustomEvents {
   sendEphemeral = async (
     evt: string,
     to: ToOptions,
-    options?: Omit<EventOptions, 'level'>,
+    options: Omit<EventOptions, 'level'>,
   ) => {
     const rtmPayload = {
       evt: evt,
-      payload: options?.payload,
+      payload: options.payload,
       level: 1,
     };
     try {
@@ -112,11 +112,11 @@ class CustomEvents {
     }
   };
 
-  sendPersist = async (evt: string, to: ToOptions, options?: EventOptions) => {
+  sendPersist = async (evt: string, to: ToOptions, options: EventOptions) => {
     const rtmPayload = {
       evt: evt,
-      payload: options?.payload,
-      level: options?.level,
+      payload: options.payload,
+      level: options.level,
     };
     if (options?.level === 2 || options?.level == 3) {
       // If level 2 or 3 update local user attribute
