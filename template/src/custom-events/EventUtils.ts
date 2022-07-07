@@ -54,7 +54,7 @@ const Events = (function () {
   const _indexOfListener = function (listeners: any, listener: any) {
     var i = listeners.length;
     while (i--) {
-      if (listeners[i].listener === listener) {
+      if (listeners[i].listener.toString() === listener.toString()) {
         return i;
       }
     }
@@ -127,6 +127,7 @@ const Events = (function () {
     },
     emit(evt: any, args: any) {
       let listenersMap = _getListenersAsObject(evt);
+      console.log('CUSTOM_EVENT_API emit listenersMap: ', listenersMap);
       let listeners;
       let listener;
       for (let key in listenersMap) {
@@ -140,6 +141,8 @@ const Events = (function () {
               Events.removeListener(evt, listener.listener);
             }
             const newargs = [].slice.call(arguments, 1);
+            console.log('CUSTOM_EVENT_API newargs: ', newargs);
+            console.log('CUSTOM_EVENT_API arguments: ', arguments);
             listener.listener.apply(this, newargs || []);
           }
         }
