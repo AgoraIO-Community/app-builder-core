@@ -56,7 +56,7 @@ const ChatContainer = (props: any) => {
   return (
     <View style={style.containerView}>
       {privateActive && (
-       <TouchableOpacity
+        <TouchableOpacity
           style={style.row}
           onPress={() => setPrivateActive(false)}>
           <View style={style.backButton}>

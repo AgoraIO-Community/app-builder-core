@@ -84,7 +84,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
   const {sendControlMessage} = useContext(ChatContext);
   const prevRecordingState = usePrevious<{recordingActive:boolean}>({recordingActive});
-  const recordingStartedText = useString('recordingNotificationLabel')();
+  const recordingStartedNotificationLabel = useString('recordingStartedNotificationLabel')();
+  const recordingStoppedNotificationLabel = useString('recordingStoppedNotificationLabel')();
+
   useEffect(() => {
     /**
      * The below check makes sure the notification is triggered
@@ -92,11 +94,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
      * when chat icon is toggle, as Controls component is hidden and
      * shown
      */
-    if (prevRecordingState && recordingActive) {
+    if (prevRecordingState) {
       if (prevRecordingState?.recordingActive === recordingActive) return;
       Toast.show({
         type: 'success',
-        text1: recordingStartedText,
+        text1: recordingActive ? recordingStartedNotificationLabel : recordingStoppedNotificationLabel,
         visibilityTime: 1000,
       });
     }

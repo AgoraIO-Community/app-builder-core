@@ -43,7 +43,7 @@ const JoinRoomInputView = () => {
   );
 };
 
-const Precall = () => {
+const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const rtc = useContext(RtcContext);

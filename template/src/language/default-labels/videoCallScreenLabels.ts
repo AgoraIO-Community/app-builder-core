@@ -28,7 +28,8 @@ export interface I18nVideoCallScreenLabelsInterface {
   toggleVideoButton?: I18nBaseType; //
   toggleAudioButton?: I18nBaseType; //
   screenShareButton?: I18nBaseType; //
-  recordingNotificationLabel?: I18nBaseType; //
+  recordingStartedNotificationLabel?: I18nBaseType; //
+  recordingStoppedNotificationLabel?: I18nBaseType; //
   endCallButton?: I18nBaseType; //
   participantsLabel?: I18nBaseType; //
   groupChatLabel?: I18nBaseType; //
@@ -82,7 +83,8 @@ export const VideoCallScreenLabels: I18nVideoCallScreenLabelsInterface = {
   screenShareButton: 'Share',
   switchCameraButton: 'Switch',
   recordingLabel: 'Recording',
-  recordingNotificationLabel: 'Recording Started',
+  recordingStartedNotificationLabel: 'Recording Started',
+  recordingStoppedNotificationLabel: 'Recording Stopped',
   endCallButton: 'Hang Up',
   participantsLabel: 'Participants',
   groupChatLabel: 'Group',

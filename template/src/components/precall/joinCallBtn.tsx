@@ -57,7 +57,7 @@ const joinCallBtn: React.FC = () => {
       });
     }
     // Avoid Sleep only on mobile browsers
-    if (mobileAndTabletCheck() && !awake) {
+    if (isWeb && mobileAndTabletCheck() && !awake) {
       // Request wake lock
       request();
     }
