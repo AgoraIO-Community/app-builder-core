@@ -118,10 +118,16 @@ class CustomEvents {
       payload: options.payload,
       level: options.level,
     };
-    if (options?.level === 2 || options?.level == 3) {
+    if (options.level === 2 || options.level == 3) {
       // If level 2 or 3 update local user attribute
       await this.engine.addOrUpdateLocalUserAttributes([
-        {key: evt, value: JSON.stringify(options?.payload)},
+        {
+          key: evt,
+          value:
+            typeof options.payload === 'string'
+              ? options.payload
+              : JSON.stringify(options.payload),
+        },
       ]);
     }
     try {
