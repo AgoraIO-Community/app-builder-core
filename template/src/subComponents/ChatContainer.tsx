@@ -74,18 +74,6 @@ const ChatContainer = (props: any) => {
               value={selectedUsername}
             />
           </View>
-          <View style={{flex: 1}}>
-            <TextWithTooltip
-              style={[
-                style.name,
-                {
-                  flexShrink: 1,
-                  fontSize: RFValue(16, height > width ? height : width),
-                },
-              ]}
-              value={selectedUsername}
-            />
-          </View>
         </TouchableOpacity>
       )}
       <ScrollView
