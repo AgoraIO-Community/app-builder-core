@@ -165,7 +165,7 @@ const Share = () => {
             <View style={style.urlContainer}>
               <View style={{width: '80%'}}>
                 <Text style={style.urlTitle}>
-                  {$config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK )
+                  {$config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK)
                     ? attendeeUrlLabel
                     : attendeeIdLabel}
                 </Text>
@@ -209,7 +209,7 @@ const Share = () => {
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>
-                {$config.FRONTEND_ENDPOINT || platform === 'web' && !isSDK
+                {$config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK)
                   ? isSeparateHostLink
                     ? hostUrlLabel
                     : meetingUrlText
@@ -393,6 +393,7 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     fontWeight: '700',
+    textAlign: 'left',
   },
   pstnHolder: {
     width: '100%',
