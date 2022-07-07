@@ -27,6 +27,12 @@ import Logo from '../subComponents/Logo';
 import hasBrandLogo from '../utils/hasBrandLogo';
 import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
+import {useWakeLock} from '../components/useWakeLock';
+import mobileAndTabletCheck from '../utils/mobileWebTest';
+
+const audio = new Audio(
+  'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
+);
 
 const JoinRoomInputView = (props: any) => {
   const {
@@ -37,6 +43,25 @@ const JoinRoomInputView = (props: any) => {
     buttonText,
     error,
   } = props;
+
+  const {awake, request} = useWakeLock();
+
+  const onSubmit = () => {
+    setCallActive(true);
+    // Play a sound to avoid autoblocking in safari
+    if (Platform.OS === 'web' || mobileAndTabletCheck()) {
+      audio.volume = 0;
+      audio.play().then(() => {
+        // pause directly once played
+        audio.pause();
+      });
+    }
+    // Sleep only on mobile browsers
+    if (Platform.OS === 'web' && mobileAndTabletCheck() && !awake) {
+      // Request wake lock
+      request();
+    }
+  };
 
   return (
     <View style={style.btnContainer}>
@@ -51,7 +76,7 @@ const JoinRoomInputView = (props: any) => {
       />
       <View style={{height: 20}} />
       <PrimaryButton
-        onPress={() => setCallActive(true)}
+        onPress={onSubmit}
         disabled={!queryComplete || username.trim() === '' || error}
         text={queryComplete ? buttonText : 'Loading...'}
       />

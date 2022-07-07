@@ -62,9 +62,13 @@ const Recording = (props: any) => {
      * when chat icon is toggle, as Controls component is hidden and
      * shown
      */
-    if (prevRecordingState && recordingActive) {
+    if (prevRecordingState) {
       if (prevRecordingState?.recordingActive === recordingActive) return;
-      Toast.show({text1: 'Recording Started', visibilityTime: 1000});
+      Toast.show({
+        type: 'success',
+        text1: recordingActive ? 'Recording Started' : 'Recording Stopped',
+        visibilityTime: 1000,
+      });
     }
   }, [recordingActive]);
 

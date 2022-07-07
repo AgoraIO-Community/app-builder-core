@@ -177,16 +177,18 @@ const Create = () => {
                   <></>
                 )}
               </View>
-              <PrimaryButton
-                disabled={roomTitle === '' || loading}
-                onPress={() => createRoom()}
-                text={loading ? 'Loading...' : 'Create Meeting'}
-              />
-              <HorizontalRule />
-              <SecondaryButton
-                onPress={() => history.push('/join')}
-                text={'Have a Meeting ID?'}
-              />
+              <View style={style.btnContainer}>
+                <PrimaryButton
+                  disabled={roomTitle === '' || loading}
+                  onPress={() => createRoom()}
+                  text={loading ? 'Loading...' : 'Create Meeting'}
+                />
+                <HorizontalRule />
+                <SecondaryButton
+                  onPress={() => history.push('/join')}
+                  text={'Have a Meeting ID?'}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -225,8 +227,6 @@ const style = StyleSheet.create({
     width: '100%',
     flex: 1,
     justifyContent: 'space-evenly',
-    marginBottom: '13%',
-    marginTop: '7%',
     minHeight: 350,
     // marginRight: '5%',
     marginHorizontal: 'auto',
@@ -305,6 +305,10 @@ const style = StyleSheet.create({
   },
   pstnMargin: {
     marginRight: '10%',
+  },
+  btnContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
 });
 

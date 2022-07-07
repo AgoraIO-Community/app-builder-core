@@ -30,7 +30,7 @@ import type {
 import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
-
+import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -135,10 +135,19 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-AgoraRTC.setArea({
-  areaCode: AREAS.GLOBAL,
-  excludedArea: AREAS.CHINA,
-});
+if (GEO_FENCING) {
+  AgoraRTC.setArea({
+    areaCode: AREAS.GLOBAL,
+    excludedArea: AREAS.CHINA,
+  });
+}
+
+if (LOG_ENABLED) {
+  AgoraRTC.setLogLevel(0);
+  AgoraRTC.enableLogUpload();
+} else {
+  AgoraRTC.disableLogUpload();
+}
 
 export default class RtcEngine {
   public appId: string;
@@ -167,6 +176,11 @@ export default class RtcEngine {
   private isJoined = false;
   private deviceId = '';
   private muteLocalVideoMutex = false;
+  private muteLocalAudioMutex = false;
+
+  // Create channel profile and set it here
+
+  // Create channel profile and set it here
 
   // Create channel profile and set it here
 
@@ -195,16 +209,42 @@ export default class RtcEngine {
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
+      let audioError = false;
+      let videoError = false;
+      try {
+        let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+        this.localStream.audio = localAudio;
+      } catch (error) {
+        audioError = error;
+      }
+      try {
+        let localVideo = await AgoraRTC.createCameraVideoTrack({
+          encoderConfig: this.videoProfile,
+        });
+        this.localStream.video = localVideo;
+      } catch (error) {
+        videoError = error;
+      }
+      e.status = {audioError, videoError};
       throw e;
+      // if (audioError && videoError) throw e;
+      // else
+      //   throw new Error(
+      //     audioError ? 'No Microphone found' : 'No Video device found',
+      //   );
     }
   }
 
   async publish() {
-    if (this.localStream.audio && this.localStream.video) {
+    if (this.localStream.audio || this.localStream.video) {
       try {
         let tracks: Array<ILocalTrack> = [];
-        this.isAudioEnabled && tracks.push(this.localStream.audio);
-        this.isVideoEnabled && tracks.push(this.localStream.video);
+        this.localStream.audio &&
+          this.isAudioEnabled &&
+          tracks.push(this.localStream.audio);
+        this.localStream.video &&
+          this.isVideoEnabled &&
+          tracks.push(this.localStream.video);
 
         if (tracks.length > 0) {
           await this.client.publish(tracks);
@@ -383,6 +423,7 @@ export default class RtcEngine {
     this.isJoined = true;
 
     await this.publish();
+    console.log('enabling screen sleep');
   }
 
   async leaveChannel(): Promise<void> {
@@ -392,6 +433,7 @@ export default class RtcEngine {
       stream.audio?.close();
     });
     this.remoteStreams.clear();
+    console.log('disabling screen sleep');
   }
 
   addListener<EventType extends keyof RtcEngineEvents>(
@@ -419,17 +461,30 @@ export default class RtcEngine {
   }
 
   async muteLocalAudioStream(muted: boolean): Promise<void> {
+    let didProcureMutexLock = false;
     try {
-      // await this.localStream.audio?.setEnabled(!muted);
-      if (muted) {
-        await this.client.unpublish(this.localStream.audio);
-        this.isAudioPublished = false;
-      }
-      this.isAudioEnabled = !muted;
-      if (!muted && !this.isAudioPublished && this.isJoined) {
-        await this.publish();
+      if (!this.muteLocalAudioMutex) {
+        // If there no mutex lock, procure a lock
+        this.muteLocalAudioMutex = true;
+        didProcureMutexLock = true;
+        /** setMuted
+         *  The SDK does NOT stop audio or video capture.
+         *  The camera light stays on for video
+         *  It takes less time for the audio or video to resume.
+         */
+        await this.localStream.audio?.setMuted(muted);
+        // Release the lock once done
+        this.muteLocalAudioMutex = false;
+        this.isAudioEnabled = !muted;
+        // Unpublish only after when the user has joined the call
+        if (!muted && !this.isAudioPublished && this.isJoined) {
+          await this.publish();
+        }
       }
     } catch (e) {
+      if (didProcureMutexLock) {
+        this.muteLocalAudioMutex = false;
+      }
       console.error(
         e,
         '\n Be sure to invoke the enableVideo method before using this method.',
@@ -444,12 +499,18 @@ export default class RtcEngine {
         // If there no mutex lock, procure a lock
         this.muteLocalVideoMutex = true;
         didProcureMutexLock = true;
+        /** setEnabled
+         *  The SDK stops audio or video capture.
+         *  The indicator light of the camera turns off and stays off.
+         *  It takes more time for the audio or video to resume.
+         */
         await this.localStream.video?.setEnabled(!muted);
         // Release the lock once done
         this.muteLocalVideoMutex = false;
 
         this.isVideoEnabled = !muted;
-        if (!muted && !this.isVideoPublished) {
+        // Unpublish only after when the user has joined the call
+        if (!muted && !this.isVideoPublished && this.isJoined) {
           await this.publish();
         }
       }
@@ -513,6 +574,13 @@ export default class RtcEngine {
   ): Promise<void> {
     try {
       if (clientRole == ClientRole.Audience) {
+        if (this.isJoined) {
+          // Unpublish the streams when role is changed to Audience
+          await this.client.unpublish();
+          this.isAudioPublished = false;
+          this.isVideoPublished = false;
+          this.isPublished = false;
+        }
         await this.client.setClientRole(role.audience, options);
         await this.screenClient.setClientRole(role.audience, options);
       } else if (clientRole == ClientRole.Broadcaster) {
@@ -587,16 +655,10 @@ export default class RtcEngine {
     console.log('!set fallback');
   }
 
-  async enableEncryption(
-    enabled: boolean,
-    config: {
-      encryptionMode: RnEncryptionEnum;
-      encryptionKey: string;
-    },
-  ): Promise<void> {
+  getEncryptionMode = (enabled: boolean, encryptmode: RnEncryptionEnum) => {
     let mode: EncryptionMode;
     if (enabled) {
-      switch (config.encryptionMode) {
+      switch (encryptmode) {
         case RnEncryptionEnum.None:
           mode = 'none';
           break;
@@ -615,7 +677,18 @@ export default class RtcEngine {
     } else {
       mode = 'none';
     }
+    return mode;
+  };
 
+  async enableEncryption(
+    enabled: boolean,
+    config: {
+      encryptionMode: RnEncryptionEnum;
+      encryptionKey: string;
+    },
+  ): Promise<void> {
+    let mode: EncryptionMode;
+    mode = this.getEncryptionMode(enabled, config.encryptionMode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
@@ -700,7 +773,7 @@ export default class RtcEngine {
     engine: typeof AgoraRTC,
     encryption: {
       screenKey: string;
-      mode: 'aes-128-xts' | 'aes-256-xts' | 'aes-128-ecb';
+      mode: RnEncryptionEnum;
     },
     config: ScreenVideoTrackInitConfig = {},
     audio: 'enable' | 'disable' | 'auto' = 'auto',
@@ -708,6 +781,23 @@ export default class RtcEngine {
     if (!this.inScreenshare) {
       try {
         console.log('[screenshare]: creating stream');
+
+        let mode: EncryptionMode;
+        mode = this.getEncryptionMode(true, encryption.mode);
+        try {
+          /**
+           * Since version 4.7.0, if client leaves a call
+           * and joins again the encryption needs to be
+           * set again
+           */
+          await this.screenClient.setEncryptionConfig(
+            mode,
+            encryption.screenKey,
+          );
+        } catch (e) {
+          console.log('e: Encryption for screenshare failed', e);
+        }
+
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
           config,
           audio,

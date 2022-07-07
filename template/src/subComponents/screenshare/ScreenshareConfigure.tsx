@@ -86,6 +86,7 @@ export const ScreenshareConfigure = (props: any) => {
 
       if (joinedUser.length === 1) {
         const newUserUid = joinedUser[0].uid;
+        // identify remote user screen type, if screen share, swap to PIN
         if (userList[newUserUid] && userList[newUserUid].type === 1) {
           dispatch({
             type: 'SwapVideo',
@@ -93,7 +94,9 @@ export const ScreenshareConfigure = (props: any) => {
           });
           setLayout(Layout.Pinned);
         } else if (newUserUid === 1) {
+          // identify local user screen type
           if (newUserUid !== users[0].uid) {
+            // if not already maximized
             dispatch({
               type: 'SwapVideo',
               value: [joinedUser[0]],
