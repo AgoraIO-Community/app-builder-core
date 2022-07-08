@@ -9,12 +9,6 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-type ICbListener = (args: {
-  payload: any;
-  level: 1 | 2 | 3;
-  from: string;
-  ts: number;
-}) => void;
 
 ('use strict');
 import RtmEngine from 'agora-react-native-rtm';
@@ -22,6 +16,14 @@ import EventUtils from './EventUtils';
 import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventOptions} from './types';
 import {messageType} from '../rtm/types';
+import EventAttributes from './EventAttributes';
+
+type ICbListener = (args: {
+  payload: any;
+  level: 1 | 2 | 3;
+  from: string;
+  ts: number;
+}) => void;
 
 class CustomEvents {
   engine!: RtmEngine;
@@ -120,15 +122,22 @@ class CustomEvents {
     };
     if (options.level === 2 || options.level == 3) {
       // If level 2 or 3 update local user attribute
+      const attributeValue =
+        typeof options.payload === 'string'
+          ? options.payload
+          : JSON.stringify(options.payload);
       await this.engine.addOrUpdateLocalUserAttributes([
         {
           key: evt,
-          value:
-            typeof options.payload === 'string'
-              ? options.payload
-              : JSON.stringify(options.payload),
+          value: attributeValue,
         },
       ]);
+      // Update the local user attribute state
+      try {
+        EventAttributes.set(evt, attributeValue);
+      } catch (error) {
+        console.log('supriya error occured while updating the value ', error);
+      }
     }
     try {
       await this.send(to, rtmPayload);
