@@ -18,7 +18,7 @@ interface IPeerMessageOptions {
 
 // export type ToOptions = IChannelMessageOptions | IPeerMessageOptions;
 
-export type ToOptions = string | string[] | undefined | null;
+export type ToOptions = string | string[] | undefined;
 
 export interface EventOptions {
   payload: any;
