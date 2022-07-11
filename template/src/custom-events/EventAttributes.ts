@@ -11,17 +11,23 @@
 */
 import {RtmAttribute} from 'agora-react-native-rtm';
 
+type TEventAttribute = {[key: string]: RtmAttribute[]};
+
 const EventAttributes = (function () {
   'use strict';
 
-  let _eventAttributes: RtmAttribute[] = [];
+  let _eventAttributes: TEventAttribute = {};
 
   return {
-    set(evt: string, payload: any) {
-      const newAttributes = _eventAttributes.map((attribute) =>
-        attribute.key == evt ? {...attribute, value: payload} : attribute,
-      );
-      _eventAttributes = newAttributes;
+    set(uid: string, attr: RtmAttribute) {
+      _eventAttributes = {
+        ..._eventAttributes,
+        [uid]: {
+          ..._eventAttributes[uid],
+          [attr.key]: attr.value,
+        },
+      };
+      return _eventAttributes;
     },
     get() {
       return _eventAttributes;
