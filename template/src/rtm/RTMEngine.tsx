@@ -14,6 +14,9 @@ import RtmEngine from 'agora-react-native-rtm';
 
 class RTMEngine {
   engine!: RtmEngine;
+  private localUID: string = '';
+  private channelId: string = '';
+
   private static _instance: RTMEngine | null = null;
 
   public static getInstance() {
@@ -33,8 +36,22 @@ class RTMEngine {
     }
     RTMEngine._instance = this;
     this.engine = new RtmEngine();
+    this.localUID = '';
+    this.channelId = '';
     this.createClientInstance();
+
     return RTMEngine._instance;
+  }
+
+  setLoginInfo(localUID: string, channelID: string) {
+    this.localUID = localUID;
+    this.channelId = channelID;
+  }
+  get myUID() {
+    return this.localUID;
+  }
+  get myChannelUID() {
+    return this.channelId;
   }
 }
 

@@ -31,29 +31,55 @@ class CustomEvents {
   constructor() {
     this.engine = RTMEngine.getInstance().engine;
   }
-
-  private send = async (to: ToOptions, rtmPayload: any) => {
+  private _persist = async (evt: string, options: EventOptions) => {
+    const attributeValue =
+      typeof options.payload === 'string'
+        ? options.payload
+        : JSON.stringify(options.payload);
+    await this.engine.addOrUpdateLocalUserAttributes([
+      {
+        key: evt,
+        value: attributeValue,
+      },
+    ]);
+    // Update the local user attribute state
+    try {
+      const localUserId = RTMEngine.getInstance().myUID;
+      EventAttributes.set(localUserId, {
+        key: evt,
+        value: attributeValue,
+      });
+    } catch (error) {
+      console.log(
+        'CUSTOM_EVENT_API error occured while updating the value ',
+        error,
+      );
+    }
+  };
+  private _send = async (to: ToOptions, rtmPayload: any) => {
     const text = JSON.stringify({
       type: messageType.CUSTOM_EVENT,
       msg: rtmPayload,
     });
     // Case 1: send to channel
-    if (to && to.channelId) {
-      console.log('CUSTOM_EVENT_API: case 1 executed', to.channelId);
+    if (typeof to == null || typeof to === undefined) {
+      console.log('CUSTOM_EVENT_API: case 1 executed', channelId);
+
       try {
-        await this.engine.sendMessageByChannelId(to.channelId, text);
+        const channelId = RTMEngine.getInstance().myChannelUID;
+        await this.engine.sendMessageByChannelId(channelId, text);
       } catch (error) {
         console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
         throw error;
       }
     }
     // Case 2: send to indivdual
-    if (typeof to?.uids === 'string' && to?.uids.trim() !== '') {
-      console.log('CUSTOM_EVENT_API: case 2 executed', to.uids);
+    if (typeof to === 'string' && to.trim() !== '') {
+      console.log('CUSTOM_EVENT_API: case 2 executed', to);
 
       try {
         await this.engine.sendMessageToPeer({
-          peerId: to.uids,
+          peerId: to,
           offline: false,
           text,
         });
@@ -63,10 +89,11 @@ class CustomEvents {
       }
     }
     // Case 3: send to multiple individuals
-    if (typeof to?.uids === 'object' && Array.isArray(to?.uids)) {
-      console.log('CUSTOM_EVENT_API: case 3 executed', to.uids);
+    if (typeof to === 'object' && Array.isArray(to)) {
+      console.log('CUSTOM_EVENT_API: case 3 executed', to);
+
       try {
-        for (const uid of to.uids) {
+        for (const uid of to) {
           // TODO adjust uids
           await this.engine.sendMessageToPeer({
             peerId: uid,
@@ -96,58 +123,25 @@ class CustomEvents {
     const response = EventUtils.removeEvent(name);
   };
 
-  sendEphemeral = async (
-    evt: string,
-    to: ToOptions,
-    options: Omit<EventOptions, 'level'>,
-  ) => {
+  send = async (evt: string, to: ToOptions, options: EventOptions) => {
     const rtmPayload = {
       evt: evt,
       payload: options.payload,
-      level: 1,
-    };
-    try {
-      console.log('CUSTOM_EVENT_API: sendEmphemeral executed');
-      await this.send(to, rtmPayload);
-    } catch (error) {
-      console.log('CUSTOM_EVENT_API: sendEphemeral sending failed. ', error);
-    }
-  };
-
-  sendPersist = async (evt: string, to: ToOptions, options: EventOptions) => {
-    const rtmPayload = {
-      evt: evt,
-      payload: options.payload,
-      level: options.level,
+      level: options?.level || 1,
     };
     if (options.level === 2 || options.level == 3) {
-      // If level 2 or 3 update local user attribute
-      const attributeValue =
-        typeof options.payload === 'string'
-          ? options.payload
-          : JSON.stringify(options.payload);
-      await this.engine.addOrUpdateLocalUserAttributes([
-        {
-          key: evt,
-          value: attributeValue,
-        },
-      ]);
-      // Update the local user attribute state
-      try {
-        EventAttributes.set(evt, attributeValue);
-      } catch (error) {
-        console.log('supriya error occured while updating the value ', error);
-      }
+      await this._persist(evt, options);
     }
     try {
-      await this.send(to, rtmPayload);
+      await this._send(to, rtmPayload);
     } catch (error) {
       console.log('CUSTOM_EVENT_API: sendPersist sending failed. ', error);
     }
   };
 
   printEvents = () => {
-    console.log('CUSTOM_EVENT_API:', EventUtils.getEvents());
+    console.log('CUSTOM_EVENT_API: EVENTS', EventUtils.getEvents());
+    console.log('CUSTOM_EVENT_API ATTRIBUTES:', EventAttributes.get());
   };
 }
 

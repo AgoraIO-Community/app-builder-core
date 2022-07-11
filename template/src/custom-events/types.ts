@@ -16,10 +16,12 @@ interface IPeerMessageOptions {
   channelId?: never;
 }
 
-export type ToOptions = IChannelMessageOptions | IPeerMessageOptions;
+// export type ToOptions = IChannelMessageOptions | IPeerMessageOptions;
+
+export type ToOptions = string | string[] | undefined | null;
 
 export interface EventOptions {
   payload: any;
-  level: 2 | 3;
+  level?: 2 | 3;
   source?: 'core' | 'fpe';
 }
