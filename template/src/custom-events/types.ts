@@ -1,3 +1,5 @@
+import {RtmAttribute} from 'agora-react-native-rtm';
+
 type Simplify<T> = T extends infer S ? {[K in keyof S]: S[K]} : never;
 type NoneOf<T> = Simplify<{[K in keyof T]?: never}>;
 type AtMostOneOf<T> =
@@ -20,8 +22,21 @@ interface IPeerMessageOptions {
 
 export type ToOptions = string | string[] | undefined | null;
 
-export interface EventOptions {
-  payload: any;
-  level?: 2 | 3;
-  source?: 'core' | 'fpe';
+interface IEventPayloadBase {
+  value?: any;
 }
+
+interface IEventPayloadWithoutAttributes extends IEventPayloadBase {
+  level?: never;
+  attributes?: never;
+}
+
+interface IEventPayloadWithAttributes extends IEventPayloadBase {
+  level: 2 | 3;
+  attributes: RtmAttribute[];
+}
+
+export type EventPayload =
+  | IEventPayloadWithoutAttributes
+  | IEventPayloadWithAttributes
+  | Record<string, never>;

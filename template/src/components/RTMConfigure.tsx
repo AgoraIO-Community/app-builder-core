@@ -36,6 +36,13 @@ import {useChatNotification} from './chat-notification/useChatNotification';
 import Toast from '../../react-native-toast-message';
 import {useSidePanel} from 'fpe-api';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
+import {safeJsonParse} from '../rtm/utils';
+import {messageType} from '../rtm/types';
+import EventUtils from '../custom-events/EventUtils';
+import EventAttributes from '../custom-events/EventAttributes';
+import RTMEngine from '../rtm/RTMEngine';
+import CustomEvents from '../custom-events/CustomEvents';
+
 export enum UserType {
   Normal,
   ScreenShare,
@@ -54,7 +61,6 @@ const stringifyPayload = (
   msg: string,
 ) => {
   return JSON.stringify({
-    source,
     type,
     msg,
   });
@@ -64,23 +70,6 @@ const parsePayload = (data: string) => {
   return JSON.parse(data);
 };
 
-function hasJsonStructure(str: string) {
-  if (typeof str !== 'string') return false;
-  try {
-    const result = JSON.parse(str);
-    const type = Object.prototype.toString.call(result);
-    return type === '[object Object]' || type === '[object Array]';
-  } catch (err) {
-    return false;
-  }
-}
-function safeJsonParse(str: string) {
-  try {
-    return [null, JSON.parse(str)];
-  } catch (err) {
-    return [err];
-  }
-}
 const timeNow = () => new Date().getTime();
 
 const RtmConfigure = (props: any) => {
@@ -250,6 +239,22 @@ const RtmConfigure = (props: any) => {
     });
   };
 
+  /** Update client role*/
+  useEffect(() => {
+    CustomEvents.on('on-client-role-changed', (data: any) => {
+      setUserList((prevState) => {
+        return {
+          ...prevState,
+          [data.sender]: {
+            ...prevState[data.sender],
+            role: parseInt(data.payload.value),
+          },
+        };
+      });
+    });
+  }, []);
+  /** */
+
   const doLoginAndSetupRTM = async () => {
     try {
       await engine.current.login({
@@ -267,13 +272,20 @@ const RtmConfigure = (props: any) => {
   };
 
   const setAttribute = async () => {
+    const rtmAttributes = [
+      {key: 'name', value: displayName || userText},
+      {key: 'screenUid', value: String(rtcProps.screenShareUid)},
+      {key: 'role', value: String(rtcProps?.role)},
+    ];
     try {
-      await engine.current.setLocalUserAttributes([
-        {key: 'name', value: displayName || userText},
-        {key: 'screenUid', value: String(rtcProps.screenShareUid)},
-        {key: 'role', value: String(rtcProps?.role)},
-        {key: 'requests', value: attrRequestTypes.none}, // stores Uid who have raised a request
-      ]);
+      await engine.current.setLocalUserAttributes(rtmAttributes);
+      rtmAttributes.forEach((attr: RtmAttribute) => {
+        EventAttributes.set(localUid.current, {
+          key: attr.key,
+          value: attr.value,
+        });
+      });
+
       timerValueRef.current = 5;
       joinChannel();
     } catch (error) {
@@ -316,15 +328,12 @@ const RtmConfigure = (props: any) => {
                 const attr = await engine.current.getUserAttributesByUid(
                   member.uid,
                 );
-                if (
-                  attr?.attributes?.name &&
-                  attr?.attributes?.screenUid &&
-                  attr?.attributes?.role &&
-                  attr?.attributes?.requests
-                ) {
-                  return attr;
-                } else {
-                  throw attr;
+                for (const key in attr.attributes) {
+                  if (attr.attributes.hasOwnProperty(key)) {
+                    return attr;
+                  } else {
+                    throw attr;
+                  }
                 }
               },
               {
@@ -349,7 +358,6 @@ const RtmConfigure = (props: any) => {
                     role: parseInt(attr?.attributes?.role),
                     screenUid: parseInt(attr?.attributes?.screenUid),
                     offline: false,
-                    requests: attr?.attributes?.requests,
                   },
                   [parseInt(attr?.attributes?.screenUid)]: {
                     name: getScreenShareName(
@@ -359,6 +367,12 @@ const RtmConfigure = (props: any) => {
                   },
                 };
               });
+              for (const [key, value] of Object.entries(attr?.attributes)) {
+                EventAttributes.set(member.uid, {
+                  key,
+                  value: value as string,
+                });
+              }
             } catch (e) {
               console.error(`Could not retrieve name of ${member.uid}`, e);
             }
@@ -375,10 +389,10 @@ const RtmConfigure = (props: any) => {
     }
   };
   const init = async () => {
-    engine.current = new RtmEngine();
-    rtcProps.uid
-      ? (localUid.current = rtcProps.uid + '')
-      : (localUid.current = '' + timeNow());
+    engine.current = RTMEngine.getInstance().engine;
+    localUid.current = rtcProps.uid ? rtcProps.uid + '' : '' + timeNow();
+    RTMEngine.getInstance().setLoginInfo(localUid.current, rtcProps.channel);
+
     engine.current.on('connectionStateChanged', (evt: any) => {
       //console.log(evt);
     });
@@ -389,15 +403,12 @@ const RtmConfigure = (props: any) => {
       const backoffAttributes = backOff(
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
-          if (
-            attr?.attributes?.name &&
-            attr?.attributes?.screenUid &&
-            attr?.attributes?.role &&
-            attr?.attributes?.requests
-          ) {
-            return attr;
-          } else {
-            throw attr;
+          for (const key in attr.attributes) {
+            if (attr.attributes.hasOwnProperty(key)) {
+              return attr;
+            } else {
+              throw attr;
+            }
           }
         },
         {
@@ -423,7 +434,6 @@ const RtmConfigure = (props: any) => {
                 role: parseInt(attr?.attributes?.role),
                 screenUid: parseInt(attr?.attributes?.screenUid),
                 offline: false,
-                requests: attr?.attributes?.requests,
               },
               [parseInt(attr?.attributes?.screenUid)]: {
                 name: getScreenShareName(attr?.attributes?.name || userText),
@@ -431,6 +441,12 @@ const RtmConfigure = (props: any) => {
               },
             };
           });
+          for (const [key, value] of Object.entries(attr?.attributes)) {
+            EventAttributes.set(data.uid, {
+              key,
+              value: value as string,
+            });
+          }
         } catch (e) {
           console.error(`Could not retrieve name of ${data.uid}`, e);
         }
@@ -448,7 +464,6 @@ const RtmConfigure = (props: any) => {
           ...prevState,
           [uid]: {
             ...prevState[uid],
-            requests: attrRequestTypes.none,
             offline: true,
           },
         };
@@ -456,14 +471,17 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('messageReceived', (evt: any) => {
-      const {peerId, ts, text} = evt;
+      console.log('CUSTOM_EVENT_API: peer message received ', evt);
+      const {peerId, text, ts} = evt;
       const textObj = parsePayload(text);
+      const [err, result] = safeJsonParse(text);
+
       const {type, msg} = textObj;
 
       let arr = new Int32Array(1);
       arr[0] = parseInt(peerId);
 
-      const timestamp = timeNow();
+      const timestamp = ts ? (parseInt(ts) === 0 ? timeNow() : ts) : timeNow();
 
       const userUID = isAndroid ? arr[0] : peerId;
 
@@ -533,6 +551,10 @@ const RtmConfigure = (props: any) => {
           return;
         }
       }
+      if (type === messageType.CUSTOM_EVENT) {
+        console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
+        customEventDispatcher(msg, peerId, timestamp);
+      }
       events.emit(messageChannelType.Private, {
         uid: userUID,
         ts: timestamp,
@@ -541,29 +563,29 @@ const RtmConfigure = (props: any) => {
     });
 
     engine.current.on('channelMessageReceived', (evt) => {
+      console.log('CUSTOM_EVENT_API: channel message received ', evt);
       const {uid, channelId, text, ts} = evt;
       const textObj = parsePayload(text);
+      const [err, result] = safeJsonParse(text);
+      if (err) {
+        console.log('CUSTOM_EVENT_API: unable to parse channel message');
+        return;
+      }
       const {type, msg} = textObj;
+
       let arr = new Int32Array(1);
       arr[0] = parseInt(uid);
 
-      const userUID = Platform.OS ? arr[0] : uid;
-      const timestamp = ts === 0 ? timeNow() : ts;
+      const sender = Platform.OS ? arr[0] : uid;
+      const timestamp = ts ? (parseInt(ts) === 0 ? timeNow() : ts) : timeNow();
 
       if (channelId === rtcProps.channel) {
-        if (type === messageActionType.Control) {
-          let actionMsg = '';
-          if (hasJsonStructure(msg)) {
-            const [err, result] = safeJsonParse(msg);
-            if (!err) {
-              const {action} = result;
-              actionMsg = action;
-            }
-          } else {
-            actionMsg = msg;
-          }
+        if (
+          type === messageType.CONTROL_GROUP ||
+          type === messageActionType.Control
+        ) {
           try {
-            switch (actionMsg) {
+            switch (msg) {
               case controlMessageEnum.muteVideo:
                 RtcEngine.muteLocalVideoStream(true);
                 dispatch({
@@ -584,57 +606,15 @@ const RtmConfigure = (props: any) => {
               case controlMessageEnum.cloudRecordingUnactive:
                 setRecordingActive(false);
                 break;
-              case controlMessageEnum.clientRoleChanged:
-                const {payload} = JSON.parse(msg);
-                if (payload && payload?.role) {
-                  if (
-                    payload.role.trim() !== '' &&
-                    payload.role in ClientRole
-                  ) {
-                    setUserList((prevState) => {
-                      return {
-                        ...prevState,
-                        [uid]: {
-                          ...prevState[uid],
-                          role: parseInt(payload.role),
-                        },
-                      };
-                    });
-                  }
-                }
-                break;
-              case controlMessageEnum.userNameChanged:
-                const {payload: payloadData} = JSON.parse(msg);
-                if (payloadData && payloadData.name) {
-                  setUserList((prevState) => {
-                    return {
-                      ...prevState,
-                      [uid]: {
-                        ...prevState[uid],
-                        name: payloadData.name,
-                      },
-                      [parseInt(prevState[uid].screenUid)]: {
-                        ...prevState[parseInt(prevState[uid].screenUid)],
-                        name: getScreenShareName(payloadData.name || userText),
-                      },
-                    };
-                  });
-                }
-                break;
               default:
                 break;
-              //   throw new Error('Unsupported message type');
             }
           } catch (e) {
-            events.emit(messageChannelType.Public, null, {
-              msg: `Error while dispatching ${messageChannelType.Public} control message`,
-              cause: e,
-            });
-            return;
+            console.log('e: ', e);
           }
         } else if (type === messageActionType.Normal) {
           try {
-            addMessageToStore(userUID, {body: `${type}${msg}`, ts: timestamp});
+            addMessageToStore(sender, {body: `${type}${msg}`, ts: timestamp});
             /**
              * if chat group window is not active.
              * then we will increment the unread count
@@ -651,28 +631,25 @@ const RtmConfigure = (props: any) => {
             });
             return;
           }
+        } else if (type === messageType.CUSTOM_EVENT) {
+          console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
+          try {
+            customEventDispatcher(msg, sender, timestamp);
+          } catch (error) {
+            console.log('error while dispacthing', error);
+          }
         }
       }
-      events.emit(messageChannelType.Public, {
-        uid: userUID,
-        ts: timestamp,
-        ...textObj,
-      });
+      try {
+        events.emit(messageChannelType.Public, {
+          uid: sender,
+          ts: timestamp,
+          ...textObj,
+        });
+      } catch (error) {
+        console.log('CUSTOM_EVENT_API event emit error: ', error);
+      }
     });
-
-    engine.current.addListener(
-      'ChannelAttributesUpdated',
-      (attributes: RtmChannelAttribute[]) => {
-        /**
-         * a) The following piece of code is commented for future reference.
-         * b) To be used in future implementations of channel attributes
-         * c) Kindly note the agora-react-native-rtm does not return the attributes with
-         *    additional lastUpdateUserId and lastUpdateTs as mentioned in RtmChannelAttribute type
-         */
-      },
-    );
-
-    await engine.current.createClient(rtcProps.appId);
     doLoginAndSetupRTM();
   };
 
@@ -825,6 +802,35 @@ const RtmConfigure = (props: any) => {
       payload: {...formattedAttributes},
     });
     sendControlMessage(msgAsString);
+  };
+
+  const customEventDispatcher = async (
+    data: any,
+    sender: string,
+    ts: number,
+  ) => {
+    console.log('CUSTOM_EVENT_API: inside customEventDispatcher ', data);
+    const {evt, payload} = data;
+    // Step 1: Set local attributes
+    if (payload?.level === 3) {
+      if (payload?.attributes?.length == 0) return;
+      await engine.current.addOrUpdateLocalUserAttributes([
+        ...payload.attributes,
+      ]);
+      payload.attributes.forEach((attr: RtmAttribute) => {
+        EventAttributes.set(localUid.current, {
+          key: attr.key,
+          value: attr.value,
+        });
+      });
+    }
+    // Step 2: Emit the event
+    try {
+      console.log('CUSTOM_EVENT_API:  emiting event: ');
+      EventUtils.emit(evt, {payload, sender, ts});
+    } catch (error) {
+      console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
+    }
   };
 
   return (

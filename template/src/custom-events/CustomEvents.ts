@@ -11,10 +11,10 @@
 */
 
 ('use strict');
-import RtmEngine from 'agora-react-native-rtm';
+import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import EventUtils from './EventUtils';
 import RTMEngine from '../rtm/RTMEngine';
-import {ToOptions, EventOptions} from './types';
+import {ToOptions, EventPayload} from './types';
 import {messageType} from '../rtm/types';
 import EventAttributes from './EventAttributes';
 
@@ -31,23 +31,18 @@ class CustomEvents {
   constructor() {
     this.engine = RTMEngine.getInstance().engine;
   }
-  private _persist = async (evt: string, options: EventOptions) => {
-    const attributeValue =
-      typeof options.payload === 'string'
-        ? options.payload
-        : JSON.stringify(options.payload);
-    await this.engine.addOrUpdateLocalUserAttributes([
-      {
-        key: evt,
-        value: attributeValue,
-      },
-    ]);
-    // Update the local user attribute state
+
+  private _persist = async (evt: string, attributes: RtmAttribute[]) => {
+    // Step 1: Call API to update local attributes
+    await this.engine.addOrUpdateLocalUserAttributes([...attributes]);
+    // Step 2: Update local state
     try {
       const localUserId = RTMEngine.getInstance().myUID;
-      EventAttributes.set(localUserId, {
-        key: evt,
-        value: attributeValue,
+      attributes.forEach((attr) => {
+        EventAttributes.set(localUserId, {
+          key: attr.key,
+          value: attr.value,
+        });
       });
     } catch (error) {
       console.log(
@@ -63,10 +58,10 @@ class CustomEvents {
     });
     // Case 1: send to channel
     if (typeof to == null || typeof to === undefined) {
-      console.log('CUSTOM_EVENT_API: case 1 executed', channelId);
-
       try {
         const channelId = RTMEngine.getInstance().myChannelUID;
+        console.log('CUSTOM_EVENT_API: case 1 executed', channelId);
+
         await this.engine.sendMessageByChannelId(channelId, text);
       } catch (error) {
         console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
@@ -123,14 +118,23 @@ class CustomEvents {
     const response = EventUtils.removeEvent(name);
   };
 
-  send = async (evt: string, to: ToOptions, options: EventOptions) => {
+  send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
+    const {value = '', level = 1, attributes = []} = payload;
+
     const rtmPayload = {
       evt: evt,
-      payload: options.payload,
-      level: options?.level || 1,
+      payload: {
+        value,
+        level,
+        attributes,
+      },
     };
-    if (options.level === 2 || options.level == 3) {
-      await this._persist(evt, options);
+
+    // With level 1 message we can send an optional attribute which can then update remote user's local attributes,
+    // level 1 with optional parameters, if it exists on receivers end (Dispacther end), update the local attributes
+    if (payload.level === 2 || level === 3) {
+      if (attributes.length == 0) return;
+      await this._persist(evt, attributes);
     }
     try {
       await this._send(to, rtmPayload);
@@ -141,7 +145,7 @@ class CustomEvents {
 
   printEvents = () => {
     console.log('CUSTOM_EVENT_API: EVENTS', EventUtils.getEvents());
-    console.log('CUSTOM_EVENT_API ATTRIBUTES:', EventAttributes.get());
+    console.log('CUSTOM_EVENT_API: ATTRIBUTES:', EventAttributes.get());
   };
 }
 

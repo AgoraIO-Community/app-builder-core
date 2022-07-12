@@ -1,16 +1,22 @@
 import React, {useContext} from 'react';
 import {View} from 'react-native';
 import RemoteLiveStreamApprovedRequestRecall from './controls/RemoteLiveStreamApprovedRequestRecall';
-import LiveStreamContext, {requestStatus} from '../../components/livestream';
+import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
+import {ClientRole} from '../../../agora-rn-uikit';
+import useUserList from '../../utils/useUserList';
 
 const ApprovedLiveStreamControlsView = (props: {
   uid: number;
   p_styles: any;
 }) => {
   const {uid, p_styles} = props;
-  const {currLiveStreamRequest} = useContext(LiveStreamContext);
+  const {raiseHandList} = useContext(LiveStreamContext);
+  const userList = useUserList();
 
-  if (currLiveStreamRequest[uid]?.status === requestStatus.Approved) {
+  if (
+    raiseHandList[uid]?.raised === RaiseHandValue.TRUE &&
+    userList[uid]?.role == ClientRole.Broadcaster
+  ) {
     return (
       <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
         <RemoteLiveStreamApprovedRequestRecall uid={uid} />
