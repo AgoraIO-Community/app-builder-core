@@ -11,7 +11,7 @@
 */
 
 ('use strict');
-import RtmEngine from 'agora-react-native-rtm';
+import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import EventUtils from './EventUtils';
 import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventPayload} from './types';
@@ -32,22 +32,17 @@ class CustomEvents {
     this.engine = RTMEngine.getInstance().engine;
   }
 
-  private _persist = async (evt: string, value: any) => {
-    const attributeValue =
-      typeof value === 'string' ? value : JSON.stringify(value);
+  private _persist = async (evt: string, attributes: RtmAttribute[]) => {
     // Step 1: Call API to update local attributes
-    await this.engine.addOrUpdateLocalUserAttributes([
-      {
-        key: evt,
-        value: attributeValue,
-      },
-    ]);
+    await this.engine.addOrUpdateLocalUserAttributes([...attributes]);
     // Step 2: Update local state
     try {
       const localUserId = RTMEngine.getInstance().myUID;
-      EventAttributes.set(localUserId, {
-        key: evt,
-        value: attributeValue,
+      attributes.forEach((attr) => {
+        EventAttributes.set(localUserId, {
+          key: attr.key,
+          value: attr.value,
+        });
       });
     } catch (error) {
       console.log(
@@ -126,15 +121,23 @@ class CustomEvents {
     const response = EventUtils.removeEvent(name);
   };
 
-  send = async (evt: string, payload: EventPayload[], to?: ToOptions) => {
+  send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
+    const {value = '', level = 1, attributes = []} = payload;
+
     const rtmPayload = {
       evt: evt,
-      payload,
+      payload: {
+        value,
+        level,
+        attributes,
+      },
     };
-    for (const item of payload) {
-      if (item.level === 2 || item.level === 3) {
-        await this._persist(evt, item.value);
-      }
+
+    // With level 1 message we can send an optional attribute which can then update remote user's local attributes,
+    // level 1 with optional parameters, if it exists on receivers end (Dispacther end), update the local attributes
+    if (payload.level === 2 || level === 3) {
+      if (attributes.length == 0) return;
+      await this._persist(evt, attributes);
     }
     try {
       await this._send(rtmPayload, to);
@@ -145,7 +148,7 @@ class CustomEvents {
 
   printEvents = () => {
     console.log('CUSTOM_EVENT_API: EVENTS', EventUtils.getEvents());
-    console.log('CUSTOM_EVENT_API ATTRIBUTES:', EventAttributes.get());
+    console.log('CUSTOM_EVENT_API: ATTRIBUTES:', EventAttributes.get());
   };
 }
 

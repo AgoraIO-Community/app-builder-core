@@ -46,6 +46,7 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import Styles from './styles';
+import CustomEvents from '../custom-events/CustomEvents';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
@@ -406,6 +407,11 @@ const Navbar = () => {
                     : meetingTitle
                   : meetingTitle}
               </Text>
+            </View>
+            <View>
+              <button onClick={() => CustomEvents.printEvents()}>
+                Print events
+              </button>
             </View>
             <View />
             <View
