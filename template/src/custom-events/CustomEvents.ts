@@ -14,14 +14,14 @@
 import RtmEngine from 'agora-react-native-rtm';
 import EventUtils from './EventUtils';
 import RTMEngine from '../rtm/RTMEngine';
-import {ToOptions, EventOptions} from './types';
+import {ToOptions, EventPayload} from './types';
 import {messageType} from '../rtm/types';
 import EventAttributes from './EventAttributes';
 
 type ICbListener = (args: {
   payload: any;
   level: 1 | 2 | 3;
-  from: string;
+  sender: string;
   ts: number;
 }) => void;
 
@@ -31,18 +31,18 @@ class CustomEvents {
   constructor() {
     this.engine = RTMEngine.getInstance().engine;
   }
-  private _persist = async (evt: string, options: EventOptions) => {
+
+  private _persist = async (evt: string, value: any) => {
     const attributeValue =
-      typeof options.payload === 'string'
-        ? options.payload
-        : JSON.stringify(options.payload);
+      typeof value === 'string' ? value : JSON.stringify(value);
+    // Step 1: Call API to update local attributes
     await this.engine.addOrUpdateLocalUserAttributes([
       {
         key: evt,
         value: attributeValue,
       },
     ]);
-    // Update the local user attribute state
+    // Step 2: Update local state
     try {
       const localUserId = RTMEngine.getInstance().myUID;
       EventAttributes.set(localUserId, {
@@ -56,15 +56,18 @@ class CustomEvents {
       );
     }
   };
-  private _send = async (to: ToOptions, rtmPayload: any) => {
+  private _send = async (rtmPayload: any, to?: ToOptions) => {
     const text = JSON.stringify({
       type: messageType.CUSTOM_EVENT,
       msg: rtmPayload,
     });
     // Case 1: send to channel
-    if (typeof to == null || typeof to === undefined) {
-      console.log('CUSTOM_EVENT_API: case 1 executed', channelId);
-
+    if (
+      typeof to === 'undefined' ||
+      (typeof to === 'string' && to?.trim() === '') ||
+      (Array.isArray(to) && to?.length === 0)
+    ) {
+      console.log('CUSTOM_EVENT_API: case 1 executed');
       try {
         const channelId = RTMEngine.getInstance().myChannelUID;
         await this.engine.sendMessageByChannelId(channelId, text);
@@ -123,17 +126,18 @@ class CustomEvents {
     const response = EventUtils.removeEvent(name);
   };
 
-  send = async (evt: string, to: ToOptions, options: EventOptions) => {
+  send = async (evt: string, payload: EventPayload[], to?: ToOptions) => {
     const rtmPayload = {
       evt: evt,
-      payload: options.payload,
-      level: options?.level || 1,
+      payload,
     };
-    if (options.level === 2 || options.level == 3) {
-      await this._persist(evt, options);
+    for (const item of payload) {
+      if (item.level === 2 || item.level === 3) {
+        await this._persist(evt, item.value);
+      }
     }
     try {
-      await this._send(to, rtmPayload);
+      await this._send(rtmPayload, to);
     } catch (error) {
       console.log('CUSTOM_EVENT_API: sendPersist sending failed. ', error);
     }
