@@ -21,26 +21,11 @@ import LocalAudioMute, {
 } from '../../subComponents/LocalAudioMute';
 
 const PreCallLocalMute: React.FC = () => {
-  const {
-    VideoMute,
-    AudioMute,
-    AudioMuteAfterView,
-    AudioMuteBeforeView,
-    VideoMuteAfterView,
-    VideoMuteBeforeView,
-  } = useFpe((data) => {
+  const {VideoMute, AudioMute} = useFpe((data) => {
     let components: {
-      VideoMuteBeforeView: React.ComponentType;
-      VideoMuteAfterView: React.ComponentType;
-      AudioMuteBeforeView: React.ComponentType;
-      AudioMuteAfterView: React.ComponentType;
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
       AudioMute: React.ComponentType<LocalVideoMuteProps>;
     } = {
-      AudioMuteAfterView: React.Fragment,
-      AudioMuteBeforeView: React.Fragment,
-      VideoMuteAfterView: React.Fragment,
-      VideoMuteBeforeView: React.Fragment,
       AudioMute: LocalAudioMute,
       VideoMute: LocalVideoMute,
     };
@@ -61,26 +46,6 @@ const PreCallLocalMute: React.FC = () => {
       }
 
       if (
-        data.components?.precall?.audioMute &&
-        typeof data.components?.precall?.audioMute === 'object'
-      ) {
-        if (
-          data.components?.precall?.audioMute?.after &&
-          isValidReactComponent(data.components?.precall?.audioMute?.after)
-        ) {
-          components.AudioMuteAfterView =
-            data.components?.precall?.audioMute?.after;
-        }
-        if (
-          data.components?.precall?.audioMute?.before &&
-          isValidReactComponent(data.components?.precall?.audioMute?.before)
-        ) {
-          components.AudioMuteBeforeView =
-            data.components?.precall?.audioMute?.before;
-        }
-      }
-
-      if (
         data.components?.precall?.videoMute &&
         typeof data.components?.precall?.videoMute !== 'object'
       ) {
@@ -91,40 +56,16 @@ const PreCallLocalMute: React.FC = () => {
           components.VideoMute = data.components?.precall?.videoMute;
         }
       }
-
-      if (
-        data.components?.precall?.videoMute &&
-        typeof data.components?.precall?.videoMute === 'object'
-      ) {
-        if (
-          data.components?.precall?.videoMute?.after &&
-          isValidReactComponent(data.components?.precall?.videoMute?.after)
-        ) {
-          components.VideoMuteAfterView =
-            data.components?.precall?.videoMute?.after;
-        }
-        if (
-          data.components?.precall?.videoMute?.before &&
-          isValidReactComponent(data.components?.precall?.videoMute?.before)
-        ) {
-          components.VideoMuteBeforeView =
-            data.components?.precall?.videoMute?.before;
-        }
-      }
     }
     return components;
   });
   return (
     <View style={style.precallControls}>
       <View style={{alignSelf: 'center'}}>
-        <AudioMuteBeforeView />
         <AudioMute />
-        <AudioMuteAfterView />
       </View>
       <View style={{alignSelf: 'center'}}>
-        <VideoMuteBeforeView />
         <VideoMute />
-        <VideoMuteAfterView />
       </View>
     </View>
   );

@@ -26,8 +26,10 @@ import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
-import useUserList from '../utils/useUserList';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+import useUserList from '../utils/useUserList';
+import useGroupMessages from '../utils/useGroupMessages';
+import usePrivateMessages from '../utils/usePrivateMessages';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -36,69 +38,42 @@ import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
  */
 const ChatContainer = (props: any) => {
   const {renderList} = useUserList();
+  const messageStore = useGroupMessages();
+  const privateMessageStore = usePrivateMessages();
   const {height, width} = useWindowDimensions();
   const {selectPrivate} = props;
   const {privateActive, selectedChatUserId: selectedUserID} =
     useChatUIControl();
-  const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
+  const {localUid} = useContext(ChatContext);
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const {ChatBubbleComponent, ChatBubbleAfterView, ChatBubbleBeforeView} =
-    useFpe((data) => {
-      let components: {
-        ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
-        ChatBubbleBeforeView: React.ComponentType;
-        ChatBubbleAfterView: React.ComponentType;
-      } = {
-        ChatBubbleAfterView: React.Fragment,
-        ChatBubbleBeforeView: React.Fragment,
-        ChatBubbleComponent: ChatBubble,
-      };
+  const {ChatBubbleComponent} = useFpe((data) => {
+    let components: {
+      ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
+    } = {
+      ChatBubbleComponent: ChatBubble,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
       if (
-        data?.components?.videoCall &&
-        typeof data?.components?.videoCall === 'object'
+        data?.components?.videoCall?.chat &&
+        typeof data?.components?.videoCall?.chat === 'object'
       ) {
         if (
-          data?.components?.videoCall?.chat &&
-          typeof data?.components?.videoCall?.chat === 'object'
+          data?.components?.videoCall?.chat?.chatBubble &&
+          typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
         ) {
-          if (
-            data?.components?.videoCall?.chat?.chatBubble &&
-            typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
-            isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
-          ) {
-            components.ChatBubbleComponent =
-              data?.components?.videoCall?.chat?.chatBubble;
-          }
-
-          if (
-            data?.components?.videoCall?.chat?.chatInput &&
-            typeof data?.components?.videoCall?.chat?.chatInput === 'object'
-          ) {
-            if (
-              data?.components?.videoCall?.chat?.chatInput?.after &&
-              isValidReactComponent(
-                data?.components?.videoCall?.chat?.chatInput?.after,
-              )
-            ) {
-              components.ChatBubbleAfterView =
-                data?.components?.videoCall?.chat?.chatInput?.after;
-            }
-            if (
-              data?.components?.videoCall?.chat?.chatInput?.before &&
-              isValidReactComponent(
-                data?.components?.videoCall?.chat?.chatInput?.before,
-              )
-            ) {
-              components.ChatBubbleBeforeView =
-                data?.components?.videoCall?.chat?.chatInput?.before;
-            }
-          }
+          components.ChatBubbleComponent =
+            data?.components?.videoCall?.chat?.chatBubble;
         }
       }
-      return components;
-    });
+    }
+    return components;
+  });
 
   const userOfflineLabel = useString('userOfflineLabel')();
   return (
@@ -140,7 +115,6 @@ const ChatContainer = (props: any) => {
         {!privateActive ? (
           messageStore.map((message: any) => (
             <>
-              <ChatBubbleBeforeView />
               <ChatBubbleComponent
                 isLocal={localUid === message.uid}
                 message={message.msg}
@@ -148,22 +122,17 @@ const ChatContainer = (props: any) => {
                 uid={message.uid}
                 key={message.ts}
               />
-              <ChatBubbleAfterView />
             </>
           ))
         ) : privateMessageStore[selectedUserID] ? (
           privateMessageStore[selectedUserID].map((message: any) => (
-            <>
-              <ChatBubbleBeforeView />
-              <ChatBubbleComponent
-                isLocal={localUid === message.uid}
-                message={message.msg}
-                timestamp={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-              <ChatBubbleAfterView />
-            </>
+            <ChatBubbleComponent
+              isLocal={localUid === message.uid}
+              message={message.msg}
+              timestamp={message.ts}
+              uid={message.uid}
+              key={message.ts}
+            />
           ))
         ) : (
           <></>

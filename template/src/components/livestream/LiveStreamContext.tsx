@@ -19,8 +19,11 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
-import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import useUserList from '../../utils/useUserList';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../../utils/useSendControlMessage';
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -51,10 +54,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const screenshareContextInstance = useScreenshare();
   const {renderList} = useUserList();
   const {liveStreamData} = useLiveStreamDataContext();
+  const sendCtrlMsg = useSendControlMessage();
+
   const {
     localUid,
-    sendControlMessageToUid,
-    sendControlMessage,
     broadcastUserAttributes,
     addOrUpdateLocalUserAttributes,
     events,
@@ -334,7 +337,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   };
 
   const notifyAllHostsInChannel = (ctrlEnum: LiveStreamControlMessageEnum) => {
-    sendControlMessage(ctrlEnum);
+    sendCtrlMsg(CONTROL_MESSAGE_TYPE.controlMessageToEveryOne, ctrlEnum);
   };
 
   /****************** HOST CONTROLS ******************
@@ -349,7 +352,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       ts: new Date().getTime(),
       status: requestStatus.Cancelled,
     });
-    sendControlMessageToUid(
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToUid,
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       uid,
     );
@@ -361,7 +365,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       ts: new Date().getTime(),
       status: requestStatus.Cancelled,
     });
-    sendControlMessageToUid(
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToUid,
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       uid,
     );
@@ -377,7 +382,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const audienceSendsRequest = () => {
     showToast(raiseHandLocalNotification);
     setRaiseHandRequestActive(true);
-    sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequest);
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+      LiveStreamControlMessageEnum.raiseHandRequest,
+    );
     updateLocalUserAttributes(attrRequestStatus.RaiseHand_AwaitingAction);
   };
 
@@ -400,7 +408,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     } else {
       setRaiseHandRequestActive(false);
       // Send message in channel to withdraw the request
-      sendControlMessage(LiveStreamControlMessageEnum.raiseHandRequestRecall);
+      sendCtrlMsg(
+        CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+        LiveStreamControlMessageEnum.raiseHandRequestRecall,
+      );
     }
     updateLocalUserAttributes(attrRequestTypes.none);
     showToast(lowerHandsLocalNotification);

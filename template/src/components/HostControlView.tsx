@@ -9,20 +9,27 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import chatContext, {controlMessageEnum} from './ChatContext';
+import {controlMessageEnum} from './ChatContext';
 import SecondaryButton from '../atoms/SecondaryButton';
 import {useString} from '../utils/useString';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../utils/useSendControlMessage';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
-  const {sendControlMessage} = useContext(chatContext);
+  const sendCtrlMsg = useSendControlMessage();
   const muteAllAudioButton = useString('muteAllAudioButton')();
-  const onPress = () => sendControlMessage(controlMessageEnum.muteAudio);
+  const onPress = () =>
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+      controlMessageEnum.muteAudio,
+    );
   return props?.render ? (
     props.render(onPress)
   ) : (
@@ -34,9 +41,13 @@ export interface MuteAllVideoButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
+  const sendCtrlMsg = useSendControlMessage();
   const muteAllVideoButton = useString('muteAllVideoButton')();
-  const {sendControlMessage} = useContext(chatContext);
-  const onPress = () => sendControlMessage(controlMessageEnum.muteVideo);
+  const onPress = () =>
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+      controlMessageEnum.muteVideo,
+    );
   return props?.render ? (
     props.render(onPress)
   ) : (

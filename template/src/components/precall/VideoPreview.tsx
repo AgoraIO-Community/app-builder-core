@@ -10,48 +10,12 @@
 *********************************************
 */
 
-import {useFpe} from 'fpe-api';
 import React from 'react';
 import {View} from 'react-native';
-import {isValidReactComponent} from '../../utils/common';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import useUserList from '../../utils/useUserList';
 
 const VideoPreview: React.FC = () => {
-  const {VideoPreviewAfterView, VideoPreviewBeforeView} = useFpe((data) => {
-    let components: {
-      VideoPreviewAfterView: React.ComponentType;
-      VideoPreviewBeforeView: React.ComponentType;
-    } = {
-      VideoPreviewAfterView: React.Fragment,
-      VideoPreviewBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data?.components?.precall?.preview &&
-        typeof data?.components?.precall?.preview === 'object'
-      ) {
-        if (
-          data?.components?.precall?.preview?.before &&
-          isValidReactComponent(data?.components?.precall?.preview?.before)
-        ) {
-          components.VideoPreviewBeforeView =
-            data?.components?.precall?.preview?.before;
-        }
-        if (
-          data?.components?.precall?.preview?.after &&
-          isValidReactComponent(data?.components?.precall?.preview?.after)
-        ) {
-          components.VideoPreviewAfterView =
-            data?.components?.precall?.preview?.after;
-        }
-      }
-    }
-    return components;
-  });
   const {renderList, renderPosition} = useUserList();
 
   const [maxUid] = renderPosition;
@@ -61,13 +25,9 @@ const VideoPreview: React.FC = () => {
   }
 
   return (
-    <>
-      <VideoPreviewBeforeView />
-      <View style={{borderRadius: 10, flex: 1}}>
-        <MaxVideoView uid={maxUid} user={renderList[maxUid]} key={maxUid} />
-      </View>
-      <VideoPreviewAfterView />
-    </>
+    <View style={{borderRadius: 10, flex: 1}}>
+      <MaxVideoView uid={maxUid} user={renderList[maxUid]} key={maxUid} />
+    </View>
   );
 };
 export default VideoPreview;

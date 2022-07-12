@@ -18,9 +18,8 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {isValidReactComponent, isWeb} from '../utils/common';
+import {isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import {useFpe} from 'fpe-api';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 
 const ParticipantView = () => {
@@ -36,63 +35,19 @@ const ParticipantView = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  const {ParticipantAfterView, ParticipantBeforeView} = useFpe((data) => {
-    let components: {
-      ParticipantAfterView: React.ComponentType;
-      ParticipantBeforeView: React.ComponentType;
-    } = {
-      ParticipantAfterView: React.Fragment,
-      ParticipantBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.videoCall &&
-      typeof data?.components?.videoCall === 'object'
-    ) {
-      if (
-        data?.components?.videoCall?.participantsPanel &&
-        typeof data?.components?.videoCall?.participantsPanel === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.participantsPanel?.after &&
-          isValidReactComponent(
-            data?.components?.videoCall?.participantsPanel?.after,
-          )
-        ) {
-          components.ParticipantAfterView =
-            data?.components?.videoCall?.participantsPanel?.after;
-        }
-        if (
-          data?.components?.videoCall?.participantsPanel?.before &&
-          isValidReactComponent(
-            data?.components?.videoCall?.participantsPanel?.before,
-          )
-        ) {
-          components.ParticipantBeforeView =
-            data?.components?.videoCall?.participantsPanel?.before;
-        }
-      }
-    }
-    return components;
-  });
 
   return (
-    <>
-      <View
-        style={
-          isWeb
-            ? isSmall
-              ? style.participantViewNative
-              : style.participantView
-            : style.participantViewNative
-        }>
-        {/**
-         * In Native device we are setting absolute view. so placed ParticipantBeforeView and ParticipantAfterView inside the main view
-         */}
-        <ParticipantBeforeView />
-        <View style={[style.padding10]}>
-          <View style={style.lineUnderHeading}>
-            <Text style={style.mainHeading}>{participantsLabel}</Text>
-          </View>
+    <View
+      style={
+        isWeb
+          ? isSmall
+            ? style.participantViewNative
+            : style.participantView
+          : style.participantViewNative
+      }>
+      <View style={[style.padding10]}>
+        <View style={style.lineUnderHeading}>
+          <Text style={style.mainHeading}>{participantsLabel}</Text>
         </View>
         <ScrollView style={[style.bodyContainer, style.padding10]}>
           {$config.EVENT_MODE ? (
@@ -187,20 +142,19 @@ const ParticipantView = () => {
             </View>
           )}
         </ScrollView>
-        <View
-          style={{
-            width: '100%',
-            height: 50,
-            alignSelf: 'flex-end',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <CopyJoinInfo showText={true} />
-        </View>
-        <ParticipantAfterView />
       </View>
-    </>
+      <View
+        style={{
+          width: '100%',
+          height: 50,
+          alignSelf: 'flex-end',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <CopyJoinInfo showText={true} />
+      </View>
+    </View>
   );
 };
 

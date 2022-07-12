@@ -32,20 +32,18 @@ interface BeforeAndAfterInterface {
 }
 
 export interface PreCallInterface extends BeforeAndAfterInterface {
-  preview?: React.ComponentType | BeforeAndAfterInterface;
-  audioMute?: React.ComponentType | BeforeAndAfterInterface;
-  videoMute?: React.ComponentType | BeforeAndAfterInterface;
-  meetingName?: React.ComponentType | BeforeAndAfterInterface;
-  deviceSelect?: React.ComponentType | BeforeAndAfterInterface;
-  joinButton?: React.ComponentType | BeforeAndAfterInterface;
-  textBox?: React.ComponentType | BeforeAndAfterInterface;
+  preview?: React.ComponentType;
+  audioMute?: React.ComponentType;
+  videoMute?: React.ComponentType;
+  meetingName?: React.ComponentType;
+  deviceSelect?: React.ComponentType;
+  joinButton?: React.ComponentType;
+  textBox?: React.ComponentType;
 }
 export interface ChatCmpInterface extends BeforeAndAfterInterface {
-  chatBubble?: React.ComponentType<ChatBubbleProps> | BeforeAndAfterInterface;
-  chatInput?: React.ComponentType<ChatTextInputProps> | BeforeAndAfterInterface;
-  chatSentButton?:
-    | React.ComponentType<ChatSendButtonProps>
-    | BeforeAndAfterInterface;
+  chatBubble?: React.ComponentType<ChatBubbleProps>;
+  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatSentButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
 export interface renderComponentInterface {
@@ -76,20 +74,20 @@ export interface layoutObjectWithIconName extends layoutObjectBase {
 export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
-  topBar?: React.ComponentType | BeforeAndAfterInterface;
-  settingsPanel?: React.ComponentType | BeforeAndAfterInterface;
-  participantsPanel?: React.ComponentType | BeforeAndAfterInterface;
-  bottomBar?: React.ComponentType | BeforeAndAfterInterface;
-  chat?: ChatCmpInterface | React.ComponentType;
-  renderComponentObject?: renderComponentObjectInterface;
+  topBar?: React.ComponentType;
+  settingsPanel?: React.ComponentType;
+  participantsPanel?: React.ComponentType;
+  bottomBar?: React.ComponentType;
+  chat?: ChatCmpInterface;
+  customContent?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
 }
 
 export type ComponentsInterface = {
   precall?: PreCallInterface | React.ComponentType;
-  create?: React.ComponentType | BeforeAndAfterInterface;
-  share?: React.ComponentType | BeforeAndAfterInterface;
-  join?: React.ComponentType | BeforeAndAfterInterface;
+  create?: React.ComponentType;
+  share?: React.ComponentType;
+  join?: React.ComponentType;
   videoCall?: VideoCallInterface | React.ComponentType;
 };
 

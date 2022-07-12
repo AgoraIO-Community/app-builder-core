@@ -28,47 +28,23 @@ import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 
 const Create = () => {
-  const {CreateAfterView, CreateComponent, CreateBeforeView} = useFpe(
-    (data) => {
-      let components: {
-        CreateComponent?: React.ElementType;
-        CreateAfterView: React.ComponentType;
-        CreateBeforeView: React.ComponentType;
-      } = {
-        CreateAfterView: React.Fragment,
-        CreateBeforeView: React.Fragment,
-      };
-      if (
-        data?.components?.create &&
-        typeof data?.components?.create === 'object'
-      ) {
-        if (
-          data?.components?.create?.after &&
-          isValidReactComponent(data?.components?.create?.after)
-        ) {
-          components.CreateAfterView = data?.components?.create?.after;
-        }
-        if (
-          data?.components?.create?.before &&
-          isValidReactComponent(data?.components?.create?.before)
-        ) {
-          components.CreateBeforeView = data?.components?.create?.before;
-        }
-      }
+  const {CreateComponent} = useFpe((data) => {
+    let components: {
+      CreateComponent?: React.ElementType;
+    } = {};
 
+    if (
+      data?.components?.create &&
+      typeof data?.components?.create !== 'object'
+    ) {
       if (
         data?.components?.create &&
-        typeof data?.components?.create !== 'object'
-      ) {
-        if (
-          data?.components?.create &&
-          isValidReactComponent(data?.components?.create)
-        )
-          components.CreateComponent = data?.components?.create;
-      }
-      return components;
-    },
-  );
+        isValidReactComponent(data?.components?.create)
+      )
+        components.CreateComponent = data?.components?.create;
+    }
+    return components;
+  });
 
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
@@ -130,83 +106,79 @@ const Create = () => {
         CreateComponent ? (
           <CreateComponent />
         ) : (
-          <>
-            <CreateBeforeView />
-            <ScrollView contentContainerStyle={style.main}>
-              <Logo />
-              <View style={style.content}>
-                <View style={style.leftContent}>
-                  <Text style={style.heading}>{$config.APP_NAME}</Text>
-                  <Text style={style.headline}>
-                    {$config.LANDING_SUB_HEADING}
-                  </Text>
-                  <View style={style.inputs}>
-                    <TextInput
-                      value={roomTitle}
-                      onChangeText={(text) => onChangeRoomTitle(text)}
-                      onSubmitEditing={() =>
-                        createRoomAndNavigateToShare(
-                          roomTitle,
-                          pstnCheckbox,
-                          hostControlCheckbox,
-                        )
-                      }
-                      placeholder={meetingNameInputPlaceholder}
-                    />
-                    <View style={{paddingVertical: 10}}>
-                      <View style={style.checkboxHolder}>
-                        {$config.EVENT_MODE ? (
-                          <></>
-                        ) : (
-                          <>
-                            <Checkbox
-                              disabled={$config.EVENT_MODE}
-                              value={hostControlCheckbox}
-                              onValueChange={setHostControlCheckbox}
-                            />
-                            <Text style={style.checkboxTitle}>
-                              {/* Restrict Host Controls (Separate host link) */}
-                              {hostControlsToggle(hostControlCheckbox)}
-                            </Text>
-                          </>
-                        )}
-                      </View>
-                      {$config.PSTN ? (
-                        <View style={style.checkboxHolder}>
+          <ScrollView contentContainerStyle={style.main}>
+            <Logo />
+            <View style={style.content}>
+              <View style={style.leftContent}>
+                <Text style={style.heading}>{$config.APP_NAME}</Text>
+                <Text style={style.headline}>
+                  {$config.LANDING_SUB_HEADING}
+                </Text>
+                <View style={style.inputs}>
+                  <TextInput
+                    value={roomTitle}
+                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    onSubmitEditing={() =>
+                      createRoomAndNavigateToShare(
+                        roomTitle,
+                        pstnCheckbox,
+                        hostControlCheckbox,
+                      )
+                    }
+                    placeholder={meetingNameInputPlaceholder}
+                  />
+                  <View style={{paddingVertical: 10}}>
+                    <View style={style.checkboxHolder}>
+                      {$config.EVENT_MODE ? (
+                        <></>
+                      ) : (
+                        <>
                           <Checkbox
-                            value={pstnCheckbox}
-                            onValueChange={setPstnCheckbox}
+                            disabled={$config.EVENT_MODE}
+                            value={hostControlCheckbox}
+                            onValueChange={setHostControlCheckbox}
                           />
                           <Text style={style.checkboxTitle}>
-                            {pstnToggle(pstnCheckbox)}
+                            {/* Restrict Host Controls (Separate host link) */}
+                            {hostControlsToggle(hostControlCheckbox)}
                           </Text>
-                        </View>
-                      ) : (
-                        <></>
+                        </>
                       )}
                     </View>
-                    <PrimaryButton
-                      disabled={roomTitle === '' || loading}
-                      onPress={() =>
-                        createRoomAndNavigateToShare(
-                          roomTitle,
-                          pstnCheckbox,
-                          hostControlCheckbox,
-                        )
-                      }
-                      text={loading ? loadingWithDots : createMeetingButton}
-                    />
-                    <HorizontalRule />
-                    <SecondaryButton
-                      onPress={() => history.push('/join')}
-                      text={haveMeetingID}
-                    />
+                    {$config.PSTN ? (
+                      <View style={style.checkboxHolder}>
+                        <Checkbox
+                          value={pstnCheckbox}
+                          onValueChange={setPstnCheckbox}
+                        />
+                        <Text style={style.checkboxTitle}>
+                          {pstnToggle(pstnCheckbox)}
+                        </Text>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
                   </View>
+                  <PrimaryButton
+                    disabled={roomTitle === '' || loading}
+                    onPress={() =>
+                      createRoomAndNavigateToShare(
+                        roomTitle,
+                        pstnCheckbox,
+                        hostControlCheckbox,
+                      )
+                    }
+                    text={loading ? loadingWithDots : createMeetingButton}
+                  />
+                  <HorizontalRule />
+                  <SecondaryButton
+                    onPress={() => history.push('/join')}
+                    text={haveMeetingID}
+                  />
                 </View>
               </View>
-            </ScrollView>
-            <CreateAfterView />
-          </>
+            </View>
+          </ScrollView>
         )
       ) : (
         <></>
