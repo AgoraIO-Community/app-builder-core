@@ -9,21 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {UserType} from '../../src/components/RTMConfigure';
-import useUserList from './useUserList';
+import {useScreenContext} from '../components/contexts/ScreenShareContext';
+
 /**
  * This hook will return the function to check whether the screen is shared or not
  * @returns function
  */
 function useIsScreenShare() {
-  const userList = useUserList();
+  const {screenShareData} = useScreenContext();
   /**
    *
    * @param uid number | string
    * @returns boolean
    */
   const isScreenShare = (uid: number | string): boolean =>
-    userList[uid] && userList[uid].type === UserType.ScreenShare;
+    screenShareData[uid] ? true : false;
   return isScreenShare;
 }
 

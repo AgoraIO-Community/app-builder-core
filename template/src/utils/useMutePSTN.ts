@@ -1,5 +1,5 @@
 import {gql, useMutation} from '@apollo/client';
-import {UidInterface} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import useIsPSTN from './isPSTNUser';
 const MUTE_PSTN = gql`
@@ -15,7 +15,7 @@ const useMutePSTN = () => {
   const [mutePSTN, {data, loading, error}] = useMutation(MUTE_PSTN);
   const {isHost, meetingPassphrase} = useMeetingInfo();
   const isPSTN = useIsPSTN();
-  return async (uid: UidInterface['uid']) => {
+  return async (uid: UidType) => {
     if (isHost) {
       if (isPSTN(uid)) {
         await mutePSTN({

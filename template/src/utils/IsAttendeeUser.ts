@@ -9,14 +9,27 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {ClientRole} from '../../agora-rn-uikit';
-import useUserList from './useUserList';
+import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
 
 function useIsAttendee() {
-  const userList = useUserList();
-  const isAttendee = (uid: string | number) =>
-    userList[uid] ? userList[uid].role === ClientRole.Audience : false;
-  return isAttendee;
+  if ($config.EVENT_MODE) {
+    const {audienceUids} = useLiveStreamDataContext();
+    const isAttendee = (uid: string | number) => {
+      const attendeeId = typeof uid === 'number' ? uid : parseInt(uid);
+      return audienceUids.filter((audienceUid) => audienceUid === attendeeId)
+        .length
+        ? true
+        : false;
+    };
+    return isAttendee;
+  } else {
+    const {isHost} = useMeetingInfo();
+    const isAttendee = (uid: string | number) => {
+      return !isHost ? true : false;
+    };
+    return isAttendee;
+  }
 }
 
 export default useIsAttendee;

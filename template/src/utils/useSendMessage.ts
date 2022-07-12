@@ -11,7 +11,7 @@
 */
 import {useContext} from 'react';
 import ChatContext from '../components/ChatContext';
-import {UidInterface} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 
 export enum MESSAGE_TYPE {
   group,
@@ -19,7 +19,7 @@ export enum MESSAGE_TYPE {
 }
 function useSendMessage() {
   const {sendMessage, sendMessageToUid} = useContext(ChatContext);
-  return (type: MESSAGE_TYPE, message: string, uid?: UidInterface['uid']) => {
+  return (type: MESSAGE_TYPE, message: string, uid?: UidType) => {
     switch (type) {
       case MESSAGE_TYPE.group:
         sendMessage(message);

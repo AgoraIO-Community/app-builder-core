@@ -13,6 +13,7 @@ import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+  //todo hari move some listener logic to update screenshare context data
   return (
     <>
       {props.children}

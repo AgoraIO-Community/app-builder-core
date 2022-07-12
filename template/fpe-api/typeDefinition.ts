@@ -12,7 +12,7 @@
 import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
-import {UidInterface} from '../agora-rn-uikit';
+import {RenderInterface, UidType} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 export type {
@@ -49,23 +49,15 @@ export interface ChatCmpInterface extends BeforeAndAfterInterface {
 }
 
 export interface renderComponentInterface {
-  user: UidInterface;
-  // ----------
-  // incase of single component for min and max
-  // with conditional rendering.
-  isMax?: Boolean;
-  // ----------
-  index: number;
+  user: RenderInterface;
+  uid: UidType;
 }
 
 export interface renderComponentObjectInterface {
   [key: string]: React.ComponentType<renderComponentInterface>;
 }
 
-export type layoutComponent = React.ComponentType<{
-  maxVideoArray: React.ComponentType[];
-  minVideoArray: React.ComponentType[];
-}>;
+export type layoutComponent = React.ComponentType;
 
 export interface layoutObjectBase {
   name: string;
@@ -138,4 +130,15 @@ export interface FpeApiInterface {
     useBeforeCreate?: CustomHookType;
   };
   customUserContext?: () => any;
+}
+
+declare module 'agora-rn-uikit' {
+  interface DefaultRenderInterface {
+    name: string;
+    screenUid: number;
+    offline: boolean;
+  }
+  interface RtcPropsInterface {
+    screenShareUid: number;
+  }
 }

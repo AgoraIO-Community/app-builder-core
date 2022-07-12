@@ -1,12 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useParams} from '../../components/Router';
-import ChatContext from '../../components/ChatContext';
-import {
-  RtcContext,
-  PropsContext,
-  MinUidContext,
-  MaxUidContext,
-} from '../../../agora-rn-uikit/src';
+import {RtcContext, PropsContext} from '../../../agora-rn-uikit';
 import {gql, useMutation} from '@apollo/client';
 import {ScreenshareContext} from './useScreenshare';
 import {
@@ -14,6 +8,8 @@ import {
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import useUserList from '../../utils/useUserList';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -36,14 +32,12 @@ function usePrevious(value: any) {
 }
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
-  const {userList} = useContext(ChatContext);
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);
   const {dispatch} = rtc;
-  const max = useContext(MaxUidContext);
-  const min = useContext(MinUidContext);
-  const users = [...max, ...min];
-  const prevUsers = usePrevious({users});
+  const {renderList, renderPosition} = useUserList();
+  const {setScreenShareData, screenShareData} = useScreenContext();
+  const prevRenderPosition = usePrevious({renderPosition});
   const {phrase} = useParams<any>();
   const {isRecordingActive} = useRecording();
   const setPinnedLayout = useSetPinnedLayout();
@@ -58,7 +52,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
-      changeLayout();
       setNormalQuery({variables: {passphrase: phrase}})
         .then((res) => {
           console.log(res.data);
@@ -72,41 +65,58 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, []);
 
   useEffect(() => {
-    if (prevUsers !== undefined) {
-      let joinedUser = users.filter((person) =>
-        prevUsers?.users.every((person2) => !(person2.uid === person.uid)),
+    if (prevRenderPosition !== undefined) {
+      let joinedUser = renderPosition.filter((uid) =>
+        prevRenderPosition?.renderPosition.every((olduid) => !(olduid === uid)),
       );
-      let leftUser = prevUsers?.users.filter((person) =>
-        users.every((person2) => !(person2.uid === person.uid)),
+      let leftUser = prevRenderPosition?.renderPosition.filter((olduid) =>
+        renderPosition.every((newuid) => !(newuid === olduid)),
       );
-
       if (joinedUser.length === 1) {
-        const newUserUid = joinedUser[0].uid;
-        if (userList[newUserUid] && userList[newUserUid].type === 1) {
+        const newUserUid = joinedUser[0];
+        if (screenShareData[newUserUid]) {
+          dispatch({
+            type: 'UpdateRenderList',
+            value: [
+              typeof newUserUid === 'number'
+                ? newUserUid
+                : parseInt(newUserUid),
+              {type: 'screenshare', name: screenShareData[newUserUid].name},
+            ],
+          });
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
+              [newUserUid]: {
+                ...prevState[newUserUid],
+                isActive: true,
+              },
+            };
+          });
           dispatch({
             type: 'SwapVideo',
-            value: [joinedUser[0]],
+            value: [newUserUid],
           });
-          setPinnedLayout();
-        } else if (newUserUid === 1) {
-          if (newUserUid !== users[0].uid) {
-            dispatch({
-              type: 'SwapVideo',
-              value: [joinedUser[0]],
-            });
-          }
           setPinnedLayout();
         }
       }
-
       if (leftUser.length === 1) {
-        const leftUserUid = leftUser[0].uid;
-        if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
+        const leftUserUid = leftUser[0];
+        if (screenShareData[leftUserUid]) {
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
+              [leftUserUid]: {
+                ...prevState[leftUserUid],
+                isActive: false,
+              },
+            };
+          });
           changeLayout();
         }
       }
     }
-  }, [users, userList]);
+  }, [renderPosition, renderList]);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
     if (!isScreenActive) {

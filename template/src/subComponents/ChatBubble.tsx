@@ -10,15 +10,16 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
+import {View, Text, StyleSheet, Linking} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
-import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
+import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWeb} from '../utils/common';
+import useUserList from '../utils/useUserList';
 
 const ChatBubble = (props: ChatBubbleProps) => {
-  const {userList} = useContext(ChatContext);
+  const {renderList} = useUserList();
   const {primaryColor} = useContext(ColorContext);
   let {isLocal, message, timestamp, uid} = props;
   let time =
@@ -37,7 +38,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid] ? userList[uid].name : remoteUserDefaultLabel} |{' '}
+          {renderList[uid] ? renderList[uid].name : remoteUserDefaultLabel} |{' '}
           {time + ' '}
         </Text>
       </View>

@@ -56,12 +56,8 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                     value={userList[userUID]?.name || remoteUserDefaultLabel}
                   />
                   <View style={p_style.participantActionContainer}>
-                    <RemoteLiveStreamRequestApprove
-                      user={{...userList[userUID], uid: userUID}}
-                    />
-                    <RemoteLiveStreamRequestReject
-                      user={{...userList[userUID], uid: userUID}}
-                    />
+                    <RemoteLiveStreamRequestApprove uid={userUID} />
+                    <RemoteLiveStreamRequestReject uid={userUID} />
                   </View>
                 </View>
               ) : (

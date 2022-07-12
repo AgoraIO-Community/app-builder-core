@@ -1,19 +1,14 @@
 import React, {useContext} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
-import {ImageIcon, UidInterface} from '../../../agora-rn-uikit';
+import {ImageIcon, RenderInterface} from '../../../agora-rn-uikit';
 import TextWithTooltip from '../../subComponents/TextWithTooltip';
-import chatContext from '../../components/ChatContext';
 import ColorContext from '../../components/ColorContext';
 import {useString} from '../../utils/useString';
 
-export const NameWithMicStatus = ({user}: {user: UidInterface}) => {
-  const {userList, localUid} = useContext(chatContext);
+export const NameWithMicStatus = ({user}: {user: RenderInterface}) => {
   const {primaryColor} = useContext(ColorContext);
   const {height, width} = useWindowDimensions();
-  const localUserDefaultLabel = useString('localUserDefaultLabel')();
-  const screenshareUserName = useString('screenshareUserName');
-  const pstnUserLabel = useString('pstnUserLabel')();
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   return (
     <>
@@ -26,19 +21,7 @@ export const NameWithMicStatus = ({user}: {user: UidInterface}) => {
       </View>
       <View style={{flex: 1}}>
         <TextWithTooltip
-          value={
-            user.uid === 'local'
-              ? userList[localUid]
-                ? userList[localUid].name + ' '
-                : localUserDefaultLabel + ' '
-              : userList[user.uid]
-              ? userList[user.uid].name + ' '
-              : user.uid === 1
-              ? screenshareUserName(userList[localUid]?.name) + ' '
-              : String(user.uid)[0] === '1'
-              ? pstnUserLabel + ' '
-              : remoteUserDefaultLabel + ' '
-          }
+          value={user.name || remoteUserDefaultLabel}
           style={[
             style.name,
             {

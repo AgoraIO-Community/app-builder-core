@@ -240,20 +240,15 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
-      const uid = this.inScreenshare
-        ? user.uid !== this.screenClient.uid
-          ? user.uid
-          : 1
-        : user.uid;
-      (this.eventsMap.get('UserJoined') as callbackType)(uid);
+      (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
-        uid,
+        user.uid,
         0,
         0,
         0,
       );
       (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
-        uid,
+        user.uid,
         0,
         0,
         0,
@@ -261,17 +256,7 @@ export default class RtcEngine {
     });
 
     this.client.on('user-left', (user) => {
-      const uid = this.inScreenshare
-        ? user.uid !== this.screenClient.uid
-          ? user.uid
-          : 1
-        : user.uid;
-      // if (uid ===1) {
-      //   this.screenStream.audio?.close();
-      //   this.screenStream.video?.close();
-      //   this.screenStream = {}
-      // }
-      // else
+      const uid = user.uid;
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
       }
@@ -282,7 +267,7 @@ export default class RtcEngine {
       // Initiate the subscription
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
-          1,
+          user.uid,
           2,
           0,
           0,
@@ -648,7 +633,9 @@ export default class RtcEngine {
 
   async destroy(): Promise<void> {
     if (this.inScreenshare) {
-      (this.eventsMap.get('UserOffline') as callbackType)(1);
+      (this.eventsMap.get('UserOffline') as callbackType)(
+        this.screenClient.uid,
+      );
       this.screenClient.leave();
       (this.eventsMap.get('ScreenshareStopped') as callbackType)();
     }
@@ -738,7 +725,9 @@ export default class RtcEngine {
       );
 
       this.screenStream.video.on('track-ended', () => {
-        (this.eventsMap.get('UserOffline') as callbackType)(1);
+        (this.eventsMap.get('UserOffline') as callbackType)(
+          this.screenClient.uid,
+        );
 
         this.screenClient.leave();
 
@@ -750,7 +739,9 @@ export default class RtcEngine {
         this.inScreenshare = false;
       });
     } else {
-      (this.eventsMap.get('UserOffline') as callbackType)(1);
+      (this.eventsMap.get('UserOffline') as callbackType)(
+        this.screenClient.uid,
+      );
       this.screenClient.leave();
       (this.eventsMap.get('ScreenshareStopped') as callbackType)();
       try {

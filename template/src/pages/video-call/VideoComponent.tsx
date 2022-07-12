@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import VideoArrayRenderer from './VideoArrayRenderer';
 import useCustomLayout from './CustomLayout';
 import {isArray, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
@@ -18,26 +17,16 @@ const VideoComponent = () => {
       }
     }
   }, [activeLayoutName]);
-  return (
-    <VideoArrayRenderer>
-      {(minVideoArray: React.FC[], maxVideoArray: React.FC[]) => {
-        if (
-          fpeLayouts &&
-          fpeLayouts[layout] &&
-          isValidReactComponent(fpeLayouts[layout].component)
-        ) {
-          const CurrentLayout = fpeLayouts[layout].component;
-          return (
-            <CurrentLayout
-              minVideoArray={minVideoArray}
-              maxVideoArray={maxVideoArray}
-            />
-          );
-        } else {
-          return <></>;
-        }
-      }}
-    </VideoArrayRenderer>
-  );
+
+  if (
+    fpeLayouts &&
+    fpeLayouts[layout] &&
+    isValidReactComponent(fpeLayouts[layout].component)
+  ) {
+    const CurrentLayout = fpeLayouts[layout].component;
+    return <CurrentLayout />;
+  } else {
+    return <></>;
+  }
 };
 export default VideoComponent;

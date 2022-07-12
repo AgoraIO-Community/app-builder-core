@@ -26,6 +26,7 @@ import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
+import useUserList from '../utils/useUserList';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 
 /**
@@ -34,7 +35,7 @@ import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
-  const {userList} = useContext(ChatContext);
+  const {renderList} = useUserList();
   const {height, width} = useWindowDimensions();
   const {selectPrivate} = props;
   const {privateActive, selectedChatUserId: selectedUserID} =
@@ -99,7 +100,7 @@ const ChatContainer = (props: any) => {
       return components;
     });
 
-  const userOfflineLabel = useString('userOfflineLabel');
+  const userOfflineLabel = useString('userOfflineLabel')();
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -123,8 +124,8 @@ const ChatContainer = (props: any) => {
                 },
               ]}
               value={
-                userList[selectedUserID]
-                  ? userList[selectedUserID]?.name + ' '
+                renderList[selectedUserID]
+                  ? renderList[selectedUserID]?.name + ' '
                   : remoteUserDefaultLabel + ' '
               }
             />
@@ -167,7 +168,7 @@ const ChatContainer = (props: any) => {
         ) : (
           <></>
         )}
-        {userList[selectedUserID]?.offline && (
+        {renderList[selectedUserID]?.offline && (
           <View style={style.infoTextView}>
             <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>

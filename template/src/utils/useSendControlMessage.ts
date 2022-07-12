@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {UidInterface} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 import {useContext} from 'react';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
@@ -24,7 +24,7 @@ function useSendControlMessage() {
   return (
     type: CONTROL_MESSAGE_TYPE,
     message: controlMessageEnum,
-    uid?: UidInterface['uid'],
+    uid?: UidType,
   ) => {
     if (isHost) {
       switch (type) {

@@ -20,6 +20,8 @@ import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
+import useUserList from '../../utils/useUserList';
+import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -47,9 +49,9 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   )();
 
   const screenshareContextInstance = useScreenshare();
-
+  const {renderList} = useUserList();
+  const {liveStreamData} = useLiveStreamDataContext();
   const {
-    userList,
     localUid,
     sendControlMessageToUid,
     sendControlMessage,
@@ -58,7 +60,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     events,
   } = useContext(ChatContext);
 
-  const {setRtcProps} = props;
+  const {setRtcProps} = props?.value;
   const {isHost} = useMeetingInfo();
 
   const [currLiveStreamRequest, setLiveStreamRequest] = useState<
@@ -104,7 +106,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   };
 
   const getAttendeeName = (uid: number | string) => {
-    return userList[uid] ? userList[uid]?.name : 'user';
+    return renderList[uid] ? renderList[uid]?.name : 'user';
   };
 
   React.useEffect(() => {
@@ -147,14 +149,14 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     setLiveStreamRequest(
       filterObject(
         currLiveStreamRequest,
-        ([k, v]) => userList[k] && !userList[k]?.offline,
+        ([k, v]) => renderList[k] && !renderList[k]?.offline,
       ),
     );
 
     // Check attribute of user joined if it has request livestreaming attribute
     const uidsOfUsersHavingLSRequest: attrRequestInterface[] = Object.keys(
       filterObject(
-        userList,
+        liveStreamData,
         ([k, v]) =>
           v?.requests === attrRequestStatus.RaiseHand_AwaitingAction ||
           v?.requests === attrRequestStatus.RaiseHand_Approved,
@@ -162,13 +164,14 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     ).map((key) => ({
       uid: key,
       status:
-        userList[key]?.requests || attrRequestStatus.RaiseHand_AwaitingAction,
+        liveStreamData[key]?.requests ||
+        attrRequestStatus.RaiseHand_AwaitingAction,
     }));
 
     // console.log('uidsOfUsersHavingLSRequest', uidsOfUsersHavingLSRequest);
     // Set uids of user who have active live streaming request
     setUidsOfInitialRequests([...uidsOfUsersHavingLSRequest]);
-  }, [userList]);
+  }, [liveStreamData, renderList]);
 
   React.useEffect(() => {
     // Filter new requests
@@ -307,7 +310,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       events.off(messageChannelType.Public, 'onLiveStreamActionsForHost');
       events.off(messageChannelType.Private, 'onLiveStreamActionsForAudience');
     };
-  }, [events, localUid, isHost, raiseHandRequestActive, userList]);
+  }, [events, localUid, isHost, raiseHandRequestActive, liveStreamData]);
 
   const addOrUpdateLiveStreamRequest = (request: requestInterface) => {
     if (request && request?.uid && request?.ts && request?.uid) {

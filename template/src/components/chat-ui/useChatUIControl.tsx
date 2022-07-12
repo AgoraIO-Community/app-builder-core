@@ -11,15 +11,15 @@
 */
 import {createHook} from 'fpe-implementation';
 import React, {SetStateAction, useState} from 'react';
-import {UidInterface} from '../../../agora-rn-uikit';
+import {UidType} from '../../../agora-rn-uikit';
 
 export interface ChatUIControlInterface {
   groupActive: boolean;
   privateActive: boolean;
-  selectedChatUserId: UidInterface['uid'];
+  selectedChatUserId: UidType;
   setGroupActive: React.Dispatch<SetStateAction<boolean>>;
   setPrivateActive: React.Dispatch<SetStateAction<boolean>>;
-  setSelectedChatUserId: React.Dispatch<SetStateAction<UidInterface['uid']>>;
+  setSelectedChatUserId: React.Dispatch<SetStateAction<UidType>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
 }
@@ -42,7 +42,7 @@ interface ChatUIControlProviderProps {
 const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
   const [groupActive, setGroupActive] = useState(false);
   const [privateActive, setPrivateActive] = useState(false);
-  const [selectedChatUserId, setSelectedChatUserId] = useState('');
+  const [selectedChatUserId, setSelectedChatUserId] = useState<UidType>('');
   const [message, setMessage] = useState('');
   return (
     <ChatUIControlContext.Provider

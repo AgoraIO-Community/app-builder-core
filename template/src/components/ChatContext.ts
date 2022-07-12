@@ -10,6 +10,7 @@
 *********************************************
 */
 import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
+import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
 import {rtmEventsInterface} from './RTMEvents';
 
@@ -62,8 +63,7 @@ export interface chatContext {
     ctrlMsg: controlMessageEnum,
   ) => void;
   engine: RtmEngine;
-  localUid: string;
-  userList: any;
+  localUid: UidType;
   onlineUsersCount: number;
   events: rtmEventsInterface;
   displayName: string;

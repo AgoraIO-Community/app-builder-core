@@ -19,13 +19,13 @@ import {
   Pressable,
 } from 'react-native';
 import {RtcContext} from '../../agora-rn-uikit';
-import {MinUidContext} from '../../agora-rn-uikit';
-import {MaxUidContext} from '../../agora-rn-uikit';
 import {layoutProps} from '../../theme.json';
 import {layoutComponent} from 'fpe-api';
+import RenderComponent from '../pages/video-call/RenderComponent';
+import useUserList from '../utils/useUserList';
 const {topPinned} = layoutProps;
 
-const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
+const PinnedVideo: layoutComponent = () => {
   const [collapse, setCollapse] = useState(false);
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -40,9 +40,10 @@ const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
     }, 20);
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const max = useContext(MaxUidContext);
-  const min = useContext(MinUidContext);
+  const {renderPosition, renderList} = useUserList();
+  const [maxUid, ...minUids] = renderPosition;
   const {dispatch} = useContext(RtcContext);
+
   return (
     <View
       style={{
@@ -65,13 +66,6 @@ const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
             borderRadius: 50,
             justifyContent: 'center',
           }}>
-          {/* <Image
-            source={{
-              uri: icons.micOff,
-            }}
-            style={[style.MicIcon]}
-            resizeMode={'contain'}
-          /> */}
           <Text
             style={{
               alignSelf: 'center',
@@ -88,16 +82,12 @@ const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
         <ScrollView
           horizontal={!isSidePinnedlayout}
           decelerationRate={0}
-          // snapToInterval={
-          //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
-          // }
-          // snapToAlignment={'center'}
           style={
             isSidePinnedlayout
               ? {width: '20%', paddingHorizontal: 8}
               : {flex: 1}
           }>
-          {minVideoArray.map((minVideo, i) => (
+          {minUids.map((minUid, i) => (
             <Pressable
               style={
                 isSidePinnedlayout
@@ -117,9 +107,9 @@ const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
               }
               key={'minVideo' + i}
               onPress={() => {
-                dispatch({type: 'SwapVideo', value: [min[i]]});
+                dispatch({type: 'SwapVideo', value: [minUid]});
               }}>
-              {minVideo}
+              <RenderComponent user={renderList[minUid]} uid={minUid} />
             </Pressable>
           ))}
         </ScrollView>
@@ -132,11 +122,9 @@ const PinnedVideo: layoutComponent = ({maxVideoArray, minVideoArray}) => {
               : style.width80
             : style.flex4
         }>
-        {maxVideoArray.map((maxVideo, i) => (
-          <View style={style.flex1} key={'maxVideo' + i}>
-            {maxVideo}
-          </View>
-        ))}
+        <View style={style.flex1} key={'maxVideo' + maxUid}>
+          <RenderComponent user={renderList[maxUid]} uid={maxUid} />
+        </View>
       </View>
     </View>
   );

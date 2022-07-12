@@ -41,8 +41,8 @@ export const LSNotificationObject = {
 };
 
 export interface liveStreamPropsInterface {
-  isHost: boolean;
-  setRtcProps: any;
+  children: React.ReactNode;
+  value: {setRtcProps: any};
 }
 
 export interface liveStreamContext {

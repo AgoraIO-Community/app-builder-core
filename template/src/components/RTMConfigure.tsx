@@ -14,7 +14,7 @@ import RtmEngine, {
   RtmChannelAttribute,
   RtmAttribute,
 } from 'agora-react-native-rtm';
-import {ClientRole, PropsContext} from '../../agora-rn-uikit';
+import {ClientRole, PropsContext, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
@@ -34,12 +34,10 @@ import StorageContext from './StorageContext';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import Toast from '../../react-native-toast-message';
-import {useSidePanel} from 'fpe-api';
+import {useRenderContext, useSidePanel} from 'fpe-api';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-export enum UserType {
-  Normal,
-  ScreenShare,
-}
+import {useScreenContext} from './contexts/ScreenShareContext';
+import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 
 const adjustUID = (number: number) => {
   if (number < 0) {
@@ -84,15 +82,40 @@ function safeJsonParse(str: string) {
 const timeNow = () => new Date().getTime();
 
 const RtmConfigure = (props: any) => {
+  const localUid = useLocalUid();
   const {setRecordingActive, callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
+  const {renderList, renderPosition} = useRenderContext();
+  const renderListRef = useRef({renderList: renderList});
+  const renderPositionRef = useRef({renderPosition: renderPosition});
+
+  /**
+   * inside event callback state won't have latest value.
+   * so creating ref to access the state
+   */
+  useEffect(() => {
+    renderPositionRef.current.renderPosition = renderPosition;
+  }, [renderPosition]);
+
+  useEffect(() => {
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
+
+  const {setScreenShareData, screenShareData} = useScreenContext();
+  const {
+    setLiveStreamData,
+    audienceUids,
+    hostUids,
+    setAudienceUids,
+    setHostUids,
+  } = useLiveStreamDataContext();
+
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
 
   const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
     useChatNotification();
   const {groupActive, selectedChatUserId, setGroupActive} = useChatUIControl();
-
   const groupActiveRef = useRef<boolean>();
   const individualActiveRef = useRef<string | number>();
 
@@ -110,23 +133,22 @@ const RtmConfigure = (props: any) => {
     individualActiveRef.current = selectedChatUserId;
   }, [selectedChatUserId]);
 
-  const [privateMessageStore, setPrivateMessageStore] = useState({});
-  const [login, setLogin] = useState<boolean>(false);
-  const [userList, setUserList] = useState<{[key: string]: any}>({});
-  const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
-
-  const userText = useString('remoteUserDefaultLabel')();
-  const getScreenShareName = useString('screenshareUserName');
-  const fromText = useString('messageSenderNotificationLabel');
-
-  let engine = useRef<RtmEngine>(null!);
-  let localUid = useRef<string>('');
-  const timerValueRef: any = useRef(5);
-
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
+
+  const [privateMessageStore, setPrivateMessageStore] = useState({});
+  const [login, setLogin] = useState<boolean>(false);
+  const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
+
+  const userText = useString('remoteUserDefaultLabel')();
+  const pstnUserLabel = useString('pstnUserLabel')();
+  const getScreenShareName = useString('screenshareUserName');
+  const fromText = useString('messageSenderNotificationLabel');
+
+  let engine = useRef<RtmEngine>(null!);
+  const timerValueRef: any = useRef(5);
 
   const {setSidePanel} = useSidePanel();
 
@@ -137,7 +159,9 @@ const RtmConfigure = (props: any) => {
         Toast.show({
           type: 'success',
           text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
-          text2: userList[uid]?.name ? fromText(userList[uid]?.name) : '',
+          text2: renderList[parseInt(uid)]?.name
+            ? fromText(renderList[parseInt(uid)]?.name)
+            : '',
           visibilityTime: 1000,
           onPress: () => {
             setSidePanel(SidePanelType.Chat);
@@ -169,7 +193,7 @@ const RtmConfigure = (props: any) => {
       events.off(messageChannelType.Public, 'onPublicMessageReceived');
       events.off(messageChannelType.Private, 'onPrivateMessageReceived');
     };
-  }, [userList, messageStore]);
+  }, [renderList, messageStore]);
 
   useEffect(() => {
     // Update the username in localstorage when username changes
@@ -209,15 +233,18 @@ const RtmConfigure = (props: any) => {
   }, []);
 
   React.useEffect(() => {
+    //todo: hari check count for ls
     setTotalOnlineUsers(
-      Object.keys(
-        filterObject(
-          userList,
-          ([k, v]) => v?.type === UserType.Normal && !v.offline,
-        ),
-      ).length,
+      $config.EVENT_MODE
+        ? [...hostUids, ...audienceUids].length
+        : Object.keys(
+            filterObject(
+              renderList,
+              ([k, v]) => v?.type === 'rtc' && !v?.offline,
+            ),
+          ).length,
     );
-  }, [userList]);
+  }, [hostUids, audienceUids, renderList]);
 
   const addMessageToStore = (uid: string, msg: {body: string; ts: string}) => {
     setMessageStore((m: messageStoreInterface[]) => {
@@ -238,13 +265,11 @@ const RtmConfigure = (props: any) => {
       newState[uid] !== undefined
         ? (newState[uid] = [
             ...newState[uid],
-            {ts: msg.ts, uid: local ? localUid.current : uid, msg: msg.body},
+            {ts: msg.ts, uid: local ? localUid : uid, msg: msg.body},
           ])
         : (newState = {
             ...newState,
-            [uid]: [
-              {ts: msg.ts, uid: local ? localUid.current : uid, msg: msg.body},
-            ],
+            [uid]: [{ts: msg.ts, uid: local ? localUid : uid, msg: msg.body}],
           });
       return {...newState};
     });
@@ -253,7 +278,7 @@ const RtmConfigure = (props: any) => {
   const doLoginAndSetupRTM = async () => {
     try {
       await engine.current.login({
-        uid: localUid.current,
+        uid: localUid.toString(),
         token: rtcProps.rtm,
       });
       timerValueRef.current = 5;
@@ -305,6 +330,32 @@ const RtmConfigure = (props: any) => {
     }
   };
 
+  const updateRenderListState = (uid: number, data: any) => {
+    dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  };
+
+  const updateClientUids = (uid: number, role: ClientRole) => {
+    if (role === ClientRole.Broadcaster) {
+      setHostUids((prevState) => {
+        return prevState.filter((i) => i === uid).length
+          ? prevState
+          : [...prevState, uid];
+      });
+      setAudienceUids((prevState) => {
+        return prevState.filter((i) => i !== uid);
+      });
+    } else {
+      setAudienceUids((prevState) => {
+        return prevState.filter((i) => i === uid).length
+          ? prevState
+          : [...prevState, uid];
+      });
+      setHostUids((prevState) => {
+        return prevState.filter((i) => i !== uid);
+      });
+    }
+  };
+
   const getMembers = async () => {
     try {
       await engine.current
@@ -340,22 +391,60 @@ const RtmConfigure = (props: any) => {
             try {
               const attr = await backoffAttributes;
               console.log('[user attributes]:', {attr});
-              setUserList((prevState) => {
+
+              //start - updating user data in rtc
+              const userData = {
+                name:
+                  String(member.uid)[0] === '1'
+                    ? pstnUserLabel
+                    : attr?.attributes?.name || userText,
+                screenUid: parseInt(attr?.attributes?.screenUid),
+                //below thing for livestreaming
+                type: 'rtc',
+              };
+              updateRenderListState(parseInt(member.uid), userData);
+              //end- updating user data in rtc
+
+              //start - updating screenshare data in rtc
+              const screenShareData = {
+                name: getScreenShareName(attr?.attributes?.name || userText),
+                //below thing for livestreaming
+                type: 'screenshare',
+              };
+              updateRenderListState(
+                parseInt(attr?.attributes?.screenUid),
+                screenShareData,
+              );
+              //end - updating screenshare data in rtc
+
+              //updating the client uids for livestreaming
+              updateClientUids(
+                parseInt(member.uid),
+                parseInt(attr?.attributes?.role),
+              );
+              //setting live steam data
+              setLiveStreamData((prevState) => {
                 return {
                   ...prevState,
                   [member.uid]: {
-                    name: attr?.attributes?.name || userText,
-                    type: UserType.Normal,
                     role: parseInt(attr?.attributes?.role),
-                    screenUid: parseInt(attr?.attributes?.screenUid),
-                    offline: false,
                     requests: attr?.attributes?.requests,
                   },
+                };
+              });
+              //setting screenshare data
+              setScreenShareData((prevState) => {
+                return {
+                  ...prevState,
                   [parseInt(attr?.attributes?.screenUid)]: {
                     name: getScreenShareName(
                       attr?.attributes?.name || userText,
                     ),
-                    type: UserType.ScreenShare,
+                    isActive: renderPositionRef.current.renderPosition.filter(
+                      (i) => i === parseInt(attr?.attributes?.screenUid),
+                    ).length
+                      ? true
+                      : false,
                   },
                 };
               });
@@ -376,9 +465,6 @@ const RtmConfigure = (props: any) => {
   };
   const init = async () => {
     engine.current = new RtmEngine();
-    rtcProps.uid
-      ? (localUid.current = rtcProps.uid + '')
-      : (localUid.current = '' + timeNow());
     engine.current.on('connectionStateChanged', (evt: any) => {
       //console.log(evt);
     });
@@ -414,20 +500,42 @@ const RtmConfigure = (props: any) => {
         try {
           const attr = await backoffAttributes;
           console.log('[user attributes]:', {attr});
-          setUserList((prevState) => {
+
+          //start - updating user data in rtc
+          const userData = {
+            name:
+              String(data.uid)[0] === '1'
+                ? pstnUserLabel
+                : attr?.attributes?.name || userText,
+            screenUid: parseInt(attr?.attributes?.screenUid),
+            //below thing for livestreaming
+            type: 'rtc',
+          };
+          updateRenderListState(parseInt(data.uid), userData);
+          //start - updating user data in rtc
+
+          //updating host/audience id for livestreaming
+          updateClientUids(
+            parseInt(data.uid),
+            parseInt(attr?.attributes?.role),
+          );
+          //setting live steam data
+          setLiveStreamData((prevState) => {
             return {
               ...prevState,
               [data.uid]: {
-                name: attr?.attributes?.name || userText,
-                type: UserType.Normal,
                 role: parseInt(attr?.attributes?.role),
-                screenUid: parseInt(attr?.attributes?.screenUid),
-                offline: false,
                 requests: attr?.attributes?.requests,
               },
+            };
+          });
+          //setting screenshare data
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
               [parseInt(attr?.attributes?.screenUid)]: {
                 name: getScreenShareName(attr?.attributes?.name || userText),
-                type: UserType.ScreenShare,
+                isActive: false,
               },
             };
           });
@@ -443,13 +551,26 @@ const RtmConfigure = (props: any) => {
       // Chat of left user becomes undefined. So don't cleanup
       const {uid} = data;
       if (!uid) return;
-      setUserList((prevState) => {
+      //updating the rtc data
+      updateRenderListState(parseInt(uid), {
+        offline: true,
+      });
+      //setting live steam data
+      setLiveStreamData((prevState) => {
+        if (prevState[parseInt(uid)]?.role === ClientRole.Broadcaster) {
+          setHostUids((prevStateH) => {
+            return prevStateH.filter((i) => i !== parseInt(uid));
+          });
+        } else {
+          setAudienceUids((prevStateA) => {
+            return prevStateA.filter((i) => i !== parseInt(uid));
+          });
+        }
         return {
           ...prevState,
           [uid]: {
             ...prevState[uid],
             requests: attrRequestTypes.none,
-            offline: true,
           },
         };
       });
@@ -591,7 +712,8 @@ const RtmConfigure = (props: any) => {
                     payload.role.trim() !== '' &&
                     payload.role in ClientRole
                   ) {
-                    setUserList((prevState) => {
+                    updateClientUids(parseInt(uid), parseInt(payload.role));
+                    setLiveStreamData((prevState) => {
                       return {
                         ...prevState,
                         [uid]: {
@@ -606,15 +728,15 @@ const RtmConfigure = (props: any) => {
               case controlMessageEnum.userNameChanged:
                 const {payload: payloadData} = JSON.parse(msg);
                 if (payloadData && payloadData.name) {
-                  setUserList((prevState) => {
+                  const uidNumber = parseInt(uid);
+                  updateRenderListState(uidNumber, {name: payloadData.name});
+                  setScreenShareData((prevState) => {
                     return {
                       ...prevState,
-                      [uid]: {
-                        ...prevState[uid],
-                        name: payloadData.name,
-                      },
-                      [parseInt(prevState[uid].screenUid)]: {
-                        ...prevState[parseInt(prevState[uid].screenUid)],
+                      [renderListRef.current.renderList[uidNumber].screenUid]: {
+                        ...prevState[
+                          renderListRef.current.renderList[uidNumber].screenUid
+                        ],
                         name: getScreenShareName(payloadData.name || userText),
                       },
                     };
@@ -687,7 +809,7 @@ const RtmConfigure = (props: any) => {
       rtcProps.channel,
       text,
     );
-    addMessageToStore(localUid.current, {
+    addMessageToStore(localUid.toString(), {
       body: messageActionType.Normal + msg,
       ts: timeNow(),
     });
@@ -796,26 +918,51 @@ const RtmConfigure = (props: any) => {
       let value = Object.values(attribute)[1];
       formattedAttributes[key] = value;
     });
-    // 2. Update my attributes in user-list
-    setUserList((prevState) => {
-      let screenShareObject: any = {};
-      //check if formattedAttributes has name then we need to update screenshare name.
-      if ('name' in formattedAttributes) {
-        screenShareObject[parseInt(prevState[localUid.current].screenUid)] = {
-          ...prevState[parseInt(prevState[localUid.current].screenUid)],
-          name: getScreenShareName(formattedAttributes['name'] || userText),
+    // 2. Update my attributes in rtm and screenshare and livestream
+    if ('name' in formattedAttributes) {
+      const uidNumber =
+        typeof localUid === 'number' ? localUid : parseInt(localUid);
+      updateRenderListState(uidNumber, {name: formattedAttributes['name']});
+      setScreenShareData((prevState) => {
+        return {
+          ...prevState,
+          [renderListRef.current.renderList[uidNumber].screenUid]: {
+            ...prevState[renderListRef.current.renderList[uidNumber].screenUid],
+            name: getScreenShareName(formattedAttributes['name'] || userText),
+          },
         };
+      });
+    }
+    if (
+      //'offline' in formattedAttributes ||
+      'requests' in formattedAttributes ||
+      'role' in formattedAttributes
+    ) {
+      let updateData: any = {};
+      // if ('offline' in formattedAttributes) {
+      //   updateData['offline'] = formattedAttributes['offline'];
+      // }
+      if ('requests' in formattedAttributes) {
+        updateData['requests'] = formattedAttributes['requests'];
       }
-      return {
-        ...prevState,
-        [localUid.current]: {
-          ...prevState[localUid.current],
-          ...formattedAttributes,
-        },
-        ...screenShareObject,
-      };
-    });
+      if ('role' in formattedAttributes) {
+        updateData['role'] = parseInt(formattedAttributes['role']);
+        updateClientUids(
+          typeof localUid === 'number' ? localUid : parseInt(localUid),
+          parseInt(formattedAttributes['role']),
+        );
+      }
 
+      setLiveStreamData((prevState) => {
+        return {
+          ...prevState,
+          [localUid]: {
+            ...prevState[localUid],
+            ...updateData,
+          },
+        };
+      });
+    }
     /**
      * 3. Broadcast my updated attributes to everyone
      * send payload and control message as string
@@ -839,8 +986,7 @@ const RtmConfigure = (props: any) => {
         broadcastUserAttributes,
         addOrUpdateLocalUserAttributes,
         engine: engine.current,
-        localUid: localUid.current,
-        userList: userList,
+        localUid: localUid,
         onlineUsersCount,
         events,
         setDisplayName,

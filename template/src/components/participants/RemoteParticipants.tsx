@@ -16,6 +16,7 @@ import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from './ParticipantName';
+import {UidType} from '../../../agora-rn-uikit';
 
 interface remoteParticipantsInterface {
   p_styles: any;
@@ -23,11 +24,12 @@ interface remoteParticipantsInterface {
   user: any;
   showControls: boolean;
   isHost: boolean;
+  uid: UidType;
 }
 
 const RemoteParticipants = (props: remoteParticipantsInterface) => {
-  const {p_styles, user, name, showControls, isHost} = props;
-
+  const {p_styles, user, name, showControls, isHost, uid} = props;
+  //todo hari remove as number and update typing
   return (
     <View style={p_styles.participantRow}>
       <ParticipantName value={name} />
@@ -36,22 +38,22 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
           {$config.EVENT_MODE && (
             <ApprovedLiveStreamControlsView
               p_styles={p_styles}
-              uid={user.uid}
+              uid={uid as number}
             />
           )}
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
-            <RemoteEndCall uid={user.uid} isHost={isHost} />
+            <RemoteEndCall uid={uid as number} isHost={isHost} />
           </View>
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
             <RemoteAudioMute
-              uid={user.uid}
+              uid={uid as number}
               audio={user.audio}
               isHost={isHost}
             />
           </View>
           <View style={[p_styles.actionBtnIcon]}>
             <RemoteVideoMute
-              uid={user.uid}
+              uid={uid as number}
               video={user.video}
               isHost={isHost}
             />

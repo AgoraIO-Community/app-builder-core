@@ -13,11 +13,10 @@ import {layoutComponent} from 'fpe-api';
 import React, {useMemo, useContext, useState} from 'react';
 import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
 import {isWeb} from '../utils/common';
-import {MinUidContext} from '../../agora-rn-uikit';
-import {MaxUidContext} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
-
+import RenderComponent from '../pages/video-call/RenderComponent';
+import useUserList from '../utils/useUserList';
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -36,11 +35,9 @@ const layout = (len: number, isDesktop: boolean = true) => {
   };
 };
 
-const GridVideo: layoutComponent = ({minVideoArray, maxVideoArray}) => {
+const GridVideo: layoutComponent = () => {
   const {dispatch} = useContext(RtcContext);
-  const max = useContext(MaxUidContext);
-  const min = useContext(MinUidContext);
-  const users = [...max, ...min];
+  const {renderList, renderPosition} = useUserList();
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
@@ -52,10 +49,10 @@ const GridVideo: layoutComponent = ({minVideoArray, maxVideoArray}) => {
   const isDesktop = dim[0] > dim[1] + 100;
 
   let {matrix, dims} = useMemo(
-    () => layout(users.length, isDesktop),
-    [users.length, isDesktop],
+    () => layout(renderPosition.length, isDesktop),
+    [renderPosition.length, isDesktop],
   );
-  const combinedUsers = [...maxVideoArray, ...minVideoArray];
+
   const setPinnedLayout = useSetPinnedLayout();
   return (
     <View
@@ -69,7 +66,7 @@ const GridVideo: layoutComponent = ({minVideoArray, maxVideoArray}) => {
                 if (!(ridx === 0 && cidx === 0)) {
                   dispatch({
                     type: 'SwapVideo',
-                    value: [users[ridx * dims.c + cidx]],
+                    value: [renderPosition[ridx * dims.c + cidx]],
                   });
                 }
                 setPinnedLayout();
@@ -80,7 +77,10 @@ const GridVideo: layoutComponent = ({minVideoArray, maxVideoArray}) => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
-                {combinedUsers[ridx * dims.c + cidx]}
+                <RenderComponent
+                  user={renderList[renderPosition[ridx * dims.c + cidx]]}
+                  uid={renderPosition[ridx * dims.c + cidx]}
+                />
               </View>
             </Pressable>
           ))}

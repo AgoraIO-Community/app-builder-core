@@ -14,7 +14,8 @@ import {useFpe} from 'fpe-api';
 import React from 'react';
 import {View} from 'react-native';
 import {isValidReactComponent} from '../../utils/common';
-import {MaxUidConsumer, MaxVideoView} from '../../../agora-rn-uikit';
+import {MaxVideoView} from '../../../agora-rn-uikit';
+import useUserList from '../../utils/useUserList';
 
 const VideoPreview: React.FC = () => {
   const {VideoPreviewAfterView, VideoPreviewBeforeView} = useFpe((data) => {
@@ -51,16 +52,20 @@ const VideoPreview: React.FC = () => {
     }
     return components;
   });
+  const {renderList, renderPosition} = useUserList();
+
+  const [maxUid] = renderPosition;
+
+  if (!maxUid) {
+    return null;
+  }
+
   return (
     <>
       <VideoPreviewBeforeView />
-      <MaxUidConsumer>
-        {(maxUsers) => (
-          <View style={{borderRadius: 10, flex: 1}}>
-            <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-          </View>
-        )}
-      </MaxUidConsumer>
+      <View style={{borderRadius: 10, flex: 1}}>
+        <MaxVideoView uid={maxUid} user={renderList[maxUid]} key={maxUid} />
+      </View>
       <VideoPreviewAfterView />
     </>
   );

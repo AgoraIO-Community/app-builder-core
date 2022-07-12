@@ -1,4 +1,4 @@
-import {UidInterface} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 
 export enum SET_UNREAD_MESSAGE_COUNT_TYPE {
@@ -12,7 +12,7 @@ const useSetUnreadMessageCount = () => {
   return (
     type: SET_UNREAD_MESSAGE_COUNT_TYPE,
     count: number,
-    uid?: UidInterface['uid'],
+    uid?: UidType,
   ) => {
     switch (type) {
       case SET_UNREAD_MESSAGE_COUNT_TYPE.setPublicMessageCount:

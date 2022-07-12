@@ -10,7 +10,8 @@
 *********************************************
 */
 
-import React from 'react';
+import {PropsContext} from '../../agora-rn-uikit';
+import React, {useContext} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {useString} from '../utils/useString';
 /**
@@ -29,7 +30,8 @@ function ScreenShareNotice({uid}: any) {
   const screensharingActiveOverlayLabel = useString(
     'screensharingActiveOverlayLabel',
   )();
-  return uid === 1 ? (
+  const {rtcProps} = useContext(PropsContext);
+  return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>
       <Text style={styles.screensharingMessage}>
         {screensharingActiveOverlayLabel}

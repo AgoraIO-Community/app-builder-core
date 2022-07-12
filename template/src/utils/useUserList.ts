@@ -9,16 +9,18 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import ChatContext from '../../src/components/ChatContext';
-
+import {useRenderContext} from 'fpe-api';
 /**
  * This hook will fetch the user list
  * @returns userList
  */
+
 function useUserList() {
-  const {userList} = useContext(ChatContext);
-  return userList;
+  const {renderPosition, renderList} = useRenderContext();
+  return {
+    renderList: renderList,
+    renderPosition: renderPosition,
+  };
 }
 
 export default useUserList;

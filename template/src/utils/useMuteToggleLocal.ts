@@ -83,7 +83,7 @@ function useMuteToggleLocal() {
             await RtcEngine.muteLocalVideoStream(
               localVideoState === ToggleState.enabled ? true : false,
             );
-            console.log('muted video', localVideoState);
+
             // Enable UI
             dispatch({
               type: 'LocalMuteVideo',

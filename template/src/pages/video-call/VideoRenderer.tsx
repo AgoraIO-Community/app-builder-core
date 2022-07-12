@@ -1,26 +1,24 @@
 import React, {useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {UidInterface} from '../../../agora-rn-uikit';
+import {RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import ColorContext from '../../components/ColorContext';
-import chatContext from '../../components/ChatContext';
 import {NetworkQualityPill} from '../../subComponents/NetworkQualityPill';
 import {NameWithMicStatus} from './NameWithMicStatus';
-import {useString} from '../../utils/useString';
 
 interface MaxVideoRendererInterface {
-  user: UidInterface;
+  user: RenderInterface;
+  uid: UidType;
 }
-const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
-  const {userList, localUid} = useContext(chatContext);
+const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user, uid}) => {
   const {primaryColor} = useContext(ColorContext);
-  const pstnUserLabel = useString('pstnUserLabel')();
   return (
     <View style={maxStyle.container}>
-      <ScreenShareNotice uid={user.uid} />
+      <ScreenShareNotice uid={uid} />
       <NetworkQualityPill
+        uid={uid}
         user={user}
         primaryColor={primaryColor}
         rootStyle={{
@@ -32,16 +30,11 @@ const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
       />
       <MaxVideoView
         fallback={() => {
-          if (user.uid === 'local') {
-            return FallbackLogo(userList[localUid]?.name);
-          } else if (String(user.uid)[0] === '1') {
-            return FallbackLogo(pstnUserLabel);
-          } else {
-            return FallbackLogo(userList[user.uid]?.name);
-          }
+          return FallbackLogo(user?.name);
         }}
         user={user}
-        key={user.uid}
+        uid={uid}
+        key={uid}
       />
       <View style={maxStyle.nameHolder}>
         <NameWithMicStatus user={user} />

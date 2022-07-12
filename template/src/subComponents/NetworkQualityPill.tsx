@@ -14,7 +14,7 @@ import {networkIconsObject} from '../components/NetworkQualityContext';
 import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 import {isWeb} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
-import {UidInterface} from '../../agora-rn-uikit';
+import {RenderInterface, UidType} from '../../agora-rn-uikit';
 
 /**
  *
@@ -28,11 +28,13 @@ import {UidInterface} from '../../agora-rn-uikit';
  */
 export const NetworkQualityPill = ({
   user,
+  uid,
   primaryColor,
   small,
   rootStyle,
 }: {
-  user: UidInterface;
+  user: RenderInterface;
+  uid: UidType;
   primaryColor: any;
   small?: boolean;
   rootStyle?: StyleProp<ViewStyle>;
@@ -40,8 +42,8 @@ export const NetworkQualityPill = ({
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   const getLabel = useString<NetworkQualities>('networkQualityLabel');
   const networkQualityStat = useContext(NetworkQualityContext);
-  const networkStat = networkQualityStat[user.uid]
-    ? networkQualityStat[user.uid]
+  const networkStat = networkQualityStat[uid]
+    ? networkQualityStat[uid]
     : user.audio || user.video
     ? 8
     : 7;

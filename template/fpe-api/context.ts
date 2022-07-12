@@ -4,8 +4,7 @@
 import {createHook} from 'fpe-implementation';
 import {
   RtcContext,
-  MinUidContext,
-  MaxUidContext,
+  RenderContext,
   PropsContext,
   LocalContext,
 } from '../agora-rn-uikit';
@@ -13,8 +12,7 @@ import {default as DeviceContext} from '../src/components/DeviceContext';
 import {default as StorageContext} from '../src/components/StorageContext';
 
 export const useRtcContext = createHook(RtcContext);
-export const useMinUidContext = createHook(MinUidContext);
-export const useMaxUidContext = createHook(MaxUidContext);
+export const useRenderContext = createHook(RenderContext);
 export const usePropsContext = createHook(PropsContext);
 export const useLocalContext = createHook(LocalContext);
 export const useDeviceContext = createHook(DeviceContext);

@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {createContext, useContext, useState} from 'react';
-import {RtcContext} from '../../agora-rn-uikit';
+import {RtcContext, UidType, useLocalUid} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
 import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
@@ -81,9 +81,11 @@ export const networkIconsObject: {
   },
 };
 
-const initNewtorkQualityStats: {[key in string | number]: number} = {
-  local: 0,
-};
+interface NetworkQualityStatsInterface {
+  [key: UidType]: number;
+}
+
+const initNewtorkQualityStats: NetworkQualityStatsInterface = {};
 
 const NetworkQualityContext = createContext(initNewtorkQualityStats);
 
@@ -92,9 +94,11 @@ export default NetworkQualityContext;
 export const NetworkQualityConsumer = NetworkQualityContext.Consumer;
 
 export const NetworkQualityProvider: React.FC = (props) => {
-  const [networkQualityStats, setNetworkQualityStats] = useState(
-    initNewtorkQualityStats,
-  );
+  const localUid = useLocalUid();
+  const [networkQualityStats, setNetworkQualityStats] =
+    useState<NetworkQualityStatsInterface>({
+      [localUid]: 0,
+    });
   const {RtcEngine} = useContext(RtcContext);
 
   useMount(() => {
@@ -116,7 +120,7 @@ export const NetworkQualityProvider: React.FC = (props) => {
                 ? uplinkQuality
                 : downlinkQuality
               : 0;
-          updatedNetworkQualityStats['local'] = displayedNetworkQuality;
+          updatedNetworkQualityStats[localUid] = displayedNetworkQuality;
         } else {
           updatedNetworkQualityStats[uid] = downlinkQuality;
         }

@@ -13,22 +13,18 @@ import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import chatContext from './ChatContext';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
 import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
-import {
-  ParticipantContextProvider,
-  ParticipantContextConsumer,
-} from './participants/context/ParticipantContext';
 import {useString} from '../utils/useString';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useFpe} from 'fpe-api';
+import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 
 const ParticipantView = () => {
-  const {userList} = useContext(chatContext);
+  const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {rtcProps} = useContext(PropsContext);
   const hostLabel = useString('hostLabel')();
   const audienceLabel = useString('audienceLabel')();
@@ -100,107 +96,89 @@ const ParticipantView = () => {
         </View>
         <ScrollView style={[style.bodyContainer, style.padding10]}>
           {$config.EVENT_MODE ? (
-            // Live streaming is true
-            <ParticipantContextProvider>
-              {/* Host and New host view */}
-              {rtcProps?.role == ClientRole.Broadcaster &&
-                (isHost ? (
-                  /**
-                   * Original Host
-                   * a) Can view streaming requests
-                   * b) Can view all hosts with remote controls
-                   */
-                  <>
-                    {/* a) Live streaming view */}
-                    <View style={style.participantsection}>
-                      <CurrentLiveStreamRequestsView
-                        p_style={style}
-                        userList={userList}
-                      />
-                    </View>
-                    {/* b) Host view with remote controls*/}
-                    <ParticipantContextConsumer>
-                      {({hostCount}) => {
-                        return (
-                          <View style={style.participantsection}>
-                            <ParticipantSectionTitle
-                              title={hostLabel}
-                              count={hostCount}
-                            />
-                            <View style={style.participantContainer}>
-                              <AllHostParticipants
-                                p_style={style}
-                                isHost={isHost}
-                              />
-                            </View>
-                          </View>
-                        );
-                      }}
-                    </ParticipantContextConsumer>
-                  </>
-                ) : (
-                  /** New Host ( earlier was 'audience' and now is host )
-                   *  a) Can view all hosts without remote controls
-                   */
-                  <ParticipantContextConsumer>
-                    {({hostList, hostCount}) => {
-                      return (
-                        <View style={style.participantsection}>
-                          <ParticipantSectionTitle
-                            title={hostLabel}
-                            count={hostCount}
-                          />
-                          <AllAudienceParticipants
-                            p_style={style}
-                            participantList={hostList}
-                            isHost={isHost}
-                          />
-                        </View>
-                      );
-                    }}
-                  </ParticipantContextConsumer>
-                ))}
-              {/**
-               *  Audience views all hosts without remote controls
-               */}
-              {rtcProps?.role == ClientRole.Audience && (
-                <ParticipantContextConsumer>
-                  {({hostList, hostCount}) => {
-                    return (
+            <>
+              {
+                /*Live streaming is true            
+                Host and New host view */
+                rtcProps?.role == ClientRole.Broadcaster &&
+                  (isHost ? (
+                    /**
+                     * Original Host
+                     * a) Can view streaming requests
+                     * b) Can view all hosts with remote controls
+                     */
+                    <>
+                      {/* a) Live streaming view */}
+                      <View style={style.participantsection}>
+                        <CurrentLiveStreamRequestsView
+                          p_style={style}
+                          userList={liveStreamData}
+                        />
+                      </View>
+                      {/* b) Host view with remote controls*/}
                       <View style={style.participantsection}>
                         <ParticipantSectionTitle
                           title={hostLabel}
-                          count={hostCount}
+                          count={hostUids.length}
                         />
-                        <AllAudienceParticipants
-                          participantList={hostList}
-                          p_style={style}
-                          isHost={isHost}
-                        />
+                        <View style={style.participantContainer}>
+                          <AllHostParticipants
+                            p_style={style}
+                            isHost={isHost}
+                          />
+                        </View>
                       </View>
-                    );
-                  }}
-                </ParticipantContextConsumer>
-              )}
-              {/* Everyone can see audience */}
-              <ParticipantContextConsumer>
-                {({audienceList, audienceCount}) => {
-                  return (
+                    </>
+                  ) : (
+                    /** New Host ( earlier was 'audience' and now is host )
+                     *  a) Can view all hosts without remote controls
+                     */
                     <View style={style.participantsection}>
                       <ParticipantSectionTitle
-                        title={audienceLabel}
-                        count={audienceCount}
+                        title={hostLabel}
+                        count={hostUids.length}
                       />
                       <AllAudienceParticipants
+                        uids={hostUids}
                         p_style={style}
-                        participantList={audienceList}
                         isHost={isHost}
                       />
                     </View>
-                  );
-                }}
-              </ParticipantContextConsumer>
-            </ParticipantContextProvider>
+                  ))
+              }
+              {
+                /**
+                 *  Audience views all hosts without remote controls
+                 */
+                rtcProps?.role == ClientRole.Audience && (
+                  <View style={style.participantsection}>
+                    <ParticipantSectionTitle
+                      title={hostLabel}
+                      count={hostUids.length}
+                    />
+                    <AllAudienceParticipants
+                      uids={hostUids}
+                      p_style={style}
+                      isHost={isHost}
+                    />
+                  </View>
+                )
+              }
+              {
+                /* Everyone can see audience */
+                <View style={style.participantsection}>
+                  <ParticipantSectionTitle
+                    title={audienceLabel}
+                    count={audienceUids.length}
+                  />
+                  <AllAudienceParticipants
+                    uids={audienceUids}
+                    p_style={style}
+                    isHost={isHost}
+                  />
+                </View>
+              }
+            </>
           ) : (
             <View style={style.participantsection}>
               <View style={style.participantContainer}>

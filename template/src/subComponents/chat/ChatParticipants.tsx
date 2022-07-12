@@ -6,35 +6,34 @@ import {
   ScrollView,
   useWindowDimensions,
   StyleSheet,
-  Platform,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
-import {UserType} from '../../components/RTMConfigure';
 import TextWithTooltip from '../TextWithTooltip';
-import chatContext from '../../components/ChatContext';
 import {useString} from '../../utils/useString';
 import {isIOS, isWeb} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
+import useUserList from '../../utils/useUserList';
+import {useLocalUid} from '../../../agora-rn-uikit';
 
 const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
-  const {userList, localUid} = useContext(chatContext);
+  const {renderList} = useUserList();
+  const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
-
   const isChatUser = (userId: string, userInfo: any) => {
     return (
-      userId !== localUid &&
-      parseInt(userId) !== 1 &&
-      userInfo?.type !== UserType.ScreenShare &&
+      parseInt(userId) !== localUid && //user can't chat with own user
+      userId !== '1' && //user can't chat with pstn user
+      userInfo?.type === 'rtc' &&
       !userInfo?.offline
     );
   };
 
   return (
     <ScrollView>
-      {Object.entries(userList).map(([uid, value]) => {
+      {Object.entries(renderList).map(([uid, value]) => {
         if (isChatUser(uid, value)) {
           return (
             <TouchableOpacity
@@ -59,9 +58,9 @@ const ChatParticipants = (props: any) => {
                     },
                   ]}
                   value={
-                    userList[uid]
-                      ? userList[uid].name + ' '
-                      : remoteUserDefaultLabel + ' '
+                    renderList[uid]
+                      ? renderList[uid].name + ''
+                      : remoteUserDefaultLabel
                   }
                 />
               </View>

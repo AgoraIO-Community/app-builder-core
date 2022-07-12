@@ -11,7 +11,7 @@
 */
 import {useContext} from 'react';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import {UidInterface} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './isPSTNUser';
 import useMutePSTN from './useMutePSTN';
@@ -25,7 +25,7 @@ function useRemoteMute() {
   const {isHost} = useMeetingInfo();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
-  return async (type: MUTE_REMOTE_TYPE, uid: UidInterface['uid']) => {
+  return async (type: MUTE_REMOTE_TYPE, uid: UidType) => {
     if (isHost) {
       switch (type) {
         case MUTE_REMOTE_TYPE.audio:

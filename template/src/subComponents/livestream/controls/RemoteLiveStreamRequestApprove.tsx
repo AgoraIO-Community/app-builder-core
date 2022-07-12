@@ -1,21 +1,17 @@
 import React, {useContext} from 'react';
 import {View} from 'react-native';
-import {
-  BtnTemplate,
-  PropsContext,
-  UidInterface,
-} from '../../../../agora-rn-uikit';
+import {BtnTemplate, PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
 import icons from '../../../assets/icons';
 
 export interface RemoteLiveStreamControlInterface {
-  user: UidInterface;
+  uid: UidType;
 }
 
 const RemoteLiveStreamRequestApprove = (
   props: RemoteLiveStreamControlInterface,
 ) => {
-  const {user} = props;
+  const {uid} = props;
   const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
   const {styleProps} = useContext(PropsContext);
   const {remoteBtnStyles} = styleProps || {};
@@ -25,11 +21,12 @@ const RemoteLiveStreamRequestApprove = (
   return (
     <View style={{...(liveStreamHostControlBtns as object), marginRight: 15}}>
       <BtnTemplate
-        disabled={!user?.uid}
+        disabled={!uid}
         icon={icons['checkCircleIcon']}
         style={{...(liveStreamHostControlBtns as object)}}
         onPress={() => {
-          hostApprovesRequestOfUID(user?.uid);
+          //todo hari update uid type
+          hostApprovesRequestOfUID(uid);
         }}
       />
     </View>

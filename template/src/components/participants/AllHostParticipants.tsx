@@ -1,78 +1,47 @@
-import React, {useContext} from 'react';
-import {MinUidConsumer, MaxUidConsumer} from '../../../agora-rn-uikit';
-import chatContext from '../ChatContext';
-
+import React from 'react';
 import MeParticipant from './MeParticipant';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
-import {UserType} from './../RTMConfigure';
 import {useString} from '../../utils/useString';
+import useUserList from '../../utils/useUserList';
+import {useLocalUid} from '../../../agora-rn-uikit';
 
 export default function AllHostParticipants(props: any) {
   const {p_style, isHost} = props;
-  const {userList, localUid} = useContext(chatContext);
-  const screenshareName = useString<boolean>('screenshareUserName');
-  const localUserDefaultLabel = useString('localUserDefaultLabel')();
-  const localScreenshareDefaultLabel = useString(
-    'localScreenshareDefaultLabel',
-  )();
-  const pstnUserLabel = useString('pstnUserLabel')();
+  const localUid = useLocalUid();
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const {renderList, renderPosition} = useUserList();
   const getParticipantName = (userUID: number | string) => {
-    if (userUID === 'local')
-      return userList[localUid]
-        ? userList[localUid].name + ' '
-        : localUserDefaultLabel + ' ';
-    else if (userUID === 1)
-      return userList[localUid]
-        ? screenshareName(userList[localUid].name) + ' '
-        : localScreenshareDefaultLabel + ' ';
-    else
-      return userList[userUID]
-        ? userList[userUID].name + ' '
-        : String(userUID)[0] === '1'
-        ? pstnUserLabel + ' '
-        : remoteUserDefaultLabel + ' ';
+    return renderList[userUID].name || remoteUserDefaultLabel;
   };
 
   return (
-    <MinUidConsumer>
-      {(minUsers) => (
-        <MaxUidConsumer>
-          {(maxUser) =>
-            [...minUsers, ...maxUser].map((user) =>
-              user.contentType === 'rtc' ? (
-                user.uid === 'local' ? (
-                  <MeParticipant
-                    name={getParticipantName(user.uid)}
-                    p_style={p_style}
-                    key={user.uid}
-                  />
-                ) : user.uid === 1 ? (
-                  <ScreenshareParticipants
-                    name={getParticipantName(user.uid)}
-                    p_styles={p_style}
-                    key={user.uid}
-                  />
-                ) : (
-                  <RemoteParticipants
-                    name={getParticipantName(user.uid)}
-                    p_styles={p_style}
-                    user={user}
-                    showControls={
-                      userList[user.uid]?.type !== UserType.ScreenShare
-                    }
-                    isHost={isHost}
-                    key={user.uid}
-                  />
-                )
-              ) : (
-                <></>
-              ),
-            )
-          }
-        </MaxUidConsumer>
+    <>
+      {renderPosition.map((uid) =>
+        uid === localUid ? (
+          <MeParticipant
+            name={getParticipantName(uid)}
+            p_style={p_style}
+            key={uid}
+          />
+        ) : renderList[uid]?.type === 'screenshare' ? (
+          <ScreenshareParticipants
+            name={getParticipantName(uid)}
+            p_styles={p_style}
+            key={uid}
+          />
+        ) : (
+          <RemoteParticipants
+            name={getParticipantName(uid)}
+            p_styles={p_style}
+            user={renderList[uid]}
+            uid={uid}
+            showControls={renderList[uid]?.type === 'rtc'}
+            isHost={isHost}
+            key={uid}
+          />
+        ),
       )}
-    </MinUidConsumer>
+    </>
   );
 }

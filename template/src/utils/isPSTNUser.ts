@@ -15,14 +15,14 @@ import useUserList from './useUserList';
  * @returns function
  */
 function useIsPSTN() {
-  const userList = useUserList();
+  const {renderList} = useUserList();
   /**
    *
    * @param uid number | string
    * @returns boolean
    */
   const isPSTN = (uid: number | string) =>
-    !userList[uid] && String(uid)[0] === '1' ? true : false;
+    !renderList[uid] && String(uid)[0] === '1' ? true : false;
   return isPSTN;
 }
 
