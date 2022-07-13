@@ -19,7 +19,7 @@ import {JoinRoomButtonTextInterface} from '../../language/default-labels/precall
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
-import isMobileOrTablet from 'src/utils/isMobileOrTablet';
+import isMobileOrTablet from '../../utils/isMobileOrTablet';
 import {Platform} from 'react-native';
 
 const audio = new Audio(

@@ -97,10 +97,8 @@ const Share = () => {
       <Logo />
       <View style={style.content} onLayout={onLayout}>
         <View style={style.leftContent}>
-          <View>
-            <Text style={style.heading}>{$config.APP_NAME}</Text>
-            <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-          </View>
+          <Text style={style.heading}>{$config.APP_NAME}</Text>
+          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
           {isSeparateHostLink ? (
             <View style={style.urlContainer}>
               <View style={{width: '80%'}}>

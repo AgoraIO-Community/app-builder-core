@@ -48,7 +48,7 @@ import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
-import StorageContext from 'src/components/StorageContext';
+import StorageContext from '../components/StorageContext';
 
 enum RnEncryptionEnum {
   /**

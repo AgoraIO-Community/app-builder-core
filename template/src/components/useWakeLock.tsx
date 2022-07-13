@@ -1,7 +1,7 @@
 import NoSleep from 'nosleep.js';
 import React from 'react';
 import {Platform} from 'react-native';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
+import mobileAndTabletCheck from '../utils/isMobileOrTablet';
 
 const useWakeLock = () => {
   if (mobileAndTabletCheck() && Platform.OS == 'web') {
