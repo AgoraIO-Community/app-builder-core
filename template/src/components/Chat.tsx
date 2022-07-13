@@ -26,6 +26,7 @@ import {useString} from '../utils/useString';
 import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useFpe} from 'fpe-api';
+import {UidType} from '../../agora-rn-uikit';
 
 const Chat = () => {
   const groupChatLabel = useString('groupChatLabel')();
@@ -59,14 +60,14 @@ const Chat = () => {
     setPrivateActive(false);
     setGroupActive(true);
     setUnreadGroupMessageCount(0);
-    setSelectedUser('');
+    setSelectedUser(0);
   };
   const selectPrivate = () => {
     setGroupActive(false);
-    setSelectedUser('');
+    setSelectedUser(0);
     setPrivateActive(false);
   };
-  const selectUser = (userUID: any) => {
+  const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
     setUnreadIndividualMessageCount((prevState) => {

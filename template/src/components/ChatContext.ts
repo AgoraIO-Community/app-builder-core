@@ -18,12 +18,12 @@ export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
   timestamp: string;
-  uid: string;
+  uid: UidType;
 }
 
 export interface messageStoreInterface {
   ts: string;
-  uid: string;
+  uid: UidType;
   msg: string;
 }
 

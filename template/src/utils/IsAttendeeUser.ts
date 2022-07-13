@@ -11,21 +11,20 @@
 */
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
+import {UidType} from '../../agora-rn-uikit';
 
 function useIsAttendee() {
   if ($config.EVENT_MODE) {
     const {audienceUids} = useLiveStreamDataContext();
-    const isAttendee = (uid: string | number) => {
-      const attendeeId = typeof uid === 'number' ? uid : parseInt(uid);
-      return audienceUids.filter((audienceUid) => audienceUid === attendeeId)
-        .length
+    const isAttendee = (uid: UidType) => {
+      return audienceUids.filter((audienceUid) => audienceUid === uid).length
         ? true
         : false;
     };
     return isAttendee;
   } else {
     const {isHost} = useMeetingInfo();
-    const isAttendee = (uid: string | number) => {
+    const isAttendee = (uid: UidType) => {
       return !isHost ? true : false;
     };
     return isAttendee;

@@ -10,7 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
@@ -29,34 +29,22 @@ interface remoteParticipantsInterface {
 
 const RemoteParticipants = (props: remoteParticipantsInterface) => {
   const {p_styles, user, name, showControls, isHost, uid} = props;
-  //todo hari remove as number and update typing
   return (
     <View style={p_styles.participantRow}>
       <ParticipantName value={name} />
       {showControls ? (
         <View style={p_styles.participantActionContainer}>
           {$config.EVENT_MODE && (
-            <ApprovedLiveStreamControlsView
-              p_styles={p_styles}
-              uid={uid as number}
-            />
+            <ApprovedLiveStreamControlsView p_styles={p_styles} uid={uid} />
           )}
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
-            <RemoteEndCall uid={uid as number} isHost={isHost} />
+            <RemoteEndCall uid={uid} isHost={isHost} />
           </View>
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
-            <RemoteAudioMute
-              uid={uid as number}
-              audio={user.audio}
-              isHost={isHost}
-            />
+            <RemoteAudioMute uid={uid} audio={user.audio} isHost={isHost} />
           </View>
           <View style={[p_styles.actionBtnIcon]}>
-            <RemoteVideoMute
-              uid={uid as number}
-              video={user.video}
-              isHost={isHost}
-            />
+            <RemoteVideoMute uid={uid} video={user.video} isHost={isHost} />
           </View>
         </View>
       ) : (

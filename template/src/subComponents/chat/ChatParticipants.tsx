@@ -13,7 +13,7 @@ import {useString} from '../../utils/useString';
 import {isIOS, isWeb} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import useUserList from '../../utils/useUserList';
-import {useLocalUid} from '../../../agora-rn-uikit';
+import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 
 const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
@@ -22,9 +22,9 @@ const ChatParticipants = (props: any) => {
   const {renderList} = useUserList();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
-  const isChatUser = (userId: string, userInfo: any) => {
+  const isChatUser = (userId: UidType, userInfo: any) => {
     return (
-      parseInt(userId) !== localUid && //user can't chat with own user
+      userId !== localUid && //user can't chat with own user
       userId !== '1' && //user can't chat with pstn user
       userInfo?.type === 'rtc' &&
       !userInfo?.offline
@@ -34,7 +34,7 @@ const ChatParticipants = (props: any) => {
   return (
     <ScrollView>
       {Object.entries(renderList).map(([uid, value]) => {
-        if (isChatUser(uid, value)) {
+        if (isChatUser(parseInt(uid), value)) {
           return (
             <TouchableOpacity
               style={style.participantContainer}

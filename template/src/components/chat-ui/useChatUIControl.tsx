@@ -27,7 +27,7 @@ export interface ChatUIControlInterface {
 const ChatUIControlContext = React.createContext<ChatUIControlInterface>({
   groupActive: false,
   privateActive: false,
-  selectedChatUserId: '',
+  selectedChatUserId: 0,
   message: '',
   setGroupActive: () => {},
   setPrivateActive: () => {},
@@ -42,7 +42,7 @@ interface ChatUIControlProviderProps {
 const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
   const [groupActive, setGroupActive] = useState(false);
   const [privateActive, setPrivateActive] = useState(false);
-  const [selectedChatUserId, setSelectedChatUserId] = useState<UidType>('');
+  const [selectedChatUserId, setSelectedChatUserId] = useState<UidType>(0);
   const [message, setMessage] = useState('');
   return (
     <ChatUIControlContext.Provider

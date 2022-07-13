@@ -18,7 +18,14 @@ import ChatContext from '../../src/components/ChatContext';
  */
 function usePrivateMessages() {
   const {privateMessageStore} = useContext(ChatContext);
-  const getPrivateMessage = (uid: number | string) => privateMessageStore[uid];
+  /**
+   *
+   * @param uid - User id
+   * @returns If uid is passed then it will return particular private message data
+   * otherwise it will return whole private message store
+   */
+  const getPrivateMessage = (uid?: number | string) =>
+    uid ? privateMessageStore[uid] : privateMessageStore;
   return getPrivateMessage;
 }
 

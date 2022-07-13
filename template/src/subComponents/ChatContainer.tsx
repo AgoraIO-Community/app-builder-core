@@ -39,7 +39,8 @@ import usePrivateMessages from '../utils/usePrivateMessages';
 const ChatContainer = (props: any) => {
   const {renderList} = useUserList();
   const messageStore = useGroupMessages();
-  const privateMessageStore = usePrivateMessages();
+  const getPrivateMessage = usePrivateMessages();
+  const privateMessageStore = getPrivateMessage();
   const {height, width} = useWindowDimensions();
   const {selectPrivate} = props;
   const {privateActive, selectedChatUserId: selectedUserID} =

@@ -40,9 +40,10 @@ const WhiteboardProvider = (props: WhiteboardProviderProps) => {
       ([k, v]) => v.active === true,
     );
     Object.keys(activeData).map((uid) => {
+      const uidAsNumber = parseInt(uid);
       dispatch({
         type: 'AddCustomContent',
-        value: [parseInt(uid), activeData[uid]],
+        value: [uidAsNumber, activeData[uidAsNumber]],
       });
     });
   }, [whiteboardData]);

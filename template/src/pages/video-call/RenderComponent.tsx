@@ -17,8 +17,8 @@ interface RenderComponentProps {
 const RenderComponent = ({user, uid}: RenderComponentProps) => {
   const FpeRenderComponent = useFpe((config) =>
     typeof config?.components?.videoCall === 'object' &&
-    typeof config?.components?.videoCall?.renderComponentObject === 'object'
-      ? config?.components?.videoCall?.renderComponentObject
+    typeof config?.components?.videoCall?.customContent === 'object'
+      ? config?.components?.videoCall?.customContent
       : undefined,
   );
 

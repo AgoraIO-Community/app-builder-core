@@ -25,7 +25,6 @@ const RemoteLiveStreamRequestApprove = (
         icon={icons['checkCircleIcon']}
         style={{...(liveStreamHostControlBtns as object)}}
         onPress={() => {
-          //todo hari update uid type
           hostApprovesRequestOfUID(uid);
         }}
       />

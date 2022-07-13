@@ -103,7 +103,7 @@ export const NetworkQualityProvider: React.FC = (props) => {
 
   useMount(() => {
     function handleNetworkQuality(
-      uid: number | string,
+      uid: UidType,
       downlinkQuality: number,
       // Currently unused , potential use might be to take weighted average
       // of this alongside the downlink quality.

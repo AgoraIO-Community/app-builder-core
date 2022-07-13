@@ -4,15 +4,15 @@ import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
 import {useString} from '../../utils/useString';
 import useUserList from '../../utils/useUserList';
-import {useLocalUid} from '../../../agora-rn-uikit';
+import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 
 export default function AllHostParticipants(props: any) {
   const {p_style, isHost} = props;
   const localUid = useLocalUid();
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const {renderList, renderPosition} = useUserList();
-  const getParticipantName = (userUID: number | string) => {
-    return renderList[userUID].name || remoteUserDefaultLabel;
+  const getParticipantName = (uid: UidType) => {
+    return renderList[uid]?.name || remoteUserDefaultLabel;
   };
 
   return (

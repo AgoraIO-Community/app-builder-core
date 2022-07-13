@@ -14,7 +14,12 @@ import RtmEngine, {
   RtmChannelAttribute,
   RtmAttribute,
 } from 'agora-react-native-rtm';
-import {ClientRole, PropsContext, useLocalUid} from '../../agora-rn-uikit';
+import {
+  ClientRole,
+  PropsContext,
+  UidType,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
@@ -246,7 +251,7 @@ const RtmConfigure = (props: any) => {
     );
   }, [hostUids, audienceUids, renderList]);
 
-  const addMessageToStore = (uid: string, msg: {body: string; ts: string}) => {
+  const addMessageToStore = (uid: UidType, msg: {body: string; ts: string}) => {
     setMessageStore((m: messageStoreInterface[]) => {
       return [...m, {ts: msg.ts, uid: uid, msg: msg.body}];
     });
@@ -391,18 +396,20 @@ const RtmConfigure = (props: any) => {
             try {
               const attr = await backoffAttributes;
               console.log('[user attributes]:', {attr});
-
+              const uid = parseInt(member.uid);
+              const role = parseInt(attr?.attributes?.role);
+              const screenUid = parseInt(attr?.attributes?.screenUid);
               //start - updating user data in rtc
               const userData = {
                 name:
                   String(member.uid)[0] === '1'
                     ? pstnUserLabel
                     : attr?.attributes?.name || userText,
-                screenUid: parseInt(attr?.attributes?.screenUid),
+                screenUid: screenUid,
                 //below thing for livestreaming
                 type: 'rtc',
               };
-              updateRenderListState(parseInt(member.uid), userData);
+              updateRenderListState(uid, userData);
               //end- updating user data in rtc
 
               //start - updating screenshare data in rtc
@@ -411,23 +418,17 @@ const RtmConfigure = (props: any) => {
                 //below thing for livestreaming
                 type: 'screenshare',
               };
-              updateRenderListState(
-                parseInt(attr?.attributes?.screenUid),
-                screenShareData,
-              );
+              updateRenderListState(screenUid, screenShareData);
               //end - updating screenshare data in rtc
 
               //updating the client uids for livestreaming
-              updateClientUids(
-                parseInt(member.uid),
-                parseInt(attr?.attributes?.role),
-              );
+              updateClientUids(uid, role);
               //setting live steam data
               setLiveStreamData((prevState) => {
                 return {
                   ...prevState,
-                  [member.uid]: {
-                    role: parseInt(attr?.attributes?.role),
+                  [uid]: {
+                    role: role,
                     requests: attr?.attributes?.requests,
                   },
                 };
@@ -436,12 +437,12 @@ const RtmConfigure = (props: any) => {
               setScreenShareData((prevState) => {
                 return {
                   ...prevState,
-                  [parseInt(attr?.attributes?.screenUid)]: {
+                  [screenUid]: {
                     name: getScreenShareName(
                       attr?.attributes?.name || userText,
                     ),
                     isActive: renderPositionRef.current.renderPosition.filter(
-                      (i) => i === parseInt(attr?.attributes?.screenUid),
+                      (i) => i === screenUid,
                     ).length
                       ? true
                       : false,
@@ -500,31 +501,30 @@ const RtmConfigure = (props: any) => {
         try {
           const attr = await backoffAttributes;
           console.log('[user attributes]:', {attr});
-
+          const uid = parseInt(data.uid);
+          const screenUid = parseInt(attr?.attributes?.screenUid);
+          const role = parseInt(attr?.attributes?.role);
           //start - updating user data in rtc
           const userData = {
             name:
               String(data.uid)[0] === '1'
                 ? pstnUserLabel
                 : attr?.attributes?.name || userText,
-            screenUid: parseInt(attr?.attributes?.screenUid),
+            screenUid: screenUid,
             //below thing for livestreaming
             type: 'rtc',
           };
-          updateRenderListState(parseInt(data.uid), userData);
+          updateRenderListState(uid, userData);
           //start - updating user data in rtc
 
           //updating host/audience id for livestreaming
-          updateClientUids(
-            parseInt(data.uid),
-            parseInt(attr?.attributes?.role),
-          );
+          updateClientUids(uid, role);
           //setting live steam data
           setLiveStreamData((prevState) => {
             return {
               ...prevState,
-              [data.uid]: {
-                role: parseInt(attr?.attributes?.role),
+              [uid]: {
+                role: role,
                 requests: attr?.attributes?.requests,
               },
             };
@@ -533,7 +533,7 @@ const RtmConfigure = (props: any) => {
           setScreenShareData((prevState) => {
             return {
               ...prevState,
-              [parseInt(attr?.attributes?.screenUid)]: {
+              [screenUid]: {
                 name: getScreenShareName(attr?.attributes?.name || userText),
                 isActive: false,
               },
@@ -549,21 +549,21 @@ const RtmConfigure = (props: any) => {
     engine.current.on('channelMemberLeft', (data: any) => {
       console.log('user left', data);
       // Chat of left user becomes undefined. So don't cleanup
-      const {uid} = data;
+      const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
       //updating the rtc data
-      updateRenderListState(parseInt(uid), {
+      updateRenderListState(uid, {
         offline: true,
       });
       //setting live steam data
       setLiveStreamData((prevState) => {
-        if (prevState[parseInt(uid)]?.role === ClientRole.Broadcaster) {
+        if (prevState[uid]?.role === ClientRole.Broadcaster) {
           setHostUids((prevStateH) => {
-            return prevStateH.filter((i) => i !== parseInt(uid));
+            return prevStateH.filter((i) => i !== uid);
           });
         } else {
           setAudienceUids((prevStateA) => {
-            return prevStateA.filter((i) => i !== parseInt(uid));
+            return prevStateA.filter((i) => i !== uid);
           });
         }
         return {
@@ -712,13 +712,15 @@ const RtmConfigure = (props: any) => {
                     payload.role.trim() !== '' &&
                     payload.role in ClientRole
                   ) {
-                    updateClientUids(parseInt(uid), parseInt(payload.role));
+                    const uidAsNumber = parseInt(uid);
+                    const roleAsNumber = parseInt(payload.role);
+                    updateClientUids(uidAsNumber, roleAsNumber);
                     setLiveStreamData((prevState) => {
                       return {
                         ...prevState,
-                        [uid]: {
-                          ...prevState[uid],
-                          role: parseInt(payload.role),
+                        [uidAsNumber]: {
+                          ...prevState[uidAsNumber],
+                          role: roleAsNumber,
                         },
                       };
                     });
@@ -809,7 +811,7 @@ const RtmConfigure = (props: any) => {
       rtcProps.channel,
       text,
     );
-    addMessageToStore(localUid.toString(), {
+    addMessageToStore(localUid, {
       body: messageActionType.Normal + msg,
       ts: timeNow(),
     });
@@ -920,14 +922,12 @@ const RtmConfigure = (props: any) => {
     });
     // 2. Update my attributes in rtm and screenshare and livestream
     if ('name' in formattedAttributes) {
-      const uidNumber =
-        typeof localUid === 'number' ? localUid : parseInt(localUid);
-      updateRenderListState(uidNumber, {name: formattedAttributes['name']});
+      updateRenderListState(localUid, {name: formattedAttributes['name']});
       setScreenShareData((prevState) => {
         return {
           ...prevState,
-          [renderListRef.current.renderList[uidNumber].screenUid]: {
-            ...prevState[renderListRef.current.renderList[uidNumber].screenUid],
+          [renderListRef.current.renderList[localUid].screenUid]: {
+            ...prevState[renderListRef.current.renderList[localUid].screenUid],
             name: getScreenShareName(formattedAttributes['name'] || userText),
           },
         };
@@ -947,10 +947,7 @@ const RtmConfigure = (props: any) => {
       }
       if ('role' in formattedAttributes) {
         updateData['role'] = parseInt(formattedAttributes['role']);
-        updateClientUids(
-          typeof localUid === 'number' ? localUid : parseInt(localUid),
-          parseInt(formattedAttributes['role']),
-        );
+        updateClientUids(localUid, parseInt(formattedAttributes['role']));
       }
 
       setLiveStreamData((prevState) => {

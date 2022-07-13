@@ -195,7 +195,7 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
       setSidePanel(SidePanelType.None);
       setGroupActive(false);
       setPrivateActive(false);
-      setSelectedChatUserId('');
+      setSelectedChatUserId(0);
     } else {
       setUnreadGroupMessageCount(0);
       setGroupActive(true);

@@ -202,7 +202,7 @@ const VideoCall: React.FC = () => {
                                       <LiveStreamContextProvider
                                         value={{setRtcProps}}>
                                         <LocalUserContext
-                                          localUid={rtcProps?.uid || 'local'}>
+                                          localUid={rtcProps?.uid || 0}>
                                           <CustomUserContextHolder>
                                             <NetworkQualityProvider>
                                               {callActive ? (
