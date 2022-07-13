@@ -159,23 +159,25 @@ const Create = () => {
                       <></>
                     )}
                   </View>
-                  <PrimaryButton
-                    disabled={roomTitle === '' || loading}
-                    onPress={() =>
-                      createRoomAndNavigateToShare(
-                        roomTitle,
-                        pstnCheckbox,
-                        hostControlCheckbox,
-                      )
-                    }
-                    text={loading ? loadingWithDots : createMeetingButton}
-                  />
-                  <HorizontalRule />
-                  <SecondaryButton
-                    onPress={() => history.push('/join')}
-                    text={haveMeetingID}
-                  />
                 </View>
+              </View>
+              <View style={style.btnContainer}>
+                <PrimaryButton
+                  disabled={roomTitle === '' || loading}
+                  onPress={() =>
+                    createRoomAndNavigateToShare(
+                      roomTitle,
+                      pstnCheckbox,
+                      hostControlCheckbox,
+                    )
+                  }
+                  text={loading ? loadingWithDots : createMeetingButton}
+                />
+                <HorizontalRule />
+                <SecondaryButton
+                  onPress={() => history.push('/join')}
+                  text={haveMeetingID}
+                />
               </View>
             </View>
           </ScrollView>
@@ -209,8 +211,6 @@ const style = StyleSheet.create({
     width: '100%',
     flex: 1,
     justifyContent: 'space-evenly',
-    marginBottom: '13%',
-    marginTop: '7%',
     minHeight: 350,
     // marginRight: '5%',
     marginHorizontal: 'auto',
@@ -289,6 +289,10 @@ const style = StyleSheet.create({
   },
   pstnMargin: {
     marginRight: '10%',
+  },
+  btnContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
 });
 

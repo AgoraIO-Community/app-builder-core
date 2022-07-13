@@ -14,6 +14,7 @@ import {
   View,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
@@ -22,6 +23,7 @@ import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
+import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
 import {isValidReactComponent, isWeb} from '../utils/common';
@@ -42,8 +44,11 @@ const ChatContainer = (props: any) => {
   const privateMessageStore = usePrivateMessages();
   const {height, width} = useWindowDimensions();
   const {selectPrivate} = props;
-  const {privateActive, selectedChatUserId: selectedUserID} =
-    useChatUIControl();
+  const {
+    privateActive,
+    selectedChatUserId: selectedUserID,
+    setPrivateActive,
+  } = useChatUIControl();
   const {localUid} = useContext(ChatContext);
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -79,15 +84,11 @@ const ChatContainer = (props: any) => {
   return (
     <View style={style.containerView}>
       {privateActive && (
-        <View style={style.row}>
+        <TouchableOpacity
+          style={style.row}
+          onPress={() => setPrivateActive(false)}>
           <View style={style.backButton}>
-            <BtnTemplate
-              style={[style.backIcon]}
-              onPress={() => {
-                selectPrivate();
-              }}
-              name={'backBtn'}
-            />
+            <ImageIcon style={[style.backIcon]} name={'backBtn'} />
           </View>
           <View style={{flex: 1}}>
             <TextWithTooltip
@@ -105,7 +106,7 @@ const ChatContainer = (props: any) => {
               }
             />
           </View>
-        </View>
+        </TouchableOpacity>
       )}
       <ScrollView
         ref={scrollViewRef}
