@@ -18,13 +18,6 @@ import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useGetName from '../../utils/useGetName';
-import {useWakeLock} from '../../components/useWakeLock';
-import isMobileOrTablet from '../../utils/isMobileOrTablet';
-import {Platform} from 'react-native';
-
-const audio = new Audio(
-  'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
-);
 
 export interface PreCallJoinCallBtnProps {
   render?: (
@@ -65,23 +58,8 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
     }
   }, [rtcProps?.role]);
 
-  const {awake, request} = useWakeLock();
-
   const onSubmit = () => {
     setCallActive(true);
-    // Play a sound to avoid autoblocking in safari
-    if (Platform.OS === 'web' || isMobileOrTablet()) {
-      audio.volume = 0;
-      audio.play().then(() => {
-        // pause directly once played
-        audio.pause();
-      });
-    }
-    // Sleep only on mobile browsers
-    if (Platform.OS === 'web' && isMobileOrTablet() && !awake) {
-      // Request wake lock
-      request();
-    }
   };
 
   const title = buttonText;
