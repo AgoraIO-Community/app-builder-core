@@ -45,7 +45,7 @@ import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
 import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
 import {useWakeLock} from '../components/useWakeLock';
-import StorageContext from 'src/components/StorageContext';
+import StorageContext from '../components/StorageContext';
 
 enum RnEncryptionEnum {
   /**

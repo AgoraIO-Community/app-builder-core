@@ -159,25 +159,25 @@ const Create = () => {
                       <></>
                     )}
                   </View>
+                  <View style={style.btnContainer}>
+                    <PrimaryButton
+                      disabled={roomTitle === '' || loading}
+                      onPress={() =>
+                        createRoomAndNavigateToShare(
+                          roomTitle,
+                          pstnCheckbox,
+                          hostControlCheckbox,
+                        )
+                      }
+                      text={loading ? loadingWithDots : createMeetingButton}
+                    />
+                    <HorizontalRule />
+                    <SecondaryButton
+                      onPress={() => history.push('/join')}
+                      text={haveMeetingID}
+                    />
+                  </View>
                 </View>
-              </View>
-              <View style={style.btnContainer}>
-                <PrimaryButton
-                  disabled={roomTitle === '' || loading}
-                  onPress={() =>
-                    createRoomAndNavigateToShare(
-                      roomTitle,
-                      pstnCheckbox,
-                      hostControlCheckbox,
-                    )
-                  }
-                  text={loading ? loadingWithDots : createMeetingButton}
-                />
-                <HorizontalRule />
-                <SecondaryButton
-                  onPress={() => history.push('/join')}
-                  text={haveMeetingID}
-                />
               </View>
             </View>
           </ScrollView>
