@@ -47,6 +47,9 @@ import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
+import {useWakeLock} from '../components/useWakeLock';
+import StorageContext from 'src/components/StorageContext';
+
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -76,6 +79,12 @@ enum RnEncryptionEnum {
 const VideoCall: React.FC = () => {
   const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const {setGlobalErrorMessage} = useContext(ErrorContext);
+  const {store, setStore} = useContext(StorageContext);
+  const {awake, release} = useWakeLock();
+  const getInitialUsername = () =>
+    store?.displayName ? store.displayName : '';
+  const [username, setUsername] = useState(getInitialUsername);
+  const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
   //layouts
@@ -103,9 +112,19 @@ const VideoCall: React.FC = () => {
       ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
       : false,
     role: ClientRole.Broadcaster,
+    geoFencing: $config.GEO_FENCING,
   });
 
   const useJoin = useJoinMeeting();
+
+  React.useEffect(() => {
+    return () => {
+      console.log('Videocall unmounted');
+      if (awake) {
+        release();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -137,6 +156,7 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
+        geoFencing: $config.GEO_FENCING,
       });
 
       // 1. Store the display name from API
