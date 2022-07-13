@@ -238,7 +238,6 @@ const RtmConfigure = (props: any) => {
   }, []);
 
   React.useEffect(() => {
-    //todo: hari check count for ls
     setTotalOnlineUsers(
       $config.EVENT_MODE
         ? [...hostUids, ...audienceUids].length
