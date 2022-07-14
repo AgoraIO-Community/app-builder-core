@@ -7,6 +7,7 @@ import LiveStreamContext, {requestStatus} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 import {useString} from '../../utils/useString';
+import useUserList from '../../utils/useUserList';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   const noLiveStreamingRequestsLabel = useString(
@@ -15,7 +16,8 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const noUserFoundLabel = useString('noUserFoundLabel')();
   const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
-  const {userList, p_style} = props;
+  const {p_style} = props;
+  const {renderList} = useUserList();
   const {currLiveStreamRequest, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
@@ -50,10 +52,10 @@ const CurrentLiveStreamRequestsView = (props: any) => {
         ) : (
           Object.keys(activeLiveStreamRequests).map(
             (userUID: any, index: number) =>
-              userList[userUID] ? (
+              renderList[userUID] ? (
                 <View style={p_style.participantRow} key={index}>
                   <ParticipantName
-                    value={userList[userUID]?.name || remoteUserDefaultLabel}
+                    value={renderList[userUID]?.name || remoteUserDefaultLabel}
                   />
                   <View style={p_style.participantActionContainer}>
                     <RemoteLiveStreamRequestApprove uid={userUID} />
