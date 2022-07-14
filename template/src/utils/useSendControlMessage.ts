@@ -27,7 +27,7 @@ function useSendControlMessage() {
     message: controlMessageEnum | LiveStreamControlMessageEnum,
     uid?: UidType,
   ) => {
-    if (isHost) {
+    if (isHost || ($config.EVENT_MODE && $config.RAISE_HAND)) {
       switch (type) {
         case CONTROL_MESSAGE_TYPE.controlMessageToEveryOne:
           sendControlMessage(message);
