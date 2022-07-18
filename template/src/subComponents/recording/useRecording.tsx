@@ -23,6 +23,10 @@ import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
+import ChatContext from '../../components/ChatContext';
+import CustomEvents from '../../custom-events/CustomEvents';
+import EventAttributes from '../../custom-events/EventAttributes';
+
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../../utils/useSendControlMessage';
@@ -65,6 +69,7 @@ function usePrevious(value: any) {
   });
   return ref.current;
 }
+
 interface RecordingProviderProps {
   children: React.ReactNode;
   value: Omit<RecordingContextInterface, 'startRecording' | 'stopRecording'>;
@@ -84,6 +89,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const sendCtrlMsg = useSendControlMessage();
   const prevRecordingState = usePrevious({isRecordingActive});
   const recordingStartedText = useString<boolean>('recordingNotificationLabel');
+  const {localUid} = useContext(ChatContext);
+
+  React.useEffect(() => {
+    console.log('supriya event attributes', EventAttributes.get());
+  }, []);
   useEffect(() => {
     /**
      * The below check makes sure the notification is triggered
@@ -121,6 +131,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
             controlMessageEnum.cloudRecordingActive,
           );
+          CustomEvents.send('recording-started', {
+            level: 3,
+            attributes: [{key: 'recording', value: localUid.toString()}],
+          });
           // set the local recording state to true to update the UI
           setRecordingActive(true);
         }
