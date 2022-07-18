@@ -75,5 +75,6 @@ interface ConfigInterface {
   RAISE_HAND: boolean;
   GEO_FENCING: boolean;
   LOG_ENABLED: boolean;
+  AUDIO_ROOM: boolean;
 }
 declare var $config: ConfigInterface;

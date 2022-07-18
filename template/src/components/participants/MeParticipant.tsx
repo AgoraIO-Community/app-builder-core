@@ -26,9 +26,11 @@ const MeParticipant = (props: any) => {
         <View style={[p_style.actionBtnIcon, {marginRight: 10}]}>
           <LocalAudioMute buttonTemplateName={ButtonTemplateName.topBar} />
         </View>
-        <View style={p_style.actionBtnIcon}>
-          <LocalVideoMute buttonTemplateName={ButtonTemplateName.topBar} />
-        </View>
+        {!$config.AUDIO_ROOM && (
+          <View style={p_style.actionBtnIcon}>
+            <LocalVideoMute buttonTemplateName={ButtonTemplateName.topBar} />
+          </View>
+        )}
       </View>
     </View>
   );

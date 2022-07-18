@@ -67,14 +67,22 @@ const PreCallLocalMute: React.FC = () => {
       <View style={style.width50}>
         <AudioMute />
       </View>
-      <View style={style.width50} />
-      <View style={style.width50}>
-        <VideoMute />
-      </View>
-      <View style={style.width50} />
-      <View style={style.width50}>
-        <LocalSwitchCamera />
-      </View>
+      {!$config.AUDIO_ROOM && (
+        <>
+          <View style={style.width50} />
+          <View style={style.width50}>
+            <VideoMute />
+          </View>
+        </>
+      )}
+      {!$config.AUDIO_ROOM && (
+        <>
+          <View style={style.width50} />
+          <View style={style.width50}>
+            <LocalSwitchCamera />
+          </View>
+        </>
+      )}
     </>
   );
 };

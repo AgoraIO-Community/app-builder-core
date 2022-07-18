@@ -76,20 +76,24 @@ const Controls = () => {
           <View style={{alignSelf: 'center'}}>
             <LocalAudioMute />
           </View>
-          <View style={{alignSelf: 'center'}}>
-            <LocalVideoMute />
-          </View>
-          {isMobileOrTablet() && (
+          {!$config.AUDIO_ROOM && (
+            <View style={{alignSelf: 'center'}}>
+              <LocalVideoMute />
+            </View>
+          )}
+          {!$config.AUDIO_ROOM && isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
               <LocalSwitchCamera />
             </View>
           )}
-          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-            <View style={{alignSelf: 'center'}}>
-              <ScreenshareButton />
-            </View>
-          )}
-          {isHost && $config.CLOUD_RECORDING && (
+          {!$config.AUDIO_ROOM &&
+            $config.SCREEN_SHARING &&
+            !isMobileOrTablet() && (
+              <View style={{alignSelf: 'center'}}>
+                <ScreenshareButton />
+              </View>
+            )}
+          {!$config.AUDIO_ROOM && isHost && $config.CLOUD_RECORDING && (
             <View style={{alignSelf: 'center'}}>
               <Recording />
             </View>

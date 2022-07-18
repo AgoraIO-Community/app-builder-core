@@ -157,6 +157,7 @@ const VideoCall: React.FC = () => {
         screenShareToken: data.screenShareToken,
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
         geoFencing: $config.GEO_FENCING,
+        audioRoom: $config.AUDIO_ROOM,
       });
 
       // 1. Store the display name from API

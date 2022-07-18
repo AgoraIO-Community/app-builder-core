@@ -31,6 +31,8 @@ import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
+import {AudioProfile} from '../audioQuality';
+
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -168,6 +170,7 @@ export default class RtcEngine {
   public remoteStreams = new Map<UID, RemoteStream>();
   private inScreenshare: Boolean = false;
   private videoProfile: VideoProfile = '480p_9';
+  private audioProfile: AudioProfile = 'speech_standard';
   private isPublished = false;
   private isAudioEnabled = true;
   private isVideoEnabled = true;
@@ -197,6 +200,23 @@ export default class RtcEngine {
 
   async setVideoProfile(profile: VideoProfile): Promise<void> {
     this.videoProfile = profile;
+  }
+
+  async setAudioProfile(audioProfile: AudioProfile): Promise<void> {
+    this.audioProfile = audioProfile;
+  }
+
+  async enableAudio(): Promise<void> {
+    try {
+      let localAudio = await AgoraRTC.createMicrophoneAudioTrack({
+        encoderConfig: this.audioProfile,
+      });
+      this.localStream.audio = localAudio;
+    } catch (e) {
+      let audioError = e;
+      e.status = {audioError};
+      throw e;
+    }
   }
 
   async enableVideo(): Promise<void> {

@@ -399,15 +399,17 @@ const RtmConfigure = (props: any) => {
               const role = parseInt(attr?.attributes?.role);
               const screenUid = parseInt(attr?.attributes?.screenUid);
               //start - updating user data in rtc
-              const userData = {
+              const userData: any = {
                 name:
                   String(member.uid)[0] === '1'
                     ? pstnUserLabel
                     : attr?.attributes?.name || userText,
-                screenUid: screenUid,
                 //below thing for livestreaming
                 type: 'rtc',
               };
+              if (!$config.AUDIO_ROOM) {
+                userData['screenUid'] = screenUid;
+              }
               updateRenderListState(uid, userData);
               //end- updating user data in rtc
 
@@ -417,7 +419,8 @@ const RtmConfigure = (props: any) => {
                 //below thing for livestreaming
                 type: 'screenshare',
               };
-              updateRenderListState(screenUid, screenShareData);
+              !$config.AUDIO_ROOM &&
+                updateRenderListState(screenUid, screenShareData);
               //end - updating screenshare data in rtc
 
               //updating the client uids for livestreaming
@@ -433,21 +436,22 @@ const RtmConfigure = (props: any) => {
                 };
               });
               //setting screenshare data
-              setScreenShareData((prevState) => {
-                return {
-                  ...prevState,
-                  [screenUid]: {
-                    name: getScreenShareName(
-                      attr?.attributes?.name || userText,
-                    ),
-                    isActive: renderPositionRef.current.renderPosition.filter(
-                      (i) => i === screenUid,
-                    ).length
-                      ? true
-                      : false,
-                  },
-                };
-              });
+              !$config.AUDIO_ROOM &&
+                setScreenShareData((prevState) => {
+                  return {
+                    ...prevState,
+                    [screenUid]: {
+                      name: getScreenShareName(
+                        attr?.attributes?.name || userText,
+                      ),
+                      isActive: renderPositionRef.current.renderPosition.filter(
+                        (i) => i === screenUid,
+                      ).length
+                        ? true
+                        : false,
+                    },
+                  };
+                });
             } catch (e) {
               console.error(`Could not retrieve name of ${member.uid}`, e);
             }
@@ -504,15 +508,17 @@ const RtmConfigure = (props: any) => {
           const screenUid = parseInt(attr?.attributes?.screenUid);
           const role = parseInt(attr?.attributes?.role);
           //start - updating user data in rtc
-          const userData = {
+          const userData: any = {
             name:
               String(data.uid)[0] === '1'
                 ? pstnUserLabel
                 : attr?.attributes?.name || userText,
-            screenUid: screenUid,
             //below thing for livestreaming
             type: 'rtc',
           };
+          if (!$config.AUDIO_ROOM) {
+            userData['screenUid'] = screenUid;
+          }
           updateRenderListState(uid, userData);
           //start - updating user data in rtc
 
@@ -529,15 +535,16 @@ const RtmConfigure = (props: any) => {
             };
           });
           //setting screenshare data
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [screenUid]: {
-                name: getScreenShareName(attr?.attributes?.name || userText),
-                isActive: false,
-              },
-            };
-          });
+          !$config.AUDIO_ROOM &&
+            setScreenShareData((prevState) => {
+              return {
+                ...prevState,
+                [screenUid]: {
+                  name: getScreenShareName(attr?.attributes?.name || userText),
+                  isActive: false,
+                },
+              };
+            });
         } catch (e) {
           console.error(`Could not retrieve name of ${data.uid}`, e);
         }
@@ -731,17 +738,22 @@ const RtmConfigure = (props: any) => {
                 if (payloadData && payloadData.name) {
                   const uidNumber = parseInt(uid);
                   updateRenderListState(uidNumber, {name: payloadData.name});
-                  setScreenShareData((prevState) => {
-                    return {
-                      ...prevState,
-                      [renderListRef.current.renderList[uidNumber].screenUid]: {
-                        ...prevState[
-                          renderListRef.current.renderList[uidNumber].screenUid
-                        ],
-                        name: getScreenShareName(payloadData.name || userText),
-                      },
-                    };
-                  });
+                  !$config.AUDIO_ROOM &&
+                    setScreenShareData((prevState) => {
+                      return {
+                        ...prevState,
+                        [renderListRef.current.renderList[uidNumber].screenUid]:
+                          {
+                            ...prevState[
+                              renderListRef.current.renderList[uidNumber]
+                                .screenUid
+                            ],
+                            name: getScreenShareName(
+                              payloadData.name || userText,
+                            ),
+                          },
+                      };
+                    });
                 }
                 break;
               default:
@@ -922,15 +934,18 @@ const RtmConfigure = (props: any) => {
     // 2. Update my attributes in rtm and screenshare and livestream
     if ('name' in formattedAttributes) {
       updateRenderListState(localUid, {name: formattedAttributes['name']});
-      setScreenShareData((prevState) => {
-        return {
-          ...prevState,
-          [renderListRef.current.renderList[localUid].screenUid]: {
-            ...prevState[renderListRef.current.renderList[localUid].screenUid],
-            name: getScreenShareName(formattedAttributes['name'] || userText),
-          },
-        };
-      });
+      !$config.AUDIO_ROOM &&
+        setScreenShareData((prevState) => {
+          return {
+            ...prevState,
+            [renderListRef.current.renderList[localUid].screenUid]: {
+              ...prevState[
+                renderListRef.current.renderList[localUid].screenUid
+              ],
+              name: getScreenShareName(formattedAttributes['name'] || userText),
+            },
+          };
+        });
     }
     if (
       //'offline' in formattedAttributes ||

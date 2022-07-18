@@ -43,9 +43,11 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
             <RemoteAudioMute uid={uid} audio={user.audio} isHost={isHost} />
           </View>
-          <View style={[p_styles.actionBtnIcon]}>
-            <RemoteVideoMute uid={uid} video={user.video} isHost={isHost} />
-          </View>
+          {!$config.AUDIO_ROOM && (
+            <View style={[p_styles.actionBtnIcon]}>
+              <RemoteVideoMute uid={uid} video={user.video} isHost={isHost} />
+            </View>
+          )}
         </View>
       ) : (
         <></>
