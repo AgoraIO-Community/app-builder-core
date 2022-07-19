@@ -74,6 +74,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       );
       if (joinedUser.length === 1) {
         const newUserUid = joinedUser[0];
+        //todo:hari update with events api
         if (screenShareData[newUserUid]) {
           dispatch({
             type: 'UpdateRenderList',

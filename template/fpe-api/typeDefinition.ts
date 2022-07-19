@@ -129,14 +129,3 @@ export interface FpeApiInterface {
   };
   customUserContext?: () => any;
 }
-
-declare module 'agora-rn-uikit' {
-  interface DefaultRenderInterface {
-    name: string;
-    screenUid: number;
-    offline: boolean;
-  }
-  interface RtcPropsInterface {
-    screenShareUid: number;
-  }
-}

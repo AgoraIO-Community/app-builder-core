@@ -35,6 +35,18 @@ if (isIOS) {
   KeyboardManager.setShouldResignOnTouchOutside(true);
 }
 
+//Extending the UI Kit Type defintion to add custom attribute to render interface
+declare module 'agora-rn-uikit' {
+  interface DefaultRenderInterface {
+    name: string;
+    screenUid: number;
+    offline: boolean;
+  }
+  interface RtcPropsInterface {
+    screenShareUid: number;
+  }
+}
+
 const App: React.FC = () => {
   const CustomRoutes = useFpe((data) => data?.customRoutes);
   const RenderCustomRoutes = () => {

@@ -17,6 +17,7 @@ import RtmEngine, {
 import {
   ClientRole,
   PropsContext,
+  RenderInterface,
   UidType,
   useLocalUid,
 } from '../../agora-rn-uikit';
@@ -334,7 +335,10 @@ const RtmConfigure = (props: any) => {
     }
   };
 
-  const updateRenderListState = (uid: number, data: any) => {
+  const updateRenderListState = (
+    uid: number,
+    data: Partial<RenderInterface>,
+  ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
 
@@ -395,6 +399,8 @@ const RtmConfigure = (props: any) => {
             try {
               const attr = await backoffAttributes;
               console.log('[user attributes]:', {attr});
+              //RTC layer uid type is number. so doing the parseInt to convert to number
+              //todo hari check android uid comparsion
               const uid = parseInt(member.uid);
               const role = parseInt(attr?.attributes?.role);
               const screenUid = parseInt(attr?.attributes?.screenUid);
@@ -420,6 +426,7 @@ const RtmConfigure = (props: any) => {
               updateRenderListState(screenUid, screenShareData);
               //end - updating screenshare data in rtc
 
+              //todo hari throw error on access non livestreaming mode
               //updating the client uids for livestreaming
               updateClientUids(uid, role);
               //setting live steam data
@@ -432,6 +439,7 @@ const RtmConfigure = (props: any) => {
                   },
                 };
               });
+              //todo hari update with events api
               //setting screenshare data
               setScreenShareData((prevState) => {
                 return {
