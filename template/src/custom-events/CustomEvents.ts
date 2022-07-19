@@ -122,6 +122,7 @@ class CustomEvents {
   };
 
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
+    console.log('CUSTOM_EVENT_API: send Event payload: ', payload);
     const {value = '', level = 1, attributes = []} = payload;
 
     const rtmPayload = {
@@ -135,8 +136,9 @@ class CustomEvents {
 
     // With level 1 message we can send an optional attribute which can then update remote user's local attributes,
     // level 1 with optional parameters, if it exists on receivers end (Dispacther end), update the local attributes
-    if (payload.level === 2 || level === 3) {
+    if (level === 2 || level === 3) {
       if (attributes.length == 0) return;
+      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', attributes);
       await this._persist(evt, attributes);
     }
     try {

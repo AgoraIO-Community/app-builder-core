@@ -44,15 +44,18 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     'lowerHandsLocalNotification',
   )();
   const screenshareContextInstance = useScreenshare();
+
   const {renderList} = useUserList();
   const userListRef = useRef<any>();
   userListRef.current = renderList;
-  const {liveStreamData} = useLiveStreamDataContext();
-  console.log('liveStreamData: ', liveStreamData);
+
   const [raiseHandList, setRaiseHandList] = useState<raiseHandListInterface>(
     {},
   );
-  const {localUid, broadcastUserAttributes} = useContext(ChatContext);
+  const raiseHandListRef = useRef<any>();
+  raiseHandListRef.current = raiseHandList;
+
+  const {localUid} = useContext(ChatContext);
   const localUidRef = useRef<any>();
   localUidRef.current = localUid;
 
@@ -63,6 +66,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     userListRef.current = renderList;
   }, [renderList]);
 
+  React.useEffect(() => {
+    raiseHandListRef.current = raiseHandList;
+  }, [raiseHandList]);
+
   const [lastCheckedRequestTimestamp, setLastCheckedRequestTimestamp] =
     useState(0);
 
@@ -70,8 +77,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     useState(0);
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
-
-  const localUserRef = useRef({uid: localUid, status: ''});
 
   const showToast = (text: string) => {
     Toast.show({
@@ -99,27 +104,56 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
 
   const addOrUpdateLiveStreamRequest = (
     userUID: string,
-    payload: raiseHandItemInterface,
+    payload: Partial<raiseHandItemInterface>,
   ) => {
     if (userUID && !isEmptyObject(payload)) {
+      const userId = userUID.toString();
       setRaiseHandList((oldRaisedHandList) => ({
         ...oldRaisedHandList,
-        [userUID.toString()]: {
+        [userId]: {
           raised: payload?.raised || RaiseHandValue.FALSE,
           ts: payload?.ts || Date.now(),
+          role:
+            payload?.role ||
+            oldRaisedHandList[userId]?.role ||
+            ClientRole.Audience,
         },
       }));
     }
   };
 
-  const changeClientRoleTo = (newRole: ClientRole) => {
+  const changeClientRoleTo = (newRole: ClientRole, ts: number) => {
     updateRtcProps(newRole);
-    // Doubt here
+    // Update local attribute and inform everyone in the channel
     CustomEvents.send('on-client-role-changed', {
       value: newRole.toString(),
-      level: 2,
-      attributes: [{key: 'role', value: newRole.toString()}],
     });
+    switch (newRole) {
+      case ClientRole.Audience:
+        addOrUpdateLiveStreamRequest(localUidRef.current, {
+          raised: RaiseHandValue.FALSE,
+          ts: ts,
+          role: ClientRole.Audience,
+        });
+        // Audience notfies all host when request is rejected
+        CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
+          value: RaiseHandValue.FALSE,
+        });
+        break;
+      case ClientRole.Broadcaster:
+        // Update local state
+        addOrUpdateLiveStreamRequest(localUidRef.current, {
+          raised: RaiseHandValue.TRUE,
+          ts: ts,
+          role: ClientRole.Broadcaster,
+        });
+        // Audience notfies all host when request is approved
+        CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
+          value: RaiseHandValue.TRUE,
+        });
+      default:
+        break;
+    }
   };
 
   // Get feeback for performance wise from @nitesh
@@ -184,6 +218,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       addOrUpdateLiveStreamRequest(data.sender, {
         ts: data.ts,
         raised: data.payload.value,
+        role: ClientRole.Audience,
       });
     });
     // 2. All Hosts in channel gets notified when an attendee's request gets approved or rejected
@@ -208,15 +243,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           return;
         showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
         // Promote user's privileges to host
-        changeClientRoleTo(ClientRole.Broadcaster);
-        // Audience updates its local attributes and notfies all host when request is approved
-        CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-          value: RaiseHandValue.TRUE,
-        });
-        addOrUpdateLiveStreamRequest(localUidRef.current, {
-          ts: data.ts,
-          raised: RaiseHandValue.TRUE,
-        });
+        changeClientRoleTo(ClientRole.Broadcaster, data.ts);
       },
     );
     /** 2. Audience receives this when the request is rejected by host
@@ -227,31 +254,26 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       (data) => {
         /** 2.a */
-        console.log('supriya userListRef', userListRef);
-        console.log('supriya localUidRef', localUidRef);
         if (
-          userListRef.current[localUidRef.current].role == ClientRole.Audience
+          raiseHandListRef.current[localUidRef.current].role ==
+          ClientRole.Audience
         ) {
           showToast(LSNotificationObject.RAISE_HAND_REJECTED);
+          addOrUpdateLiveStreamRequest(localUidRef.current, {
+            raised: RaiseHandValue.FALSE,
+            ts: data.ts,
+            role: ClientRole.Audience,
+          });
         } else if (
-          userListRef.current[localUidRef.current].role ==
+          raiseHandListRef.current[localUidRef.current].role ==
           ClientRole.Broadcaster
         ) {
           /** 2.b */
           showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
           screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
           // Demote user's privileges to audience
-          changeClientRoleTo(ClientRole.Audience);
+          changeClientRoleTo(ClientRole.Audience, data.ts);
         }
-        // Audience notifies all host when request is rejected
-        CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-          value: RaiseHandValue.FALSE,
-        });
-        // TODO: Need to update local users raised attribute
-        addOrUpdateLiveStreamRequest(localUidRef.current, {
-          ts: data.ts,
-          raised: RaiseHandValue.FALSE,
-        });
       },
     );
     // 4. Audience when receives kickUser notifies all host when is kicked out
@@ -290,6 +312,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     addOrUpdateLiveStreamRequest(uid.toString(), {
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
+      role: ClientRole.Audience,
     });
     CustomEvents.send(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -325,6 +348,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   };
 
   const audienceRecallsRequest = async (): Promise<void> => {
+    const ts = new Date().getTime();
     // If hand is already down, skip the call
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
       return;
@@ -338,18 +362,19 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     ) {
       screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
       // Change role
-      changeClientRoleTo(ClientRole.Audience);
+      changeClientRoleTo(ClientRole.Audience, ts);
+    } else {
+      addOrUpdateLiveStreamRequest(localUidRef.current, {
+        raised: RaiseHandValue.FALSE,
+        ts: ts,
+        role: ClientRole.Audience,
+      });
     }
     // send message in channel notifying the same
     CustomEvents.send(LiveStreamControlMessageEnum.raiseHandRequest, {
       value: RaiseHandValue.FALSE,
       level: 2,
       attributes: [{key: 'raised', value: RaiseHandValue.FALSE}],
-    });
-    // Update local state
-    addOrUpdateLiveStreamRequest(localUidRef.current, {
-      raised: RaiseHandValue.FALSE,
-      ts: new Date().getTime(),
     });
     showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
   };

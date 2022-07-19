@@ -29,11 +29,10 @@ const CurrentLiveStreamRequestsView = (props: any) => {
       filterObject(
         raiseHandList,
         ([k, v]) =>
-          v?.raised === RaiseHandValue.TRUE &&
-          renderList[k]?.role == ClientRole.Audience,
+          v?.raised === RaiseHandValue.TRUE && v?.role == ClientRole.Audience,
       ),
     );
-  }, [raiseHandList, renderList]);
+  }, [raiseHandList]);
 
   React.useEffect(() => {
     // On unmount update the timestamp, if the user was already active in this view
