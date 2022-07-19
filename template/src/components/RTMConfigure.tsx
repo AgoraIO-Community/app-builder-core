@@ -123,7 +123,7 @@ const RtmConfigure = (props: any) => {
     useChatNotification();
   const {groupActive, selectedChatUserId, setGroupActive} = useChatUIControl();
   const groupActiveRef = useRef<boolean>();
-  const individualActiveRef = useRef<string | number>();
+  const individualActiveRef = useRef<UidType>();
 
   /**
    *  engine on channelMessageReceived callback won't be receiving update react state value so using ref
@@ -258,7 +258,7 @@ const RtmConfigure = (props: any) => {
   };
 
   const addMessageToPrivateStore = (
-    uid: string,
+    uid: UidType,
     msg: {
       body: string;
       ts: string;
@@ -824,7 +824,7 @@ const RtmConfigure = (props: any) => {
     });
   };
 
-  const sendMessageToUid = async (msg: string, uid: number) => {
+  const sendMessageToUid = async (msg: string, uid: UidType) => {
     if (msg.trim() === '') return;
     let adjustedUID = uid;
     if (adjustedUID < 0) {
@@ -862,7 +862,7 @@ const RtmConfigure = (props: any) => {
     );
   };
 
-  const sendControlMessageToUid = async (msg: string, uid: number) => {
+  const sendControlMessageToUid = async (msg: string, uid: UidType) => {
     if (uid < 0) {
       uid = adjustUID(uid);
     }
