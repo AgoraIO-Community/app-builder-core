@@ -128,6 +128,9 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     CustomEvents.send('on-client-role-changed', {
       value: newRole.toString(),
     });
+  };
+
+  const updateLocalStateOnEvent = (newRole: ClientRole, ts: number) => {
     switch (newRole) {
       case ClientRole.Audience:
         addOrUpdateLiveStreamRequest(localUidRef.current, {
@@ -138,6 +141,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
         // Audience notfies all host when request is rejected
         CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
           value: RaiseHandValue.FALSE,
+          level: 2,
+          attributes: [{key: 'raised', value: RaiseHandValue.FALSE}],
         });
         break;
       case ClientRole.Broadcaster:
@@ -150,6 +155,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
         // Audience notfies all host when request is approved
         CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
           value: RaiseHandValue.TRUE,
+          level: 2,
+          attributes: [{key: 'raised', value: RaiseHandValue.TRUE}],
         });
       default:
         break;
@@ -244,6 +251,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
         showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
         // Promote user's privileges to host
         changeClientRoleTo(ClientRole.Broadcaster, data.ts);
+        updateLocalStateOnEvent(ClientRole.Broadcaster, data.ts);
       },
     );
     /** 2. Audience receives this when the request is rejected by host
@@ -259,11 +267,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           ClientRole.Audience
         ) {
           showToast(LSNotificationObject.RAISE_HAND_REJECTED);
-          addOrUpdateLiveStreamRequest(localUidRef.current, {
-            raised: RaiseHandValue.FALSE,
-            ts: data.ts,
-            role: ClientRole.Audience,
-          });
         } else if (
           raiseHandListRef.current[localUidRef.current].role ==
           ClientRole.Broadcaster
@@ -274,6 +277,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           // Demote user's privileges to audience
           changeClientRoleTo(ClientRole.Audience, data.ts);
         }
+        updateLocalStateOnEvent(ClientRole.Audience, data.ts);
       },
     );
     // 4. Audience when receives kickUser notifies all host when is kicked out
@@ -363,13 +367,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
       // Change role
       changeClientRoleTo(ClientRole.Audience, ts);
-    } else {
-      addOrUpdateLiveStreamRequest(localUidRef.current, {
-        raised: RaiseHandValue.FALSE,
-        ts: ts,
-        role: ClientRole.Audience,
-      });
     }
+    updateLocalStateOnEvent(ClientRole.Audience, ts);
     // send message in channel notifying the same
     CustomEvents.send(LiveStreamControlMessageEnum.raiseHandRequest, {
       value: RaiseHandValue.FALSE,
