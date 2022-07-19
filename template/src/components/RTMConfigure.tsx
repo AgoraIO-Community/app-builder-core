@@ -108,13 +108,6 @@ const RtmConfigure = (props: any) => {
   }, [renderList]);
 
   const {setScreenShareData, screenShareData} = useScreenContext();
-  const {
-    setLiveStreamData,
-    audienceUids,
-    hostUids,
-    setAudienceUids,
-    setHostUids,
-  } = useLiveStreamDataContext();
 
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
 
@@ -237,19 +230,6 @@ const RtmConfigure = (props: any) => {
     };
   }, []);
 
-  React.useEffect(() => {
-    setTotalOnlineUsers(
-      $config.EVENT_MODE
-        ? [...hostUids, ...audienceUids].length
-        : Object.keys(
-            filterObject(
-              renderList,
-              ([k, v]) => v?.type === 'rtc' && !v?.offline,
-            ),
-          ).length,
-    );
-  }, [hostUids, audienceUids, renderList]);
-
   const addMessageToStore = (uid: UidType, msg: {body: string; ts: string}) => {
     setMessageStore((m: messageStoreInterface[]) => {
       return [...m, {ts: msg.ts, uid: uid, msg: msg.body}];
@@ -343,28 +323,6 @@ const RtmConfigure = (props: any) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
 
-  const updateClientUids = (uid: number, role: ClientRole) => {
-    if (role === ClientRole.Broadcaster) {
-      setHostUids((prevState) => {
-        return prevState.filter((i) => i === uid).length
-          ? prevState
-          : [...prevState, uid];
-      });
-      setAudienceUids((prevState) => {
-        return prevState.filter((i) => i !== uid);
-      });
-    } else {
-      setAudienceUids((prevState) => {
-        return prevState.filter((i) => i === uid).length
-          ? prevState
-          : [...prevState, uid];
-      });
-      setHostUids((prevState) => {
-        return prevState.filter((i) => i !== uid);
-      });
-    }
-  };
-
   const getMembers = async () => {
     try {
       await engine.current
@@ -421,19 +379,6 @@ const RtmConfigure = (props: any) => {
               };
               updateRenderListState(screenUid, screenShareData);
               //end - updating screenshare data in rtc
-
-              //updating the client uids for livestreaming
-              updateClientUids(uid, role);
-              //setting live steam data
-              setLiveStreamData((prevState) => {
-                return {
-                  ...prevState,
-                  [uid]: {
-                    role: role,
-                    requests: attr?.attributes?.requests,
-                  },
-                };
-              });
               //setting screenshare data
               setScreenShareData((prevState) => {
                 return {
@@ -455,10 +400,6 @@ const RtmConfigure = (props: any) => {
                   key,
                   value: value as string,
                 });
-                console.log(
-                  'supriya event attributes after joined',
-                  EventAttributes.get(),
-                );
               }
             } catch (e) {
               console.error(`Could not retrieve name of ${member.uid}`, e);
@@ -527,18 +468,6 @@ const RtmConfigure = (props: any) => {
           updateRenderListState(uid, userData);
           //start - updating user data in rtc
 
-          //updating host/audience id for livestreaming
-          updateClientUids(uid, role);
-          //setting live steam data
-          setLiveStreamData((prevState) => {
-            return {
-              ...prevState,
-              [uid]: {
-                role: role,
-                requests: attr?.attributes?.requests,
-              },
-            };
-          });
           //setting screenshare data
           setScreenShareData((prevState) => {
             return {
@@ -571,25 +500,6 @@ const RtmConfigure = (props: any) => {
       updateRenderListState(uid, {
         offline: true,
       });
-      //setting live steam data
-      setLiveStreamData((prevState) => {
-        if (prevState[uid]?.role === ClientRole.Broadcaster) {
-          setHostUids((prevStateH) => {
-            return prevStateH.filter((i) => i !== uid);
-          });
-        } else {
-          setAudienceUids((prevStateA) => {
-            return prevStateA.filter((i) => i !== uid);
-          });
-        }
-        return {
-          ...prevState,
-          [uid]: {
-            ...prevState[uid],
-            requests: attrRequestTypes.none,
-          },
-        };
-      });
     });
 
     engine.current.on('messageReceived', (evt: any) => {
@@ -602,7 +512,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = timeNow();
 
-      const userUID = isAndroid ? arr[0] : peerId;
+      const sender = isAndroid ? arr[0] : peerId;
 
       if (type === messageActionType.Control) {
         try {
@@ -641,7 +551,7 @@ const RtmConfigure = (props: any) => {
       } else if (type === messageActionType.Normal) {
         try {
           addMessageToPrivateStore(
-            userUID,
+            sender,
             {
               body: `${type}${msg}`,
               ts: timestamp,
@@ -652,13 +562,13 @@ const RtmConfigure = (props: any) => {
            * If individual chat window is not active
            * then increment unread count based on uid
            */
-          if (!(individualActiveRef.current === userUID)) {
+          if (!(individualActiveRef.current === sender)) {
             setUnreadIndividualMessageCount((prevState) => {
               const prevCount =
-                prevState && prevState[userUID] ? prevState[userUID] : 0;
+                prevState && prevState[sender] ? prevState[sender] : 0;
               return {
                 ...prevState,
-                [userUID]: prevCount + 1,
+                [sender]: prevCount + 1,
               };
             });
           }
@@ -669,9 +579,16 @@ const RtmConfigure = (props: any) => {
           });
           return;
         }
+      } else if (type === messageType.CUSTOM_EVENT) {
+        console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
+        try {
+          customEventDispatcher(msg, sender, timestamp);
+        } catch (error) {
+          console.log('error while dispacthing', error);
+        }
       }
       events.emit(messageChannelType.Private, {
-        uid: userUID,
+        uid: sender,
         ts: timestamp,
         ...textObj,
       });
@@ -724,28 +641,6 @@ const RtmConfigure = (props: any) => {
                 break;
               case controlMessageEnum.cloudRecordingUnactive:
                 setRecordingActive(false);
-                break;
-              case controlMessageEnum.clientRoleChanged:
-                const {payload} = JSON.parse(msg);
-                if (payload && payload?.role) {
-                  if (
-                    payload.role.trim() !== '' &&
-                    payload.role in ClientRole
-                  ) {
-                    const uidAsNumber = parseInt(uid);
-                    const roleAsNumber = parseInt(payload.role);
-                    updateClientUids(uidAsNumber, roleAsNumber);
-                    setLiveStreamData((prevState) => {
-                      return {
-                        ...prevState,
-                        [uidAsNumber]: {
-                          ...prevState[uidAsNumber],
-                          role: roleAsNumber,
-                        },
-                      };
-                    });
-                  }
-                }
                 break;
               case controlMessageEnum.userNameChanged:
                 const {payload: payloadData} = JSON.parse(msg);
@@ -805,7 +700,7 @@ const RtmConfigure = (props: any) => {
         }
       }
       events.emit(messageChannelType.Public, {
-        uid: userUID,
+        uid: sender,
         ts: timestamp,
         ...textObj,
       });
@@ -1000,20 +895,6 @@ const RtmConfigure = (props: any) => {
       if ('requests' in formattedAttributes) {
         updateData['requests'] = formattedAttributes['requests'];
       }
-      if ('role' in formattedAttributes) {
-        updateData['role'] = parseInt(formattedAttributes['role']);
-        updateClientUids(localUid, parseInt(formattedAttributes['role']));
-      }
-
-      setLiveStreamData((prevState) => {
-        return {
-          ...prevState,
-          [localUid]: {
-            ...prevState[localUid],
-            ...updateData,
-          },
-        };
-      });
     }
     /**
      * 3. Broadcast my updated attributes to everyone
