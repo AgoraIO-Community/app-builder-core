@@ -16,7 +16,6 @@ import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import CustomEvents from '../../custom-events/CustomEvents';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -121,15 +120,12 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     }
   };
 
-  const changeClientRoleTo = (newRole: ClientRole, ts: number) => {
+  const changeClientRoleTo = (newRole: ClientRole) => {
     updateRtcProps(newRole);
     // Update local attribute and inform everyone in the channel
-    CustomEvents.send('on-client-role-changed', {
-      value: newRole.toString(),
-    });
   };
 
-  const updateLocalStateOnEvent = (newRole: ClientRole, ts: number) => {
+  const UpdtLocStateAndBCastAttr = (newRole: ClientRole, ts: number) => {
     switch (newRole) {
       case ClientRole.Audience:
         addOrUpdateLiveStreamRequest(localUidRef.current, {
@@ -248,13 +244,14 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           return;
         showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
         // Promote user's privileges to host
-        changeClientRoleTo(ClientRole.Broadcaster, data.ts);
-        updateLocalStateOnEvent(ClientRole.Broadcaster, data.ts);
+        changeClientRoleTo(ClientRole.Broadcaster);
+        // Audience updates its local attributes and notfies all host when request is approved
+        UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
       },
     );
     /** 2. Audience receives this when the request is rejected by host
      * 2.a  Audience receives this when the request is rejected by host which is not yet approved
-     * 2.b  Audience receives this when the request is rejected by host which was approved
+     * 2.b  Audience receives this when the request when is demoted by the host
      */
     CustomEvents.on(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -273,19 +270,16 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
           screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
           // Demote user's privileges to audience
-          changeClientRoleTo(ClientRole.Audience, data.ts);
+          changeClientRoleTo(ClientRole.Audience);
         }
-        updateLocalStateOnEvent(ClientRole.Audience, data.ts);
+        // Audience updates its local attributes and notfies all host when demoted/request rejected
+        UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
       },
     );
-    // 4. Audience when receives kickUser notifies all host when is kicked out
+    // 3. Audience when receives kickUser notifies all host when is kicked out
     CustomEvents.on(controlMessageEnum.kickUser, (data) => {
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
-      CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-        value: RaiseHandValue.FALSE,
-        level: 2,
-        attributes: [{key: 'raised', value: RaiseHandValue.FALSE}],
-      });
+      UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
     });
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
   }, []);
@@ -349,7 +343,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   };
 
   const audienceRecallsRequest = async (): Promise<void> => {
-    const ts = new Date().getTime();
     // If hand is already down, skip the call
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
       return;
@@ -363,9 +356,9 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     ) {
       screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
       // Change role
-      changeClientRoleTo(ClientRole.Audience, ts);
+      changeClientRoleTo(ClientRole.Audience);
     }
-    updateLocalStateOnEvent(ClientRole.Audience, ts);
+    UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
     showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
   };
 
