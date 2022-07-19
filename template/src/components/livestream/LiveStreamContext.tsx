@@ -46,8 +46,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const screenshareContextInstance = useScreenshare();
 
   const {renderList} = useUserList();
-  const userListRef = useRef<any>();
-  userListRef.current = renderList;
+  const renderListRef = useRef<any>();
+  renderListRef.current = renderList;
 
   const [raiseHandList, setRaiseHandList] = useState<raiseHandListInterface>(
     {},
@@ -63,9 +63,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const {isHost} = useMeetingInfo();
 
   React.useEffect(() => {
-    userListRef.current = renderList;
+    renderListRef.current = renderList;
   }, [renderList]);
-
   React.useEffect(() => {
     raiseHandListRef.current = raiseHandList;
   }, [raiseHandList]);
@@ -97,8 +96,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   };
 
   const getAttendeeName = (uid: number | string) => {
-    return userListRef.current?.[uid]?.name
-      ? userListRef.current[uid].name
+    return renderListRef.current?.[uid]?.name
+      ? renderListRef.current[uid].name
       : 'user';
   };
 
@@ -140,7 +139,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
         });
         // Audience notfies all host when request is rejected
         CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-          value: RaiseHandValue.FALSE,
+          value: {raised: RaiseHandValue.FALSE, role: ClientRole.Audience},
           level: 2,
           attributes: [{key: 'raised', value: RaiseHandValue.FALSE}],
         });
@@ -154,7 +153,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
         });
         // Audience notfies all host when request is approved
         CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-          value: RaiseHandValue.TRUE,
+          value: {raised: RaiseHandValue.TRUE, role: ClientRole.Broadcaster},
           level: 2,
           attributes: [{key: 'raised', value: RaiseHandValue.TRUE}],
         });
@@ -167,8 +166,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const pendingRequests = filterObject(
     raiseHandList,
     ([k, v]) =>
-      v?.raised === RaiseHandValue.TRUE &&
-      renderList[k]?.role === ClientRole.Audience,
+      v?.raised === RaiseHandValue.TRUE && v?.role === ClientRole.Audience,
   );
 
   React.useEffect(() => {
@@ -183,14 +181,13 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     if (Object.keys(pendingRequests).length === 0) {
       setPendingRequestToReview(false);
     }
-  }, [raiseHandList, renderList]);
+  }, [raiseHandList]);
 
   React.useEffect(() => {
     if (
       // Only host should see the pending request
       Object.keys(pendingRequests).length !== 0 &&
-      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp &&
-      renderList[localUidRef.current]?.role === ClientRole.Broadcaster
+      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp
     ) {
       setPendingRequestToReview(true);
     } else {
@@ -235,7 +232,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
         if (!isHost) return;
         addOrUpdateLiveStreamRequest(data.sender, {
           ts: data.ts,
-          raised: data.payload.value,
+          raised: data.payload.value.raised,
+          role: data.payload.value.role,
         });
       },
     );
@@ -316,7 +314,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     addOrUpdateLiveStreamRequest(uid.toString(), {
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
-      role: ClientRole.Audience,
     });
     CustomEvents.send(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -361,7 +358,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
      * else: Audience Request was not approved by host, and was pending
      */
     if (
-      renderList[localUidRef.current]?.role == ClientRole.Broadcaster &&
+      raiseHandList[localUidRef.current]?.role == ClientRole.Broadcaster &&
       raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE
     ) {
       screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
@@ -369,12 +366,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
       changeClientRoleTo(ClientRole.Audience, ts);
     }
     updateLocalStateOnEvent(ClientRole.Audience, ts);
-    // send message in channel notifying the same
-    CustomEvents.send(LiveStreamControlMessageEnum.raiseHandRequest, {
-      value: RaiseHandValue.FALSE,
-      level: 2,
-      attributes: [{key: 'raised', value: RaiseHandValue.FALSE}],
-    });
     showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
   };
 

@@ -1,6 +1,5 @@
 // DECLARE ENUMS & CONTANTS
-import {RtcPropsInterface} from '../../../agora-rn-uikit';
-import {Dispatch, SetStateAction} from 'react';
+import {ClientRole} from '../../../agora-rn-uikit';
 
 export enum RaiseHandValue {
   TRUE = 'TRUE',
@@ -14,6 +13,7 @@ export interface raiseHandListInterface {
 }
 
 export interface raiseHandItemInterface {
+  role: ClientRole;
   raised: RaiseHandValue;
   ts: number;
 }

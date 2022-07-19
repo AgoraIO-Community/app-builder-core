@@ -10,12 +10,11 @@ const ApprovedLiveStreamControlsView = (props: {
   p_styles: any;
 }) => {
   const {uid, p_styles} = props;
-  const {renderList} = useUserList();
   const {raiseHandList} = useContext(LiveStreamContext);
 
   if (
     raiseHandList[uid]?.raised === RaiseHandValue.TRUE &&
-    renderList[uid]?.role == ClientRole.Broadcaster
+    raiseHandList[uid]?.role == ClientRole.Broadcaster
   ) {
     return (
       <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
