@@ -32,18 +32,26 @@ class CustomEvents {
     this.engine = RTMEngine.getInstance().engine;
   }
 
-  private _persist = async (evt: string, attributes: RtmAttribute[]) => {
-    // Step 1: Call API to update local attributes
-    await this.engine.addOrUpdateLocalUserAttributes([...attributes]);
-    // Step 2: Update local state
+  private _persist = async (
+    evt: string,
+    attributes: RtmAttribute[],
+    level: 2 | 3,
+  ) => {
     try {
       const localUserId = RTMEngine.getInstance().myUID;
-      attributes.forEach((attr) => {
-        EventAttributes.set(localUserId, {
-          key: attr.key,
-          value: attr.value,
-        });
-      });
+      const formattedAttributes = attributes.map((attr: RtmAttribute) => ({
+        ...attr,
+        value: JSON.stringify({
+          payload: attr.value,
+          level,
+        }),
+      }));
+      // Step 1: Call API to update local attributes
+      await this.engine.addOrUpdateLocalUserAttributes([
+        ...formattedAttributes,
+      ]);
+      // Step 2: Update local state
+      EventAttributes.set(localUserId, formattedAttributes);
     } catch (error) {
       console.log(
         'CUSTOM_EVENT_API error occured while updating the value ',
@@ -139,7 +147,7 @@ class CustomEvents {
     if (level === 2 || level === 3) {
       if (attributes.length == 0) return;
       console.log('CUSTOM_EVENT_API: Event lifecycle: persist', attributes);
-      await this._persist(evt, attributes);
+      await this._persist(evt, attributes, level);
     }
     try {
       await this._send(rtmPayload, to);

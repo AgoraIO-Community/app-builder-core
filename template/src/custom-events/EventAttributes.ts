@@ -19,14 +19,30 @@ const EventAttributes = (function () {
   let _eventAttributes: TEventAttribute = {};
 
   return {
-    set(uid: string, attr: RtmAttribute) {
-      _eventAttributes = {
-        ..._eventAttributes,
-        [uid]: {
-          ..._eventAttributes[uid],
-          [attr.key]: attr.value,
-        },
-      };
+    set(uid: string, attr: RtmAttribute | RtmAttribute[]) {
+      if (Array.isArray(attr)) {
+        const newAttributes = attr.reduce((acc, item) => {
+          return {
+            ...acc,
+            [item.key]: item.value,
+          };
+        }, {});
+        _eventAttributes = {
+          ..._eventAttributes,
+          [uid]: {
+            ..._eventAttributes[uid],
+            ...newAttributes,
+          },
+        };
+      } else {
+        _eventAttributes = {
+          ..._eventAttributes,
+          [uid]: {
+            ..._eventAttributes[uid],
+            [attr.key]: attr.value,
+          },
+        };
+      }
       return _eventAttributes;
     },
     get() {
