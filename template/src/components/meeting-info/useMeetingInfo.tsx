@@ -11,6 +11,7 @@
 */
 import React, {createContext} from 'react';
 import {createHook} from 'fpe-implementation';
+import {UidType} from '../../../agora-rn-uikit';
 export interface MeetingInfoContextInterface {
   isJoinDataFetched?: boolean;
   isHost: boolean;
@@ -25,7 +26,7 @@ export interface MeetingInfoContextInterface {
   };
   isSeparateHostLink: boolean;
   channel?: string;
-  uid?: number;
+  uid?: UidType;
   token?: string;
   rtm?: string;
   secret?: string;

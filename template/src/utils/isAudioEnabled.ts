@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {UidType} from '../../agora-rn-uikit';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import useUserList from './useUserList';
 
@@ -16,10 +17,10 @@ function useIsAudioEnabled() {
   const {renderList} = useUserList();
   /**
    *
-   * @param uid number | string
+   * @param uid UidType
    * @returns boolean
    */
-  const audioEnabled = (uid: number | string): boolean =>
+  const audioEnabled = (uid: UidType): boolean =>
     renderList[uid]?.audio === ToggleState.enabled;
 
   return audioEnabled;

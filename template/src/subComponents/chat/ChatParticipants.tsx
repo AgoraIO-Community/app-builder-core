@@ -34,18 +34,19 @@ const ChatParticipants = (props: any) => {
   return (
     <ScrollView>
       {Object.entries(renderList).map(([uid, value]) => {
-        if (isChatUser(parseInt(uid), value)) {
+        const uidAsNumber = parseInt(uid);
+        if (isChatUser(uidAsNumber, value)) {
           return (
             <TouchableOpacity
               style={style.participantContainer}
               key={uid}
               onPress={() => {
-                selectUser(uid);
+                selectUser(uidAsNumber);
               }}>
               {unreadIndividualMessageCount &&
-              unreadIndividualMessageCount[uid] ? (
+              unreadIndividualMessageCount[uidAsNumber] ? (
                 <View style={style.chatNotificationPrivate}>
-                  <Text>{unreadIndividualMessageCount[uid]}</Text>
+                  <Text>{unreadIndividualMessageCount[uidAsNumber]}</Text>
                 </View>
               ) : null}
               <View style={{flex: 1}}>
@@ -58,8 +59,8 @@ const ChatParticipants = (props: any) => {
                     },
                   ]}
                   value={
-                    renderList[uid]
-                      ? renderList[uid].name + ''
+                    renderList[uidAsNumber]
+                      ? renderList[uidAsNumber].name + ''
                       : remoteUserDefaultLabel
                   }
                 />

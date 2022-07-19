@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {UidType} from '../../agora-rn-uikit';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 
 export enum UNREAD_MESSAGE_COUNT_TYPE {
@@ -26,7 +27,7 @@ function useUnreadMessageCount() {
     unreadIndividualMessageCount,
   } = useChatNotification();
 
-  const getUnreadCount = (type: UNREAD_MESSAGE_COUNT_TYPE, uid?: string) => {
+  const getUnreadCount = (type: UNREAD_MESSAGE_COUNT_TYPE, uid?: UidType) => {
     switch (type) {
       case UNREAD_MESSAGE_COUNT_TYPE.GroupAndPrivateCount:
         return totalUnreadCount;

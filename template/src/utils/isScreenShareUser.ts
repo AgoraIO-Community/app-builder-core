@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {UidType} from '../../agora-rn-uikit';
 import {useScreenContext} from '../components/contexts/ScreenShareContext';
 
 /**
@@ -22,7 +23,7 @@ function useIsScreenShare() {
    * @param uid number | string
    * @returns boolean
    */
-  const isScreenShare = (uid: number | string): boolean =>
+  const isScreenShare = (uid: UidType): boolean =>
     screenShareData[uid] ? true : false;
   return isScreenShare;
 }

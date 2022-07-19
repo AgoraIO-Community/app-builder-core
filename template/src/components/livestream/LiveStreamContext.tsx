@@ -15,7 +15,7 @@ import {
   attrRequestInterface,
   liveStreamPropsInterface,
 } from './Types';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRole, UidType} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
@@ -108,7 +108,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     }));
   };
 
-  const getAttendeeName = (uid: number | string) => {
+  const getAttendeeName = (uid: UidType) => {
     return renderList[uid] ? renderList[uid]?.name : 'user';
   };
 
@@ -152,7 +152,8 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     setLiveStreamRequest(
       filterObject(
         currLiveStreamRequest,
-        ([k, v]) => renderList[k] && !renderList[k]?.offline,
+        ([k, v]) =>
+          renderList[parseInt(k)] && !renderList[parseInt(k)]?.offline,
       ),
     );
 
@@ -165,9 +166,9 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           v?.requests === attrRequestStatus.RaiseHand_Approved,
       ),
     ).map((key) => ({
-      uid: key,
+      uid: parseInt(key),
       status:
-        liveStreamData[key]?.requests ||
+        liveStreamData[parseInt(key)]?.requests ||
         attrRequestStatus.RaiseHand_AwaitingAction,
     }));
 
@@ -319,7 +320,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     if (request && request?.uid && request?.ts && request?.uid) {
       setLiveStreamRequest((oldLiveStreamRequest) => ({
         ...oldLiveStreamRequest,
-        [request?.uid as string]: {
+        [request?.uid]: {
           status: request.status,
           ts: request.ts,
           uid: request.uid,
@@ -346,7 +347,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
    * b. Host can reject streaming request sent by audience
    */
 
-  const hostApprovesRequestOfUID = (uid: number | string) => {
+  const hostApprovesRequestOfUID = (uid: UidType) => {
     addOrUpdateLiveStreamRequest({
       uid,
       ts: new Date().getTime(),
@@ -359,7 +360,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     );
   };
 
-  const hostRejectsRequestOfUID = (uid: number | string) => {
+  const hostRejectsRequestOfUID = (uid: UidType) => {
     addOrUpdateLiveStreamRequest({
       uid,
       ts: new Date().getTime(),

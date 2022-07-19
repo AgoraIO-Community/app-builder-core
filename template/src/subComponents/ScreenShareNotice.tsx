@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import {PropsContext} from '../../agora-rn-uikit';
+import {PropsContext, UidType} from '../../agora-rn-uikit';
 import React, {useContext} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {useString} from '../utils/useString';
@@ -21,12 +21,7 @@ import {useString} from '../utils/useString';
  * why its needed : To prevent screensharing tunneling effect
  *
  */
-function ScreenShareNotice({uid}: any) {
-  /**
-     * In a meeting a and b are there
-        if a user sharing the screen - then that screenshare user uid is 1 for a’user end and its having xxx uid in another end
-        if b user sharing the screen - then that screenshare user uid is 1 for b’user end and its having xxx uid in another end
-     */
+function ScreenShareNotice({uid}: {uid: UidType}) {
   const screensharingActiveOverlayLabel = useString(
     'screensharingActiveOverlayLabel',
   )();

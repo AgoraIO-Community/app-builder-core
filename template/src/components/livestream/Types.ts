@@ -1,5 +1,7 @@
 // DECLARE ENUMS & CONTANTS
 
+import {UidType} from '../../../agora-rn-uikit';
+
 export enum requestStatus {
   AwaitingAction = 'AWAITING_ACTION',
   Approved = 'APPROVED',
@@ -49,8 +51,8 @@ export interface liveStreamContext {
   setLastCheckedRequestTimestamp: (timestamp: number) => void;
   isPendingRequestToReview: boolean;
   currLiveStreamRequest: Partial<Record<string, requestInterface>>;
-  hostApprovesRequestOfUID: (uid: number) => void;
-  hostRejectsRequestOfUID: (uid: number) => void;
+  hostApprovesRequestOfUID: (uid: UidType) => void;
+  hostRejectsRequestOfUID: (uid: UidType) => void;
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
   raiseHandRequestActive: boolean;
@@ -60,10 +62,10 @@ export interface liveStreamContext {
 export interface requestInterface {
   ts: number;
   status: requestStatus;
-  uid: string | number;
+  uid: UidType;
 }
 
 export interface attrRequestInterface {
   status: attrRequestStatus;
-  uid: string | number;
+  uid: UidType;
 }
