@@ -43,7 +43,7 @@ import {useRenderContext, useSidePanel} from 'fpe-api';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useScreenContext} from './contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
-import {safeJsonParse} from '../rtm/utils';
+import {safeJsonParse, timeNow} from '../rtm/utils';
 import {messageType} from '../rtm/types';
 import EventUtils from '../custom-events/EventUtils';
 import EventAttributes from '../custom-events/EventAttributes';
@@ -83,8 +83,6 @@ function hasJsonStructure(str: string) {
     return false;
   }
 }
-
-const timeNow = () => new Date().getTime();
 
 const RtmConfigure = (props: any) => {
   const localUid = useLocalUid();
@@ -310,7 +308,7 @@ const RtmConfigure = (props: any) => {
     try {
       await engine.current.joinChannel(rtcProps.channel);
       timerValueRef.current = 5;
-      getMembers();
+      await getMembers();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -395,11 +393,24 @@ const RtmConfigure = (props: any) => {
                   },
                 };
               });
+
               for (const [key, value] of Object.entries(attr?.attributes)) {
                 EventAttributes.set(member.uid, {
                   key,
                   value: value as string,
                 });
+                if (hasJsonStructure(value as string)) {
+                  const [err, result] = safeJsonParse(value as string);
+                  if ((result.value, result.action)) {
+                    const data = {
+                      evt: key,
+                      payload: {
+                        ...result,
+                      },
+                    };
+                    customEventDispatcher(data, member.uid, timeNow());
+                  }
+                }
               }
             } catch (e) {
               console.error(`Could not retrieve name of ${member.uid}`, e);
@@ -454,7 +465,6 @@ const RtmConfigure = (props: any) => {
           console.log('[user attributes]:', {attr});
           const uid = parseInt(data.uid);
           const screenUid = parseInt(attr?.attributes?.screenUid);
-          const role = parseInt(attr?.attributes?.role);
           //start - updating user data in rtc
           const userData = {
             name:
@@ -467,7 +477,6 @@ const RtmConfigure = (props: any) => {
           };
           updateRenderListState(uid, userData);
           //start - updating user data in rtc
-
           //setting screenshare data
           setScreenShareData((prevState) => {
             return {
@@ -722,7 +731,14 @@ const RtmConfigure = (props: any) => {
   };
 
   const customEventDispatcher = async (
-    data: any,
+    data: {
+      evt: string;
+      payload: {
+        level: 1 | 2 | 3;
+        action: string;
+        value: string;
+      };
+    },
     sender: string,
     ts: number,
   ) => {
@@ -730,16 +746,9 @@ const RtmConfigure = (props: any) => {
     const {evt, payload} = data;
     // Step 1: Set local attributes
     if (payload?.level === 3) {
-      if (payload?.attributes?.length == 0) return;
-      await engine.current.addOrUpdateLocalUserAttributes([
-        ...payload.attributes,
-      ]);
-      payload.attributes.forEach((attr: RtmAttribute) => {
-        EventAttributes.set(localUid.toString(), {
-          key: attr.key,
-          value: attr.value,
-        });
-      });
+      const rtmAttribute = {key: evt, value: JSON.stringify(data.payload)};
+      await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      EventAttributes.set(localUid.toString(), rtmAttribute);
     }
     // Step 2: Emit the event
     try {

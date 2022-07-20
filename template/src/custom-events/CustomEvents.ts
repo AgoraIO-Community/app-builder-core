@@ -11,19 +11,14 @@
 */
 
 ('use strict');
-import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
+import RtmEngine from 'agora-react-native-rtm';
 import EventUtils from './EventUtils';
 import RTMEngine from '../rtm/RTMEngine';
-import {ToOptions, EventPayload} from './types';
+import {ToOptions, EventPayload, CbEventPayload} from './types';
 import {messageType} from '../rtm/types';
 import EventAttributes from './EventAttributes';
 
-type ICbListener = (args: {
-  payload: any;
-  level: 1 | 2 | 3;
-  sender: string;
-  ts: number;
-}) => void;
+type ICbListener = (args: CbEventPayload) => void;
 
 class CustomEvents {
   engine!: RtmEngine;
@@ -32,26 +27,14 @@ class CustomEvents {
     this.engine = RTMEngine.getInstance().engine;
   }
 
-  private _persist = async (
-    evt: string,
-    attributes: RtmAttribute[],
-    level: 2 | 3,
-  ) => {
+  private _persist = async (evt: string, payload: any) => {
     try {
       const localUserId = RTMEngine.getInstance().myUID;
-      const formattedAttributes = attributes.map((attr: RtmAttribute) => ({
-        ...attr,
-        value: JSON.stringify({
-          payload: attr.value,
-          level,
-        }),
-      }));
+      const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
       // Step 1: Call API to update local attributes
-      await this.engine.addOrUpdateLocalUserAttributes([
-        ...formattedAttributes,
-      ]);
+      await this.engine.addOrUpdateLocalUserAttributes([rtmAttribute]);
       // Step 2: Update local state
-      EventAttributes.set(localUserId, formattedAttributes);
+      EventAttributes.set(localUserId, rtmAttribute);
     } catch (error) {
       console.log(
         'CUSTOM_EVENT_API error occured while updating the value ',
@@ -131,23 +114,22 @@ class CustomEvents {
 
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
     console.log('CUSTOM_EVENT_API: send Event payload: ', payload);
-    const {value = '', level = 1, attributes = []} = payload;
+    const {action = '', value = '', level = 1} = payload;
 
     const rtmPayload = {
       evt: evt,
       payload: {
+        action,
         value,
         level,
-        attributes,
       },
     };
 
     // With level 1 message we can send an optional attribute which can then update remote user's local attributes,
     // level 1 with optional parameters, if it exists on receivers end (Dispacther end), update the local attributes
     if (level === 2 || level === 3) {
-      if (attributes.length == 0) return;
-      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', attributes);
-      await this._persist(evt, attributes, level);
+      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
+      await this._persist(evt, payload);
     }
     try {
       await this._send(rtmPayload, to);

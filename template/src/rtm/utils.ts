@@ -24,3 +24,5 @@ export const adjustUID = (uid: number): number => {
   }
   return adjustedUID;
 };
+
+export const timeNow = () => new Date().getTime();

@@ -125,7 +125,11 @@ const EventUtils = (function () {
       }
       return this;
     },
-    emit(evt: any, args: any) {
+    emit(evt: string, args: any) {
+      if (!evt) {
+        console.log('emitting: event name is empty');
+        return;
+      }
       let listenersMap = _getListenersAsObject(evt);
       console.log('CUSTOM_EVENT_API emit listenersMap: ', listenersMap);
       let listeners;
@@ -142,7 +146,6 @@ const EventUtils = (function () {
             }
             const newargs = [].slice.call(arguments, 1);
             console.log('CUSTOM_EVENT_API newargs: ', newargs);
-            console.log('CUSTOM_EVENT_API arguments: ', arguments);
             listener.listener.apply(this, newargs || []);
           }
         }
