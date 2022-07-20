@@ -17,6 +17,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import CustomEvents from '../../custom-events/CustomEvents';
+import {EventNames} from '../../rtm/constants';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -134,10 +135,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           role: ClientRole.Audience,
         });
         // Audience notfies all host when request is rejected
-        CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-          value: {raised: RaiseHandValue.FALSE, role: ClientRole.Audience},
+        CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
+          action: LiveStreamControlMessageEnum.notifyHostsInChannel,
           level: 2,
-          attributes: [{key: 'raised', value: RaiseHandValue.FALSE}],
+          value: RaiseHandValue.FALSE,
         });
         break;
       case ClientRole.Broadcaster:
@@ -148,10 +149,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           role: ClientRole.Broadcaster,
         });
         // Audience notfies all host when request is approved
-        CustomEvents.send(LiveStreamControlMessageEnum.notifyHostsInChannel, {
-          value: {raised: RaiseHandValue.TRUE, role: ClientRole.Broadcaster},
+        CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
+          action: LiveStreamControlMessageEnum.notifyHostsInChannel,
+          value: RaiseHandValue.TRUE,
           level: 2,
-          attributes: [{key: 'raised', value: RaiseHandValue.TRUE}],
         });
       default:
         break;
@@ -195,44 +196,70 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
 
   React.useEffect(() => {
     /** ********************** HOST EVENTS SECTION BEGINS ********************** */
-    // 1. Host can receive raise hand request with true or false value
-    CustomEvents.on(LiveStreamControlMessageEnum.raiseHandRequest, (data) => {
+    CustomEvents.on(EventNames.RAISED_ATTRIBUTE, (data) => {
       if (!isHost) return;
-      // Step 1: Show notifications
-      if (data.payload.value === RaiseHandValue.TRUE) {
-        // a. All Hosts in channel update raised status to "true" when attendee raise their hand
-        showToast(
-          `${getAttendeeName(data.sender)} ${
-            LSNotificationObject.RAISE_HAND_RECEIVED
-          }`,
-        );
-      } else if (data.payload.value === RaiseHandValue.FALSE) {
-        // b. All Hosts in channel update raised status to "false" when attendee recalls their request
-        showToast(
-          `${getAttendeeName(data.sender)} ${
-            LSNotificationObject.RAISE_HAND_REQUEST_RECALL
-          }`,
-        );
+      switch (data?.payload?.action) {
+        // 1. Host can receive raise hand request with true or false value
+        case LiveStreamControlMessageEnum.raiseHandRequest:
+          switch (data?.payload?.value) {
+            case RaiseHandValue.TRUE:
+              // Step 1: Show notifications
+              showToast(
+                `${getAttendeeName(data.sender)} ${
+                  LSNotificationObject.RAISE_HAND_RECEIVED
+                }`,
+              );
+              // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
+              addOrUpdateLiveStreamRequest(data.sender, {
+                ts: data.ts,
+                raised: RaiseHandValue.TRUE,
+                role: ClientRole.Audience,
+              });
+              break;
+            case RaiseHandValue.FALSE:
+              // Step 1: Show notifications
+              showToast(
+                `${getAttendeeName(data.sender)} ${
+                  LSNotificationObject.RAISE_HAND_REQUEST_RECALL
+                }`,
+              );
+              // 2. All Hosts in channel update raised state to "false" when attendee recalls their request
+              addOrUpdateLiveStreamRequest(data.sender, {
+                ts: data.ts,
+                raised: RaiseHandValue.FALSE,
+                role: ClientRole.Audience,
+              });
+            default:
+              break;
+          }
+          break;
+        // 2. All Hosts in channel gets notified when an attendee's request gets approved or rejected
+        case LiveStreamControlMessageEnum.notifyHostsInChannel:
+          if (!isHost) return;
+          switch (data.payload.value) {
+            case RaiseHandValue.TRUE:
+              addOrUpdateLiveStreamRequest(data.sender, {
+                ts: data.ts,
+                raised: RaiseHandValue.TRUE,
+                role: ClientRole.Broadcaster,
+              });
+              break;
+            case RaiseHandValue.FALSE:
+              addOrUpdateLiveStreamRequest(data.sender, {
+                ts: data.ts,
+                raised: RaiseHandValue.FALSE,
+                role: ClientRole.Audience,
+              });
+              break;
+            default:
+              break;
+          }
+          break;
+        default:
+          break;
       }
-      // 2. Update state
-      addOrUpdateLiveStreamRequest(data.sender, {
-        ts: data.ts,
-        raised: data.payload.value,
-        role: ClientRole.Audience,
-      });
     });
-    // 2. All Hosts in channel gets notified when an attendee's request gets approved or rejected
-    CustomEvents.on(
-      LiveStreamControlMessageEnum.notifyHostsInChannel,
-      (data) => {
-        if (!isHost) return;
-        addOrUpdateLiveStreamRequest(data.sender, {
-          ts: data.ts,
-          raised: data.payload.value.raised,
-          role: data.payload.value.role,
-        });
-      },
-    );
+
     /** ********************** HOST EVENTS SECTION ENDS ********************** */
 
     /** ********************** AUDIENCE EVENTS SECTION BEGINS ********************** */
@@ -330,10 +357,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE)
       return;
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
-    CustomEvents.send(LiveStreamControlMessageEnum.raiseHandRequest, {
-      value: RaiseHandValue.TRUE,
+    CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
+      action: LiveStreamControlMessageEnum.raiseHandRequest,
       level: 2,
-      attributes: [{key: 'raised', value: RaiseHandValue.TRUE}],
+      value: RaiseHandValue.TRUE,
     });
     // Update local state
     addOrUpdateLiveStreamRequest(localUidRef.current, {

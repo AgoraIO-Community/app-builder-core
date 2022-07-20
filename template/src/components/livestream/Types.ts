@@ -67,7 +67,7 @@ export interface liveStreamPropsInterface {
 export interface liveStreamContext {
   setLastCheckedRequestTimestamp: (timestamp: number) => void;
   isPendingRequestToReview: boolean;
-  raiseHandList: Partial<Record<string, raiseHandItemInterface>>;
+  raiseHandList: Record<string, raiseHandItemInterface>;
   hostApprovesRequestOfUID: (uid: number) => void;
   hostRejectsRequestOfUID: (uid: number) => void;
   audienceSendsRequest: () => void;

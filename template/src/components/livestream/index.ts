@@ -2,6 +2,7 @@ import {
   LiveStreamControlMessageEnum,
   requestStatus,
   RaiseHandValue,
+  raiseHandListInterface,
 } from './Types';
 
 import LiveStreamContext, {
@@ -14,5 +15,6 @@ export {
   requestStatus,
   RaiseHandValue,
 };
+export type {raiseHandListInterface};
 
 export default LiveStreamContext;
