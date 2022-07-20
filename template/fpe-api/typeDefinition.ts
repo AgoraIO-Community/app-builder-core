@@ -48,7 +48,6 @@ export interface ChatCmpInterface extends BeforeAndAfterInterface {
 
 export interface renderComponentInterface {
   user: RenderInterface;
-  uid: UidType;
 }
 
 export interface renderComponentObjectInterface {

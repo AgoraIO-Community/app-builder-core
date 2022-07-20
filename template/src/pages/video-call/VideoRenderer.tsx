@@ -10,15 +10,13 @@ import {NameWithMicStatus} from './NameWithMicStatus';
 
 interface MaxVideoRendererInterface {
   user: RenderInterface;
-  uid: UidType;
 }
-const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user, uid}) => {
+const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
   const {primaryColor} = useContext(ColorContext);
   return (
     <View style={maxStyle.container}>
-      <ScreenShareNotice uid={uid} />
+      <ScreenShareNotice uid={user.uid} />
       <NetworkQualityPill
-        uid={uid}
         user={user}
         primaryColor={primaryColor}
         rootStyle={{
@@ -33,8 +31,7 @@ const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user, uid}) => {
           return FallbackLogo(user?.name);
         }}
         user={user}
-        uid={uid}
-        key={uid}
+        key={user.uid}
       />
       <View style={maxStyle.nameHolder}>
         <NameWithMicStatus user={user} />

@@ -109,7 +109,7 @@ const PinnedVideo: layoutComponent = () => {
               onPress={() => {
                 dispatch({type: 'SwapVideo', value: [minUid]});
               }}>
-              <RenderComponent user={renderList[minUid]} uid={minUid} />
+              <RenderComponent user={renderList[minUid]} />
             </Pressable>
           ))}
         </ScrollView>
@@ -123,7 +123,7 @@ const PinnedVideo: layoutComponent = () => {
             : style.flex4
         }>
         <View style={style.flex1} key={'maxVideo' + maxUid}>
-          <RenderComponent user={renderList[maxUid]} uid={maxUid} />
+          <RenderComponent user={renderList[maxUid]} />
         </View>
       </View>
     </View>

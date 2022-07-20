@@ -79,7 +79,6 @@ const GridVideo: layoutComponent = () => {
               <View style={style.gridVideoContainerInner}>
                 <RenderComponent
                   user={renderList[renderPosition[ridx * dims.c + cidx]]}
-                  uid={renderPosition[ridx * dims.c + cidx]}
                 />
               </View>
             </Pressable>

@@ -35,7 +35,6 @@ export default function AllHostParticipants(props: any) {
             name={getParticipantName(uid)}
             p_styles={p_style}
             user={renderList[uid]}
-            uid={uid}
             showControls={renderList[uid]?.type === 'rtc'}
             isHost={isHost}
             key={uid}

@@ -28,7 +28,7 @@ const VideoPreview: React.FC = () => {
 
   return (
     <View style={{borderRadius: 10, flex: 1}}>
-      <MaxVideoView uid={maxUid} user={renderList[maxUid]} key={maxUid} />
+      <MaxVideoView user={renderList[maxUid]} key={maxUid} />
     </View>
   );
 };
