@@ -159,7 +159,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // send a control message to everbody in the channel indicating that cloud recording is now inactive.
           CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STOPPED,
-            value: localUid.toString(),
+            value: '',
             level: 3,
           });
           // set the local recording state to false to update the UI
