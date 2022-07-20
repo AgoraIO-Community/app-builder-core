@@ -73,20 +73,20 @@ export interface layoutObjectWithIconName extends layoutObjectBase {
 export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
-  topBar?: React.ComponentType;
-  settingsPanel?: React.ComponentType;
+  //topBar?: React.ComponentType;
+  //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
-  chat?: ChatCmpInterface;
+  //chat?: ChatCmpInterface;
   customContent?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
 }
 
 export type ComponentsInterface = {
-  precall?: PreCallInterface | React.ComponentType;
-  create?: React.ComponentType;
-  share?: React.ComponentType;
-  join?: React.ComponentType;
+  //precall?: PreCallInterface | React.ComponentType;
+  //create?: React.ComponentType;
+  //share?: React.ComponentType;
+  //join?: React.ComponentType;
   videoCall?: VideoCallInterface | React.ComponentType;
 };
 
@@ -110,7 +110,7 @@ export interface FpeApiInterface {
   /**
    * custom routes used to add new page/routes
    */
-  customRoutes?: CustomRoutesInterface[];
+  //customRoutes?: CustomRoutesInterface[];
   /**
    * Custom context/api provider wrapped in root level
    */
@@ -122,9 +122,9 @@ export interface FpeApiInterface {
   /**
    * Life cycle events
    */
-  lifecycle?: {
-    useBeforeJoin?: CustomHookType;
-    useBeforeCreate?: CustomHookType;
-  };
-  customUserContext?: () => any;
+  // lifecycle?: {
+  //   useBeforeJoin?: CustomHookType;
+  //   useBeforeCreate?: CustomHookType;
+  // };
+  //customUserContext?: () => any;
 }
