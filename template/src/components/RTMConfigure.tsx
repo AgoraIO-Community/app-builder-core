@@ -40,6 +40,7 @@ import {messageType} from '../rtm/types';
 import EventUtils from '../custom-events/EventUtils';
 import EventAttributes from '../custom-events/EventAttributes';
 import RTMEngine from '../rtm/RTMEngine';
+import {filterObject} from '../utils';
 
 const adjustUID = (number: number) => {
   if (number < 0) {
@@ -183,6 +184,14 @@ const RtmConfigure = (props: any) => {
       events.off(messageChannelType.Private, 'onPrivateMessageReceived');
     };
   }, [renderList, messageStore]);
+
+  React.useEffect(() => {
+    setTotalOnlineUsers(
+      Object.keys(
+        filterObject(renderList, ([k, v]) => v?.type === 'rtc' && !v.offline),
+      ).length,
+    );
+  }, [renderList]);
 
   useEffect(() => {
     // Update the username in localstorage when username changes
