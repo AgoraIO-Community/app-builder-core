@@ -65,6 +65,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   React.useEffect(() => {
     renderListRef.current = renderList;
   }, [renderList]);
+
   React.useEffect(() => {
     raiseHandListRef.current = raiseHandList;
   }, [raiseHandList]);
@@ -123,7 +124,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
 
   const changeClientRoleTo = (newRole: ClientRole) => {
     updateRtcProps(newRole);
-    // Update local attribute and inform everyone in the channel
   };
 
   const UpdtLocStateAndBCastAttr = (newRole: ClientRole, ts: number) => {

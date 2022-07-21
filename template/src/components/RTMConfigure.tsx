@@ -14,12 +14,7 @@ import RtmEngine, {
   RtmChannelAttribute,
   RtmAttribute,
 } from 'agora-react-native-rtm';
-import {
-  ClientRole,
-  PropsContext,
-  UidType,
-  useLocalUid,
-} from '../../agora-rn-uikit';
+import {PropsContext, UidType, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
@@ -354,7 +349,6 @@ const RtmConfigure = (props: any) => {
               const attr = await backoffAttributes;
               console.log('[user attributes]:', {attr});
               const uid = parseInt(member.uid);
-              const role = parseInt(attr?.attributes?.role);
               const screenUid = parseInt(attr?.attributes?.screenUid);
               //start - updating user data in rtc
               const userData = {
@@ -715,18 +709,6 @@ const RtmConfigure = (props: any) => {
       });
     });
 
-    engine.current.addListener(
-      'ChannelAttributesUpdated',
-      (attributes: RtmChannelAttribute[]) => {
-        /**
-         * a) The following piece of code is commented for future reference.
-         * b) To be used in future implementations of channel attributes
-         * c) Kindly note the agora-react-native-rtm does not return the attributes with
-         *    additional lastUpdateUserId and lastUpdateTs as mentioned in RtmChannelAttribute type
-         */
-      },
-    );
-
     doLoginAndSetupRTM();
   };
 
@@ -839,24 +821,6 @@ const RtmConfigure = (props: any) => {
       : {};
   };
 
-  const updateChannelAttributes = async (attributes: RtmChannelAttribute[]) => {
-    /**
-     * a) The following piece of code is commented for future reference.
-     * b) To be used in future implementations of channel attributes
-     * c) attributes should be an array of key value [{key:"keyTobeUsed", value; 'valueToBeUsed}]
-     *    following the type RtmChannelAttribute
-     */
-    // try {
-    //   await (engine.current as RtmEngine).addOrUpdateChannelAttributes(
-    //     rtcProps.channel,
-    //     [...attributes],
-    //     {enableNotificationToChannelMembers: true},
-    //   );
-    // } catch (error) {
-    //   console.log('AttributesUpdated error', error);
-    // }
-  };
-
   useEffect(() => {
     callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
     return () => {
@@ -891,19 +855,6 @@ const RtmConfigure = (props: any) => {
           },
         };
       });
-    }
-    if (
-      //'offline' in formattedAttributes ||
-      'requests' in formattedAttributes ||
-      'role' in formattedAttributes
-    ) {
-      let updateData: any = {};
-      // if ('offline' in formattedAttributes) {
-      //   updateData['offline'] = formattedAttributes['offline'];
-      // }
-      if ('requests' in formattedAttributes) {
-        updateData['requests'] = formattedAttributes['requests'];
-      }
     }
     /**
      * 3. Broadcast my updated attributes to everyone
