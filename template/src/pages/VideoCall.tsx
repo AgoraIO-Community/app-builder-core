@@ -194,7 +194,7 @@ const VideoCall: React.FC = () => {
                   : ChannelProfile.Communication,
               }}>
               <RtcConfigure>
-                <DeviceConfigure userRole={rtcProps.role}>
+                <DeviceConfigure>
                   <ChatUIControlProvider>
                     <ChatNotificationProvider>
                       <SidePanelProvider
@@ -203,24 +203,28 @@ const VideoCall: React.FC = () => {
                           setSidePanel,
                         }}>
                         <ScreenShareProvider>
-                          <LiveStreamDataProvider>
-                            <RtmConfigure
-                              setRecordingActive={setRecordingActive}
-                              callActive={callActive}>
-                              <WhiteboardProvider>
-                                <LayoutProvider
+                          <RtmConfigure
+                            setRecordingActive={setRecordingActive}
+                            callActive={callActive}>
+                            <WhiteboardProvider>
+                              <LayoutProvider
+                                value={{
+                                  activeLayoutName,
+                                  setActiveLayoutName,
+                                }}>
+                                <RecordingProvider
                                   value={{
-                                    activeLayoutName,
-                                    setActiveLayoutName,
+                                    setRecordingActive,
+                                    isRecordingActive,
                                   }}>
-                                  <RecordingProvider
-                                    value={{
-                                      setRecordingActive,
-                                      isRecordingActive,
-                                    }}>
-                                    <ScreenshareConfigure>
-                                      <LiveStreamContextProvider
-                                        value={{setRtcProps}}>
+                                  <ScreenshareConfigure>
+                                    <LiveStreamContextProvider
+                                      value={{
+                                        setRtcProps,
+                                        rtcProps,
+                                        callActive,
+                                      }}>
+                                      <LiveStreamDataProvider>
                                         <LocalUserContext
                                           localUid={rtcProps?.uid || 0}>
                                           <CustomUserContextHolder>
@@ -241,13 +245,13 @@ const VideoCall: React.FC = () => {
                                             </NetworkQualityProvider>
                                           </CustomUserContextHolder>
                                         </LocalUserContext>
-                                      </LiveStreamContextProvider>
-                                    </ScreenshareConfigure>
-                                  </RecordingProvider>
-                                </LayoutProvider>
-                              </WhiteboardProvider>
-                            </RtmConfigure>
-                          </LiveStreamDataProvider>
+                                      </LiveStreamDataProvider>
+                                    </LiveStreamContextProvider>
+                                  </ScreenshareConfigure>
+                                </RecordingProvider>
+                              </LayoutProvider>
+                            </WhiteboardProvider>
+                          </RtmConfigure>
                         </ScreenShareProvider>
                       </SidePanelProvider>
                     </ChatNotificationProvider>
