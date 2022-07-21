@@ -51,6 +51,7 @@ export enum attrRequestTypes {
 }
 
 export interface chatContext {
+  hasUserJoinedRTM: boolean;
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
   sendMessage: (msg: string) => void;

@@ -61,7 +61,7 @@ export const LSNotificationObject = {
 
 export interface liveStreamPropsInterface {
   children: React.ReactNode;
-  value: {setRtcProps: any};
+  value: {setRtcProps: any; rtcProps: any; callActive: boolean};
 }
 
 export interface liveStreamContext {

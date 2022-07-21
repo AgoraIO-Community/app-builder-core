@@ -22,12 +22,10 @@ import {
   messageChannelType,
   messageSourceType,
   messageActionType,
-  attrRequestTypes,
 } from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import events from './RTMEvents';
-import {filterObject} from '../utils';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
@@ -37,13 +35,11 @@ import Toast from '../../react-native-toast-message';
 import {useRenderContext, useSidePanel} from 'fpe-api';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useScreenContext} from './contexts/ScreenShareContext';
-import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {safeJsonParse, timeNow} from '../rtm/utils';
 import {messageType} from '../rtm/types';
 import EventUtils from '../custom-events/EventUtils';
 import EventAttributes from '../custom-events/EventAttributes';
 import RTMEngine from '../rtm/RTMEngine';
-import CustomEvents from '../custom-events/CustomEvents';
 
 const adjustUID = (number: number) => {
   if (number < 0) {
@@ -131,6 +127,8 @@ const RtmConfigure = (props: any) => {
 
   const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
+
+  const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
   const userText = useString('remoteUserDefaultLabel')();
@@ -304,6 +302,7 @@ const RtmConfigure = (props: any) => {
       await engine.current.joinChannel(rtcProps.channel);
       timerValueRef.current = 5;
       await getMembers();
+      setHasUserJoinedRTM(true);
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -387,7 +386,6 @@ const RtmConfigure = (props: any) => {
                   },
                 };
               });
-
               for (const [key, value] of Object.entries(attr?.attributes)) {
                 EventAttributes.set(member.uid, {
                   key,
@@ -395,15 +393,17 @@ const RtmConfigure = (props: any) => {
                 });
                 if (hasJsonStructure(value as string)) {
                   const [err, result] = safeJsonParse(value as string);
-                  if ((result.value, result.action)) {
-                    const data = {
-                      evt: key,
-                      payload: {
-                        ...result,
-                      },
-                    };
-                    customEventDispatcher(data, member.uid, timeNow());
-                  }
+                  const payloadValue = result?.value || '';
+                  const payloadAction = result?.action || '';
+                  const data = {
+                    evt: key,
+                    payload: {
+                      ...result,
+                      value: payloadValue,
+                      action: payloadAction,
+                    },
+                  };
+                  customEventDispatcher(data, member.uid, timeNow());
                 }
               }
             } catch (e) {
@@ -870,6 +870,7 @@ const RtmConfigure = (props: any) => {
   return (
     <ChatContext.Provider
       value={{
+        hasUserJoinedRTM,
         messageStore,
         privateMessageStore,
         sendControlMessage,

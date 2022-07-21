@@ -10,7 +10,7 @@ import {
   RaiseHandValue,
   raiseHandListInterface,
 } from './Types';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRole, useLocalUid} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
@@ -43,6 +43,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const lowerHandsLocalNotification = useString(
     'lowerHandsLocalNotification',
   )();
+
   const screenshareContextInstance = useScreenshare();
 
   const {renderList} = useUserList();
@@ -55,13 +56,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const raiseHandListRef = useRef<any>();
   raiseHandListRef.current = raiseHandList;
 
-  const {localUid} = useContext(ChatContext);
-  const localUidRef = useRef<any>();
-  localUidRef.current = localUid;
-
-  const {setRtcProps} = props?.value;
-  const {isHost} = useMeetingInfo();
-
   React.useEffect(() => {
     renderListRef.current = renderList;
   }, [renderList]);
@@ -69,6 +63,15 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   React.useEffect(() => {
     raiseHandListRef.current = raiseHandList;
   }, [raiseHandList]);
+
+  const localUid = useLocalUid();
+  const localUidRef = useRef<any>();
+  localUidRef.current = localUid;
+
+  const {hasUserJoinedRTM} = useContext(ChatContext);
+
+  const {setRtcProps, rtcProps, callActive} = props?.value;
+  const {isHost} = useMeetingInfo();
 
   const [lastCheckedRequestTimestamp, setLastCheckedRequestTimestamp] =
     useState(0);
@@ -192,6 +195,44 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
     }
   }, [lastRequestReceivedTimestamp, lastCheckedRequestTimestamp]);
 
+  /** ******* SETTING UP ROLES BEGINS ******* */
+  React.useEffect(() => {
+    CustomEvents.on(EventNames.ROLE_ATTRIBUTE, (data) => {
+      setRaiseHandList((prevState) => {
+        return {
+          ...prevState,
+          [data.sender]: {
+            ...prevState[data.sender],
+            role:
+              data.payload.value in ClientRole
+                ? data.payload.value
+                : ClientRole.Audience,
+          },
+        };
+      });
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!callActive || !hasUserJoinedRTM) return;
+    CustomEvents.send(EventNames.ROLE_ATTRIBUTE, {
+      level: 2,
+      value: rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
+    });
+    setRaiseHandList((prevState) => {
+      return {
+        ...prevState,
+        [localUid]: {
+          ...prevState[localUid],
+          role:
+            rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
+        },
+      };
+    });
+  }, [callActive, rtcProps.role, hasUserJoinedRTM]);
+
+  /** ******* SETTING UP ROLES ENDS ********/
+
   /** ******* EVENT LISTENERS SECTION BEGINS ******* */
 
   React.useEffect(() => {
@@ -259,7 +300,6 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
           break;
       }
     });
-
     /** ********************** HOST EVENTS SECTION ENDS ********************** */
 
     /** ********************** AUDIENCE EVENTS SECTION BEGINS ********************** */
