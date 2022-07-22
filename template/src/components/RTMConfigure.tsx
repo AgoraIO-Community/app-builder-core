@@ -10,25 +10,17 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine, {
-  RtmChannelAttribute,
-  RtmAttribute,
-} from 'agora-react-native-rtm';
+import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
-import {
-  messageChannelType,
-  messageSourceType,
-  messageActionType,
-} from './ChatContext';
+import {messageSourceType, messageActionType} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
-import events from './RTMEvents';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
-import {useRenderContext, useSidePanel} from 'fpe-api';
+import {useRenderContext} from 'fpe-api';
 import {useScreenContext} from './contexts/ScreenShareContext';
 import {safeJsonParse, timeNow} from '../rtm/utils';
 import {messageType} from '../rtm/types';
@@ -100,8 +92,6 @@ const RtmConfigure = (props: any) => {
 
   let engine = useRef<RtmEngine>(null!);
   const timerValueRef: any = useRef(5);
-
-  const {setSidePanel} = useSidePanel();
 
   React.useEffect(() => {
     setTotalOnlineUsers(
@@ -417,38 +407,29 @@ const RtmConfigure = (props: any) => {
       const sender = isAndroid ? arr[0] : peerId;
 
       if (type === messageActionType.Control) {
-        try {
-          switch (msg) {
-            case controlMessageEnum.muteVideo:
-              RtcEngine.muteLocalVideoStream(true);
-              dispatch({
-                type: 'LocalMuteVideo',
-                value: [0],
-              });
-              break;
-            case controlMessageEnum.muteAudio:
-              RtcEngine.muteLocalAudioStream(true);
-              dispatch({
-                type: 'LocalMuteAudio',
-                value: [0],
-              });
-              break;
-            case controlMessageEnum.kickUser:
-              dispatch({
-                type: 'EndCall',
-                value: [],
-              });
-              break;
-            default:
-              break;
-            //   throw new Error('Unsupported message type');
-          }
-        } catch (e) {
-          events.emit(messageChannelType.Private, null, {
-            msg: `Error while dispatching ${messageChannelType.Private} control message`,
-            cause: e,
-          });
-          return;
+        switch (msg) {
+          case controlMessageEnum.muteVideo:
+            RtcEngine.muteLocalVideoStream(true);
+            dispatch({
+              type: 'LocalMuteVideo',
+              value: [0],
+            });
+            break;
+          case controlMessageEnum.muteAudio:
+            RtcEngine.muteLocalAudioStream(true);
+            dispatch({
+              type: 'LocalMuteAudio',
+              value: [0],
+            });
+            break;
+          case controlMessageEnum.kickUser:
+            dispatch({
+              type: 'EndCall',
+              value: [],
+            });
+            break;
+          default:
+            break;
         }
       } else if (type === messageType.CUSTOM_EVENT) {
         console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
@@ -458,11 +439,6 @@ const RtmConfigure = (props: any) => {
           console.log('error while dispacthing', error);
         }
       }
-      events.emit(messageChannelType.Private, {
-        uid: sender,
-        ts: timestamp,
-        ...textObj,
-      });
     });
 
     engine.current.on('channelMessageReceived', (evt) => {
@@ -491,50 +467,42 @@ const RtmConfigure = (props: any) => {
           } else {
             actionMsg = msg;
           }
-          try {
-            switch (actionMsg) {
-              case controlMessageEnum.muteVideo:
-                RtcEngine.muteLocalVideoStream(true);
-                dispatch({
-                  type: 'LocalMuteVideo',
-                  value: [0],
+          switch (actionMsg) {
+            case controlMessageEnum.muteVideo:
+              RtcEngine.muteLocalVideoStream(true);
+              dispatch({
+                type: 'LocalMuteVideo',
+                value: [0],
+              });
+              break;
+            case controlMessageEnum.muteAudio:
+              RtcEngine.muteLocalAudioStream(true);
+              dispatch({
+                type: 'LocalMuteAudio',
+                value: [0],
+              });
+              break;
+            case controlMessageEnum.userNameChanged:
+              const {payload: payloadData} = JSON.parse(msg);
+              if (payloadData && payloadData.name) {
+                const uidNumber = parseInt(uid);
+                updateRenderListState(uidNumber, {name: payloadData.name});
+                setScreenShareData((prevState) => {
+                  return {
+                    ...prevState,
+                    [renderListRef.current.renderList[uidNumber].screenUid]: {
+                      ...prevState[
+                        renderListRef.current.renderList[uidNumber].screenUid
+                      ],
+                      name: getScreenShareName(payloadData.name || userText),
+                    },
+                  };
                 });
-                break;
-              case controlMessageEnum.muteAudio:
-                RtcEngine.muteLocalAudioStream(true);
-                dispatch({
-                  type: 'LocalMuteAudio',
-                  value: [0],
-                });
-                break;
-              case controlMessageEnum.userNameChanged:
-                const {payload: payloadData} = JSON.parse(msg);
-                if (payloadData && payloadData.name) {
-                  const uidNumber = parseInt(uid);
-                  updateRenderListState(uidNumber, {name: payloadData.name});
-                  setScreenShareData((prevState) => {
-                    return {
-                      ...prevState,
-                      [renderListRef.current.renderList[uidNumber].screenUid]: {
-                        ...prevState[
-                          renderListRef.current.renderList[uidNumber].screenUid
-                        ],
-                        name: getScreenShareName(payloadData.name || userText),
-                      },
-                    };
-                  });
-                }
-                break;
-              default:
-                break;
-              //   throw new Error('Unsupported message type');
-            }
-          } catch (e) {
-            events.emit(messageChannelType.Public, null, {
-              msg: `Error while dispatching ${messageChannelType.Public} control message`,
-              cause: e,
-            });
-            return;
+              }
+              break;
+            default:
+              break;
+            //   throw new Error('Unsupported message type');
           }
         } else if (type === messageType.CUSTOM_EVENT) {
           console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
@@ -545,11 +513,6 @@ const RtmConfigure = (props: any) => {
           }
         }
       }
-      events.emit(messageChannelType.Public, {
-        uid: sender,
-        ts: timestamp,
-        ...textObj,
-      });
     });
 
     doLoginAndSetupRTM();
@@ -710,7 +673,6 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
-        events,
         setDisplayName,
         displayName,
       }}>

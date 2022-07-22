@@ -12,7 +12,6 @@
 import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
-import {rtmEventsInterface} from './RTMEvents';
 
 export interface ChatBubbleProps {
   isLocal: boolean;
@@ -63,7 +62,6 @@ export interface chatContext {
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
-  events: rtmEventsInterface;
   displayName: string;
   setDisplayName: React.Dispatch<SetStateAction<string>>;
 }
