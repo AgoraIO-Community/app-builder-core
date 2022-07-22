@@ -59,7 +59,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
           <Text
             style={isLocal ? style.whiteText : style.blackText}
             selectable={true}>
-            {message.slice(1) + ' '}
+            {message}
           </Text>
         </Hyperlink>
       </View>

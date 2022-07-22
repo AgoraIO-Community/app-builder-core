@@ -9,15 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import ChatContext from '../../src/components/ChatContext';
+
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 
 /**
  * This hook will return function to find the private message by uid
  * @returns private message
  */
 function usePrivateMessages() {
-  const {privateMessageStore} = useContext(ChatContext);
+  const {privateMessageStore} = useChatMessages();
   /**
    *
    * @param uid - User id

@@ -15,7 +15,7 @@ import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
 import {useString} from '../utils/useString';
-import useSendMessage, {MESSAGE_TYPE} from '../utils/useSendMessage';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
@@ -30,13 +30,13 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
     message,
     setMessage,
   } = useChatUIControl();
-  const sendMessage = useSendMessage();
+  const {sendChatMessage} = useChatMessages();
   const onPress = () => {
     if (!selectedUserId) {
-      sendMessage(MESSAGE_TYPE.group, message);
+      sendChatMessage(message);
       setMessage && setMessage('');
     } else {
-      sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
+      sendChatMessage(message, selectedUserId);
       setMessage && setMessage('');
     }
   };
@@ -68,7 +68,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     message,
     setMessage,
   } = useChatUIControl();
-  const sendMessage = useSendMessage();
+  const {sendChatMessage} = useChatMessages();
   const chatMessageInputPlaceholder = useString(
     'chatMessageInputPlaceholder',
   )();
@@ -76,10 +76,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {
-      sendMessage(MESSAGE_TYPE.group, message);
+      sendChatMessage(message);
       setMessage('');
     } else {
-      sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
+      sendChatMessage(message, selectedUserId);
       setMessage('');
     }
   };
