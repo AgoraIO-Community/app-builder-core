@@ -166,7 +166,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
   const pendingRequests = filterObject(
     raiseHandList,
     ([k, v]) =>
-      v?.raised === RaiseHandValue.TRUE && v?.role === ClientRole.Audience,
+      v?.raised === RaiseHandValue.TRUE && v?.role == ClientRole.Audience,
   );
 
   React.useEffect(() => {
@@ -185,9 +185,10 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
 
   React.useEffect(() => {
     if (
-      // Only host should see the pending request
+      // Only true host should see the pending request
       Object.keys(pendingRequests).length !== 0 &&
-      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp
+      lastRequestReceivedTimestamp >= lastCheckedRequestTimestamp &&
+      isHost
     ) {
       setPendingRequestToReview(true);
     } else {
