@@ -24,7 +24,7 @@ interface IEventPayloadBase {
 
 interface IEventPayloadWithoutAttributes extends IEventPayloadBase {
   level?: never;
-  value?: never;
+  value: string;
 }
 
 interface IEventPayloadWithAttributes extends IEventPayloadBase {
