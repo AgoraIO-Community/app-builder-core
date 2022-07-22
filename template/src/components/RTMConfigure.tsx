@@ -14,11 +14,10 @@ import RtmEngine, {
   RtmChannelAttribute,
   RtmAttribute,
 } from 'agora-react-native-rtm';
-import {PropsContext, UidType, useLocalUid} from '../../agora-rn-uikit';
+import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {
-  messageStoreInterface,
   messageChannelType,
   messageSourceType,
   messageActionType,
@@ -29,11 +28,7 @@ import events from './RTMEvents';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
-import {useChatUIControl} from './chat-ui/useChatUIControl';
-import {useChatNotification} from './chat-notification/useChatNotification';
-import Toast from '../../react-native-toast-message';
 import {useRenderContext, useSidePanel} from 'fpe-api';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useScreenContext} from './contexts/ScreenShareContext';
 import {safeJsonParse, timeNow} from '../rtm/utils';
 import {messageType} from '../rtm/types';
@@ -41,6 +36,7 @@ import EventUtils from '../custom-events/EventUtils';
 import EventAttributes from '../custom-events/EventAttributes';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
+import {hasJsonStructure} from '../rtm/utils';
 
 const adjustUID = (number: number) => {
   if (number < 0) {
@@ -65,20 +61,9 @@ const parsePayload = (data: string) => {
   return JSON.parse(data);
 };
 
-function hasJsonStructure(str: string) {
-  if (typeof str !== 'string') return false;
-  try {
-    const result = JSON.parse(str);
-    const type = Object.prototype.toString.call(result);
-    return type === '[object Object]' || type === '[object Array]';
-  } catch (err) {
-    return false;
-  }
-}
-
 const RtmConfigure = (props: any) => {
   const localUid = useLocalUid();
-  const {setRecordingActive, callActive} = props;
+  const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {renderList, renderPosition} = useRenderContext();
@@ -99,34 +84,11 @@ const RtmConfigure = (props: any) => {
 
   const {setScreenShareData, screenShareData} = useScreenContext();
 
-  const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
-
-  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
-    useChatNotification();
-  const {groupActive, selectedChatUserId, setGroupActive} = useChatUIControl();
-  const groupActiveRef = useRef<boolean>();
-  const individualActiveRef = useRef<string | number>();
-
-  /**
-   *  engine on channelMessageReceived callback won't be receiving update react state value so using ref
-   */
-  useEffect(() => {
-    groupActiveRef.current = groupActive;
-  }, [groupActive]);
-
-  /**
-   * engine on messageReceived callback won't be receiving update react state value so using ref
-   */
-  useEffect(() => {
-    individualActiveRef.current = selectedChatUserId;
-  }, [selectedChatUserId]);
-
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
 
-  const [privateMessageStore, setPrivateMessageStore] = useState({});
   const [login, setLogin] = useState<boolean>(false);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
@@ -135,55 +97,11 @@ const RtmConfigure = (props: any) => {
   const userText = useString('remoteUserDefaultLabel')();
   const pstnUserLabel = useString('pstnUserLabel')();
   const getScreenShareName = useString('screenshareUserName');
-  const fromText = useString('messageSenderNotificationLabel');
 
   let engine = useRef<RtmEngine>(null!);
   const timerValueRef: any = useRef(5);
 
   const {setSidePanel} = useSidePanel();
-
-  React.useEffect(() => {
-    const showMessageNotification = (data: any) => {
-      if (data.type === messageActionType.Normal) {
-        const {uid, msg} = data;
-        Toast.show({
-          type: 'success',
-          text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
-          text2: renderList[parseInt(uid)]?.name
-            ? fromText(renderList[parseInt(uid)]?.name)
-            : '',
-          visibilityTime: 1000,
-          onPress: () => {
-            setSidePanel(SidePanelType.Chat);
-            setUnreadGroupMessageCount(0);
-            setGroupActive(true);
-          },
-        });
-      }
-    };
-    events.on(
-      messageChannelType.Public,
-      'onPublicMessageReceived',
-      (data: any, error: any) => {
-        if (!data) return;
-        showMessageNotification(data);
-      },
-    );
-    events.on(
-      messageChannelType.Private,
-      'onPrivateMessageReceived',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (data.uid === localUid) return;
-        showMessageNotification(data);
-      },
-    );
-    return () => {
-      // Cleanup the listeners
-      events.off(messageChannelType.Public, 'onPublicMessageReceived');
-      events.off(messageChannelType.Private, 'onPrivateMessageReceived');
-    };
-  }, [renderList, messageStore]);
 
   React.useEffect(() => {
     setTotalOnlineUsers(
@@ -229,35 +147,6 @@ const RtmConfigure = (props: any) => {
       window.removeEventListener('beforeunload', handBrowserClose);
     };
   }, []);
-
-  const addMessageToStore = (uid: UidType, msg: {body: string; ts: string}) => {
-    setMessageStore((m: messageStoreInterface[]) => {
-      return [...m, {ts: msg.ts, uid: uid, msg: msg.body}];
-    });
-  };
-
-  const addMessageToPrivateStore = (
-    uid: string,
-    msg: {
-      body: string;
-      ts: string;
-    },
-    local: boolean,
-  ) => {
-    setPrivateMessageStore((state: any) => {
-      let newState = {...state};
-      newState[uid] !== undefined
-        ? (newState[uid] = [
-            ...newState[uid],
-            {ts: msg.ts, uid: local ? localUid : uid, msg: msg.body},
-          ])
-        : (newState = {
-            ...newState,
-            [uid]: [{ts: msg.ts, uid: local ? localUid : uid, msg: msg.body}],
-          });
-      return {...newState};
-    });
-  };
 
   const doLoginAndSetupRTM = async () => {
     try {
@@ -430,6 +319,7 @@ const RtmConfigure = (props: any) => {
       }, timerValueRef.current * 1000);
     }
   };
+
   const init = async () => {
     engine.current = RTMEngine.getInstance().engine;
     RTMEngine.getInstance().setLoginInfo(localUid.toString(), rtcProps.channel);
@@ -560,37 +450,6 @@ const RtmConfigure = (props: any) => {
           });
           return;
         }
-      } else if (type === messageActionType.Normal) {
-        try {
-          addMessageToPrivateStore(
-            sender,
-            {
-              body: `${type}${msg}`,
-              ts: timestamp,
-            },
-            false,
-          );
-          /**
-           * If individual chat window is not active
-           * then increment unread count based on uid
-           */
-          if (!(individualActiveRef.current === sender)) {
-            setUnreadIndividualMessageCount((prevState) => {
-              const prevCount =
-                prevState && prevState[sender] ? prevState[sender] : 0;
-              return {
-                ...prevState,
-                [sender]: prevCount + 1,
-              };
-            });
-          }
-        } catch (e) {
-          events.emit(messageChannelType.Private, null, {
-            msg: `Error while adding ${messageChannelType.Private} message to store`,
-            cause: e,
-          });
-          return;
-        }
       } else if (type === messageType.CUSTOM_EVENT) {
         console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
         try {
@@ -648,12 +507,6 @@ const RtmConfigure = (props: any) => {
                   value: [0],
                 });
                 break;
-              case controlMessageEnum.cloudRecordingActive:
-                setRecordingActive(true);
-                break;
-              case controlMessageEnum.cloudRecordingUnactive:
-                setRecordingActive(false);
-                break;
               case controlMessageEnum.userNameChanged:
                 const {payload: payloadData} = JSON.parse(msg);
                 if (payloadData && payloadData.name) {
@@ -679,25 +532,6 @@ const RtmConfigure = (props: any) => {
           } catch (e) {
             events.emit(messageChannelType.Public, null, {
               msg: `Error while dispatching ${messageChannelType.Public} control message`,
-              cause: e,
-            });
-            return;
-          }
-        } else if (type === messageActionType.Normal) {
-          try {
-            addMessageToStore(sender, {body: `${type}${msg}`, ts: timestamp});
-            /**
-             * if chat group window is not active.
-             * then we will increment the unread count
-             */
-            if (!groupActiveRef.current) {
-              setUnreadGroupMessageCount((prevState) => {
-                return prevState + 1;
-              });
-            }
-          } catch (e) {
-            events.emit(messageChannelType.Public, null, {
-              msg: `Error while adding ${messageChannelType.Public}  message to store`,
               cause: e,
             });
             return;
@@ -761,10 +595,6 @@ const RtmConfigure = (props: any) => {
       rtcProps.channel,
       text,
     );
-    addMessageToStore(localUid, {
-      body: messageActionType.Normal + msg,
-      ts: timeNow(),
-    });
   };
 
   const sendMessageToUid = async (msg: string, uid: number) => {
@@ -783,14 +613,6 @@ const RtmConfigure = (props: any) => {
       offline: false,
       text,
     });
-    addMessageToPrivateStore(
-      uid,
-      {
-        body: messageActionType.Normal + msg,
-        ts: timeNow(),
-      },
-      true,
-    );
   };
 
   const sendControlMessage = async (msg: string) => {
@@ -880,14 +702,11 @@ const RtmConfigure = (props: any) => {
     <ChatContext.Provider
       value={{
         hasUserJoinedRTM,
-        messageStore,
-        privateMessageStore,
         sendControlMessage,
         sendControlMessageToUid,
         sendMessage,
         sendMessageToUid,
         broadcastUserAttributes,
-        addOrUpdateLocalUserAttributes,
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
