@@ -32,14 +32,15 @@ interface dataPayload {
   level: 1 | 2 | 3;
   value: string;
 }
-export type CbEventPayload = {
-  payload: dataPayload;
-  sender: string;
-  ts: number;
-};
-
-export type TCbListener = (args: CbEventPayload) => void;
 export enum EventSourceEnum {
   core = 'core',
   fpe = 'fpe',
 }
+
+type CbEventPayload = {
+  payload: dataPayload;
+  sender: string;
+  ts: number;
+  source: EventSourceEnum;
+};
+export type TCbListener = (args: CbEventPayload) => void;

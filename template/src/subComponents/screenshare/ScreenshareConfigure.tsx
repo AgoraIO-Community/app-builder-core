@@ -10,6 +10,8 @@ import {
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import useUserList from '../../utils/useUserList';
+import CustomEvents from '../../custom-events';
+import {EventNames, EventActions} from '../../rtm-events';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -47,6 +49,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const [setPresenterQuery] = useMutation(SET_PRESENTER);
   const [setNormalQuery] = useMutation(SET_NORMAL);
+
+  useEffect(() => {
+    CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+      setScreenShareData((prevState) => {
+        return {
+          ...prevState,
+          [data.sender]: {
+            ...prevState[parseInt(data.sender)],
+            isActive: data.payload.value === 'true' ? true : false,
+          },
+        };
+      });
+    });
+  }, []);
 
   useEffect(() => {
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
@@ -93,6 +109,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               },
             };
           });
+          CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
+            action: EventActions.SCREENSHARE_STARTED,
+            value: true.toString(),
+            level: 2,
+          });
           dispatch({
             type: 'SwapVideo',
             value: [newUserUid],
@@ -111,6 +132,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
                 isActive: false,
               },
             };
+          });
+          CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
+            action: EventActions.RECORDING_STOPPED,
+            value: false.toString(),
+            level: 2,
           });
           changeLayout();
         }

@@ -116,9 +116,10 @@ const EventUtils = (function () {
         console.log('emitting: event name is empty');
         return;
       }
-      console.log('EMIT EVENT args: ', args);
-      return;
-      let listenersMap = _getListenersAsObject(evt, source);
+      let listenersMap = _getListenersAsObject(
+        evt,
+        args.payload.source || EventSourceEnum.core,
+      );
       console.log('CUSTOM_EVENT_API emit listenersMap: ', listenersMap);
       let listeners;
       let listener;
@@ -130,7 +131,11 @@ const EventUtils = (function () {
             // The function is executed either with a basic call or an apply if there is an args array
             listener = listeners[i];
             if (listener.once === true) {
-              EventUtils.removeListener(evt, source, listener.listener);
+              EventUtils.removeListener(
+                evt,
+                args.payload.source,
+                listener.listener,
+              );
             }
             const newargs = [].slice.call(arguments, 1);
             console.log('CUSTOM_EVENT_API newargs: ', newargs);
@@ -155,6 +160,7 @@ const EventUtils = (function () {
       }
       return this;
     },
+    // 1. To add multiple listeners
     // addListeners(evt: string, listeners: any) {
     //   if (Array.isArray(listeners)) {
     //     let i = listeners.length;
@@ -163,6 +169,7 @@ const EventUtils = (function () {
     //     }
     //   }
     // },
+    // 2. To add only once listener
     // addOnceListener(evt: string, listener: IListener) {
     //   return this.addListener(evt, {
     //     listener: listener,

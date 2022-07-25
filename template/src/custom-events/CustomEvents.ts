@@ -118,12 +118,13 @@ class CustomEvents {
         action,
         value,
         level,
+        source: this.source,
       },
     };
 
     if (level === 2 || level === 3) {
       console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
-      await this._persist(evt, payload);
+      await this._persist(evt, {...payload, source: this.source});
     }
     try {
       await this._send(rtmPayload, to);
