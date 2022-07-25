@@ -12,19 +12,20 @@
 
 ('use strict');
 import RtmEngine from 'agora-react-native-rtm';
-import EventUtils from './EventUtils';
 import RTMEngine from '../rtm/RTMEngine';
-import {ToOptions, EventPayload, CbEventPayload} from './types';
-import {messageType} from '../rtm/types';
-import EventAttributes from './EventAttributes';
-
-type ICbListener = (args: CbEventPayload) => void;
+import {ToOptions, EventPayload} from './types';
+import {EventAttributes, EventUtils, eventMessageType} from '../rtm-events';
+import {TCbListener, EventSourceEnum} from './types';
 
 class CustomEvents {
   engine!: RtmEngine;
+  source: EventSourceEnum = EventSourceEnum.core;
 
-  constructor() {
+  constructor(source?: EventSourceEnum) {
     this.engine = RTMEngine.getInstance().engine;
+    if (source) {
+      this.source = source;
+    }
   }
 
   private _persist = async (evt: string, payload: any) => {
@@ -44,7 +45,7 @@ class CustomEvents {
   };
   private _send = async (rtmPayload: any, to?: ToOptions) => {
     const text = JSON.stringify({
-      type: messageType.CUSTOM_EVENT,
+      type: eventMessageType.CUSTOM_EVENT,
       msg: rtmPayload,
     });
     // Case 1: send to channel
@@ -97,19 +98,14 @@ class CustomEvents {
     }
   };
 
-  on = (name: string, listener: ICbListener) => {
-    console.log('CUSTOM_EVENT_API: Event lifecycle: ON');
-    const response = EventUtils.addListener(name, listener);
-  };
-
-  once = (name: string, listener: any) => {
-    console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
-    const response = EventUtils.addOnceListener(name, listener);
+  on = (name: string, listener: TCbListener) => {
+    console.log('CUSTOM_EVENT_API: Event lifecycle: ON', this.source);
+    EventUtils.addListener(name, listener, this.source);
   };
 
   off = (name: string) => {
     console.log('CUSTOM_EVENT_API: Event lifecycle: OFF ');
-    const response = EventUtils.removeEvent(name);
+    EventUtils.removeEvent(name, this.source);
   };
 
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
@@ -125,8 +121,6 @@ class CustomEvents {
       },
     };
 
-    // With level 1 message we can send an optional attribute which can then update remote user's local attributes,
-    // level 1 with optional parameters, if it exists on receivers end (Dispacther end), update the local attributes
     if (level === 2 || level === 3) {
       console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
       await this._persist(evt, payload);
@@ -139,9 +133,20 @@ class CustomEvents {
   };
 
   printEvents = () => {
-    console.log('CUSTOM_EVENT_API: EVENTS', EventUtils.getEvents());
+    console.log(
+      'CUSTOM_EVENT_API: EVENTS source',
+      EventUtils.getEvents(EventSourceEnum.core),
+    );
+    console.log(
+      'CUSTOM_EVENT_API: EVENTS fpe',
+      EventUtils.getEvents(EventSourceEnum.fpe),
+    );
     console.log('CUSTOM_EVENT_API: ATTRIBUTES:', EventAttributes.get());
   };
+  // once = (name: string, listener: any) => {
+  //   console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
+  //   const response = EventUtils.addOnceListener(name, listener);
+  // };
 }
 
-export default new CustomEvents();
+export default CustomEvents;
