@@ -1,4 +1,4 @@
-export enum messageType {
+export enum eventMessageType {
   CONTROL_GROUP = 1,
   CONTROL_PRIVATE,
   NORMAL_GROUP,

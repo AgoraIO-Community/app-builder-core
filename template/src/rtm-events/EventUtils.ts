@@ -9,14 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {EventSourceEnum} from '../custom-events/types';
 
-type TEvents = Map<string, {once: boolean; listener: IListener}[]>;
+type TEventList = Map<string, {once: boolean; listener: IListener}[]>;
 type IListener = <T>(t: T) => void;
+type TEvents = Record<EventSourceEnum, TEventList> | Record<string, never>;
 
 const EventUtils = (function () {
   'use strict';
 
-  let _events: TEvents = new Map();
+  let _events: TEvents = {};
 
   const _isValidListener = function (listener: any): boolean {
     if (typeof listener === 'function') {
@@ -28,19 +30,28 @@ const EventUtils = (function () {
     }
   };
 
-  const _getListeners = function (evt: string) {
+  const _getListeners = function (evt: string, source: EventSourceEnum) {
     var response;
-    if (_events.get(evt)) {
-      response = _events.get(evt);
+    if (_events.hasOwnProperty(source)) {
+      if (_events[source].get(evt)) {
+        response = _events[source].get(evt);
+      } else {
+        _events[source].set(evt, []);
+        response = _events[source].get(evt);
+      }
     } else {
-      _events.set(evt, []);
-      response = _events.get(evt);
+      _events[source] = new Map();
+      _events[source].set(evt, []);
+      response = _events[source].get(evt);
     }
     return response;
   };
 
-  const _getListenersAsObject = function (evt: string) {
-    const listeners = _getListeners(evt);
+  const _getListenersAsObject = function (
+    evt: string,
+    source: EventSourceEnum,
+  ) {
+    const listeners = _getListeners(evt, source);
     let response: any;
 
     if (listeners instanceof Array) {
@@ -63,14 +74,15 @@ const EventUtils = (function () {
   };
 
   return {
-    getEvents() {
-      return _events || (_events = new Map());
+    getEvents(source: EventSourceEnum) {
+      return _events[source] || (_events = {});
     },
-    addListener(evt: string, listener: any) {
+    addListener(evt: string, listener: any, source: EventSourceEnum) {
+      console.log('debugging addListener', evt, listener, source);
       if (!_isValidListener(listener)) {
         throw new Error('Listener must be a function');
       }
-      const listeners = _getListenersAsObject(evt);
+      const listeners = _getListenersAsObject(evt, source);
       const listenerIsWrapped = typeof listener === 'object';
       for (let key in listeners) {
         if (
@@ -89,39 +101,13 @@ const EventUtils = (function () {
       }
       return this;
     },
-    addListeners(evt: string, listeners: any) {
-      if (Array.isArray(listeners)) {
-        let i = listeners.length;
-        while (i--) {
-          this.addListener.call(this, evt, listeners[i]);
-        }
-      }
-    },
-    addOnceListener(evt: string, listener: IListener) {
-      return this.addListener(evt, {
-        listener: listener,
-        once: true,
-      });
-    },
-    removeListener(evt: string, listenerToRemove: IListener) {
-      let listeners = _getListenersAsObject(evt);
-      for (let key in listeners) {
-        if (listeners.hasOwnProperty(key)) {
-          let index = _indexOfListener(listeners[key], listenerToRemove);
-          if (index !== -1) {
-            listeners[key].splice(index, 1);
-          }
-        }
-      }
-      return this;
-    },
-    removeEvent(evt: string) {
+    removeEvent(evt: string, source: EventSourceEnum) {
       let type = typeof evt;
-      let events = this.getEvents();
+      let events = this.getEvents(source);
       // Remove different things depending on the state of evt
       if (type === 'string') {
         // Remove all listeners for the specified event
-        events.delete(evt);
+        // events[source].delete(evt);
       }
       return this;
     },
@@ -130,7 +116,9 @@ const EventUtils = (function () {
         console.log('emitting: event name is empty');
         return;
       }
-      let listenersMap = _getListenersAsObject(evt);
+      console.log('EMIT EVENT args: ', args);
+      return;
+      let listenersMap = _getListenersAsObject(evt, source);
       console.log('CUSTOM_EVENT_API emit listenersMap: ', listenersMap);
       let listeners;
       let listener;
@@ -142,7 +130,7 @@ const EventUtils = (function () {
             // The function is executed either with a basic call or an apply if there is an args array
             listener = listeners[i];
             if (listener.once === true) {
-              EventUtils.removeListener(evt, listener.listener);
+              EventUtils.removeListener(evt, source, listener.listener);
             }
             const newargs = [].slice.call(arguments, 1);
             console.log('CUSTOM_EVENT_API newargs: ', newargs);
@@ -151,6 +139,36 @@ const EventUtils = (function () {
         }
       }
     },
+    removeListener(
+      evt: string,
+      source: EventSourceEnum,
+      listenerToRemove: IListener,
+    ) {
+      let listeners = _getListenersAsObject(evt, source);
+      for (let key in listeners) {
+        if (listeners.hasOwnProperty(key)) {
+          let index = _indexOfListener(listeners[key], listenerToRemove);
+          if (index !== -1) {
+            listeners[key].splice(index, 1);
+          }
+        }
+      }
+      return this;
+    },
+    // addListeners(evt: string, listeners: any) {
+    //   if (Array.isArray(listeners)) {
+    //     let i = listeners.length;
+    //     while (i--) {
+    //       this.addListener.call(this, evt, listeners[i]);
+    //     }
+    //   }
+    // },
+    // addOnceListener(evt: string, listener: IListener) {
+    //   return this.addListener(evt, {
+    //     listener: listener,
+    //     once: true,
+    //   });
+    // },
   };
 })();
 
