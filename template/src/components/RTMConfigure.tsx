@@ -99,30 +99,6 @@ const RtmConfigure = (props: any) => {
     );
   }, [renderList]);
 
-  useEffect(() => {
-    // Update the username in localstorage when username changes
-    if (setStore) {
-      setStore((prevState) => {
-        return {
-          ...prevState,
-          token: store?.token || null,
-          displayName: displayName,
-        };
-      });
-    }
-    if (callActive) {
-      broadcastUserAttributes(
-        [
-          {
-            key: 'name',
-            value: displayName,
-          },
-        ],
-        controlMessageEnum.userNameChanged,
-      );
-    }
-  }, [displayName]);
-
   React.useEffect(() => {
     const handBrowserClose = () => {
       engine.current.leaveChannel(rtcProps.channel);
@@ -172,14 +148,6 @@ const RtmConfigure = (props: any) => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
         setAttribute();
       }, timerValueRef.current * 1000);
-    }
-  };
-
-  const addOrUpdateLocalUserAttributes = async (attributes: RtmAttribute[]) => {
-    try {
-      await engine.current.addOrUpdateLocalUserAttributes(attributes);
-    } catch (error) {
-      console.log('error while local user addOrUpdateAttributes: ', error);
     }
   };
 
@@ -484,29 +452,11 @@ const RtmConfigure = (props: any) => {
                 value: [0],
               });
               break;
-            case controlMessageEnum.userNameChanged:
-              const {payload: payloadData} = JSON.parse(msg);
-              if (payloadData && payloadData.name) {
-                const uidNumber = parseInt(uid);
-                updateRenderListState(uidNumber, {name: payloadData.name});
-                setScreenShareData((prevState) => {
-                  return {
-                    ...prevState,
-                    [renderListRef.current.renderList[uidNumber].screenUid]: {
-                      ...prevState[
-                        renderListRef.current.renderList[uidNumber].screenUid
-                      ],
-                      name: getScreenShareName(payloadData.name || userText),
-                    },
-                  };
-                });
-              }
-              break;
             default:
               break;
             //   throw new Error('Unsupported message type');
           }
-        } else if (type === messageType.CUSTOM_EVENT) {
+        } else if (type === eventMessageType.CUSTOM_EVENT) {
           console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
           try {
             customEventDispatcher(msg, sender, timestamp);
@@ -516,7 +466,6 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
-
     doLoginAndSetupRTM();
   };
 
@@ -625,44 +574,6 @@ const RtmConfigure = (props: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rtcProps.channel, rtcProps.appId, callActive]);
 
-  const broadcastUserAttributes = async (
-    attributes: RtmAttribute[],
-    ctrlMsg: controlMessageEnum,
-  ) => {
-    // 1. Update my attributes in attribute-list
-    await addOrUpdateLocalUserAttributes(attributes);
-
-    let formattedAttributes: any = {};
-    // Transform the array into object of key value pair
-    attributes.map((attribute) => {
-      let key = Object.values(attribute)[0];
-      let value = Object.values(attribute)[1];
-      formattedAttributes[key] = value;
-    });
-    // 2. Update my attributes in rtm and screenshare and livestream
-    if ('name' in formattedAttributes) {
-      updateRenderListState(localUid, {name: formattedAttributes['name']});
-      setScreenShareData((prevState) => {
-        return {
-          ...prevState,
-          [renderListRef.current.renderList[localUid].screenUid]: {
-            ...prevState[renderListRef.current.renderList[localUid].screenUid],
-            name: getScreenShareName(formattedAttributes['name'] || userText),
-          },
-        };
-      });
-    }
-    /**
-     * 3. Broadcast my updated attributes to everyone
-     * send payload and control message as string
-     */
-    const msgAsString = JSON.stringify({
-      action: ctrlMsg,
-      payload: {...formattedAttributes},
-    });
-    sendControlMessage(msgAsString);
-  };
-
   return (
     <ChatContext.Provider
       value={{
@@ -671,7 +582,6 @@ const RtmConfigure = (props: any) => {
         sendControlMessageToUid,
         sendMessage,
         sendMessageToUid,
-        broadcastUserAttributes,
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
