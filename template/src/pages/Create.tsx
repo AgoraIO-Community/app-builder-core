@@ -32,17 +32,17 @@ const Create = () => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
-
-    if (
-      data?.components?.create &&
-      typeof data?.components?.create !== 'object'
-    ) {
-      if (
-        data?.components?.create &&
-        isValidReactComponent(data?.components?.create)
-      )
-        components.CreateComponent = data?.components?.create;
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.create &&
+    //   typeof data?.components?.create !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.create &&
+    //     isValidReactComponent(data?.components?.create)
+    //   )
+    //     components.CreateComponent = data?.components?.create;
+    // }
     return components;
   });
 

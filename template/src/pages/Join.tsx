@@ -50,13 +50,14 @@ const Join = () => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};
-    if (
-      data?.components?.join &&
-      typeof data?.components?.join !== 'object' &&
-      isValidReactComponent(data?.components?.join)
-    ) {
-      components.JoinComponent = data?.components?.join;
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.join &&
+    //   typeof data?.components?.join !== 'object' &&
+    //   isValidReactComponent(data?.components?.join)
+    // ) {
+    //   components.JoinComponent = data?.components?.join;
+    // }
     return components;
   });
 

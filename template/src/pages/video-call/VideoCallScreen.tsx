@@ -57,26 +57,30 @@ const VideoCallScreen = () => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      if (
-        data?.components?.videoCall?.after &&
-        isValidReactComponent(data?.components?.videoCall?.after)
-      ) {
-        components.VideocallAfterView = data?.components?.videoCall?.after;
-      }
-      if (
-        data?.components?.videoCall?.before &&
-        isValidReactComponent(data?.components?.videoCall?.before)
-      ) {
-        components.VideocallBeforeView = data?.components?.videoCall?.before;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.after &&
+      //   isValidReactComponent(data?.components?.videoCall?.after)
+      // ) {
+      //   components.VideocallAfterView = data?.components?.videoCall?.after;
+      // }
 
-      if (
-        data?.components?.videoCall.chat &&
-        typeof data?.components?.videoCall.chat !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.chat)
-      ) {
-        components.ChatComponent = data?.components?.videoCall.chat;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.before &&
+      //   isValidReactComponent(data?.components?.videoCall?.before)
+      // ) {
+      //   components.VideocallBeforeView = data?.components?.videoCall?.before;
+      // }
+
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall.chat &&
+      //   typeof data?.components?.videoCall.chat !== 'object' &&
+      //   isValidReactComponent(data?.components?.videoCall.chat)
+      // ) {
+      //   components.ChatComponent = data?.components?.videoCall.chat;
+      // }
 
       if (
         data?.components?.videoCall.bottomBar &&
@@ -86,13 +90,14 @@ const VideoCallScreen = () => {
         components.BottombarComponent = data?.components?.videoCall.bottomBar;
       }
 
-      if (
-        data?.components?.videoCall.topBar &&
-        typeof data?.components?.videoCall.topBar !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.topBar)
-      ) {
-        components.TopbarComponent = data?.components?.videoCall.topBar;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall.topBar &&
+      //   typeof data?.components?.videoCall.topBar !== 'object' &&
+      //   isValidReactComponent(data?.components?.videoCall.topBar)
+      // ) {
+      //   components.TopbarComponent = data?.components?.videoCall.topBar;
+      // }
 
       if (
         data?.components?.videoCall.participantsPanel &&
@@ -103,14 +108,15 @@ const VideoCallScreen = () => {
           data?.components?.videoCall.participantsPanel;
       }
 
-      if (
-        data?.components?.videoCall.settingsPanel &&
-        typeof data?.components?.videoCall.settingsPanel !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.settingsPanel)
-      ) {
-        components.SettingsComponent =
-          data?.components?.videoCall.settingsPanel;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall.settingsPanel &&
+      //   typeof data?.components?.videoCall.settingsPanel !== 'object' &&
+      //   isValidReactComponent(data?.components?.videoCall.settingsPanel)
+      // ) {
+      //   components.SettingsComponent =
+      //     data?.components?.videoCall.settingsPanel;
+      // }
     }
 
     return components;

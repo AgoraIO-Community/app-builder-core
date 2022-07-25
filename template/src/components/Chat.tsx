@@ -93,24 +93,24 @@ const Chat = () => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      if (
-        data?.components?.videoCall?.chat &&
-        typeof data?.components?.videoCall?.chat === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.chat?.after &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.after)
-        ) {
-          components.ChatAfterView = data?.components?.videoCall?.chat?.after;
-        }
-
-        if (
-          data?.components?.videoCall?.chat?.before &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.before)
-        ) {
-          components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
-        }
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.chat &&
+      //   typeof data?.components?.videoCall?.chat === 'object'
+      // ) {
+      //   if (
+      //     data?.components?.videoCall?.chat?.after &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
+      //   ) {
+      //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
+      //   }
+      //   if (
+      //     data?.components?.videoCall?.chat?.before &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
+      //   ) {
+      //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
+      //   }
+      // }
     }
     return components;
   });

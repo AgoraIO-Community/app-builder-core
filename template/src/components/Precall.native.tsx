@@ -50,74 +50,77 @@ const Precall = () => {
       Textbox: PreCallTextInput,
       VideoPreview: PreCallVideoPreview,
     };
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data?.components?.precall?.after &&
-        isValidReactComponent(data?.components?.precall?.after)
-      ) {
-        components.PrecallAfterView = data?.components?.precall?.after;
-      }
-      if (
-        data?.components?.precall?.before &&
-        isValidReactComponent(data?.components?.precall?.before)
-      ) {
-        components.PrecallBeforeView = data?.components?.precall?.before;
-      }
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.after &&
+    //     isValidReactComponent(data?.components?.precall?.after)
+    //   ) {
+    //     components.PrecallAfterView = data?.components?.precall?.after;
+    //   }
+    //   if (
+    //     data?.components?.precall?.before &&
+    //     isValidReactComponent(data?.components?.precall?.before)
+    //   ) {
+    //     components.PrecallBeforeView = data?.components?.precall?.before;
+    //   }
 
-      if (
-        data?.components?.precall?.meetingName &&
-        typeof data?.components?.precall?.meetingName !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.meetingName)) {
-          components.MeetingName = data?.components?.precall?.meetingName;
-        }
-      }
+    //   if (
+    //     data?.components?.precall?.meetingName &&
+    //     typeof data?.components?.precall?.meetingName !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.meetingName)) {
+    //       components.MeetingName = data?.components?.precall?.meetingName;
+    //     }
+    //   }
 
-      if (
-        data?.components?.precall?.joinButton &&
-        typeof data?.components?.precall?.joinButton !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.joinButton)) {
-          components.JoinButton = data?.components?.precall?.joinButton;
-        }
-      }
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
 
-      if (
-        data?.components?.precall?.textBox &&
-        typeof data?.components?.precall?.textBox !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.textBox)) {
-          components.Textbox = data?.components?.precall?.textBox;
-        }
-      }
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
 
-      if (
-        data?.components?.precall?.preview &&
-        typeof data?.components?.precall?.preview !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.preview)) {
-          components.VideoPreview = data?.components?.precall?.preview;
-        }
-      }
-    }
+    //   if (
+    //     data?.components?.precall?.preview &&
+    //     typeof data?.components?.precall?.preview !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.preview)) {
+    //       components.VideoPreview = data?.components?.precall?.preview;
+    //     }
+    //   }
+    // }
     return components;
   });
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
 
   const FpePrecallComponent = useFpe((data) => {
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall !== 'object'
-    ) {
-      if (isValidReactComponent(data?.components?.precall)) {
-        return data?.components?.precall;
-      }
-      return undefined;
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall !== 'object'
+    // ) {
+    //   if (isValidReactComponent(data?.components?.precall)) {
+    //     return data?.components?.precall;
+    //   }
+    //   return undefined;
+    // }
+    return undefined;
   });
 
   return FpePrecallComponent ? (

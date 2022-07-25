@@ -19,7 +19,8 @@ import OAuth from './components/OAuth';
 import StoreToken from './components/StoreToken';
 import {shouldAuthenticate, isIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
-import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
+// commented for v1 release
+//import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
 import AppWrapper from './AppWrapper';
 import {
   MeetingInfoContextInterface,
@@ -48,34 +49,35 @@ declare module 'agora-rn-uikit' {
 }
 
 const App: React.FC = () => {
-  const CustomRoutes = useFpe((data) => data?.customRoutes);
-  const RenderCustomRoutes = () => {
-    try {
-      return (
-        CustomRoutes &&
-        Array.isArray(CustomRoutes) &&
-        CustomRoutes.length &&
-        CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
-          let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
-          return (
-            <RouteComponent
-              path={CUSTOM_ROUTES_PREFIX + item.path}
-              exact={item.exact}
-              key={i}
-              failureRedirectTo={
-                item.failureRedirectTo ? item.failureRedirectTo : '/'
-              }
-              {...item.routeProps}>
-              <item.component {...item.componentProps} />
-            </RouteComponent>
-          );
-        })
-      );
-    } catch (error) {
-      console.error('Error on rendering the custom routes');
-      return null;
-    }
-  };
+  //commented for v1 release
+  //const CustomRoutes = useFpe((data) => data?.customRoutes);
+  // const RenderCustomRoutes = () => {
+  //   try {
+  //     return (
+  //       CustomRoutes &&
+  //       Array.isArray(CustomRoutes) &&
+  //       CustomRoutes.length &&
+  //       CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
+  //         let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+  //         return (
+  //           <RouteComponent
+  //             path={CUSTOM_ROUTES_PREFIX + item.path}
+  //             exact={item.exact}
+  //             key={i}
+  //             failureRedirectTo={
+  //               item.failureRedirectTo ? item.failureRedirectTo : '/'
+  //             }
+  //             {...item.routeProps}>
+  //             <item.component {...item.componentProps} />
+  //           </RouteComponent>
+  //         );
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.error('Error on rendering the custom routes');
+  //     return null;
+  //   }
+  // };
   const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
     MeetingInfoDefaultValue,
   );
@@ -86,7 +88,8 @@ const App: React.FC = () => {
         <MeetingInfoProvider value={{...meetingInfo}}>
           <ShareLinkProvider>
             <Switch>
-              {RenderCustomRoutes()}
+              {/* commented for v1 release */}
+              {/* {RenderCustomRoutes()} */}
               <Route exact path={'/'}>
                 <Redirect to={'/create'} />
               </Route>

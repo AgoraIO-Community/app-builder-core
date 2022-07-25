@@ -97,7 +97,8 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
-  const lifecycle = useFpe((data) => data.lifecycle);
+  // commented for v1 release
+  //const lifecycle = useFpe((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -185,7 +186,8 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
-                  lifecycle,
+                  // commented for v1 release
+                  //lifecycle,
                 },
                 callbacks,
                 styleProps,

@@ -28,18 +28,18 @@ const Share = () => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};
-
-    if (
-      data?.components?.share &&
-      typeof data?.components?.share !== 'object'
-    ) {
-      if (
-        data?.components?.share &&
-        isValidReactComponent(data?.components?.share)
-      ) {
-        components.FpeShareComponent = data?.components?.share;
-      }
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.share &&
+    //   typeof data?.components?.share !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.share &&
+    //     isValidReactComponent(data?.components?.share)
+    //   ) {
+    //     components.FpeShareComponent = data?.components?.share;
+    //   }
+    // }
     return components;
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();

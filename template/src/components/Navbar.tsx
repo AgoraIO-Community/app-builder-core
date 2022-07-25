@@ -40,7 +40,6 @@ import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
-import {useFpe} from 'fpe-api';
 import {
   ButtonTemplateName,
   useButtonTemplate,
