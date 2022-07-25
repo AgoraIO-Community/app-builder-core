@@ -6,16 +6,6 @@ type AtMostOneOf<T> =
 
 // export type TEventOptions = AtMostOneOf<IMessageOptions> & IEventOptions;
 
-interface IChannelMessageOptions {
-  channelId: string;
-  uids?: never;
-}
-
-interface IPeerMessageOptions {
-  uids: string | string[];
-  channelId?: never;
-}
-
 export type ToOptions = string | string[];
 
 interface IEventPayloadBase {
@@ -47,3 +37,9 @@ export type CbEventPayload = {
   sender: string;
   ts: number;
 };
+
+export type TCbListener = (args: CbEventPayload) => void;
+export enum EventSourceEnum {
+  core = 'core',
+  fpe = 'fpe',
+}

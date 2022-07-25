@@ -16,8 +16,8 @@ import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import CustomEvents from '../../custom-events/CustomEvents';
-import {EventNames} from '../../rtm/constants';
+import CustomEvents from '../../custom-events';
+import {EventNames} from '../../rtm-events';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -206,7 +206,7 @@ export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
             ...prevState[data.sender],
             role:
               data.payload.value in ClientRole
-                ? data.payload.value
+                ? ClientRole[data.payload.value]
                 : ClientRole.Audience,
           },
         };

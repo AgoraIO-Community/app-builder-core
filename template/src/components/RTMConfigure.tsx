@@ -22,13 +22,11 @@ import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
 import {useRenderContext} from 'fpe-api';
 import {useScreenContext} from './contexts/ScreenShareContext';
-import {safeJsonParse, timeNow} from '../rtm/utils';
-import {messageType} from '../rtm/types';
-import EventUtils from '../custom-events/EventUtils';
-import EventAttributes from '../custom-events/EventAttributes';
+import {safeJsonParse, timeNow, hasJsonStructure} from '../rtm/utils';
+import {EventUtils, EventAttributes, eventMessageType} from '../rtm-events';
+
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
-import {hasJsonStructure} from '../rtm/utils';
 
 const adjustUID = (number: number) => {
   if (number < 0) {
@@ -214,6 +212,8 @@ const RtmConfigure = (props: any) => {
                 const attr = await engine.current.getUserAttributesByUid(
                   member.uid,
                 );
+                // TODO: How to replace the below logic to dynamically consider keys
+                console.log('supriya hey attr', attr);
                 for (const key in attr.attributes) {
                   if (attr.attributes.hasOwnProperty(key)) {
                     return attr;
@@ -259,6 +259,8 @@ const RtmConfigure = (props: any) => {
               updateRenderListState(screenUid, screenShareData);
               //end - updating screenshare data in rtc
               //setting screenshare data
+              // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
+              // isActive to identify all active screenshare users in the call
               setScreenShareData((prevState) => {
                 return {
                   ...prevState,
@@ -431,7 +433,7 @@ const RtmConfigure = (props: any) => {
           default:
             break;
         }
-      } else if (type === messageType.CUSTOM_EVENT) {
+      } else if (type === eventMessageType.CUSTOM_EVENT) {
         console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
         try {
           customEventDispatcher(msg, sender, timestamp);
@@ -454,7 +456,7 @@ const RtmConfigure = (props: any) => {
 
       if (channelId === rtcProps.channel) {
         if (
-          type === messageType.CONTROL_GROUP ||
+          type === eventMessageType.CONTROL_GROUP ||
           type === messageActionType.Control
         ) {
           let actionMsg = '';

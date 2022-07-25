@@ -46,7 +46,7 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import Styles from './styles';
-import CustomEvents from '../custom-events/CustomEvents';
+import CustomEvents from '../custom-events';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);

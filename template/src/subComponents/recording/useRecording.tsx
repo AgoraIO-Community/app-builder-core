@@ -16,7 +16,6 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import {controlMessageEnum} from '../../components/ChatContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
@@ -24,8 +23,8 @@ import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import CustomEvents from '../../custom-events/CustomEvents';
-import {EventActions, EventNames} from '../../rtm/constants';
+import CustomEvents from '../../custom-events';
+import {EventActions, EventNames} from '../../rtm-events';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -100,6 +99,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
+    () => {
+      CustomEvents.off(EventNames.RECORDING_ATTRIBUTE);
+    };
   }, []);
 
   useEffect(() => {
