@@ -3,7 +3,7 @@ import React, {createContext, Dispatch, SetStateAction, useState} from 'react';
 import {createHook} from 'fpe-implementation';
 
 export interface LiveStreamDataObjectInterface {
-  [key: UidType]: {
+  [key: number]: {
     role: number;
     //todo hari update any type
     requests: any;

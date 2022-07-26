@@ -35,14 +35,20 @@ export default function PrimaryButton(props: ButtonProps) {
         {backgroundColor: props.disabled ? primaryColor + '80' : primaryColor},
       ]}
       {...otherProps}>
-      {props.text ? (
-        <Text style={[styles.primaryButtonText as StyleProp<TextStyle>, {color: '#fff'}]}>
-          {props.text}
-        </Text>
-      ) : (
-        <></>
-      )}
-      {children}
+      <>
+        {props.text ? (
+          <Text
+            style={[
+              styles.primaryButtonText as StyleProp<TextStyle>,
+              {color: '#fff'},
+            ]}>
+            {props.text}
+          </Text>
+        ) : (
+          <></>
+        )}
+        {children}
+      </>
     </Pressable>
   );
 }

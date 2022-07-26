@@ -34,13 +34,6 @@ function usePrevious<T = any>(value: any) {
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-declare module 'agora-rn-uikit' {
-  interface RtcPropsInterface {
-    screenShareUid?: number;
-    screenShareToken?: string;
-  }
-}
-
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useContext(RtcContext);

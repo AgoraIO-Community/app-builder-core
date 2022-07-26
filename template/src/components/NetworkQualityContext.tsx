@@ -82,7 +82,7 @@ export const networkIconsObject: {
 };
 
 interface NetworkQualityStatsInterface {
-  [key: UidType]: number;
+  [key: number]: number;
 }
 
 const initNewtorkQualityStats: NetworkQualityStatsInterface = {};
@@ -93,7 +93,9 @@ export default NetworkQualityContext;
 
 export const NetworkQualityConsumer = NetworkQualityContext.Consumer;
 
-export const NetworkQualityProvider: React.FC = (props) => {
+export const NetworkQualityProvider: React.FC = (props: {
+  children: React.ReactNode;
+}) => {
   const localUid = useLocalUid();
   const [networkQualityStats, setNetworkQualityStats] =
     useState<NetworkQualityStatsInterface>({

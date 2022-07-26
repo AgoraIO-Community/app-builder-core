@@ -186,5 +186,6 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     overflow: 'hidden',
   },
+  //@ts-ignore
   videoView: videoView,
 });

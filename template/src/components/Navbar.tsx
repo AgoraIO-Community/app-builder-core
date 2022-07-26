@@ -280,14 +280,17 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
-    let btnTemplateProps: BtnTemplateInterface = {
+    let btnTemplateProps = {
       onPress: onPress,
+      style: {},
+      btnText: '',
     };
     if (buttonTemplateName === ButtonTemplateName.bottomBar) {
       btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
       btnTemplateProps.btnText = layoutLabel;
     } else {
       btnTemplateProps.style = style.btnHolder;
+      delete btnTemplateProps['btnText'];
     }
     renderContent.push(
       props?.render ? (

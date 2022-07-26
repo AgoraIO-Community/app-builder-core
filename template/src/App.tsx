@@ -45,6 +45,7 @@ declare module 'agora-rn-uikit' {
   }
   interface RtcPropsInterface {
     screenShareUid: number;
+    screenShareToken?: string;
   }
 }
 

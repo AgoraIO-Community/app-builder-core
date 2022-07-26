@@ -25,6 +25,7 @@ const ChatParticipants = (props: any) => {
   const isChatUser = (userId: UidType, userInfo: any) => {
     return (
       userId !== localUid && //user can't chat with own user
+      // @ts-ignore
       userId !== '1' && //user can't chat with pstn user
       userInfo?.type === 'rtc' &&
       !userInfo?.offline
