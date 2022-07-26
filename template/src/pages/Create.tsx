@@ -90,6 +90,12 @@ const Create = () => {
     setRoomCreated(true);
   };
 
+  useEffect(() => {
+    if (attendee) {
+      SDKEvents.emit('create', host, attendee, pstn);
+    }
+  }, [attendee]);
+
   const createRoomAndNavigateToShare = async (
     roomTitle: string,
     enablePSTN: boolean,
@@ -99,8 +105,6 @@ const Create = () => {
       setLoading(true);
       try {
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
-        //todo hari check this event on sdk
-        SDKEvents.emit('create', host, attendee, pstn);
         setLoading(false);
         Toast.show({
           type: 'success',
