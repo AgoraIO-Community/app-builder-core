@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
 import Navbar from '../../components/Navbar';
@@ -15,9 +15,14 @@ import {
   ButtonTemplateProvider,
   ButtonTemplateName,
 } from '../../utils/useButtonTemplate';
+import SDKEvents from '../../utils/SdkEvents';
+import {RtcContext} from '../../../agora-rn-uikit';
+import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
+  const rtc = useContext(RtcContext);
+  const {meetingTitle, isHost} = useMeetingInfo();
   const {
     ChatComponent,
     VideocallComponent,
@@ -121,6 +126,16 @@ const VideoCallScreen = () => {
 
     return components;
   });
+
+  useEffect(() => {
+    new Promise((res) =>
+      rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+        res(devices);
+      }),
+    ).then((devices: MediaDeviceInfo[]) => {
+      SDKEvents.emit('join', meetingTitle, devices, isHost);
+    });
+  }, []);
 
   return VideocallComponent ? (
     <VideocallComponent />
