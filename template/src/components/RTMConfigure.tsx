@@ -21,7 +21,6 @@ import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
 import {useRenderContext} from 'fpe-api';
-import {useScreenContext} from './contexts/ScreenShareContext';
 import {safeJsonParse, timeNow, hasJsonStructure} from '../rtm/utils';
 import {EventUtils, EventAttributes, eventMessageType} from '../rtm-events';
 
@@ -71,8 +70,6 @@ const RtmConfigure = (props: any) => {
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
-
-  const {setScreenShareData, screenShareData} = useScreenContext();
 
   const {store, setStore} = useContext(StorageContext);
   const getInitialUsername = () =>
@@ -221,29 +218,13 @@ const RtmConfigure = (props: any) => {
               //start - updating screenshare data in rtc
               const screenShareData = {
                 name: getScreenShareName(attr?.attributes?.name || userText),
-                //below thing for livestreaming
                 type: 'screenshare',
               };
               updateRenderListState(screenUid, screenShareData);
               //end - updating screenshare data in rtc
-              //setting screenshare data
+              // setting screenshare data
               // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
               // isActive to identify all active screenshare users in the call
-              setScreenShareData((prevState) => {
-                return {
-                  ...prevState,
-                  [screenUid]: {
-                    name: getScreenShareName(
-                      attr?.attributes?.name || userText,
-                    ),
-                    isActive: renderPositionRef.current.renderPosition.filter(
-                      (i) => i === screenUid,
-                    ).length
-                      ? true
-                      : false,
-                  },
-                };
-              });
               for (const [key, value] of Object.entries(attr?.attributes)) {
                 EventAttributes.set(member.uid, {
                   key,
@@ -329,17 +310,16 @@ const RtmConfigure = (props: any) => {
             type: 'rtc',
           };
           updateRenderListState(uid, userData);
-          //start - updating user data in rtc
-          //setting screenshare data
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [screenUid]: {
-                name: getScreenShareName(attr?.attributes?.name || userText),
-                isActive: false,
-              },
-            };
-          });
+          //end- updating user data in rtc
+
+          //start - updating screenshare data in rtc
+          const screenShareData = {
+            name: getScreenShareName(attr?.attributes?.name || userText),
+            type: 'screenshare',
+          };
+          updateRenderListState(screenUid, screenShareData);
+          //end - updating screenshare data in rtc
+
           for (const [key, value] of Object.entries(attr?.attributes)) {
             EventAttributes.set(data.uid, {
               key,
