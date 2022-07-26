@@ -177,10 +177,11 @@ const RtmConfigure = (props: any) => {
                 const attr = await engine.current.getUserAttributesByUid(
                   member.uid,
                 );
-                // TODO: How to replace the below logic to dynamically consider keys
-                console.log('supriya hey attr', attr);
                 for (const key in attr.attributes) {
-                  if (attr.attributes.hasOwnProperty(key)) {
+                  if (
+                    attr.attributes.hasOwnProperty(key) &&
+                    attr.attributes[key]
+                  ) {
                     return attr;
                   } else {
                     throw attr;
@@ -276,7 +277,7 @@ const RtmConfigure = (props: any) => {
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
           for (const key in attr.attributes) {
-            if (attr.attributes.hasOwnProperty(key)) {
+            if (attr.attributes.hasOwnProperty(key) && attr.attributes[key]) {
               return attr;
             } else {
               throw attr;
