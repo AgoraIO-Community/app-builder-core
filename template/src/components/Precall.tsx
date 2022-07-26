@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {RtcContext, PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
@@ -25,6 +25,8 @@ import {
   PreCallSelectDevice,
   PreCallVideoPreview,
 } from './precall/index';
+import SDKEvents from '../utils/SdkEvents';
+import isSDKCheck from '../utils/isSDK';
 
 const JoinRoomInputView = () => {
   const {JoinButton, Textbox} = useFpe((data) => {
@@ -66,7 +68,7 @@ const JoinRoomInputView = () => {
   );
 };
 
-const Precall = () => {
+const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {
@@ -136,8 +138,9 @@ const Precall = () => {
     // }
     return components;
   });
-  const {isJoinDataFetched} = useMeetingInfo();
-  const {meetingTitle} = useMeetingInfo();
+  const {isJoinDataFetched, meetingTitle} = useMeetingInfo();
+  const rtc = useContext(RtcContext);
+  const isSDK = isSDKCheck();
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -149,12 +152,25 @@ const Precall = () => {
   };
 
   useEffect(() => {
-    if (isWeb) {
+    if (isWeb && !isSDK) {
       if (meetingTitle) {
         document.title = meetingTitle + ' | ' + $config.APP_NAME;
       }
     }
   });
+
+  useEffect(() => {
+    if (isJoinDataFetched) {
+      new Promise((res) =>
+        // @ts-ignore
+        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+          res(devices);
+        }),
+      ).then((devices: MediaDeviceInfo[]) => {
+        SDKEvents.emit('preJoin', meetingTitle, devices);
+      });
+    }
+  }, [isJoinDataFetched]);
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 

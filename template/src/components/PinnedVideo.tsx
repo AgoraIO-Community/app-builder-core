@@ -27,7 +27,7 @@ const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = () => {
   const [collapse, setCollapse] = useState(false);
-  const [dim, setDim] = useState([
+  const [dim, setDim] = useState<[number, number, boolean]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,

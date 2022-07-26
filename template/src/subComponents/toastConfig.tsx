@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React from 'react';
 import {Platform} from 'react-native';
 import Toast, {BaseToast} from '../../react-native-toast-message';

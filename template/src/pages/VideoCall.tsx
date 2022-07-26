@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import {
@@ -49,6 +50,7 @@ import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataConte
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
 import StorageContext from '../components/StorageContext';
+import SDKEvents from '../utils/SdkEvents';
 
 enum RnEncryptionEnum {
   /**
@@ -172,6 +174,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {
+        SDKEvents.emit('leave');
         history.push('/');
       }, 0),
   };

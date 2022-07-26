@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, TextStyle} from 'react-native';
+import {View, Text, StyleSheet, ViewStyle, TextStyle} from 'react-native';
 import icons from '../assets/icons';
 import Settings, {
   SettingsWithViewWrapper,
@@ -386,6 +386,7 @@ const Navbar = () => {
       <View
         style={[
           style.roomNameContainer,
+          // @ts-ignore
           isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
@@ -490,7 +491,7 @@ const style = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  navHolder: navHolder,
+  navHolder: navHolder as ViewStyle,
   navHolderNative: {
     position: 'relative',
     width: '100%',

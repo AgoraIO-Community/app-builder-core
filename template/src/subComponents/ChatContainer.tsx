@@ -14,10 +14,10 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';

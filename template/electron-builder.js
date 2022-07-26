@@ -10,12 +10,13 @@
 *********************************************
 */
 const {PRODUCT_ID} = require('./config.json');
+
 module.exports = {
   appId: `com.${PRODUCT_ID.toLowerCase()}`,
   productName: PRODUCT_ID,
   directories: {
-    output: './out',
-    app: './.electron',
+    output: `../Builds/${process.env.TARGET}`,
+    app: '../Builds/.electron',
   },
   linux: {
     target: ['AppImage'],

@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+
 import {ILocalVideoTrack, IRemoteVideoTrack} from 'agora-rtc-sdk-ng';
 import React, {useEffect} from 'react';
 import {StyleProp, StyleSheet, ViewProps, ViewStyle} from 'react-native';
@@ -17,9 +18,9 @@ import {VideoMirrorMode, VideoRenderMode} from 'react-native-agora';
 export interface RtcSurfaceViewProps extends ViewProps {
   zOrderMediaOverlay?: boolean;
   zOrderOnTop?: boolean;
-  renderMode?: VideoRenderMode;
+  renderMode?: any;
   channelId?: string;
-  mirrorMode?: VideoMirrorMode;
+  mirrorMode?: any;
 }
 export interface RtcUidProps {
   uid: number;

@@ -30,7 +30,9 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
-export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
+export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
+  props,
+) => {
   const raiseHandRemoteHostNotification = useString(
     'raiseHandRemoteHostNotification',
   );

@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine, {
   RtmChannelAttribute,
@@ -45,10 +46,21 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useScreenContext} from './contexts/ScreenShareContext';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
+import {typeOf} from 'react-is';
 
-const adjustUID = (number: number) => {
-  if (number < 0) {
-    number = 0xffffffff + number + 1;
+export enum UserType {
+  Normal,
+  ScreenShare,
+}
+
+const adjustUID = (uid: number | string) => {
+  let number: number | string;
+  if (typeof uid === 'string') number = uid;
+  else {
+    number = uid;
+    if (number < 0) {
+      number = 0xffffffff + number + 1;
+    }
   }
   return number;
 };
@@ -636,7 +648,7 @@ const RtmConfigure = (props: any) => {
             userUID,
             {
               body: `${type}${msg}`,
-              ts: timestamp,
+              ts: `${timestamp}`,
             },
             false,
           );
@@ -821,7 +833,7 @@ const RtmConfigure = (props: any) => {
     );
     addMessageToStore(localUid, {
       body: messageActionType.Normal + msg,
-      ts: timeNow(),
+      ts: `${timeNow()}`,
     });
   };
 
@@ -842,10 +854,10 @@ const RtmConfigure = (props: any) => {
       text,
     });
     addMessageToPrivateStore(
-      uid,
+      `${uid}`,
       {
         body: messageActionType.Normal + msg,
-        ts: timeNow(),
+        ts: `${timeNow()}`,
       },
       true,
     );

@@ -22,10 +22,12 @@ import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
 import {isWeb, isValidReactComponent} from '../utils/common';
-import {useFpe} from 'fpe-api';
+import {useFpe, useMeetingInfo} from 'fpe-api';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
+import useJoinMeeting from '../utils/useJoinMeeting';
+import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
   const {CreateComponent} = useFpe((data) => {
@@ -46,6 +48,8 @@ const Create = () => {
     return components;
   });
 
+  const useJoin = useJoinMeeting();
+
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [loading, setLoading] = useState(false);
@@ -54,6 +58,9 @@ const Create = () => {
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
+  const {
+    meetingPassphrase: {attendee, host, pstn},
+  } = useMeetingInfo();
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
   const pstnToggle = useString<boolean>('pstnToggle');
@@ -68,6 +75,15 @@ const Create = () => {
     if (isWeb) {
       document.title = $config.APP_NAME;
     }
+    SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
+      console.log(
+        'DEBUG(aditya)-SDKEvents: joinMeetingWithPhrase event called',
+      );
+      useJoin(phrase);
+    });
+    return () => {
+      SDKEvents.off('joinMeetingWithPhrase');
+    };
   }, []);
 
   const showShareScreen = () => {
@@ -83,6 +99,8 @@ const Create = () => {
       setLoading(true);
       try {
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
+        //todo hari check this event on sdk
+        SDKEvents.emit('create', host, attendee, pstn);
         setLoading(false);
         Toast.show({
           type: 'success',
