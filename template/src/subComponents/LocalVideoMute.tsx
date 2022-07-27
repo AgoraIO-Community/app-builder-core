@@ -39,7 +39,9 @@ export interface LocalVideoMuteProps {
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useContext(LocalContext);
   const localMute = useMuteToggleLocal();
-  const videoLabel = useString('toggleVideoButton')();
+  //commented for v1 release
+  //const videoLabel = useString('toggleVideoButton')();
+  const videoLabel = 'Video';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {

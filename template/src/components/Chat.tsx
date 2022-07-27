@@ -29,8 +29,11 @@ import {useFpe} from 'fpe-api';
 import {UidType} from '../../agora-rn-uikit';
 
 const Chat = () => {
-  const groupChatLabel = useString('groupChatLabel')();
-  const privateChatLabel = useString('privateChatLabel')();
+  // commented for v1 release
+  // const groupChatLabel = useString('groupChatLabel')();
+  // const privateChatLabel = useString('privateChatLabel')();
+  const groupChatLabel = 'Group';
+  const privateChatLabel = 'Private';
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,

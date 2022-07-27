@@ -21,7 +21,9 @@ const Error = (props: {
 }) => {
   const {resetError} = useContext(ErrorContext);
   const history = useHistory();
-  const goBackButton = useString('goBackButton')();
+  //commented for v1 release
+  //const goBackButton = useString('goBackButton')();
+  const goBackButton = 'Go back';
   return (
     <View
       style={{

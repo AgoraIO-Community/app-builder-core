@@ -25,7 +25,9 @@ import {
 
 const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
-  const precallLabel = useString('precallLabel')();
+  //commented for v1 release
+  //const precallLabel = useString('precallLabel')();
+  const precallLabel = 'Precall';
 
   const {
     VideoPreview,

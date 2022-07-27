@@ -39,7 +39,9 @@ export interface LocalAudioMuteProps {
 function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useContext(LocalContext);
   const localMute = useMuteToggleLocal();
-  const audioLabel = useString('toggleAudioButton')();
+  //commented for v1 release
+  //const audioLabel = useString('toggleAudioButton')();
+  const audioLabel = 'Audio';
 
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;

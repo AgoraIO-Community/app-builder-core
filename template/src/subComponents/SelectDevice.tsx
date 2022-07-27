@@ -109,7 +109,10 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
 
 const SelectDevice = () => {
   const [isPickerDisabled] = useSelectDevice();
-  const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
+  //commented for v1 release
+  // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
+  const settingScreenInfoMessage =
+    'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
   return (
     <View>
       <View style={{marginTop: 15}}></View>

@@ -85,7 +85,10 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
-  const recordingStartedText = useString<boolean>('recordingNotificationLabel');
+  //commented for v1 release
+  //const recordingStartedText = useString<boolean>('recordingNotificationLabel');
+  const recordingStartedText = (active: boolean) =>
+    active ? 'Recording Started' : 'Recording Stopped';
   const {localUid} = useContext(ChatContext);
 
   React.useEffect(() => {

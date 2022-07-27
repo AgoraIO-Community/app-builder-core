@@ -80,7 +80,9 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const joiningLoaderLabel = useString('joiningLoaderLabel')();
+  //commented for v1 release
+  //const joiningLoaderLabel = useString('joiningLoaderLabel')();
+  const joiningLoaderLabel = 'Starting Call. Just a second.';
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {store, setStore} = useContext(StorageContext);
   const {awake, release} = useWakeLock();

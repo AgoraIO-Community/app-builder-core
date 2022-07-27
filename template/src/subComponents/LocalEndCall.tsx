@@ -21,7 +21,9 @@ export interface LocalEndcallProps {
 
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useContext(RtcContext);
-  const endCallLabel = useString('endCallButton')();
+  //commented for v1 release
+  //const endCallLabel = useString('endCallButton')();
+  const endCallLabel = 'Hang Up';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () =>

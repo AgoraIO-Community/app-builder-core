@@ -92,9 +92,13 @@ const RtmConfigure = (props: any) => {
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
   const [onlineUsersCount, setTotalOnlineUsers] = useState<number>(0);
 
-  const userText = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  // const userText = useString('remoteUserDefaultLabel')();
+  const userText = 'User';
   const pstnUserLabel = useString('pstnUserLabel')();
-  const getScreenShareName = useString('screenshareUserName');
+  //commented for v1 release
+  //const getScreenShareName = useString('screenshareUserName');
+  const getScreenShareName = (name: string) => `${name}'s screenshare`;
 
   let engine = useRef<RtmEngine>(null!);
   const timerValueRef: any = useRef(5);

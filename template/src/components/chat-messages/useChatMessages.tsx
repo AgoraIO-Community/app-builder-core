@@ -11,7 +11,8 @@
 */
 import {createHook} from 'fpe-implementation';
 import React, {useState, useEffect, useRef} from 'react';
-import {useRenderContext, useSidePanel} from 'fpe-api';
+import {useRenderContext} from 'fpe-api';
+import {useSidePanel} from '../../utils/useSidePanel';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import CustomEvents from '../../custom-events';
@@ -59,8 +60,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const groupActiveRef = useRef<boolean>();
   const individualActiveRef = useRef<string | number>();
 
-  const fromText = useString('messageSenderNotificationLabel');
-
+  //commented for v1 release
+  //const fromText = useString('messageSenderNotificationLabel');
+  const fromText = (name: string) => `From : ${name}`;
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);

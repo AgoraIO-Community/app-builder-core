@@ -30,9 +30,13 @@ import useNavigateTo from '../utils/useNavigateTo';
 import {useFpe} from 'fpe-api';
 
 const Join = () => {
-  const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
-  const enterMeetingButton = useString('enterMeetingButton')();
-  const createMeetingButton = useString('createMeetingButton')();
+  //commented for v1 release
+  // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
+  // const enterMeetingButton = useString('enterMeetingButton')();
+  // const createMeetingButton = useString('createMeetingButton')();
+  const meetingIdInputPlaceholder = 'Enter Meeting ID';
+  const enterMeetingButton = 'Enter Meeting';
+  const createMeetingButton = 'Create Meeting';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
   const navigateTo = useNavigateTo();

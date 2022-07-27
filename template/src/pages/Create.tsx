@@ -61,15 +61,26 @@ const Create = () => {
   const {
     meetingPassphrase: {attendee, host, pstn},
   } = useMeetingInfo();
-  const createdText = useString('meetingCreatedNotificationLabel')();
-  const hostControlsToggle = useString<boolean>('hostControlsToggle');
-  const pstnToggle = useString<boolean>('pstnToggle');
+  //commented for v1 release
+  // const createdText = useString('meetingCreatedNotificationLabel')();
+  // const hostControlsToggle = useString<boolean>('hostControlsToggle');
+  // const pstnToggle = useString<boolean>('pstnToggle');
+  // const loadingWithDots = useString('loadingWithDots')();
+  // const createMeetingButton = useString('createMeetingButton')();
+  // const haveMeetingID = useString('haveMeetingID')();
+
+  const createdText = 'Created';
+  const hostControlsToggle = (toggle: boolean) =>
+    toggle
+      ? 'Restrict Host Controls (Separate host link)'
+      : 'Restrict Host Controls (Everyone is a Host)';
+  const pstnToggle = () => 'Use PSTN (Join by dialing a number)';
   const meetingNameInputPlaceholder = useString(
     'meetingNameInputPlaceholder',
   )();
-  const loadingWithDots = useString('loadingWithDots')();
-  const createMeetingButton = useString('createMeetingButton')();
-  const haveMeetingID = useString('haveMeetingID')();
+  const loadingWithDots = 'Loading...';
+  const createMeetingButton = 'Create Meeting';
+  const haveMeetingID = 'Have a Meeting ID?';
 
   useEffect(() => {
     if (isWeb) {

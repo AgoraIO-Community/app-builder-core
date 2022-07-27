@@ -46,19 +46,31 @@ const Share = () => {
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {meetingPassphrase, isSeparateHostLink} = useMeetingInfo();
-  const meetingUrlText = useString('meetingUrlLabel')();
-  const meetingIdText = useString('meetingIdLabel')();
-  const hostIdText = useString('hostIdLabel')();
-  const attendeeUrlLabel = useString('attendeeUrlLabel')();
-  const attendeeIdLabel = useString('attendeeIdLabel')();
-  const hostUrlLabel = useString('hostUrlLabel')();
-  const pstnLabel = useString('pstnLabel')();
-  const pstnNumberLabel = useString('pstnNumberLabel')();
-  const pinLabel = useString('pin')();
-  const enterMeetingAfterCreateButton = useString(
-    'enterMeetingAfterCreateButton',
-  )();
-  const copyInviteButton = useString('copyInviteButton')();
+  //commented for v1 release
+  // const meetingUrlText = useString('meetingUrlLabel')();
+  // const meetingIdText = useString('meetingIdLabel')();
+  // const hostIdText = useString('hostIdLabel')();
+  // const attendeeUrlLabel = useString('attendeeUrlLabel')();
+  // const attendeeIdLabel = useString('attendeeIdLabel')();
+  // const hostUrlLabel = useString('hostUrlLabel')();
+  // const pstnLabel = useString('pstnLabel')();
+  // const pstnNumberLabel = useString('pstnNumberLabel')();
+  // const pinLabel = useString('pin')();
+  // const enterMeetingAfterCreateButton = useString(
+  //   'enterMeetingAfterCreateButton',
+  // )();
+  // const copyInviteButton = useString('copyInviteButton')();
+  const meetingUrlText = 'Meeting URL';
+  const meetingIdText = 'Meeting ID';
+  const hostIdText = 'Host ID';
+  const attendeeUrlLabel = 'Attendee URL';
+  const attendeeIdLabel = 'Attendee ID';
+  const hostUrlLabel = 'Host URL';
+  const pstnLabel = 'PSTN';
+  const pstnNumberLabel = 'Number';
+  const pinLabel = 'Pin';
+  const enterMeetingAfterCreateButton = 'Start Meeting (as host)';
+  const copyInviteButton = 'Copy invite to clipboard';
   const navigateTo = useNavigateTo();
   const enterMeeting = () => {
     if (meetingPassphrase?.host) {

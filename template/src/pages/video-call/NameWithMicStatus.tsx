@@ -9,7 +9,9 @@ import {useString} from '../../utils/useString';
 export const NameWithMicStatus = ({user}: {user: RenderInterface}) => {
   const {primaryColor} = useContext(ColorContext);
   const {height, width} = useWindowDimensions();
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   return (
     <>
       <View style={[style.MicBackdrop]}>

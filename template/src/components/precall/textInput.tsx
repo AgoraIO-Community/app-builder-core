@@ -18,8 +18,11 @@ import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
 
 const PreCallTextInput: React.FC = () => {
-  const userNamePlaceholder = useString('userNamePlaceholder')();
-  const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
+  //commented for v1 release
+  // const userNamePlaceholder = useString('userNamePlaceholder')();
+  // const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
+  const userNamePlaceholder = 'Display name*';
+  const fetchingNamePlaceholder = 'Getting name...';
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched} = useMeetingInfo();

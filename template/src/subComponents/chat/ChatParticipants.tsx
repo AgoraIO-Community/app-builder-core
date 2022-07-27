@@ -16,7 +16,9 @@ import useUserList from '../../utils/useUserList';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 
 const ChatParticipants = (props: any) => {
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
   const {renderList} = useUserList();
