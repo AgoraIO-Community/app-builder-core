@@ -18,6 +18,7 @@ import {
 } from '../../pages/video-call/DefaultLayouts';
 import useUserList from '../../utils/useUserList';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import {useString} from '../../utils/useString';
 
 function usePrevious(value: any) {
   const ref = useRef();
@@ -32,9 +33,12 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = rtc;
   const {renderList, renderPosition} = useUserList();
   const {setScreenShareData, screenShareData} = useScreenContext();
+  const getScreenShareName = useString('screenshareUserName');
+  const userText = useString('remoteUserDefaultLabel')();
   const prevRenderPosition = usePrevious({renderPosition});
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
+
   useEffect(() => {
     if (prevRenderPosition !== undefined) {
       let joinedUser = renderPosition.filter((uid) =>
@@ -51,6 +55,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               ...prevState,
               [newUserUid]: {
                 ...prevState[newUserUid],
+                name: getScreenShareName(
+                  renderList[newUserUid]?.name || userText,
+                ),
                 isActive: true,
               },
             };

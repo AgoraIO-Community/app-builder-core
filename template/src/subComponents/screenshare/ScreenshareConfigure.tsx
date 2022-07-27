@@ -12,6 +12,7 @@ import CustomEvents from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
+import {useString} from '../../utils/useString';
 
 function usePrevious<T = any>(value: any) {
   const ref = useRef<T>();
@@ -31,6 +32,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
+  const getScreenShareName = useString('screenshareUserName');
+  const userText = useString('remoteUserDefaultLabel')();
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
 
@@ -50,11 +53,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
-
       setScreenShareData((prevState) => {
         return {
           ...prevState,
           [screenUidOfUser]: {
+            name: renderListRef.current.renderList[screenUidOfUser]?.name,
             isActive: data.payload.value === 'true' ? true : false,
           },
         };
@@ -91,6 +94,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               ...prevState,
               [newUserUid]: {
                 ...prevState[newUserUid],
+                name: getScreenShareName(
+                  renderList[newUserUid]?.name || userText,
+                ),
                 isActive: true,
               },
             };
