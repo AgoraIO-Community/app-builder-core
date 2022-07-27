@@ -153,7 +153,8 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
-          if (Object.values(screenShareData).some((item) => item.active)) {
+          if (Object.values(screenShareData).some((item) => item.isActive)) {
+            console.log('Executing presenter query');
             executePresenterQuery();
           }
         }

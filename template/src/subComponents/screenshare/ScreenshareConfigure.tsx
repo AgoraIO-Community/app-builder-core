@@ -50,11 +50,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
+
       setScreenShareData((prevState) => {
         return {
           ...prevState,
           [screenUidOfUser]: {
-            ...prevState[parseInt(screenUidOfUser)],
             isActive: data.payload.value === 'true' ? true : false,
           },
         };

@@ -164,6 +164,17 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
       await getMembers();
       setHasUserJoinedRTM(true);
+      const eventsInQueue = EventUtils.tasksInQueue();
+      if (eventsInQueue.length !== 0) {
+        for (const queuedEvents of eventsInQueue) {
+          await customEventDispatcher(
+            queuedEvents.data,
+            queuedEvents.uid,
+            queuedEvents.ts,
+          );
+          EventUtils.dequeue();
+        }
+      }
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -183,88 +194,95 @@ const RtmConfigure = (props: any) => {
     try {
       await engine.current
         .getChannelMembersBychannelId(rtcProps.channel)
-        .then((data) => {
-          data.members.map(async (member: any) => {
-            const backoffAttributes = backOff(
-              async () => {
-                const attr = await engine.current.getUserAttributesByUid(
-                  member.uid,
-                );
-                for (const key in attr.attributes) {
-                  if (
-                    attr.attributes.hasOwnProperty(key) &&
-                    attr.attributes[key]
-                  ) {
-                    return attr;
-                  } else {
-                    throw attr;
+        .then(async (data) => {
+          await Promise.all(
+            data.members.map(async (member: any) => {
+              const backoffAttributes = backOff(
+                async () => {
+                  const attr = await engine.current.getUserAttributesByUid(
+                    member.uid,
+                  );
+                  for (const key in attr.attributes) {
+                    if (
+                      attr.attributes.hasOwnProperty(key) &&
+                      attr.attributes[key]
+                    ) {
+                      return attr;
+                    } else {
+                      throw attr;
+                    }
+                  }
+                },
+                {
+                  retry: (e, idx) => {
+                    console.log(
+                      `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
+                      e,
+                    );
+                    return true;
+                  },
+                },
+              );
+              try {
+                const attr = await backoffAttributes;
+                console.log('[user attributes]:', {attr});
+                //RTC layer uid type is number. so doing the parseInt to convert to number
+                //todo hari check android uid comparsion
+                const uid = parseInt(member.uid);
+                const screenUid = parseInt(attr?.attributes?.screenUid);
+                //start - updating user data in rtc
+                const userData = {
+                  name:
+                    String(member.uid)[0] === '1'
+                      ? pstnUserLabel
+                      : attr?.attributes?.name || userText,
+                  screenUid: screenUid,
+                  //below thing for livestreaming
+                  type: 'rtc',
+                };
+                updateRenderListState(uid, userData);
+                //end- updating user data in rtc
+
+                //start - updating screenshare data in rtc
+                const screenShareUser = {
+                  name: getScreenShareName(attr?.attributes?.name || userText),
+                  type: UserType.ScreenShare,
+                };
+                updateRenderListState(screenUid, screenShareUser);
+                //end - updating screenshare data in rtc
+                // setting screenshare data
+                // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
+                // isActive to identify all active screenshare users in the call
+                for (const [key, value] of Object.entries(attr?.attributes)) {
+                  EventAttributes.set(member.uid, {
+                    key,
+                    value: value as string,
+                  });
+                  if (hasJsonStructure(value as string)) {
+                    const [err, result] = safeJsonParse(value as string);
+                    const payloadValue = result?.value || '';
+                    const payloadAction = result?.action || '';
+                    const data = {
+                      evt: key,
+                      payload: {
+                        ...result,
+                        value: payloadValue,
+                        action: payloadAction,
+                      },
+                    };
+                    // Add the data to queue
+                    EventUtils.queue({
+                      data: data,
+                      uid: member.uid,
+                      ts: timeNow(),
+                    });
                   }
                 }
-              },
-              {
-                retry: (e, idx) => {
-                  console.log(
-                    `[retrying] Attempt ${idx}. Fetching ${member.uid}'s name`,
-                    e,
-                  );
-                  return true;
-                },
-              },
-            );
-            try {
-              const attr = await backoffAttributes;
-              console.log('[user attributes]:', {attr});
-              //RTC layer uid type is number. so doing the parseInt to convert to number
-              //todo hari check android uid comparsion
-              const uid = parseInt(member.uid);
-              const screenUid = parseInt(attr?.attributes?.screenUid);
-              //start - updating user data in rtc
-              const userData = {
-                name:
-                  String(member.uid)[0] === '1'
-                    ? pstnUserLabel
-                    : attr?.attributes?.name || userText,
-                screenUid: screenUid,
-                //below thing for livestreaming
-                type: 'rtc',
-              };
-              updateRenderListState(uid, userData);
-              //end- updating user data in rtc
-
-              //start - updating screenshare data in rtc
-              const screenShareUser = {
-                name: getScreenShareName(attr?.attributes?.name || userText),
-                type: UserType.ScreenShare,
-              };
-              updateRenderListState(screenUid, screenShareUser);
-              //end - updating screenshare data in rtc
-              // setting screenshare data
-              // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
-              // isActive to identify all active screenshare users in the call
-              for (const [key, value] of Object.entries(attr?.attributes)) {
-                EventAttributes.set(member.uid, {
-                  key,
-                  value: value as string,
-                });
-                if (hasJsonStructure(value as string)) {
-                  const [err, result] = safeJsonParse(value as string);
-                  const payloadValue = result?.value || '';
-                  const payloadAction = result?.action || '';
-                  const data = {
-                    evt: key,
-                    payload: {
-                      ...result,
-                      value: payloadValue,
-                      action: payloadAction,
-                    },
-                  };
-                  customEventDispatcher(data, member.uid, timeNow());
-                }
+              } catch (e) {
+                console.error(`Could not retrieve name of ${member.uid}`, e);
               }
-            } catch (e) {
-              console.error(`Could not retrieve name of ${member.uid}`, e);
-            }
-          });
+            }),
+          );
           setLogin(true);
           console.log('RTM init done');
         });
@@ -272,7 +290,7 @@ const RtmConfigure = (props: any) => {
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
-        getMembers();
+        await getMembers();
       }, timerValueRef.current * 1000);
     }
   };
