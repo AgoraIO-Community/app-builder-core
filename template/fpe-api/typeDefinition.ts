@@ -12,7 +12,11 @@
 import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
-import {RenderInterface, UidType} from '../agora-rn-uikit';
+import {
+  RenderInterface,
+  RenderStateInterface,
+  UidType,
+} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 export type {
@@ -55,7 +59,9 @@ export interface renderComponentObjectInterface {
   [key: string]: React.ComponentType<renderComponentInterface>;
 }
 
-export type layoutComponent = React.ComponentType;
+export type layoutComponent = React.ComponentType<{
+  renderData: RenderStateInterface['renderPosition'];
+}>;
 
 export interface layoutObjectBase {
   name: string;
