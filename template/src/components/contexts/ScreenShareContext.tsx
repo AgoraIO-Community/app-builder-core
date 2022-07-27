@@ -9,7 +9,7 @@ import React, {
 import {createHook} from 'fpe-implementation';
 
 export interface ScreenShareObjectInterface {
-  [key: number]: {
+  [key: string | number]: {
     name: string;
     isActive: boolean;
   };

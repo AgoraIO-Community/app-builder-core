@@ -12,7 +12,6 @@
 import {createHook} from 'fpe-implementation';
 import React, {useState, useEffect, useRef} from 'react';
 import {useRenderContext} from 'fpe-api';
-import {useSidePanel} from '../../utils/useSidePanel';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid} from '../../../agora-rn-uikit';
 import CustomEvents from '../../custom-events';
@@ -22,6 +21,7 @@ import {useChatNotification} from '../chat-notification/useChatNotification';
 import {useString} from '../../utils/useString';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
+import {useSidePanel} from '../../utils/useSidePanel';
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;

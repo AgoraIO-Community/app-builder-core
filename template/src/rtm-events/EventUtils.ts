@@ -10,6 +10,7 @@
 *********************************************
 */
 import {EventSourceEnum} from '../custom-events/types';
+import {IQueueEvent} from './types';
 
 type TEventList = Map<string, {once: boolean; listener: IListener}[]>;
 type IListener = <T>(t: T) => void;
@@ -19,6 +20,7 @@ const EventUtils = (function () {
   'use strict';
 
   let _events: TEvents = {};
+  let _eventsQueue: any = [];
 
   const _isValidListener = function (listener: any): boolean {
     if (typeof listener === 'function') {
@@ -78,7 +80,7 @@ const EventUtils = (function () {
       return _events[source] || (_events = {});
     },
     addListener(evt: string, listener: any, source: EventSourceEnum) {
-      console.log('debugging addListener', evt, listener, source);
+      console.log('CUSTOM_EVENT_API addListener', evt, source);
       if (!_isValidListener(listener)) {
         throw new Error('Listener must be a function');
       }
@@ -159,6 +161,15 @@ const EventUtils = (function () {
         }
       }
       return this;
+    },
+    queue(q: IQueueEvent) {
+      _eventsQueue.push(q);
+    },
+    dequeue() {
+      _eventsQueue.pop();
+    },
+    tasksInQueue() {
+      return _eventsQueue;
     },
     // 1. To add multiple listeners
     // addListeners(evt: string, listeners: any) {

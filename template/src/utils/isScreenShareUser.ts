@@ -24,7 +24,7 @@ function useIsScreenShare() {
    * @returns boolean
    */
   const isScreenShare = (uid: UidType): boolean =>
-    screenShareData[uid] ? true : false;
+    screenShareData[uid]?.isActive ? true : false;
   return isScreenShare;
 }
 
