@@ -1,9 +1,8 @@
-import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
+import {ClientRole} from '../../../agora-rn-uikit';
 import {I18nBaseType} from '../i18nTypes';
 
 export interface JoinRoomButtonTextInterface {
   ready: boolean;
-  mode: ChannelProfile;
   role?: ClientRole;
 }
 export interface I18nPrecallScreenLabelsInterface {
@@ -21,12 +20,12 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   userNamePlaceholder: 'Display name*',
   fetchingNamePlaceholder: 'Getting name...',
   loadingWithDots: 'Loading...',
-  joinRoomButton: ({ready, mode, role}) =>
+  joinRoomButton: ({ready, role}) =>
     ready
-      ? mode === ChannelProfile.LiveBroadcasting
-        ? `Join Room as ${
+      ? !role
+        ? 'Join Room'
+        : `Join Room as ${
             role === ClientRole.Broadcaster ? 'Host' : 'Audience'
           }`
-        : 'Join Room'
       : `Loading...`,
 };
