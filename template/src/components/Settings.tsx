@@ -82,18 +82,6 @@ const style = StyleSheet.create({
     flexShrink: 0,
     flexBasis: '15%',
   },
-  fullOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#000000aa',
-    justifyContent: 'space-evenly',
-    alignContent: 'center',
-    paddingVertical: 5,
-    zIndex: 50,
-  },
   main: {
     width: '50%',
     height: '80%',

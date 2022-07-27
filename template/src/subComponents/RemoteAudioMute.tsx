@@ -12,7 +12,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {controlMessageEnum} from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {BtnTemplate, UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/isPSTNUser';
 import useMutePSTN from '../utils/useMutePSTN';
 import useSendControlMessage, {
@@ -20,7 +20,7 @@ import useSendControlMessage, {
 } from '../utils/useSendControlMessage';
 
 export interface RemoteAudioMuteProps {
-  uid: number;
+  uid: UidType;
   audio: boolean;
   isHost: boolean;
 }

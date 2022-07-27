@@ -14,10 +14,10 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
@@ -64,19 +64,20 @@ const ChatContainer = (props: any) => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      if (
-        data?.components?.videoCall?.chat &&
-        typeof data?.components?.videoCall?.chat === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.chat?.chatBubble &&
-          typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
-        ) {
-          components.ChatBubbleComponent =
-            data?.components?.videoCall?.chat?.chatBubble;
-        }
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.chat &&
+      //   typeof data?.components?.videoCall?.chat === 'object'
+      // ) {
+      //   if (
+      //     data?.components?.videoCall?.chat?.chatBubble &&
+      //     typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
+      //   ) {
+      //     components.ChatBubbleComponent =
+      //       data?.components?.videoCall?.chat?.chatBubble;
+      //   }
+      // }
     }
     return components;
   });

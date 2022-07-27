@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {UidType} from '../../agora-rn-uikit';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import useUserList from './useUserList';
 
@@ -17,10 +18,10 @@ function useIsVideoEnabled() {
 
   /**
    *
-   * @param uid number | string
+   * @param uid UidType
    * @returns boolean
    */
-  const videoEnabled = (uid: number | string): boolean =>
+  const videoEnabled = (uid: UidType): boolean =>
     renderList[uid]?.video === ToggleState.enabled;
 
   return videoEnabled;

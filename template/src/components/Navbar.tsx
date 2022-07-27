@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, TextStyle} from 'react-native';
+import {View, Text, StyleSheet, ViewStyle, TextStyle} from 'react-native';
 import icons from '../assets/icons';
 import Settings, {
   SettingsWithViewWrapper,
@@ -40,7 +40,6 @@ import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
-import {useFpe} from 'fpe-api';
 import {
   ButtonTemplateName,
   useButtonTemplate,
@@ -282,14 +281,17 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
-    let btnTemplateProps: BtnTemplateInterface = {
+    let btnTemplateProps = {
       onPress: onPress,
+      style: {},
+      btnText: '',
     };
     if (buttonTemplateName === ButtonTemplateName.bottomBar) {
       btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
       btnTemplateProps.btnText = layoutLabel;
     } else {
       btnTemplateProps.style = style.btnHolder;
+      delete btnTemplateProps['btnText'];
     }
     renderContent.push(
       props?.render ? (
@@ -388,6 +390,7 @@ const Navbar = () => {
       <View
         style={[
           style.roomNameContainer,
+          // @ts-ignore
           isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
@@ -497,7 +500,7 @@ const style = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  navHolder: navHolder,
+  navHolder: navHolder as ViewStyle,
   navHolderNative: {
     position: 'relative',
     width: '100%',

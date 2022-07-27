@@ -14,6 +14,7 @@
 const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
 const webpack = require('webpack');
+
 module.exports = {
   // Main entry point for the web application
   mode: isDevelopment ? 'development' : 'production',
@@ -26,7 +27,7 @@ module.exports = {
   target: 'electron-main',
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, '.electron'),
+    path: path.resolve(__dirname, '../Builds/.electron'),
   },
   plugins: [
     new webpack.DefinePlugin({

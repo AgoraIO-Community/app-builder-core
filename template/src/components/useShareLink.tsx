@@ -13,6 +13,7 @@
 import {createHook} from 'fpe-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
+import isSDKCheck from '../utils/isSDK';
 import Toast from '../../react-native-toast-message';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import platform from '../subComponents/Platform';
@@ -57,6 +58,8 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const meetingInviteText =
     useString<MeetingInviteInterface>('meetingInviteText');
 
+  const isSDK = isSDKCheck();
+
   const getMeetingInvite = () => {
     let baseURL = getBaseURL();
     let stringToCopy = meetingInviteText({
@@ -86,7 +89,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getBaseURL = () => {
     let baseURL =
-      platform === 'web'
+      platform === 'web' && !isSDK
         ? $config.FRONTEND_ENDPOINT || window.location.origin
         : undefined;
     return baseURL;

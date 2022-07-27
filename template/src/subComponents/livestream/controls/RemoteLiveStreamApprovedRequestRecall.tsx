@@ -1,11 +1,11 @@
 import React from 'react';
-import {BtnTemplate} from '../../../../agora-rn-uikit';
+import {BtnTemplate, UidType} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
 import icons from '../../../assets/icons';
 import CustomEvents from '../../../custom-events';
 
 export interface RemoteLiveStreamApprovedRequestRecallProps {
-  uid: number;
+  uid: UidType;
 }
 const RemoteLiveStreamApprovedRequestRecall = (
   props: RemoteLiveStreamApprovedRequestRecallProps,

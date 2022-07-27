@@ -12,9 +12,8 @@ const DefaultRenderComponent: RenderComponentType = {
 };
 interface RenderComponentProps {
   user: RenderInterface;
-  uid: UidType;
 }
-const RenderComponent = ({user, uid}: RenderComponentProps) => {
+const RenderComponent = ({user}: RenderComponentProps) => {
   const FpeRenderComponent = useFpe((config) =>
     typeof config?.components?.videoCall === 'object' &&
     typeof config?.components?.videoCall?.customContent === 'object'
@@ -42,7 +41,7 @@ const RenderComponent = ({user, uid}: RenderComponentProps) => {
 
   const RenderComp = getRenderComponent(user?.type);
 
-  return <RenderComp user={user} uid={uid} />;
+  return <RenderComp user={user} />;
 };
 
 export default RenderComponent;

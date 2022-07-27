@@ -57,8 +57,8 @@ const STOP_RECORDING = gql`
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
-function usePrevious(value: any) {
-  const ref = useRef();
+function usePrevious<T = any>(value: any) {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
@@ -82,7 +82,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
-  const prevRecordingState = usePrevious({isRecordingActive});
+  const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
+    isRecordingActive,
+  });
   const recordingStartedText = useString<boolean>('recordingNotificationLabel');
   const {localUid} = useContext(ChatContext);
 

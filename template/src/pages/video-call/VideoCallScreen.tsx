@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useFpe} from 'fpe-api';
 import Navbar from '../../components/Navbar';
@@ -15,9 +15,14 @@ import {
   ButtonTemplateProvider,
   ButtonTemplateName,
 } from '../../utils/useButtonTemplate';
+import SDKEvents from '../../utils/SdkEvents';
+import {RtcContext} from '../../../agora-rn-uikit';
+import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
+  const rtc = useContext(RtcContext);
+  const {meetingTitle, isHost} = useMeetingInfo();
   const {
     ChatComponent,
     VideocallComponent,
@@ -57,26 +62,30 @@ const VideoCallScreen = () => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      if (
-        data?.components?.videoCall?.after &&
-        isValidReactComponent(data?.components?.videoCall?.after)
-      ) {
-        components.VideocallAfterView = data?.components?.videoCall?.after;
-      }
-      if (
-        data?.components?.videoCall?.before &&
-        isValidReactComponent(data?.components?.videoCall?.before)
-      ) {
-        components.VideocallBeforeView = data?.components?.videoCall?.before;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.after &&
+      //   isValidReactComponent(data?.components?.videoCall?.after)
+      // ) {
+      //   components.VideocallAfterView = data?.components?.videoCall?.after;
+      // }
 
-      if (
-        data?.components?.videoCall.chat &&
-        typeof data?.components?.videoCall.chat !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.chat)
-      ) {
-        components.ChatComponent = data?.components?.videoCall.chat;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.before &&
+      //   isValidReactComponent(data?.components?.videoCall?.before)
+      // ) {
+      //   components.VideocallBeforeView = data?.components?.videoCall?.before;
+      // }
+
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall.chat &&
+      //   typeof data?.components?.videoCall.chat !== 'object' &&
+      //   isValidReactComponent(data?.components?.videoCall.chat)
+      // ) {
+      //   components.ChatComponent = data?.components?.videoCall.chat;
+      // }
 
       if (
         data?.components?.videoCall.bottomBar &&
@@ -86,13 +95,14 @@ const VideoCallScreen = () => {
         components.BottombarComponent = data?.components?.videoCall.bottomBar;
       }
 
-      if (
-        data?.components?.videoCall.topBar &&
-        typeof data?.components?.videoCall.topBar !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.topBar)
-      ) {
-        components.TopbarComponent = data?.components?.videoCall.topBar;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall.topBar &&
+      //   typeof data?.components?.videoCall.topBar !== 'object' &&
+      //   isValidReactComponent(data?.components?.videoCall.topBar)
+      // ) {
+      //   components.TopbarComponent = data?.components?.videoCall.topBar;
+      // }
 
       if (
         data?.components?.videoCall.participantsPanel &&
@@ -103,18 +113,29 @@ const VideoCallScreen = () => {
           data?.components?.videoCall.participantsPanel;
       }
 
-      if (
-        data?.components?.videoCall.settingsPanel &&
-        typeof data?.components?.videoCall.settingsPanel !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.settingsPanel)
-      ) {
-        components.SettingsComponent =
-          data?.components?.videoCall.settingsPanel;
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall.settingsPanel &&
+      //   typeof data?.components?.videoCall.settingsPanel !== 'object' &&
+      //   isValidReactComponent(data?.components?.videoCall.settingsPanel)
+      // ) {
+      //   components.SettingsComponent =
+      //     data?.components?.videoCall.settingsPanel;
+      // }
     }
 
     return components;
   });
+
+  useEffect(() => {
+    new Promise((res) =>
+      rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+        res(devices);
+      }),
+    ).then((devices: MediaDeviceInfo[]) => {
+      SDKEvents.emit('join', meetingTitle, devices, isHost);
+    });
+  }, []);
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -165,5 +186,6 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     overflow: 'hidden',
   },
+  //@ts-ignore
   videoView: videoView,
 });

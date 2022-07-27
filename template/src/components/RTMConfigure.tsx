@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
 import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
@@ -27,9 +28,19 @@ import {EventUtils, EventAttributes, eventMessageType} from '../rtm-events';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 
-const adjustUID = (number: number) => {
-  if (number < 0) {
-    number = 0xffffffff + number + 1;
+export enum UserType {
+  Normal,
+  ScreenShare,
+}
+
+const adjustUID = (uid: number | string) => {
+  let number: number | string;
+  if (typeof uid === 'string') number = uid;
+  else {
+    number = uid;
+    if (number < 0) {
+      number = 0xffffffff + number + 1;
+    }
   }
   return number;
 };
@@ -162,7 +173,10 @@ const RtmConfigure = (props: any) => {
     }
   };
 
-  const updateRenderListState = (uid: number, data: any) => {
+  const updateRenderListState = (
+    uid: number,
+    data: Partial<RenderInterface>,
+  ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
 
@@ -201,6 +215,8 @@ const RtmConfigure = (props: any) => {
             try {
               const attr = await backoffAttributes;
               console.log('[user attributes]:', {attr});
+              //RTC layer uid type is number. so doing the parseInt to convert to number
+              //todo hari check android uid comparsion
               const uid = parseInt(member.uid);
               const screenUid = parseInt(attr?.attributes?.screenUid);
               //start - updating user data in rtc
@@ -492,7 +508,7 @@ const RtmConfigure = (props: any) => {
     );
   };
 
-  const sendMessageToUid = async (msg: string, uid: number) => {
+  const sendMessageToUid = async (msg: string, uid: UidType) => {
     if (msg.trim() === '') return;
     let adjustedUID = uid;
     if (adjustedUID < 0) {
@@ -522,7 +538,7 @@ const RtmConfigure = (props: any) => {
     );
   };
 
-  const sendControlMessageToUid = async (msg: string, uid: number) => {
+  const sendControlMessageToUid = async (msg: string, uid: UidType) => {
     if (uid < 0) {
       uid = adjustUID(uid);
     }

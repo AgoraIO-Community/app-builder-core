@@ -23,11 +23,11 @@ export function numFormatter(num: number) {
   }
   const value = Math.abs(num);
   const sign = Math.sign(num);
-  let newValue = value;
+  let newValue: string | number = value;
   if (value >= 1000) {
     var suffixes = ['', 'k', 'm', 'b', 't', 't+'];
     var suffixNum = Math.floor(('' + value).length / 3);
-    var shortValue = '';
+    var shortValue;
     for (var precision = 2; precision >= 1; precision--) {
       shortValue = parseFloat(
         (suffixNum != 0

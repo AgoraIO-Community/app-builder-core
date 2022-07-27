@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
+// @ts-nocheck
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -30,7 +31,6 @@ import type {
 import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
-import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -116,6 +116,18 @@ export enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 5: 128-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES128GCM = 5,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES256GCM = 6
 }
 
 export enum VideoStreamType {
@@ -135,19 +147,24 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-if (GEO_FENCING) {
+if ($config.GEO_FENCING) {
   AgoraRTC.setArea({
     areaCode: AREAS.GLOBAL,
     excludedArea: AREAS.CHINA,
   });
 }
 
-if (LOG_ENABLED) {
+if ($config.LOG_ENABLED) {
   AgoraRTC.setLogLevel(0);
   AgoraRTC.enableLogUpload();
 } else {
   AgoraRTC.disableLogUpload();
 }
+
+interface CustomEvents {
+  ScreenshareStopped: callbackType
+}
+
 
 export default class RtcEngine {
   public appId: string;
@@ -177,8 +194,6 @@ export default class RtcEngine {
   private deviceId = '';
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
-
-  // Create channel profile and set it here
 
   // Create channel profile and set it here
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, {useContext, useState} from 'react';
 import {
   View,
@@ -28,13 +29,11 @@ import {RenderInterface, UidType} from '../../agora-rn-uikit';
  */
 export const NetworkQualityPill = ({
   user,
-  uid,
   primaryColor,
   small,
   rootStyle,
 }: {
   user: RenderInterface;
-  uid: UidType;
   primaryColor: any;
   small?: boolean;
   rootStyle?: StyleProp<ViewStyle>;
@@ -42,8 +41,8 @@ export const NetworkQualityPill = ({
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   const getLabel = useString<NetworkQualities>('networkQualityLabel');
   const networkQualityStat = useContext(NetworkQualityContext);
-  const networkStat = networkQualityStat[uid]
-    ? networkQualityStat[uid]
+  const networkStat = networkQualityStat[user.uid]
+    ? networkQualityStat[user.uid]
     : user.audio || user.video
     ? 8
     : 7;

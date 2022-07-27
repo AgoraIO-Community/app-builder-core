@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {RtcContext, PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
@@ -25,6 +25,8 @@ import {
   PreCallSelectDevice,
   PreCallVideoPreview,
 } from './precall/index';
+import SDKEvents from '../utils/SdkEvents';
+import isSDKCheck from '../utils/isSDK';
 
 const JoinRoomInputView = () => {
   const {JoinButton, Textbox} = useFpe((data) => {
@@ -32,28 +34,29 @@ const JoinRoomInputView = () => {
       JoinButton: React.ComponentType;
       Textbox: React.ComponentType;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data?.components?.precall?.joinButton &&
-        typeof data?.components?.precall?.joinButton !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.joinButton)) {
-          components.JoinButton = data?.components?.precall?.joinButton;
-        }
-      }
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
 
-      if (
-        data?.components?.precall?.textBox &&
-        typeof data?.components?.precall?.textBox !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.textBox)) {
-          components.Textbox = data?.components?.precall?.textBox;
-        }
-      }
-    }
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+    // }
     return components;
   });
   return (
@@ -65,7 +68,7 @@ const JoinRoomInputView = () => {
   );
 };
 
-const Precall = () => {
+const Precall = (props: any) => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {
@@ -88,54 +91,56 @@ const Precall = () => {
       VideoPreview: PreCallVideoPreview,
       DeviceSelect: PreCallSelectDevice,
     };
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data?.components?.precall?.after &&
-        isValidReactComponent(data?.components?.precall?.after)
-      ) {
-        components.PrecallAfterView = data?.components?.precall?.after;
-      }
-      if (
-        data?.components?.precall?.before &&
-        isValidReactComponent(data?.components?.precall?.before)
-      ) {
-        components.PrecallBeforeView = data?.components?.precall?.before;
-      }
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.after &&
+    //     isValidReactComponent(data?.components?.precall?.after)
+    //   ) {
+    //     components.PrecallAfterView = data?.components?.precall?.after;
+    //   }
+    //   if (
+    //     data?.components?.precall?.before &&
+    //     isValidReactComponent(data?.components?.precall?.before)
+    //   ) {
+    //     components.PrecallBeforeView = data?.components?.precall?.before;
+    //   }
 
-      if (
-        data?.components?.precall?.meetingName &&
-        typeof data?.components?.precall?.meetingName !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.meetingName)) {
-          components.MeetingName = data?.components?.precall?.meetingName;
-        }
-      }
+    //   if (
+    //     data?.components?.precall?.meetingName &&
+    //     typeof data?.components?.precall?.meetingName !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.meetingName)) {
+    //       components.MeetingName = data?.components?.precall?.meetingName;
+    //     }
+    //   }
 
-      if (
-        data?.components?.precall?.deviceSelect &&
-        typeof data?.components?.precall?.deviceSelect !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.deviceSelect)) {
-          components.DeviceSelect = data?.components?.precall?.deviceSelect;
-        }
-      }
+    //   if (
+    //     data?.components?.precall?.deviceSelect &&
+    //     typeof data?.components?.precall?.deviceSelect !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.deviceSelect)) {
+    //       components.DeviceSelect = data?.components?.precall?.deviceSelect;
+    //     }
+    //   }
 
-      if (
-        data?.components?.precall?.preview &&
-        typeof data?.components?.precall?.preview !== 'object'
-      ) {
-        if (isValidReactComponent(data?.components?.precall?.preview)) {
-          components.VideoPreview = data?.components?.precall?.preview;
-        }
-      }
-    }
+    //   if (
+    //     data?.components?.precall?.preview &&
+    //     typeof data?.components?.precall?.preview !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.preview)) {
+    //       components.VideoPreview = data?.components?.precall?.preview;
+    //     }
+    //   }
+    // }
     return components;
   });
-  const {isJoinDataFetched} = useMeetingInfo();
-  const {meetingTitle} = useMeetingInfo();
+  const {isJoinDataFetched, meetingTitle} = useMeetingInfo();
+  const rtc = useContext(RtcContext);
+  const isSDK = isSDKCheck();
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -147,12 +152,25 @@ const Precall = () => {
   };
 
   useEffect(() => {
-    if (isWeb) {
+    if (isWeb && !isSDK) {
       if (meetingTitle) {
         document.title = meetingTitle + ' | ' + $config.APP_NAME;
       }
     }
   });
+
+  useEffect(() => {
+    if (isJoinDataFetched) {
+      new Promise((res) =>
+        // @ts-ignore
+        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+          res(devices);
+        }),
+      ).then((devices: MediaDeviceInfo[]) => {
+        SDKEvents.emit('preJoin', meetingTitle, devices);
+      });
+    }
+  }, [isJoinDataFetched]);
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 
@@ -161,15 +179,17 @@ const Precall = () => {
   const brandHolder = () => <PreCallLogo />;
 
   const FpePrecallComponent = useFpe((data) => {
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall !== 'object'
-    ) {
-      if (isValidReactComponent(data?.components?.precall)) {
-        return data?.components?.precall;
-      }
-      return undefined;
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall !== 'object'
+    // ) {
+    //   if (isValidReactComponent(data?.components?.precall)) {
+    //     return data?.components?.precall;
+    //   }
+    //   return undefined;
+    // }
+    return undefined;
   });
 
   return FpePrecallComponent ? (

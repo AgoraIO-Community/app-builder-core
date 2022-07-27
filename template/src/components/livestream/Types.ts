@@ -18,6 +18,8 @@ export interface raiseHandItemInterface {
   ts: number;
 }
 
+import {UidType} from '../../../agora-rn-uikit';
+
 export enum requestStatus {
   AwaitingAction = 'AWAITING_ACTION',
   Approved = 'APPROVED',
@@ -77,10 +79,10 @@ export interface liveStreamContext {
 export interface requestInterface {
   ts: number;
   status: requestStatus;
-  uid: string | number;
+  uid: UidType;
 }
 
 export interface attrRequestInterface {
   status: attrRequestStatus;
-  uid: string | number;
+  uid: UidType;
 }

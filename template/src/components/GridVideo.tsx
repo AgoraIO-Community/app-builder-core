@@ -39,9 +39,13 @@ const GridVideo: layoutComponent = () => {
   const {dispatch} = useContext(RtcContext);
   const {renderList, renderPosition} = useUserList();
   let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+    setDim([
+      e.nativeEvent.layout.width,
+      e.nativeEvent.layout.height,
+      e.nativeEvent.layout.width > e.nativeEvent.layout.height,
+    ]);
   };
-  const [dim, setDim] = useState([
+  const [dim, setDim] = useState<[number, number, boolean]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
@@ -79,7 +83,6 @@ const GridVideo: layoutComponent = () => {
               <View style={style.gridVideoContainerInner}>
                 <RenderComponent
                   user={renderList[renderPosition[ridx * dims.c + cidx]]}
-                  uid={renderPosition[ridx * dims.c + cidx]}
                 />
               </View>
             </Pressable>

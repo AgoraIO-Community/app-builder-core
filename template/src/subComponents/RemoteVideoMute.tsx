@@ -12,7 +12,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {controlMessageEnum} from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {BtnTemplate, UidType} from '../../agora-rn-uikit';
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../utils/useSendControlMessage';
@@ -23,7 +23,7 @@ import useSendControlMessage, {
  * If the local user is not a host, it simply renders an image
  */
 export interface RemoteVideoMuteProps {
-  uid: number;
+  uid: UidType;
   video: boolean;
   isHost: boolean;
 }

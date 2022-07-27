@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import {
@@ -50,6 +51,7 @@ import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataConte
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
 import StorageContext from '../components/StorageContext';
+import SDKEvents from '../utils/SdkEvents';
 
 enum RnEncryptionEnum {
   /**
@@ -98,7 +100,8 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
-  const lifecycle = useFpe((data) => data.lifecycle);
+  // commented for v1 release
+  //const lifecycle = useFpe((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -172,6 +175,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {
+        SDKEvents.emit('leave');
         history.push('/');
       }, 0),
   };
@@ -186,7 +190,8 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
-                  lifecycle,
+                  // commented for v1 release
+                  //lifecycle,
                 },
                 callbacks,
                 styleProps,

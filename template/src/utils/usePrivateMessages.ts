@@ -11,6 +11,7 @@
 */
 
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
+import {UidType} from '../../agora-rn-uikit';
 
 /**
  * This hook will return function to find the private message by uid
@@ -24,7 +25,7 @@ function usePrivateMessages() {
    * @returns If uid is passed then it will return particular private message data
    * otherwise it will return whole private message store
    */
-  const getPrivateMessage = (uid?: number | string) =>
+  const getPrivateMessage = (uid?: UidType) =>
     uid ? privateMessageStore[uid] : privateMessageStore;
   return getPrivateMessage;
 }

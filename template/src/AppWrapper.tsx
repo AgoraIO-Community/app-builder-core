@@ -15,7 +15,7 @@ import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, SafeAreaView, StatusBar} from 'react-native';
+import {ImageBackground, SafeAreaView, StatusBar, Platform} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/toastConfig';
@@ -23,11 +23,12 @@ import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
-import {useFpe} from 'fpe-api';
+import {useFpe, FpeProvider, fpeConfig, FpeApiInterface} from 'fpe-api';
 import {LanguageProvider} from './language/useLanguage';
 
 interface AppWrapperProps {
   children: React.ReactNode;
+  fpeConfig?: FpeApiInterface;
 }
 
 const AppWrapper = (props: AppWrapperProps) => {
@@ -44,7 +45,9 @@ const AppWrapper = (props: AppWrapperProps) => {
         source={{uri: $config.BG}}
         style={{flex: 1}}
         resizeMode={'cover'}>
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView
+          // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
+          style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
           <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
           <StorageProvider>

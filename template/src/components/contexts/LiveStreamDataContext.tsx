@@ -9,7 +9,7 @@ import {filterObject} from '../../utils';
 import useUserList from '../../utils/useUserList';
 
 export interface LiveStreamDataObjectInterface {
-  [key: UidType]: {
+  [key: number]: {
     role: number;
     raised: boolean;
     ts: number;

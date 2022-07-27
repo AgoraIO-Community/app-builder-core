@@ -22,29 +22,33 @@ import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
 import {isWeb, isValidReactComponent} from '../utils/common';
-import {useFpe} from 'fpe-api';
+import {useFpe, useMeetingInfo} from 'fpe-api';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
+import useJoinMeeting from '../utils/useJoinMeeting';
+import SDKEvents from '../utils/SdkEvents';
 
 const Create = () => {
   const {CreateComponent} = useFpe((data) => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
-
-    if (
-      data?.components?.create &&
-      typeof data?.components?.create !== 'object'
-    ) {
-      if (
-        data?.components?.create &&
-        isValidReactComponent(data?.components?.create)
-      )
-        components.CreateComponent = data?.components?.create;
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.create &&
+    //   typeof data?.components?.create !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.create &&
+    //     isValidReactComponent(data?.components?.create)
+    //   )
+    //     components.CreateComponent = data?.components?.create;
+    // }
     return components;
   });
+
+  const useJoin = useJoinMeeting();
 
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
@@ -54,6 +58,9 @@ const Create = () => {
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
+  const {
+    meetingPassphrase: {attendee, host, pstn},
+  } = useMeetingInfo();
   const createdText = useString('meetingCreatedNotificationLabel')();
   const hostControlsToggle = useString<boolean>('hostControlsToggle');
   const pstnToggle = useString<boolean>('pstnToggle');
@@ -68,11 +75,26 @@ const Create = () => {
     if (isWeb) {
       document.title = $config.APP_NAME;
     }
+    SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
+      console.log(
+        'DEBUG(aditya)-SDKEvents: joinMeetingWithPhrase event called',
+      );
+      useJoin(phrase);
+    });
+    return () => {
+      SDKEvents.off('joinMeetingWithPhrase');
+    };
   }, []);
 
   const showShareScreen = () => {
     setRoomCreated(true);
   };
+
+  useEffect(() => {
+    if (attendee) {
+      SDKEvents.emit('create', host, attendee, pstn);
+    }
+  }, [attendee]);
 
   const createRoomAndNavigateToShare = async (
     roomTitle: string,

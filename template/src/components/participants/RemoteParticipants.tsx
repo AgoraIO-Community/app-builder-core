@@ -16,35 +16,45 @@ import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from './ParticipantName';
-import {UidType} from '../../../agora-rn-uikit';
+import {RenderInterface} from '../../../agora-rn-uikit';
 
 interface remoteParticipantsInterface {
   p_styles: any;
   name: string;
-  user: any;
+  user: RenderInterface;
   showControls: boolean;
   isHost: boolean;
-  uid: UidType;
 }
 
 const RemoteParticipants = (props: remoteParticipantsInterface) => {
-  const {p_styles, user, name, showControls, isHost, uid} = props;
+  const {p_styles, user, name, showControls, isHost} = props;
   return (
     <View style={p_styles.participantRow}>
       <ParticipantName value={name} />
       {showControls ? (
         <View style={p_styles.participantActionContainer}>
           {$config.EVENT_MODE && (
-            <ApprovedLiveStreamControlsView p_styles={p_styles} uid={uid} />
+            <ApprovedLiveStreamControlsView
+              p_styles={p_styles}
+              uid={user.uid}
+            />
           )}
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
-            <RemoteEndCall uid={uid} isHost={isHost} />
+            <RemoteEndCall uid={user.uid} isHost={isHost} />
           </View>
           <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
-            <RemoteAudioMute uid={uid} audio={user.audio} isHost={isHost} />
+            <RemoteAudioMute
+              uid={user.uid}
+              audio={user.audio}
+              isHost={isHost}
+            />
           </View>
           <View style={[p_styles.actionBtnIcon]}>
-            <RemoteVideoMute uid={uid} video={user.video} isHost={isHost} />
+            <RemoteVideoMute
+              uid={user.uid}
+              video={user.video}
+              isHost={isHost}
+            />
           </View>
         </View>
       ) : (

@@ -13,7 +13,7 @@ import {createHook} from 'fpe-implementation';
 import React, {SetStateAction, useState, useEffect} from 'react';
 
 interface individualUnreadMessageCount {
-  [key: string | number]: number;
+  [key: number]: number;
 }
 
 export interface ChatNotificationInterface {

@@ -91,7 +91,7 @@ const style = StyleSheet.create({
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
-    // textAlign: 'right',
+    textAlign: 'left',
   },
   timestampTextLocal: {
     color: $config.PRIMARY_FONT_COLOR + '60',

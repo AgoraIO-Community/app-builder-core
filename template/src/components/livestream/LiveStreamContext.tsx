@@ -10,7 +10,7 @@ import {
   RaiseHandValue,
   raiseHandListInterface,
 } from './Types';
-import {ClientRole, useLocalUid} from '../../../agora-rn-uikit';
+import {ClientRole, useLocalUid, UidType} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
@@ -23,7 +23,9 @@ const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
 export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 
-export const LiveStreamContextProvider = (props: liveStreamPropsInterface) => {
+export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
+  props,
+) => {
   const raiseHandRemoteHostNotification = useString(
     'raiseHandRemoteHostNotification',
   );

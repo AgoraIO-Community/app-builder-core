@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {useParams} from '../../components/Router';
-import {RtcContext, PropsContext} from '../../../agora-rn-uikit';
+import {RtcContext, PropsContext, UidType} from '../../../agora-rn-uikit';
 import {gql, useMutation} from '@apollo/client';
 import {ScreenshareContext} from './useScreenshare';
 import {
@@ -12,6 +12,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import useUserList from '../../utils/useUserList';
 import CustomEvents from '../../custom-events';
 import {EventNames, EventActions} from '../../rtm-events';
+import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -25,13 +26,15 @@ const SET_NORMAL = gql`
   }
 `;
 
-function usePrevious(value: any) {
-  const ref = useRef();
+function usePrevious<T = any>(value: any) {
+  const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
   });
   return ref.current;
 }
+
+export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
@@ -39,7 +42,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = rtc;
   const {renderList, renderPosition} = useUserList();
   const {setScreenShareData, screenShareData} = useScreenContext();
-  const prevRenderPosition = usePrevious({renderPosition});
+  const prevRenderPosition = usePrevious<{renderPosition: UidType[]}>({
+    renderPosition,
+  });
   const {phrase} = useParams<any>();
   const {isRecordingActive} = useRecording();
   const setPinnedLayout = useSetPinnedLayout();
@@ -65,6 +70,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, []);
 
   useEffect(() => {
+    // @ts-ignore
     rtc.RtcEngine.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
@@ -90,6 +96,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       );
       if (joinedUser.length === 1) {
         const newUserUid = joinedUser[0];
+        //todo:hari update with events api
         if (screenShareData[newUserUid]) {
           dispatch({
             type: 'UpdateRenderList',
@@ -192,8 +199,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         null,
         screenShareUid,
         appId,
-        rtc.RtcEngine,
-        encryption,
+        rtc.RtcEngine as unknown as IAgoraRTC,
+        encryption as unknown as any,
       );
       !isScreenActive && setScreenshareActive(true);
     } catch (e) {

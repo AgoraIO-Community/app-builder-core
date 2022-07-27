@@ -3,7 +3,6 @@ import {View} from 'react-native';
 import RemoteLiveStreamApprovedRequestRecall from './controls/RemoteLiveStreamApprovedRequestRecall';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {ClientRole} from '../../../agora-rn-uikit';
-import useUserList from '../../utils/useUserList';
 
 const ApprovedLiveStreamControlsView = (props: {
   uid: number;

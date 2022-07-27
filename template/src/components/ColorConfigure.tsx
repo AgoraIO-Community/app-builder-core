@@ -12,7 +12,7 @@
 import React from 'react';
 import ColorContext from './ColorContext';
 
-const ColorConfigure: React.FC = (props: any) => {
+const ColorConfigure = (props: {children: React.ReactNode}) => {
   const primaryColor = $config.PRIMARY_COLOR;
   console.log(primaryColor);
   return (

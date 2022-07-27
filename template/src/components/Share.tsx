@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import platform from '../subComponents/Platform';
@@ -17,6 +18,7 @@ import SecondaryButton from '../atoms/SecondaryButton';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
+import isSDKCheck from '../utils/isSDK';
 import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import useNavigateTo from '../utils/useNavigateTo';
@@ -28,18 +30,18 @@ const Share = () => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};
-
-    if (
-      data?.components?.share &&
-      typeof data?.components?.share !== 'object'
-    ) {
-      if (
-        data?.components?.share &&
-        isValidReactComponent(data?.components?.share)
-      ) {
-        components.FpeShareComponent = data?.components?.share;
-      }
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.share &&
+    //   typeof data?.components?.share !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.share &&
+    //     isValidReactComponent(data?.components?.share)
+    //   ) {
+    //     components.FpeShareComponent = data?.components?.share;
+    //   }
+    // }
     return components;
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
@@ -72,8 +74,8 @@ const Share = () => {
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
-
-  const isWeb = $config.FRONTEND_ENDPOINT || platform === 'web';
+  const isSDK = isSDKCheck();
+  const isWeb = $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
   const getAttendeeLabel = () => (isWeb ? attendeeUrlLabel : attendeeIdLabel);
 
@@ -312,6 +314,7 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     fontWeight: '700',
+    textAlign: 'left',
   },
   pstnHolder: {
     width: '100%',

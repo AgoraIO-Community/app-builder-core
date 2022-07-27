@@ -52,7 +52,7 @@ export enum attrRequestTypes {
 export interface chatContext {
   hasUserJoinedRTM: boolean;
   sendMessage: (msg: string) => void;
-  sendMessageToUid: (msg: string, uid: number) => void;
+  sendMessageToUid: (msg: string, uid: number | string) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
   engine: RtmEngine;
