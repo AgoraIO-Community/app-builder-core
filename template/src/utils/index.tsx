@@ -46,3 +46,12 @@ export function numFormatter(num: number) {
   newValue = sign === -1 ? `-${newValue}` : `${newValue}`;
   return newValue;
 }
+
+export function isEmptyObject(obj: object) {
+  if (obj == null) return true;
+  if (typeof obj !== 'object') return true;
+  for (const key in obj) {
+    return false;
+  }
+  return true;
+}

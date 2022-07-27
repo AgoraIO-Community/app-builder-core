@@ -3,11 +3,12 @@ import {View, Text} from 'react-native';
 import RemoteLiveStreamRequestApprove from './controls/RemoteLiveStreamRequestApprove';
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
 import ParticipantName from '../../components/participants/ParticipantName';
-import LiveStreamContext, {requestStatus} from '../../components/livestream';
+import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 import {useString} from '../../utils/useString';
 import useUserList from '../../utils/useUserList';
+import {ClientRole} from '../../../agora-rn-uikit';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   const noLiveStreamingRequestsLabel = useString(
@@ -18,7 +19,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
   const {p_style} = props;
   const {renderList} = useUserList();
-  const {currLiveStreamRequest, setLastCheckedRequestTimestamp} =
+  const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
     React.useState({});
@@ -26,11 +27,12 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   useEffect(() => {
     setActiveLiveStreamRequests(
       filterObject(
-        currLiveStreamRequest,
-        ([k, v]) => v?.status === requestStatus.AwaitingAction,
+        raiseHandList,
+        ([k, v]) =>
+          v?.raised === RaiseHandValue.TRUE && v?.role == ClientRole.Audience,
       ),
     );
-  }, [currLiveStreamRequest]);
+  }, [raiseHandList]);
 
   React.useEffect(() => {
     // On unmount update the timestamp, if the user was already active in this view
@@ -46,7 +48,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
         count={Object.keys(activeLiveStreamRequests).length}
       />
       <View style={p_style.participantContainer}>
-        {Object.keys(currLiveStreamRequest).length == 0 ||
+        {Object.keys(raiseHandList).length == 0 ||
         Object.keys(activeLiveStreamRequests).length == 0 ? (
           <Text style={p_style.infoText}>{noLiveStreamingRequestsLabel}</Text>
         ) : (

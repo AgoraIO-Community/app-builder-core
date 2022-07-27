@@ -1,48 +1,74 @@
 import {UidType} from '../../../agora-rn-uikit';
-import React, {createContext, Dispatch, SetStateAction, useState} from 'react';
+import React, {createContext, useState, useContext} from 'react';
 import {createHook} from 'fpe-implementation';
+import LiveStreamContext, {
+  raiseHandListInterface,
+} from '../../components/livestream';
+import {ClientRole, useLocalUid} from '../../../agora-rn-uikit';
+import {filterObject} from '../../utils';
+import useUserList from '../../utils/useUserList';
 
 export interface LiveStreamDataObjectInterface {
   [key: number]: {
     role: number;
-    //todo hari update any type
-    requests: any;
+    raised: boolean;
+    ts: number;
   };
 }
 export interface LiveStreamDataContextInterface {
   hostUids: UidType[];
   audienceUids: UidType[];
-  setHostUids: Dispatch<SetStateAction<UidType[]>>;
-  setAudienceUids: Dispatch<SetStateAction<UidType[]>>;
-  liveStreamData: LiveStreamDataObjectInterface;
-  setLiveStreamData: Dispatch<SetStateAction<LiveStreamDataObjectInterface>>;
+  liveStreamData: raiseHandListInterface;
 }
 const LiveStreamDataContext = createContext<LiveStreamDataContextInterface>({
   hostUids: [],
   audienceUids: [],
   liveStreamData: {},
-  setLiveStreamData: () => {},
-  setHostUids: () => {},
-  setAudienceUids: () => {},
 });
 
 interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const [liveStreamData, setLiveStreamData] =
-    useState<LiveStreamDataObjectInterface>({});
+  const localUid = useLocalUid();
+  const {renderList} = useUserList();
+  const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [audienceUids, setAudienceUids] = useState<UidType[]>([]);
+
+  React.useEffect(() => {
+    if (Object.keys(renderList).length !== 0) {
+      const hostList = filterObject(
+        renderList,
+        ([k, v]) =>
+          (v?.type === 'rtc' || v?.type === 'live') &&
+          (raiseHandList[k]
+            ? raiseHandList[k]?.role == ClientRole.Broadcaster
+            : true) &&
+          !v?.offline,
+      );
+
+      const audienceList = filterObject(
+        renderList,
+        ([k, v]) =>
+          (v?.type === 'rtc' || v?.type === 'live') &&
+          raiseHandList[k]?.role == ClientRole.Audience &&
+          !v.offline,
+      );
+      const hUids = Object.keys(hostList).map((uid) => parseInt(uid));
+      const aUids = Object.keys(audienceList).map((uid) => parseInt(uid));
+
+      setHostUids(hUids);
+      setAudienceUids(aUids);
+    }
+  }, [renderList, raiseHandList]);
+
   return (
     <LiveStreamDataContext.Provider
       value={{
+        liveStreamData: raiseHandList,
         hostUids,
         audienceUids,
-        setAudienceUids,
-        setHostUids,
-        liveStreamData,
-        setLiveStreamData,
       }}>
       {props.children}
     </LiveStreamDataContext.Provider>

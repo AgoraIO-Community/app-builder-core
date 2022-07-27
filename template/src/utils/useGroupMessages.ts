@@ -9,15 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import ChatContext from '../../src/components/ChatContext';
+
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 
 /**
  * This hook will fetch the group messages
  * @returns userList
  */
 function useGroupMessages() {
-  const {messageStore} = useContext(ChatContext);
+  const {messageStore} = useChatMessages();
   return messageStore;
 }
 

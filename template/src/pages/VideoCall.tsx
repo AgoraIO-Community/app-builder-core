@@ -45,6 +45,7 @@ import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
 import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
+import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
@@ -199,16 +200,16 @@ const VideoCall: React.FC = () => {
                   : ChannelProfile.Communication,
               }}>
               <RtcConfigure>
-                <DeviceConfigure userRole={rtcProps.role}>
+                <DeviceConfigure>
                   <ChatUIControlProvider>
                     <ChatNotificationProvider>
-                      <SidePanelProvider
-                        value={{
-                          sidePanel,
-                          setSidePanel,
-                        }}>
-                        <ScreenShareProvider>
-                          <LiveStreamDataProvider>
+                      <ChatMessagesProvider>
+                        <SidePanelProvider
+                          value={{
+                            sidePanel,
+                            setSidePanel,
+                          }}>
+                          <ScreenShareProvider>
                             <RtmConfigure
                               setRecordingActive={setRecordingActive}
                               callActive={callActive}>
@@ -225,36 +226,42 @@ const VideoCall: React.FC = () => {
                                     }}>
                                     <ScreenshareConfigure>
                                       <LiveStreamContextProvider
-                                        value={{setRtcProps}}>
-                                        <LocalUserContext
-                                          localUid={rtcProps?.uid || 0}>
-                                          <CustomUserContextHolder>
-                                            <NetworkQualityProvider>
-                                              {callActive ? (
-                                                <VideoCallScreen />
-                                              ) : $config.PRECALL ? (
-                                                <PreCallProvider
-                                                  value={{
-                                                    callActive,
-                                                    setCallActive,
-                                                  }}>
-                                                  <Precall />
-                                                </PreCallProvider>
-                                              ) : (
-                                                <></>
-                                              )}
-                                            </NetworkQualityProvider>
-                                          </CustomUserContextHolder>
-                                        </LocalUserContext>
+                                        value={{
+                                          setRtcProps,
+                                          rtcProps,
+                                          callActive,
+                                        }}>
+                                        <LiveStreamDataProvider>
+                                          <LocalUserContext
+                                            localUid={rtcProps?.uid || 0}>
+                                            <CustomUserContextHolder>
+                                              <NetworkQualityProvider>
+                                                {callActive ? (
+                                                  <VideoCallScreen />
+                                                ) : $config.PRECALL ? (
+                                                  <PreCallProvider
+                                                    value={{
+                                                      callActive,
+                                                      setCallActive,
+                                                    }}>
+                                                    <Precall />
+                                                  </PreCallProvider>
+                                                ) : (
+                                                  <></>
+                                                )}
+                                              </NetworkQualityProvider>
+                                            </CustomUserContextHolder>
+                                          </LocalUserContext>
+                                        </LiveStreamDataProvider>
                                       </LiveStreamContextProvider>
                                     </ScreenshareConfigure>
                                   </RecordingProvider>
                                 </LayoutProvider>
                               </WhiteboardProvider>
                             </RtmConfigure>
-                          </LiveStreamDataProvider>
-                        </ScreenShareProvider>
-                      </SidePanelProvider>
+                          </ScreenShareProvider>
+                        </SidePanelProvider>
+                      </ChatMessagesProvider>
                     </ChatNotificationProvider>
                   </ChatUIControlProvider>
                 </DeviceConfigure>

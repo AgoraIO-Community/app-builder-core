@@ -16,16 +16,15 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
-import {controlMessageEnum} from '../../components/ChatContext';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
-import useSendControlMessage, {
-  CONTROL_MESSAGE_TYPE,
-} from '../../utils/useSendControlMessage';
+import ChatContext from '../../components/ChatContext';
+import CustomEvents from '../../custom-events';
+import {EventActions, EventNames} from '../../rtm-events';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -65,6 +64,7 @@ function usePrevious<T = any>(value: any) {
   });
   return ref.current;
 }
+
 interface RecordingProviderProps {
   children: React.ReactNode;
   value: Omit<RecordingContextInterface, 'startRecording' | 'stopRecording'>;
@@ -75,17 +75,37 @@ interface RecordingProviderProps {
  * Sends a control message to all users in the channel over RTM to indicate that
  * Cloud recording has started/stopped.
  */
+
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setRecordingActive, isRecordingActive} = props?.value;
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
-  const sendCtrlMsg = useSendControlMessage();
   const prevRecordingState = usePrevious<{isRecordingActive: boolean}>({
     isRecordingActive,
   });
   const recordingStartedText = useString<boolean>('recordingNotificationLabel');
+  const {localUid} = useContext(ChatContext);
+
+  React.useEffect(() => {
+    CustomEvents.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
+      switch (data?.payload?.action) {
+        case EventActions.RECORDING_STARTED:
+          setRecordingActive(true);
+          break;
+        case EventActions.RECORDING_STOPPED:
+          setRecordingActive(false);
+          break;
+        default:
+          break;
+      }
+    });
+    () => {
+      CustomEvents.off(EventNames.RECORDING_ATTRIBUTE);
+    };
+  }, []);
+
   useEffect(() => {
     /**
      * The below check makes sure the notification is triggered
@@ -119,10 +139,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         if (res.data.startRecordingSession === 'success') {
           // Once the backend sucessfuly starts recording,
           // send a control message to everbody in the channel indicating that cloud recording is now active.
-          sendCtrlMsg(
-            CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
-            controlMessageEnum.cloudRecordingActive,
-          );
+          CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
+            action: EventActions.RECORDING_STARTED,
+            value: localUid.toString(),
+            level: 3,
+          });
           // set the local recording state to true to update the UI
           setRecordingActive(true);
         }
@@ -140,10 +161,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         if (res.data.stopRecordingSession === 'success') {
           // Once the backend sucessfuly stops recording,
           // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-          sendCtrlMsg(
-            CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
-            controlMessageEnum.cloudRecordingUnactive,
-          );
+          CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
+            action: EventActions.RECORDING_STOPPED,
+            value: '',
+            level: 3,
+          });
           // set the local recording state to false to update the UI
           setRecordingActive(false);
         }
