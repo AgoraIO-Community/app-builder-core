@@ -10,7 +10,6 @@ import {createHook} from 'fpe-implementation';
 
 export interface ScreenShareObjectInterface {
   [key: number]: {
-    name: string;
     isActive: boolean;
   };
 }
@@ -31,7 +30,6 @@ const ScreenShareProvider = (props: ScreenShareProviderProps) => {
   const [screenShareData, setScreenShareData] =
     useState<ScreenShareObjectInterface>({
       [rtcProps?.screenShareUid]: {
-        name: '',
         isActive: false,
       },
     });

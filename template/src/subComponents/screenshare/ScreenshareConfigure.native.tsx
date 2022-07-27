@@ -46,15 +46,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       if (joinedUser.length === 1) {
         const newUserUid = joinedUser[0];
         if (screenShareData[newUserUid]) {
-          dispatch({
-            type: 'UpdateRenderList',
-            value: [
-              typeof newUserUid === 'number'
-                ? newUserUid
-                : parseInt(newUserUid),
-              {type: 'screenshare', name: screenShareData[newUserUid].name},
-            ],
-          });
           setScreenShareData((prevState) => {
             return {
               ...prevState,

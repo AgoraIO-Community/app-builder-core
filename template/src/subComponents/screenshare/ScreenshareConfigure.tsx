@@ -12,7 +12,6 @@ import CustomEvents from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
-import {useString} from '../../utils/useString';
 
 function usePrevious<T = any>(value: any) {
   const ref = useRef<T>();
@@ -29,7 +28,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const rtc = useContext(RtcContext);
   const {dispatch} = rtc;
   const {renderList, renderPosition} = useUserList();
-  console.log('renderList: ', renderList);
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
@@ -43,18 +41,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     useContext(PropsContext).rtcProps;
 
   const renderListRef = useRef({renderList: renderList});
+
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
 
   useEffect(() => {
     CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
-      console.log('recording event data: ', data);
-      console.log(
-        'recording event renderlist data: ',
-        renderListRef.current.renderList,
-      );
-
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
       setScreenShareData((prevState) => {
@@ -62,7 +55,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           ...prevState,
           [screenUidOfUser]: {
             ...prevState[parseInt(screenUidOfUser)],
-            name: renderListRef.current.renderList[screenUidOfUser].name,
             isActive: data.payload.value === 'true' ? true : false,
           },
         };
@@ -84,10 +76,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, []);
 
   useEffect(() => {
-    console.log('recording event screenShareData: ', screenShareData);
-  }, [screenShareData]);
-
-  useEffect(() => {
     if (prevRenderPosition !== undefined) {
       let joinedUser = renderPosition.filter((uid) =>
         prevRenderPosition?.renderPosition.every((olduid) => !(olduid === uid)),
@@ -103,16 +91,15 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               ...prevState,
               [newUserUid]: {
                 ...prevState[newUserUid],
-                name: renderList[newUserUid].name,
                 isActive: true,
               },
             };
           });
-
           dispatch({
             type: 'SwapVideo',
             value: [newUserUid],
           });
+
           setPinnedLayout();
         }
       }

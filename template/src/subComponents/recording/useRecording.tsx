@@ -25,6 +25,8 @@ import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
 import CustomEvents from '../../custom-events';
 import {EventActions, EventNames} from '../../rtm-events';
+import useRecordingLayoutQuery from './useRecordingLayoutQuery';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -86,7 +88,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     isRecordingActive,
   });
   const recordingStartedText = useString<boolean>('recordingNotificationLabel');
+  const {executePresenterQuery} = useRecordingLayoutQuery();
   const {localUid} = useContext(ChatContext);
+  const {screenShareData} = useScreenContext();
 
   React.useEffect(() => {
     CustomEvents.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
@@ -137,15 +141,21 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then((res) => {
         console.log(res.data);
         if (res.data.startRecordingSession === 'success') {
-          // Once the backend sucessfuly starts recording,
-          // send a control message to everbody in the channel indicating that cloud recording is now active.
+          /**
+           * 1. Once the backend sucessfuly starts recording, send message
+           * in the channel indicating that cloud recording is now active.
+           */
           CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STARTED,
             value: localUid.toString(),
             level: 3,
           });
-          // set the local recording state to true to update the UI
+          // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
+          // 3. set the presenter mode if screen share is active
+          if (Object.values(screenShareData).some((item) => item.active)) {
+            executePresenterQuery();
+          }
         }
       })
       .catch((err) => {
@@ -159,14 +169,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       .then((res) => {
         console.log(res.data);
         if (res.data.stopRecordingSession === 'success') {
-          // Once the backend sucessfuly stops recording,
-          // send a control message to everbody in the channel indicating that cloud recording is now inactive.
+          /**
+           * 1. Once the backend sucessfuly starts recording, send message
+           * in the channel indicating that cloud recording is now inactive.
+           */
           CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STOPPED,
             value: '',
             level: 3,
           });
-          // set the local recording state to false to update the UI
+          // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
         }
       })
