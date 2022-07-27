@@ -29,8 +29,7 @@ import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 
 export enum UserType {
-  Normal,
-  ScreenShare,
+  ScreenShare = 'screenshare',
 }
 
 const adjustUID = (uid: number | string) => {
@@ -233,11 +232,11 @@ const RtmConfigure = (props: any) => {
               //end- updating user data in rtc
 
               //start - updating screenshare data in rtc
-              const screenShareData = {
+              const screenShareUser = {
                 name: getScreenShareName(attr?.attributes?.name || userText),
-                type: 'screenshare',
+                type: UserType.ScreenShare,
               };
-              updateRenderListState(screenUid, screenShareData);
+              updateRenderListState(screenUid, screenShareUser);
               //end - updating screenshare data in rtc
               // setting screenshare data
               // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
@@ -330,11 +329,11 @@ const RtmConfigure = (props: any) => {
           //end- updating user data in rtc
 
           //start - updating screenshare data in rtc
-          const screenShareData = {
+          const screenShareUser = {
             name: getScreenShareName(attr?.attributes?.name || userText),
-            type: 'screenshare',
+            type: UserType.ScreenShare,
           };
-          updateRenderListState(screenUid, screenShareData);
+          updateRenderListState(screenUid, screenShareUser);
           //end - updating screenshare data in rtc
 
           for (const [key, value] of Object.entries(attr?.attributes)) {
