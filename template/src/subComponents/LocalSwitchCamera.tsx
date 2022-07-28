@@ -27,7 +27,9 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
   const {RtcEngine} = useContext(RtcContext);
   const local = useContext(LocalContext);
-  const switchCameraButtonText = useString('switchCameraButton')();
+  //commented for v1 release
+  //const switchCameraButtonText = useString('switchCameraButton')();
+  const switchCameraButtonText = 'Switch';
 
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;

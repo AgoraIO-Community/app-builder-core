@@ -69,10 +69,11 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     setMessage,
   } = useChatUIControl();
   const {sendChatMessage} = useChatMessages();
-  const chatMessageInputPlaceholder = useString(
-    'chatMessageInputPlaceholder',
-  )();
-
+  //commented for v1 release
+  // const chatMessageInputPlaceholder = useString(
+  //   'chatMessageInputPlaceholder',
+  // )();
+  const chatMessageInputPlaceholder = 'Type your message..';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {

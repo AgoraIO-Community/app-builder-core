@@ -14,11 +14,16 @@ export {default as icons} from '../src/assets/icons';
 //export * from '../src/components/precall/index';
 
 //video call components
-export * from '../src/pages/video-call/index';
+export {
+  ParticipantsView,
+  Controls,
+  ControlsComponentsArray,
+} from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';
 export {default as VideoComponent} from '../src/pages/video-call/VideoComponent';
 export {MaxVideoRenderer as MaxVideoView} from '../src/pages/video-call/VideoRenderer';
+export {default as RenderComponent} from '../src/pages/video-call/RenderComponent';
 export {NameWithMicStatus} from '../src/pages/video-call/NameWithMicStatus';
 export {NetworkQualityPill} from '../src/subComponents/NetworkQualityPill';
 //videocall screen

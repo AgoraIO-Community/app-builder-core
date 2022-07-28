@@ -81,8 +81,9 @@ const ChatContainer = (props: any) => {
     }
     return components;
   });
-
-  const userOfflineLabel = useString('userOfflineLabel')();
+  //commented for v1 release
+  //const userOfflineLabel = useString('userOfflineLabel')();
+  const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
       {privateActive && (

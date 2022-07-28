@@ -39,7 +39,28 @@ export const NetworkQualityPill = ({
   rootStyle?: StyleProp<ViewStyle>;
 }) => {
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
-  const getLabel = useString<NetworkQualities>('networkQualityLabel');
+  //commented for v1 release
+  //const getLabel = useString<NetworkQualities>('networkQualityLabel');
+  const getLabel = (quality: string) => {
+    switch (quality) {
+      case 'unknown':
+        return 'Unknown';
+      case 'excellent':
+        return 'Excellent';
+      case 'good':
+        return 'Good';
+      case 'bad':
+        return 'Bad';
+      case 'veryBad':
+        return 'Very Bad';
+      case 'unpublished':
+        return 'Unpublished';
+      case 'loading':
+        return 'Loading';
+      default:
+        return 'Loading';
+    }
+  };
   const networkQualityStat = useContext(NetworkQualityContext);
   const networkStat = networkQualityStat[user.uid]
     ? networkQualityStat[user.uid]

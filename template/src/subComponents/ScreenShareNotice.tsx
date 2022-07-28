@@ -22,9 +22,11 @@ import {useString} from '../utils/useString';
  *
  */
 function ScreenShareNotice({uid}: {uid: UidType}) {
-  const screensharingActiveOverlayLabel = useString(
-    'screensharingActiveOverlayLabel',
-  )();
+  //commented for v1 release
+  // const screensharingActiveOverlayLabel = useString(
+  //   'screensharingActiveOverlayLabel',
+  // )();
+  const screensharingActiveOverlayLabel = 'Your screen share is active.';
   const {rtcProps} = useContext(PropsContext);
   return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>

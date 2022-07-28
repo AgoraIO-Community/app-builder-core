@@ -34,7 +34,9 @@ export interface SettingsIconButtonProps {
 const Settings = (props: SettingsIconButtonProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {sidePanel, setSidePanel} = useSidePanel();
-  const settingsLabel = useString('settingsLabel')();
+  //commented for v1 release
+  //const settingsLabel = useString('settingsLabel')();
+  const settingsLabel = 'Settings';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Settings;

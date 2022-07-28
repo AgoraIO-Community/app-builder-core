@@ -16,7 +16,6 @@ import {isWeb} from '../utils/common';
 import {RtcContext} from '../../agora-rn-uikit';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
-import useUserList from '../utils/useUserList';
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -35,9 +34,8 @@ const layout = (len: number, isDesktop: boolean = true) => {
   };
 };
 
-const GridVideo: layoutComponent = () => {
+const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useContext(RtcContext);
-  const {renderList, renderPosition} = useUserList();
   let onLayout = (e: any) => {
     setDim([
       e.nativeEvent.layout.width,
@@ -53,8 +51,8 @@ const GridVideo: layoutComponent = () => {
   const isDesktop = dim[0] > dim[1] + 100;
 
   let {matrix, dims} = useMemo(
-    () => layout(renderPosition.length, isDesktop),
-    [renderPosition.length, isDesktop],
+    () => layout(renderData.length, isDesktop),
+    [renderData.length, isDesktop],
   );
 
   const setPinnedLayout = useSetPinnedLayout();
@@ -70,7 +68,7 @@ const GridVideo: layoutComponent = () => {
                 if (!(ridx === 0 && cidx === 0)) {
                   dispatch({
                     type: 'SwapVideo',
-                    value: [renderPosition[ridx * dims.c + cidx]],
+                    value: [renderData[ridx * dims.c + cidx]],
                   });
                 }
                 setPinnedLayout();
@@ -81,9 +79,7 @@ const GridVideo: layoutComponent = () => {
               }}
               key={cidx}>
               <View style={style.gridVideoContainerInner}>
-                <RenderComponent
-                  user={renderList[renderPosition[ridx * dims.c + cidx]]}
-                />
+                <RenderComponent uid={renderData[ridx * dims.c + cidx]} />
               </View>
             </Pressable>
           ))}

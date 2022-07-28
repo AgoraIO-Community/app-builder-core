@@ -48,15 +48,46 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const {meetingTitle, meetingPassphrase, isSeparateHostLink} =
     useMeetingInfo();
 
-  const copiedToClipboardText = useString(
-    'copiedToClipboardNotificationLabel',
-  )();
-  const meetingIdText = useString('meetingIdLabel')();
-  const PSTNNumberText = useString('PSTNNumber')();
-  const PSTNPinText = useString('PSTNPin')();
-
-  const meetingInviteText =
-    useString<MeetingInviteInterface>('meetingInviteText');
+  //commmented for v1 release
+  // const copiedToClipboardText = useString(
+  //   'copiedToClipboardNotificationLabel',
+  // )();
+  // const meetingIdText = useString('meetingIdLabel')();
+  // const PSTNNumberText = useString('PSTNNumber')();
+  // const PSTNPinText = useString('PSTNPin')();
+  // const meetingInviteText =
+  //   useString<MeetingInviteInterface>('meetingInviteText');
+  const copiedToClipboardText = 'Copied to Clipboard';
+  const meetingIdText = 'Meeting ID';
+  const PSTNNumberText = 'PSTN Number';
+  const PSTNPinText = 'PSTN Pin';
+  const meetingInviteText = ({meetingName, id, url, pstn}) => {
+    let inviteContent = '';
+    if (url) {
+      // if host data is present generate links for both host and attendee
+      if (url?.host) {
+        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
+      }
+      // if host data is not present then generate link for attendee alone
+      else {
+        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.attendee}`;
+      }
+    } else {
+      // if host data is present generate meeting ID for both host and attendee
+      if (id?.host) {
+        inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
+      }
+      // if host data is not present then generate meeting ID for attendee alone
+      else {
+        inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.attendee}`;
+      }
+    }
+    // Adding pstn data into meeting data if present
+    if (pstn?.number && pstn?.pin) {
+      inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
+    }
+    return inviteContent;
+  };
 
   const isSDK = isSDKCheck();
 

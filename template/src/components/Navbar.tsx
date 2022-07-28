@@ -104,7 +104,9 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-  const participantsLabel = useString('participantsLabel')();
+  //commented for v1 release
+  //const participantsLabel = useString('participantsLabel')();
+  const participantsLabel = 'Participants';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Participants;
@@ -186,7 +188,9 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
     useChatUIControl();
   const {sidePanel, setSidePanel} = useSidePanel();
-  const chatLabel = useString('chatLabel')();
+  //commented for v1 release
+  //const chatLabel = useString('chatLabel')();
+  const chatLabel = 'Chat';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Chat;
@@ -261,7 +265,9 @@ interface LayoutIconButtonInterface {
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const {modalPosition} = props;
-  const layoutLabel = useString('layoutLabel')('');
+  //commented for v1 release
+  //const layoutLabel = useString('layoutLabel')('');
+  const layoutLabel = 'Layouts';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const [showDropdown, setShowDropdown] = useState(false);
@@ -340,7 +346,9 @@ const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
 };
 
 const Navbar = () => {
-  const recordingLabel = useString('recordingLabel')();
+  //commented for v1 release
+  //const recordingLabel = useString('recordingLabel')();
+  const recordingLabel = 'Recording';
   const {meetingTitle} = useMeetingInfo();
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);

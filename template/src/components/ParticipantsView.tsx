@@ -25,9 +25,13 @@ import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {rtcProps} = useContext(PropsContext);
-  const hostLabel = useString('hostLabel')();
-  const audienceLabel = useString('audienceLabel')();
-  const participantsLabel = useString('participantsLabel')();
+  //commented for v1 release
+  // const hostLabel = useString('hostLabel')();
+  // const audienceLabel = useString('audienceLabel')();
+  // const participantsLabel = useString('participantsLabel')();
+  const hostLabel = 'Host';
+  const audienceLabel = 'Audience';
+  const participantsLabel = 'Participants';
   const {isHost} = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,

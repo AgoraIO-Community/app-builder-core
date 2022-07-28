@@ -21,7 +21,9 @@ const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage();
   const languageData = useFpe((data) => data?.i18n);
-  const languageText = useString('language')();
+  //commented for v1 release
+  //const languageText = useString('language')();
+  const languageText = 'Language';
   if (!languageData || !languageData.length) {
     return <></>;
   }

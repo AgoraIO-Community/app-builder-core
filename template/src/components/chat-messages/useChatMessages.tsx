@@ -60,8 +60,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const groupActiveRef = useRef<boolean>();
   const individualActiveRef = useRef<string | number>();
 
-  const fromText = useString('messageSenderNotificationLabel');
-
+  //commented for v1 release
+  //const fromText = useString('messageSenderNotificationLabel');
+  const fromText = (name: string) => `From : ${name}`;
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);

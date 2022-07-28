@@ -14,9 +14,13 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const noLiveStreamingRequestsLabel = useString(
     'raisedHandsListPlaceholder',
   )();
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  const noUserFoundLabel = useString('noUserFoundLabel')();
-  const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
+  //commented for v1 release
+  // const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  // const noUserFoundLabel = useString('noUserFoundLabel')();
+  // const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
+  const remoteUserDefaultLabel = 'User';
+  const noUserFoundLabel = 'User not found';
+  const raisedHandsListTitleLabel = 'Streaming Request';
   const {p_style} = props;
   const {renderList} = useUserList();
   const {raiseHandList, setLastCheckedRequestTimestamp} =

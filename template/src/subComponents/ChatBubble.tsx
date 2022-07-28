@@ -33,7 +33,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
       Linking.openURL(url);
     }
   };
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   return (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
