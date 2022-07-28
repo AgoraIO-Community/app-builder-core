@@ -139,13 +139,15 @@ class CustomEvents {
     EventUtils.addListener(evt, listener, this.source);
   };
 
-  off = (evt: string, listener?: TEventCallback) => {
+  off = (evt?: string, listener?: TEventCallback) => {
     if (listener) {
       if (this._validateListener(listener) && this._validateEvt(evt)) {
         EventUtils.removeListener(evt, listener, this.source);
       }
-    } else if (this._validateEvt(evt)) {
-      EventUtils.removeAllListeners(evt, this.source);
+    } else if (evt) {
+      if (this._validateEvt(evt)) {
+        EventUtils.removeAllListeners(evt, this.source);
+      }
     } else {
       EventUtils.removeAll(this.source);
     }
