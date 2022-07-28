@@ -158,7 +158,7 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
       await getMembers();
       setHasUserJoinedRTM(true);
-      runQueuedCustomEvents();
+      await runQueuedCustomEvents();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -456,7 +456,7 @@ const RtmConfigure = (props: any) => {
     doLoginAndSetupRTM();
   };
 
-  const runQueuedCustomEvents = () => {
+  const runQueuedCustomEvents = async () => {
     try {
       const eventsInQueue = EventsQueue.printQueue();
       if (eventsInQueue.length !== 0) {
