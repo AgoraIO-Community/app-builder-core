@@ -14,8 +14,8 @@
 import RtmEngine from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventPayload} from './types';
-import {EventAttributes, EventUtils, eventMessageType} from '../rtm-events';
-import {TCbListener, EventSourceEnum} from './types';
+import {EventUtils, eventMessageType} from '../rtm-events';
+import {TEventCallback, EventSourceEnum} from './types';
 
 class CustomEvents {
   engine!: RtmEngine;
@@ -28,14 +28,19 @@ class CustomEvents {
     }
   }
 
+  /**
+   * Persists the data in the local attributes of the user
+   *
+   * @param {string} evt  to be stored in rtm Attribute key
+   * @param {any} payload to be stored in rtm Attribute value
+   * @api private
+   */
   private _persist = async (evt: string, payload: any) => {
     try {
-      const localUserId = RTMEngine.getInstance().myUID;
+      const localUserId = RTMEngine.getInstance().localUid;
       const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
-      // Step 1: Call API to update local attributes
+      // Step 1: Call RTM API to update local attributes
       await this.engine.addOrUpdateLocalUserAttributes([rtmAttribute]);
-      // Step 2: Update local state
-      EventAttributes.set(localUserId, rtmAttribute);
     } catch (error) {
       console.log(
         'CUSTOM_EVENT_API error occured while updating the value ',
@@ -43,6 +48,37 @@ class CustomEvents {
       );
     }
   };
+
+  /**
+   *
+   */
+  private _validateEvt = (evt: string): boolean => {
+    if (typeof evt !== 'string') {
+      throw Error(
+        `CUSTOM_EVENT_API Event name cannot be of type ${typeof evt}`,
+      );
+    }
+    if (evt.trim() == '') {
+      throw Error(`CUSTOM_EVENT_API Name or function cannot be empty`);
+    }
+    return true;
+  };
+  private _validateListener = (listener: TEventCallback): boolean => {
+    if (typeof listener !== 'function') {
+      throw Error(
+        `CUSTOM_EVENT_API Function cannot be of type ${typeof listener}`,
+      );
+    }
+    return true;
+  };
+
+  /**
+   * Sends the data across to client using transport layer RTM API's
+   *
+   * @param {any} rtmPayload payload to be sent across
+   * @param {ToOptions} to If defined then sent to individual peer in the channle. If not defined then sent to everyone
+   * @api private
+   */
   private _send = async (rtmPayload: any, to?: ToOptions) => {
     const text = JSON.stringify({
       type: eventMessageType.CUSTOM_EVENT,
@@ -51,12 +87,12 @@ class CustomEvents {
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
-      (typeof to === 'string' && to?.trim() === '') ||
+      (typeof to === 'number' && !to) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
       console.log('CUSTOM_EVENT_API: case 1 executed');
       try {
-        const channelId = RTMEngine.getInstance().myChannelUID;
+        const channelId = RTMEngine.getInstance().channelUid;
         await this.engine.sendMessageByChannelId(channelId, text);
       } catch (error) {
         console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
@@ -64,12 +100,12 @@ class CustomEvents {
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'string' && to.trim() !== '') {
+    if (typeof to === 'number' && !to) {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
 
       try {
         await this.engine.sendMessageToPeer({
-          peerId: to,
+          peerId: `${to}`,
           offline: false,
           text,
         });
@@ -86,7 +122,7 @@ class CustomEvents {
         for (const uid of to) {
           // TODO adjust uids
           await this.engine.sendMessageToPeer({
-            peerId: uid,
+            peerId: `${uid}`,
             offline: false,
             text,
           });
@@ -98,18 +134,27 @@ class CustomEvents {
     }
   };
 
-  on = (name: string, listener: TCbListener) => {
-    console.log('CUSTOM_EVENT_API: Event lifecycle: ON', this.source);
-    EventUtils.addListener(name, listener, this.source);
+  on = (evt: string, listener: TEventCallback) => {
+    if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
+    EventUtils.addListener(evt, listener, this.source);
   };
 
-  off = (name: string) => {
-    console.log('CUSTOM_EVENT_API: Event lifecycle: OFF ');
-    EventUtils.removeEvent(name, this.source);
+  off = (evt?: string, listener?: TEventCallback) => {
+    if (listener) {
+      if (this._validateListener(listener) && this._validateEvt(evt)) {
+        EventUtils.removeListener(evt, listener, this.source);
+      }
+    } else if (evt) {
+      if (this._validateEvt(evt)) {
+        EventUtils.removeAllListeners(evt, this.source);
+      }
+    } else {
+      EventUtils.removeAll(this.source);
+    }
   };
 
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
-    console.log('CUSTOM_EVENT_API: send Event payload: ', payload);
+    if (!this._validateEvt(evt)) return;
     const {action = '', value = '', level = 1} = payload;
 
     const rtmPayload = {
@@ -142,7 +187,6 @@ class CustomEvents {
       'CUSTOM_EVENT_API: EVENTS fpe',
       EventUtils.getEvents(EventSourceEnum.fpe),
     );
-    console.log('CUSTOM_EVENT_API: ATTRIBUTES:', EventAttributes.get());
   };
   // once = (name: string, listener: any) => {
   //   console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
