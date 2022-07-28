@@ -51,7 +51,9 @@ const ChatContainer = (props: any) => {
     setPrivateActive,
   } = useChatUIControl();
   const {localUid} = useContext(ChatContext);
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
   const {ChatBubbleComponent} = useFpe((data) => {

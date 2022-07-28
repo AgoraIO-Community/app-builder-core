@@ -33,8 +33,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = rtc;
   const {renderList, renderPosition} = useUserList();
   const {setScreenShareData, screenShareData} = useScreenContext();
-  const getScreenShareName = useString('screenshareUserName');
-  const userText = useString('remoteUserDefaultLabel')();
+  // commented for v1 release
+  // const getScreenShareName = useString('screenshareUserName');
+  // const userText = useString('remoteUserDefaultLabel')();
+  const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  const userText = 'User';
   const prevRenderPosition = usePrevious({renderPosition});
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();

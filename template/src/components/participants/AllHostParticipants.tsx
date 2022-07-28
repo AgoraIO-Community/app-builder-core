@@ -9,7 +9,9 @@ import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 export default function AllHostParticipants(props: any) {
   const {p_style, isHost} = props;
   const localUid = useLocalUid();
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const {renderList, renderPosition} = useUserList();
   const getParticipantName = (uid: UidType) => {
     return renderList[uid]?.name || remoteUserDefaultLabel;

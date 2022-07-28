@@ -11,13 +11,14 @@ import useUserList from '../../utils/useUserList';
 import {ClientRole} from '../../../agora-rn-uikit';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
-  const noLiveStreamingRequestsLabel = useString(
-    'raisedHandsListPlaceholder',
-  )();
   //commented for v1 release
+  // const noLiveStreamingRequestsLabel = useString(
+  //   'raisedHandsListPlaceholder',
+  // )();
   // const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   // const noUserFoundLabel = useString('noUserFoundLabel')();
   // const raisedHandsListTitleLabel = useString('raisedHandsListTitleLabel')();
+  const noLiveStreamingRequestsLabel = 'No streaming request(s)';
   const remoteUserDefaultLabel = 'User';
   const noUserFoundLabel = 'User not found';
   const raisedHandsListTitleLabel = 'Streaming Request';
