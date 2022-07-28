@@ -30,7 +30,7 @@ class CustomEvents {
 
   private _persist = async (evt: string, payload: any) => {
     try {
-      const localUserId = RTMEngine.getInstance().myUID;
+      const localUserId = RTMEngine.getInstance().localUid;
       const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
       // Step 1: Call API to update local attributes
       await this.engine.addOrUpdateLocalUserAttributes([rtmAttribute]);
@@ -51,12 +51,12 @@ class CustomEvents {
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
-      (typeof to === 'string' && to?.trim() === '') ||
+      (typeof to === 'number' && !to) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
       console.log('CUSTOM_EVENT_API: case 1 executed');
       try {
-        const channelId = RTMEngine.getInstance().myChannelUID;
+        const channelId = RTMEngine.getInstance().channelUid;
         await this.engine.sendMessageByChannelId(channelId, text);
       } catch (error) {
         console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
@@ -64,12 +64,12 @@ class CustomEvents {
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'string' && to.trim() !== '') {
+    if (typeof to === 'number' && !to) {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
 
       try {
         await this.engine.sendMessageToPeer({
-          peerId: to,
+          peerId: `${to}`,
           offline: false,
           text,
         });
@@ -86,7 +86,7 @@ class CustomEvents {
         for (const uid of to) {
           // TODO adjust uids
           await this.engine.sendMessageToPeer({
-            peerId: uid,
+            peerId: `${uid}`,
             offline: false,
             text,
           });

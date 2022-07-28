@@ -17,7 +17,7 @@ const RemoteLiveStreamApprovedRequestRecall = (
         CustomEvents.send(
           LiveStreamControlMessageEnum.raiseHandRequestRejected,
           {},
-          props.uid.toString(),
+          props.uid,
         );
       }}
       color="#FD0845"

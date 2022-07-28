@@ -147,7 +147,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            */
           CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STARTED,
-            value: localUid.toString(),
+            value: `${localUid}`,
             level: 3,
           });
           // 2. set the local recording state to true to update the UI

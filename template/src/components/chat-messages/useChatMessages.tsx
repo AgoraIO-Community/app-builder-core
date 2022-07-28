@@ -22,6 +22,7 @@ import {useString} from '../../utils/useString';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
+import {UidType} from '../../../agora-rn-uikit';
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
@@ -155,14 +156,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     });
   };
 
-  const sendChatMessage = (msg: string, toUid?: number) => {
+  const sendChatMessage = (msg: string, toUid?: UidType) => {
     if (toUid) {
       CustomEvents.send(
         EventNames.PRIVATE_CHAT_MESSAGE,
         {
           value: msg,
         },
-        toUid.toString(),
+        toUid,
       );
       addMessageToPrivateStore(
         toUid.toString(),

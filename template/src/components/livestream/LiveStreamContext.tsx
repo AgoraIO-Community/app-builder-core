@@ -362,7 +362,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
    * b. Host can reject streaming request sent by audience
    */
 
-  const hostApprovesRequestOfUID = (uid: number) => {
+  const hostApprovesRequestOfUID = (uid: UidType) => {
     addOrUpdateLiveStreamRequest(uid.toString(), {
       raised: RaiseHandValue.TRUE,
       ts: new Date().getTime(),
@@ -370,11 +370,11 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     CustomEvents.send(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       {},
-      uid.toString(),
+      uid,
     );
   };
 
-  const hostRejectsRequestOfUID = (uid: number) => {
+  const hostRejectsRequestOfUID = (uid: UidType) => {
     addOrUpdateLiveStreamRequest(uid.toString(), {
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
@@ -382,7 +382,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     CustomEvents.send(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       {},
-      uid.toString(),
+      uid,
     );
   };
 

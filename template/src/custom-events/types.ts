@@ -1,3 +1,4 @@
+import {UidType} from '../../agora-rn-uikit';
 type Simplify<T> = T extends infer S ? {[K in keyof S]: S[K]} : never;
 type NoneOf<T> = Simplify<{[K in keyof T]?: never}>;
 type AtMostOneOf<T> =
@@ -6,7 +7,7 @@ type AtMostOneOf<T> =
 
 // export type TEventOptions = AtMostOneOf<IMessageOptions> & IEventOptions;
 
-export type ToOptions = string | string[];
+export type ToOptions = UidType | UidType[];
 
 interface IEventPayloadBase {
   action?: any;

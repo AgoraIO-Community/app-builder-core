@@ -72,7 +72,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       console.log('STOPPED SHARING');
       executeNormalQuery();
       CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-        value: false.toString(),
+        value: `${false}`,
         level: 2,
       });
     });
@@ -165,7 +165,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       executeNormalQuery();
     }
     CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-      value: true.toString(),
+      value: `${true}`,
       level: 2,
     });
   };
