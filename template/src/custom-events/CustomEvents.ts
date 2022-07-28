@@ -50,6 +50,29 @@ class CustomEvents {
   };
 
   /**
+   *
+   */
+  private _validateEvt = (evt: string): boolean => {
+    if (typeof evt !== 'string') {
+      throw Error(
+        `CUSTOM_EVENT_API Event name cannot be of type ${typeof evt}`,
+      );
+    }
+    if (evt.trim() == '') {
+      throw Error(`CUSTOM_EVENT_API Name or function cannot be empty`);
+    }
+    return true;
+  };
+  private _validateListener = (listener: TEventCallback): boolean => {
+    if (typeof listener !== 'function') {
+      throw Error(
+        `CUSTOM_EVENT_API Function cannot be of type ${typeof listener}`,
+      );
+    }
+    return true;
+  };
+
+  /**
    * Sends the data across to client using transport layer RTM API's
    *
    * @param {any} rtmPayload payload to be sent across
@@ -111,21 +134,25 @@ class CustomEvents {
     }
   };
 
-  on = (name: string, listener: TEventCallback) => {
-    EventUtils.addListener(name, listener, this.source);
+  on = (evt: string, listener: TEventCallback) => {
+    if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
+    EventUtils.addListener(evt, listener, this.source);
   };
 
-  off = (name: string) => {
-    console.log('CUSTOM_EVENT_API: Event lifecycle: OFF ');
-    if (name.trim() !== '') {
-      EventUtils.removeAllListeners(name, this.source);
+  off = (evt: string, listener?: TEventCallback) => {
+    if (listener) {
+      if (this._validateListener(listener) && this._validateEvt(evt)) {
+        EventUtils.removeListener(evt, listener, this.source);
+      }
+    } else if (this._validateEvt(evt)) {
+      EventUtils.removeAllListeners(evt, this.source);
     } else {
       EventUtils.removeAll(this.source);
     }
   };
 
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
-    console.log('CUSTOM_EVENT_API: send Event payload: ', payload);
+    if (!this._validateEvt(evt)) return;
     const {action = '', value = '', level = 1} = payload;
 
     const rtmPayload = {

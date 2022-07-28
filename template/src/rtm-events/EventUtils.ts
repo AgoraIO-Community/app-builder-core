@@ -15,24 +15,7 @@ type TListenerMetaData = {once: boolean; listener: TListener};
 type TEventList = Map<string, TListenerMetaData[]>;
 type TEvents = Record<EventSourceEnum, TEventList> | Record<string, never>;
 
-interface IEventUtils {
-  getEvents: (source: EventSourceEnum) => TEvents | {};
-  addListener(
-    evt: string,
-    listener: TListener,
-    source: EventSourceEnum,
-  ): object;
-  removeListener(
-    evt: string,
-    listenerToRemove: TListener,
-    source: EventSourceEnum,
-  ): Object;
-  removeAllListeners(evt: string, source: EventSourceEnum): object;
-  removeAll(source: EventSourceEnum): object;
-  emitEvent(evt: string, args: any): object;
-}
-
-const EventUtils: IEventUtils = (function () {
+const EventUtils = (function () {
   'use strict';
 
   let _events: TEvents = {};
@@ -132,7 +115,7 @@ const EventUtils: IEventUtils = (function () {
 
   return {
     getEvents(source: EventSourceEnum): TEvents | {} {
-      return _events[source] || (_events = {});
+      return _events[source] || (_events[source] = new Map());
     },
     /**
      * Adds a listener function to the specified event.
@@ -207,7 +190,9 @@ const EventUtils: IEventUtils = (function () {
       let type = typeof evt;
       let events = this.getEvents(source);
       if (type === 'string') {
-        events[source].delete(evt);
+        if (events.has(evt)) {
+          events.delete(evt);
+        }
       }
       return this;
     },
