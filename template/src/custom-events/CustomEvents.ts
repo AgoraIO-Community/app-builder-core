@@ -15,7 +15,7 @@ import RtmEngine from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventPayload} from './types';
 import {EventAttributes, EventUtils, eventMessageType} from '../rtm-events';
-import {TCbListener, EventSourceEnum} from './types';
+import {TEventCallback, EventSourceEnum} from './types';
 
 class CustomEvents {
   engine!: RtmEngine;
@@ -28,11 +28,18 @@ class CustomEvents {
     }
   }
 
+  /**
+   * Persists the data in the local attributes of the user
+   *
+   * @param {string} evt  to be stored in rtm Attribute key
+   * @param {any} payload to be stored in rtm Attribute value
+   * @api private
+   */
   private _persist = async (evt: string, payload: any) => {
     try {
       const localUserId = RTMEngine.getInstance().localUid;
       const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
-      // Step 1: Call API to update local attributes
+      // Step 1: Call RTM API to update local attributes
       await this.engine.addOrUpdateLocalUserAttributes([rtmAttribute]);
       // Step 2: Update local state
       EventAttributes.set(localUserId, rtmAttribute);
@@ -43,6 +50,14 @@ class CustomEvents {
       );
     }
   };
+
+  /**
+   * Sends the data across to client using transport layer RTM API's
+   *
+   * @param {any} rtmPayload payload to be sent across
+   * @param {ToOptions} to If defined then sent to individual peer in the channle. If not defined then sent to everyone
+   * @api private
+   */
   private _send = async (rtmPayload: any, to?: ToOptions) => {
     const text = JSON.stringify({
       type: eventMessageType.CUSTOM_EVENT,
@@ -98,14 +113,17 @@ class CustomEvents {
     }
   };
 
-  on = (name: string, listener: TCbListener) => {
-    console.log('CUSTOM_EVENT_API: Event lifecycle: ON', this.source);
+  on = (name: string, listener: TEventCallback) => {
     EventUtils.addListener(name, listener, this.source);
   };
 
   off = (name: string) => {
     console.log('CUSTOM_EVENT_API: Event lifecycle: OFF ');
-    EventUtils.removeEvent(name, this.source);
+    if (name.trim() !== '') {
+      EventUtils.removeAllListeners(name, this.source);
+    } else {
+      EventUtils.removeAll(this.source);
+    }
   };
 
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {

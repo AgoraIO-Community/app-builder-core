@@ -28,20 +28,24 @@ export type EventPayload =
   | IEventPayloadWithAttributes
   | Record<string, never>;
 
+export enum EventSourceEnum {
+  core = 'core',
+  fpe = 'fpe',
+}
+export enum EventLevel {
+  'LEVEL1' = 1,
+  'LEVEL2',
+  'LEVEL3',
+}
 interface dataPayload {
   action: string;
   level: 1 | 2 | 3;
   value: string;
 }
-export enum EventSourceEnum {
-  core = 'core',
-  fpe = 'fpe',
-}
-
-type CbEventPayload = {
+interface EvtCbPayload {
   payload: dataPayload;
   sender: string;
   ts: number;
   source: EventSourceEnum;
-};
-export type TCbListener = (args: CbEventPayload) => void;
+}
+export type TEventCallback = (args: EvtCbPayload) => void;

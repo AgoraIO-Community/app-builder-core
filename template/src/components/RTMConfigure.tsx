@@ -23,7 +23,12 @@ import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
 import {useRenderContext} from 'fpe-api';
 import {safeJsonParse, timeNow, hasJsonStructure} from '../rtm/utils';
-import {EventUtils, EventAttributes, eventMessageType} from '../rtm-events';
+import {
+  EventUtils,
+  EventAttributes,
+  EventsQueue,
+  eventMessageType,
+} from '../rtm-events';
 
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
@@ -164,7 +169,7 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
       await getMembers();
       setHasUserJoinedRTM(true);
-      const eventsInQueue = EventUtils.tasksInQueue();
+      const eventsInQueue = EventsQueue.printQueue();
       if (eventsInQueue.length !== 0) {
         for (const queuedEvents of eventsInQueue) {
           await customEventDispatcher(
@@ -172,7 +177,7 @@ const RtmConfigure = (props: any) => {
             queuedEvents.uid,
             queuedEvents.ts,
           );
-          EventUtils.dequeue();
+          EventsQueue.dequeue();
         }
       }
     } catch (error) {
@@ -270,8 +275,8 @@ const RtmConfigure = (props: any) => {
                         action: payloadAction,
                       },
                     };
-                    // Add the data to queue
-                    EventUtils.queue({
+                    // Todo:EVENTSUP Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+                    EventsQueue.enqueue({
                       data: data,
                       uid: member.uid,
                       ts: timeNow(),
@@ -501,12 +506,13 @@ const RtmConfigure = (props: any) => {
     if (payload?.level === 3) {
       const rtmAttribute = {key: evt, value: JSON.stringify(data.payload)};
       await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      // Todo:EVENTSUP remove Event Attributes for now and store it for future use
       EventAttributes.set(localUid.toString(), rtmAttribute);
     }
     // Step 2: Emit the event
     try {
       console.log('CUSTOM_EVENT_API:  emiting event: ');
-      EventUtils.emit(evt, {payload, sender, ts});
+      EventUtils.emitEvent(evt, {payload, sender, ts});
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
     }

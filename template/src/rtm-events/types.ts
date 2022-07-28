@@ -5,9 +5,3 @@ export enum eventMessageType {
   NORMAL_PRIVATE,
   CUSTOM_EVENT,
 }
-
-export interface IQueueEvent {
-  data: any;
-  uid: number | string;
-  ts: number;
-}
