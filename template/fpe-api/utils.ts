@@ -24,7 +24,6 @@ export {default as useSetName} from '../src/utils/useSetName';
 export {default as useGetName} from '../src/utils/useGetName';
 // commented for v1 release
 //export {useSidePanel} from '../src/utils/useSidePanel';
-export {useLayout} from '../src/utils/useLayout';
 // commented for v1 release
 // export {
 //   default as useUnreadMessageCount,
