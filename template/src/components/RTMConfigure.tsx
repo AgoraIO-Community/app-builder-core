@@ -86,6 +86,16 @@ const RtmConfigure = (props: any) => {
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
 
+  //Update the store displayName value if the state is changed
+  useEffect(() => {
+    setStore((prevState) => {
+      return {
+        ...prevState,
+        displayName,
+      };
+    });
+  }, [displayName]);
+
   const [login, setLogin] = useState<boolean>(false);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
