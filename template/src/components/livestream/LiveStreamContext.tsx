@@ -12,7 +12,6 @@ import {
 } from './Types';
 import {ClientRole, useLocalUid, UidType} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
-import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
@@ -26,26 +25,6 @@ export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   props,
 ) => {
-  const raiseHandRemoteHostNotification = useString(
-    'raiseHandRemoteHostNotification',
-  );
-  const lowerHandRemoteHostNotification = useString(
-    'lowerHandRemoteHostNotification',
-  );
-  const raiseHandApprovedLocalNotification = useString(
-    'raiseHandApprovedLocalNotification',
-  )();
-  const raiseHandRejectedLocalNotification = useString(
-    'raiseHandRejectedLocalNotification',
-  )();
-  const raiseHandRevokedLocalNotification = useString(
-    'raiseHandRevokedLocalNotification',
-  )();
-  const raiseHandLocalNotification = useString('raiseHandLocalNotification')();
-  const lowerHandsLocalNotification = useString(
-    'lowerHandsLocalNotification',
-  )();
-
   const screenshareContextInstance = useScreenshare();
 
   const {renderList} = useUserList();
