@@ -8,7 +8,7 @@ import {
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import useUserList from '../../utils/useUserList';
-import CustomEvents from '../../custom-events';
+import CustomEvents, {EventLevel} from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
@@ -73,7 +73,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       executeNormalQuery();
       CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
         value: `${false}`,
-        level: 2,
+        level: EventLevel.LEVEL2,
       });
     });
   }, []);
@@ -166,7 +166,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     }
     CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
       value: `${true}`,
-      level: 2,
+      level: EventLevel.LEVEL2,
     });
   };
 

@@ -23,7 +23,7 @@ import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import CustomEvents from '../../custom-events';
+import CustomEvents, {EventLevel} from '../../custom-events';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
@@ -148,7 +148,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STARTED,
             value: `${localUid}`,
-            level: 3,
+            level: EventLevel.LEVEL3,
           });
           // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
@@ -177,7 +177,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STOPPED,
             value: '',
-            level: 3,
+            level: EventLevel.LEVEL3,
           });
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);

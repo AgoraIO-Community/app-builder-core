@@ -16,7 +16,7 @@ import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import CustomEvents from '../../custom-events';
+import CustomEvents, {EventLevel} from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -142,7 +142,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         // Audience notfies all host when request is rejected
         CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
           action: LiveStreamControlMessageEnum.notifyHostsInChannel,
-          level: 2,
+          level: EventLevel.LEVEL2,
           value: RaiseHandValue.FALSE,
         });
         break;
@@ -157,7 +157,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
           action: LiveStreamControlMessageEnum.notifyHostsInChannel,
           value: RaiseHandValue.TRUE,
-          level: 2,
+          level: EventLevel.LEVEL2,
         });
       default:
         break;
@@ -219,7 +219,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   React.useEffect(() => {
     if (!callActive || !hasUserJoinedRTM) return;
     CustomEvents.send(EventNames.ROLE_ATTRIBUTE, {
-      level: 2,
+      level: EventLevel.LEVEL2,
       value: rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
     });
     setRaiseHandList((prevState) => {
@@ -402,7 +402,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
     CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
       action: LiveStreamControlMessageEnum.raiseHandRequest,
-      level: 2,
+      level: EventLevel.LEVEL2,
       value: RaiseHandValue.TRUE,
     });
     // Update local state
