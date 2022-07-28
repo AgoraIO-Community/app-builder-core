@@ -158,17 +158,7 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
       await getMembers();
       setHasUserJoinedRTM(true);
-      const eventsInQueue = EventsQueue.printQueue();
-      if (eventsInQueue.length !== 0) {
-        for (const queuedEvents of eventsInQueue) {
-          await customEventDispatcher(
-            queuedEvents.data,
-            queuedEvents.uid,
-            queuedEvents.ts,
-          );
-          EventsQueue.dequeue();
-        }
-      }
+      runQueuedCustomEvents();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -464,6 +454,27 @@ const RtmConfigure = (props: any) => {
       }
     });
     doLoginAndSetupRTM();
+  };
+
+  const runQueuedCustomEvents = () => {
+    try {
+      const eventsInQueue = EventsQueue.printQueue();
+      if (eventsInQueue.length !== 0) {
+        for (const queuedEvents of eventsInQueue) {
+          await customEventDispatcher(
+            queuedEvents.data,
+            queuedEvents.uid,
+            queuedEvents.ts,
+          );
+          EventsQueue.dequeue();
+        }
+      }
+    } catch (error) {
+      throw Error(
+        'CUSTOM_EVENTS_API: error while running queued events ',
+        error,
+      );
+    }
   };
 
   const customEventDispatcher = async (
