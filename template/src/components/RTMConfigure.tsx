@@ -23,12 +23,7 @@ import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
 import {useRenderContext} from 'fpe-api';
 import {safeJsonParse, timeNow, hasJsonStructure} from '../rtm/utils';
-import {
-  EventUtils,
-  EventAttributes,
-  EventsQueue,
-  eventMessageType,
-} from '../rtm-events';
+import {EventUtils, EventsQueue, eventMessageType} from '../rtm-events';
 
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
@@ -147,12 +142,6 @@ const RtmConfigure = (props: any) => {
     ];
     try {
       await engine.current.setLocalUserAttributes(rtmAttributes);
-      rtmAttributes.forEach((attr: RtmAttribute) => {
-        EventAttributes.set(localUid.toString(), {
-          key: attr.key,
-          value: attr.value,
-        });
-      });
       timerValueRef.current = 5;
       joinChannel();
     } catch (error) {
@@ -259,10 +248,6 @@ const RtmConfigure = (props: any) => {
                 // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
                 // isActive to identify all active screenshare users in the call
                 for (const [key, value] of Object.entries(attr?.attributes)) {
-                  EventAttributes.set(member.uid, {
-                    key,
-                    value: value as string,
-                  });
                   if (hasJsonStructure(value as string)) {
                     const [err, result] = safeJsonParse(value as string);
                     const payloadValue = result?.value || '';
@@ -358,13 +343,6 @@ const RtmConfigure = (props: any) => {
           };
           updateRenderListState(screenUid, screenShareUser);
           //end - updating screenshare data in rtc
-
-          for (const [key, value] of Object.entries(attr?.attributes)) {
-            EventAttributes.set(data.uid, {
-              key,
-              value: value as string,
-            });
-          }
         } catch (e) {
           console.error(`Could not retrieve name of ${data.uid}`, e);
         }
@@ -506,8 +484,6 @@ const RtmConfigure = (props: any) => {
     if (payload?.level === 3) {
       const rtmAttribute = {key: evt, value: JSON.stringify(data.payload)};
       await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
-      // Todo:EVENTSUP remove Event Attributes for now and store it for future use
-      EventAttributes.set(localUid.toString(), rtmAttribute);
     }
     // Step 2: Emit the event
     try {

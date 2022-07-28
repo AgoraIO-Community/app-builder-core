@@ -14,7 +14,7 @@
 import RtmEngine from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventPayload} from './types';
-import {EventAttributes, EventUtils, eventMessageType} from '../rtm-events';
+import {EventUtils, eventMessageType} from '../rtm-events';
 import {TEventCallback, EventSourceEnum} from './types';
 
 class CustomEvents {
@@ -41,8 +41,6 @@ class CustomEvents {
       const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
       // Step 1: Call RTM API to update local attributes
       await this.engine.addOrUpdateLocalUserAttributes([rtmAttribute]);
-      // Step 2: Update local state
-      EventAttributes.set(localUserId, rtmAttribute);
     } catch (error) {
       console.log(
         'CUSTOM_EVENT_API error occured while updating the value ',
@@ -160,7 +158,6 @@ class CustomEvents {
       'CUSTOM_EVENT_API: EVENTS fpe',
       EventUtils.getEvents(EventSourceEnum.fpe),
     );
-    console.log('CUSTOM_EVENT_API: ATTRIBUTES:', EventAttributes.get());
   };
   // once = (name: string, listener: any) => {
   //   console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
