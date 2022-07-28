@@ -52,6 +52,21 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
 
+  const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+    //screenshare is started set the layout to Pinned View
+    if (pinned && screenShareUid) {
+      dispatch({
+        type: 'SwapVideo',
+        value: [screenShareUid],
+      });
+      setPinnedLayout();
+    }
+    //screenshare is stopped set the layout Grid View
+    else {
+      changeLayout();
+    }
+  };
+
   useEffect(() => {
     CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const screenUidOfUser =
@@ -65,6 +80,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           },
         };
       });
+      //if remote user started/stopped the screenshare then change the layout to pinned/grid
+      data.payload.value === 'true'
+        ? triggerChangeLayout(true, screenUidOfUser)
+        : triggerChangeLayout(false);
     });
   }, []);
 
@@ -78,58 +97,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         value: false.toString(),
         level: 2,
       });
+      //if local user stopped the screenshare then change layout to grid
+      triggerChangeLayout(false);
     });
   }, []);
-
-  useEffect(() => {
-    if (prevRenderPosition !== undefined) {
-      let joinedUser = renderPosition.filter((uid) =>
-        prevRenderPosition?.renderPosition.every((olduid) => !(olduid === uid)),
-      );
-      let leftUser = prevRenderPosition?.renderPosition.filter((olduid) =>
-        renderPosition.every((newuid) => !(newuid === olduid)),
-      );
-      if (joinedUser.length === 1) {
-        const newUserUid = joinedUser[0];
-        if (screenShareData[newUserUid]) {
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [newUserUid]: {
-                ...prevState[newUserUid],
-                name: getScreenShareName(
-                  renderList[newUserUid]?.name || userText,
-                ),
-                isActive: true,
-              },
-            };
-          });
-          dispatch({
-            type: 'SwapVideo',
-            value: [newUserUid],
-          });
-
-          setPinnedLayout();
-        }
-      }
-      if (leftUser.length === 1) {
-        const leftUserUid = leftUser[0];
-        if (screenShareData[leftUserUid]) {
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [leftUserUid]: {
-                ...prevState[leftUserUid],
-                isActive: false,
-              },
-            };
-          });
-
-          changeLayout();
-        }
-      }
-    }
-  }, [renderPosition, renderList]);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
     if (!isScreenActive) {
@@ -153,6 +124,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       executeRecordingQuery(isScreenActive);
     }
     try {
+      // @ts-ignore
       await rtc.RtcEngine.startScreenshare(
         screenShareToken,
         channel,
@@ -171,6 +143,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       value: true.toString(),
       level: 2,
     });
+    //if local user started the screenshare then change layout to pinned
+    triggerChangeLayout(true, screenShareUid);
   };
 
   return (
