@@ -47,10 +47,10 @@ class RTMEngine {
     this.localUID = localUID;
     this.channelId = channelID;
   }
-  get myUID() {
+  get localUid() {
     return this.localUID;
   }
-  get myChannelUID() {
+  get channelUid() {
     return this.channelId;
   }
 }

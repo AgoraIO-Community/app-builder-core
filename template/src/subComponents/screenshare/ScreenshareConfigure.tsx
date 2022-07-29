@@ -8,7 +8,7 @@ import {
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import useUserList from '../../utils/useUserList';
-import CustomEvents from '../../custom-events';
+import CustomEvents, {EventLevel} from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
@@ -94,8 +94,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       console.log('STOPPED SHARING');
       executeNormalQuery();
       CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-        value: false.toString(),
-        level: 2,
+        value: `${false}`,
+        level: EventLevel.LEVEL2,
       });
       //if local user stopped the screenshare then change layout to grid
       triggerChangeLayout(false);
@@ -140,8 +140,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       executeNormalQuery();
     }
     CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-      value: true.toString(),
-      level: 2,
+      value: `${true}`,
+      level: EventLevel.LEVEL2,
     });
     //if local user started the screenshare then change layout to pinned
     triggerChangeLayout(true, screenShareUid);

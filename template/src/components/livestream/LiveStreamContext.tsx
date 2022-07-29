@@ -12,11 +12,10 @@ import {
 } from './Types';
 import {ClientRole, useLocalUid, UidType} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
-import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import CustomEvents from '../../custom-events';
+import CustomEvents, {EventLevel} from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -26,26 +25,6 @@ export const LiveStreamContextConsumer = LiveStreamContext.Consumer;
 export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   props,
 ) => {
-  const raiseHandRemoteHostNotification = useString(
-    'raiseHandRemoteHostNotification',
-  );
-  const lowerHandRemoteHostNotification = useString(
-    'lowerHandRemoteHostNotification',
-  );
-  const raiseHandApprovedLocalNotification = useString(
-    'raiseHandApprovedLocalNotification',
-  )();
-  const raiseHandRejectedLocalNotification = useString(
-    'raiseHandRejectedLocalNotification',
-  )();
-  const raiseHandRevokedLocalNotification = useString(
-    'raiseHandRevokedLocalNotification',
-  )();
-  const raiseHandLocalNotification = useString('raiseHandLocalNotification')();
-  const lowerHandsLocalNotification = useString(
-    'lowerHandsLocalNotification',
-  )();
-
   const screenshareContextInstance = useScreenshare();
 
   const {renderList} = useUserList();
@@ -142,7 +121,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         // Audience notfies all host when request is rejected
         CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
           action: LiveStreamControlMessageEnum.notifyHostsInChannel,
-          level: 2,
+          level: EventLevel.LEVEL2,
           value: RaiseHandValue.FALSE,
         });
         break;
@@ -157,7 +136,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
           action: LiveStreamControlMessageEnum.notifyHostsInChannel,
           value: RaiseHandValue.TRUE,
-          level: 2,
+          level: EventLevel.LEVEL2,
         });
       default:
         break;
@@ -219,7 +198,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   React.useEffect(() => {
     if (!callActive || !hasUserJoinedRTM) return;
     CustomEvents.send(EventNames.ROLE_ATTRIBUTE, {
-      level: 2,
+      level: EventLevel.LEVEL2,
       value: rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
     });
     setRaiseHandList((prevState) => {
@@ -362,7 +341,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
    * b. Host can reject streaming request sent by audience
    */
 
-  const hostApprovesRequestOfUID = (uid: number) => {
+  const hostApprovesRequestOfUID = (uid: UidType) => {
     addOrUpdateLiveStreamRequest(uid.toString(), {
       raised: RaiseHandValue.TRUE,
       ts: new Date().getTime(),
@@ -370,11 +349,11 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     CustomEvents.send(
       LiveStreamControlMessageEnum.raiseHandRequestAccepted,
       {},
-      uid.toString(),
+      uid,
     );
   };
 
-  const hostRejectsRequestOfUID = (uid: number) => {
+  const hostRejectsRequestOfUID = (uid: UidType) => {
     addOrUpdateLiveStreamRequest(uid.toString(), {
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
@@ -382,7 +361,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     CustomEvents.send(
       LiveStreamControlMessageEnum.raiseHandRequestRejected,
       {},
-      uid.toString(),
+      uid,
     );
   };
 
@@ -402,7 +381,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
     CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
       action: LiveStreamControlMessageEnum.raiseHandRequest,
-      level: 2,
+      level: EventLevel.LEVEL2,
       value: RaiseHandValue.TRUE,
     });
     // Update local state
