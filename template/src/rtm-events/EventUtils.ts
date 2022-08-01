@@ -120,10 +120,9 @@ const EventUtils = (function () {
     /**
      * Adds a listener function to the specified event.
      * The listener will not be added if it is a duplicate.
-     * If the listener returns true then it will be removed after it is called.
      *
      * @param {String} evt Name of the event to attach the listener to.
-     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+     * @param {Function} listener Method to be called when the event is emitted.
      * @param {EventSourceEnum} source Name of the bucket to search events from
      * @return {Object} Current instance of EventUtils
      */

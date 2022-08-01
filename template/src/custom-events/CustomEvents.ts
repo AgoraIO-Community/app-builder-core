@@ -63,6 +63,7 @@ class CustomEvents {
     }
     return true;
   };
+
   private _validateListener = (listener: TEventCallback): boolean => {
     if (typeof listener !== 'function') {
       throw Error(
@@ -73,10 +74,13 @@ class CustomEvents {
   };
 
   /**
-   * Sends the data across to client using transport layer RTM API's
+   * Sets the local attribute of user if  persist level is 2 or 3.
+   * If param 'to' is not provided, message is sent in the channel.
+   * If param 'to' is provided message is sent to that individual.
+   * If param 'to' is an array of uids is provided then message is sent to all the individual uids in loop.
    *
    * @param {any} rtmPayload payload to be sent across
-   * @param {ToOptions} to If defined then sent to individual peer in the channle. If not defined then sent to everyone
+   * @param {ToOptions} to uid or uids[] of user
    * @api private
    */
   private _send = async (rtmPayload: any, to?: ToOptions) => {
@@ -134,15 +138,35 @@ class CustomEvents {
     }
   };
 
+  /**
+   * Listens for a specified event.
+   * Adds a listener function to the specified event.
+   * When the specified event happens, the Events API triggers the callback that you pass.
+   * The listener will not be added if it is a duplicate.
+   *
+   * @param {String} evt Name of the event to attach the listener to.
+   * @param {Function} listener Method to be called when the event is emitted.
+   * @api public
+   */
   on = (evt: string, listener: TEventCallback) => {
     if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
     EventUtils.addListener(evt, listener, this.source);
   };
 
-  off = (evt?: string, listener?: TEventCallback) => {
-    if (listener) {
-      if (this._validateListener(listener) && this._validateEvt(evt)) {
-        EventUtils.removeListener(evt, listener, this.source);
+  /**
+   * Removes a listener function from the specified event if evt and listener function both are provided.
+   * Removes all listeners from a specified event if listener function is not provided.
+   * If you do not specify an event then all listeners will be removed.
+   * That means every event will be emptied.
+   *
+   * @param {String} evt Name of the event to remove the listener from.
+   * @param {Function} listenerToRemove Method to remove from the event.
+   * @api public
+   */
+  off = (evt?: string, listenerToRemove?: TEventCallback) => {
+    if (listenerToRemove) {
+      if (this._validateListener(listenerToRemove) && this._validateEvt(evt)) {
+        EventUtils.removeListener(evt, listenerToRemove, this.source);
       }
     } else if (evt) {
       if (this._validateEvt(evt)) {
@@ -153,6 +177,20 @@ class CustomEvents {
     }
   };
 
+  /**
+   * This method sends p2p or channel message depending upon the 'to' value.
+   *  - If 'to' is provided this method sends p2p message.
+   *  - If 'to' is empty this method sends channel message.
+   *
+   *
+   * @param {String} evt Name of the event to remove the listener from.
+   * @param {EventPayload} payload contains action, level, value metrics.
+   * - action: {string}
+   * - level: 1 | 2 | 3
+   * - value: {string}. NOTICE: value bytelength has MAX_SIZE 32kb limit.
+   * @param {ToOptions} to uid or uid array. The default mode is to send a message in channel.
+   * @api public
+   * */
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
     if (!this._validateEvt(evt)) return;
     const {action = '', value = '', level = 1} = payload;
@@ -187,11 +225,9 @@ class CustomEvents {
       'CUSTOM_EVENT_API: EVENTS fpe',
       EventUtils.getEvents(EventSourceEnum.fpe),
     );
+    const myId = RTMEngine.getInstance().localUid;
+    // const localAttrs = this.engine.getUserAttributes(myId);
   };
-  // once = (name: string, listener: any) => {
-  //   console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
-  //   const response = EventUtils.addOnceListener(name, listener);
-  // };
 }
 
 export default CustomEvents;
