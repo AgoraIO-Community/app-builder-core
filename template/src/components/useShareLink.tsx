@@ -45,8 +45,12 @@ interface ShareLinkProvideProps {
 }
 
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
-  const {meetingTitle, meetingPassphrase, isSeparateHostLink} =
-    useMeetingInfo();
+  const {
+    meetingTitle,
+    meetingPassphrase,
+    isSeparateHostLink,
+    isJoinDataFetched,
+  } = useMeetingInfo();
 
   //commmented for v1 release
   // const copiedToClipboardText = useString(
@@ -61,7 +65,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const meetingIdText = 'Meeting ID';
   const PSTNNumberText = 'PSTN Number';
   const PSTNPinText = 'PSTN Pin';
-  const meetingInviteText = ({meetingName, id, url, pstn}) => {
+  const meetingInviteText = ({meetingName, id, url, pstn, isCallActive}) => {
     let inviteContent = '';
     if (url) {
       // if host data is present generate links for both host and attendee
@@ -70,7 +74,13 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       }
       // if host data is not present then generate link for attendee alone
       else {
-        inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.attendee}`;
+        if (isCallActive) {
+          //copy this label on videocall screen
+          inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}`;
+        } else {
+          //copy this label on share link screen
+          inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.attendee}`;
+        }
       }
     } else {
       // if host data is present generate meeting ID for both host and attendee
@@ -79,7 +89,13 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       }
       // if host data is not present then generate meeting ID for attendee alone
       else {
-        inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.attendee}`;
+        if (isCallActive) {
+          //copy this label on videocall screen
+          inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}`;
+        } else {
+          //copy this label on share link screen
+          inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.attendee}`;
+        }
       }
     }
     // Adding pstn data into meeting data if present
@@ -114,6 +130,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
             pin: meetingPassphrase.pstn.pin,
           }
         : undefined,
+      isCallActive: isJoinDataFetched,
     });
     return stringToCopy;
   };
