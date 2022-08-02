@@ -26,3 +26,19 @@ export const adjustUID = (uid: number): number => {
 };
 
 export const timeNow = () => new Date().getTime();
+
+export const getMessageTime = (ts?: number): number => {
+  if (!ts) return timeNow();
+  try {
+    const timestamp = new Date(ts).getHours();
+    return isNaN(timestamp) ? timeNow() : timestamp;
+  } catch (error) {
+    return timeNow();
+  }
+};
+
+export const get32BitUid = (peerId: string) => {
+  let arr = new Int32Array(1);
+  arr[0] = parseInt(peerId);
+  return arr[0];
+};
