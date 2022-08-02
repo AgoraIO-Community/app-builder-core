@@ -6,4 +6,4 @@ import {EventSourceEnum} from '../src/custom-events';
 const fpeEvents = new CustomEvents(EventSourceEnum.fpe);
 
 // 3. export
-export {fpeEvents};
+export {fpeEvents as CustomEvents};
