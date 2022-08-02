@@ -53,63 +53,43 @@ const ParticipantView = () => {
         <View style={style.lineUnderHeading}>
           <Text style={style.mainHeading}>{participantsLabel}</Text>
         </View>
-        <ScrollView style={[style.bodyContainer, style.padding10]}>
-          {$config.EVENT_MODE ? (
-            <>
-              {
-                /*Live streaming is true            
+      </View>
+      <ScrollView style={[style.bodyContainer, style.padding10]}>
+        {$config.EVENT_MODE ? (
+          <>
+            {
+              /*Live streaming is true            
                 Host and New host view */
-                rtcProps?.role == ClientRole.Broadcaster &&
-                  (isHost ? (
-                    /**
-                     * Original Host
-                     * a) Can view streaming requests
-                     * b) Can view all hosts with remote controls
-                     */
-                    <>
-                      {/* a) Live streaming view */}
-                      <View style={style.participantsection}>
-                        <CurrentLiveStreamRequestsView
-                          p_style={style}
-                          userList={liveStreamData}
-                        />
-                      </View>
-                      {/* b) Host view with remote controls*/}
-                      <View style={style.participantsection}>
-                        <ParticipantSectionTitle
-                          title={hostLabel}
-                          count={hostUids.length}
-                        />
-                        <View style={style.participantContainer}>
-                          <AllHostParticipants
-                            p_style={style}
-                            isHost={isHost}
-                          />
-                        </View>
-                      </View>
-                    </>
-                  ) : (
-                    /** New Host ( earlier was 'audience' and now is host )
-                     *  a) Can view all hosts without remote controls
-                     */
+              rtcProps?.role == ClientRole.Broadcaster &&
+                (isHost ? (
+                  /**
+                   * Original Host
+                   * a) Can view streaming requests
+                   * b) Can view all hosts with remote controls
+                   */
+                  <>
+                    {/* a) Live streaming view */}
+                    <View style={style.participantsection}>
+                      <CurrentLiveStreamRequestsView
+                        p_style={style}
+                        userList={liveStreamData}
+                      />
+                    </View>
+                    {/* b) Host view with remote controls*/}
                     <View style={style.participantsection}>
                       <ParticipantSectionTitle
                         title={hostLabel}
                         count={hostUids.length}
                       />
-                      <AllAudienceParticipants
-                        uids={hostUids}
-                        p_style={style}
-                        isHost={isHost}
-                      />
+                      <View style={style.participantContainer}>
+                        <AllHostParticipants p_style={style} isHost={isHost} />
+                      </View>
                     </View>
-                  ))
-              }
-              {
-                /**
-                 *  Audience views all hosts without remote controls
-                 */
-                rtcProps?.role == ClientRole.Audience && (
+                  </>
+                ) : (
+                  /** New Host ( earlier was 'audience' and now is host )
+                   *  a) Can view all hosts without remote controls
+                   */
                   <View style={style.participantsection}>
                     <ParticipantSectionTitle
                       title={hostLabel}
@@ -121,32 +101,50 @@ const ParticipantView = () => {
                       isHost={isHost}
                     />
                   </View>
-                )
-              }
-              {
-                /* Everyone can see audience */
+                ))
+            }
+            {
+              /**
+               *  Audience views all hosts without remote controls
+               */
+              rtcProps?.role == ClientRole.Audience && (
                 <View style={style.participantsection}>
                   <ParticipantSectionTitle
-                    title={audienceLabel}
-                    count={audienceUids.length}
+                    title={hostLabel}
+                    count={hostUids.length}
                   />
                   <AllAudienceParticipants
-                    uids={audienceUids}
+                    uids={hostUids}
                     p_style={style}
                     isHost={isHost}
                   />
                 </View>
-              }
-            </>
-          ) : (
-            <View style={style.participantsection}>
-              <View style={style.participantContainer}>
-                <AllHostParticipants p_style={style} isHost={isHost} />
+              )
+            }
+            {
+              /* Everyone can see audience */
+              <View style={style.participantsection}>
+                <ParticipantSectionTitle
+                  title={audienceLabel}
+                  count={audienceUids.length}
+                />
+                <AllAudienceParticipants
+                  uids={audienceUids}
+                  p_style={style}
+                  isHost={isHost}
+                />
               </View>
+            }
+          </>
+        ) : (
+          <View style={style.participantsection}>
+            <View style={style.participantContainer}>
+              <AllHostParticipants p_style={style} isHost={isHost} />
             </View>
-          )}
-        </ScrollView>
-      </View>
+          </View>
+        )}
+      </ScrollView>
+
       <View
         style={{
           width: '100%',
