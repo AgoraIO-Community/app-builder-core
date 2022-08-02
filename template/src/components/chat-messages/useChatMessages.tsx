@@ -167,7 +167,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         toUid,
       );
       addMessageToPrivateStore(
-        toUid.toString(),
+        `${toUid}`,
         {
           msg: msg,
           ts: timeNow(),
@@ -178,7 +178,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
         value: msg,
       });
-      addMessageToStore(localUid.toString(), {
+      addMessageToStore(`${localUid}`, {
         msg: msg,
         ts: timeNow(),
       });
