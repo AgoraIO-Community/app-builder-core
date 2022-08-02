@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useRef} from 'react';
+import React, {useRef} from 'react';
 import {
   View,
   ScrollView,
@@ -21,12 +21,12 @@ import {
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ChatBubbleProps} from '../components/ChatContext';
+import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
-import {isValidReactComponent, isWeb} from '../utils/common';
+import {isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import useUserList from '../utils/useUserList';
@@ -50,7 +50,7 @@ const ChatContainer = (props: any) => {
     selectedChatUserId: selectedUserID,
     setPrivateActive,
   } = useChatUIControl();
-  const {localUid} = useContext(ChatContext);
+  const localUid = useLocalUid();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
