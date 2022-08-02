@@ -32,7 +32,6 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   } = useChatUIControl();
   const {sendChatMessage} = useChatMessages();
   const onPress = () => {
-    if (typeof message === 'string' && message.trim() === '') return;
     if (!selectedUserId) {
       sendChatMessage(message);
       setMessage && setMessage('');
@@ -77,7 +76,6 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const chatMessageInputPlaceholder = 'Type your message..';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
-    if (typeof message === 'string' && message.trim() === '') return;
     if (!selectedUserId) {
       sendChatMessage(message);
       setMessage('');
