@@ -18,8 +18,8 @@ import {EventUtils, eventMessageType} from '../rtm-events';
 import {TEventCallback, EventSourceEnum} from './types';
 
 class CustomEvents {
-  engine!: RtmEngine;
-  source: EventSourceEnum = EventSourceEnum.core;
+  private engine!: RtmEngine;
+  private source: EventSourceEnum = EventSourceEnum.core;
 
   constructor(source?: EventSourceEnum) {
     this.engine = RTMEngine.getInstance().engine;
@@ -214,19 +214,6 @@ class CustomEvents {
     } catch (error) {
       console.log('CUSTOM_EVENT_API: sendPersist sending failed. ', error);
     }
-  };
-
-  printEvents = () => {
-    console.log(
-      'CUSTOM_EVENT_API: EVENTS source',
-      EventUtils.getEvents(EventSourceEnum.core),
-    );
-    console.log(
-      'CUSTOM_EVENT_API: EVENTS fpe',
-      EventUtils.getEvents(EventSourceEnum.fpe),
-    );
-    const myId = RTMEngine.getInstance().localUid;
-    // const localAttrs = this.engine.getUserAttributes(myId);
   };
 }
 
