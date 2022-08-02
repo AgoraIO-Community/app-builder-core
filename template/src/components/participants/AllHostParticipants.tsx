@@ -19,30 +19,35 @@ export default function AllHostParticipants(props: any) {
 
   return (
     <>
-      {renderPosition.map((uid) =>
-        uid === localUid ? (
-          <MeParticipant
-            name={getParticipantName(uid)}
-            p_style={p_style}
-            key={uid}
-          />
-        ) : renderList[uid]?.type === 'screenshare' ? (
-          <ScreenshareParticipants
-            name={getParticipantName(uid)}
-            p_styles={p_style}
-            key={uid}
-          />
-        ) : (
-          <RemoteParticipants
-            name={getParticipantName(uid)}
-            p_styles={p_style}
-            user={renderList[uid]}
-            showControls={renderList[uid]?.type === 'rtc'}
-            isHost={isHost}
-            key={uid}
-          />
-        ),
+      {/* User should see his name first */}
+      {renderPosition.filter((uid) => uid === localUid).length > 0 && (
+        <MeParticipant
+          name={getParticipantName(localUid)}
+          p_style={p_style}
+          key={localUid}
+        />
       )}
+      {/* Others Users in the call */}
+      {renderPosition
+        .filter((uid) => uid !== localUid)
+        .map((uid) =>
+          renderList[uid]?.type === 'screenshare' ? (
+            <ScreenshareParticipants
+              name={getParticipantName(uid)}
+              p_styles={p_style}
+              key={uid}
+            />
+          ) : (
+            <RemoteParticipants
+              name={getParticipantName(uid)}
+              p_styles={p_style}
+              user={renderList[uid]}
+              showControls={renderList[uid]?.type === 'rtc'}
+              isHost={isHost}
+              key={uid}
+            />
+          ),
+        )}
     </>
   );
 }
