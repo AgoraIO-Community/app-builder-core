@@ -16,6 +16,7 @@ import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventPayload} from './types';
 import {EventUtils, eventMessageType} from '../rtm-events';
 import {TEventCallback, EventSourceEnum} from './types';
+import {adjustUID} from '../rtm/utils';
 
 class CustomEvents {
   private engine!: RtmEngine;
@@ -106,10 +107,10 @@ class CustomEvents {
     // Case 2: send to indivdual
     if (typeof to === 'number' && to > 0) {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
-
+      const adjustedUID = adjustUID(to);
       try {
         await this.engine.sendMessageToPeer({
-          peerId: `${to}`,
+          peerId: `${adjustedUID}`,
           offline: false,
           text,
         });
@@ -124,9 +125,9 @@ class CustomEvents {
 
       try {
         for (const uid of to) {
-          // TODO adjust uids
+          const adjustedUID = adjustUID(uid);
           await this.engine.sendMessageToPeer({
-            peerId: `${uid}`,
+            peerId: `${adjustedUID}`,
             offline: false,
             text,
           });
