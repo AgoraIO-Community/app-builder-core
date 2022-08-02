@@ -91,7 +91,7 @@ class CustomEvents {
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
-      (typeof to === 'number' && !to) ||
+      (typeof to === 'number' && to <= 0) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
       console.log('CUSTOM_EVENT_API: case 1 executed');
@@ -104,7 +104,7 @@ class CustomEvents {
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'number' && !to) {
+    if (typeof to === 'number' && to > 0) {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
 
       try {
