@@ -13,16 +13,14 @@ import {createHook} from 'fpe-implementation';
 import React, {useState, useEffect, useRef} from 'react';
 import {useRenderContext} from 'fpe-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useLocalUid} from '../../../agora-rn-uikit';
+import {useLocalUid, UidType} from '../../../agora-rn-uikit';
 import CustomEvents from '../../custom-events';
 import {EventNames} from '../../rtm-events';
 import {useChatUIControl} from '../chat-ui/useChatUIControl';
 import {useChatNotification} from '../chat-notification/useChatNotification';
-import {useString} from '../../utils/useString';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
-import {UidType} from '../../../agora-rn-uikit';
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
@@ -32,13 +30,13 @@ interface messageInterface {
   msg: string;
 }
 interface messageStoreInterface extends messageInterface {
-  uid: string;
+  uid: UidType;
 }
 
 interface ChatMessagesInterface {
   messageStore: messageStoreInterface | any;
   privateMessageStore: any;
-  sendChatMessage: (msg: string, toUid?: number) => void;
+  sendChatMessage: (msg: string, toUid?: UidType) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
@@ -94,7 +92,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     };
     CustomEvents.on(EventNames.PUBLIC_CHAT_MESSAGE, (data) => {
       showMessageNotification(data.payload.value, data.sender);
-      addMessageToStore(data.sender, {
+      addMessageToStore(parseInt(data.sender), {
         msg: data.payload.value,
         ts: data.ts,
       });
@@ -111,34 +109,41 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     CustomEvents.on(EventNames.PRIVATE_CHAT_MESSAGE, (data) => {
       showMessageNotification(data.payload.value, data.sender);
       addMessageToPrivateStore(
-        data.sender,
+        parseInt(data.sender),
         {
           msg: data.payload.value,
           ts: data.ts,
         },
         false,
       );
-      if (!(individualActiveRef.current === data.sender)) {
+      /**
+       * if user's private window is active.
+       * then we will not increment the unread count
+       */
+
+      if (!(individualActiveRef.current === parseInt(data.sender))) {
         setUnreadIndividualMessageCount((prevState) => {
           const prevCount =
-            prevState && prevState[data.sender] ? prevState[data.sender] : 0;
+            prevState && prevState[parseInt(data.sender)]
+              ? prevState[parseInt(data.sender)]
+              : 0;
           return {
             ...prevState,
-            [data.sender]: prevCount + 1,
+            [parseInt(data.sender)]: prevCount + 1,
           };
         });
       }
     });
   }, []);
 
-  const addMessageToStore = (uid: string, body: messageInterface) => {
+  const addMessageToStore = (uid: UidType, body: messageInterface) => {
     setMessageStore((m: messageStoreInterface[]) => {
       return [...m, {ts: body.ts, uid, msg: body.msg}];
     });
   };
 
   const addMessageToPrivateStore = (
-    uid: string,
+    uid: UidType,
     body: messageInterface,
     local: boolean,
   ) => {
@@ -158,6 +163,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   };
 
   const sendChatMessage = (msg: string, toUid?: UidType) => {
+    if (typeof msg == 'string' && msg.trim() === '') return;
     if (toUid) {
       CustomEvents.send(
         EventNames.PRIVATE_CHAT_MESSAGE,
@@ -167,7 +173,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         toUid,
       );
       addMessageToPrivateStore(
-        toUid.toString(),
+        toUid,
         {
           msg: msg,
           ts: timeNow(),
@@ -178,7 +184,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
         value: msg,
       });
-      addMessageToStore(localUid.toString(), {
+      addMessageToStore(localUid, {
         msg: msg,
         ts: timeNow(),
       });

@@ -40,9 +40,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
 
-  const prevRenderPosition = usePrevious<{renderPosition: UidType[]}>({
-    renderPosition,
-  });
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
@@ -60,9 +57,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         value: [screenShareUid],
       });
       setPinnedLayout();
-    }
-    //screenshare is stopped set the layout Grid View
-    else {
+    } else {
+      //screenshare is stopped set the layout Grid View
       changeLayout();
     }
   };
@@ -113,15 +109,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   const stopUserScreenShare = () => {
-    if (isScreenshareActive) {
-      startUserScreenshare();
-    }
+    if (!isScreenshareActive) return;
+    userScreenshare(false);
+  };
+  const startUserScreenshare = () => {
+    if (isScreenshareActive) return;
+    userScreenshare(true);
   };
 
-  const startUserScreenshare = async () => {
-    const isScreenActive = isScreenshareActive;
+  const userScreenshare = async (isActive: boolean) => {
     if (isRecordingActive) {
-      executeRecordingQuery(isScreenActive);
+      executeRecordingQuery(isActive);
     }
     try {
       // @ts-ignore
@@ -134,17 +132,19 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         rtc.RtcEngine as unknown as IAgoraRTC,
         encryption as unknown as any,
       );
-      !isScreenActive && setScreenshareActive(true);
+      isActive && setScreenshareActive(true);
     } catch (e) {
       console.error("can't start the screen share", e);
       executeNormalQuery();
     }
-    CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-      value: `${true}`,
-      level: EventLevel.LEVEL2,
-    });
-    //if local user started the screenshare then change layout to pinned
-    triggerChangeLayout(true, screenShareUid);
+    if (isActive) {
+      CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
+        value: `${true}`,
+        level: EventLevel.LEVEL2,
+      });
+      //if local user started the screenshare then change layout to pinned
+      triggerChangeLayout(true, screenShareUid);
+    }
   };
 
   return (

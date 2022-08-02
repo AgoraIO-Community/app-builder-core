@@ -22,27 +22,21 @@ import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
 import StorageContext from './StorageContext';
 import {useRenderContext} from 'fpe-api';
-import {safeJsonParse, timeNow, hasJsonStructure} from '../rtm/utils';
+import {
+  safeJsonParse,
+  timeNow,
+  hasJsonStructure,
+  getMessageTime,
+  get32BitUid,
+  adjustUID,
+} from '../rtm/utils';
 import {EventUtils, EventsQueue, eventMessageType} from '../rtm-events';
-
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 
 export enum UserType {
   ScreenShare = 'screenshare',
 }
-
-const adjustUID = (uid: number | string) => {
-  let number: number | string;
-  if (typeof uid === 'string') number = uid;
-  else {
-    number = uid;
-    if (number < 0) {
-      number = 0xffffffff + number + 1;
-    }
-  }
-  return number;
-};
 
 const stringifyPayload = (
   source: messageSourceType,
@@ -370,12 +364,9 @@ const RtmConfigure = (props: any) => {
       const textObj = parsePayload(text);
       const {type, msg} = textObj;
 
-      let arr = new Int32Array(1);
-      arr[0] = parseInt(peerId);
+      const timestamp = getMessageTime(ts);
 
-      const timestamp = timeNow();
-
-      const sender = isAndroid ? arr[0] : peerId;
+      const sender = isAndroid ? get32BitUid(peerId) : peerId;
 
       if (type === messageActionType.Control) {
         switch (msg) {
@@ -417,11 +408,10 @@ const RtmConfigure = (props: any) => {
       const textObj = parsePayload(text);
       const [err, result] = safeJsonParse(text);
       const {type, msg} = textObj;
-      let arr = new Int32Array(1);
-      arr[0] = parseInt(uid);
 
-      const sender = Platform.OS ? arr[0] : uid;
-      const timestamp = ts ? (parseInt(ts) === 0 ? timeNow() : ts) : timeNow();
+      const timestamp = getMessageTime(ts);
+
+      const sender = Platform.OS ? get32BitUid(uid) : uid;
 
       if (channelId === rtcProps.channel) {
         if (
@@ -534,10 +524,9 @@ const RtmConfigure = (props: any) => {
 
   const sendMessageToUid = async (msg: string, uid: UidType) => {
     if (msg.trim() === '') return;
-    let adjustedUID = uid;
-    if (adjustedUID < 0) {
-      adjustedUID = adjustUID(uid);
-    }
+
+    const adjustedUID = adjustUID(uid);
+
     const text = stringifyPayload(
       messageSourceType.Core,
       messageActionType.Normal,
@@ -563,16 +552,17 @@ const RtmConfigure = (props: any) => {
   };
 
   const sendControlMessageToUid = async (msg: string, uid: UidType) => {
-    if (uid < 0) {
-      uid = adjustUID(uid);
-    }
+    if (msg.trim() === '') return;
+
+    const adjustedUID = adjustUID(uid);
+
     const text = stringifyPayload(
       messageSourceType.Core,
       messageActionType.Control,
       msg,
     );
     await (engine.current as RtmEngine).sendMessageToPeer({
-      peerId: uid.toString(),
+      peerId: adjustedUID.toString(),
       offline: false,
       text,
     });
