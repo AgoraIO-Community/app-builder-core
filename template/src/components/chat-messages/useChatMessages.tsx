@@ -116,13 +116,20 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         },
         false,
       );
-      if (!(individualActiveRef.current === data.sender)) {
+      /**
+       * if user's private window is active.
+       * then we will not increment the unread count
+       */
+
+      if (!(individualActiveRef.current === parseInt(data.sender))) {
         setUnreadIndividualMessageCount((prevState) => {
           const prevCount =
-            prevState && prevState[data.sender] ? prevState[data.sender] : 0;
+            prevState && prevState[parseInt(data.sender)]
+              ? prevState[parseInt(data.sender)]
+              : 0;
           return {
             ...prevState,
-            [data.sender]: prevCount + 1,
+            [parseInt(data.sender)]: prevCount + 1,
           };
         });
       }
