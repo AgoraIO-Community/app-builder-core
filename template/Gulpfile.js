@@ -24,7 +24,7 @@ const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
 const webpackRsdkConfig = require('./webpack.rsdk.config');
 
-outPathArg = process.argv.indexOf('--outpath')
+const outPathArg = process.argv.indexOf('--outpath')
 getBuildPath = () => {
   if (outPathArg == -1) {
     return process.env.TARGET === 'wsdk'
@@ -53,6 +53,11 @@ const TS_DEFS_BUILD_PATH = process.env.TARGET === 'wsdk'
 : process.env.TARGET === 'android'
 ? path.join(__dirname, '../Builds/ts-defs/android')
 : path.join(__dirname, '../Builds/ts-defs/.electron');
+
+const pkgNameArg = process.argv.indexOf('--pkgname')
+const PACKAGE_NAME = pkgNameArg == -1
+  ?  'agora-app-builder-sdk'
+  : process.argv[pkgNameArg+1]
 
 let PRODUCT_NAME;
 
@@ -94,7 +99,7 @@ const general = {
     });
 
     let newPackage = {
-      name: 'agora-app-builder-sdk',
+      name: PACKAGE_NAME,
       version,
       private,
       author,
@@ -197,7 +202,11 @@ const reactSdk = {
     runCli('webpack --config ./webpack.rsdk.config.js', cb);
   },
   esbuild: (cb) => {
-    runCli(`go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk ${process.argv.slice(3).join(' ')}`, cb);
+    let outPathArgs = '';
+    if (outPathArg != -1) {
+      outPath = ` --outpath ${process.argv[outPathArg+1]}`
+    }
+    runCli(`go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk${outPathArgs}`, cb);
   },
   typescript: (cb) => {
     runCli(
