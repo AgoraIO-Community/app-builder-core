@@ -30,7 +30,7 @@ export const timeNow = () => new Date().getTime();
 export const getMessageTime = (ts?: number): number => {
   if (!ts) return timeNow();
   try {
-    const timestamp = new Date(ts).getHours();
+    const timestamp = new Date(ts).getTime();
     return isNaN(timestamp) ? timeNow() : timestamp;
   } catch (error) {
     return timeNow();
