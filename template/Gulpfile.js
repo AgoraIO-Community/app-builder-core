@@ -24,14 +24,35 @@ const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
 const webpackRsdkConfig = require('./webpack.rsdk.config');
 
-const BUILD_PATH =
-  process.env.TARGET === 'wsdk'
+outPathArg = process.argv.indexOf('--outpath')
+getBuildPath = () => {
+  if (outPathArg == -1) {
+    return process.env.TARGET === 'wsdk'
     ? path.join(__dirname, '../Builds/web-sdk')
     : process.env.TARGET === 'rsdk'
     ? path.join(__dirname, '../Builds/react-sdk')
     : process.env.TARGET === 'android'
     ? path.join(__dirname, '../Builds/android')
     : path.join(__dirname, '../Builds/.electron');
+  } else {
+    const outPath = process.argv[outPathArg+1].split('/').slice(0, -1).join('/')
+    return process.env.TARGET === 'wsdk'
+    ? path.join(__dirname, outPath)
+    : process.env.TARGET === 'rsdk'
+    ? path.join(__dirname, outPath)
+    : process.env.TARGET === 'android'
+    ? path.join(__dirname, outPath)
+    : path.join(__dirname, outPath);
+  }
+}
+const BUILD_PATH = getBuildPath();
+const TS_DEFS_BUILD_PATH = process.env.TARGET === 'wsdk'
+? path.join(__dirname, '../Builds/ts-defs/web-sdk')
+: process.env.TARGET === 'rsdk'
+? path.join(__dirname, '../Builds/ts-defs/react-sdk')
+: process.env.TARGET === 'android'
+? path.join(__dirname, '../Builds/ts-defs/android')
+: path.join(__dirname, '../Builds/ts-defs/.electron');
 
 let PRODUCT_NAME;
 
@@ -129,6 +150,15 @@ const general = {
   typescriptClean: () => {
     return del([`${path.join(BUILD_PATH, '../', '/')}*.d.ts`], {force: true});
   },
+  genTsDefs: (cb) => {
+    runCli(`mkdir -p ${TS_DEFS_BUILD_PATH} && cp ${BUILD_PATH}/index.d.ts ${TS_DEFS_BUILD_PATH}/index.d.ts`, cb);
+  },
+  useTsDefs: (cb) => {
+    runCli(`cp ${TS_DEFS_BUILD_PATH}/index.d.ts ${BUILD_PATH}/index.d.ts`, cb)
+  },
+  npmPack: (cb) => {
+    runCli(`cd ${BUILD_PATH} && npm pack`, cb)
+  }
 };
 
 const electron = {
@@ -167,7 +197,7 @@ const reactSdk = {
     runCli('webpack --config ./webpack.rsdk.config.js', cb);
   },
   esbuild: (cb) => {
-    runCli('go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk', cb);
+    runCli(`go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk ${process.argv.slice(3).join(' ')}`, cb);
   },
   typescript: (cb) => {
     runCli(
@@ -189,9 +219,6 @@ const reactSdk = {
       .pipe(replace('"fpe-api"', '"fpe-api/index"'))
       .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
-  },
-  npmPack: (cb) => {
-    runCli('cd ../Builds/react-sdk && npm pack',cb)
   }
 };
 
@@ -284,7 +311,7 @@ module.exports.reactSdk = series(
   reactSdk.typescript,
   reactSdk.typescriptFix,
   general.typescriptClean,
-  reactSdk.npmPack,
+  general.npmPack,
 );
 
 // react-sdk-esbuild
@@ -298,7 +325,31 @@ module.exports.reactSdkEsbuild = series (
   reactSdk.typescript,
   reactSdk.typescriptFix,
   general.typescriptClean,
-  reactSdk.npmPack,
+  general.npmPack,
+)
+
+// generate typescript definitions
+module.exports.makeRsdkTsDefs = series (
+  general.clean,
+  general.createBuildDirectory,
+  general.packageJson,
+  reactSdk.esbuild,
+  general.typescript,
+  general.typescriptFix,
+  reactSdk.typescript,
+  reactSdk.typescriptFix,
+  general.typescriptClean,
+  general.genTsDefs,
+)
+
+// react-sdk-esbuild with cached type definitions
+module.exports.reactSdkEsbuildCachedTsc = series (
+  general.clean,
+  general.createBuildDirectory,
+  general.packageJson,
+  reactSdk.esbuild,
+  general.useTsDefs,
+  general.npmPack,
 )
 
 // web-sdk
@@ -316,7 +367,35 @@ module.exports.webSdk = series(
       general.typescriptClean,
     ),
   ),
-  webSdk.npmPack,
+  general.npmPack,
+);
+
+module.exports.makeWsdkTsDefs = series(
+  general.clean,
+  general.createBuildDirectory,
+  general.packageJson,
+  parallel(
+    webSdk.webpack,
+    series(
+      general.typescript,
+      general.typescriptFix,
+      webSdk.typescript,
+      webSdk.typescriptFix,
+      general.typescriptClean,
+    ),
+  ),
+  general.genTsDefs,
+);
+
+module.exports.webSdkCachedTsc = series(
+  general.clean,
+  general.createBuildDirectory,
+  general.packageJson,
+  parallel(
+    webSdk.webpack,
+    general.useTsDefs,
+  ),
+  general.npmPack,
 );
 
 module.exports.androidUnix = series(
@@ -334,7 +413,7 @@ module.exports.androidWin = series(
 );
 
 module.exports.test = series(
-  reactSdk.npmPack,
+  general.npmPack,
   // general.typescript,
   // general.typescriptFix,
   // reactSdk.typescript,

@@ -32,7 +32,9 @@
     "icons:android": "react-native set-icon --path ./build/icon.png",
     "icons:ios": "react-native set-icon --path ./build/icon.png",
     "package:mac": "npm run mac:build && electron-builder --publish=always",
-    "release": "electron-builder --mac --windows --linux --publish always --config ./electron-builder.js "
+    "release": "electron-builder --mac --windows --linux --publish always --config ./electron-builder.js ",
+    "make-rsdk-ts-defs": "cross-env TARGET=rsdk NODE_ENV=production gulp makeRsdkTsDefs",
+    "make-wsdk-ts-defs": "cross-env TARGET=wsdk NODE_ENV=production gulp makeWsdkTsDefs"
   },
   "publish": [
     {

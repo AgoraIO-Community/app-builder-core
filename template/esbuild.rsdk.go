@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"path/filepath"
@@ -170,7 +171,7 @@ func common() api.BuildOptions {
 	return commonBuildOpts
 }
 
-func rsdk() api.BuildResult {
+func rsdk(outPath *string) api.BuildResult {
 	commonBuildOpts := common()
 	rsdkBuildOpts := api.BuildOptions{
 		// build options common to rsdk and other components
@@ -197,7 +198,7 @@ func rsdk() api.BuildResult {
 		// bundle in cjs format because this index.js is meant to be used by other host applications
 		// like webpack which runs on node
 		Format:  api.FormatCommonJS,
-		Outfile: "../Builds/react-sdk/index.js",
+		Outfile: *outPath,
 
 		// other esbuild options
 		Write:             true,
@@ -215,7 +216,9 @@ func rsdk() api.BuildResult {
 }
 
 func main() {
-	rsdkRes := rsdk()
+	outPath := flag.String("outpath", "../Builds/react-sdk/index.js", "path to write bundled js file")
+	flag.Parse()
+	rsdkRes := rsdk(outPath)
 	if len(rsdkRes.Errors) > 0 {
 		spew.Dump(rsdkRes)
 		log.Fatalln("build failed")
