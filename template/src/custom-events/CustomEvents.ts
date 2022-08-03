@@ -84,7 +84,9 @@ class CustomEvents {
    * @param {ToOptions} to uid or uids[] of user
    * @api private
    */
-  private _send = async (rtmPayload: any, to?: ToOptions) => {
+  private _send = async (rtmPayload: any, toUid?: ToOptions) => {
+    const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
+
     const text = JSON.stringify({
       type: eventMessageType.CUSTOM_EVENT,
       msg: rtmPayload,
@@ -105,7 +107,7 @@ class CustomEvents {
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'number' && to > 0) {
+    if (typeof to === 'number' && to !== 0) {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
       const adjustedUID = adjustUID(to);
       try {
