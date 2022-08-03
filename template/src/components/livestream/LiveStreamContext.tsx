@@ -187,7 +187,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             ...prevState[data.sender],
             role:
               data.payload.value in ClientRole
-                ? ClientRole[data.payload.value]
+                ? parseInt(data.payload.value)
                 : ClientRole.Audience,
           },
         };
