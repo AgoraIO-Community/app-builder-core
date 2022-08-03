@@ -121,6 +121,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (isRecordingActive) {
       executeRecordingQuery(isActive);
     }
+    console.log('supriya screenshare query executed');
     try {
       // @ts-ignore
       await rtc.RtcEngine.startScreenshare(
@@ -133,17 +134,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         encryption as unknown as any,
       );
       isActive && setScreenshareActive(true);
+      if (isActive) {
+        CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
+          value: `${true}`,
+          level: EventLevel.LEVEL2,
+        });
+        //if local user started the screenshare then change layout to pinned
+        triggerChangeLayout(true, screenShareUid);
+      }
     } catch (e) {
-      console.error("can't start the screen share", e);
+      console.error("supriya an't start the screen share", e);
       executeNormalQuery();
-    }
-    if (isActive) {
-      CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-        value: `${true}`,
-        level: EventLevel.LEVEL2,
-      });
-      //if local user started the screenshare then change layout to pinned
-      triggerChangeLayout(true, screenShareUid);
     }
   };
 
