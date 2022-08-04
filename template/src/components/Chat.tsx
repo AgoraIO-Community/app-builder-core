@@ -64,6 +64,7 @@ const Chat = () => {
       // reset both the active tabs
       setGroupActive(false);
       setPrivateActive(false);
+      setSelectedUser(0);
     };
   }, []);
 
