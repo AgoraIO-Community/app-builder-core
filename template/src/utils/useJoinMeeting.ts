@@ -56,19 +56,25 @@ export default function useJoinMeeting() {
   const {setMeetingInfo} = useSetMeetingInfo();
   const {client} = useContext(GraphQLContext);
   return async (phrase: string) => {
-    const response = await client.query({
-      query:
-        store.token === null
-          ? JOIN_CHANNEL_PHRASE
-          : JOIN_CHANNEL_PHRASE_AND_GET_USER,
-      variables: {
-        passphrase: phrase,
-      },
+    setMeetingInfo((prevState) => {
+      return {
+        ...prevState,
+        isJoinDataFetched: false,
+      };
     });
-    if (response.error) {
-      throw response.error;
-    } else {
-      try {
+    try {
+      const response = await client.query({
+        query:
+          store.token === null
+            ? JOIN_CHANNEL_PHRASE
+            : JOIN_CHANNEL_PHRASE_AND_GET_USER,
+        variables: {
+          passphrase: phrase,
+        },
+      });
+      if (response.error) {
+        throw response.error;
+      } else {
         if (response && response.data) {
           let data = response.data;
           let meetingInfo: Partial<MeetingInfoContextInterface> = {
@@ -111,10 +117,12 @@ export default function useJoinMeeting() {
               ...meetingInfo,
             };
           });
+        } else {
+          throw new Error('An error occurred in parsing the channel data.');
         }
-      } catch (error) {
-        throw new Error('An error occurred in parsing the channel data.');
       }
+    } catch (error) {
+      throw error;
     }
   };
 }

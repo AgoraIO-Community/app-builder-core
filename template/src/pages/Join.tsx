@@ -28,6 +28,8 @@ import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
 import useNavigateTo from '../utils/useNavigateTo';
 import {useFpe} from 'fpe-api';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 
 const Join = () => {
   //commented for v1 release
@@ -43,12 +45,13 @@ const Join = () => {
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-
+  const {setMeetingInfo} = useSetMeetingInfo();
   const createMeeting = () => {
     history.push('/create');
   };
 
   const startCall = async () => {
+    setMeetingInfo(MeetingInfoDefaultValue);
     navigateTo(phrase);
   };
   const {JoinComponent} = useFpe((data) => {
