@@ -322,7 +322,7 @@ module.exports.webSdk = series(
 module.exports.androidUnix = series(
   general.clean,
   general.createBuildDirectory,
-  // android.gradleBuildUnix,
+  android.gradleBuildUnix,
   android.copyBuild,
 );
 
