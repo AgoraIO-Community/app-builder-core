@@ -10,6 +10,11 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
+type ioPaths struct {
+	outPath               string
+	configTransformerPath string
+}
+
 func commonAliasResolver() api.Plugin {
 	aliasResolvers := api.Plugin{
 		Name: "importAliases",
@@ -153,7 +158,7 @@ func commonLoader() map[string]api.Loader {
 	return loader
 }
 
-func common() api.BuildOptions {
+func common(iopath *ioPaths) api.BuildOptions {
 	commonBuildOpts := api.BuildOptions{
 		// we can safely ignore (webpack) plugins for now because they seem to be used only for not reactsdk
 
@@ -165,14 +170,14 @@ func common() api.BuildOptions {
 		Define: map[string]string{
 			"$config": "config",
 		},
-		Inject: []string{"./esbuildConfigTransform.js"},
+		Inject: []string{iopath.configTransformerPath},
 	}
 
 	return commonBuildOpts
 }
 
-func rsdk(outPath *string) api.BuildResult {
-	commonBuildOpts := common()
+func rsdk(iopath *ioPaths) api.BuildResult {
+	commonBuildOpts := common(iopath)
 	rsdkBuildOpts := api.BuildOptions{
 		// build options common to rsdk and other components
 		Plugins:           commonBuildOpts.Plugins,
@@ -198,7 +203,7 @@ func rsdk(outPath *string) api.BuildResult {
 		// bundle in cjs format because this index.js is meant to be used by other host applications
 		// like webpack which runs on node
 		Format:  api.FormatCommonJS,
-		Outfile: *outPath,
+		Outfile: iopath.outPath,
 
 		// other esbuild options
 		Write:             true,
@@ -217,8 +222,14 @@ func rsdk(outPath *string) api.BuildResult {
 
 func main() {
 	outPath := flag.String("outpath", "../Builds/react-sdk/index.js", "path to write bundled js file")
+	configTransformerPath := flag.String("configtransformerpath", "./esbuildConfigTransform.js", "path to inject file")
 	flag.Parse()
-	rsdkRes := rsdk(outPath)
+	iopath := &ioPaths{
+		outPath:               *outPath,
+		configTransformerPath: *configTransformerPath,
+	}
+	log.Println("esbuild args = ", iopath)
+	rsdkRes := rsdk(iopath)
 	if len(rsdkRes.Errors) > 0 {
 		spew.Dump(rsdkRes)
 		log.Fatalln("build failed")

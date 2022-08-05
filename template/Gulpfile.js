@@ -35,14 +35,7 @@ getBuildPath = () => {
     ? path.join(__dirname, '../Builds/android')
     : path.join(__dirname, '../Builds/.electron');
   } else {
-    const outPath = process.argv[outPathArg+1].split('/').slice(0, -1).join('/')
-    return process.env.TARGET === 'wsdk'
-    ? path.join(__dirname, outPath)
-    : process.env.TARGET === 'rsdk'
-    ? path.join(__dirname, outPath)
-    : process.env.TARGET === 'android'
-    ? path.join(__dirname, outPath)
-    : path.join(__dirname, outPath);
+    return process.argv[outPathArg+1].split('/').slice(0, -1).join('/')
   }
 }
 const BUILD_PATH = getBuildPath();
@@ -202,11 +195,18 @@ const reactSdk = {
     runCli('webpack --config ./webpack.rsdk.config.js', cb);
   },
   esbuild: (cb) => {
-    let outPathArgs = '';
+    let outPath = '';
     if (outPathArg != -1) {
       outPath = ` --outpath ${process.argv[outPathArg+1]}`
     }
-    runCli(`go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk${outPathArgs}`, cb);
+    let configTransformerPath = '';
+    const configTransformerPathArg = process.argv.indexOf('--configtransformerpath')
+    if (configTransformerPathArg != -1) {
+      configTransformerPath = ` --configtransformerpath ${process.argv[configTransformerPathArg+1]}`
+    }
+    let esbuildCmd = `go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk${outPath}${configTransformerPath}`
+    console.log(esbuildCmd)
+    runCli(esbuildCmd, cb);
   },
   typescript: (cb) => {
     runCli(
