@@ -30,7 +30,7 @@ const PreCallTextInput: React.FC = () => {
   return (
     <TextInput
       value={username}
-      onChangeText={(text) => setUsername(text ? text.trim() : '')}
+      onChangeText={(text) => setUsername(text ? text : '')}
       onSubmitEditing={() => {}}
       placeholder={
         isJoinDataFetched ? userNamePlaceholder : fetchingNamePlaceholder

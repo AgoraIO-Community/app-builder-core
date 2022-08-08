@@ -9,11 +9,10 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import {useContext} from 'react';
-import ChatContext from '../components/ChatContext';
+import {useUserPreference} from '../components/useUserPreference';
 
 function useGetName() {
-  const {displayName} = useContext(ChatContext);
+  const {displayName} = useUserPreference();
   return displayName;
 }
 

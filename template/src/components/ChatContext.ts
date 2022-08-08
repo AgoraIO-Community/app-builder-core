@@ -64,8 +64,6 @@ export interface chatContext {
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
-  displayName: string;
-  setDisplayName: React.Dispatch<SetStateAction<string>>;
 }
 
 export enum controlMessageEnum {

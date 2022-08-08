@@ -33,6 +33,9 @@ import {
 import {EventUtils, EventsQueue, eventMessageType} from '../rtm-events';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
+import CustomEvents, {EventLevel} from '../custom-events';
+import {EventNames} from '../rtm-events';
+import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -56,6 +59,7 @@ const parsePayload = (data: string) => {
 
 const RtmConfigure = (props: any) => {
   const localUid = useLocalUid();
+  const screenShareUid = useLocalScreenShareUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
@@ -74,21 +78,6 @@ const RtmConfigure = (props: any) => {
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
-
-  const {store, setStore} = useContext(StorageContext);
-  const getInitialUsername = () =>
-    store?.displayName ? store.displayName : '';
-  const [displayName, setDisplayName] = useState(getInitialUsername());
-
-  //Update the store displayName value if the state is changed
-  useEffect(() => {
-    setStore((prevState) => {
-      return {
-        ...prevState,
-        displayName,
-      };
-    });
-  }, [displayName]);
 
   const [login, setLogin] = useState<boolean>(false);
 
@@ -145,7 +134,6 @@ const RtmConfigure = (props: any) => {
 
   const setAttribute = async () => {
     const rtmAttributes = [
-      {key: 'name', value: displayName || userText},
       {key: 'screenUid', value: String(rtcProps.screenShareUid)},
     ];
     try {
@@ -227,10 +215,6 @@ const RtmConfigure = (props: any) => {
                 const screenUid = parseInt(attr?.attributes?.screenUid);
                 //start - updating user data in rtc
                 const userData = {
-                  name:
-                    String(member.uid)[0] === '1'
-                      ? pstnUserLabel
-                      : attr?.attributes?.name || userText,
                   screenUid: screenUid,
                   //below thing for livestreaming
                   type: 'rtc',
@@ -240,7 +224,6 @@ const RtmConfigure = (props: any) => {
 
                 //start - updating screenshare data in rtc
                 const screenShareUser = {
-                  name: getScreenShareName(attr?.attributes?.name || userText),
                   type: UserType.ScreenShare,
                 };
                 updateRenderListState(screenUid, screenShareUser);
@@ -329,10 +312,6 @@ const RtmConfigure = (props: any) => {
           const screenUid = parseInt(attr?.attributes?.screenUid);
           //start - updating user data in rtc
           const userData = {
-            name:
-              String(data.uid)[0] === '1'
-                ? pstnUserLabel
-                : attr?.attributes?.name || userText,
             screenUid: screenUid,
             //below thing for livestreaming
             type: 'rtc',
@@ -342,7 +321,6 @@ const RtmConfigure = (props: any) => {
 
           //start - updating screenshare data in rtc
           const screenShareUser = {
-            name: getScreenShareName(attr?.attributes?.name || userText),
             type: UserType.ScreenShare,
           };
           updateRenderListState(screenUid, screenShareUser);
@@ -602,8 +580,6 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
-        setDisplayName,
-        displayName,
       }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>
