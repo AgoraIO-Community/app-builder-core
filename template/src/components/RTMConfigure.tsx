@@ -79,11 +79,6 @@ const RtmConfigure = (props: any) => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
 
-  const {store, setStore} = useContext(StorageContext);
-  const getInitialUsername = () =>
-    store?.displayName ? store.displayName : '';
-  const [displayName, setDisplayName] = useState(getInitialUsername());
-
   const [login, setLogin] = useState<boolean>(false);
 
   const [hasUserJoinedRTM, setHasUserJoinedRTM] = useState<boolean>(false);
@@ -99,57 +94,6 @@ const RtmConfigure = (props: any) => {
 
   let engine = useRef<RtmEngine>(null!);
   const timerValueRef: any = useRef(5);
-
-  useEffect(() => {
-    CustomEvents.on(EventNames.NAME_ATTRIBUTE, (data) => {
-      if (data?.payload?.value) {
-        if (data?.payload?.value?.uid) {
-          updateRenderListState(data?.payload?.value?.uid, {
-            name:
-              String(data?.payload?.value?.uid)[0] === '1'
-                ? pstnUserLabel
-                : data?.payload?.value?.name || userText,
-          });
-        }
-        if (data?.payload?.value?.screenShareUid) {
-          updateRenderListState(data?.payload?.value?.screenShareUid, {
-            name: getScreenShareName(data?.payload?.value?.name),
-          });
-        }
-      }
-    });
-    return () => {
-      CustomEvents.off(EventNames.NAME_ATTRIBUTE);
-    };
-  }, []);
-
-  useEffect(() => {
-    //Update the store displayName value if the state is changed
-    setStore((prevState) => {
-      return {
-        ...prevState,
-        displayName,
-      };
-    });
-
-    //update local state for user and screenshare
-    updateRenderListState(localUid, {name: displayName});
-    updateRenderListState(screenShareUid, {
-      name: getScreenShareName(displayName),
-    });
-
-    if (hasUserJoinedRTM) {
-      //update remote state for user and screenshare
-      CustomEvents.send(EventNames.NAME_ATTRIBUTE, {
-        value: {
-          uid: localUid,
-          screenShareUid: screenShareUid,
-          name: displayName,
-        },
-        level: EventLevel.LEVEL2,
-      });
-    }
-  }, [displayName, hasUserJoinedRTM]);
 
   React.useEffect(() => {
     setTotalOnlineUsers(
@@ -636,8 +580,6 @@ const RtmConfigure = (props: any) => {
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,
-        setDisplayName,
-        displayName,
       }}>
       {login ? props.children : <></>}
     </ChatContext.Provider>
