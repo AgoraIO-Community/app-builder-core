@@ -148,7 +148,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (baseURL) {
         stringToCopy += `${baseURL}/${meetingPassphrase.attendee}`;
       } else {
-        stringToCopy += `${meetingIdText}: ${meetingPassphrase.attendee}`;
+        stringToCopy += `${meetingPassphrase.attendee}`;
       }
     }
     return stringToCopy;
@@ -161,7 +161,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (baseURL) {
         stringToCopy += `${baseURL}/${meetingPassphrase.host}`;
       } else {
-        stringToCopy += `${meetingIdText}: ${meetingPassphrase.host}`;
+        stringToCopy += `${meetingPassphrase.host}`;
       }
     }
     return stringToCopy;
