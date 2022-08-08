@@ -200,10 +200,17 @@ export default class RtcEngine {
   }
 
   async enableVideo(): Promise<void> {
+    /**
+     * Issue: Backgrounding the browser or app causes the audio streaming to be cut off.
+     * Solution:
+     *    Upgrade to the Web SDK v4.7.3 or later versions.
+     *    When calling createMicrophoneAudioTrack, set bypassWebAudio as true.
+     *    The Web SDK directly publishes the local audio stream without processing it through WebAudio.
+     */
     try {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(
-          {},
+          {bypassWebAudio: true},
           {encoderConfig: this.videoProfile},
         );
       this.localStream.audio = localAudio;
@@ -212,7 +219,10 @@ export default class RtcEngine {
       let audioError = false;
       let videoError = false;
       try {
-        let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+        let localAudio = await AgoraRTC.createMicrophoneAudioTrack({
+          bypassWebAudio: true,
+        });
+
         this.localStream.audio = localAudio;
       } catch (error) {
         audioError = error;
