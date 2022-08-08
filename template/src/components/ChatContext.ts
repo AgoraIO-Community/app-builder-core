@@ -18,6 +18,12 @@ export interface ChatBubbleProps {
   message: string;
   timestamp: string;
   uid: UidType;
+  render?: (
+    isLocal: boolean,
+    message: string,
+    timestamp: string,
+    uid: UidType,
+  ) => JSX.Element;
 }
 
 export interface messageStoreInterface {

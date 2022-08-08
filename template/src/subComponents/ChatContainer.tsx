@@ -26,7 +26,7 @@ import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
-import {isWeb} from '../utils/common';
+import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import useUserList from '../utils/useUserList';
@@ -66,20 +66,20 @@ const ChatContainer = (props: any) => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall?.chat &&
-      //   typeof data?.components?.videoCall?.chat === 'object'
-      // ) {
-      //   if (
-      //     data?.components?.videoCall?.chat?.chatBubble &&
-      //     typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
-      //   ) {
-      //     components.ChatBubbleComponent =
-      //       data?.components?.videoCall?.chat?.chatBubble;
-      //   }
-      // }
+      //commented for v1 release
+      if (
+        data?.components?.videoCall?.chat &&
+        typeof data?.components?.videoCall?.chat === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat?.chatBubble &&
+          typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
+        ) {
+          components.ChatBubbleComponent =
+            data?.components?.videoCall?.chat?.chatBubble;
+        }
+      }
     }
     return components;
   });
