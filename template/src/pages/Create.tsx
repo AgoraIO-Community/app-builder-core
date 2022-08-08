@@ -28,6 +28,8 @@ import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import SDKEvents from '../utils/SdkEvents';
+import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 const Create = () => {
   const {CreateComponent} = useFpe((data) => {
@@ -58,6 +60,7 @@ const Create = () => {
   const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
+  const {setMeetingInfo} = useSetMeetingInfo();
   const {
     meetingPassphrase: {attendee, host, pstn},
   } = useMeetingInfo();
@@ -74,7 +77,7 @@ const Create = () => {
     toggle
       ? 'Restrict Host Controls (Separate host link)'
       : 'Restrict Host Controls (Everyone is a Host)';
-  const pstnToggle = () => 'Use PSTN (Join by dialing a number)';
+  const pstnToggle = (value: boolean) => 'Use PSTN (Join by dialing a number)';
   const meetingNameInputPlaceholder = useString(
     'meetingNameInputPlaceholder',
   )();
@@ -115,6 +118,7 @@ const Create = () => {
     if (roomTitle !== '') {
       setLoading(true);
       try {
+        setMeetingInfo(MeetingInfoDefaultValue);
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({

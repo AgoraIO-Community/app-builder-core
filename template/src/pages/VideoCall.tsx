@@ -128,11 +128,11 @@ const VideoCall: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      useJoin(phrase);
-    } catch (error) {
-      setGlobalErrorMessage(error);
-    }
+    useJoin(phrase)
+      .then(() => {})
+      .catch((error) => {
+        setGlobalErrorMessage(error);
+      });
   }, []);
 
   const data = useMeetingInfo();

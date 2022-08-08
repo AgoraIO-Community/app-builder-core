@@ -238,6 +238,9 @@ const RtmConfigure = (props: any) => {
                   const attr = await engine.current.getUserAttributesByUid(
                     member.uid,
                   );
+                  if (!attr || !attr.attributes) {
+                    throw attr;
+                  }
                   for (const key in attr.attributes) {
                     if (
                       attr.attributes.hasOwnProperty(key) &&
@@ -336,6 +339,9 @@ const RtmConfigure = (props: any) => {
       const backoffAttributes = backOff(
         async () => {
           const attr = await engine.current.getUserAttributesByUid(data.uid);
+          if (!attr || !attr.attributes) {
+            throw attr;
+          }
           for (const key in attr.attributes) {
             if (attr.attributes.hasOwnProperty(key) && attr.attributes[key]) {
               return attr;
@@ -504,9 +510,7 @@ const RtmConfigure = (props: any) => {
             queuedEvents.uid,
             queuedEvents.ts,
           );
-          //todo supriya to check this
-          //if this line is enabled then name attribute events is not executing
-          //EventsQueue.dequeue();
+          // EventsQueue.dequeue();
         }
       }
     } catch (error) {

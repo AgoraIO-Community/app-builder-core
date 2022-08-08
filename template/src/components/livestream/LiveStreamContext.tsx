@@ -26,6 +26,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   props,
 ) => {
   const screenshareContextInstance = useScreenshare();
+  const screenshareContextInstanceRef = useRef<any>();
+  screenshareContextInstanceRef.current = screenshareContextInstance;
 
   const {renderList} = useUserList();
   const renderListRef = useRef<any>();
@@ -187,7 +189,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             ...prevState[data.sender],
             role:
               data.payload.value in ClientRole
-                ? ClientRole[data.payload.value]
+                ? parseInt(data.payload.value)
                 : ClientRole.Audience,
           },
         };
@@ -317,7 +319,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         ) {
           /** 2.b */
           showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-          screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
+          screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
+
           // Demote user's privileges to audience
           changeClientRoleTo(ClientRole.Audience);
         }
@@ -403,7 +406,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       raiseHandList[localUidRef.current]?.role == ClientRole.Broadcaster &&
       raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE
     ) {
-      screenshareContextInstance?.stopUserScreenShare(); // This will not exist on ios
+      screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
       // Change role
       changeClientRoleTo(ClientRole.Audience);
     }

@@ -30,7 +30,6 @@ interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const localUid = useLocalUid();
   const {renderList} = useUserList();
   const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
@@ -41,13 +40,14 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
       const hostList = filterObject(
         renderList,
         ([k, v]) =>
-          (v?.type === 'rtc' || v?.type === 'live') &&
+          (v?.type === 'rtc' ||
+            v?.type === 'live' ||
+            (v?.type === 'screenshare' && v?.video == 1)) &&
           (raiseHandList[k]
             ? raiseHandList[k]?.role == ClientRole.Broadcaster
             : true) &&
           !v?.offline,
       );
-
       const audienceList = filterObject(
         renderList,
         ([k, v]) =>

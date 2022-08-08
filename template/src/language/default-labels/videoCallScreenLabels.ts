@@ -10,6 +10,8 @@ interface NetworkQualityStatusInterface {
 }
 export type NetworkQualities = keyof NetworkQualityStatusInterface;
 export interface MeetingInviteInterface {
+  isHost: boolean;
+  isSeparateHostLink: boolean;
   meetingName?: string;
   pstn?: {
     number: string;
@@ -17,11 +19,11 @@ export interface MeetingInviteInterface {
   };
   url?: {
     host?: string;
-    attendee: string;
+    attendee?: string;
   };
   id?: {
     host?: string;
-    attendee: string;
+    attendee?: string;
   };
 }
 export interface I18nVideoCallScreenLabelsInterface {

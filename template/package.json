@@ -18,7 +18,6 @@
     "web-sdk:build": "cross-env TARGET=wsdk NODE_ENV=production gulp webSdk",
     "react-sdk": "cross-env TARGET=rsdk NODE_ENV=development gulp reactSdk",
     "react-sdk:build": "cross-env TARGET=rsdk NODE_ENV=production gulp reactSdk",
-    "react-sdk-esbuild": "cross-env TARGET=rsdk NODE_ENV=production gulp reactSdkEsbuild",
     "electron:start": "cross-env NODE_ENV=development gulp electron_development",
     "electron:build": "cross-env NODE_ENV=production gulp electron_build",
     "windows": "cross-env TARGET=windows npm run electron:start",
@@ -32,7 +31,9 @@
     "icons:android": "react-native set-icon --path ./build/icon.png",
     "icons:ios": "react-native set-icon --path ./build/icon.png",
     "package:mac": "npm run mac:build && electron-builder --publish=always",
-    "release": "electron-builder --mac --windows --linux --publish always --config ./electron-builder.js "
+    "release": "electron-builder --mac --windows --linux --publish always --config ./electron-builder.js ",
+    "make-rsdk-ts-defs": "cross-env TARGET=rsdk NODE_ENV=production gulp makeRsdkTsDefs",
+    "make-wsdk-ts-defs": "cross-env TARGET=wsdk NODE_ENV=production gulp makeWsdkTsDefs"
   },
   "publish": [
     {

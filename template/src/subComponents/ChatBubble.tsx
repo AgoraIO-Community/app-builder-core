@@ -36,7 +36,9 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
-  return (
+  return props?.render ? (
+    props.render(isLocal, message, timestamp, uid)
+  ) : (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>

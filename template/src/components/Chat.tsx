@@ -59,6 +59,15 @@ const Chat = () => {
 
   const {primaryColor} = useContext(ColorContext);
 
+  React.useEffect(() => {
+    return () => {
+      // reset both the active tabs
+      setGroupActive(false);
+      setPrivateActive(false);
+      setSelectedUser(0);
+    };
+  }, []);
+
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);

@@ -152,8 +152,12 @@ class CustomEvents {
    * @api public
    */
   on = (evt: string, listener: TEventCallback) => {
-    if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
-    EventUtils.addListener(evt, listener, this.source);
+    try {
+      if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
+      EventUtils.addListener(evt, listener, this.source);
+    } catch (error) {
+      console.log('custom-events-on error: ', error);
+    }
   };
 
   /**
@@ -167,16 +171,23 @@ class CustomEvents {
    * @api public
    */
   off = (evt?: string, listenerToRemove?: TEventCallback) => {
-    if (listenerToRemove) {
-      if (this._validateListener(listenerToRemove) && this._validateEvt(evt)) {
-        EventUtils.removeListener(evt, listenerToRemove, this.source);
+    try {
+      if (listenerToRemove) {
+        if (
+          this._validateListener(listenerToRemove) &&
+          this._validateEvt(evt)
+        ) {
+          EventUtils.removeListener(evt, listenerToRemove, this.source);
+        }
+      } else if (evt) {
+        if (this._validateEvt(evt)) {
+          EventUtils.removeAllListeners(evt, this.source);
+        }
+      } else {
+        EventUtils.removeAll(this.source);
       }
-    } else if (evt) {
-      if (this._validateEvt(evt)) {
-        EventUtils.removeAllListeners(evt, this.source);
-      }
-    } else {
-      EventUtils.removeAll(this.source);
+    } catch (error) {
+      console.log('custom-events-off error: ', error);
     }
   };
 
@@ -210,12 +221,16 @@ class CustomEvents {
 
     if (level === 2 || level === 3) {
       console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
-      await this._persist(evt, {...payload, source: this.source});
+      try {
+        await this._persist(evt, {...payload, source: this.source});
+      } catch (error) {
+        console.log('custom-events-persist error: ', error);
+      }
     }
     try {
       await this._send(rtmPayload, to);
     } catch (error) {
-      console.log('CUSTOM_EVENT_API: sendPersist sending failed. ', error);
+      console.log('CUSTOM_EVENT_API: sending failed. ', error);
     }
   };
 }

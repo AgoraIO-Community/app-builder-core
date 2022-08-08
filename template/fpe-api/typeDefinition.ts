@@ -45,10 +45,13 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
 }
-export interface ChatCmpInterface extends BeforeAndAfterInterface {
+export interface ChatCmpInterface {
+  //commented for v1 release
+  //extends BeforeAndAfterInterface
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSentButton?: React.ComponentType<ChatSendButtonProps>;
+  //commented for v1 release
+  //chatInput?: React.ComponentType<ChatTextInputProps>;
+  //chatSentButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
 export interface renderComponentInterface {
@@ -85,8 +88,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
-  // commented for v1 release
-  //chat?: ChatCmpInterface;
+  chat?: ChatCmpInterface;
   customContent?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
 }
