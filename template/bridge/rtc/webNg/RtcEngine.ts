@@ -150,14 +150,14 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-if ($config.GEO_FENCING) {
+if (GEO_FENCING) {
   AgoraRTC.setArea({
     areaCode: AREAS.GLOBAL,
     excludedArea: AREAS.CHINA,
   });
 }
 
-if ($config.LOG_ENABLED) {
+if (LOG_ENABLED) {
   AgoraRTC.setLogLevel(0);
   AgoraRTC.enableLogUpload();
 } else {

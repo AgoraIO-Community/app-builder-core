@@ -12,7 +12,7 @@
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
-import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
+import {PropsContext, RenderInterface, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
 import {messageSourceType, messageActionType} from './ChatContext';
@@ -214,11 +214,13 @@ const RtmConfigure = (props: any) => {
                 const uid = parseInt(member.uid);
                 const screenUid = parseInt(attr?.attributes?.screenUid);
                 //start - updating user data in rtc
-                const userData = {
-                  screenUid: screenUid,
+                const userData: Partial<RenderInterface> = {
                   //below thing for livestreaming
                   type: 'rtc',
                 };
+                if (!$config.AUDIO_ROOM) {
+                  userData['screenUid'] = screenUid;
+                }
                 updateRenderListState(uid, userData);
                 //end- updating user data in rtc
 
@@ -226,7 +228,8 @@ const RtmConfigure = (props: any) => {
                 const screenShareUser = {
                   type: UserType.ScreenShare,
                 };
-                updateRenderListState(screenUid, screenShareUser);
+                !$config.AUDIO_ROOM &&
+                  updateRenderListState(screenUid, screenShareUser);
                 //end - updating screenshare data in rtc
                 // setting screenshare data
                 // name of the screenUid, isActive: false, (when the user starts screensharing it becomes true)
@@ -311,8 +314,7 @@ const RtmConfigure = (props: any) => {
           const uid = parseInt(data.uid);
           const screenUid = parseInt(attr?.attributes?.screenUid);
           //start - updating user data in rtc
-          const userData = {
-            screenUid: screenUid,
+          const userData: Partial<RenderInterface> = {
             //below thing for livestreaming
             type: 'rtc',
           };
@@ -326,7 +328,8 @@ const RtmConfigure = (props: any) => {
           const screenShareUser = {
             type: UserType.ScreenShare,
           };
-          updateRenderListState(screenUid, screenShareUser);
+          !$config.AUDIO_ROOM &&
+            updateRenderListState(screenUid, screenShareUser);
           //end - updating screenshare data in rtc
         } catch (e) {
           console.error(`Could not retrieve name of ${data.uid}`, e);
