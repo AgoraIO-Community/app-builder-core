@@ -140,6 +140,5 @@ export interface FpeApiInterface {
   //   useBeforeJoin?: CustomHookType;
   //   useBeforeCreate?: CustomHookType;
   // };
-  // commented for v1 release
-  //customUserContext?: () => any;
+  useUserContext?: () => any;
 }
