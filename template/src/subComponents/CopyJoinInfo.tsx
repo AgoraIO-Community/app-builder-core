@@ -38,7 +38,9 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {phrase} = useParams<{phrase: string}>();
   const getMeeting = useGetMeetingPhrase();
   const {copyShareLinkToClipboard} = useShareLink();
-  const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
+  //commented for v1 release
+  //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
+  const copyMeetingInviteButton = 'Copy Meeting Invite';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   useEffect(() => {

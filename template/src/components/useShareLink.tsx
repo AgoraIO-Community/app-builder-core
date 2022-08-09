@@ -13,6 +13,7 @@
 import {createHook} from 'fpe-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
+import isSDKCheck from '../utils/isSDK';
 import Toast from '../../react-native-toast-message';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import platform from '../subComponents/Platform';
@@ -24,7 +25,7 @@ import {MeetingInviteInterface} from '../language/default-labels/videoCallScreen
 import Clipboard from '../subComponents/Clipboard';
 
 export enum SHARE_LINK_CONTENT_TYPE {
-  ATTENDEE,
+  ATTENDEE = 1,
   HOST,
   PSTN,
   MEETING_INVITE,
@@ -44,18 +45,66 @@ interface ShareLinkProvideProps {
 }
 
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
-  const {meetingTitle, meetingPassphrase, isSeparateHostLink} =
+  const {meetingTitle, meetingPassphrase, isSeparateHostLink, isHost} =
     useMeetingInfo();
 
-  const copiedToClipboardText = useString(
-    'copiedToClipboardNotificationLabel',
-  )();
-  const meetingIdText = useString('meetingIdLabel')();
-  const PSTNNumberText = useString('PSTNNumber')();
-  const PSTNPinText = useString('PSTNPin')();
+  //commmented for v1 release
+  // const copiedToClipboardText = useString(
+  //   'copiedToClipboardNotificationLabel',
+  // )();
+  // const meetingIdText = useString('meetingIdLabel')();
+  // const PSTNNumberText = useString('PSTNNumber')();
+  // const PSTNPinText = useString('PSTNPin')();
+  // const meetingInviteText =
+  //   useString<MeetingInviteInterface>('meetingInviteText');
+  const copiedToClipboardText = 'Copied to Clipboard';
+  const meetingIdText = 'Meeting ID';
+  const PSTNNumberText = 'PSTN Number';
+  const PSTNPinText = 'PSTN Pin';
+  const meetingInviteText = ({
+    meetingName,
+    id,
+    url,
+    pstn,
+    isHost,
+    isSeparateHostLink,
+  }: MeetingInviteInterface) => {
+    let inviteContent = '';
+    if (url) {
+      //for host
+      if (isHost) {
+        if (isSeparateHostLink) {
+          //seperate link for host and attendee
+          inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
+        } else {
+          //single link for everyone
+          inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.host}`;
+        }
+      }
+      //for attendee
+      else {
+        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}`;
+      }
+    } else {
+      if (isHost) {
+        if (isSeparateHostLink) {
+          inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
+        } else {
+          inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.host}`;
+        }
+      } else {
+        //copy this label on videocall screen
+        inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}`;
+      }
+    }
+    // Adding pstn data into meeting data if present
+    if (pstn?.number && pstn?.pin) {
+      inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
+    }
+    return inviteContent;
+  };
 
-  const meetingInviteText =
-    useString<MeetingInviteInterface>('meetingInviteText');
+  const isSDK = isSDKCheck();
 
   const getMeetingInvite = () => {
     let baseURL = getBaseURL();
@@ -64,15 +113,13 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       url: baseURL
         ? GetMeetingInviteURL(
             baseURL,
-            meetingPassphrase.attendee,
-            isSeparateHostLink ? meetingPassphrase.host : undefined,
+            isHost,
+            meetingPassphrase,
+            isSeparateHostLink,
           )
         : undefined,
       id: !baseURL
-        ? GetMeetingInviteID(
-            meetingPassphrase.attendee,
-            isSeparateHostLink ? meetingPassphrase.host : undefined,
-          )
+        ? GetMeetingInviteID(isHost, meetingPassphrase, isSeparateHostLink)
         : undefined,
       pstn: meetingPassphrase?.pstn
         ? {
@@ -80,13 +127,15 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
             pin: meetingPassphrase.pstn.pin,
           }
         : undefined,
+      isHost,
+      isSeparateHostLink,
     });
     return stringToCopy;
   };
 
   const getBaseURL = () => {
     let baseURL =
-      platform === 'web'
+      platform === 'web' && !isSDK
         ? $config.FRONTEND_ENDPOINT || window.location.origin
         : undefined;
     return baseURL;
@@ -99,7 +148,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (baseURL) {
         stringToCopy += `${baseURL}/${meetingPassphrase.attendee}`;
       } else {
-        stringToCopy += `${meetingIdText}: ${meetingPassphrase.attendee}`;
+        stringToCopy += `${meetingPassphrase.attendee}`;
       }
     }
     return stringToCopy;
@@ -112,7 +161,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (baseURL) {
         stringToCopy += `${baseURL}/${meetingPassphrase.host}`;
       } else {
-        stringToCopy += `${meetingIdText}: ${meetingPassphrase.host}`;
+        stringToCopy += `${meetingPassphrase.host}`;
       }
     }
     return stringToCopy;

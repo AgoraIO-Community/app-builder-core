@@ -29,8 +29,11 @@ const LogoutButton = () => {
   const {token} = store;
   const history = useHistory();
   const [logoutQuery] = useMutation(LOGOUT);
-  const oauthLoginLabel = useString('oauthLoginLabel')();
-  const logoutButton = useString('logoutButton')();
+  //commented for v1 release
+  // const oauthLoginLabel = useString('oauthLoginLabel')();
+  // const logoutButton = useString('logoutButton')();
+  const oauthLoginLabel = 'Login using OAuth';
+  const logoutButton = 'Logout';
   const logout = () => {
     if (setStore) {
       /**

@@ -12,9 +12,13 @@
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet, Image} from 'react-native';
 import ColorContext from '../components/ColorContext';
+// @ts-ignore
 import google from '../assets/google.png';
+// @ts-ignore
 import apple from '../assets/apple.png';
+// @ts-ignore
 import slack from '../assets/slack.png';
+// @ts-ignore
 import microsoft from '../assets/microsoft.png';
 import Logo from './Logo';
 import {hasBrandLogo} from '../utils/common';
@@ -23,11 +27,17 @@ import {useString} from '../utils/useString';
 const SelectOAuth = ({onSelectOAuth}) => {
   // Linking.openURL(url);
   const {primaryColor} = useContext(ColorContext);
-  const oauthLoginLabel = useString('oauthLoginLabel')();
-  const googleAuthButton = useString('googleAuthButton')();
-  const microsoftAuthButton = useString('microsoftAuthButton')();
-  const slackAuthButton = useString('slackAuthButton')();
-  const appleAuthButton = useString('appleAuthButton')();
+  //commented for v1 release
+  // const oauthLoginLabel = useString('oauthLoginLabel')();
+  // const googleAuthButton = useString('googleAuthButton')();
+  // const microsoftAuthButton = useString('microsoftAuthButton')();
+  // const slackAuthButton = useString('slackAuthButton')();
+  // const appleAuthButton = useString('appleAuthButton')();
+  const oauthLoginLabel = 'Login using OAuth';
+  const googleAuthButton = 'Google';
+  const microsoftAuthButton = 'Microsoft';
+  const slackAuthButton = 'Slack';
+  const appleAuthButton = 'Apple';
   return (
     <View style={style.main}>
       <View style={style.nav}>{hasBrandLogo && <Logo />}</View>

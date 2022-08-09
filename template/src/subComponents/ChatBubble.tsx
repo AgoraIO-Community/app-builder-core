@@ -33,8 +33,12 @@ const ChatBubble = (props: ChatBubbleProps) => {
       Linking.openURL(url);
     }
   };
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
-  return (
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
+  return props?.render ? (
+    props.render(isLocal, message, timestamp, uid)
+  ) : (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
@@ -59,7 +63,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
           <Text
             style={isLocal ? style.whiteText : style.blackText}
             selectable={true}>
-            {message.slice(1) + ' '}
+            {message}
           </Text>
         </Hyperlink>
       </View>
@@ -91,7 +95,7 @@ const style = StyleSheet.create({
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
-    // textAlign: 'right',
+    textAlign: 'left',
   },
   timestampTextLocal: {
     color: $config.PRIMARY_FONT_COLOR + '60',

@@ -20,7 +20,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
 import isMobileOrTablet from '../../utils/isMobileOrTablet';
-import {Platform} from 'react-native';
+import {isWeb} from '../../utils/common';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -39,50 +39,44 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {setCallActive} = usePreCall();
   const username = useGetName();
   const {isJoinDataFetched} = useMeetingInfo();
-  const getMode = () =>
-    $config.EVENT_MODE
-      ? ChannelProfile.LiveBroadcasting
-      : ChannelProfile.Communication;
+  const {awake, request} = useWakeLock();
   const joinRoomButton =
     useString<JoinRoomButtonTextInterface>('joinRoomButton');
 
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({
       ready: isJoinDataFetched,
-      mode: getMode(),
-      role: rtcProps.role,
+      role: $config.EVENT_MODE ? rtcProps.role : undefined,
     }),
   );
-  useEffect(() => {
-    if (rtcProps?.role) {
-      setButtonText(
-        joinRoomButton({
-          ready: isJoinDataFetched,
-          mode: getMode(),
-          role: rtcProps.role,
-        }),
-      );
-    }
-  }, [rtcProps?.role]);
-
-  const {awake, request} = useWakeLock();
 
   const onSubmit = () => {
     setCallActive(true);
     // Play a sound to avoid autoblocking in safari
-    if (Platform.OS === 'web' || isMobileOrTablet()) {
+    if (isWeb || isMobileOrTablet()) {
       audio.volume = 0;
       audio.play().then(() => {
         // pause directly once played
         audio.pause();
       });
     }
-    // Sleep only on mobile browsers
-    if (Platform.OS === 'web' && isMobileOrTablet() && !awake) {
+    // Avoid Sleep only on mobile browsers
+    if (isWeb && isMobileOrTablet() && !awake) {
       // Request wake lock
       request();
     }
   };
+
+  useEffect(() => {
+    if (rtcProps?.role) {
+      setButtonText(
+        joinRoomButton({
+          ready: isJoinDataFetched,
+          role: $config.EVENT_MODE ? rtcProps.role : undefined,
+        }),
+      );
+    }
+  }, [rtcProps?.role]);
 
   const title = buttonText;
   const onPress = () => onSubmit();

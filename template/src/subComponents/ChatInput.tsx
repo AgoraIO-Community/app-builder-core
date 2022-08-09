@@ -15,7 +15,7 @@ import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
 import {useString} from '../utils/useString';
-import useSendMessage, {MESSAGE_TYPE} from '../utils/useSendMessage';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
 import {useFpe} from 'fpe-api';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
@@ -30,13 +30,13 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
     message,
     setMessage,
   } = useChatUIControl();
-  const sendMessage = useSendMessage();
+  const {sendChatMessage} = useChatMessages();
   const onPress = () => {
     if (!selectedUserId) {
-      sendMessage(MESSAGE_TYPE.group, message);
+      sendChatMessage(message);
       setMessage && setMessage('');
     } else {
-      sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
+      sendChatMessage(message, selectedUserId);
       setMessage && setMessage('');
     }
   };
@@ -68,18 +68,19 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     message,
     setMessage,
   } = useChatUIControl();
-  const sendMessage = useSendMessage();
-  const chatMessageInputPlaceholder = useString(
-    'chatMessageInputPlaceholder',
-  )();
-
+  const {sendChatMessage} = useChatMessages();
+  //commented for v1 release
+  // const chatMessageInputPlaceholder = useString(
+  //   'chatMessageInputPlaceholder',
+  // )();
+  const chatMessageInputPlaceholder = 'Type your message..';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {
-      sendMessage(MESSAGE_TYPE.group, message);
+      sendChatMessage(message);
       setMessage('');
     } else {
-      sendMessage(MESSAGE_TYPE.private, message, selectedUserId);
+      sendChatMessage(message, selectedUserId);
       setMessage('');
     }
   };
@@ -132,31 +133,31 @@ const ChatInput = () => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      if (
-        data?.components?.videoCall?.chat &&
-        typeof data?.components?.videoCall?.chat === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.chat?.chatInput &&
-          typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
-        ) {
-          components.ChatInputComponent =
-            data?.components?.videoCall?.chat?.chatInput;
-        }
-
-        if (
-          data?.components?.videoCall?.chat?.chatSentButton &&
-          typeof data?.components?.videoCall?.chat?.chatSentButton !==
-            'object' &&
-          isValidReactComponent(
-            data?.components?.videoCall?.chat?.chatSentButton,
-          )
-        ) {
-          components.ChatSendButtonComponent =
-            data?.components?.videoCall?.chat?.chatSentButton;
-        }
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.chat &&
+      //   typeof data?.components?.videoCall?.chat === 'object'
+      // ) {
+      //   if (
+      //     data?.components?.videoCall?.chat?.chatInput &&
+      //     typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+      //   ) {
+      //     components.ChatInputComponent =
+      //       data?.components?.videoCall?.chat?.chatInput;
+      //   }
+      //   if (
+      //     data?.components?.videoCall?.chat?.chatSentButton &&
+      //     typeof data?.components?.videoCall?.chat?.chatSentButton !==
+      //       'object' &&
+      //     isValidReactComponent(
+      //       data?.components?.videoCall?.chat?.chatSentButton,
+      //     )
+      //   ) {
+      //     components.ChatSendButtonComponent =
+      //       data?.components?.videoCall?.chat?.chatSentButton;
+      //   }
+      // }
     }
     return components;
   });

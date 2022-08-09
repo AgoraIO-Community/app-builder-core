@@ -22,12 +22,11 @@ import {RtcContext} from '../../agora-rn-uikit';
 import {layoutProps} from '../../theme.json';
 import {layoutComponent} from 'fpe-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
-import useUserList from '../utils/useUserList';
 const {topPinned} = layoutProps;
 
-const PinnedVideo: layoutComponent = () => {
+const PinnedVideo: layoutComponent = ({renderData}) => {
   const [collapse, setCollapse] = useState(false);
-  const [dim, setDim] = useState([
+  const [dim, setDim] = useState<[number, number, boolean]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
@@ -40,8 +39,7 @@ const PinnedVideo: layoutComponent = () => {
     }, 20);
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const {renderPosition, renderList} = useUserList();
-  const [maxUid, ...minUids] = renderPosition;
+  const [maxUid, ...minUids] = renderData;
   const {dispatch} = useContext(RtcContext);
 
   return (
@@ -109,7 +107,7 @@ const PinnedVideo: layoutComponent = () => {
               onPress={() => {
                 dispatch({type: 'SwapVideo', value: [minUid]});
               }}>
-              <RenderComponent user={renderList[minUid]} uid={minUid} />
+              <RenderComponent uid={minUid} />
             </Pressable>
           ))}
         </ScrollView>
@@ -123,7 +121,7 @@ const PinnedVideo: layoutComponent = () => {
             : style.flex4
         }>
         <View style={style.flex1} key={'maxVideo' + maxUid}>
-          <RenderComponent user={renderList[maxUid]} uid={maxUid} />
+          <RenderComponent uid={maxUid} />
         </View>
       </View>
     </View>

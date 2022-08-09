@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useRef} from 'react';
 import {View, Text, Modal, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, useWindowDimensions} from 'react-native';
 /**

@@ -34,8 +34,11 @@ const Authenticate = () => {
     );
     setIsDesktop(isDesktop);
   };
-  const oauthLoginLabel = useString('oauthLoginLabel')();
-  const oauthProviderLabel = useString('oauthProviderLabel')();
+  //commented for v1 release
+  // const oauthLoginLabel = useString('oauthLoginLabel')();
+  // const oauthProviderLabel = useString('oauthProviderLabel')();
+  const oauthLoginLabel = 'Login using OAuth';
+  const oauthProviderLabel = 'Please select an OAuth provider to login.';
   return (
     <ImageBackground
       onLayout={onLayout}

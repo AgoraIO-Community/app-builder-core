@@ -10,7 +10,9 @@ const AllAudienceParticipants = (props: any) => {
   const {p_style, isHost, uids} = props;
   const {renderList} = useRenderContext();
   const {localUid} = useContext(chatContext);
-  const participantListPlaceholder = useString('participantListPlaceholder')();
+  //commented for v1 release
+  //const participantListPlaceholder = useString('participantListPlaceholder')();
+  const participantListPlaceholder = 'No one has joined yet';
   return (
     <View style={p_style.participantContainer}>
       {uids.length == 0 ? (

@@ -13,13 +13,17 @@
 /*
 getFpePath - will return test-fpe if exists otherwise it will return the dummy fpe path
 */
-const fs = require("fs");
-const FpePath = './test-fpe/index.ts'
-const FpeDummyPath = './fpe-implementation/dummyFpe.ts'
+const fs = require('fs');
+const FpePathTs = './test-fpe/index.ts';
+const FpePathTsx = './test-fpe/index.tsx';
+const FpeDummyPath = './fpe-implementation/dummyFpe.ts';
 const getFpePath = () => {
-  if (fs.existsSync(FpePath)) {
-    return FpePath    
+  if (fs.existsSync(FpePathTs)) {
+    return FpePathTs;
   }
-  return FpeDummyPath
-}
-module.exports = getFpePath
+  if (fs.existsSync(FpePathTsx)) {
+    return FpePathTsx;
+  }
+  return FpeDummyPath;
+};
+module.exports = getFpePath;

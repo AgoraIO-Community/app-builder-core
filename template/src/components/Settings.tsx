@@ -34,7 +34,9 @@ export interface SettingsIconButtonProps {
 const Settings = (props: SettingsIconButtonProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {sidePanel, setSidePanel} = useSidePanel();
-  const settingsLabel = useString('settingsLabel')();
+  //commented for v1 release
+  //const settingsLabel = useString('settingsLabel')();
+  const settingsLabel = 'Settings';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Settings;
@@ -81,18 +83,6 @@ const style = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: '15%',
-  },
-  fullOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#000000aa',
-    justifyContent: 'space-evenly',
-    alignContent: 'center',
-    paddingVertical: 5,
-    zIndex: 50,
   },
   main: {
     width: '50%',

@@ -9,16 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
+import RtmEngine from 'agora-react-native-rtm';
 import {UidType} from '../../agora-rn-uikit';
 import {createContext, SetStateAction} from 'react';
-import {rtmEventsInterface} from './RTMEvents';
 
 export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
   timestamp: string;
   uid: UidType;
+  render?: (
+    isLocal: boolean,
+    message: string,
+    timestamp: string,
+    uid: UidType,
+  ) => JSX.Element;
 }
 
 export interface messageStoreInterface {
@@ -51,23 +56,14 @@ export enum attrRequestTypes {
 }
 
 export interface chatContext {
-  messageStore: messageStoreInterface | any;
-  privateMessageStore: any;
+  hasUserJoinedRTM: boolean;
   sendMessage: (msg: string) => void;
-  sendMessageToUid: (msg: string, uid: number) => void;
+  sendMessageToUid: (msg: string, uid: number | string) => void;
   sendControlMessage: (msg: string) => void;
   sendControlMessageToUid: (msg: string, uid: number) => void;
-  addOrUpdateLocalUserAttributes: (attributes: RtmAttribute[]) => void;
-  broadcastUserAttributes: (
-    attributes: RtmAttribute[],
-    ctrlMsg: controlMessageEnum,
-  ) => void;
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
-  events: rtmEventsInterface;
-  displayName: string;
-  setDisplayName: React.Dispatch<SetStateAction<string>>;
 }
 
 export enum controlMessageEnum {
@@ -78,9 +74,6 @@ export enum controlMessageEnum {
   kickUser = '5',
   cloudRecordingActive = '6',
   cloudRecordingUnactive = '7',
-  clientRoleChanged = 'CLIENT_ROLE_CHANGED',
-  userNameChanged = 'USER_NAME_CHANGED',
-  // TODO move to livestream provider
 }
 
 const ChatContext = createContext(null as unknown as chatContext);

@@ -17,7 +17,9 @@ import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
-  const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
+  //commented for v1 release
+  //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
+  const selectInputDeviceLabel = 'Select Input Device';
   return (
     <>
       <Text style={style.subHeading}>{selectInputDeviceLabel}</Text>

@@ -24,7 +24,9 @@ export interface MuteAllAudioButtonProps {
 
 export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   const sendCtrlMsg = useSendControlMessage();
-  const muteAllAudioButton = useString('muteAllAudioButton')();
+  //commented for v1 release
+  //const muteAllAudioButton = useString('muteAllAudioButton')();
+  const muteAllAudioButton = 'Mute all audios';
   const onPress = () =>
     sendCtrlMsg(
       CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
@@ -42,7 +44,9 @@ export interface MuteAllVideoButtonProps {
 }
 export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const sendCtrlMsg = useSendControlMessage();
-  const muteAllVideoButton = useString('muteAllVideoButton')();
+  //commented for v1 release
+  //const muteAllVideoButton = useString('muteAllVideoButton')();
+  const muteAllVideoButton = 'Mute all videos';
   const onPress = () =>
     sendCtrlMsg(
       CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
@@ -56,7 +60,9 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
 };
 
 const HostControlView = () => {
-  const hostControlsLabel = useString('hostControlsLabel')();
+  //commented for v1 release
+  //const hostControlsLabel = useString('hostControlsLabel')();
+  const hostControlsLabel = 'Host Controls';
   return (
     <>
       <Text style={style.heading}>{hostControlsLabel}</Text>

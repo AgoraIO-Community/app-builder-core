@@ -9,20 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useRef} from 'react';
+import React, {useRef} from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {ChatBubbleProps} from '../components/ChatContext';
+import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useFpe} from 'fpe-api';
@@ -50,8 +50,10 @@ const ChatContainer = (props: any) => {
     selectedChatUserId: selectedUserID,
     setPrivateActive,
   } = useChatUIControl();
-  const {localUid} = useContext(ChatContext);
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const localUid = useLocalUid();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
   const {ChatBubbleComponent} = useFpe((data) => {
@@ -64,6 +66,7 @@ const ChatContainer = (props: any) => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
+      //commented for v1 release
       if (
         data?.components?.videoCall?.chat &&
         typeof data?.components?.videoCall?.chat === 'object'
@@ -80,8 +83,9 @@ const ChatContainer = (props: any) => {
     }
     return components;
   });
-
-  const userOfflineLabel = useString('userOfflineLabel')();
+  //commented for v1 release
+  //const userOfflineLabel = useString('userOfflineLabel')();
+  const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
       {privateActive && (

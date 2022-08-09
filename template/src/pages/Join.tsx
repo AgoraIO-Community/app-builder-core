@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
@@ -27,36 +28,44 @@ import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
 import useNavigateTo from '../utils/useNavigateTo';
 import {useFpe} from 'fpe-api';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 
 const Join = () => {
-  const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
-  const enterMeetingButton = useString('enterMeetingButton')();
-  const createMeetingButton = useString('createMeetingButton')();
+  //commented for v1 release
+  // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
+  // const enterMeetingButton = useString('enterMeetingButton')();
+  // const createMeetingButton = useString('createMeetingButton')();
+  const meetingIdInputPlaceholder = 'Enter Meeting ID';
+  const enterMeetingButton = 'Enter Meeting';
+  const createMeetingButton = 'Create Meeting';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
   const navigateTo = useNavigateTo();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-
+  const {setMeetingInfo} = useSetMeetingInfo();
   const createMeeting = () => {
     history.push('/create');
   };
 
   const startCall = async () => {
+    setMeetingInfo(MeetingInfoDefaultValue);
     navigateTo(phrase);
   };
   const {JoinComponent} = useFpe((data) => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};
-    if (
-      data?.components?.join &&
-      typeof data?.components?.join !== 'object' &&
-      isValidReactComponent(data?.components?.join)
-    ) {
-      components.JoinComponent = data?.components?.join;
-    }
+    // commented for v1 release
+    // if (
+    //   data?.components?.join &&
+    //   typeof data?.components?.join !== 'object' &&
+    //   isValidReactComponent(data?.components?.join)
+    // ) {
+    //   components.JoinComponent = data?.components?.join;
+    // }
     return components;
   });
 

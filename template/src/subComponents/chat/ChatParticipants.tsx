@@ -16,7 +16,9 @@ import useUserList from '../../utils/useUserList';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 
 const ChatParticipants = (props: any) => {
-  const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
   const {renderList} = useUserList();
@@ -25,6 +27,7 @@ const ChatParticipants = (props: any) => {
   const isChatUser = (userId: UidType, userInfo: any) => {
     return (
       userId !== localUid && //user can't chat with own user
+      // @ts-ignore
       userId !== '1' && //user can't chat with pstn user
       userInfo?.type === 'rtc' &&
       !userInfo?.offline
@@ -34,18 +37,19 @@ const ChatParticipants = (props: any) => {
   return (
     <ScrollView>
       {Object.entries(renderList).map(([uid, value]) => {
-        if (isChatUser(parseInt(uid), value)) {
+        const uidAsNumber = parseInt(uid);
+        if (isChatUser(uidAsNumber, value)) {
           return (
             <TouchableOpacity
               style={style.participantContainer}
               key={uid}
               onPress={() => {
-                selectUser(uid);
+                selectUser(uidAsNumber);
               }}>
               {unreadIndividualMessageCount &&
-              unreadIndividualMessageCount[uid] ? (
+              unreadIndividualMessageCount[uidAsNumber] ? (
                 <View style={style.chatNotificationPrivate}>
-                  <Text>{unreadIndividualMessageCount[uid]}</Text>
+                  <Text>{unreadIndividualMessageCount[uidAsNumber]}</Text>
                 </View>
               ) : null}
               <View style={{flex: 1}}>
@@ -58,8 +62,8 @@ const ChatParticipants = (props: any) => {
                     },
                   ]}
                   value={
-                    renderList[uid]
-                      ? renderList[uid].name + ''
+                    renderList[uidAsNumber]
+                      ? renderList[uidAsNumber].name + ''
                       : remoteUserDefaultLabel
                   }
                 />

@@ -34,11 +34,15 @@ export interface ScreenshareButtonProps {
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
-  const {isScreenshareActive, startUserScreenshare} = useScreenshare();
-  const screenShareButton = useString('screenShareButton')();
+  const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
+    useScreenshare();
+  //commented for v1 release
+  //const screenShareButton = useString('screenShareButton')();
+  const screenShareButton = 'Share';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
-  const onPress = () => startUserScreenshare();
+  const onPress = () =>
+    isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
   let btnTemplateProps: BtnTemplateInterface = {
     name: isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon',
     onPress,

@@ -32,7 +32,7 @@ interface changedDeviceInfo {
 const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedCam, setSelectedCam] = useState('');
   const [selectedMic, setSelectedMic] = useState('');
-  const [deviceList, setDeviceList] = useState<MediaDeviceInfo[]>([]);
+  const [deviceList, setDeviceList] = useState<any>([]);
   const rtc = useContext(RtcContext);
 
   const refreshDevices = useCallback(async () => {

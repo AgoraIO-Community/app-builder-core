@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, TextStyle} from 'react-native';
+import {View, Text, StyleSheet, ViewStyle, TextStyle} from 'react-native';
 import icons from '../assets/icons';
 import Settings, {
   SettingsWithViewWrapper,
@@ -40,7 +40,6 @@ import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
-import {useFpe} from 'fpe-api';
 import {
   ButtonTemplateName,
   useButtonTemplate,
@@ -104,7 +103,9 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
-  const participantsLabel = useString('participantsLabel')();
+  //commented for v1 release
+  //const participantsLabel = useString('participantsLabel')();
+  const participantsLabel = 'Participants';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Participants;
@@ -186,7 +187,9 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
     useChatUIControl();
   const {sidePanel, setSidePanel} = useSidePanel();
-  const chatLabel = useString('chatLabel')();
+  //commented for v1 release
+  //const chatLabel = useString('chatLabel')();
+  const chatLabel = 'Chat';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Chat;
@@ -261,7 +264,9 @@ interface LayoutIconButtonInterface {
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const {modalPosition} = props;
-  const layoutLabel = useString('layoutLabel')('');
+  //commented for v1 release
+  //const layoutLabel = useString('layoutLabel')('');
+  const layoutLabel = 'Layouts';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const [showDropdown, setShowDropdown] = useState(false);
@@ -281,14 +286,17 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
-    let btnTemplateProps: BtnTemplateInterface = {
+    let btnTemplateProps = {
       onPress: onPress,
+      style: {},
+      btnText: '',
     };
     if (buttonTemplateName === ButtonTemplateName.bottomBar) {
       btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
       btnTemplateProps.btnText = layoutLabel;
     } else {
       btnTemplateProps.style = style.btnHolder;
+      delete btnTemplateProps['btnText'];
     }
     renderContent.push(
       props?.render ? (
@@ -337,7 +345,9 @@ const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
 };
 
 const Navbar = () => {
-  const recordingLabel = useString('recordingLabel')();
+  //commented for v1 release
+  //const recordingLabel = useString('recordingLabel')();
+  const recordingLabel = 'Recording';
   const {meetingTitle} = useMeetingInfo();
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);
@@ -387,6 +397,7 @@ const Navbar = () => {
       <View
         style={[
           style.roomNameContainer,
+          // @ts-ignore
           isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
@@ -491,7 +502,7 @@ const style = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  navHolder: navHolder,
+  navHolder: navHolder as ViewStyle,
   navHolderNative: {
     position: 'relative',
     width: '100%',

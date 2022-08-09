@@ -29,8 +29,11 @@ import {useFpe} from 'fpe-api';
 import {UidType} from '../../agora-rn-uikit';
 
 const Chat = () => {
-  const groupChatLabel = useString('groupChatLabel')();
-  const privateChatLabel = useString('privateChatLabel')();
+  // commented for v1 release
+  // const groupChatLabel = useString('groupChatLabel')();
+  // const privateChatLabel = useString('privateChatLabel')();
+  const groupChatLabel = 'Group';
+  const privateChatLabel = 'Private';
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -55,6 +58,15 @@ const Chat = () => {
   } = useChatNotification();
 
   const {primaryColor} = useContext(ColorContext);
+
+  React.useEffect(() => {
+    return () => {
+      // reset both the active tabs
+      setGroupActive(false);
+      setPrivateActive(false);
+      setSelectedUser(0);
+    };
+  }, []);
 
   const selectGroup = () => {
     setPrivateActive(false);
@@ -93,24 +105,24 @@ const Chat = () => {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      if (
-        data?.components?.videoCall?.chat &&
-        typeof data?.components?.videoCall?.chat === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.chat?.after &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.after)
-        ) {
-          components.ChatAfterView = data?.components?.videoCall?.chat?.after;
-        }
-
-        if (
-          data?.components?.videoCall?.chat?.before &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.before)
-        ) {
-          components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
-        }
-      }
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.chat &&
+      //   typeof data?.components?.videoCall?.chat === 'object'
+      // ) {
+      //   if (
+      //     data?.components?.videoCall?.chat?.after &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
+      //   ) {
+      //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
+      //   }
+      //   if (
+      //     data?.components?.videoCall?.chat?.before &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
+      //   ) {
+      //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
+      //   }
+      // }
     }
     return components;
   });

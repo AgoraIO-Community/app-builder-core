@@ -106,3 +106,5 @@ template/theme-dark.json
 
 #FPE plugin folder: TODO:hari rename folder later
 template/test-fpe/*
+Builds
+esbuild-bin

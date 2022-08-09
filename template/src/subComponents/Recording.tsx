@@ -30,7 +30,10 @@ export interface RecordingButtonProps {
 
 const Recording = (props: RecordingButtonProps) => {
   const {startRecording, stopRecording, isRecordingActive} = useRecording();
-  const recordingButton = useString<boolean>('recordingButton');
+  //commented for v1 release
+  //const recordingButton = useString<boolean>('recordingButton');
+  const recordingButton = (recording: boolean) =>
+    recording ? 'Recording' : 'Record';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {

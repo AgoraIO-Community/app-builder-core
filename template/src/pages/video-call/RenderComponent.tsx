@@ -1,7 +1,11 @@
 import React from 'react';
 import {MaxVideoRenderer} from './VideoRenderer';
-import {RenderInterface, UidType} from '../../../agora-rn-uikit';
-import {renderComponentObjectInterface, useFpe} from 'fpe-api';
+import {UidType} from '../../../agora-rn-uikit';
+import {
+  renderComponentObjectInterface,
+  useFpe,
+  useRenderContext,
+} from 'fpe-api';
 import {isValidReactComponent} from '../../utils/common';
 
 export type RenderComponentType = {[key: string]: React.FC<any>};
@@ -11,10 +15,10 @@ const DefaultRenderComponent: RenderComponentType = {
   screenshare: MaxVideoRenderer,
 };
 interface RenderComponentProps {
-  user: RenderInterface;
   uid: UidType;
 }
-const RenderComponent = ({user, uid}: RenderComponentProps) => {
+const RenderComponent = ({uid}: RenderComponentProps) => {
+  const {renderList} = useRenderContext();
   const FpeRenderComponent = useFpe((config) =>
     typeof config?.components?.videoCall === 'object' &&
     typeof config?.components?.videoCall?.customContent === 'object'
@@ -40,9 +44,9 @@ const RenderComponent = ({user, uid}: RenderComponentProps) => {
     }
   };
 
-  const RenderComp = getRenderComponent(user?.type);
+  const RenderComp = getRenderComponent(renderList[uid]?.type);
 
-  return <RenderComp user={user} uid={uid} />;
+  return <RenderComp user={renderList[uid]} />;
 };
 
 export default RenderComponent;

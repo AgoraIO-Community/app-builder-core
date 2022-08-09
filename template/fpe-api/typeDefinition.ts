@@ -12,7 +12,11 @@
 import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
-import {RenderInterface, UidType} from '../agora-rn-uikit';
+import {
+  RenderInterface,
+  RenderStateInterface,
+  UidType,
+} from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 export type {
@@ -27,8 +31,9 @@ import {
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
 interface BeforeAndAfterInterface {
-  before?: React.ComponentType;
-  after?: React.ComponentType;
+  // commented for v1 release
+  // before?: React.ComponentType;
+  // after?: React.ComponentType;
 }
 
 export interface PreCallInterface extends BeforeAndAfterInterface {
@@ -40,22 +45,26 @@ export interface PreCallInterface extends BeforeAndAfterInterface {
   joinButton?: React.ComponentType;
   textBox?: React.ComponentType;
 }
-export interface ChatCmpInterface extends BeforeAndAfterInterface {
+export interface ChatCmpInterface {
+  //commented for v1 release
+  //extends BeforeAndAfterInterface
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSentButton?: React.ComponentType<ChatSendButtonProps>;
+  //commented for v1 release
+  //chatInput?: React.ComponentType<ChatTextInputProps>;
+  //chatSentButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
 export interface renderComponentInterface {
   user: RenderInterface;
-  uid: UidType;
 }
 
 export interface renderComponentObjectInterface {
   [key: string]: React.ComponentType<renderComponentInterface>;
 }
 
-export type layoutComponent = React.ComponentType;
+export type layoutComponent = React.ComponentType<{
+  renderData: RenderStateInterface['renderPosition'];
+}>;
 
 export interface layoutObjectBase {
   name: string;
@@ -74,20 +83,23 @@ export interface layoutObjectWithIconName extends layoutObjectBase {
 export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
-  topBar?: React.ComponentType;
-  settingsPanel?: React.ComponentType;
+  // commented for v1 release
+  //topBar?: React.ComponentType;
+  //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
   chat?: ChatCmpInterface;
   customContent?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
+  useUserContext?: () => void;
 }
 
 export type ComponentsInterface = {
-  precall?: PreCallInterface | React.ComponentType;
-  create?: React.ComponentType;
-  share?: React.ComponentType;
-  join?: React.ComponentType;
+  // commented for v1 release
+  //precall?: PreCallInterface | React.ComponentType;
+  //create?: React.ComponentType;
+  //share?: React.ComponentType;
+  //join?: React.ComponentType;
   videoCall?: VideoCallInterface | React.ComponentType;
 };
 
@@ -111,7 +123,8 @@ export interface FpeApiInterface {
   /**
    * custom routes used to add new page/routes
    */
-  customRoutes?: CustomRoutesInterface[];
+  // commented for v1 release
+  //customRoutes?: CustomRoutesInterface[];
   /**
    * Custom context/api provider wrapped in root level
    */
@@ -123,20 +136,9 @@ export interface FpeApiInterface {
   /**
    * Life cycle events
    */
-  lifecycle?: {
-    useBeforeJoin?: CustomHookType;
-    useBeforeCreate?: CustomHookType;
-  };
-  customUserContext?: () => any;
-}
-
-declare module 'agora-rn-uikit' {
-  interface DefaultRenderInterface {
-    name: string;
-    screenUid: number;
-    offline: boolean;
-  }
-  interface RtcPropsInterface {
-    screenShareUid: number;
-  }
+  // commented for v1 release
+  // lifecycle?: {
+  //   useBeforeJoin?: CustomHookType;
+  //   useBeforeCreate?: CustomHookType;
+  // };
 }

@@ -29,34 +29,35 @@ const PreCallLocalMute: React.FC = () => {
       AudioMute: LocalAudioMute,
       VideoMute: LocalVideoMute,
     };
-    if (
-      data?.components?.precall &&
-      typeof data?.components?.precall === 'object'
-    ) {
-      if (
-        data.components?.precall?.audioMute &&
-        typeof data.components?.precall?.audioMute !== 'object'
-      ) {
-        if (
-          data.components?.precall?.audioMute &&
-          isValidReactComponent(data.components?.precall?.audioMute)
-        ) {
-          components.AudioMute = data.components?.precall?.audioMute;
-        }
-      }
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data.components?.precall?.audioMute &&
+    //     typeof data.components?.precall?.audioMute !== 'object'
+    //   ) {
+    //     if (
+    //       data.components?.precall?.audioMute &&
+    //       isValidReactComponent(data.components?.precall?.audioMute)
+    //     ) {
+    //       components.AudioMute = data.components?.precall?.audioMute;
+    //     }
+    //   }
 
-      if (
-        data.components?.precall?.videoMute &&
-        typeof data.components?.precall?.videoMute !== 'object'
-      ) {
-        if (
-          data.components?.precall?.videoMute &&
-          isValidReactComponent(data.components?.precall?.videoMute)
-        ) {
-          components.VideoMute = data.components?.precall?.videoMute;
-        }
-      }
-    }
+    //   if (
+    //     data.components?.precall?.videoMute &&
+    //     typeof data.components?.precall?.videoMute !== 'object'
+    //   ) {
+    //     if (
+    //       data.components?.precall?.videoMute &&
+    //       isValidReactComponent(data.components?.precall?.videoMute)
+    //     ) {
+    //       components.VideoMute = data.components?.precall?.videoMute;
+    //     }
+    //   }
+    // }
     return components;
   });
   return (

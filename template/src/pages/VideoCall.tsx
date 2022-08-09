@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import {
@@ -44,11 +45,14 @@ import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import CustomUserContextHolder from './video-call/CustomUserContextHolder';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
 import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
+import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
 import StorageContext from '../components/StorageContext';
+import SDKEvents from '../utils/SdkEvents';
+import {UserPreferenceProvider} from '../components/useUserPreference';
 
 enum RnEncryptionEnum {
   /**
@@ -77,14 +81,11 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const joiningLoaderLabel = useString('joiningLoaderLabel')();
+  //commented for v1 release
+  //const joiningLoaderLabel = useString('joiningLoaderLabel')();
+  const joiningLoaderLabel = 'Starting Call. Just a second.';
   const {setGlobalErrorMessage} = useContext(ErrorContext);
-  const {store, setStore} = useContext(StorageContext);
   const {awake, release} = useWakeLock();
-  const getInitialUsername = () =>
-    store?.displayName ? store.displayName : '';
-  const [username, setUsername] = useState(getInitialUsername);
-  const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
   //layouts
@@ -97,7 +98,8 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
-  const lifecycle = useFpe((data) => data.lifecycle);
+  // commented for v1 release
+  //const lifecycle = useFpe((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -127,11 +129,11 @@ const VideoCall: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      useJoin(phrase);
-    } catch (error) {
-      setGlobalErrorMessage(error);
-    }
+    useJoin(phrase)
+      .then(() => {})
+      .catch((error) => {
+        setGlobalErrorMessage(error);
+      });
   }, []);
 
   const data = useMeetingInfo();
@@ -172,6 +174,7 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {
+        SDKEvents.emit('leave');
         history.push('/');
       }, 0),
   };
@@ -186,7 +189,8 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
-                  lifecycle,
+                  // commented for v1 release
+                  //lifecycle,
                 },
                 callbacks,
                 styleProps,
@@ -195,62 +199,70 @@ const VideoCall: React.FC = () => {
                   : ChannelProfile.Communication,
               }}>
               <RtcConfigure>
-                <DeviceConfigure userRole={rtcProps.role}>
+                <DeviceConfigure>
                   <ChatUIControlProvider>
                     <ChatNotificationProvider>
-                      <SidePanelProvider
-                        value={{
-                          sidePanel,
-                          setSidePanel,
-                        }}>
-                        <ScreenShareProvider>
-                          <LiveStreamDataProvider>
+                      <ChatMessagesProvider>
+                        <SidePanelProvider
+                          value={{
+                            sidePanel,
+                            setSidePanel,
+                          }}>
+                          <ScreenShareProvider>
                             <RtmConfigure
                               setRecordingActive={setRecordingActive}
                               callActive={callActive}>
-                              <WhiteboardProvider>
-                                <LayoutProvider
-                                  value={{
-                                    activeLayoutName,
-                                    setActiveLayoutName,
-                                  }}>
-                                  <RecordingProvider
+                              <UserPreferenceProvider>
+                                <WhiteboardProvider>
+                                  <LayoutProvider
                                     value={{
-                                      setRecordingActive,
-                                      isRecordingActive,
+                                      activeLayoutName,
+                                      setActiveLayoutName,
                                     }}>
-                                    <ScreenshareConfigure>
-                                      <LiveStreamContextProvider
-                                        value={{setRtcProps}}>
-                                        <LocalUserContext
-                                          localUid={rtcProps?.uid || 0}>
-                                          <CustomUserContextHolder>
-                                            <NetworkQualityProvider>
-                                              {callActive ? (
-                                                <VideoCallScreen />
-                                              ) : $config.PRECALL ? (
-                                                <PreCallProvider
-                                                  value={{
-                                                    callActive,
-                                                    setCallActive,
-                                                  }}>
-                                                  <Precall />
-                                                </PreCallProvider>
-                                              ) : (
-                                                <></>
-                                              )}
-                                            </NetworkQualityProvider>
-                                          </CustomUserContextHolder>
-                                        </LocalUserContext>
-                                      </LiveStreamContextProvider>
-                                    </ScreenshareConfigure>
-                                  </RecordingProvider>
-                                </LayoutProvider>
-                              </WhiteboardProvider>
+                                    <RecordingProvider
+                                      value={{
+                                        setRecordingActive,
+                                        isRecordingActive,
+                                      }}>
+                                      <ScreenshareConfigure>
+                                        <LiveStreamContextProvider
+                                          value={{
+                                            setRtcProps,
+                                            rtcProps,
+                                            callActive,
+                                          }}>
+                                          <LiveStreamDataProvider>
+                                            <LocalUserContext
+                                              localUid={rtcProps?.uid || 0}>
+                                              <CustomUserContextHolder>
+                                                <NetworkQualityProvider>
+                                                  {callActive ? (
+                                                    <VideoCallScreen />
+                                                  ) : $config.PRECALL ? (
+                                                    <PreCallProvider
+                                                      value={{
+                                                        callActive,
+                                                        setCallActive,
+                                                      }}>
+                                                      <Precall />
+                                                    </PreCallProvider>
+                                                  ) : (
+                                                    <></>
+                                                  )}
+                                                </NetworkQualityProvider>
+                                              </CustomUserContextHolder>
+                                            </LocalUserContext>
+                                          </LiveStreamDataProvider>
+                                        </LiveStreamContextProvider>
+                                      </ScreenshareConfigure>
+                                    </RecordingProvider>
+                                  </LayoutProvider>
+                                </WhiteboardProvider>
+                              </UserPreferenceProvider>
                             </RtmConfigure>
-                          </LiveStreamDataProvider>
-                        </ScreenShareProvider>
-                      </SidePanelProvider>
+                          </ScreenShareProvider>
+                        </SidePanelProvider>
+                      </ChatMessagesProvider>
                     </ChatNotificationProvider>
                   </ChatUIControlProvider>
                 </DeviceConfigure>

@@ -32,18 +32,13 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {setCallActive} = usePreCall();
   const username = useGetName();
   const {isJoinDataFetched} = useMeetingInfo();
-  const getMode = () =>
-    $config.EVENT_MODE
-      ? ChannelProfile.LiveBroadcasting
-      : ChannelProfile.Communication;
   const joinRoomButton =
     useString<JoinRoomButtonTextInterface>('joinRoomButton');
 
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({
       ready: isJoinDataFetched,
-      mode: getMode(),
-      role: rtcProps.role,
+      role: $config.EVENT_MODE ? rtcProps.role : undefined,
     }),
   );
   useEffect(() => {
@@ -51,8 +46,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
       setButtonText(
         joinRoomButton({
           ready: isJoinDataFetched,
-          mode: getMode(),
-          role: rtcProps.role,
+          role: $config.EVENT_MODE ? rtcProps.role : undefined,
         }),
       );
     }

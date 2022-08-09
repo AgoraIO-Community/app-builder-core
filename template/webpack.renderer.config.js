@@ -32,7 +32,7 @@ module.exports = merge(commons, {
   // },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, '.electron'),
+    path: path.resolve(__dirname, `../Builds/.electron`),
   },
   plugins: [
     isDevelopment && new webpack.HotModuleReplacementPlugin(), // to enable HMR for webpack-dev-server

@@ -11,10 +11,11 @@
 */
 import fpeConfig from 'test-fpe';
 
-export { fpeConfig };
+export {fpeConfig};
 
 export * from './useFpe';
 export * from './context';
 export * from './components';
 export * from './typeDefinition';
 export * from './utils';
+export * from './fpeEvents';

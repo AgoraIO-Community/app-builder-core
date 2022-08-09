@@ -11,7 +11,7 @@ import {filterObject} from '../../utils/index';
 import {useRtcContext} from 'fpe-api';
 
 export interface WhiteboardObjectInterface {
-  [key: UidType]: {
+  [key: number]: {
     active: boolean;
     parentId: UidType;
     type: 'whiteboard';
