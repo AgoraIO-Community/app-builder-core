@@ -31,6 +31,9 @@ import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
+import {Platform} from 'react-native';
+import mobileAndTabletCheck from '../../../src/utils/mobileWebTest';
+
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;
@@ -202,26 +205,29 @@ export default class RtcEngine {
   async enableVideo(): Promise<void> {
     /**
      * Issue: Backgrounding the browser or app causes the audio streaming to be cut off.
+     * Impact: All browsers and apps that use WKWebView on iOS 15.x, such as Safari and Chrome.
      * Solution:
      *    Upgrade to the Web SDK v4.7.3 or later versions.
      *    When calling createMicrophoneAudioTrack, set bypassWebAudio as true.
      *    The Web SDK directly publishes the local audio stream without processing it through WebAudio.
      */
+
+    const audioConfig =
+      Platform.OS == 'web' && mobileAndTabletCheck()
+        ? {bypassWebAudio: true}
+        : {};
     try {
       let [localAudio, localVideo] =
-        await AgoraRTC.createMicrophoneAndCameraTracks(
-          {bypassWebAudio: true},
-          {encoderConfig: this.videoProfile},
-        );
+        await AgoraRTC.createMicrophoneAndCameraTracks(audioConfig, {
+          encoderConfig: this.videoProfile,
+        });
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
       let audioError = false;
       let videoError = false;
       try {
-        let localAudio = await AgoraRTC.createMicrophoneAudioTrack({
-          bypassWebAudio: true,
-        });
+        let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
 
         this.localStream.audio = localAudio;
       } catch (error) {
