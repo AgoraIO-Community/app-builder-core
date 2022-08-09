@@ -196,7 +196,7 @@ class CustomEvents {
    *  - If 'to' is empty this method sends channel message.
    *
    *
-   * @param {String} evt Name of the event to remove the listener from.
+   * @param {String} evt  Name of the event to register on which listeners are added
    * @param {EventPayload} payload contains action, level, value metrics.
    * - action: {string}
    * - level: 1 | 2 | 3
