@@ -64,7 +64,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
         }
         if (value?.screenShareUid) {
           updateRenderListState(value?.screenShareUid, {
-            name: getScreenShareName(value?.name),
+            name: getScreenShareName(value?.name || userText),
           });
         }
       }
@@ -84,9 +84,9 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
     });
 
     //update local state for user and screenshare
-    updateRenderListState(localUid, {name: displayName});
+    updateRenderListState(localUid, {name: displayName || userText});
     updateRenderListState(screenShareUid, {
-      name: getScreenShareName(displayName),
+      name: getScreenShareName(displayName || userText),
     });
 
     if (hasUserJoinedRTM) {
@@ -95,7 +95,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
         value: JSON.stringify({
           uid: localUid,
           screenShareUid: screenShareUid,
-          name: displayName,
+          name: displayName || userText,
         }),
         level: EventLevel.LEVEL2,
       });
