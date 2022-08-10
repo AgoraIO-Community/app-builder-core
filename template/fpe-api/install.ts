@@ -45,18 +45,28 @@ function isComponent(data: any) {
   return false;
 }
 
+//These keys value are not react component. so doing indexOf and checking whether its function or not
+const ignoreTheseKeys = ['customLayout', 'useUserContext'];
+
 function validateComponents(components: any) {
   for (const key in components) {
-    let comp = components[key];
-    if (comp) {
-      if (isComponent(comp) || isObject(comp)) {
-        if (isObject(comp)) {
-          validateComponents(comp);
+    if (ignoreTheseKeys.indexOf(key) === -1) {
+      let comp = components[key];
+      if (comp) {
+        if (isComponent(comp) || isObject(comp)) {
+          if (isObject(comp)) {
+            validateComponents(comp);
+          }
+        } else {
+          console.error(
+            `InstallFPE:Error ${key} should be a react component or object`,
+          );
         }
-      } else {
-        console.error(
-          `InstallFPE:Error ${key} should be a react component or object`,
-        );
+      }
+    } else {
+      let comp = components[key];
+      if (comp && !isFunction(comp)) {
+        console.error(`InstallFPE:Error ${key} should be an function`);
       }
     }
   }

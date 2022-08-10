@@ -91,6 +91,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   chat?: ChatCmpInterface;
   customContent?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
+  useUserContext?: () => void;
 }
 
 export type ComponentsInterface = {
@@ -140,6 +141,4 @@ export interface FpeApiInterface {
   //   useBeforeJoin?: CustomHookType;
   //   useBeforeCreate?: CustomHookType;
   // };
-  // commented for v1 release
-  //customUserContext?: () => any;
 }
