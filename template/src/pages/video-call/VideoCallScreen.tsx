@@ -128,13 +128,17 @@ const VideoCallScreen = () => {
   });
 
   useEffect(() => {
-    new Promise((res) =>
-      rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
-        res(devices);
-      }),
-    ).then((devices: MediaDeviceInfo[]) => {
-      SDKEvents.emit('join', meetingTitle, devices, isHost);
-    });
+    /**
+     * Commenting this code as getDevices API is web only
+     * The below code fails on native app
+     */
+    // new Promise((res) =>
+    //   rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+    //     res(devices);
+    //   }),
+    // ).then((devices: MediaDeviceInfo[]) => {
+    //   SDKEvents.emit('join', meetingTitle, devices, isHost);
+    // });
   }, []);
 
   return VideocallComponent ? (
