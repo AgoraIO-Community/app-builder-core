@@ -28,7 +28,5 @@
   "APPLE_CLIENT_ID": "",
   "PROFILE": "480p_8",
   "EVENT_MODE": true,
-  "RAISE_HAND": true,
-  "LOG_ENABLED": true,
-  "GEO_FENCING": true
+  "RAISE_HAND": true
 }

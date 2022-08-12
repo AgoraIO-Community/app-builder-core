@@ -30,7 +30,6 @@ import type {
 import {VideoProfile} from '../quality';
 import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
-import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
 import mobileAndTabletCheck from '../../../src/utils/mobileWebTest';
 
@@ -138,19 +137,13 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-if (GEO_FENCING) {
-  AgoraRTC.setArea({
-    areaCode: AREAS.GLOBAL,
-    excludedArea: AREAS.CHINA,
-  });
-}
+// AgoraRTC.setArea({
+//   areaCode: AREAS.GLOBAL,
+//   excludedArea: AREAS.CHINA,
+// });
 
-if (LOG_ENABLED) {
-  AgoraRTC.setLogLevel(0);
-  AgoraRTC.enableLogUpload();
-} else {
-  AgoraRTC.disableLogUpload();
-}
+AgoraRTC.setLogLevel(0);
+AgoraRTC.enableLogUpload();
 
 export default class RtcEngine {
   public appId: string;
