@@ -781,20 +781,22 @@ export default class RtcEngine {
       try {
         console.log('[screenshare]: creating stream');
 
-        let mode: EncryptionMode;
-        mode = this.getEncryptionMode(true, encryption?.mode);
-        try {
-          /**
-           * Since version 4.7.0, if client leaves a call
-           * and joins again the encryption needs to be
-           * set again
-           */
-          await this.screenClient.setEncryptionConfig(
-            mode,
-            encryption.screenKey,
-          );
-        } catch (e) {
-          console.log('e: Encryption for screenshare failed', e);
+        if (encryption && encryption.screenKey && encryption.mode) {
+          let mode: EncryptionMode;
+          mode = this.getEncryptionMode(true, encryption?.mode);
+          try {
+            /**
+             * Since version 4.7.0, if client leaves a call
+             * and joins again the encryption needs to be
+             * set again
+             */
+            await this.screenClient.setEncryptionConfig(
+              mode,
+              encryption.screenKey,
+            );
+          } catch (e) {
+            console.log('e: Encryption for screenshare failed', e);
+          }
         }
 
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
