@@ -119,7 +119,10 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 /**
  * Input component for the Chat interface
  */
-const ChatInput = () => {
+const ChatInput = (props: {
+  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+}) => {
   const {primaryColor} = useContext(ColorContext);
   const {ChatInputComponent, ChatSendButtonComponent} = useFpe((data) => {
     let components: {
@@ -158,6 +161,16 @@ const ChatInput = () => {
       //       data?.components?.videoCall?.chat?.chatSentButton;
       //   }
       // }
+    } else {
+      if (props?.chatInput && isValidReactComponent(props.chatInput)) {
+        components.ChatInputComponent = props.chatInput;
+      }
+      if (
+        props?.chatSendButton &&
+        isValidReactComponent(props.chatSendButton)
+      ) {
+        components.ChatSendButtonComponent = props.chatSendButton;
+      }
     }
     return components;
   });

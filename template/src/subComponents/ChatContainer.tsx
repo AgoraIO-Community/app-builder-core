@@ -38,13 +38,14 @@ import usePrivateMessages from '../utils/usePrivateMessages';
  * It retrieves all the messages from the appropriate stores (Message store an provate message store)
  * and maps it to a ChatBubble
  */
-const ChatContainer = (props: any) => {
+const ChatContainer = (props?: {
+  chatBubble?: React.ComponentType<ChatBubbleProps>;
+}) => {
   const {renderList} = useUserList();
   const messageStore = useGroupMessages();
   const getPrivateMessage = usePrivateMessages();
   const privateMessageStore = getPrivateMessage();
   const {height, width} = useWindowDimensions();
-  const {selectPrivate} = props;
   const {
     privateActive,
     selectedChatUserId: selectedUserID,
@@ -79,6 +80,10 @@ const ChatContainer = (props: any) => {
           components.ChatBubbleComponent =
             data?.components?.videoCall?.chat?.chatBubble;
         }
+      }
+    } else {
+      if (props?.chatBubble && isValidReactComponent(props?.chatBubble)) {
+        components.ChatBubbleComponent = props?.chatBubble;
       }
     }
     return components;

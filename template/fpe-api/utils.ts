@@ -15,37 +15,34 @@ export {default as useIsHost} from '../src/utils/isHostUser';
 export {default as useIsAttendee} from '../src/utils/IsAttendeeUser';
 export {default as useIsPSTN} from '../src/utils/isPSTNUser';
 export {default as useUserList} from '../src/utils/useUserList';
-// commented for v1 release
-//export {default as useGroupMessages} from '../src/utils/useGroupMessages';
-//export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
+export {default as useGroupMessages} from '../src/utils/useGroupMessages';
+export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
 export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
 export {default as useSetName} from '../src/utils/useSetName';
 export {default as useGetName} from '../src/utils/useGetName';
 export {useSidePanel} from '../src/utils/useSidePanel';
-// commented for v1 release
-// export {
-//   default as useUnreadMessageCount,
-//   UNREAD_MESSAGE_COUNT_TYPE,
-// } from '../src/utils/useUnreadMessageCount';
-// export {
-//   default as useSetUnreadMessageCount,
-//   SET_UNREAD_MESSAGE_COUNT_TYPE,
-// } from '../src/utils/useSetUnreadMessageCount';
+export {
+  default as useUnreadMessageCount,
+  UNREAD_MESSAGE_COUNT_TYPE,
+} from '../src/utils/useUnreadMessageCount';
+export {
+  default as useSetUnreadMessageCount,
+  SET_UNREAD_MESSAGE_COUNT_TYPE,
+} from '../src/utils/useSetUnreadMessageCount';
 export {default as useNavigateTo} from '../src/utils/useNavigateTo';
 export {default as useNavParams} from '../src/utils/useNavParams';
 export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
 export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
-// commented for v1 release
-// export {
-//   default as useSendMessage,
-//   MESSAGE_TYPE,
-// } from '../src/utils/useSendMessage';
-// export {controlMessageEnum} from '../src/components/ChatContext';
-// export {
-//   default as useSendControlMessage,
-//   CONTROL_MESSAGE_TYPE,
-// } from '../src/utils/useSendControlMessage';
+export {
+  default as useSendMessage,
+  MESSAGE_TYPE,
+} from '../src/utils/useSendMessage';
+export {controlMessageEnum} from '../src/components/ChatContext';
+export {
+  default as useSendControlMessage,
+  CONTROL_MESSAGE_TYPE,
+} from '../src/utils/useSendControlMessage';
 export {
   MUTE_LOCAL_TYPE,
   default as useMuteToggleLocal,

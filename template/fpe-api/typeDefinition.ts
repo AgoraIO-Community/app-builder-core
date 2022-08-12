@@ -84,7 +84,7 @@ export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
-  //topBar?: React.ComponentType;
+  topBar?: React.ComponentType;
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
