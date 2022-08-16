@@ -16,18 +16,25 @@ import {createContext, SetStateAction} from 'react';
 export interface ChatBubbleProps {
   isLocal: boolean;
   message: string;
-  timestamp: string;
+  createdTimestamp: string;
+  updatedTimestamp?: string;
   uid: UidType;
+  msgId: string;
+  isDeleted: boolean;
   render?: (
     isLocal: boolean,
     message: string,
-    timestamp: string,
+    createdTimestamp: string,
     uid: UidType,
+    msgId: string,
+    isDeleted: boolean,
+    updatedTimestamp?: string,
   ) => JSX.Element;
 }
 
 export interface messageStoreInterface {
-  ts: string;
+  createdTimestamp: string;
+  updatedTimestamp?: string;
   uid: UidType;
   msg: string;
 }

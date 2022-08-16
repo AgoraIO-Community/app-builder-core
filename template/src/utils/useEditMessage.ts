@@ -11,23 +11,25 @@
 */
 import {UidType} from '../../agora-rn-uikit';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
+import {MESSAGE_TYPE} from './useSendMessage';
 
-export enum MESSAGE_TYPE {
-  group,
-  private,
-}
-function useSendMessage() {
-  const {sendChatMessage} = useChatMessages();
-  return (type: MESSAGE_TYPE, message: string, uid?: UidType) => {
+function useEditMessage() {
+  const {editChatMessage} = useChatMessages();
+  return (
+    type: MESSAGE_TYPE,
+    msgId: string,
+    message: string,
+    uid?: UidType,
+  ) => {
     switch (type) {
       case MESSAGE_TYPE.group:
-        sendChatMessage(message);
+        editChatMessage(msgId, message);
         break;
       case MESSAGE_TYPE.private:
         if (uid) {
-          sendChatMessage(message, uid);
+          editChatMessage(msgId, message, uid);
         } else {
-          console.error('To send the private message, UID should be passed');
+          console.error('To edit the private message, UID should be passed');
         }
         break;
       default:
@@ -36,4 +38,4 @@ function useSendMessage() {
   };
 }
 
-export default useSendMessage;
+export default useEditMessage;

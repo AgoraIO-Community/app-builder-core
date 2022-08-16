@@ -21,28 +21,42 @@ import {useChatNotification} from '../chat-notification/useChatNotification';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
+import getUniqueID from '../../utils/getUniqueID';
+
+enum ChatMessageActionEnum {
+  Create = 'Create_Chat_Message',
+  Update = 'Update_Chat_Message',
+  Delete = 'Delete_Chat_Message',
+}
 
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
 }
 interface messageInterface {
-  ts: number;
+  createdTimestamp: number;
+  updatedTimestamp?: number;
   msg: string;
+  msgId: string;
+  isDeleted: boolean;
 }
 interface messageStoreInterface extends messageInterface {
   uid: UidType;
 }
 
 interface ChatMessagesInterface {
-  messageStore: messageStoreInterface | any;
-  privateMessageStore: any;
+  messageStore: messageStoreInterface[];
+  privateMessageStore: {[key: string]: messageStoreInterface[]};
   sendChatMessage: (msg: string, toUid?: UidType) => void;
+  editChatMessage: (msgId: string, msg: string, toUid?: UidType) => void;
+  deleteChatMessage: (msgId: string, toUid?: UidType) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   messageStore: [],
   privateMessageStore: {},
   sendChatMessage: () => {},
+  editChatMessage: () => {},
+  deleteChatMessage: () => {},
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
@@ -53,7 +67,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
     useChatNotification();
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
-  const [privateMessageStore, setPrivateMessageStore] = useState({});
+  const [privateMessageStore, setPrivateMessageStore] = useState<{
+    [key: string]: messageStoreInterface[];
+  }>({});
 
   const renderListRef = useRef({renderList: renderList});
   const groupActiveRef = useRef<boolean>();
@@ -91,54 +107,168 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       });
     };
     CustomEvents.on(EventNames.PUBLIC_CHAT_MESSAGE, (data) => {
-      showMessageNotification(data.payload.value, data.sender);
-      addMessageToStore(parseInt(data.sender), {
-        msg: data.payload.value,
-        ts: data.ts,
-      });
-      /**
-       * if chat group window is not active.
-       * then we will increment the unread count
-       */
-      if (!groupActiveRef.current) {
-        setUnreadGroupMessageCount((prevState) => {
-          return prevState + 1;
-        });
+      const messageData = JSON.parse(data.payload.value);
+      switch (data?.payload?.action) {
+        case ChatMessageActionEnum.Create:
+          showMessageNotification(messageData.msg, data.sender);
+          addMessageToStore(parseInt(data.sender), {
+            msg: messageData.msg,
+            createdTimestamp: messageData.createdTimestamp,
+            isDeleted: messageData.isDeleted,
+            msgId: messageData.msgId,
+          });
+          /**
+           * if chat group window is not active.
+           * then we will increment the unread count
+           */
+          if (!groupActiveRef.current) {
+            setUnreadGroupMessageCount((prevState) => {
+              return prevState + 1;
+            });
+          }
+          break;
+        case ChatMessageActionEnum.Update:
+          setMessageStore((prevState) => {
+            const newState = prevState.map((item) => {
+              if (
+                item.msgId === messageData.msgId &&
+                item.uid === parseInt(data.sender)
+              ) {
+                return {
+                  ...item,
+                  msg: messageData.msg,
+                  updatedTimestamp: messageData.updatedTimestamp,
+                };
+              } else {
+                return item;
+              }
+            });
+            return newState;
+          });
+          break;
+        case ChatMessageActionEnum.Delete:
+          setMessageStore((prevState) => {
+            const newState = prevState.map((item) => {
+              if (
+                item.msgId === messageData.msgId &&
+                item.uid === parseInt(data.sender)
+              ) {
+                return {
+                  ...item,
+                  isDeleted: true,
+                  updatedTimestamp: messageData.updatedTimestamp,
+                };
+              } else {
+                return item;
+              }
+            });
+            return newState;
+          });
+          break;
+        default:
+          break;
       }
     });
     CustomEvents.on(EventNames.PRIVATE_CHAT_MESSAGE, (data) => {
-      showMessageNotification(data.payload.value, data.sender);
-      addMessageToPrivateStore(
-        parseInt(data.sender),
-        {
-          msg: data.payload.value,
-          ts: data.ts,
-        },
-        false,
-      );
-      /**
-       * if user's private window is active.
-       * then we will not increment the unread count
-       */
+      const messageData = JSON.parse(data.payload.value);
 
-      if (!(individualActiveRef.current === parseInt(data.sender))) {
-        setUnreadIndividualMessageCount((prevState) => {
-          const prevCount =
-            prevState && prevState[parseInt(data.sender)]
-              ? prevState[parseInt(data.sender)]
-              : 0;
-          return {
-            ...prevState,
-            [parseInt(data.sender)]: prevCount + 1,
-          };
-        });
+      switch (data?.payload?.action) {
+        case ChatMessageActionEnum.Create:
+          showMessageNotification(messageData.msg, data.sender);
+          addMessageToPrivateStore(
+            parseInt(data.sender),
+            {
+              msg: messageData.msg,
+              createdTimestamp: messageData.createdTimestamp,
+              msgId: messageData.msgId,
+              isDeleted: messageData.isDeleted,
+            },
+            false,
+          );
+          /**
+           * if user's private window is active.
+           * then we will not increment the unread count
+           */
+
+          if (!(individualActiveRef.current === parseInt(data.sender))) {
+            setUnreadIndividualMessageCount((prevState) => {
+              const prevCount =
+                prevState && prevState[parseInt(data.sender)]
+                  ? prevState[parseInt(data.sender)]
+                  : 0;
+              return {
+                ...prevState,
+                [parseInt(data.sender)]: prevCount + 1,
+              };
+            });
+          }
+          break;
+        case ChatMessageActionEnum.Update:
+          setPrivateMessageStore((prevState) => {
+            const privateChatOfUid = prevState[parseInt(data.sender)];
+            const updatedData = privateChatOfUid.map((item) => {
+              if (
+                item.msgId === messageData.msgId &&
+                item.uid === parseInt(data.sender)
+              ) {
+                return {
+                  ...item,
+                  msg: messageData.msg,
+                  updatedTimestamp: messageData.updatedTimestamp,
+                };
+              } else {
+                return item;
+              }
+            });
+            const newState = {
+              ...prevState,
+              [parseInt(data.sender)]: updatedData,
+            };
+            return newState;
+          });
+          break;
+        case ChatMessageActionEnum.Delete:
+          setPrivateMessageStore((prevState) => {
+            const privateChatOfUid = prevState[parseInt(data.sender)];
+            const updatedData = privateChatOfUid.map((item) => {
+              if (
+                item.msgId === messageData.msgId &&
+                item.uid === parseInt(data.sender)
+              ) {
+                return {
+                  ...item,
+                  isDeleted: true,
+                  updatedTimestamp: messageData.updatedTimestamp,
+                };
+              } else {
+                return item;
+              }
+            });
+            const newState = {
+              ...prevState,
+              [parseInt(data.sender)]: updatedData,
+            };
+            return newState;
+          });
+          break;
+        default:
+          break;
       }
     });
   }, []);
 
   const addMessageToStore = (uid: UidType, body: messageInterface) => {
     setMessageStore((m: messageStoreInterface[]) => {
-      return [...m, {ts: body.ts, uid, msg: body.msg}];
+      return [
+        ...m,
+        {
+          createdTimestamp: body.createdTimestamp,
+          uid,
+          msg: body.msg,
+          msgId: body.msgId,
+          isDeleted: body.isDeleted,
+        },
+      ];
     });
   };
 
@@ -147,16 +277,30 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     body: messageInterface,
     local: boolean,
   ) => {
-    setPrivateMessageStore((state: any) => {
+    setPrivateMessageStore((state) => {
       let newState = {...state};
       newState[uid] !== undefined
         ? (newState[uid] = [
             ...newState[uid],
-            {ts: body.ts, uid: local ? localUid : uid, msg: body.msg},
+            {
+              createdTimestamp: body.createdTimestamp,
+              uid: local ? localUid : uid,
+              msg: body.msg,
+              msgId: body.msgId,
+              isDeleted: body.isDeleted,
+            },
           ])
         : (newState = {
             ...newState,
-            [uid]: [{ts: body.ts, uid: local ? localUid : uid, msg: body.msg}],
+            [uid]: [
+              {
+                createdTimestamp: body.createdTimestamp,
+                uid: local ? localUid : uid,
+                msg: body.msg,
+                msgId: body.msgId,
+                isDeleted: body.isDeleted,
+              },
+            ],
           });
       return {...newState};
     });
@@ -165,29 +309,148 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const sendChatMessage = (msg: string, toUid?: UidType) => {
     if (typeof msg == 'string' && msg.trim() === '') return;
     if (toUid) {
+      const messageData = {
+        msg,
+        createdTimestamp: timeNow(),
+        msgId: getUniqueID(),
+        isDeleted: false,
+      };
       CustomEvents.send(
         EventNames.PRIVATE_CHAT_MESSAGE,
         {
-          value: msg,
+          value: JSON.stringify(messageData),
+          action: ChatMessageActionEnum.Create,
         },
         toUid,
       );
-      addMessageToPrivateStore(
-        toUid,
-        {
-          msg: msg,
-          ts: timeNow(),
-        },
-        true,
-      );
+      addMessageToPrivateStore(toUid, messageData, true);
     } else {
+      const messageData = {
+        msg,
+        msgId: getUniqueID(),
+        isDeleted: false,
+        createdTimestamp: timeNow(),
+      };
       CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
-        value: msg,
+        value: JSON.stringify(messageData),
+        action: ChatMessageActionEnum.Create,
       });
-      addMessageToStore(localUid, {
-        msg: msg,
-        ts: timeNow(),
-      });
+      addMessageToStore(localUid, messageData);
+    }
+  };
+
+  const editChatMessage = (msgId: string, msg: string, toUid?: UidType) => {
+    if (typeof msg == 'string' && msg.trim() === '') return;
+    if (toUid) {
+      const checkData = privateMessageStore[toUid].filter(
+        (item) => item.msgId === msgId && item.uid === localUid,
+      );
+      if (checkData && checkData.length) {
+        const editMsgData = {msg, updatedTimestamp: timeNow()};
+        CustomEvents.send(
+          EventNames.PRIVATE_CHAT_MESSAGE,
+          {
+            value: JSON.stringify({msgId, ...editMsgData}),
+            action: ChatMessageActionEnum.Update,
+          },
+          toUid,
+        );
+        setPrivateMessageStore((prevState) => {
+          const privateChatOfUid = prevState[toUid];
+          const updatedData = privateChatOfUid.map((item) => {
+            if (item.msgId === msgId) {
+              return {...item, ...editMsgData};
+            } else {
+              return item;
+            }
+          });
+          const newState = {...prevState, [toUid]: updatedData};
+          return newState;
+        });
+      } else {
+        console.log("You don't have permission to edit");
+      }
+    } else {
+      //check if user has permission to edit
+      const checkData = messageStore.filter(
+        (item) => item.msgId === msgId && item.uid === localUid,
+      );
+      if (checkData && checkData.length) {
+        const editMsgData = {msg, updatedTimestamp: timeNow()};
+        CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
+          value: JSON.stringify({msgId, ...editMsgData}),
+          action: ChatMessageActionEnum.Update,
+        });
+        setMessageStore((prevState) => {
+          const newState = prevState.map((item) => {
+            if (item.msgId === msgId) {
+              return {...item, ...editMsgData};
+            } else {
+              return item;
+            }
+          });
+          return newState;
+        });
+      } else {
+        console.log("You don't have permission to edit");
+      }
+    }
+  };
+
+  const deleteChatMessage = (msgId: string, toUid?: UidType) => {
+    if (toUid) {
+      const checkData = privateMessageStore[toUid].filter(
+        (item) => item.msgId === msgId && item.uid === localUid,
+      );
+      if (checkData && checkData.length) {
+        const deleteMsgData = {updatedTimestamp: timeNow()};
+        CustomEvents.send(
+          EventNames.PRIVATE_CHAT_MESSAGE,
+          {
+            value: JSON.stringify({msgId, ...deleteMsgData}),
+            action: ChatMessageActionEnum.Delete,
+          },
+          toUid,
+        );
+        setPrivateMessageStore((prevState) => {
+          const privateChatOfUid = prevState[toUid];
+          const updatedData = privateChatOfUid.map((item) => {
+            if (item.msgId === msgId) {
+              return {...item, isDeleted: true, ...deleteMsgData};
+            } else {
+              return item;
+            }
+          });
+          const newState = {...prevState, [toUid]: updatedData};
+          return newState;
+        });
+      } else {
+        console.log("You don't have permission to delete");
+      }
+    } else {
+      //check if user has permission to delete
+      const checkData = messageStore.filter(
+        (item) => item.msgId === msgId && item.uid === localUid,
+      );
+      if (checkData && checkData.length) {
+        const deleteMsgData = {updatedTimestamp: timeNow()};
+        CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
+          value: JSON.stringify({msgId, ...deleteMsgData}),
+          action: ChatMessageActionEnum.Delete,
+        });
+        setMessageStore((prevState) => {
+          const newState = prevState.map((item) => {
+            if (item.msgId === msgId) {
+              return {...item, isDeleted: true, ...deleteMsgData};
+            } else {
+              return item;
+            }
+          });
+          return newState;
+        });
+      } else {
+        console.log("You don't have permission to delete");
+      }
     }
   };
 
@@ -197,6 +460,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         messageStore,
         privateMessageStore,
         sendChatMessage,
+        editChatMessage,
+        deleteChatMessage,
       }}>
       {props.children}
     </ChatMessagesContext.Provider>

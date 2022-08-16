@@ -38,6 +38,8 @@ export {
   default as useSendMessage,
   MESSAGE_TYPE,
 } from '../src/utils/useSendMessage';
+export {default as useEditMessage} from '../src/utils/useEditMessage';
+export {default as useDeleteMessage} from '../src/utils/useDeleteMessage';
 export {controlMessageEnum} from '../src/components/ChatContext';
 export {
   default as useSendControlMessage,

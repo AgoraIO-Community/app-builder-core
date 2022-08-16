@@ -129,9 +129,12 @@ const ChatContainer = (props?: {
               <ChatBubbleComponent
                 isLocal={localUid === message.uid}
                 message={message.msg}
-                timestamp={message.ts}
+                createdTimestamp={message.createdTimestamp}
+                updatedTimestamp={message.updatedTimestamp}
                 uid={message.uid}
                 key={message.ts}
+                msgId={message.msgId}
+                isDeleted={message.isDeleted}
               />
             </>
           ))
@@ -140,9 +143,12 @@ const ChatContainer = (props?: {
             <ChatBubbleComponent
               isLocal={localUid === message.uid}
               message={message.msg}
-              timestamp={message.ts}
+              createdTimestamp={message.createdTimestamp}
+              updatedTimestamp={message.updatedTimestamp}
               uid={message.uid}
               key={message.ts}
+              msgId={message.msgId}
+              isDeleted={message.isDeleted}
             />
           ))
         ) : (
