@@ -63,9 +63,20 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {renderList} = useRenderContext();
   const localUid = useLocalUid();
   const {setSidePanel} = useSidePanel();
-  const {groupActive, selectedChatUserId, setGroupActive} = useChatUIControl();
-  const {setUnreadGroupMessageCount, setUnreadIndividualMessageCount} =
-    useChatNotification();
+  const {
+    groupActive,
+    selectedChatUserId,
+    setGroupActive,
+    setPrivateActive,
+    setSelectedChatUserId,
+  } = useChatUIControl();
+  const {
+    setUnreadGroupMessageCount,
+    setUnreadIndividualMessageCount,
+    unreadPrivateMessageCount,
+    unreadIndividualMessageCount,
+    setUnreadPrivateMessageCount,
+  } = useChatNotification();
   const [messageStore, setMessageStore] = useState<messageStoreInterface[]>([]);
   const [privateMessageStore, setPrivateMessageStore] = useState<{
     [key: string]: messageStoreInterface[];
@@ -91,18 +102,41 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }, [selectedChatUserId]);
 
   React.useEffect(() => {
-    const showMessageNotification = (msg: string, uid: string) => {
+    const showMessageNotification = (
+      msg: string,
+      uid: string,
+      isPrivateMessage: boolean = false,
+    ) => {
+      const uidAsNumber = parseInt(uid);
       Toast.show({
         type: 'success',
         text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
-        text2: renderListRef.current.renderList[parseInt(uid)]?.name
-          ? fromText(renderListRef.current.renderList[parseInt(uid)]?.name)
+        text2: renderListRef.current.renderList[uidAsNumber]?.name
+          ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
           : '',
         visibilityTime: 1000,
         onPress: () => {
+          if (isPrivateMessage) {
+            setUnreadPrivateMessageCount(
+              unreadPrivateMessageCount -
+                (unreadIndividualMessageCount[uidAsNumber] || 0),
+            );
+            setUnreadIndividualMessageCount((prevState) => {
+              return {
+                ...prevState,
+                [uidAsNumber]: 0,
+              };
+            });
+            setGroupActive(false);
+            setSelectedChatUserId(uidAsNumber);
+            setPrivateActive(true);
+          } else {
+            setUnreadGroupMessageCount(0);
+            setPrivateActive(false);
+            setSelectedChatUserId(0);
+            setGroupActive(true);
+          }
           setSidePanel(SidePanelType.Chat);
-          setUnreadGroupMessageCount(0);
-          setGroupActive(true);
         },
       });
     };
@@ -174,7 +208,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
       switch (data?.payload?.action) {
         case ChatMessageActionEnum.Create:
-          showMessageNotification(messageData.msg, data.sender);
+          showMessageNotification(messageData.msg, data.sender, true);
           addMessageToPrivateStore(
             parseInt(data.sender),
             {
