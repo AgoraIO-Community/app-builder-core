@@ -21,11 +21,19 @@ import useUserList from '../utils/useUserList';
 const ChatBubble = (props: ChatBubbleProps) => {
   const {renderList} = useUserList();
   const {primaryColor} = useContext(ColorContext);
-  let {isLocal, message, timestamp, uid} = props;
+  let {
+    isLocal,
+    message,
+    createdTimestamp,
+    uid,
+    isDeleted,
+    msgId,
+    updatedTimestamp,
+  } = props;
   let time =
-    new Date(parseInt(timestamp)).getHours() +
+    new Date(parseInt(createdTimestamp)).getHours() +
     ':' +
-    new Date(parseInt(timestamp)).getMinutes();
+    new Date(parseInt(createdTimestamp)).getMinutes();
   const handleUrl = (url: string) => {
     if (isWeb) {
       window.open(url, '_blank');
@@ -37,7 +45,15 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   return props?.render ? (
-    props.render(isLocal, message, timestamp, uid)
+    props.render(
+      isLocal,
+      message,
+      createdTimestamp,
+      uid,
+      msgId,
+      isDeleted,
+      updatedTimestamp,
+    )
   ) : (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
