@@ -11,7 +11,7 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
+import RtmEngine from 'agora-react-native-rtm';
 import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
 import {RtcContext} from '../../agora-rn-uikit';
@@ -20,7 +20,6 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
-import StorageContext from './StorageContext';
 import {useRenderContext} from 'fpe-api';
 import {
   safeJsonParse,
@@ -33,8 +32,6 @@ import {
 import {EventUtils, EventsQueue, eventMessageType} from '../rtm-events';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
-import CustomEvents, {EventLevel} from '../custom-events';
-import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 
 export enum UserType {
@@ -139,7 +136,9 @@ const RtmConfigure = (props: any) => {
     try {
       await engine.current.setLocalUserAttributes(rtmAttributes);
       timerValueRef.current = 5;
-      joinChannel();
+      await joinChannel();
+      setHasUserJoinedRTM(true);
+      await runQueuedCustomEvents();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -153,8 +152,6 @@ const RtmConfigure = (props: any) => {
       await engine.current.joinChannel(rtcProps.channel);
       timerValueRef.current = 5;
       await getMembers();
-      setHasUserJoinedRTM(true);
-      await runQueuedCustomEvents();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -446,22 +443,12 @@ const RtmConfigure = (props: any) => {
 
   const runQueuedCustomEvents = async () => {
     try {
-      const eventsInQueue = EventsQueue.printQueue();
-      if (eventsInQueue.length !== 0) {
-        for (const queuedEvents of eventsInQueue) {
-          await customEventDispatcher(
-            queuedEvents.data,
-            queuedEvents.uid,
-            queuedEvents.ts,
-          );
-          // EventsQueue.dequeue();
-        }
+      while (!EventsQueue.isEmpty()) {
+        const currEvt = EventsQueue.dequeue();
+        await customEventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
       }
     } catch (error) {
-      throw Error(
-        'CUSTOM_EVENTS_API: error while running queued events ',
-        error,
-      );
+      console.log('CUSTOM_EVENT_API:  error while running queue events', error);
     }
   };
 
@@ -486,7 +473,7 @@ const RtmConfigure = (props: any) => {
     }
     // Step 2: Emit the event
     try {
-      console.log('CUSTOM_EVENT_API:  emiting event: ');
+      console.log('CUSTOM_EVENT_API:  emiting event..: ');
       EventUtils.emitEvent(evt, {payload, sender, ts});
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
@@ -554,8 +541,9 @@ const RtmConfigure = (props: any) => {
 
   const end = async () => {
     callActive
-      ? (await (engine.current as RtmEngine).logout(),
-        await (engine.current as RtmEngine).destroyClient(),
+      ? (RTMEngine.getInstance().destroy(),
+        EventUtils.clear(),
+        setHasUserJoinedRTM(false),
         // setLogin(false),
         console.log('RTM cleanup done'))
       : {};

@@ -30,6 +30,11 @@ class RTMEngine {
     await this.engine.createClient($config.APP_ID);
   }
 
+  private async destroyClientInstance() {
+    await this.engine.logout();
+    await this.engine.destroyClient();
+  }
+
   private constructor() {
     if (RTMEngine._instance) {
       return RTMEngine._instance;
@@ -52,6 +57,14 @@ class RTMEngine {
   }
   get channelUid() {
     return this.channelId;
+  }
+  destroy() {
+    try {
+      this.destroyClientInstance();
+      RTMEngine._instance = null;
+    } catch (error) {
+      console.log('Error destroying instance error: ', error);
+    }
   }
 }
 
