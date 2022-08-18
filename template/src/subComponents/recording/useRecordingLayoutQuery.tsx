@@ -1,8 +1,8 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {useParams} from '../../components/Router';
 
 import {gql, useMutation} from '@apollo/client';
-import {PropsContext} from '../../../agora-rn-uikit';
+import {UidType} from '../../../agora-rn-uikit';
 
 const SET_PRESENTER = gql`
   mutation setPresenter($uid: Int!, $passphrase: String!) {
@@ -19,10 +19,9 @@ const SET_NORMAL = gql`
 function useRecordingLayoutQuery() {
   const [setPresenterQuery] = useMutation(SET_PRESENTER);
   const [setNormalQuery] = useMutation(SET_NORMAL);
-  const {screenShareUid} = useContext(PropsContext).rtcProps;
   const {phrase} = useParams<any>();
 
-  const executePresenterQuery = () => {
+  const executePresenterQuery = (screenShareUid: UidType) => {
     setPresenterQuery({
       variables: {
         uid: screenShareUid,
