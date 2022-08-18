@@ -27,10 +27,16 @@ const EventsQueue = (function () {
     },
     dequeue() {
       if (_eventsQueue.length == 0) return;
-      _eventsQueue.shift();
+      return _eventsQueue.pop();
     },
-    printQueue() {
-      return _eventsQueue;
+    isEmpty() {
+      return _eventsQueue.length === 0;
+    },
+    size() {
+      return _eventsQueue.length;
+    },
+    clear() {
+      _eventsQueue = [];
     },
   };
 })();
