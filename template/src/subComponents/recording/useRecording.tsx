@@ -91,7 +91,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   //const recordingStartedText = useString<boolean>('recordingNotificationLabel');
   const recordingStartedText = (active: boolean) =>
     active ? 'Recording Started' : 'Recording Stopped';
-  const {executePresenterQuery} = useRecordingLayoutQuery();
+  const {executePresenterQuery, executeNormalQuery} = useRecordingLayoutQuery();
   const {localUid} = useContext(ChatContext);
   const {screenShareData} = useScreenContext();
 
@@ -156,9 +156,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
-          if (Object.values(screenShareData).some((item) => item.isActive)) {
-            console.log('Executing presenter query');
-            executePresenterQuery();
+          const activeScreenshareUid = Object.keys(screenShareData).find(
+            (key) => screenShareData[key]?.isActive,
+          );
+          if (activeScreenshareUid) {
+            console.log('screenshare: Executing presenter query');
+            executePresenterQuery(parseInt(activeScreenshareUid));
+          } else {
+            executeNormalQuery();
           }
         }
       })

@@ -245,6 +245,9 @@ const EventUtils = (function () {
       }
       return this;
     },
+    clear() {
+      _events = {};
+    },
     // 1. To add multiple listeners
     // addListeners(evt: string, listeners: any) {
     //   if (Array.isArray(listeners)) {

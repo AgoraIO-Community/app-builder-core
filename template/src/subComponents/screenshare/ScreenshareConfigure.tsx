@@ -99,9 +99,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, []);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
-    if (!isScreenActive) {
+    if (isScreenActive) {
+      console.log('screenshare: Executing presenter query');
       // If screen share is not going on, start the screen share by executing the graphql query
-      executePresenterQuery();
+      executePresenterQuery(screenShareUid);
     } else {
       // If recording is already going on, stop the recording by executing the graphql query.
       executeNormalQuery();
@@ -134,16 +135,28 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         encryption as unknown as any,
       );
       isActive && setScreenshareActive(true);
+
       if (isActive) {
+        // 1. Set local state
+        setScreenShareData((prevState) => {
+          return {
+            ...prevState,
+            [screenShareUid]: {
+              name: renderListRef.current.renderList[screenShareUid]?.name,
+              isActive: true,
+            },
+          };
+        });
+        // 2. Inform everyone in the channel screenshare is actice
         CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
           value: `${true}`,
           level: EventLevel.LEVEL2,
         });
-        //if local user started the screenshare then change layout to pinned
+        //3 . if local user started the screenshare then change layout to pinned
         triggerChangeLayout(true, screenShareUid);
       }
     } catch (e) {
-      console.error("supriya an't start the screen share", e);
+      console.error("can't start the screen share", e);
       executeNormalQuery();
     }
   };
