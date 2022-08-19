@@ -16,6 +16,8 @@ import useMount from './useMount';
 interface StoreInterface {
   token: null | string;
   displayName: null | string;
+  lastActiveMic: null | string;
+  lastActiveCam: null | string;
 }
 
 interface StorageContextInterface {
@@ -26,6 +28,8 @@ interface StorageContextInterface {
 const initStoreValue: StoreInterface = {
   token: null,
   displayName: '',
+  lastActiveMic: null,
+  lastActiveCam: null,
 };
 
 const initStorageContextValue = {

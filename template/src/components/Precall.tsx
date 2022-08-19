@@ -29,6 +29,8 @@ import ColorContext from './ColorContext';
 import Error from '../subComponents/Error';
 import {useWakeLock} from '../components/useWakeLock';
 import mobileAndTabletCheck from '../utils/mobileWebTest';
+import DeviceContext from '../components/DeviceContext';
+import StorageContext from '../components/StorageContext';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -45,8 +47,20 @@ const JoinRoomInputView = (props: any) => {
   } = props;
 
   const {awake, request} = useWakeLock();
+  const {store, setStore} = useContext(StorageContext);
+  const {selectedCam, selectedMic, setSelectedCam, setSelectedMic} =
+    useContext(DeviceContext);
 
   const onSubmit = () => {
+    // store current active mic & cam device id and reload Input devices with these prefernces for next meeting
+    if (setStore) {
+      setStore({
+        ...store,
+        lastActiveMic: selectedMic,
+        lastActiveCam: selectedCam,
+      });
+    }
+
     setCallActive(true);
     // Play a sound to avoid autoblocking in safari
     if (Platform.OS === 'web' || mobileAndTabletCheck()) {

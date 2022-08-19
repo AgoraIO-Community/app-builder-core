@@ -14,6 +14,7 @@ import {Picker, StyleSheet, View, Text} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
+import StorageContext from '../components/StorageContext';
 // import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
@@ -25,9 +26,16 @@ const SelectDevice = () => {
   const {primaryColor} = useContext(ColorContext);
   const {selectedCam, setSelectedCam, selectedMic, setSelectedMic, deviceList} =
     useContext(DeviceContext);
+  const {store, setStore} = useContext(StorageContext);
   // States
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
+  const [micSelection, setMicSelection] = React.useState(
+    () => store?.lastActiveMic,
+  );
+  const [cameraSelection, setCameraSelection] = React.useState(
+    () => store?.lastActiveCam,
+  );
 
   React.useEffect(() => {
     if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
@@ -45,9 +53,11 @@ const SelectDevice = () => {
       <View>
         <Picker
           enabled={!isPickerDisabled}
-          selectedValue={selectedCam}
+          selectedValue={cameraSelection}
           style={[{borderColor: btnTheme}, style.popupPicker]}
-          onValueChange={(itemValue) => setSelectedCam(itemValue)}>
+          onValueChange={(itemValue: string) => {
+            setCameraSelection(itemValue), setSelectedCam(itemValue);
+          }}>
           {deviceList.map((device: any) => {
             if (device.kind === 'videoinput') {
               return (
@@ -62,9 +72,11 @@ const SelectDevice = () => {
         </Picker>
         <Picker
           enabled={!isPickerDisabled}
-          selectedValue={selectedMic}
+          selectedValue={micSelection}
           style={[{borderColor: btnTheme}, style.popupPicker]}
-          onValueChange={(itemValue) => setSelectedMic(itemValue)}>
+          onValueChange={(itemValue: string) => {
+            setMicSelection(itemValue), setSelectedMic(itemValue);
+          }}>
           {deviceList.map((device: any) => {
             if (device.kind === 'audioinput') {
               return (
