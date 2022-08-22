@@ -99,7 +99,6 @@ const Navbar = (props: any) => {
           style={[
             style.recordingView,
             {backgroundColor: $config.SECONDARY_FONT_COLOR},
-            {marginLeft: isMobileOrTablet ? 80 : 0},
           ]}>
           <ImageIcon
             name={'recordingActiveIcon'}
@@ -110,17 +109,19 @@ const Navbar = (props: any) => {
             }}
             color="#FD0845"
           />
-          <Text
-            style={{
-              fontSize: Platform.OS === 'web' ? 16 : 12,
-              color: '#FD0845',
-              fontWeight: '400',
-              alignSelf: 'center',
-              textAlign: 'center',
-              flex: 1,
-            }}>
-            Recording
-          </Text>
+          {!isMobileOrTablet && (
+            <Text
+              style={{
+                fontSize: Platform.OS === 'web' ? 16 : 12,
+                color: '#FD0845',
+                fontWeight: '400',
+                alignSelf: 'center',
+                textAlign: 'center',
+                flex: 1,
+              }}>
+              Recording
+            </Text>
+          )}
         </View>
       ) : (
         <></>
@@ -296,7 +297,7 @@ const style = StyleSheet.create({
     height: 35,
     maxHeight: 30,
     position: 'absolute',
-    left: 10,
+    left: isMobileOrTablet ? '50%' : 10,
     paddingHorizontal: 5,
     flexDirection: 'row',
     alignItems: 'center',
