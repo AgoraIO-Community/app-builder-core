@@ -95,14 +95,13 @@ const VideoCallScreen = () => {
         components.BottombarComponent = data?.components?.videoCall.bottomBar;
       }
 
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall.topBar &&
-      //   typeof data?.components?.videoCall.topBar !== 'object' &&
-      //   isValidReactComponent(data?.components?.videoCall.topBar)
-      // ) {
-      //   components.TopbarComponent = data?.components?.videoCall.topBar;
-      // }
+      if (
+        data?.components?.videoCall.topBar &&
+        typeof data?.components?.videoCall.topBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.topBar)
+      ) {
+        components.TopbarComponent = data?.components?.videoCall.topBar;
+      }
 
       if (
         data?.components?.videoCall.participantsPanel &&
