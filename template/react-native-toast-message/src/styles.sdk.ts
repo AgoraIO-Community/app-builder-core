@@ -9,7 +9,7 @@ export default StyleSheet.create({
     right: 0
   },
   top: {
-    top: 0
+    top: 30
   },
   bottom: {
     bottom: 0
