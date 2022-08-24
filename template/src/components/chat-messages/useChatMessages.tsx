@@ -32,14 +32,14 @@ enum ChatMessageActionEnum {
 interface ChatMessagesProviderProps {
   children: React.ReactNode;
 }
-interface messageInterface {
+export interface messageInterface {
   createdTimestamp: number;
   updatedTimestamp?: number;
   msg: string;
   msgId: string;
   isDeleted: boolean;
 }
-interface messageStoreInterface extends messageInterface {
+export interface messageStoreInterface extends messageInterface {
   uid: UidType;
 }
 
