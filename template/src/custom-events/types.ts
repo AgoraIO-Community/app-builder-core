@@ -15,12 +15,12 @@ interface IEventPayloadBase {
 
 interface IEventPayloadWithoutAttributes extends IEventPayloadBase {
   level?: never;
-  value: string;
+  value: any;
 }
 
 interface IEventPayloadWithAttributes extends IEventPayloadBase {
   level: 2 | 3;
-  value: string;
+  value: any;
 }
 
 export type EventPayload =
@@ -40,7 +40,7 @@ export enum EventLevel {
 interface dataPayload {
   action: string;
   level: 1 | 2 | 3;
-  value: string;
+  value: any;
 }
 interface EvtCbPayload {
   payload: dataPayload;
