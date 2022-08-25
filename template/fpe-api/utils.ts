@@ -57,4 +57,13 @@ export {
 export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';
 
 //export common function
-export * from '../src/utils/common';
+export {
+  hasBrandLogo,
+  isAndroid,
+  isArray,
+  isIOS,
+  isValidReactComponent,
+  isWeb,
+  shouldAuthenticate,
+} from '../src/utils/common';
+export {useLocalUid} from '../agora-rn-uikit';

@@ -46,3 +46,7 @@ export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScree
 
 //Sidepanel buttons
 export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
+export {
+  ImageIcon as UiKitImageIcon,
+  MaxVideoView as UiKitMaxVideoView,
+} from '../agora-rn-uikit';

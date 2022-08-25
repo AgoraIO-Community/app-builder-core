@@ -19,6 +19,7 @@ import {
 } from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
+export type {RenderInterface, RenderStateInterface, UidType};
 export type {
   ChatTextInputProps,
   ChatSendButtonProps,
