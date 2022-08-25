@@ -27,8 +27,17 @@ import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useFpe} from 'fpe-api';
 import {UidType} from '../../agora-rn-uikit';
+import {ChatBubbleProps} from './ChatContext';
+import {
+  ChatTextInputProps,
+  ChatSendButtonProps,
+} from '../subComponents/ChatInput';
 
-const Chat = () => {
+const Chat = (props?: {
+  chatBubble?: React.ComponentType<ChatBubbleProps>;
+  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+}) => {
   // commented for v1 release
   // const groupChatLabel = useString('groupChatLabel')();
   // const privateChatLabel = useString('privateChatLabel')();
@@ -190,12 +199,12 @@ const Chat = () => {
         </View>
         {groupActive ? (
           <>
-            <ChatContainer privateActive={privateActive} />
+            <ChatContainer {...props} />
             <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
             <View>
               <View style={style.chatInputContainer}>
                 <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
-                <ChatInput />
+                <ChatInput {...props} />
               </View>
             </View>
           </>
@@ -205,7 +214,7 @@ const Chat = () => {
               <ChatParticipants selectUser={selectUser} />
             ) : (
               <>
-                <ChatContainer selectPrivate={selectPrivate} />
+                <ChatContainer {...props} />
                 <View
                   style={[style.chatInputLineSeparator, {marginBottom: 0}]}
                 />
@@ -214,7 +223,7 @@ const Chat = () => {
                     <View
                       style={[style.chatInputLineSeparator, {opacity: 0.3}]}
                     />
-                    <ChatInput />
+                    <ChatInput {...props} />
                   </View>
                 </View>
               </>

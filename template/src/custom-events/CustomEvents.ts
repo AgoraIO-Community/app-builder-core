@@ -19,11 +19,9 @@ import {TEventCallback, EventSourceEnum} from './types';
 import {adjustUID} from '../rtm/utils';
 
 class CustomEvents {
-  private engine!: RtmEngine;
   private source: EventSourceEnum = EventSourceEnum.core;
 
   constructor(source?: EventSourceEnum) {
-    this.engine = RTMEngine.getInstance().engine;
     if (source) {
       this.source = source;
     }
@@ -37,11 +35,11 @@ class CustomEvents {
    * @api private
    */
   private _persist = async (evt: string, payload: any) => {
+    const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
     try {
-      const localUserId = RTMEngine.getInstance().localUid;
       const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
       // Step 1: Call RTM API to update local attributes
-      await this.engine.addOrUpdateLocalUserAttributes([rtmAttribute]);
+      await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
     } catch (error) {
       console.log(
         'CUSTOM_EVENT_API error occured while updating the value ',
@@ -86,6 +84,7 @@ class CustomEvents {
    */
   private _send = async (rtmPayload: any, toUid?: ToOptions) => {
     const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
+    const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
 
     const text = JSON.stringify({
       type: eventMessageType.CUSTOM_EVENT,
@@ -100,7 +99,7 @@ class CustomEvents {
       console.log('CUSTOM_EVENT_API: case 1 executed');
       try {
         const channelId = RTMEngine.getInstance().channelUid;
-        await this.engine.sendMessageByChannelId(channelId, text);
+        await rtmEngine.sendMessageByChannelId(channelId, text);
       } catch (error) {
         console.log('CUSTOM_EVENT_API: send event case 1 error : ', error);
         throw error;
@@ -111,7 +110,7 @@ class CustomEvents {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
       const adjustedUID = adjustUID(to);
       try {
-        await this.engine.sendMessageToPeer({
+        await rtmEngine.sendMessageToPeer({
           peerId: `${adjustedUID}`,
           offline: false,
           text,
@@ -128,7 +127,7 @@ class CustomEvents {
       try {
         for (const uid of to) {
           const adjustedUID = adjustUID(uid);
-          await this.engine.sendMessageToPeer({
+          await rtmEngine.sendMessageToPeer({
             peerId: `${adjustedUID}`,
             offline: false,
             text,
@@ -197,7 +196,7 @@ class CustomEvents {
    *  - If 'to' is empty this method sends channel message.
    *
    *
-   * @param {String} evt Name of the event to remove the listener from.
+   * @param {String} evt  Name of the event to register on which listeners are added
    * @param {EventPayload} payload contains action, level, value metrics.
    * - action: {string}
    * - level: 1 | 2 | 3

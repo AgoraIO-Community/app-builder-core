@@ -164,10 +164,6 @@ if (LOG_ENABLED) {
   AgoraRTC.disableLogUpload();
 }
 
-interface CustomEvents {
-  ScreenshareStopped: callbackType;
-}
-
 export default class RtcEngine {
   public appId: string;
   // public AgoraRTC: any;
@@ -693,6 +689,8 @@ export default class RtcEngine {
           break;
         case RnEncryptionEnum.SM4128ECB:
           mode = 'sm4-128-ecb';
+        default:
+          mode = 'none';
       }
     } else {
       mode = 'none';
@@ -708,7 +706,7 @@ export default class RtcEngine {
     },
   ): Promise<void> {
     let mode: EncryptionMode;
-    mode = this.getEncryptionMode(enabled, config.encryptionMode);
+    mode = this.getEncryptionMode(enabled, config?.encryptionMode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
@@ -804,20 +802,22 @@ export default class RtcEngine {
       try {
         console.log('[screenshare]: creating stream');
 
-        let mode: EncryptionMode;
-        mode = this.getEncryptionMode(true, encryption.mode);
-        try {
-          /**
-           * Since version 4.7.0, if client leaves a call
-           * and joins again the encryption needs to be
-           * set again
-           */
-          await this.screenClient.setEncryptionConfig(
-            mode,
-            encryption.screenKey,
-          );
-        } catch (e) {
-          console.log('e: Encryption for screenshare failed', e);
+        if (encryption && encryption.screenKey && encryption.mode) {
+          let mode: EncryptionMode;
+          mode = this.getEncryptionMode(true, encryption?.mode);
+          try {
+            /**
+             * Since version 4.7.0, if client leaves a call
+             * and joins again the encryption needs to be
+             * set again
+             */
+            await this.screenClient.setEncryptionConfig(
+              mode,
+              encryption.screenKey,
+            );
+          } catch (e) {
+            console.log('e: Encryption for screenshare failed', e);
+          }
         }
 
         const screenTracks = await AgoraRTC.createScreenVideoTrack(

@@ -19,6 +19,7 @@ import {
 } from '../agora-rn-uikit';
 import {i18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
+export type {RenderInterface, RenderStateInterface, UidType};
 export type {
   ChatTextInputProps,
   ChatSendButtonProps,
@@ -84,7 +85,7 @@ export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
-  //topBar?: React.ComponentType;
+  topBar?: React.ComponentType;
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;

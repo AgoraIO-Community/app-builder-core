@@ -381,7 +381,7 @@ class Toast extends Component {
         style={[
           baseStyle,
           style,
-          { zIndex: 100, display: this.state.isVisible ? 'flex' : 'none', backgroundColor:'red' }
+          { zIndex: 100, display: this.state.isVisible ? 'flex' : 'none' }
         ]} //added zindex
         {...this.panResponder.panHandlers}>
         {this.renderContent(this.props)}

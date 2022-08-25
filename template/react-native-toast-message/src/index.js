@@ -353,14 +353,14 @@ class Toast extends Component {
 
     const translateY = animation.interpolate({
       inputRange: [0, 1, 2],
-      outputRange: [0, 1, 0]
+      outputRange
     });
 
     return [
       styles.base,
       styles[position],
       {
-        opacity: translateY
+        transform: [{ translateY }]
       }
     ];
   }
@@ -378,11 +378,7 @@ class Toast extends Component {
       <Animated.View
         testID='animatedView'
         onLayout={this.onLayout}
-        style={[
-          baseStyle,
-          style,
-          { zIndex: 100, display: this.state.isVisible || this.state.inProgress ? 'flex' : 'none' }
-        ]} //added zindex
+        style={[baseStyle, style, { zIndex: 100 }]} //added zindex
         {...this.panResponder.panHandlers}>
         {this.renderContent(this.props)}
       </Animated.View>

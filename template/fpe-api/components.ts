@@ -18,7 +18,12 @@ export {
   ParticipantsView,
   Controls,
   ControlsComponentsArray,
+  Navbar,
+  NavBarComponentsArray,
   ChatBubble,
+  ChatSendButton,
+  ChatTextInput,
+  Chat,
 } from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';
@@ -41,3 +46,7 @@ export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScree
 
 //Sidepanel buttons
 export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
+export {
+  ImageIcon as UiKitImageIcon,
+  MaxVideoView as UiKitMaxVideoView,
+} from '../agora-rn-uikit';

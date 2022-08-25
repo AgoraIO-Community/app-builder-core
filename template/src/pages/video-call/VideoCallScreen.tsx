@@ -95,14 +95,13 @@ const VideoCallScreen = () => {
         components.BottombarComponent = data?.components?.videoCall.bottomBar;
       }
 
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall.topBar &&
-      //   typeof data?.components?.videoCall.topBar !== 'object' &&
-      //   isValidReactComponent(data?.components?.videoCall.topBar)
-      // ) {
-      //   components.TopbarComponent = data?.components?.videoCall.topBar;
-      // }
+      if (
+        data?.components?.videoCall.topBar &&
+        typeof data?.components?.videoCall.topBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.topBar)
+      ) {
+        components.TopbarComponent = data?.components?.videoCall.topBar;
+      }
 
       if (
         data?.components?.videoCall.participantsPanel &&
@@ -128,13 +127,17 @@ const VideoCallScreen = () => {
   });
 
   useEffect(() => {
-    new Promise((res) =>
-      rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
-        res(devices);
-      }),
-    ).then((devices: MediaDeviceInfo[]) => {
-      SDKEvents.emit('join', meetingTitle, devices, isHost);
-    });
+    /**
+     * Commenting this code as getDevices API is web only
+     * The below code fails on native app
+     */
+    // new Promise((res) =>
+    //   rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+    //     res(devices);
+    //   }),
+    // ).then((devices: MediaDeviceInfo[]) => {
+    //   SDKEvents.emit('join', meetingTitle, devices, isHost);
+    // });
   }, []);
 
   return VideocallComponent ? (

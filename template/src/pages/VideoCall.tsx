@@ -202,12 +202,12 @@ const VideoCall: React.FC = () => {
                 <DeviceConfigure>
                   <ChatUIControlProvider>
                     <ChatNotificationProvider>
-                      <ChatMessagesProvider>
-                        <SidePanelProvider
-                          value={{
-                            sidePanel,
-                            setSidePanel,
-                          }}>
+                      <SidePanelProvider
+                        value={{
+                          sidePanel,
+                          setSidePanel,
+                        }}>
+                        <ChatMessagesProvider>
                           <ScreenShareProvider>
                             <RtmConfigure
                               setRecordingActive={setRecordingActive}
@@ -261,8 +261,8 @@ const VideoCall: React.FC = () => {
                               </UserPreferenceProvider>
                             </RtmConfigure>
                           </ScreenShareProvider>
-                        </SidePanelProvider>
-                      </ChatMessagesProvider>
+                        </ChatMessagesProvider>
+                      </SidePanelProvider>
                     </ChatNotificationProvider>
                   </ChatUIControlProvider>
                 </DeviceConfigure>
