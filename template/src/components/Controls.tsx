@@ -76,10 +76,12 @@ const Controls = () => {
           <View style={{alignSelf: 'center'}}>
             <LocalAudioMute />
           </View>
-          <View style={{alignSelf: 'center'}}>
-            <LocalVideoMute />
-          </View>
-          {isMobileOrTablet() && (
+          {!$config.AUDIO_ROOM && (
+            <View style={{alignSelf: 'center'}}>
+              <LocalVideoMute />
+            </View>
+          )}
+          {!$config.AUDIO_ROOM && isMobileOrTablet() && (
             <View style={{alignSelf: 'center'}}>
               <LocalSwitchCamera />
             </View>

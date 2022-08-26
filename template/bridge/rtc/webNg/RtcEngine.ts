@@ -209,6 +209,17 @@ export default class RtcEngine {
     this.videoProfile = profile;
   }
 
+  async enableAudio(): Promise<void> {
+    try {
+      let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+      this.localStream.audio = localAudio;
+    } catch (e) {
+      let audioError = e;
+      e.status = {audioError};
+      throw e;
+    }
+  }
+
   async enableVideo(): Promise<void> {
     try {
       let [localAudio, localVideo] =

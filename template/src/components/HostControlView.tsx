@@ -70,9 +70,11 @@ const HostControlView = () => {
         <View style={style.btnContainer}>
           <MuteAllAudioButton />
         </View>
-        <View style={style.btnContainer}>
-          <MuteAllVideoButton />
-        </View>
+        {!$config.AUDIO_ROOM && (
+          <View style={style.btnContainer}>
+            <MuteAllVideoButton />
+          </View>
+        )}
       </View>
     </>
   );
