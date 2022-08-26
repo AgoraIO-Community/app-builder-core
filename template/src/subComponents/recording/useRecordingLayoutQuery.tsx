@@ -20,7 +20,14 @@ function useRecordingLayoutQuery() {
   const [setPresenterQuery] = useMutation(SET_PRESENTER);
   const [setNormalQuery] = useMutation(SET_NORMAL);
   const {phrase} = useParams<any>();
-
+  /**
+   * @param screenShareUid
+   * Default : Grid
+   * Below query changes the layout to vertical and passed UID is maxed view
+   * This should be called only when screenshare is actively going on
+   * and we want that as the main view
+   * https://docs.agora.io/en/cloud-recording/cloud_recording_layout?platform=RESTful
+   */
   const executePresenterQuery = (screenShareUid: UidType) => {
     setPresenterQuery({
       variables: {

@@ -156,11 +156,17 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
-          const activeScreenshareUid = Object.keys(screenShareData).find(
-            (key) => screenShareData[key]?.isActive,
-          );
+          // 3.a Get the most recent screenshare uid
+          const sorted = Object.entries(screenShareData)
+            .filter((el) => el[1]?.ts && el[1].ts > 0 && el[1]?.isActive)
+            .sort((a, b) => b[1].ts - a[1].ts);
+
+          const activeScreenshareUid = sorted.length > 0 ? sorted[0][0] : 0;
           if (activeScreenshareUid) {
-            console.log('screenshare: Executing presenter query');
+            console.log(
+              'screenshare: Executing presenter query for screenuid',
+              activeScreenshareUid,
+            );
             executePresenterQuery(parseInt(activeScreenshareUid));
           } else {
             executeNormalQuery();

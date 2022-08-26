@@ -12,6 +12,7 @@ export interface ScreenShareObjectInterface {
   [key: string | number]: {
     name: string;
     isActive: boolean;
+    ts: number;
   };
 }
 export interface ScreenShareContextInterface {
@@ -33,6 +34,7 @@ const ScreenShareProvider = (props: ScreenShareProviderProps) => {
       [rtcProps?.screenShareUid]: {
         name: '',
         isActive: false,
+        ts: 0,
       },
     });
 
