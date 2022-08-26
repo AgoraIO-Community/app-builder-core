@@ -1,3 +1,14 @@
+/*
+********************************************
+ Copyright © 2022 Agora Lab, Inc., all rights reserved.
+ AppBuilder and all associated components, source code, APIs, services, and documentation 
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
+ Use without a license or in violation of any license terms and conditions (including use for 
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
+ information visit https://appbuilder.agora.io. 
+*********************************************
+*/
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {RtcContext, PropsContext, UidType} from '../../../agora-rn-uikit';
 import {ScreenshareContext} from './useScreenshare';
@@ -14,14 +25,6 @@ import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
-
-function usePrevious<T = any>(value: any) {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -76,7 +79,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: true,
-                ts: data.payload.value || -1,
+                ts: data.payload.value || 0,
               },
             };
           });
@@ -90,7 +93,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: false,
-                ts: data.payload.value || -1,
+                ts: data.payload.value || 0,
               },
             };
           });
@@ -111,7 +114,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       executeNormalQuery();
       CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
         action: EventActions.SCREENSHARE_STOPPED,
-        value: -1,
+        value: 0,
         level: EventLevel.LEVEL2,
       });
       setScreenShareData((prevState) => {
@@ -120,7 +123,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           [screenShareUid]: {
             ...prevState[screenShareUid],
             isActive: false,
-            ts: -1,
+            ts: 0,
           },
         };
       });
