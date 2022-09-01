@@ -26,10 +26,6 @@ const CommonLogo: React.FC = () => {
 export default CommonLogo;
 const style = StyleSheet.create({
   nav: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginRight: 'auto',
   },
 });

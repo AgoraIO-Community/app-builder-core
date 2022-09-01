@@ -17,17 +17,20 @@ import {
   StyleSheet,
   Text,
   TextStyle,
+  Image,
+  View,
 } from 'react-native';
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
 
 export interface ButtonProps extends PressableProps {
   text?: string;
+  icon?: string;
 }
 
 export default function PrimaryButton(props: ButtonProps) {
   const {primaryColor} = useContext(ColorContext);
-  const {children, ...otherProps} = props;
+  const {children, icon, ...otherProps} = props;
   return (
     <Pressable
       style={[
@@ -35,20 +38,18 @@ export default function PrimaryButton(props: ButtonProps) {
         {backgroundColor: props.disabled ? primaryColor + '80' : primaryColor},
       ]}
       {...otherProps}>
-      <>
-        {props.text ? (
+      <View style={styles.container}>
+        {icon && <Image style={styles.icon} source={{uri: icon}} />}
+        {props.text && (
           <Text
             style={[
               styles.primaryButtonText as StyleProp<TextStyle>,
-              {color: '#fff'},
+              {color: '#fff', width: 'auto'},
             ]}>
             {props.text}
           </Text>
-        ) : (
-          <></>
         )}
-        {children}
-      </>
+      </View>
     </Pressable>
   );
 }
@@ -56,4 +57,14 @@ export default function PrimaryButton(props: ButtonProps) {
 const styles = StyleSheet.create({
   primaryButton,
   primaryButtonText,
+  icon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
