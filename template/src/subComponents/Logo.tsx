@@ -20,7 +20,7 @@ export default function Logo() {
   const history = useHistory();
 
   return (
-    <TouchableOpacity onPress={() => history.replace('/')} style={styles.marginAuto}>
+    <TouchableOpacity onPress={() => history.replace('/')}>
       <Image
         source={{uri: $config.LOGO}}
         style={styles.logo}
@@ -32,8 +32,8 @@ export default function Logo() {
 
 const styles = StyleSheet.create({
   logo: {
-    width: '100%',
-    height: '100%',
+    minWidth: 60,
+    minHeight: 30,
   },
   marginAuto: {
     width: '30%',
@@ -41,6 +41,5 @@ const styles = StyleSheet.create({
     minWidth: 60,
     minHeight: 30,
     // height: 'auto',
-    marginHorizontal: 'auto',
   },
 });
