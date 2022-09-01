@@ -117,7 +117,7 @@ const SelectDevice = () => {
     <View>
       <View style={{marginTop: 15}}></View>
       <View>
-        <SelectVideoDevice />
+        {!$config.AUDIO_ROOM && <SelectVideoDevice />}
         <SelectAudioDevice />
       </View>
       <View style={{marginTop: 15}}></View>

@@ -65,9 +65,11 @@ const PreCallLocalMute: React.FC = () => {
       <View style={{alignSelf: 'center'}}>
         <AudioMute />
       </View>
-      <View style={{alignSelf: 'center'}}>
-        <VideoMute />
-      </View>
+      {!$config.AUDIO_ROOM && (
+        <View style={{alignSelf: 'center'}}>
+          <VideoMute />
+        </View>
+      )}
     </View>
   );
 };

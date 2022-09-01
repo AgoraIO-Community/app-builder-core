@@ -54,17 +54,21 @@ const Controls = () => {
           <View style={{alignSelf: 'center'}}>
             <LocalAudioMute />
           </View>
-          <View style={{alignSelf: 'center'}}>
-            <LocalVideoMute />
-          </View>
+          {!$config.AUDIO_ROOM && (
+            <View style={{alignSelf: 'center'}}>
+              <LocalVideoMute />
+            </View>
+          )}
           {isHost && $config.CLOUD_RECORDING && (
             <View style={{alignSelf: 'baseline'}}>
               <Recording />
             </View>
           )}
-          <View style={{alignSelf: 'center'}}>
-            <LocalSwitchCamera />
-          </View>
+          {!$config.AUDIO_ROOM && (
+            <View style={{alignSelf: 'center'}}>
+              <LocalSwitchCamera />
+            </View>
+          )}
         </>
       )}
       <View style={{alignSelf: 'center'}}>
