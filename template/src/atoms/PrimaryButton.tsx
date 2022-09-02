@@ -34,22 +34,12 @@ export default function PrimaryButton(props: ButtonProps) {
   return (
     <Pressable
       style={[
-        styles.primaryButton,
+        styles.container,
         {backgroundColor: props.disabled ? primaryColor + '80' : primaryColor},
       ]}
       {...otherProps}>
-      <View style={styles.container}>
-        {icon && <Image style={styles.icon} source={{uri: icon}} />}
-        {props.text && (
-          <Text
-            style={[
-              styles.primaryButtonText as StyleProp<TextStyle>,
-              {color: '#fff', width: 'auto'},
-            ]}>
-            {props.text}
-          </Text>
-        )}
-      </View>
+      {icon && <Image style={styles.icon} source={{uri: icon}} />}
+      {props.text && <Text style={styles.text}>{props.text}</Text>}
     </Pressable>
   );
 }
@@ -66,5 +56,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 20,
+    borderRadius: 12,
+    minWidth: 250,
+  },
+  text: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });

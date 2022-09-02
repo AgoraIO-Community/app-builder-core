@@ -37,6 +37,7 @@ import isMobileOrTablet from '../utils/isMobileOrTablet';
 import InfoBubble from '../atoms/InfoBubble';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
+import LinkButton from '../atoms/LinkButton';
 
 const mobileOrTablet = isMobileOrTablet();
 const Create = () => {
@@ -98,8 +99,8 @@ const Create = () => {
     'meetingNameInputPlaceholder',
   )();
   const loadingWithDots = 'Loading...';
-  const createMeetingButton = 'Create Meeting';
-  const haveMeetingID = 'Have a Meeting ID?';
+  const createMeetingButton = 'CREATE A MEETING';
+  const haveMeetingID = 'Join with a meeting ID?';
 
   useEffect(() => {
     if (isWeb) {
@@ -259,11 +260,16 @@ const Create = () => {
                       }
                       text={loading ? loadingWithDots : createMeetingButton}
                     />
-                    <HorizontalRule />
-                    <SecondaryButton
+                    {/* <HorizontalRule /> */}
+                    <Spacer size={16} />
+                    <LinkButton
+                      text={haveMeetingID}
+                      onPress={() => history.push('/join')}
+                    />
+                    {/* <SecondaryButton
                       onPress={() => history.push('/join')}
                       text={haveMeetingID}
-                    />
+                    /> */}
                   </View>
                 </View>
               </View>
