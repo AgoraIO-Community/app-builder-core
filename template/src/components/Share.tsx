@@ -332,7 +332,7 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 32,
     fontWeight: '700',
-
+    fontFamily: 'Source Sans Pro',
     color: $config.PRIMARY_FONT_COLOR,
   },
   headline: {
@@ -387,6 +387,7 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
     textAlign: 'left',
     marginBottom: 8,
   },
@@ -409,6 +410,7 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
     // textDecorationLine: 'underline',
   },
   // pstnHolder: {
@@ -439,9 +441,11 @@ const style = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     fontWeight: '400',
+    fontFamily: 'Source Sans Pro',
   },
   pstnTitle: {
     color: $config.PRIMARY_FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
   },
 });
 

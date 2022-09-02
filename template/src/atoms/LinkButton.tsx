@@ -20,5 +20,6 @@ const styles = StyleSheet.create({
   text: {
     color: $config.PRIMARY_COLOR,
     fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
   },
 });

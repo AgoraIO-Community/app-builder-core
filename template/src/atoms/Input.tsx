@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     borderColor: '#CCCCCC',
     color: '#2B2C33',
     fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
     fontSize: 18,
     borderRadius: 8,
   },
@@ -47,8 +48,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 18,
     color: '#040405',
+    fontFamily: 'Source Sans Pro',
   },
   helpText: {
     color: '#CCCCCC',
+    fontFamily: 'Source Sans Pro',
   },
 });

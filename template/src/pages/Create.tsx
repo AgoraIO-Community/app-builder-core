@@ -313,6 +313,7 @@ const style = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: $config.PRIMARY_FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
   },
   headline: {
     fontSize: 18,
@@ -399,6 +400,8 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 16,
     marginRight: 8,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
   },
   separator: {
     height: 5,
