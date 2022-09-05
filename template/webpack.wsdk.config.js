@@ -20,7 +20,6 @@ const baseConfig = {
       name: 'AgoraAppBuilder',
     },
   },
-  watch: isDevelopment
 };
 
 const mappedConfigs = libraryTargets.map((target, _) => {
