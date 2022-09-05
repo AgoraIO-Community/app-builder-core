@@ -127,7 +127,10 @@ const Share = () => {
                 <View style={style.urlContainer}>
                   <View style={{width: '90%'}}>
                     <View style={style.urlHolder}>
-                      <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                         {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
                       </Text>
                     </View>
@@ -184,7 +187,10 @@ const Share = () => {
               <View style={style.urlContainer}>
                 <View style={{width: '90%'}}>
                   <View style={style.urlHolder}>
-                    <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
                       {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
                     </Text>
                   </View>
