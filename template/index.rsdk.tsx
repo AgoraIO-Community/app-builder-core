@@ -12,16 +12,27 @@
 /**
  * @format
  */
-import SDKAppWrapper,{AppBuilderSdkApi,AppBuilderSdkApiInterface} from './src/SDKAppWrapper';
+import SDKAppWrapper, {
+  AppBuilderSdkApi,
+  AppBuilderSdkApiInterface,
+} from './src/SDKAppWrapper';
 import React from 'react';
+import * as RN from 'react-native-web';
+import jsonFile from './config.json';
+
 export * from 'fpe-api';
+export * from 'fpe-implementation';
 
 interface AppBuilderReactSdkInterface extends AppBuilderSdkApiInterface {
   View: React.FC;
 }
 
 const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
-    ...AppBuilderSdkApi,
-    View: SDKAppWrapper,
-  }
+  ...AppBuilderSdkApi,
+  View: SDKAppWrapper,
+};
+
+let config: ConfigInterface = jsonFile as unknown as ConfigInterface;
+
+export {React, RN, config};
 export default AppBuilderReactSdkApi;

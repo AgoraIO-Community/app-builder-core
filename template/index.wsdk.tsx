@@ -1,9 +1,16 @@
 import {AppRegistry} from 'react-native';
-import SDKAppWrapper,{AppBuilderSdkApi,AppBuilderSdkApiInterface} from './src/SDKAppWrapper';
-export * from 'fpe-api';
+import SDKAppWrapper, {
+  AppBuilderSdkApi,
+  AppBuilderSdkApiInterface,
+} from './src/SDKAppWrapper';
+import React from 'react';
+import * as RN from 'react-native-web';
+import jsonFile from './config.json';
 
-interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {
-}
+export * from 'fpe-api';
+export * from 'fpe-implementation';
+
+interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {}
 
 const AppBuilderWebSdkApi: AppBuilderWebSdkInterface = AppBuilderSdkApi;
 
@@ -24,4 +31,7 @@ class AppBuilder extends HTMLElement {
 
 customElements.define('app-builder', AppBuilder);
 
+let config: ConfigInterface = jsonFile as unknown as ConfigInterface;
+
+export {React, RN, config};
 export default AppBuilderWebSdkApi;
