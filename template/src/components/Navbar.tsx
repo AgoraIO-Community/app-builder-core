@@ -24,6 +24,8 @@ import {ImageIcon} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 
+const isMobileOrTablet = mobileAndTabletCheck();
+
 const Navbar = (props: any) => {
   const {messageStore, onlineUsersCount} = useContext(ChatContext);
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
@@ -88,13 +90,11 @@ const Navbar = (props: any) => {
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
         Platform.OS === 'web'
           ? {
-              justifyContent: mobileAndTabletCheck()
-                ? 'space-between'
-                : 'flex-end',
+              justifyContent: isMobileOrTablet ? 'space-between' : 'flex-end',
             }
           : {},
       ]}>
-      {recordingActive && !mobileAndTabletCheck() ? (
+      {recordingActive ? (
         <View
           style={[
             style.recordingView,
@@ -109,17 +109,19 @@ const Navbar = (props: any) => {
             }}
             color="#FD0845"
           />
-          <Text
-            style={{
-              fontSize: Platform.OS === 'web' ? 16 : 12,
-              color: '#FD0845',
-              fontWeight: '400',
-              alignSelf: 'center',
-              textAlign: 'center',
-              flex: 1,
-            }}>
-            Recording
-          </Text>
+          {!isMobileOrTablet && (
+            <Text
+              style={{
+                fontSize: Platform.OS === 'web' ? 16 : 12,
+                color: '#FD0845',
+                fontWeight: '400',
+                alignSelf: 'center',
+                textAlign: 'center',
+                flex: 1,
+              }}>
+              Recording
+            </Text>
+          )}
         </View>
       ) : (
         <></>
@@ -127,7 +129,7 @@ const Navbar = (props: any) => {
       <View
         style={[
           style.roomNameContainer,
-          Platform.OS === 'web' && !mobileAndTabletCheck()
+          Platform.OS === 'web' && !isMobileOrTablet
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
@@ -140,7 +142,7 @@ const Navbar = (props: any) => {
             }}>
             <View>
               <Text style={style.roomNameText}>
-                {mobileAndTabletCheck()
+                {isMobileOrTablet
                   ? title.length > 13
                     ? title.slice(0, 13) + '..'
                     : title
@@ -174,7 +176,7 @@ const Navbar = (props: any) => {
               minWidth:
                 Platform.OS === 'web' && isDesktop
                   ? 300
-                  : mobileAndTabletCheck()
+                  : isMobileOrTablet
                   ? 160
                   : 200,
             },
@@ -295,7 +297,7 @@ const style = StyleSheet.create({
     height: 35,
     maxHeight: 30,
     position: 'absolute',
-    left: 10,
+    left: isMobileOrTablet ? '50%' : 10,
     paddingHorizontal: 5,
     flexDirection: 'row',
     alignItems: 'center',
@@ -310,7 +312,7 @@ const style = StyleSheet.create({
     resizeMode: 'contain',
   },
   btnHolder: {
-    marginHorizontal: mobileAndTabletCheck() ? 2 : 0,
+    marginHorizontal: isMobileOrTablet ? 2 : 0,
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
@@ -376,7 +378,7 @@ const style = StyleSheet.create({
         ? $config.SECONDARY_FONT_COLOR
         : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,
-    paddingHorizontal: mobileAndTabletCheck() ? 0 : 10,
+    paddingHorizontal: isMobileOrTablet ? 0 : 10,
     minHeight: 35,
     borderRadius: 10,
   },
