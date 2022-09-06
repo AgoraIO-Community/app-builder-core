@@ -40,6 +40,7 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 
 const mobileOrTablet = isMobileOrTablet();
+const isLiveStream = $config.EVENT_MODE;
 const Create = () => {
   const {CreateComponent} = useFpe((data) => {
     let components: {
@@ -99,7 +100,9 @@ const Create = () => {
     'meetingNameInputPlaceholder',
   )();
   const loadingWithDots = 'Loading...';
-  const createMeetingButton = 'CREATE A MEETING';
+  const createMeetingButton = isLiveStream
+    ? 'CREATE A STREAM'
+    : 'CREATE A MEETING';
   const haveMeetingID = 'Join with a meeting ID?';
 
   useEffect(() => {
@@ -166,7 +169,9 @@ const Create = () => {
               <Spacer size={20} />
               <View style={style.content}>
                 <View style={style.leftContent}>
-                  <Text style={style.heading}>Create a Meeting</Text>
+                  <Text style={style.heading}>
+                    {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
+                  </Text>
                   {/* <Text style={style.headline}>
                   {$config.LANDING_SUB_HEADING}
                 </Text> */}
@@ -185,10 +190,12 @@ const Create = () => {
                   /> */}
                   <Spacer size={40} />
                   <Input
-                    label="Meeting Name"
+                    label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
                     value={roomTitle}
                     helpText={
-                      'Name and create a meeting room where you want to meet with others'
+                      isLiveStream
+                        ? 'Name and create a livestream  where you want to meet with others'
+                        : 'Name and create a meeting room where you want to meet with others'
                     }
                     placeholder={meetingNameInputPlaceholder}
                     onChangeText={(text) => onChangeRoomTitle(text)}

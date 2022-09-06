@@ -30,6 +30,8 @@ import LinkButton from '../atoms/LinkButton';
 import icons from '../assets/icons';
 import Icon from '../atoms/Icon';
 
+const isLiveStream = $config.EVENT_MODE;
+
 const Share = () => {
   const {FpeShareComponent} = useFpe((data) => {
     let components: {
@@ -74,7 +76,9 @@ const Share = () => {
   const pstnLabel = 'PSTN';
   const pstnNumberLabel = 'Number';
   const pinLabel = 'Pin';
-  const enterMeetingAfterCreateButton = 'Start Meeting (as host)';
+  const enterMeetingAfterCreateButton = isLiveStream
+    ? 'Start Stream (as host)'
+    : 'Start Meeting (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
   const navigateTo = useNavigateTo();
   const enterMeeting = () => {
