@@ -28,7 +28,6 @@ export default Input;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxWidth: 450,
   },
   input: {
     height: 60,
