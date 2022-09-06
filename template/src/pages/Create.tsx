@@ -22,7 +22,7 @@ import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
 import {isWeb, isValidReactComponent} from '../utils/common';
-import {useFpe, useMeetingInfo} from 'fpe-api';
+import {icons, useFpe, useMeetingInfo} from 'fpe-api';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
@@ -30,7 +30,17 @@ import useJoinMeeting from '../utils/useJoinMeeting';
 import SDKEvents from '../utils/SdkEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import Input from '../atoms/Input';
+import Toggle from '../atoms/Toggle';
+import styles from 'react-native-toast-message/src/components/icon/styles';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
+import InfoBubble from '../atoms/InfoBubble';
+import Card from '../atoms/Card';
+import Spacer from '../atoms/Spacer';
+import LinkButton from '../atoms/LinkButton';
 
+const mobileOrTablet = isMobileOrTablet();
+const isLiveStream = $config.EVENT_MODE;
 const Create = () => {
   const {CreateComponent} = useFpe((data) => {
     let components: {
@@ -73,17 +83,27 @@ const Create = () => {
   // const haveMeetingID = useString('haveMeetingID')();
 
   const createdText = 'Created';
-  const hostControlsToggle = (toggle: boolean) =>
-    toggle
-      ? 'Restrict Host Controls (Separate host link)'
-      : 'Restrict Host Controls (Everyone is a Host)';
-  const pstnToggle = (value: boolean) => 'Use PSTN (Join by dialing a number)';
+  const hostControlsToggle = (toggle: boolean) => (
+    <View style={style.infoContainer}>
+      <Text style={style.toggleLabel}>Restrict Host Controls</Text>
+      <InfoBubble text={toggle ? 'Separate host link' : 'Everyone is a Host'} />
+    </View>
+  );
+
+  const pstnToggle = (value: boolean) => (
+    <View style={style.infoContainer}>
+      <Text style={style.toggleLabel}> Use PSTN </Text>
+      <InfoBubble text="Join by dialing a number" />
+    </View>
+  );
   const meetingNameInputPlaceholder = useString(
     'meetingNameInputPlaceholder',
   )();
   const loadingWithDots = 'Loading...';
-  const createMeetingButton = 'Create Meeting';
-  const haveMeetingID = 'Have a Meeting ID?';
+  const createMeetingButton = isLiveStream
+    ? 'CREATE A STREAM'
+    : 'CREATE A MEETING';
+  const haveMeetingID = 'Join with a meeting ID?';
 
   useEffect(() => {
     if (isWeb) {
@@ -144,15 +164,19 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <ScrollView contentContainerStyle={style.main}>
-            <Logo />
-            <View style={style.content}>
-              <View style={style.leftContent}>
-                <Text style={style.heading}>{$config.APP_NAME}</Text>
-                <Text style={style.headline}>
+            <Card>
+              <Logo />
+              <Spacer size={20} />
+              <View style={style.content}>
+                <View style={style.leftContent}>
+                  <Text style={style.heading}>
+                    {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
+                  </Text>
+                  {/* <Text style={style.headline}>
                   {$config.LANDING_SUB_HEADING}
-                </Text>
-                <View style={style.inputs}>
-                  <TextInput
+                </Text> */}
+
+                  {/* <TextInput
                     value={roomTitle}
                     onChangeText={(text) => onChangeRoomTitle(text)}
                     onSubmitEditing={() =>
@@ -163,41 +187,76 @@ const Create = () => {
                       )
                     }
                     placeholder={meetingNameInputPlaceholder}
+                  /> */}
+                  <Spacer size={40} />
+                  <Input
+                    label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
+                    value={roomTitle}
+                    helpText={
+                      isLiveStream
+                        ? 'Name and create a livestream  where you want to meet with others'
+                        : 'Name and create a meeting room where you want to meet with others'
+                    }
+                    placeholder={meetingNameInputPlaceholder}
+                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    onSubmitEditing={() =>
+                      createRoomAndNavigateToShare(
+                        roomTitle,
+                        pstnCheckbox,
+                        hostControlCheckbox,
+                      )
+                    }
                   />
-                  <View style={{paddingVertical: 10}}>
-                    <View style={style.checkboxHolder}>
-                      {$config.EVENT_MODE ? (
-                        <></>
-                      ) : (
-                        <>
-                          <Checkbox
+                  <View style={{paddingVertical: mobileOrTablet ? 20 : 50}}>
+                    {$config.EVENT_MODE ? (
+                      <></>
+                    ) : (
+                      <>
+                        <View style={style.toggleContainer}>
+                          {hostControlsToggle(hostControlCheckbox)}
+                          <Toggle
+                            disabled={$config.EVENT_MODE}
+                            isEnabled={hostControlCheckbox}
+                            toggleSwitch={setHostControlCheckbox}
+                          />
+                        </View>
+                        {/* <Checkbox
                             disabled={$config.EVENT_MODE}
                             value={hostControlCheckbox}
                             onValueChange={setHostControlCheckbox}
                           />
                           <Text style={style.checkboxTitle}>
-                            {/* Restrict Host Controls (Separate host link) */}
+                         
                             {hostControlsToggle(hostControlCheckbox)}
-                          </Text>
-                        </>
-                      )}
-                    </View>
+                          </Text> */}
+                      </>
+                    )}
+                    <View style={style.separator} />
+
                     {$config.PSTN ? (
-                      <View style={style.checkboxHolder}>
-                        <Checkbox
-                          value={pstnCheckbox}
-                          onValueChange={setPstnCheckbox}
+                      <View style={style.toggleContainer}>
+                        {pstnToggle(pstnCheckbox)}
+                        <Toggle
+                          isEnabled={pstnCheckbox}
+                          toggleSwitch={setPstnCheckbox}
                         />
-                        <Text style={style.checkboxTitle}>
-                          {pstnToggle(pstnCheckbox)}
-                        </Text>
                       </View>
                     ) : (
+                      // <View style={style.checkboxHolder}>
+                      //   <Checkbox
+                      //     value={pstnCheckbox}
+                      //     onValueChange={setPstnCheckbox}
+                      //   />
+                      //   <Text style={style.checkboxTitle}>
+                      //     {pstnToggle(pstnCheckbox)}
+                      //   </Text>
+                      // </View>
                       <></>
                     )}
                   </View>
                   <View style={style.btnContainer}>
                     <PrimaryButton
+                      icon={icons.createMeeting}
                       disabled={roomTitle === '' || loading}
                       onPress={() =>
                         createRoomAndNavigateToShare(
@@ -208,15 +267,20 @@ const Create = () => {
                       }
                       text={loading ? loadingWithDots : createMeetingButton}
                     />
-                    <HorizontalRule />
-                    <SecondaryButton
+                    {/* <HorizontalRule /> */}
+                    <Spacer size={16} />
+                    <LinkButton
+                      text={haveMeetingID}
+                      onPress={() => history.push('/join')}
+                    />
+                    {/* <SecondaryButton
                       onPress={() => history.push('/join')}
                       text={haveMeetingID}
-                    />
+                    /> */}
                   </View>
                 </View>
               </View>
-            </View>
+            </Card>
           </ScrollView>
         )
       ) : (
@@ -255,9 +319,8 @@ const style = StyleSheet.create({
   heading: {
     fontSize: 32,
     fontWeight: '700',
-    textAlign: 'center',
     color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
+    fontFamily: 'Source Sans Pro',
   },
   headline: {
     fontSize: 18,
@@ -279,7 +342,7 @@ const style = StyleSheet.create({
     marginVertical: 0,
     flexDirection: 'row',
     marginTop: 0,
-    marginBottom: 20,
+    marginBottom: 2,
     // flex: .2,
     // height: 10,
     // justifyContent: 'center',
@@ -330,6 +393,28 @@ const style = StyleSheet.create({
   btnContainer: {
     width: '100%',
     alignItems: 'center',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F2F2F2',
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  toggleLabel: {
+    color: $config.PRIMARY_FONT_COLOR,
+    fontSize: 16,
+    marginRight: 8,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+  },
+  separator: {
+    height: 5,
+  },
+  infoContainer: {
+    flexDirection: 'row',
   },
 });
 
