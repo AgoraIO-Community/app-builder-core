@@ -1,3 +1,8 @@
+//Common components
+export {default as HorizontalRule} from '../src/atoms/HorizontalRule';
+export {default as PrimaryButton} from '../src/atoms/PrimaryButton';
+export {default as SecondaryButton} from '../src/atoms/SecondaryButton';
+export {default as TextInput} from '../src/atoms/TextInput';
 //Icons
 export {default as icons} from '../src/assets/icons';
 

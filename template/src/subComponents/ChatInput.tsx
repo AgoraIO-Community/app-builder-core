@@ -136,31 +136,30 @@ const ChatInput = (props: {
       data?.components?.videoCall &&
       typeof data?.components?.videoCall === 'object'
     ) {
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall?.chat &&
-      //   typeof data?.components?.videoCall?.chat === 'object'
-      // ) {
-      //   if (
-      //     data?.components?.videoCall?.chat?.chatInput &&
-      //     typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
-      //   ) {
-      //     components.ChatInputComponent =
-      //       data?.components?.videoCall?.chat?.chatInput;
-      //   }
-      //   if (
-      //     data?.components?.videoCall?.chat?.chatSentButton &&
-      //     typeof data?.components?.videoCall?.chat?.chatSentButton !==
-      //       'object' &&
-      //     isValidReactComponent(
-      //       data?.components?.videoCall?.chat?.chatSentButton,
-      //     )
-      //   ) {
-      //     components.ChatSendButtonComponent =
-      //       data?.components?.videoCall?.chat?.chatSentButton;
-      //   }
-      // }
+      if (
+        data?.components?.videoCall?.chat &&
+        typeof data?.components?.videoCall?.chat === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat?.chatInput &&
+          typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+        ) {
+          components.ChatInputComponent =
+            data?.components?.videoCall?.chat?.chatInput;
+        }
+        if (
+          data?.components?.videoCall?.chat?.chatSentButton &&
+          typeof data?.components?.videoCall?.chat?.chatSentButton !==
+            'object' &&
+          isValidReactComponent(
+            data?.components?.videoCall?.chat?.chatSentButton,
+          )
+        ) {
+          components.ChatSendButtonComponent =
+            data?.components?.videoCall?.chat?.chatSentButton;
+        }
+      }
     } else {
       if (props?.chatInput && isValidReactComponent(props.chatInput)) {
         components.ChatInputComponent = props.chatInput;
