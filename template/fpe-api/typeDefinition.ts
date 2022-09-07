@@ -50,9 +50,8 @@ export interface ChatCmpInterface {
   //commented for v1 release
   //extends BeforeAndAfterInterface
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  //commented for v1 release
-  //chatInput?: React.ComponentType<ChatTextInputProps>;
-  //chatSentButton?: React.ComponentType<ChatSendButtonProps>;
+  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatSentButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
 export interface renderComponentInterface {
