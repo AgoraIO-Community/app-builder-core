@@ -35,6 +35,8 @@ import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo
 import Card from '../atoms/Card';
 import Input from '../atoms/Input';
 import LinkButton from '../atoms/LinkButton';
+import Toast from '../../react-native-toast-message';
+import useJoinMeeting from '../utils/useJoinMeeting';
 
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 
@@ -59,14 +61,31 @@ const Join = () => {
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
+
+  const useJoin = useJoinMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
   const createMeeting = () => {
     history.push('/create');
   };
 
   const startCall = async () => {
-    setMeetingInfo(MeetingInfoDefaultValue);
-    navigateTo(phrase);
+    useJoin(phrase)
+      .then(() => {
+        setMeetingInfo(MeetingInfoDefaultValue);
+        navigateTo(phrase);
+      })
+      .catch((error) => {
+        const isInvalidUrl =
+          error?.message.toLowerCase().trim() === 'invalid url' || false;
+        Toast.show({
+          type: 'error',
+          text1: isInvalidUrl ? 'Meeting ID Invalid.' : 'Some Error Occured.',
+          text2: isInvalidUrl
+            ? 'Please enter a valid Meeting ID'
+            : 'Please try again',
+          visibilityTime: 1000,
+        });
+      });
   };
   const {JoinComponent} = useFpe((data) => {
     let components: {

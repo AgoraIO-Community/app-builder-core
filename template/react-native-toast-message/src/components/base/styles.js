@@ -13,7 +13,8 @@ export default StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 2
+    elevation: 2,
+    maxWidth: 600
   },
   borderLeft: {
     borderLeftWidth: 5,
@@ -25,9 +26,12 @@ export default StyleSheet.create({
     alignItems: 'center'
   },
   contentContainer: {
+    paddingLeft: 20,
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'flex-start' // in case of rtl the text will start from the right
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center', // in case of rtl the text will start from the right
+
   },
   trailingIconContainer: {
     width: 40,
@@ -43,14 +47,16 @@ export default StyleSheet.create({
     height: 9
   },
   text1: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 3,
-    width: '100%'
+    fontSize: 15,
+    fontFamily: 'Source Sans Pro',
+    width: '100%',
+    fontWeight: "600",
+    marginRight: 2,
   },
   text2: {
-    fontSize: 10,
-    color: colors.dustyGray,
-    width: '100%'
+    fontSize: 15,
+    fontFamily: 'Source Sans Pro',
+    width: '100%',
+    fontWeight: "400"
   }
 });
