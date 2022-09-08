@@ -23,8 +23,13 @@ const SelectDevice = () => {
   // Contexts
   const {rtcProps} = useContext(PropsContext);
   const {primaryColor} = useContext(ColorContext);
-  const {selectedCam, setSelectedCam, selectedMic, setSelectedMic, deviceList} =
-    useContext(DeviceContext);
+  const {
+    selectedCam,
+    setUserPreferredCamera,
+    selectedMic,
+    setUserPreferredMic,
+    deviceList,
+  } = useContext(DeviceContext);
   // States
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
@@ -47,7 +52,7 @@ const SelectDevice = () => {
           enabled={!isPickerDisabled}
           selectedValue={selectedCam}
           style={[{borderColor: btnTheme}, style.popupPicker]}
-          onValueChange={(itemValue) => setSelectedCam(itemValue)}>
+          onValueChange={(itemValue) => setUserPreferredCamera(itemValue)}>
           {deviceList.map((device: any) => {
             if (device.kind === 'videoinput') {
               return (
@@ -64,7 +69,7 @@ const SelectDevice = () => {
           enabled={!isPickerDisabled}
           selectedValue={selectedMic}
           style={[{borderColor: btnTheme}, style.popupPicker]}
-          onValueChange={(itemValue) => setSelectedMic(itemValue)}>
+          onValueChange={(itemValue) => setUserPreferredMic(itemValue)}>
           {deviceList.map((device: any) => {
             if (device.kind === 'audioinput') {
               return (
