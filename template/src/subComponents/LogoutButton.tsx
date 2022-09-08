@@ -31,7 +31,7 @@ const LogoutButton = () => {
 
   const logout = () => {
     if (setStore) {
-      setStore({token: null, displayName: ''});
+      setStore({...store, token: null, displayName: ''});
     }
     logoutQuery({variables: {token}}).catch((e) => {
       console.log(e);
