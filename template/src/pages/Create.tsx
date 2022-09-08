@@ -93,7 +93,7 @@ const Create = () => {
     }
     SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
       console.log(
-        'DEBUG(aditya)-SDKEvents: joinMeetingWithPhrase event called', phrase
+        'SDKEvents: joinMeetingWithPhrase event called', phrase
       );
       setMeetingInfo(MeetingInfoDefaultValue);
       navigateTo(phrase)

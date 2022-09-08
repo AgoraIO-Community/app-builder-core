@@ -50,7 +50,7 @@ const SDKAppWrapper = () => {
   const [fpe, setFpe] = useState(fpeConfig);
   useEffect(() => {
     SDKEvents.on('addFpe', (sdkFpeConfig) => {
-      console.log('DEBUG(aditya)-SDKEvents: addFpe event called');
+      console.log('SDKEvents: addFpe event called');
       setFpe(sdkFpeConfig);
     });
     // Join event consumed in Create.tsx

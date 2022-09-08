@@ -46,7 +46,7 @@ const SDKEvents: SDKEventsInterface = {
   },
   on: function (eventName, cb) {
     console.log(
-      'DEBUG(aditya)-SDKEvents: event registered:',
+      'SDKEvents: event registered:',
       eventName,
     );
     this.eventsMap[eventName] = cb;
@@ -55,12 +55,12 @@ const SDKEvents: SDKEventsInterface = {
     }
   },
   emit: function (eventName, ...args) {
-    console.log('DEBUG(aditya)-SDKEvents: emit called:', eventName, ...args);
+    console.log('SDKEvents: emit called:', eventName, ...args);
     this.eventsMap[eventName](...args);
     this.eventSubs[eventName] = args;
   },
   off: function (eventName) {
-    console.log('DEBUG(aditya)-SDKEvents: event deregistered:', eventName);
+    console.log('SDKEvents: event deregistered:', eventName);
     this.eventSubs[eventName] = null;
   },
 };
