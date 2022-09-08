@@ -10,6 +10,8 @@ function SuccessToast(props) {
       {...props}
       style={{ borderLeftColor: colors.mantis }}
       leadingIcon={icons.success}
+      text1Style={{ color: colors.black }}
+      text2Style={{ color: colors.black }}
     />
   );
 }

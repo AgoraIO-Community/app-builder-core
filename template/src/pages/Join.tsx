@@ -13,7 +13,9 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
-import Logo from '../subComponents/Logo';
+//import Logo from '../subComponents/Logo';
+import Logo from '../components/common/Logo';
+import Spacer from '../atoms/Spacer';
 import {
   isValidReactComponent,
   shouldAuthenticate,
@@ -27,32 +29,63 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
 import useNavigateTo from '../utils/useNavigateTo';
-import {useFpe} from 'fpe-api';
+import {icons, useFpe} from 'fpe-api';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+import Card from '../atoms/Card';
+import Input from '../atoms/Input';
+import LinkButton from '../atoms/LinkButton';
+import Toast from '../../react-native-toast-message';
+import useJoinMeeting from '../utils/useJoinMeeting';
+
+import isMobileOrTablet from '../utils/isMobileOrTablet';
+
+const isLiveStream = $config.EVENT_MODE;
+const mobileOrTablet = isMobileOrTablet();
 
 const Join = () => {
   //commented for v1 release
   // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
   // const enterMeetingButton = useString('enterMeetingButton')();
   // const createMeetingButton = useString('createMeetingButton')();
-  const meetingIdInputPlaceholder = 'Enter Meeting ID';
-  const enterMeetingButton = 'Enter Meeting';
-  const createMeetingButton = 'Create Meeting';
+  const meetingIdInputPlaceholder = isLiveStream
+    ? 'Enter Stream ID'
+    : 'Enter Meeting ID';
+  const enterMeetingButton = isLiveStream ? 'Enter Stream' : 'Enter Meeting';
+  const createMeetingButton = isLiveStream
+    ? 'Create a Stream'
+    : 'Create a meeting';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
   const navigateTo = useNavigateTo();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
+
+  const useJoin = useJoinMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
   const createMeeting = () => {
     history.push('/create');
   };
 
   const startCall = async () => {
-    setMeetingInfo(MeetingInfoDefaultValue);
-    navigateTo(phrase);
+    useJoin(phrase)
+      .then(() => {
+        setMeetingInfo(MeetingInfoDefaultValue);
+        navigateTo(phrase);
+      })
+      .catch((error) => {
+        const isInvalidUrl =
+          error?.message.toLowerCase().trim() === 'invalid url' || false;
+        Toast.show({
+          type: 'error',
+          text1: isInvalidUrl ? 'Meeting ID Invalid.' : 'Some Error Occured.',
+          text2: isInvalidUrl
+            ? 'Please enter a valid Meeting ID'
+            : 'Please try again',
+          visibilityTime: 1000,
+        });
+      });
   };
   const {JoinComponent} = useFpe((data) => {
     let components: {
@@ -73,40 +106,67 @@ const Join = () => {
     <JoinComponent />
   ) : (
     <ScrollView contentContainerStyle={style.main}>
-      <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
-        {error ? <Error error={error} /> : <></>}
-      </View>
-      <View style={style.content}>
-        <View style={style.leftContent}>
-          <Text style={style.heading}>{$config.APP_NAME}</Text>
-          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-          <View style={style.inputs}>
-            <TextInput
-              value={phrase}
-              onChangeText={(text) => setPhrase(text)}
-              onSubmitEditing={() => startCall()}
-              placeholder={meetingIdInputPlaceholder}
-            />
-            <View style={{height: 10}} />
-            <PrimaryButton
-              disabled={phrase === ''}
-              onPress={() => startCall()}
-              text={enterMeetingButton}
-            />
-            <HorizontalRule />
-            <SecondaryButton
-              onPress={() => createMeeting()}
-              text={createMeetingButton}
-            />
-            {shouldAuthenticate ? (
-              <LogoutButton setError={setError} /> //setError not available in logout?
-            ) : (
-              <></>
-            )}
+      <Card>
+        <View style={style.nav}>
+          <Logo />
+          {error ? <Error error={error} /> : <></>}
+        </View>
+        <Spacer size={20} />
+        <View style={style.content}>
+          <View style={style.leftContent}>
+            <Text style={style.heading}>
+              {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
+            </Text>
+            {/* <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text> */}
+
+            <Spacer size={mobileOrTablet ? 20 : 50} />
+            <View style={style.inputs}>
+              {/* <TextInput
+                value={phrase}
+                onChangeText={(text) => setPhrase(text)}
+                onSubmitEditing={() => startCall()}
+                placeholder={meetingIdInputPlaceholder}
+              /> */}
+              <Input
+                label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
+                value={phrase}
+                helpText={
+                  isLiveStream
+                    ? 'Enter the stream ID here for the meeting you’d like to join'
+                    : 'Enter the meeting ID here for the meeting you’d like to join'
+                }
+                placeholder={meetingIdInputPlaceholder}
+                onChangeText={(text) => setPhrase(text)}
+                onSubmitEditing={() => startCall()}
+              />
+              <Spacer size={mobileOrTablet ? 20 : 50} />
+
+              <PrimaryButton
+                icon={icons.createMeeting}
+                disabled={phrase === ''}
+                onPress={() => startCall()}
+                text={enterMeetingButton}
+              />
+
+              {/* <SecondaryButton
+                onPress={() => createMeeting()}
+                text={createMeetingButton}
+              /> */}
+              <Spacer size={16} />
+              <LinkButton
+                text={createMeetingButton}
+                onPress={() => createMeeting()}
+              />
+
+              {shouldAuthenticate ? (
+                <LogoutButton setError={setError} /> //setError not available in logout?
+              ) : (
+                <></>
+              )}
+            </View>
           </View>
         </View>
-      </View>
+      </Card>
     </ScrollView>
   );
 };
@@ -131,20 +191,24 @@ const style = StyleSheet.create({
   content: {flex: 6, flexDirection: 'row'},
   leftContent: {
     width: '100%',
-    minHeight: 300,
+
     flex: 1,
     justifyContent: 'space-evenly',
-    marginBottom: '15%',
-    marginTop: '8%',
+    // marginBottom: '15%',
+    //marginTop: '8%',
     // marginRight: '5%',
     marginHorizontal: 'auto',
   },
   heading: {
+    // fontSize: 32,
+    // fontWeight: '700',
+    // textAlign: 'center',
+    // color: $config.PRIMARY_FONT_COLOR,
+    // marginBottom: 20,
     fontSize: 32,
     fontWeight: '700',
-    textAlign: 'center',
     color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
+    fontFamily: 'Source Sans Pro',
   },
   headline: {
     fontSize: 18,
@@ -158,7 +222,7 @@ const style = StyleSheet.create({
     width: '100%',
     alignSelf: 'flex-start',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    // justifyContent: 'space-evenly',
   },
 });
 

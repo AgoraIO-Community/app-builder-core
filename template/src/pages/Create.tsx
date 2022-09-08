@@ -82,7 +82,7 @@ const Create = () => {
   // const createMeetingButton = useString('createMeetingButton')();
   // const haveMeetingID = useString('haveMeetingID')();
 
-  const createdText = 'Created';
+  const createdText = 'has been created';
   const hostControlsToggle = (toggle: boolean) => (
     <View style={style.infoContainer}>
       <Text style={style.toggleLabel}>Restrict Host Controls</Text>
@@ -143,7 +143,8 @@ const Create = () => {
         setLoading(false);
         Toast.show({
           type: 'success',
-          text1: createdText + ': ' + roomTitle,
+          text1: roomTitle,
+          text2: createdText,
           visibilityTime: 1000,
         });
         showShareScreen();
