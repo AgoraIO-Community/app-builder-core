@@ -191,6 +191,7 @@ const Create = () => {
                   /> */}
                   <Spacer size={40} />
                   <Input
+                    autoFocus
                     label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
                     value={roomTitle}
                     helpText={

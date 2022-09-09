@@ -129,6 +129,7 @@ const Join = () => {
               /> */}
               <Input
                 label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
+                autoFocus
                 value={phrase}
                 helpText={
                   isLiveStream
