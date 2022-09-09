@@ -33,7 +33,7 @@ import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
-import mobileAndTabletCheck from '../../../src/utils/mobileWebTest';
+import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -235,9 +235,7 @@ export default class RtcEngine {
      */
 
     const audioConfig =
-      Platform.OS == 'web' && mobileAndTabletCheck()
-        ? {bypassWebAudio: true}
-        : {};
+      Platform.OS == 'web' && isMobileOrTablet() ? {bypassWebAudio: true} : {};
     try {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(audioConfig, {
