@@ -16,6 +16,7 @@ module.exports = merge(commons, {
     'react-router': 'react-router',
     'react-router-dom': 'react-router-dom',
     '@apollo/client': '@apollo/client',
+    nanoid: 'nanoid',
   },
   // Main entry point for the web application
   entry: {
@@ -25,9 +26,9 @@ module.exports = merge(commons, {
   output: {
     path: path.resolve(__dirname, `../Builds/react-sdk`),
     filename: 'index.js',
-    library:{
+    library: {
       type: 'commonjs2',
-    } 
+    },
   },
   // watch: isDevelopment
 });

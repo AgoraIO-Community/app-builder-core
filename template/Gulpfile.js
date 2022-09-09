@@ -141,7 +141,18 @@ const general = {
     );
   },
   typescriptFix: () => {
-    return src('../Builds/fpe-api.d.ts')
+    return src(['../Builds/fpe-api.d.ts', './global.d.ts'])
+      .pipe(concat('./fpe-api.d.ts'))
+      .pipe(
+        replace(
+          `declare var $config: ConfigInterface;
+declare module 'test-fpe' {
+  const data: {};
+  export default data;
+}`,
+          ' ',
+        ),
+      )
       .pipe(replace('"agora-rn-uikit"', '"agora-rn-uikit/src/index"'))
       .pipe(dest('../Builds/'));
   },
