@@ -364,7 +364,7 @@ const Navbar = () => {
             }
           : {},
       ]}>
-      {isRecordingActive && !isMobileOrTablet() ? (
+      {isRecordingActive  ? (
         <View
           style={[
             style.recordingView,
@@ -379,7 +379,7 @@ const Navbar = () => {
             }}
             color="#FD0845"
           />
-          <Text
+          {!isMobileOrTablet() && (<Text
             style={{
               fontSize: isWeb ? 16 : 12,
               color: '#FD0845',
@@ -389,7 +389,7 @@ const Navbar = () => {
               flex: 1,
             }}>
             {recordingLabel}
-          </Text>
+          </Text>)}
         </View>
       ) : (
         <></>
@@ -517,7 +517,7 @@ const style = StyleSheet.create({
     height: 35,
     maxHeight: 30,
     position: 'absolute',
-    left: 10,
+    left: isMobileOrTablet() ? '50%' : 10,
     paddingHorizontal: 5,
     flexDirection: 'row',
     alignItems: 'center',
