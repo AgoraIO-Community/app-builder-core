@@ -16,25 +16,30 @@ import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
+import Input from '../../atoms/Input';
 
 const PreCallTextInput: React.FC = () => {
   //commented for v1 release
   // const userNamePlaceholder = useString('userNamePlaceholder')();
   // const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
-  const userNamePlaceholder = 'Display name*';
+  const userNamePlaceholder = 'Enter Your Name';
   const fetchingNamePlaceholder = 'Getting name...';
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched} = useMeetingInfo();
 
   return (
-    <TextInput
+    <Input
+      label="Joining as"
       value={username}
+      autoFocus
       onChangeText={(text) => setUsername(text ? text : '')}
       onSubmitEditing={() => {}}
       placeholder={
         isJoinDataFetched ? userNamePlaceholder : fetchingNamePlaceholder
       }
+      style={{fontWeight: '400', fontSize: 14}}
+      labelStyle={{fontWeight: '400', fontSize: 14}}
       editable={isJoinDataFetched}
     />
   );

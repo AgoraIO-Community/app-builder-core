@@ -15,7 +15,6 @@ import {RtcContext, PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import PreCallLogo from './common/Logo';
 import {useFpe} from 'fpe-api';
 import PreCallLocalMute from './precall/LocalMute';
 import {
@@ -27,6 +26,9 @@ import {
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
+import Logo from './common/Logo';
+import Card from '../atoms/Card';
+import Spacer from '../atoms/Spacer';
 
 const JoinRoomInputView = () => {
   const {JoinButton, Textbox} = useFpe((data) => {
@@ -66,6 +68,74 @@ const JoinRoomInputView = () => {
       <JoinButton />
     </View>
   );
+};
+
+const JoinRoomName = () => {
+  const {JoinButton, Textbox} = useFpe((data) => {
+    let components: {
+      JoinButton: React.ComponentType;
+      Textbox: React.ComponentType;
+    } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+    // }
+    return components;
+  });
+  return <Textbox />;
+};
+
+const JoinRoomButton = () => {
+  const {JoinButton, Textbox} = useFpe((data) => {
+    let components: {
+      JoinButton: React.ComponentType;
+      Textbox: React.ComponentType;
+    } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+    // }
+    return components;
+  });
+  return <JoinButton />;
 };
 
 const Precall = (props: any) => {
@@ -176,8 +246,6 @@ const Precall = (props: any) => {
 
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
 
-  const brandHolder = () => <PreCallLogo />;
-
   const FpePrecallComponent = useFpe((data) => {
     // commented for v1 release
     // if (
@@ -197,17 +265,17 @@ const Precall = (props: any) => {
   ) : (
     <>
       <PrecallBeforeView />
-      <View style={style.main} onLayout={onLayout}>
+      <View style={style.main} onLayout={onLayout} testID="precall-screen">
         {/* Precall screen only changes for audience in Live Stream event */}
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
           <View style={style.preCallContainer}>
-            {brandHolder()}
+            <Logo />
             <MeetingName />
             <JoinRoomInputView />
           </View>
         ) : (
           <>
-            {brandHolder()}
+            <Logo />
             <View style={style.content}>
               <View style={style.upperContainer}>
                 <View
@@ -224,19 +292,26 @@ const Precall = (props: any) => {
                 </View>
                 {/* This view is visible only on WEB view */}
                 {!isMobileView() && (
-                  <View style={style.rightContent}>
-                    <MeetingName />
-                    <View
-                      style={[
-                        {shadowColor: primaryColor},
-                        style.precallPickers,
-                      ]}>
-                      <DeviceSelect />
-                      <View style={{width: '100%'}}>
-                        <JoinRoomInputView />
+                  <Card
+                    style={{
+                      paddingHorizontal: 40,
+                      paddingVertical: 40,
+                      maxWidth: 450,
+                    }}>
+                    <View style={style.rightContent} testID="precall-settings">
+                      <MeetingName />
+                      <Spacer size={50} />
+                      <View>
+                        <JoinRoomName />
+                        <Spacer size={40} />
+                        <DeviceSelect />
+                        <Spacer size={60} />
+                        <View style={{width: '100%'}}>
+                          <JoinRoomButton />
+                        </View>
                       </View>
                     </View>
-                  </View>
+                  </Card>
                 )}
               </View>
             </View>
@@ -282,16 +357,16 @@ const style = StyleSheet.create({
     flex: 3,
   },
   rightContent: {
-    flex: 1,
-    height: '70%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
-    paddingLeft: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: $config.PRIMARY_COLOR,
-    justifyContent: 'center',
+    //flex: 1,
+    // height: '70%',
+    // backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
+    // paddingLeft: 20,
+    // borderRadius: 10,
+    // alignItems: 'center',
+    // borderWidth: 1,
+    // borderStyle: 'solid',
+    // borderColor: $config.PRIMARY_COLOR,
+    // justifyContent: 'center',
   },
   titleFont: {
     textAlign: 'center',
@@ -324,12 +399,12 @@ const style = StyleSheet.create({
     marginVertical: '5%',
   },
   precallPickers: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    justifyContent: 'space-around',
-    marginBottom: '10%',
-    height: '35%',
-    minHeight: 280,
+    // alignItems: 'center',
+    // alignSelf: 'center',
+    // justifyContent: 'space-around',
+    // marginBottom: '10%',
+    // height: '35%',
+    // minHeight: 280,
   },
 });
 
