@@ -1,6 +1,7 @@
 import {gql, useMutation} from '@apollo/client';
 import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import SDKEvents from '../utils/SdkEvents';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel(
@@ -67,6 +68,12 @@ export default function useCreateMeeting() {
         meetingTitle: roomTitle,
         meetingPassphrase: meetingInfoPassPhrase,
       });
+      SDKEvents.emit(
+        'create',
+        meetingInfoPassPhrase.host,
+        meetingInfoPassPhrase.attendee,
+        meetingInfoPassPhrase.pstn,
+      );
     } else {
       throw new Error(`An error occurred in parsing the channel data.`);
     }

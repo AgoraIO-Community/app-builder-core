@@ -9,7 +9,10 @@ export interface userEventsMapInterface {
   create: (
     hostPhrase: string,
     attendeePhrase?: string,
-    pstnNumer?: string,
+    pstnNumer?: {
+      number: string;
+      pin: string;
+    },
   ) => void;
   preJoin: (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
   join: (
@@ -27,7 +30,6 @@ export interface AppBuilderSdkApiInterface {
     userEventName: T,
     callBack: userEventsMapInterface[T],
   ) => void;
-  off: (userEventName: keyof userEventsMapInterface) => void;
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
@@ -40,9 +42,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   createFPE,
   on: (userEventName, cb) => {
     SDKEvents.on(userEventName, cb);
-  },
-  off: (userEventName) => {
-    SDKEvents.off(userEventName);
+    console.log('SDKEvents: Event Registered', userEventName);
   },
 };
 
