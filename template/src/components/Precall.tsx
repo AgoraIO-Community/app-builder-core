@@ -269,51 +269,47 @@ const Precall = (props: any) => {
         {/* Precall screen only changes for audience in Live Stream event */}
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
           <View style={style.preCallContainer}>
-            <Logo />
+            {/* <Logo /> */}
             <MeetingName />
             <JoinRoomInputView />
           </View>
         ) : (
           <>
-            <Logo />
-            <View style={style.content}>
-              <View style={style.upperContainer}>
-                <View
-                  style={[
-                    style.leftContent,
-                    isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
-                  ]}>
-                  <VideoPreview />
-                  <PreCallLocalMute />
-                  <View style={{marginBottom: '10%'}}>
+            {/* <Logo /> */}
+            <View style={style.container}>
+              <View
+                testID="precall-preview"
+                style={[style.leftContent, !isMobileView() && style.boxStyle]}>
+                <VideoPreview />
+                {/* <PreCallLocalMute /> */}
+                {isMobileView() && (
+                  <View testID="precall-mobile-join">
                     {/* This view is visible only on MOBILE view */}
-                    {isMobileView() && <JoinRoomInputView />}
+                    <JoinRoomInputView />
                   </View>
-                </View>
-                {/* This view is visible only on WEB view */}
-                {!isMobileView() && (
-                  <Card
-                    style={{
-                      paddingHorizontal: 40,
-                      paddingVertical: 40,
-                      maxWidth: 450,
-                    }}>
-                    <View style={style.rightContent} testID="precall-settings">
-                      <MeetingName />
-                      <Spacer size={50} />
-                      <View>
-                        <JoinRoomName />
-                        <Spacer size={40} />
-                        <DeviceSelect />
-                        <Spacer size={60} />
-                        <View style={{width: '100%'}}>
-                          <JoinRoomButton />
-                        </View>
-                      </View>
-                    </View>
-                  </Card>
                 )}
               </View>
+
+              {/* This view is visible only on WEB view */}
+              {!isMobileView() ? (
+                <Card testID="precall-settings" style={style.rightContent}>
+                  <View>
+                    <MeetingName />
+                    <Spacer size={50} />
+                    <View>
+                      <JoinRoomName />
+                      <Spacer size={40} />
+                      <DeviceSelect />
+                      <Spacer size={60} />
+                      <View style={{width: '100%'}}>
+                        <JoinRoomButton />
+                      </View>
+                    </View>
+                  </View>
+                </Card>
+              ) : (
+                <View></View>
+              )}
             </View>
           </>
         )}
@@ -327,9 +323,9 @@ const style = StyleSheet.create({
   full: {flex: 1},
   main: {
     flex: 2,
-    // justifyContent: 'space-evenly',
     marginHorizontal: '10%',
     minHeight: 500,
+    justifyContent: 'center',
   },
   preCallContainer: {
     display: 'flex',
@@ -345,28 +341,31 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'column'},
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   leftContent: {
-    flex: 1.3,
+    flex: 2.5,
+    borderRadius: 12,
+    height: '90vh',
+  },
+  boxStyle: {
+    borderColor: '#ffffff',
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    marginRight: 24,
+    borderWidth: 1,
     height: '100%',
   },
-  upperContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    flex: 3,
-  },
   rightContent: {
-    //flex: 1,
-    // height: '70%',
-    // backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
-    // paddingLeft: 20,
-    // borderRadius: 10,
-    // alignItems: 'center',
-    // borderWidth: 1,
-    // borderStyle: 'solid',
-    // borderColor: $config.PRIMARY_COLOR,
-    // justifyContent: 'center',
+    flex: 1,
+    paddingHorizontal: 40,
+    paddingVertical: 40,
+    maxWidth: 450,
   },
   titleFont: {
     textAlign: 'center',
@@ -389,22 +388,6 @@ const style = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  precallControls: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    padding: 10,
-    width: '40%',
-    justifyContent: 'space-around',
-    marginVertical: '5%',
-  },
-  precallPickers: {
-    // alignItems: 'center',
-    // alignSelf: 'center',
-    // justifyContent: 'space-around',
-    // marginBottom: '10%',
-    // height: '35%',
-    // minHeight: 280,
   },
 });
 

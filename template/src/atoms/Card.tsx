@@ -4,8 +4,13 @@ import isMobileOrTablet from '../utils/isMobileOrTablet';
 
 const mobileOrTablet = isMobileOrTablet();
 
-const Card = ({style = {}, children}) => {
-  return <View style={[styles.root, style]}>{children}</View>;
+const Card = (props) => {
+  const {style, children, ...rest} = props;
+  return (
+    <View style={[styles.root, style]} {...rest}>
+      {children}
+    </View>
+  );
 };
 
 export default Card;

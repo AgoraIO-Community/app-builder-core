@@ -11,9 +11,10 @@
 */
 
 import React from 'react';
-import {View} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import useUserList from '../../utils/useUserList';
+import PreCallLocalMute from './LocalMute';
 
 const VideoPreview: React.FC = () => {
   const {renderList, renderPosition} = useUserList();
@@ -25,9 +26,17 @@ const VideoPreview: React.FC = () => {
   }
 
   return (
-    <View style={{borderRadius: 10, flex: 1}}>
+    <View style={styles.container}>
       <MaxVideoView user={renderList[maxUid]} key={maxUid} />
+      <PreCallLocalMute />
     </View>
   );
 };
 export default VideoPreview;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+});
