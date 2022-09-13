@@ -66,4 +66,5 @@ export {
   isWeb,
   shouldAuthenticate,
 } from '../src/utils/common';
+export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';

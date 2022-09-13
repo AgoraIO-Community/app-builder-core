@@ -54,4 +54,8 @@ export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
 export {
   ImageIcon as UiKitImageIcon,
   MaxVideoView as UiKitMaxVideoView,
+  BtnTemplate as UiKitBtnTemplate,
+  ClientRole as UikitClientRole,
+  ChannelProfile as UikitChannelProfile,
 } from '../agora-rn-uikit';
+export type {BtnTemplateInterface as UikitBtnTemplateInterface} from '../agora-rn-uikit';
