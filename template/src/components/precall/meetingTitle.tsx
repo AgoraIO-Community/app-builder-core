@@ -4,23 +4,16 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 const MeetingTitle: React.FC = () => {
   const {meetingTitle} = useMeetingInfo();
-  return (
-    <>
-      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-        {meetingTitle}
-      </Text>
-      <View style={{height: 50}} />
-    </>
-  );
+  return <Text style={[style.titleHeading]}>{meetingTitle}</Text>;
 };
 
 export default MeetingTitle;
 
 const style = StyleSheet.create({
   titleHeading: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
-    textAlign: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
+    color: $config.PRIMARY_FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
   },
 });

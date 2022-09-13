@@ -1,22 +1,40 @@
-import {StyleSheet, Text, TextInput, TextInputProps, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+  Platform,
+} from 'react-native';
 import {textInput} from '../../theme.json';
 import React from 'react';
 
 interface InputProps extends TextInputProps {
   helpText?: string;
   label?: string;
+  labelStyle?: {};
+  autoFocus?: boolean;
 }
 const Input = (props: InputProps) => {
-  const {style, helpText, label, ...otherProps} = props;
+  const {style, labelStyle, helpText, label, autoFocus, ...otherProps} = props;
+  const [isFocussed, setIsFocussed] = React.useState(() =>
+    autoFocus ? true : false,
+  );
   return (
     <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <TextInput
-        style={[style, styles.input]}
+        style={[
+          styles.input,
+          style,
+          {borderColor: isFocussed ? $config.PRIMARY_COLOR : '#666666'},
+        ]}
         placeholderTextColor="#BCBCBC"
         autoCorrect={false}
-        {...otherProps}
         autoFocus
+        {...otherProps}
+        onFocus={() => setIsFocussed(true)}
+        onBlur={() => setIsFocussed(false)}
       />
       {helpText && <Text style={styles.helpText}>{props.helpText}</Text>}
     </View>
@@ -42,6 +60,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontSize: 18,
     borderRadius: 8,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
   },
   label: {
     fontWeight: '600',

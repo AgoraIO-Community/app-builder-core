@@ -61,15 +61,15 @@ const PreCallLocalMute: React.FC = () => {
     return components;
   });
   return (
-    <View style={style.precallControls}>
-      <View style={{alignSelf: 'center'}}>
-        <AudioMute />
-      </View>
+    <View style={style.precallControls} testID="precall-controls">
       {!$config.AUDIO_ROOM && (
-        <View style={{alignSelf: 'center'}}>
+        <View style={{alignSelf: 'center', marginRight: 30}}>
           <VideoMute />
         </View>
       )}
+      <View style={{alignSelf: 'center'}}>
+        <AudioMute />
+      </View>
     </View>
   );
 };
@@ -83,10 +83,7 @@ export default PreCallLocalMute;
 const style = StyleSheet.create({
   precallControls: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    padding: 10,
-    width: '40%',
-    justifyContent: 'space-around',
-    marginVertical: '5%',
+    paddingVertical: 30,
+    justifyContent: 'center',
   },
 });
