@@ -6,16 +6,32 @@ interface IconProps {
   onPress?: () => void;
   width?: number;
   height?: number;
+  label?: string;
 }
 
-const Icon = ({uri, onPress, width = 20, height = 20}: IconProps) => {
+const Icon = ({uri, onPress, width = 20, height = 20, label}: IconProps) => {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <Image style={{width, height}} source={{uri: uri}} />
+    <TouchableOpacity onPress={onPress} style={styles.container}>
+      <Image
+        style={{width, height, tintColor: $config.PRIMARY_COLOR}}
+        source={{uri: uri}}
+      />
+      {label && <Text style={styles.label}>{label}</Text>}
     </TouchableOpacity>
   );
 };
 
 export default Icon;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  label: {
+    color: $config.PRIMARY_COLOR,
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: 'Source Sans Pro',
+  },
+  container: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+});

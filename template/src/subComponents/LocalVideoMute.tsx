@@ -41,13 +41,14 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const localMute = useMuteToggleLocal();
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
-  const videoLabel = 'Video';
+
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {
     localMute(MUTE_LOCAL_TYPE.video);
   };
   const isVideoEnabled = local.video === ToggleState.enabled;
+  const videoLabel = isVideoEnabled ? 'Stop Video' : 'Start Video';
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: isVideoEnabled ? 'videocam' : 'videocamOff',
@@ -57,6 +58,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     btnTemplateProps.style = Styles.fullWidthButton as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = videoLabel;
   }
 

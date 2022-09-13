@@ -41,7 +41,6 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const localMute = useMuteToggleLocal();
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
-  const audioLabel = 'Audio';
 
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
@@ -50,6 +49,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     localMute(MUTE_LOCAL_TYPE.audio);
   };
   const isAudioEnabled = local.audio === ToggleState.enabled;
+  const audioLabel = isAudioEnabled ? 'Mute' : 'Unmute';
 
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
@@ -60,6 +60,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     btnTemplateProps.style = Styles.fullWidthButton as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = audioLabel;
   }
 
