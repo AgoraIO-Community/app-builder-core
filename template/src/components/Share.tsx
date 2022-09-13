@@ -145,36 +145,17 @@ const Share = () => {
                       flexDirection: 'row',
                       alignSelf: 'center',
                     }}>
-                    {/* <View
-                      style={{
-                        backgroundColor: $config.PRIMARY_COLOR + '80',
-                        width: 1,
-                        height: 'auto',
-                        marginRight: 15,
-                      }}
-                    /> */}
-                    <Icon
-                      uri={icons.copy}
-                      width={17}
-                      height={20}
+                    <BtnTemplate
+                      style={style.clipboardIcon}
+                      color={$config.PRIMARY_COLOR}
+                      name={'clipboard'}
                       onPress={() =>
                         copyShareLinkToClipboard(
                           SHARE_LINK_CONTENT_TYPE.ATTENDEE,
                         )
                       }
                     />
-                    {/* <View style={style.clipboardIconHolder}>
-                      <BtnTemplate
-                        style={style.clipboardIcon}
-                        color={$config.PRIMARY_COLOR}
-                        name={'clipboard'}
-                        onPress={() =>
-                          copyShareLinkToClipboard(
-                            SHARE_LINK_CONTENT_TYPE.ATTENDEE,
-                          )
-                        }
-                      />
-                    </View> */}
+                    {/* </View> */}
                   </View>
                 </View>
                 <Text style={style.helpText}>
@@ -206,24 +187,14 @@ const Share = () => {
                     flexDirection: 'row',
                     alignSelf: 'center',
                   }}>
-                  <Icon
-                    uri={icons.copy}
-                    width={17}
-                    height={20}
+                  <BtnTemplate
+                    style={style.clipboardIcon}
+                    color={$config.PRIMARY_COLOR}
+                    name={'clipboard'}
                     onPress={() =>
                       copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
                     }
                   />
-                  {/* <View style={style.clipboardIconHolder}>
-                    <BtnTemplate
-                      style={style.clipboardIcon}
-                      color={$config.PRIMARY_COLOR}
-                      name={'clipboard'}
-                      onPress={() =>
-                        copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
-                      }
-                    />
-                  </View> */}
                 </View>
               </View>
               <Text style={style.helpText}>
@@ -255,25 +226,14 @@ const Share = () => {
                     </View>
                   </View>
                   <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
-                    <Icon
-                      uri={icons.copy}
-                      width={17}
-                      height={20}
+                    <BtnTemplate
+                      style={style.clipboardIcon}
+                      color={$config.PRIMARY_COLOR}
+                      name={'clipboard'}
                       onPress={() =>
                         copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
                       }
                     />
-
-                    {/* <View style={style.clipboardIconHolder}>
-                      <BtnTemplate
-                        style={style.clipboardIcon}
-                        color={$config.PRIMARY_COLOR}
-                        name={'clipboard'}
-                        onPress={() =>
-                          copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
-                        }
-                      />
-                    </View> */}
                   </View>
                 </View>
                 <Text style={style.helpText}>
@@ -298,14 +258,6 @@ const Share = () => {
                   )
                 }
               />
-              {/* <SecondaryButton
-                onPress={() =>
-                  copyShareLinkToClipboard(
-                    SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
-                  )
-                }
-                text={copyInviteButton}
-              /> */}
             </View>
           </View>
         </View>
@@ -376,15 +328,6 @@ const style = StyleSheet.create({
     flexDirection: 'column',
   },
   urlContainer: {
-    // backgroundColor: $config.PRIMARY_COLOR + '22',
-    // padding: 10,
-    // marginBottom: 10,
-    // borderRadius: 10,
-    // width: '100%',
-    // // minWidth: ''
-    // maxWidth: 700,
-    // flexDirection: 'row',
-    // paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -408,12 +351,8 @@ const style = StyleSheet.create({
   },
   urlHolder: {
     width: '100%',
-    // paddingHorizontal: 10,
-    // marginBottom: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent: 'center',
-    // maxWidth: 600,
     minHeight: 30,
   },
   url: {
@@ -421,26 +360,15 @@ const style = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
-    // textDecorationLine: 'underline',
   },
-  // pstnHolder: {
-  //   flexDirection: 'row',
-  //   width: '80%',
-  // },
+
   pstnMargin: {
     marginRight: '10%',
   },
-  clipboardIconHolder: {
-    width: 40,
-    height: 40,
-    marginVertical: 'auto',
-  },
   clipboardIcon: {
-    width: 40,
-    height: 40,
+    width: 17,
+    height: 20,
     marginVertical: 'auto',
-    opacity: 0.5,
-    backgroundColor: 'transparent',
   },
   btnContainer: {
     width: '100%',
