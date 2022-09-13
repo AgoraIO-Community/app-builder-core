@@ -91,7 +91,7 @@ const Create = () => {
     if (isWeb) {
       document.title = $config.APP_NAME;
     }
-    SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
+    const unbind = SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
       console.log(
         'SDKEvents: joinMeetingWithPhrase event called', phrase
       );
@@ -99,19 +99,13 @@ const Create = () => {
       navigateTo(phrase)
     });
     return () => {
-      SDKEvents.off('joinMeetingWithPhrase');
+      unbind();
     };
   }, []);
 
   const showShareScreen = () => {
     setRoomCreated(true);
   };
-
-  useEffect(() => {
-    if (attendee) {
-      SDKEvents.emit('create', host, attendee, pstn);
-    }
-  }, [attendee]);
 
   const createRoomAndNavigateToShare = async (
     roomTitle: string,
