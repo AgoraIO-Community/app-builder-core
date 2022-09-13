@@ -10,14 +10,18 @@
 *********************************************
 */
 
-import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useContext} from 'react';
+import {View, StyleSheet, Image} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import useUserList from '../../utils/useUserList';
 import PreCallLocalMute from './LocalMute';
+import {ToggleState, LocalContext} from '../../../agora-rn-uikit';
+import imgUrl from '../../assets/avatar.png';
 
 const VideoPreview: React.FC = () => {
   const {renderList, renderPosition} = useUserList();
+  const local = useContext(LocalContext);
+  const isVideoEnabled = local.video === ToggleState.enabled;
 
   const [maxUid] = renderPosition;
 
@@ -25,8 +29,17 @@ const VideoPreview: React.FC = () => {
     return null;
   }
 
+  console.log(renderList[maxUid]);
   return (
     <View style={styles.container}>
+      {!isVideoEnabled && (
+        <Image
+          source={{uri: imgUrl}}
+          style={styles.avatar}
+          resizeMode="contain"
+        />
+      )}
+
       <MaxVideoView user={renderList[maxUid]} key={maxUid} />
       <PreCallLocalMute />
     </View>
@@ -38,5 +51,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
+    position: 'relative',
+  },
+  avatar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    margin: 'auto',
+    width: 100,
+    height: 100,
+    zIndex: 99,
   },
 });
