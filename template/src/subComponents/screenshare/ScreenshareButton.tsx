@@ -10,8 +10,8 @@
 *********************************************
 */
 import React from 'react';
-import {StyleSheet} from 'react-native';
 import {BtnTemplate, BtnTemplateInterface} from '../../../agora-rn-uikit';
+import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
 import {
@@ -38,7 +38,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     useScreenshare();
   //commented for v1 release
   //const screenShareButton = useString('screenShareButton')();
-  const screenShareButton = 'Share';
+
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () =>
@@ -48,15 +48,13 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     onPress,
   };
 
+  const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Start Share';
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = isScreenshareActive
-      ? (style.activeBtn as Object)
-      : (style.nonActiveBtn as Object);
+    btnTemplateProps.style = Styles.fullWidthButton as Object;
   } else {
     btnTemplateProps.btnText = screenShareButton;
-    btnTemplateProps.style = isScreenshareActive
-      ? style.greenLocalButton
-      : style.localButton;
+    btnTemplateProps.style = Styles.localButton as object;
+    btnTemplateProps.styleText = Styles.localButtonText as object;
   }
 
   return props?.render ? (
@@ -65,46 +63,5 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     <BtnTemplate {...btnTemplateProps} />
   );
 };
-
-const style = StyleSheet.create({
-  localButton: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    borderRadius: 20,
-    borderColor: $config.PRIMARY_COLOR,
-    width: 40,
-    height: 40,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeBtn: {
-    backgroundColor: '#4BEB5B',
-    borderRadius: 20,
-    borderColor: '#F86051',
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  nonActiveBtn: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  greenLocalButton: {
-    backgroundColor: '#4BEB5B',
-    borderRadius: 20,
-    borderColor: '#F86051',
-    width: 40,
-    height: 40,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonIcon: {
-    width: '90%',
-    height: '90%',
-  },
-});
 
 export default ScreenshareButton;

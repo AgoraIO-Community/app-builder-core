@@ -33,7 +33,7 @@ const Recording = (props: RecordingButtonProps) => {
   //commented for v1 release
   //const recordingButton = useString<boolean>('recordingButton');
   const recordingButton = (recording: boolean) =>
-    recording ? 'Recording' : 'Record';
+    recording ? 'Stop Record' : 'Start Record';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {
@@ -46,7 +46,7 @@ const Recording = (props: RecordingButtonProps) => {
   let btnTemplateProps: BtnTemplateInterface = {
     name: isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon',
     onPress,
-    color: isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
+    color: $config.PRIMARY_COLOR,
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
@@ -54,6 +54,7 @@ const Recording = (props: RecordingButtonProps) => {
   } else {
     btnTemplateProps.btnText = recordingButton(isRecordingActive);
     btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.styleText = Styles.localButtonText as Object;
   }
 
   return props?.render ? (

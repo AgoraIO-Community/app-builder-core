@@ -10,6 +10,7 @@ import {
 } from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
+import {View, Text} from 'react-native';
 
 export interface LocalEndcallProps {
   buttonTemplateName?: ButtonTemplateName;
@@ -23,9 +24,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useContext(RtcContext);
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
-  const endCallLabel = 'Hang Up';
+  const endCallLabel = 'End';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+  const isTopBarTemplate = buttonTemplateName === ButtonTemplateName.topBar;
   const onPress = () =>
     dispatch({
       type: 'EndCall',
@@ -33,20 +35,27 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     });
   let btnTemplateProps: BtnTemplateInterface = {
     name: 'callEnd',
-    color: '#FD0845',
+    color: '#fff',
     onPress: onPress,
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
+  if (isTopBarTemplate) {
     btnTemplateProps.style = Styles.fullWidthButton as Object;
   } else {
-    btnTemplateProps.btnText = endCallLabel;
+    // btnTemplateProps.btnText = endCallLabel;
     btnTemplateProps.style = Styles.endCall as Object;
   }
   return props?.render ? (
     props.render(onPress, buttonTemplateName)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <View style={Styles.endCallContainer as object}>
+      <View style={{width: 20, height: 20}}>
+        <BtnTemplate {...btnTemplateProps} />
+      </View>
+      {!isTopBarTemplate && (
+        <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
+      )}
+    </View>
   );
 };
 export default LocalEndcall;
