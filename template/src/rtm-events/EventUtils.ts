@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {EventSourceEnum} from '../custom-events/types';
+import {EventSourceEnum} from '../rtm-events-api/types';
 type TListener = <T>(t: T) => void;
 type TListenerMetaData = {once: boolean; listener: TListener};
 type TEventList = Map<string, TListenerMetaData[]>;
