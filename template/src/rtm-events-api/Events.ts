@@ -13,15 +13,19 @@
 ('use strict');
 import RtmEngine from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
-import {ToOptions, EventPayload} from './types';
 import {EventUtils, eventMessageType} from '../rtm-events';
-import {TEventCallback, EventSourceEnum} from './types';
+import {
+  ReceiverUid,
+  EventCallbackPayload,
+  EventSource,
+  EventPersistLevel,
+} from './types';
 import {adjustUID} from '../rtm/utils';
 
 class Events {
-  private source: EventSourceEnum = EventSourceEnum.core;
+  private source: EventSource = EventSource.core;
 
-  constructor(source?: EventSourceEnum) {
+  constructor(source?: EventSource) {
     if (source) {
       this.source = source;
     }
@@ -31,13 +35,13 @@ class Events {
    * Persists the data in the local attributes of the user
    *
    * @param {string} evt  to be stored in rtm Attribute key
-   * @param {any} payload to be stored in rtm Attribute value
+   * @param {string} payload to be stored in rtm Attribute value
    * @api private
    */
-  private _persist = async (evt: string, payload: any) => {
+  private _persist = async (evt: string, payload: string) => {
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
     try {
-      const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
+      const rtmAttribute = {key: evt, value: payload};
       // Step 1: Call RTM API to update local attributes
       await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
     } catch (error) {
@@ -63,7 +67,7 @@ class Events {
     return true;
   };
 
-  private _validateListener = (listener: TEventCallback): boolean => {
+  private _validateListener = (listener: EventCallbackPayload): boolean => {
     if (typeof listener !== 'function') {
       throw Error(
         `CUSTOM_EVENT_API Function cannot be of type ${typeof listener}`,
@@ -79,10 +83,10 @@ class Events {
    * If param 'to' is an array of uids is provided then message is sent to all the individual uids in loop.
    *
    * @param {any} rtmPayload payload to be sent across
-   * @param {ToOptions} to uid or uids[] of user
+   * @param {toUid} to uid or uids[] of user
    * @api private
    */
-  private _send = async (rtmPayload: any, toUid?: ToOptions) => {
+  private _send = async (rtmPayload: any, toUid?: ReceiverUid) => {
     const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
 
@@ -150,7 +154,7 @@ class Events {
    * @param {Function} listener Method to be called when the event is emitted.
    * @api public
    */
-  on = (eventName: string, listener: TEventCallback) => {
+  on = (eventName: string, listener: EventCallbackPayload) => {
     try {
       if (!this._validateEvt(eventName) || !this._validateListener(listener))
         return;
@@ -170,7 +174,7 @@ class Events {
    * @param {Function} listenerToRemove Method to remove from the event.
    * @api public
    */
-  off = (eventName?: string, listenerToRemove?: TEventCallback) => {
+  off = (eventName?: string, listenerToRemove?: EventCallbackPayload) => {
     try {
       if (listenerToRemove) {
         if (
@@ -198,37 +202,42 @@ class Events {
    *
    *
    * @param {String} eventName  Name of the event to register on which listeners are added
-   * @param {EventPayload} payload contains action, level, value metrics.
-   * - action: {string}
-   * - level: 1 | 2 | 3
-   * - value: {string}. NOTICE: value bytelength has MAX_SIZE 32kb limit.
-   * @param {ToOptions} to uid or uid array. The default mode is to send a message in channel.
+   * @param {String} payload . NOTICE: value bytelength has MAX_SIZE 32kb limit.
+   * @param {ReceiverUid} receiver uid or uid array. The default mode is to send a message in channel.
    * @api public
    * */
-  send = async (eventName: string, payload: EventPayload, to?: ToOptions) => {
+  send = async (
+    eventName: string = '',
+    payload: string = '',
+    persistLevel: EventPersistLevel = EventPersistLevel.LEVEL1,
+    receiver?: ReceiverUid,
+  ) => {
     if (!this._validateEvt(eventName)) return;
-    const {action = '', value = '', level = 1} = payload;
+
+    const persistValue = JSON.stringify({
+      payload,
+      persistLevel,
+      source: this.source,
+    });
 
     const rtmPayload = {
       evt: eventName,
-      payload: {
-        action,
-        value,
-        level,
-        source: this.source,
-      },
+      value: persistValue,
     };
 
-    if (level === 2 || level === 3) {
-      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
+    if (
+      persistLevel === EventPersistLevel.LEVEL2 ||
+      persistLevel === EventPersistLevel.LEVEL3
+    ) {
+      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', persistLevel);
       try {
-        await this._persist(eventName, {...payload, source: this.source});
+        await this._persist(eventName, persistValue);
       } catch (error) {
         console.log('custom-events-persist error: ', error);
       }
     }
     try {
-      await this._send(rtmPayload, to);
+      await this._send(rtmPayload, receiver);
     } catch (error) {
       console.log('CUSTOM_EVENT_API: sending failed. ', error);
     }

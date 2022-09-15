@@ -30,6 +30,7 @@ import {
   adjustUID,
 } from '../rtm/utils';
 import {EventUtils, EventsQueue, eventMessageType} from '../rtm-events';
+import {EventPersistLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
@@ -455,11 +456,7 @@ const RtmConfigure = (props: any) => {
   const eventDispatcher = async (
     data: {
       evt: string;
-      payload: {
-        level: 1 | 2 | 3;
-        action: string;
-        value: string;
-      };
+      payload: string;
     },
     sender: string,
     ts: number,
@@ -467,8 +464,8 @@ const RtmConfigure = (props: any) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
     const {evt, payload} = data;
     // Step 1: Set local attributes
-    if (payload?.level === 3) {
-      const rtmAttribute = {key: evt, value: JSON.stringify(data.payload)};
+    if (value?.persistLevel === EventPersistLevel.LEVEL3) {
+      const rtmAttribute = {key: evt, value: data.payload};
       await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
     }
     // Step 2: Emit the event

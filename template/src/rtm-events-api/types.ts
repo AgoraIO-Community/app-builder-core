@@ -1,6 +1,6 @@
 import {UidType} from '../../agora-rn-uikit';
 
-export type ReceiverUidOptions = UidType | UidType[];
+export type ReceiverUid = UidType | UidType[];
 
 export type EventPayload = string | Record<string, never>;
 
