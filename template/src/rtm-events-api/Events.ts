@@ -18,7 +18,7 @@ import {EventUtils, eventMessageType} from '../rtm-events';
 import {TEventCallback, EventSourceEnum} from './types';
 import {adjustUID} from '../rtm/utils';
 
-class CustomEvents {
+class Events {
   private source: EventSourceEnum = EventSourceEnum.core;
 
   constructor(source?: EventSourceEnum) {
@@ -234,4 +234,4 @@ class CustomEvents {
   };
 }
 
-export default CustomEvents;
+export default Events;
