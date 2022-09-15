@@ -9,13 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import fpeConfig from 'test-fpe';
 
-export {fpeConfig};
-
-export * from './useFpe';
-export * from './context';
-export * from './components';
-export * from './typeDefinition';
-export * from './utils';
-export * from './fpeEvents';
+/*
+getCustomizationApiPath - will return test-fpe if exists otherwise it will return the dummy customization path
+*/
+const fs = require('fs');
+const customizationPathTs = './test-fpe/index.ts';
+const customizationPathTsx = './test-fpe/index.tsx';
+const customizationDummyPath = './customization-implementation/dummyFpe.ts';
+const getCustomizationApiPath = () => {
+  if (fs.existsSync(customizationPathTs)) {
+    return customizationPathTs;
+  }
+  if (fs.existsSync(customizationPathTsx)) {
+    return customizationPathTsx;
+  }
+  return customizationDummyPath;
+};
+module.exports = getCustomizationApiPath;

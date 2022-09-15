@@ -16,7 +16,7 @@ import {isValidReactComponent, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import PreCallLogo from './common/Logo';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import PreCallLocalMute from './precall/LocalMute';
 import {
   PreCallJoinBtn,
@@ -29,7 +29,7 @@ import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
 
 const JoinRoomInputView = () => {
-  const {JoinButton, Textbox} = useFpe((data) => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
       JoinButton: React.ComponentType;
       Textbox: React.ComponentType;
@@ -77,7 +77,7 @@ const Precall = (props: any) => {
     DeviceSelect,
     PrecallAfterView,
     PrecallBeforeView,
-  } = useFpe((data) => {
+  } = useCustomization((data) => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
@@ -178,7 +178,7 @@ const Precall = (props: any) => {
 
   const brandHolder = () => <PreCallLogo />;
 
-  const FpePrecallComponent = useFpe((data) => {
+  const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
     // if (
     //   data?.components?.precall &&

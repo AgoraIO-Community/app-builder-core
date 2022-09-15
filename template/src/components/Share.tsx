@@ -22,11 +22,11 @@ import isSDKCheck from '../utils/isSDK';
 import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import useNavigateTo from '../utils/useNavigateTo';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../utils/common';
 
 const Share = () => {
-  const {FpeShareComponent} = useFpe((data) => {
+  const {FpeShareComponent} = useCustomization((data) => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};

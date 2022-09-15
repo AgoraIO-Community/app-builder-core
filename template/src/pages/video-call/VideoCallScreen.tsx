@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import Navbar from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
@@ -32,7 +32,7 @@ const VideoCallScreen = () => {
     TopbarComponent,
     VideocallBeforeView,
     VideocallAfterView,
-  } = useFpe((data) => {
+  } = useCustomization((data) => {
     let components: {
       VideocallComponent?: React.ComponentType;
       ChatComponent: React.ComponentType;
@@ -139,7 +139,7 @@ const VideoCallScreen = () => {
         }),
       ).then((devices: MediaDeviceInfo[]) => {
         SDKEvents.emit('join', meetingTitle, devices, isHost);
-        console.log('SDKEvents: Event Called join')
+        console.log('SDKEvents: Event Called join');
       });
     }
   }, []);

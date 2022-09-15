@@ -4,7 +4,7 @@ import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from '../../components/participants/ParticipantName';
 import chatContext from '../ChatContext';
 import {useString} from '../../utils/useString';
-import {useRenderContext} from 'fpe-api';
+import {useRenderContext} from 'customization-api';
 
 const AllAudienceParticipants = (props: any) => {
   const {p_style, isHost, uids} = props;

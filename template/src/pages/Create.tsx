@@ -22,7 +22,8 @@ import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
 import {isWeb, isValidReactComponent} from '../utils/common';
-import {useFpe, useMeetingInfo} from 'fpe-api';
+import {useMeetingInfo} from 'customization-api';
+import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
@@ -33,7 +34,7 @@ import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import useNavigateTo from '../utils/useNavigateTo';
 
 const Create = () => {
-  const {CreateComponent} = useFpe((data) => {
+  const {CreateComponent} = useCustomization((data) => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
@@ -92,11 +93,9 @@ const Create = () => {
       document.title = $config.APP_NAME;
     }
     const unbind = SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
-      console.log(
-        'SDKEvents: joinMeetingWithPhrase event called', phrase
-      );
+      console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
       setMeetingInfo(MeetingInfoDefaultValue);
-      navigateTo(phrase)
+      navigateTo(phrase);
     });
     return () => {
       unbind();

@@ -32,7 +32,7 @@ import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfig
 import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {LayoutProvider} from '../utils/useLayout';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import Precall from '../components/Precall';
 import {useString} from '../utils/useString';
 import useCustomLayout from './video-call/CustomLayout';
@@ -99,7 +99,7 @@ const VideoCall: React.FC = () => {
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
   // commented for v1 release
-  //const lifecycle = useFpe((data) => data.lifecycle);
+  //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,

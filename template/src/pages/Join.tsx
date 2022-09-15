@@ -27,7 +27,7 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
 import useNavigateTo from '../utils/useNavigateTo';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 
@@ -54,7 +54,7 @@ const Join = () => {
     setMeetingInfo(MeetingInfoDefaultValue);
     navigateTo(phrase);
   };
-  const {JoinComponent} = useFpe((data) => {
+  const {JoinComponent} = useCustomization((data) => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};

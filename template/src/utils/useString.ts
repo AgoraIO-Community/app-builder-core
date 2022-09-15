@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useLanguage} from '../language/useLanguage';
 import {DEFAULT_I18_DATA} from '../language';
 import {TextDataInterface} from '../language/default-labels/index';
@@ -17,7 +17,7 @@ import {TextDataInterface} from '../language/default-labels/index';
 export function usei18nData(
   selectedLanguageCode: string = DEFAULT_I18_DATA.locale,
 ) {
-  const languageData = useFpe((data) => data?.i18n);
+  const languageData = useCustomization((data) => data?.i18n);
   if (
     !selectedLanguageCode ||
     !languageData ||

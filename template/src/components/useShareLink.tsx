@@ -10,7 +10,7 @@
 *********************************************
 */
 
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';

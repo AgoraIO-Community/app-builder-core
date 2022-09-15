@@ -1,7 +1,7 @@
 /**
  * Core contexts
  */
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import {
   RtcContext,
   RenderContext,

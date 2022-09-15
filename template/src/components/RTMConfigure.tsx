@@ -20,7 +20,7 @@ import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
-import {useRenderContext} from 'fpe-api';
+import {useRenderContext} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,

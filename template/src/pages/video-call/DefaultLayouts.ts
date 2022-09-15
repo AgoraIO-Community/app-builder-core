@@ -1,4 +1,4 @@
-import {layoutObjectType} from 'fpe-api';
+import {layoutObjectType} from 'customization-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
 import useCustomLayout from './CustomLayout';

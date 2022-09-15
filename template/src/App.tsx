@@ -20,7 +20,8 @@ import StoreToken from './components/StoreToken';
 import {shouldAuthenticate, isIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 // commented for v1 release
-//import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
+//import {CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'customization-api';
+//import {useCustomization} from 'customization-implementation';
 import AppWrapper from './AppWrapper';
 import {
   MeetingInfoContextInterface,
@@ -51,7 +52,7 @@ declare module 'agora-rn-uikit' {
 
 const App: React.FC = () => {
   //commented for v1 release
-  //const CustomRoutes = useFpe((data) => data?.customRoutes);
+  //const CustomRoutes = useCustomization((data) => data?.customRoutes);
   // const RenderCustomRoutes = () => {
   //   try {
   //     return (

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRenderContext} from 'fpe-api';
+import {useRenderContext} from 'customization-api';
 /**
  * This hook will fetch the user list
  * @returns userList

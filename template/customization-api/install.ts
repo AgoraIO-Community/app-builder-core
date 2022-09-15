@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {FpeApiInterface} from './typeDefinition';
+import {CustomizationApiInterface} from './typeDefinition';
 import ReactIs from 'react-is';
 /**
  *
- * @param config FPE options to override the UI components and customize the application
- * @returns config options
+ * @param config customization options to override the UI components and customize the application
+ * @returns customization options
  */
 
 function isString(data: any) {
@@ -116,7 +116,7 @@ function validatei18n(data: any) {
     }
   }
 }
-export const installFPE = (config: FpeApiInterface) => {
+export const customize = (config: CustomizationApiInterface) => {
   //validating the components
   config?.components && validateComponents(config.components);
 

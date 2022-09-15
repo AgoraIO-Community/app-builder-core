@@ -25,7 +25,7 @@ import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
 import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
 import {
@@ -102,7 +102,7 @@ const Chat = (props?: {
     );
   };
 
-  const {ChatAfterView, ChatBeforeView} = useFpe((data) => {
+  const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
     let components: {
       ChatAfterView: React.ComponentType;
       ChatBeforeView: React.ComponentType;

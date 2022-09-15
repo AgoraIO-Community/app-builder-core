@@ -17,7 +17,7 @@ import StorageContext from './StorageContext';
 import CustomEvents, {EventLevel} from '../custom-events';
 import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
 
 interface UserPreferenceContextInterface {

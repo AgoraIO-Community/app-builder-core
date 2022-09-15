@@ -10,7 +10,7 @@
 *********************************************
 */
 import {createContext} from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export interface ScreenshareContextInterface {
   isScreenshareActive: boolean;

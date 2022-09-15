@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent} from 'fpe-api';
+import {layoutComponent} from 'customization-api';
 import React, {useMemo, useContext, useState} from 'react';
 import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
 import {isWeb} from '../utils/common';

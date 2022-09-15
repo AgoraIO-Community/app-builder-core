@@ -11,7 +11,7 @@
 */
 
 import React, {SetStateAction} from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export interface LayoutContextInterface {
   activeLayoutName: string;

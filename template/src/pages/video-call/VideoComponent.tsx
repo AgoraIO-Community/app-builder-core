@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import useCustomLayout from './CustomLayout';
 import {isArray, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
-import {useRenderContext} from 'fpe-api';
+import {useRenderContext} from 'customization-api';
 
 const VideoComponent = () => {
   const [layout, setLayoutIndex] = useState(0);

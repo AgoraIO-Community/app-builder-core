@@ -25,7 +25,7 @@ import {ChatBubbleProps} from '../components/ChatContext';
 import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
@@ -57,7 +57,7 @@ const ChatContainer = (props?: {
   const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const {ChatBubbleComponent} = useFpe((data) => {
+  const {ChatBubbleComponent} = useCustomization((data) => {
     let components: {
       ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
     } = {

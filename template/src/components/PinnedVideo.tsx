@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import {RtcContext} from '../../agora-rn-uikit';
 import {layoutProps} from '../../theme.json';
-import {layoutComponent} from 'fpe-api';
+import {layoutComponent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 const {topPinned} = layoutProps;
 

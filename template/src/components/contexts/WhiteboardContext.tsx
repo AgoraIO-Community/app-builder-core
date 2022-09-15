@@ -6,9 +6,9 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import {filterObject} from '../../utils/index';
-import {useRtcContext} from 'fpe-api';
+import {useRtcContext} from 'customization-api';
 
 export interface WhiteboardObjectInterface {
   [key: number]: {

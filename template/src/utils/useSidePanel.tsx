@@ -12,7 +12,7 @@
 
 import React, {SetStateAction} from 'react';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export interface SidePanelContextInterface {
   sidePanel: SidePanelType;

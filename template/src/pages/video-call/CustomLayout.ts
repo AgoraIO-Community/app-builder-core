@@ -1,8 +1,8 @@
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {DefaultLayouts} from './DefaultLayouts';
 
 function useCustomLayout() {
-  const fpeLayouts = useFpe((config) => {
+  const fpeLayouts = useCustomization((config) => {
     if (
       typeof config?.components?.videoCall === 'object' &&
       config?.components?.videoCall?.customLayout

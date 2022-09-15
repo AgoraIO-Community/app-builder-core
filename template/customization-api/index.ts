@@ -9,21 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-
-/*
-getFpePath - will return test-fpe if exists otherwise it will return the dummy fpe path
-*/
-const fs = require('fs');
-const FpePathTs = './test-fpe/index.ts';
-const FpePathTsx = './test-fpe/index.tsx';
-const FpeDummyPath = './fpe-implementation/dummyFpe.ts';
-const getFpePath = () => {
-  if (fs.existsSync(FpePathTs)) {
-    return FpePathTs;
-  }
-  if (fs.existsSync(FpePathTsx)) {
-    return FpePathTsx;
-  }
-  return FpeDummyPath;
-};
-module.exports = getFpePath;
+export * from './components';
+export * from './context';
+export * from './customEvents';
+export * from './typeDefinition';
+export * from './utils';
+export {customize} from './install';

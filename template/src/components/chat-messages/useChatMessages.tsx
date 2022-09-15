@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React, {useState, useEffect, useRef} from 'react';
-import {useRenderContext} from 'fpe-api';
+import {useRenderContext} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid, UidType} from '../../../agora-rn-uikit';
 import CustomEvents from '../../custom-events';
