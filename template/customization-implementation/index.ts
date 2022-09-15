@@ -1,3 +1,4 @@
 export {default as createHook} from './createHook';
-export {CustomizationProvider, type CustomizationProviderProps, useCustomization} from './useCustomization';
-export {default as customizationConfig} from 'test-fpe'
+export {CustomizationProvider, useCustomization} from './useCustomization';
+export type {CustomizationProviderProps} from './useCustomization';
+export {default as customizationConfig} from 'test-fpe';
