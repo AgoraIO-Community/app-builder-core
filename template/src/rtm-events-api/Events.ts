@@ -146,41 +146,42 @@ class Events {
    * When the specified event happens, the Events API triggers the callback that you pass.
    * The listener will not be added if it is a duplicate.
    *
-   * @param {String} evt Name of the event to attach the listener to.
+   * @param {String} eventName Name of the event to attach the listener to.
    * @param {Function} listener Method to be called when the event is emitted.
    * @api public
    */
-  on = (evt: string, listener: TEventCallback) => {
+  on = (eventName: string, listener: TEventCallback) => {
     try {
-      if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
-      EventUtils.addListener(evt, listener, this.source);
+      if (!this._validateEvt(eventName) || !this._validateListener(listener))
+        return;
+      EventUtils.addListener(eventName, listener, this.source);
     } catch (error) {
       console.log('custom-events-on error: ', error);
     }
   };
 
   /**
-   * Removes a listener function from the specified event if evt and listener function both are provided.
+   * Removes a listener function from the specified event if eventName and listener function both are provided.
    * Removes all listeners from a specified event if listener function is not provided.
    * If you do not specify an event then all listeners will be removed.
    * That means every event will be emptied.
    *
-   * @param {String} evt Name of the event to remove the listener from.
+   * @param {String} eventName Name of the event to remove the listener from.
    * @param {Function} listenerToRemove Method to remove from the event.
    * @api public
    */
-  off = (evt?: string, listenerToRemove?: TEventCallback) => {
+  off = (eventName?: string, listenerToRemove?: TEventCallback) => {
     try {
       if (listenerToRemove) {
         if (
           this._validateListener(listenerToRemove) &&
-          this._validateEvt(evt)
+          this._validateEvt(eventName)
         ) {
-          EventUtils.removeListener(evt, listenerToRemove, this.source);
+          EventUtils.removeListener(eventName, listenerToRemove, this.source);
         }
-      } else if (evt) {
-        if (this._validateEvt(evt)) {
-          EventUtils.removeAllListeners(evt, this.source);
+      } else if (eventName) {
+        if (this._validateEvt(eventName)) {
+          EventUtils.removeAllListeners(eventName, this.source);
         }
       } else {
         EventUtils.removeAll(this.source);
@@ -196,7 +197,7 @@ class Events {
    *  - If 'to' is empty this method sends channel message.
    *
    *
-   * @param {String} evt  Name of the event to register on which listeners are added
+   * @param {String} eventName  Name of the event to register on which listeners are added
    * @param {EventPayload} payload contains action, level, value metrics.
    * - action: {string}
    * - level: 1 | 2 | 3
@@ -204,12 +205,12 @@ class Events {
    * @param {ToOptions} to uid or uid array. The default mode is to send a message in channel.
    * @api public
    * */
-  send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
-    if (!this._validateEvt(evt)) return;
+  send = async (eventName: string, payload: EventPayload, to?: ToOptions) => {
+    if (!this._validateEvt(eventName)) return;
     const {action = '', value = '', level = 1} = payload;
 
     const rtmPayload = {
-      evt: evt,
+      evt: eventName,
       payload: {
         action,
         value,
@@ -221,7 +222,7 @@ class Events {
     if (level === 2 || level === 3) {
       console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
       try {
-        await this._persist(evt, {...payload, source: this.source});
+        await this._persist(eventName, {...payload, source: this.source});
       } catch (error) {
         console.log('custom-events-persist error: ', error);
       }
