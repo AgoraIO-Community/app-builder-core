@@ -3,7 +3,7 @@ import RemoteLiveStreamApprovedRequestRecall, {
   RemoteLiveStreamApprovedRequestRecallProps,
 } from './controls/RemoteLiveStreamApprovedRequestRecall';
 import RemoteLiveStreamRequestApprove, {
-  RemoteLiveStreamControlInterface,
+  RemoteLiveStreamControlProps,
 } from './controls/RemoteLiveStreamRequestApprove';
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
 // Local controls
@@ -14,7 +14,7 @@ import ApprovedLiveStreamControlsView from './ApprovedLiveStreamControlsView';
 
 export type {
   RemoteLiveStreamApprovedRequestRecallProps,
-  RemoteLiveStreamControlInterface,
+  RemoteLiveStreamControlProps,
 };
 export {
   RemoteLiveStreamApprovedRequestRecall,

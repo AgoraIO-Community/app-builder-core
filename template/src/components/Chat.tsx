@@ -33,11 +33,13 @@ import {
   ChatSendButtonProps,
 } from '../subComponents/ChatInput';
 
-const Chat = (props?: {
+interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
-}) => {
+}
+
+const Chat = (props?: ChatProps) => {
   // commented for v1 release
   // const groupChatLabel = useString('groupChatLabel')();
   // const privateChatLabel = useString('privateChatLabel')();

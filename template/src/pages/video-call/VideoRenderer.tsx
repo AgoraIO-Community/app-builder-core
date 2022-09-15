@@ -5,13 +5,13 @@ import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import ColorContext from '../../components/ColorContext';
-import {NetworkQualityPill} from '../../subComponents/NetworkQualityPill';
-import {NameWithMicStatus} from './NameWithMicStatus';
+import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
+import NameWithMicIcon from './NameWithMicIcon';
 
-interface MaxVideoRendererInterface {
+interface VideoRendererProps {
   user: RenderInterface;
 }
-const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
+const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
   const {primaryColor} = useContext(ColorContext);
   return (
     <View style={maxStyle.container}>
@@ -34,7 +34,7 @@ const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
         key={user.uid}
       />
       <View style={maxStyle.nameHolder}>
-        <NameWithMicStatus user={user} />
+        <NameWithMicIcon user={user} />
       </View>
     </View>
   );
@@ -83,4 +83,4 @@ const maxStyle = StyleSheet.create({
   },
 });
 
-export {MaxVideoRenderer};
+export default VideoRenderer;

@@ -105,7 +105,7 @@ const Controls = () => {
   );
 };
 
-export const ControlsComponentsArray: [
+type ControlsComponentsArrayProps = [
   (props: LocalAudioMuteProps) => JSX.Element,
   (props: LocalVideoMuteProps) => JSX.Element,
   (props: LocalSwitchCameraProps) => JSX.Element,
@@ -113,7 +113,9 @@ export const ControlsComponentsArray: [
   (props: RecordingButtonProps) => JSX.Element,
   (props: LocalEndcallProps) => JSX.Element,
   (props: LiveStreamControlsProps) => JSX.Element,
-] = [
+];
+
+export const ControlsComponentsArray: ControlsComponentsArrayProps = [
   LocalAudioMute,
   LocalVideoMute,
   LocalSwitchCamera,

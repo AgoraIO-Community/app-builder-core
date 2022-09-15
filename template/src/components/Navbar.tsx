@@ -77,7 +77,7 @@ const ParticipantsCountView = () => {
   );
 };
 
-interface ParticipantsIconButtonInterface {
+interface ParticipantsIconButtonProps {
   liveStreamingRequestAlertIconPosition?: {
     top?: number;
     right?: number;
@@ -91,7 +91,7 @@ interface ParticipantsIconButtonInterface {
     buttonTemplateName?: ButtonTemplateName,
   ) => JSX.Element;
 }
-const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
+const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
       top: isWeb ? -10 : 2,
@@ -153,7 +153,7 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   );
 };
 
-interface ChatIconButtonInterface {
+interface ChatIconButtonProps {
   badgeContainerPosition?: {
     top?: number;
     right?: number;
@@ -170,7 +170,7 @@ interface ChatIconButtonInterface {
   ) => JSX.Element;
 }
 
-const ChatIconButton = (props: ChatIconButtonInterface) => {
+const ChatIconButton = (props: ChatIconButtonProps) => {
   const {
     badgeContainerPosition = {
       top: isWeb ? -10 : 2,
@@ -248,7 +248,7 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   );
 };
 
-interface LayoutIconButtonInterface {
+interface LayoutIconButtonProps {
   modalPosition?: {
     top?: number;
     right?: number;
@@ -262,7 +262,7 @@ interface LayoutIconButtonInterface {
   ) => JSX.Element;
 }
 
-const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+const LayoutIconButton = (props: LayoutIconButtonProps) => {
   const {modalPosition} = props;
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
@@ -480,14 +480,15 @@ const Navbar = () => {
     </View>
   );
 };
-export const NavBarComponentsArray: [
+type NavBarComponentsArrayProps = [
   (props: CopyJoinInfoProps) => JSX.Element,
   () => JSX.Element,
-  (props: ParticipantsIconButtonInterface) => JSX.Element,
-  (props: ChatIconButtonInterface) => JSX.Element,
-  (props: LayoutIconButtonInterface) => JSX.Element,
+  (props: ParticipantsIconButtonProps) => JSX.Element,
+  (props: ChatIconButtonProps) => JSX.Element,
+  (props: LayoutIconButtonProps) => JSX.Element,
   (props: SettingsIconButtonProps) => JSX.Element,
-] = [
+];
+export const NavBarComponentsArray: NavBarComponentsArrayProps = [
   CopyJoinInfo,
   ParticipantsCountView,
   ParticipantsIconButton,

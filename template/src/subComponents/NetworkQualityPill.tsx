@@ -27,17 +27,14 @@ import {RenderInterface, UidType} from '../../agora-rn-uikit';
  * hover to show network quality text [ ex. Excellent, Good, Bad etc ]
  *
  */
-export const NetworkQualityPill = ({
-  user,
-  primaryColor,
-  small,
-  rootStyle,
-}: {
+interface NetworkQualityPillProps {
   user: RenderInterface;
   primaryColor: any;
   small?: boolean;
   rootStyle?: StyleProp<ViewStyle>;
-}) => {
+}
+const NetworkQualityPill = (props: NetworkQualityPillProps) => {
+  const {user, primaryColor, small, rootStyle} = props;
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   //commented for v1 release
   //const getLabel = useString<NetworkQualities>('networkQualityLabel');
@@ -189,3 +186,5 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default NetworkQualityPill;

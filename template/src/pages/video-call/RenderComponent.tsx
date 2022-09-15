@@ -1,5 +1,5 @@
 import React from 'react';
-import {MaxVideoRenderer} from './VideoRenderer';
+import VideoRenderer from './VideoRenderer';
 import {UidType} from '../../../agora-rn-uikit';
 import {
   renderComponentObjectInterface,
@@ -11,8 +11,8 @@ import {isValidReactComponent} from '../../utils/common';
 export type RenderComponentType = {[key: string]: React.FC<any>};
 
 const DefaultRenderComponent: RenderComponentType = {
-  rtc: MaxVideoRenderer,
-  screenshare: MaxVideoRenderer,
+  rtc: VideoRenderer,
+  screenshare: VideoRenderer,
 };
 interface RenderComponentProps {
   uid: UidType;

@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-export * from './components';
-export * from './context';
+export * from './app-state';
 export * from './customEvents';
+export * from './customize';
+export * from './sub-components';
 export * from './typeDefinition';
 export * from './utils';
-export {customize} from './install';
