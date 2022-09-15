@@ -138,7 +138,7 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
       await joinChannel();
       setHasUserJoinedRTM(true);
-      await runQueuedCustomEvents();
+      await runQueuedEvents();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -377,7 +377,7 @@ const RtmConfigure = (props: any) => {
       } else if (type === eventMessageType.CUSTOM_EVENT) {
         console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
         try {
-          customEventDispatcher(msg, sender, timestamp);
+          eventDispatcher(msg, sender, timestamp);
         } catch (error) {
           console.log('error while dispacthing', error);
         }
@@ -431,7 +431,7 @@ const RtmConfigure = (props: any) => {
         } else if (type === eventMessageType.CUSTOM_EVENT) {
           console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
           try {
-            customEventDispatcher(msg, sender, timestamp);
+            eventDispatcher(msg, sender, timestamp);
           } catch (error) {
             console.log('error while dispacthing', error);
           }
@@ -441,18 +441,18 @@ const RtmConfigure = (props: any) => {
     doLoginAndSetupRTM();
   };
 
-  const runQueuedCustomEvents = async () => {
+  const runQueuedEvents = async () => {
     try {
       while (!EventsQueue.isEmpty()) {
         const currEvt = EventsQueue.dequeue();
-        await customEventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
+        await eventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
       }
     } catch (error) {
       console.log('CUSTOM_EVENT_API:  error while running queue events', error);
     }
   };
 
-  const customEventDispatcher = async (
+  const eventDispatcher = async (
     data: {
       evt: string;
       payload: {
@@ -464,7 +464,7 @@ const RtmConfigure = (props: any) => {
     sender: string,
     ts: number,
   ) => {
-    console.log('CUSTOM_EVENT_API: inside customEventDispatcher ', data);
+    console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
     const {evt, payload} = data;
     // Step 1: Set local attributes
     if (payload?.level === 3) {

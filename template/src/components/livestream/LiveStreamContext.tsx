@@ -15,7 +15,7 @@ import {filterObject, isEmptyObject} from '../../utils';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import CustomEvents, {EventLevel} from '../../custom-events';
+import events, {EventLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -121,7 +121,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           role: ClientRole.Audience,
         });
         // Audience notfies all host when request is rejected
-        CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
+        events.send(EventNames.RAISED_ATTRIBUTE, {
           action: LiveStreamControlMessageEnum.notifyHostsInChannel,
           level: EventLevel.LEVEL2,
           value: RaiseHandValue.FALSE,
@@ -135,7 +135,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           role: ClientRole.Broadcaster,
         });
         // Audience notfies all host when request is approved
-        CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
+        events.send(EventNames.RAISED_ATTRIBUTE, {
           action: LiveStreamControlMessageEnum.notifyHostsInChannel,
           value: RaiseHandValue.TRUE,
           level: EventLevel.LEVEL2,
@@ -181,7 +181,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   /** ******* SETTING UP ROLES BEGINS ******* */
   React.useEffect(() => {
-    CustomEvents.on(EventNames.ROLE_ATTRIBUTE, (data) => {
+    events.on(EventNames.ROLE_ATTRIBUTE, (data) => {
       setRaiseHandList((prevState) => {
         return {
           ...prevState,
@@ -199,7 +199,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   React.useEffect(() => {
     if (!callActive || !hasUserJoinedRTM) return;
-    CustomEvents.send(EventNames.ROLE_ATTRIBUTE, {
+    events.send(EventNames.ROLE_ATTRIBUTE, {
       level: EventLevel.LEVEL2,
       value: rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
     });
@@ -221,7 +221,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   React.useEffect(() => {
     /** ********************** HOST EVENTS SECTION BEGINS ********************** */
-    CustomEvents.on(EventNames.RAISED_ATTRIBUTE, (data) => {
+    events.on(EventNames.RAISED_ATTRIBUTE, (data) => {
       if (!isHost) return;
       switch (data?.payload?.action) {
         // 1. Host can receive raise hand request with true or false value
@@ -288,48 +288,42 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
     /** ********************** AUDIENCE EVENTS SECTION BEGINS ********************** */
     // 1. Audience receives this when the request is accepted by host
-    CustomEvents.on(
-      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      (data) => {
-        if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
-          return;
-        showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
-        // Promote user's privileges to host
-        changeClientRoleTo(ClientRole.Broadcaster);
-        // Audience updates its local attributes and notfies all host when request is approved
-        UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
-      },
-    );
+    events.on(LiveStreamControlMessageEnum.raiseHandRequestAccepted, (data) => {
+      if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
+        return;
+      showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
+      // Promote user's privileges to host
+      changeClientRoleTo(ClientRole.Broadcaster);
+      // Audience updates its local attributes and notfies all host when request is approved
+      UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+    });
     /** 2. Audience receives this when the request is rejected by host
      * 2.a  Audience receives this when the request is rejected by host which is not yet approved
      * 2.b  Audience receives this when the request when is demoted by the host
      */
-    CustomEvents.on(
-      LiveStreamControlMessageEnum.raiseHandRequestRejected,
-      (data) => {
-        /** 2.a */
-        if (
-          raiseHandListRef.current[localUidRef.current].role ==
-          ClientRole.Audience
-        ) {
-          showToast(LSNotificationObject.RAISE_HAND_REJECTED);
-        } else if (
-          raiseHandListRef.current[localUidRef.current].role ==
-          ClientRole.Broadcaster
-        ) {
-          /** 2.b */
-          showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
-          screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
+    events.on(LiveStreamControlMessageEnum.raiseHandRequestRejected, (data) => {
+      /** 2.a */
+      if (
+        raiseHandListRef.current[localUidRef.current].role ==
+        ClientRole.Audience
+      ) {
+        showToast(LSNotificationObject.RAISE_HAND_REJECTED);
+      } else if (
+        raiseHandListRef.current[localUidRef.current].role ==
+        ClientRole.Broadcaster
+      ) {
+        /** 2.b */
+        showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
+        screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
 
-          // Demote user's privileges to audience
-          changeClientRoleTo(ClientRole.Audience);
-        }
-        // Audience updates its local attributes and notfies all host when demoted/request rejected
-        UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
-      },
-    );
+        // Demote user's privileges to audience
+        changeClientRoleTo(ClientRole.Audience);
+      }
+      // Audience updates its local attributes and notfies all host when demoted/request rejected
+      UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
+    });
     // 3. Audience when receives kickUser notifies all host when is kicked out
-    CustomEvents.on(controlMessageEnum.kickUser, (data) => {
+    events.on(controlMessageEnum.kickUser, (data) => {
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
       UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
     });
@@ -349,11 +343,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       raised: RaiseHandValue.TRUE,
       ts: new Date().getTime(),
     });
-    CustomEvents.send(
-      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      {},
-      uid,
-    );
+    events.send(LiveStreamControlMessageEnum.raiseHandRequestAccepted, {}, uid);
   };
 
   const hostRejectsRequestOfUID = (uid: UidType) => {
@@ -361,11 +351,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
     });
-    CustomEvents.send(
-      LiveStreamControlMessageEnum.raiseHandRequestRejected,
-      {},
-      uid,
-    );
+    events.send(LiveStreamControlMessageEnum.raiseHandRequestRejected, {}, uid);
   };
 
   /** ******* HOST CONTROLS SECTION ENDS ******* */
@@ -382,7 +368,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE)
       return;
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
-    CustomEvents.send(EventNames.RAISED_ATTRIBUTE, {
+    events.send(EventNames.RAISED_ATTRIBUTE, {
       action: LiveStreamControlMessageEnum.raiseHandRequest,
       level: EventLevel.LEVEL2,
       value: RaiseHandValue.TRUE,

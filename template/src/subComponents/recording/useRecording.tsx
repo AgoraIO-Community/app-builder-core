@@ -23,7 +23,7 @@ import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import CustomEvents, {EventLevel} from '../../custom-events';
+import events, {EventLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
@@ -96,7 +96,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {screenShareData} = useScreenContext();
 
   React.useEffect(() => {
-    CustomEvents.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
+    events.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
       switch (data?.payload?.action) {
         case EventActions.RECORDING_STARTED:
           setRecordingActive(true);
@@ -109,7 +109,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
     });
     () => {
-      CustomEvents.off(EventNames.RECORDING_ATTRIBUTE);
+      events.off(EventNames.RECORDING_ATTRIBUTE);
     };
   }, []);
 
@@ -148,7 +148,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now active.
            */
-          CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
+          events.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STARTED,
             value: `${localUid}`,
             level: EventLevel.LEVEL3,
@@ -188,7 +188,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now inactive.
            */
-          CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
+          events.send(EventNames.RECORDING_ATTRIBUTE, {
             action: EventActions.RECORDING_STOPPED,
             value: '',
             level: EventLevel.LEVEL3,

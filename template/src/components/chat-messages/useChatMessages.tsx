@@ -14,7 +14,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {useRenderContext} from 'fpe-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid, UidType} from '../../../agora-rn-uikit';
-import CustomEvents from '../../custom-events';
+import events from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {useChatUIControl} from '../chat-ui/useChatUIControl';
 import {useChatNotification} from '../chat-notification/useChatNotification';
@@ -140,7 +140,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         },
       });
     };
-    CustomEvents.on(EventNames.PUBLIC_CHAT_MESSAGE, (data) => {
+    events.on(EventNames.PUBLIC_CHAT_MESSAGE, (data) => {
       const messageData = JSON.parse(data.payload.value);
       switch (data?.payload?.action) {
         case ChatMessageActionEnum.Create:
@@ -203,7 +203,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           break;
       }
     });
-    CustomEvents.on(EventNames.PRIVATE_CHAT_MESSAGE, (data) => {
+    events.on(EventNames.PRIVATE_CHAT_MESSAGE, (data) => {
       const messageData = JSON.parse(data.payload.value);
 
       switch (data?.payload?.action) {
@@ -349,7 +349,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         msgId: getUniqueID(),
         isDeleted: false,
       };
-      CustomEvents.send(
+      events.send(
         EventNames.PRIVATE_CHAT_MESSAGE,
         {
           value: JSON.stringify(messageData),
@@ -365,7 +365,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         isDeleted: false,
         createdTimestamp: timeNow(),
       };
-      CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
+      events.send(EventNames.PUBLIC_CHAT_MESSAGE, {
         value: JSON.stringify(messageData),
         action: ChatMessageActionEnum.Create,
       });
@@ -381,7 +381,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       );
       if (checkData && checkData.length) {
         const editMsgData = {msg, updatedTimestamp: timeNow()};
-        CustomEvents.send(
+        events.send(
           EventNames.PRIVATE_CHAT_MESSAGE,
           {
             value: JSON.stringify({msgId, ...editMsgData}),
@@ -411,7 +411,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       );
       if (checkData && checkData.length) {
         const editMsgData = {msg, updatedTimestamp: timeNow()};
-        CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
+        events.send(EventNames.PUBLIC_CHAT_MESSAGE, {
           value: JSON.stringify({msgId, ...editMsgData}),
           action: ChatMessageActionEnum.Update,
         });
@@ -438,7 +438,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       );
       if (checkData && checkData.length) {
         const deleteMsgData = {updatedTimestamp: timeNow()};
-        CustomEvents.send(
+        events.send(
           EventNames.PRIVATE_CHAT_MESSAGE,
           {
             value: JSON.stringify({msgId, ...deleteMsgData}),
@@ -468,7 +468,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       );
       if (checkData && checkData.length) {
         const deleteMsgData = {updatedTimestamp: timeNow()};
-        CustomEvents.send(EventNames.PUBLIC_CHAT_MESSAGE, {
+        events.send(EventNames.PUBLIC_CHAT_MESSAGE, {
           value: JSON.stringify({msgId, ...deleteMsgData}),
           action: ChatMessageActionEnum.Delete,
         });

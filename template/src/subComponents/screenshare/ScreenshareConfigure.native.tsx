@@ -19,7 +19,7 @@ import {
 import useUserList from '../../utils/useUserList';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
-import CustomEvents from '../../custom-events';
+import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
@@ -56,7 +56,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
       switch (data?.payload?.action) {

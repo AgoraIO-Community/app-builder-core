@@ -19,7 +19,7 @@ import {
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import useUserList from '../../utils/useUserList';
-import CustomEvents, {EventLevel} from '../../custom-events';
+import events, {EventLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
@@ -68,7 +68,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
       switch (data?.payload?.action) {
@@ -112,7 +112,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
       executeNormalQuery();
-      CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
+      events.send(EventNames.SCREENSHARE_ATTRIBUTE, {
         action: EventActions.SCREENSHARE_STOPPED,
         value: 0,
         level: EventLevel.LEVEL2,
@@ -183,7 +183,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           };
         });
         // 2. Inform everyone in the channel screenshare is actice
-        CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
+        events.send(EventNames.SCREENSHARE_ATTRIBUTE, {
           action: EventActions.SCREENSHARE_STARTED,
           value: timeNow(),
           level: EventLevel.LEVEL2,
