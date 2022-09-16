@@ -13,10 +13,10 @@ export enum EventPersistLevel {
   'LEVEL2',
   'LEVEL3',
 }
-interface CbPayload {
+interface EventCallbackPayload {
   payload: string;
   persistLevel: EventPersistLevel;
   sender: UidType;
   ts: number;
 }
-export type EventCallbackPayload = (args: CbPayload) => void;
+export type EventCallback = (args: EventCallbackPayload) => void;

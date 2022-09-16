@@ -14,7 +14,7 @@ import {RenderInterface, useLocalUid} from '../../agora-rn-uikit';
 import {RtcContext} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import StorageContext from './StorageContext';
-import events, {EventLevel} from '../rtm-events-api';
+import events, {EventPersistLevel} from '../rtm-events-api';
 import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'fpe-implementation';
@@ -52,7 +52,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     events.on(EventNames.NAME_ATTRIBUTE, (data) => {
-      const value = JSON.parse(data?.payload?.value);
+      const value = JSON.parse(data?.payload);
       if (value) {
         if (value?.uid) {
           updateRenderListState(value?.uid, {
@@ -91,14 +91,15 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
     if (hasUserJoinedRTM) {
       //update remote state for user and screenshare
-      events.send(EventNames.NAME_ATTRIBUTE, {
-        value: JSON.stringify({
+      events.send(
+        EventNames.NAME_ATTRIBUTE,
+        JSON.stringify({
           uid: localUid,
           screenShareUid: screenShareUid,
           name: displayName || userText,
         }),
-        level: EventLevel.LEVEL2,
-      });
+        EventPersistLevel.LEVEL2,
+      );
     }
   }, [displayName, hasUserJoinedRTM]);
 

@@ -231,16 +231,9 @@ const RtmConfigure = (props: any) => {
                 // isActive to identify all active screenshare users in the call
                 for (const [key, value] of Object.entries(attr?.attributes)) {
                   if (hasJsonStructure(value as string)) {
-                    const [err, result] = safeJsonParse(value as string);
-                    const payloadValue = result?.value || '';
-                    const payloadAction = result?.action || '';
                     const data = {
                       evt: key,
-                      payload: {
-                        ...result,
-                        value: payloadValue,
-                        action: payloadAction,
-                      },
+                      value: value,
                     };
                     // Todo:EVENTSUP Add the data to queue, dont add same mulitple events, use set so as to not repeat events
                     EventsQueue.enqueue({
@@ -456,22 +449,23 @@ const RtmConfigure = (props: any) => {
   const eventDispatcher = async (
     data: {
       evt: string;
-      payload: string;
+      value: string;
     },
     sender: string,
     ts: number,
   ) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
-    const {evt, payload} = data;
+    const {evt, value} = data;
     // Step 1: Set local attributes
     if (value?.persistLevel === EventPersistLevel.LEVEL3) {
-      const rtmAttribute = {key: evt, value: data.payload};
+      const rtmAttribute = {key: evt, value: value};
       await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
     }
     // Step 2: Emit the event
     try {
+      const {payload, persistLevel, source} = JSON.parse(value);
       console.log('CUSTOM_EVENT_API:  emiting event..: ');
-      EventUtils.emitEvent(evt, {payload, sender, ts});
+      EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
     }

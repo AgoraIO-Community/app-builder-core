@@ -15,7 +15,7 @@ import {filterObject, isEmptyObject} from '../../utils';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import events, {EventLevel} from '../../rtm-events-api';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
@@ -121,11 +121,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           role: ClientRole.Audience,
         });
         // Audience notfies all host when request is rejected
-        events.send(EventNames.RAISED_ATTRIBUTE, {
-          action: LiveStreamControlMessageEnum.notifyHostsInChannel,
-          level: EventLevel.LEVEL2,
-          value: RaiseHandValue.FALSE,
-        });
+        events.send(
+          EventNames.RAISED_ATTRIBUTE,
+          JSON.stringify({
+            action: LiveStreamControlMessageEnum.notifyHostsInChannel,
+            value: RaiseHandValue.FALSE,
+          }),
+          EventPersistLevel.LEVEL2,
+        );
         break;
       case ClientRole.Broadcaster:
         // Update local state
@@ -135,11 +138,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           role: ClientRole.Broadcaster,
         });
         // Audience notfies all host when request is approved
-        events.send(EventNames.RAISED_ATTRIBUTE, {
-          action: LiveStreamControlMessageEnum.notifyHostsInChannel,
-          value: RaiseHandValue.TRUE,
-          level: EventLevel.LEVEL2,
-        });
+        events.send(
+          EventNames.RAISED_ATTRIBUTE,
+          JSON.stringify({
+            action: LiveStreamControlMessageEnum.notifyHostsInChannel,
+            value: RaiseHandValue.TRUE,
+          }),
+          EventPersistLevel.LEVEL2,
+        );
       default:
         break;
     }
@@ -188,8 +194,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           [data.sender]: {
             ...prevState[data.sender],
             role:
-              data.payload.value in ClientRole
-                ? parseInt(data.payload.value)
+              data.payload in ClientRole
+                ? parseInt(data.payload)
                 : ClientRole.Audience,
           },
         };
@@ -199,10 +205,13 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   React.useEffect(() => {
     if (!callActive || !hasUserJoinedRTM) return;
-    events.send(EventNames.ROLE_ATTRIBUTE, {
-      level: EventLevel.LEVEL2,
-      value: rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
-    });
+    events.send(
+      EventNames.ROLE_ATTRIBUTE,
+      JSON.stringify(
+        rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
+      ),
+      EventPersistLevel.LEVEL2,
+    );
     setRaiseHandList((prevState) => {
       return {
         ...prevState,
@@ -223,10 +232,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     /** ********************** HOST EVENTS SECTION BEGINS ********************** */
     events.on(EventNames.RAISED_ATTRIBUTE, (data) => {
       if (!isHost) return;
-      switch (data?.payload?.action) {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
+      switch (action) {
         // 1. Host can receive raise hand request with true or false value
         case LiveStreamControlMessageEnum.raiseHandRequest:
-          switch (data?.payload?.value) {
+          switch (value) {
             case RaiseHandValue.TRUE:
               // Step 1: Show notifications
               showToast(
@@ -261,7 +274,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         // 2. All Hosts in channel gets notified when an attendee's request gets approved or rejected
         case LiveStreamControlMessageEnum.notifyHostsInChannel:
           if (!isHost) return;
-          switch (data.payload.value) {
+          switch (value) {
             case RaiseHandValue.TRUE:
               addOrUpdateLiveStreamRequest(data.sender, {
                 ts: data.ts,
@@ -343,7 +356,12 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       raised: RaiseHandValue.TRUE,
       ts: new Date().getTime(),
     });
-    events.send(LiveStreamControlMessageEnum.raiseHandRequestAccepted, {}, uid);
+    events.send(
+      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
+      '',
+      EventPersistLevel.LEVEL1,
+      uid,
+    );
   };
 
   const hostRejectsRequestOfUID = (uid: UidType) => {
@@ -351,7 +369,12 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
     });
-    events.send(LiveStreamControlMessageEnum.raiseHandRequestRejected, {}, uid);
+    events.send(
+      LiveStreamControlMessageEnum.raiseHandRequestRejected,
+      '',
+      EventPersistLevel.LEVEL1,
+      uid,
+    );
   };
 
   /** ******* HOST CONTROLS SECTION ENDS ******* */
@@ -368,11 +391,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE)
       return;
     showToast(LSNotificationObject.RAISE_HAND_REQUEST);
-    events.send(EventNames.RAISED_ATTRIBUTE, {
-      action: LiveStreamControlMessageEnum.raiseHandRequest,
-      level: EventLevel.LEVEL2,
-      value: RaiseHandValue.TRUE,
-    });
+    events.send(
+      EventNames.RAISED_ATTRIBUTE,
+      JSON.stringify({
+        action: LiveStreamControlMessageEnum.raiseHandRequest,
+        value: RaiseHandValue.TRUE,
+      }),
+      EventPersistLevel.LEVEL1,
+    );
     // Update local state
     addOrUpdateLiveStreamRequest(localUidRef.current, {
       raised: RaiseHandValue.TRUE,

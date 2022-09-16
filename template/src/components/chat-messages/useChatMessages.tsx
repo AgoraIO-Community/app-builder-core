@@ -14,7 +14,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {useRenderContext} from 'fpe-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid, UidType} from '../../../agora-rn-uikit';
-import events from '../../rtm-events-api';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {useChatUIControl} from '../chat-ui/useChatUIControl';
 import {useChatNotification} from '../chat-notification/useChatNotification';
@@ -141,8 +141,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       });
     };
     events.on(EventNames.PUBLIC_CHAT_MESSAGE, (data) => {
-      const messageData = JSON.parse(data.payload.value);
-      switch (data?.payload?.action) {
+      const payload = JSON.parse(data.payload);
+      const messageAction = payload.action;
+      const messageData = payload.value;
+      switch (messageAction) {
         case ChatMessageActionEnum.Create:
           showMessageNotification(messageData.msg, data.sender);
           addMessageToStore(parseInt(data.sender), {
@@ -204,9 +206,10 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       }
     });
     events.on(EventNames.PRIVATE_CHAT_MESSAGE, (data) => {
-      const messageData = JSON.parse(data.payload.value);
-
-      switch (data?.payload?.action) {
+      const payload = JSON.parse(data.payload);
+      const messageAction = payload.action;
+      const messageData = payload.value;
+      switch (messageAction) {
         case ChatMessageActionEnum.Create:
           showMessageNotification(messageData.msg, data.sender, true);
           addMessageToPrivateStore(
@@ -351,10 +354,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       };
       events.send(
         EventNames.PRIVATE_CHAT_MESSAGE,
-        {
-          value: JSON.stringify(messageData),
+        JSON.stringify({
+          value: messageData,
           action: ChatMessageActionEnum.Create,
-        },
+        }),
+        EventPersistLevel.LEVEL1,
         toUid,
       );
       addMessageToPrivateStore(toUid, messageData, true);
@@ -365,10 +369,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         isDeleted: false,
         createdTimestamp: timeNow(),
       };
-      events.send(EventNames.PUBLIC_CHAT_MESSAGE, {
-        value: JSON.stringify(messageData),
-        action: ChatMessageActionEnum.Create,
-      });
+      events.send(
+        EventNames.PUBLIC_CHAT_MESSAGE,
+        JSON.stringify({
+          value: messageData,
+          action: ChatMessageActionEnum.Create,
+        }),
+        EventPersistLevel.LEVEL1,
+      );
       addMessageToStore(localUid, messageData);
     }
   };
@@ -383,10 +391,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         const editMsgData = {msg, updatedTimestamp: timeNow()};
         events.send(
           EventNames.PRIVATE_CHAT_MESSAGE,
-          {
-            value: JSON.stringify({msgId, ...editMsgData}),
+          JSON.stringify({
+            value: {msgId, ...editMsgData},
             action: ChatMessageActionEnum.Update,
-          },
+          }),
+          EventPersistLevel.LEVEL1,
           toUid,
         );
         setPrivateMessageStore((prevState) => {
@@ -411,10 +420,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       );
       if (checkData && checkData.length) {
         const editMsgData = {msg, updatedTimestamp: timeNow()};
-        events.send(EventNames.PUBLIC_CHAT_MESSAGE, {
-          value: JSON.stringify({msgId, ...editMsgData}),
-          action: ChatMessageActionEnum.Update,
-        });
+        events.send(
+          EventNames.PUBLIC_CHAT_MESSAGE,
+          JSON.stringify({
+            value: {msgId, ...editMsgData},
+            action: ChatMessageActionEnum.Update,
+          }),
+          EventPersistLevel.LEVEL1,
+        );
         setMessageStore((prevState) => {
           const newState = prevState.map((item) => {
             if (item.msgId === msgId) {
@@ -440,10 +453,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         const deleteMsgData = {updatedTimestamp: timeNow()};
         events.send(
           EventNames.PRIVATE_CHAT_MESSAGE,
-          {
-            value: JSON.stringify({msgId, ...deleteMsgData}),
+          JSON.stringify({
+            value: {msgId, ...deleteMsgData},
             action: ChatMessageActionEnum.Delete,
-          },
+          }),
+          EventPersistLevel.LEVEL1,
           toUid,
         );
         setPrivateMessageStore((prevState) => {
@@ -468,10 +482,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       );
       if (checkData && checkData.length) {
         const deleteMsgData = {updatedTimestamp: timeNow()};
-        events.send(EventNames.PUBLIC_CHAT_MESSAGE, {
-          value: JSON.stringify({msgId, ...deleteMsgData}),
-          action: ChatMessageActionEnum.Delete,
-        });
+        events.send(
+          EventNames.PUBLIC_CHAT_MESSAGE,
+          JSON.stringify({
+            value: {msgId, ...deleteMsgData},
+            action: ChatMessageActionEnum.Delete,
+          }),
+          EventPersistLevel.LEVEL1,
+        );
         setMessageStore((prevState) => {
           const newState = prevState.map((item) => {
             if (item.msgId === msgId) {

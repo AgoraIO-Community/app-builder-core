@@ -16,7 +16,7 @@ import RTMEngine from '../rtm/RTMEngine';
 import {EventUtils, eventMessageType} from '../rtm-events';
 import {
   ReceiverUid,
-  EventCallbackPayload,
+  EventCallback,
   EventSource,
   EventPersistLevel,
 } from './types';
@@ -67,7 +67,7 @@ class Events {
     return true;
   };
 
-  private _validateListener = (listener: EventCallbackPayload): boolean => {
+  private _validateListener = (listener: EventCallback): boolean => {
     if (typeof listener !== 'function') {
       throw Error(
         `CUSTOM_EVENT_API Function cannot be of type ${typeof listener}`,
@@ -154,7 +154,7 @@ class Events {
    * @param {Function} listener Method to be called when the event is emitted.
    * @api public
    */
-  on = (eventName: string, listener: EventCallbackPayload) => {
+  on = (eventName: string, listener: EventCallback) => {
     try {
       if (!this._validateEvt(eventName) || !this._validateListener(listener))
         return;
@@ -174,7 +174,7 @@ class Events {
    * @param {Function} listenerToRemove Method to remove from the event.
    * @api public
    */
-  off = (eventName?: string, listenerToRemove?: EventCallbackPayload) => {
+  off = (eventName?: string, listenerToRemove?: EventCallback) => {
     try {
       if (listenerToRemove) {
         if (

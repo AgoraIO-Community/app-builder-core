@@ -23,7 +23,7 @@ import Toast from '../../../react-native-toast-message';
 import {createHook} from 'fpe-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import events, {EventLevel} from '../../rtm-events-api';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
@@ -97,7 +97,11 @@ const RecordingProvider = (props: RecordingProviderProps) => {
 
   React.useEffect(() => {
     events.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
-      switch (data?.payload?.action) {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
+      switch (action) {
         case EventActions.RECORDING_STARTED:
           setRecordingActive(true);
           break;
@@ -148,11 +152,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now active.
            */
-          events.send(EventNames.RECORDING_ATTRIBUTE, {
-            action: EventActions.RECORDING_STARTED,
-            value: `${localUid}`,
-            level: EventLevel.LEVEL3,
-          });
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STARTED,
+              value: `${localUid}`,
+            }),
+            EventPersistLevel.LEVEL3,
+          );
           // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
@@ -188,11 +195,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now inactive.
            */
-          events.send(EventNames.RECORDING_ATTRIBUTE, {
-            action: EventActions.RECORDING_STOPPED,
-            value: '',
-            level: EventLevel.LEVEL3,
-          });
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STOPPED,
+              value: '',
+            }),
+            EventPersistLevel.LEVEL3,
+          );
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
         }

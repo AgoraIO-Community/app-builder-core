@@ -219,11 +219,8 @@ const EventUtils = (function () {
      * @param {Array} [args] Optional array of arguments to be passed to each listener.
      * @return {Object} Current instance of EventUtils
      */
-    emitEvent(evt: string, args: any): object {
-      let listenersMap = _getListenersAsObject(
-        evt,
-        args.payload.source || EventSource.core,
-      );
+    emitEvent(evt: string, source: EventSource, args: any): object {
+      let listenersMap = _getListenersAsObject(evt, source);
       let listeners: TListenerMetaData[];
       let listener: TListenerMetaData;
       for (let key in listenersMap) {
@@ -235,10 +232,10 @@ const EventUtils = (function () {
             listener = listeners[i];
 
             if (listener.once === true) {
-              this.removeListener(evt, args.payload.source, listener.listener);
+              this.removeListener(evt, source, listener.listener);
             }
 
-            const newargs = [].slice.call(arguments, 1);
+            const newargs = [].slice.call(arguments, 2);
             listener.listener.apply(this, newargs || []);
           }
         }

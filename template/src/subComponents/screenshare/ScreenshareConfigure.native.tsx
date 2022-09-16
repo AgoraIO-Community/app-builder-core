@@ -57,9 +57,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
-      switch (data?.payload?.action) {
+      switch (action) {
         case EventActions.SCREENSHARE_STARTED:
           setScreenShareData((prevState) => {
             return {
@@ -67,7 +71,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: true,
-                ts: data.payload.value || 0,
+                ts: value || 0,
               },
             };
           });
@@ -81,7 +85,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: false,
-                ts: data.payload.value || 0,
+                ts: value || 0,
               },
             };
           });
