@@ -2,14 +2,16 @@
  * Core contexts
  */
 import {createHook} from 'customization-implementation';
-import {RtcContext, RenderContext, LocalContext} from '../agora-rn-uikit';
+import {RtcContext, RenderContext} from '../agora-rn-uikit';
+
 // commented for v1 release
 //import {default as DeviceContext} from '../src/components/DeviceContext';
 //import {default as StorageContext} from '../src/components/StorageContext';
 
 export const useRtc = createHook(RtcContext);
 export const useRender = createHook(RenderContext);
-export const useLocalUserInfo = createHook(LocalContext);
+export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
+
 // commented for v1 release
 //export const useDeviceContext = createHook(DeviceContext);
 //export const useStorageContext = createHook(StorageContext);
