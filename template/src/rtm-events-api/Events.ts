@@ -160,7 +160,7 @@ class Events {
         return;
       EventUtils.addListener(eventName, listener, this.source);
       return () => {
-        // TODOSUP, return a function to unbind
+        EventUtils.removeListener(eventName, listener, this.source);
       };
     } catch (error) {
       console.log('custom-events-on error: ', error);
