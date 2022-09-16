@@ -159,6 +159,9 @@ class Events {
       if (!this._validateEvt(eventName) || !this._validateListener(listener))
         return;
       EventUtils.addListener(eventName, listener, this.source);
+      return () => {
+        // TODOSUP, return a function to unbind
+      };
     } catch (error) {
       console.log('custom-events-on error: ', error);
     }

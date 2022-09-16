@@ -235,7 +235,7 @@ const RtmConfigure = (props: any) => {
                       evt: key,
                       value: value,
                     };
-                    // Todo:EVENTSUP Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+                    // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
                     EventsQueue.enqueue({
                       data: data,
                       uid: member.uid,
