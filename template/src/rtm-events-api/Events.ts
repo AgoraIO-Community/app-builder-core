@@ -174,17 +174,14 @@ class Events {
    * That means every event will be emptied.
    *
    * @param {String} eventName Name of the event to remove the listener from.
-   * @param {Function} listenerToRemove Method to remove from the event.
+   * @param {Function} listener Method to remove from the event.
    * @api public
    */
-  off = (eventName?: string, listenerToRemove?: EventCallback) => {
+  off = (eventName?: string, listener?: EventCallback) => {
     try {
-      if (listenerToRemove) {
-        if (
-          this._validateListener(listenerToRemove) &&
-          this._validateEvt(eventName)
-        ) {
-          EventUtils.removeListener(eventName, listenerToRemove, this.source);
+      if (listener) {
+        if (this._validateListener(listener) && this._validateEvt(eventName)) {
+          EventUtils.removeListener(eventName, listener, this.source);
         }
       } else if (eventName) {
         if (this._validateEvt(eventName)) {
