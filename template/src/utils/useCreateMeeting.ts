@@ -46,18 +46,19 @@ export default function useCreateMeeting() {
       throw error;
     }
     if (res && res?.data && res?.data?.createChannel) {
-      let meetingInfoPassPhrase: MeetingInfoContextInterface['meetingPassphrase'] =
-        {
+      let meetingInfo: Partial<MeetingInfoContextInterface> = {
+        roomId: {
           attendee: '',
-        };
+        },
+      };
       if (res?.data?.createChannel?.passphrase?.view) {
-        meetingInfoPassPhrase.attendee = res.data.createChannel.passphrase.view;
+        meetingInfo.roomId.attendee = res.data.createChannel.passphrase.view;
       }
       if (res?.data?.createChannel?.passphrase?.host) {
-        meetingInfoPassPhrase.host = res.data.createChannel.passphrase.host;
+        meetingInfo.roomId.host = res.data.createChannel.passphrase.host;
       }
       if (enablePSTN === true && res?.data?.createChannel?.pstn) {
-        meetingInfoPassPhrase.pstn = {
+        meetingInfo.pstn = {
           number: res.data.createChannel.pstn.number,
           pin: res.data.createChannel.pstn.dtmf,
         };
@@ -66,13 +67,14 @@ export default function useCreateMeeting() {
         isHost: true,
         isSeparateHostLink: isSeparateHostLink ? true : false,
         meetingTitle: roomTitle,
-        meetingPassphrase: meetingInfoPassPhrase,
+        roomId: meetingInfo?.roomId,
+        pstn: meetingInfo?.pstn,
       });
       SDKEvents.emit(
         'create',
-        meetingInfoPassPhrase.host,
-        meetingInfoPassPhrase.attendee,
-        meetingInfoPassPhrase.pstn,
+        meetingInfo.roomId.host,
+        meetingInfo.roomId.attendee,
+        meetingInfo?.pstn,
       );
     } else {
       throw new Error(`An error occurred in parsing the channel data.`);

@@ -1,7 +1,7 @@
 const GetMeetingInviteURL = (
   baseUrl: string,
   isHost: boolean,
-  meetingPassphrase: {
+  roomId: {
     host?: string;
     attendee?: string;
   },
@@ -10,23 +10,23 @@ const GetMeetingInviteURL = (
   if (isHost) {
     if (isSeparateHostLink) {
       return {
-        host: `${baseUrl}/${meetingPassphrase.host}`,
-        attendee: `${baseUrl}/${meetingPassphrase.attendee}`,
+        host: `${baseUrl}/${roomId.host}`,
+        attendee: `${baseUrl}/${roomId.attendee}`,
       };
     } else {
       return {
-        host: `${baseUrl}/${meetingPassphrase.host}`,
+        host: `${baseUrl}/${roomId.host}`,
       };
     }
   } else {
     return {
-      attendee: `${baseUrl}/${meetingPassphrase.attendee}`,
+      attendee: `${baseUrl}/${roomId.attendee}`,
     };
   }
 };
 const GetMeetingInviteID = (
   isHost: boolean,
-  meetingPassphrase: {
+  roomId: {
     host?: string;
     attendee?: string;
   },
@@ -35,17 +35,17 @@ const GetMeetingInviteID = (
   if (isHost) {
     if (isSeparateHostLink) {
       return {
-        host: `${meetingPassphrase.host}`,
-        attendee: `${meetingPassphrase.attendee}`,
+        host: `${roomId.host}`,
+        attendee: `${roomId.attendee}`,
       };
     } else {
       return {
-        host: `${meetingPassphrase.host}`,
+        host: `${roomId.host}`,
       };
     }
   } else {
     return {
-      attendee: `${meetingPassphrase.attendee}`,
+      attendee: `${roomId.attendee}`,
     };
   }
 };

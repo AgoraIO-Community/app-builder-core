@@ -22,7 +22,6 @@ import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
 import {isWeb, isValidReactComponent} from '../utils/common';
-import {useMeetingInfo} from 'customization-api';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
@@ -63,9 +62,6 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
-  const {
-    meetingPassphrase: {attendee, host, pstn},
-  } = useMeetingInfo();
   const navigateTo = useNavigateTo();
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();

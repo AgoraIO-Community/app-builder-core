@@ -90,10 +90,10 @@ export default function useJoinMeeting() {
             meetingInfo.token = data.joinChannel.mainUser.rtc;
           }
           if (data?.joinChannel?.mainUser?.rtm) {
-            meetingInfo.rtm = data.joinChannel.mainUser.rtm;
+            meetingInfo.rtmToken = data.joinChannel.mainUser.rtm;
           }
           if (data?.joinChannel?.secret) {
-            meetingInfo.secret = data.joinChannel.secret;
+            meetingInfo.encryptionSecret = data.joinChannel.secret;
           }
           if (data?.joinChannel?.screenShare?.uid) {
             meetingInfo.screenShareUid = data.joinChannel.screenShare.uid;

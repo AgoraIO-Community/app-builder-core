@@ -16,20 +16,20 @@ export interface MeetingInfoContextInterface {
   isJoinDataFetched?: boolean;
   isHost: boolean;
   meetingTitle: string;
-  meetingPassphrase: {
+  roomId: {
     attendee: string;
     host?: string;
-    pstn?: {
-      number: string;
-      pin: string;
-    };
+  };
+  pstn?: {
+    number: string;
+    pin: string;
   };
   isSeparateHostLink: boolean;
   channel?: string;
   uid?: UidType;
   token?: string;
-  rtm?: string;
-  secret?: string;
+  rtmToken?: string;
+  encryptionSecret?: string;
   screenShareUid?: string;
   screenShareToken?: string;
 }
@@ -38,7 +38,7 @@ export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
   isJoinDataFetched: false,
   isHost: false,
   meetingTitle: '',
-  meetingPassphrase: {
+  roomId: {
     attendee: '',
   },
   isSeparateHostLink: true,

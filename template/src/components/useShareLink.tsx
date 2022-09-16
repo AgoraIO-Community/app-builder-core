@@ -45,7 +45,7 @@ interface ShareLinkProvideProps {
 }
 
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
-  const {meetingTitle, meetingPassphrase, isSeparateHostLink, isHost} =
+  const {meetingTitle, roomId, pstn, isSeparateHostLink, isHost} =
     useMeetingInfo();
 
   //commmented for v1 release
@@ -111,20 +111,15 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     let stringToCopy = meetingInviteText({
       meetingName: meetingTitle,
       url: baseURL
-        ? GetMeetingInviteURL(
-            baseURL,
-            isHost,
-            meetingPassphrase,
-            isSeparateHostLink,
-          )
+        ? GetMeetingInviteURL(baseURL, isHost, roomId, isSeparateHostLink)
         : undefined,
       id: !baseURL
-        ? GetMeetingInviteID(isHost, meetingPassphrase, isSeparateHostLink)
+        ? GetMeetingInviteID(isHost, roomId, isSeparateHostLink)
         : undefined,
-      pstn: meetingPassphrase?.pstn
+      pstn: pstn
         ? {
-            number: meetingPassphrase.pstn.number,
-            pin: meetingPassphrase.pstn.pin,
+            number: pstn.number,
+            pin: pstn.pin,
           }
         : undefined,
       isHost,
@@ -144,11 +139,11 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const getAttendeeURLOrId = () => {
     let stringToCopy = '';
     let baseURL = getBaseURL();
-    if (meetingPassphrase?.attendee) {
+    if (roomId?.attendee) {
       if (baseURL) {
-        stringToCopy += `${baseURL}/${meetingPassphrase.attendee}`;
+        stringToCopy += `${baseURL}/${roomId.attendee}`;
       } else {
-        stringToCopy += `${meetingPassphrase.attendee}`;
+        stringToCopy += `${roomId.attendee}`;
       }
     }
     return stringToCopy;
@@ -156,12 +151,12 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getHostUrlOrId = () => {
     let stringToCopy = '';
-    if (meetingPassphrase?.host) {
+    if (roomId?.host) {
       let baseURL = getBaseURL();
       if (baseURL) {
-        stringToCopy += `${baseURL}/${meetingPassphrase.host}`;
+        stringToCopy += `${baseURL}/${roomId.host}`;
       } else {
-        stringToCopy += `${meetingPassphrase.host}`;
+        stringToCopy += `${roomId.host}`;
       }
     }
     return stringToCopy;
@@ -169,12 +164,8 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getPstn = () => {
     let stringToCopy = '';
-    if (
-      meetingPassphrase?.pstn &&
-      meetingPassphrase.pstn?.number &&
-      meetingPassphrase.pstn?.pin
-    ) {
-      stringToCopy += `${PSTNNumberText}: ${meetingPassphrase.pstn.number} ${PSTNPinText}: ${meetingPassphrase.pstn.pin}`;
+    if (pstn && pstn?.number && pstn?.pin) {
+      stringToCopy += `${PSTNNumberText}: ${pstn.number} ${PSTNPinText}: ${pstn.pin}`;
     }
 
     return stringToCopy;

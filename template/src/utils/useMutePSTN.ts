@@ -13,7 +13,7 @@ const MUTE_PSTN = gql`
 
 const useMutePSTN = () => {
   const [mutePSTN, {data, loading, error}] = useMutation(MUTE_PSTN);
-  const {isHost, meetingPassphrase} = useMeetingInfo();
+  const {isHost, roomId} = useMeetingInfo();
   const isPSTN = useIsPSTN();
   return async (uid: UidType) => {
     if (isHost) {
@@ -21,7 +21,7 @@ const useMutePSTN = () => {
         await mutePSTN({
           variables: {
             uid: uid,
-            passphrase: meetingPassphrase?.host,
+            passphrase: roomId?.host,
             //todo: hari need to test mute flag for PSTN
             mute: 1,
           },

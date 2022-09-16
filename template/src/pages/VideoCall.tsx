@@ -146,14 +146,14 @@ const VideoCall: React.FC = () => {
         channel: data.channel,
         uid: data.uid,
         token: data.token,
-        rtm: data.rtm,
+        rtm: data.rtmToken,
         dual: true,
         profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
-              key: data.secret,
+              key: data.encryptionSecret,
               mode: RnEncryptionEnum.AES128XTS,
-              screenKey: data.secret,
+              screenKey: data.encryptionSecret,
             }
           : false,
         screenShareUid: data.screenShareUid,
