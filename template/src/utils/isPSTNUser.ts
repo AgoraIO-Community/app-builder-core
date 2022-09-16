@@ -9,14 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {useRender} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
-import useUserList from './useUserList';
 /**
  * This hook will return the function to check whether the current user is a PSTN user or not
  * @returns function
  */
 function useIsPSTN() {
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   /**
    *
    * @param uid number

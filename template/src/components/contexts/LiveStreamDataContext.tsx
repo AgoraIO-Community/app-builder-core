@@ -6,7 +6,7 @@ import LiveStreamContext, {
 } from '../../components/livestream';
 import {ClientRole, useLocalUid} from '../../../agora-rn-uikit';
 import {filterObject} from '../../utils';
-import useUserList from '../../utils/useUserList';
+import {useRender} from 'customization-api';
 
 export interface LiveStreamDataObjectInterface {
   [key: number]: {
@@ -30,7 +30,7 @@ interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [audienceUids, setAudienceUids] = useState<UidType[]>([]);

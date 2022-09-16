@@ -16,16 +16,15 @@ import {
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
-import useUserList from '../../utils/useUserList';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import CustomEvents from '../../custom-events';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useRtc} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
-  const {renderList, renderPosition} = useUserList();
+  const {renderList, renderPosition} = useRender();
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');

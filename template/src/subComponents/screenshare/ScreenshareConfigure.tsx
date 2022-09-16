@@ -18,14 +18,13 @@ import {
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import useUserList from '../../utils/useUserList';
 import CustomEvents, {EventLevel} from '../../custom-events';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
-import {useRtc} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -33,7 +32,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useRtc();
   const {dispatch} = rtc;
-  const {renderList, renderPosition} = useUserList();
+  const {renderList, renderPosition} = useRender();
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();

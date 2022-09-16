@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import {useRender} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import useUserList from './useUserList';
 
 function useIsAudioEnabled() {
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   /**
    *
    * @param uid UidType

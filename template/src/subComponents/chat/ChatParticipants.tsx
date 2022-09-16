@@ -12,8 +12,8 @@ import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
 import {isIOS, isWeb} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
-import useUserList from '../../utils/useUserList';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -21,7 +21,7 @@ const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isChatUser = (userId: UidType, userInfo: any) => {

@@ -16,10 +16,10 @@ import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWeb} from '../utils/common';
-import useUserList from '../utils/useUserList';
+import {useRender} from 'customization-api';
 
 const ChatBubble = (props: ChatBubbleProps) => {
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const {primaryColor} = useContext(ColorContext);
   let {
     isLocal,
