@@ -146,8 +146,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       const messageData = payload.value;
       switch (messageAction) {
         case ChatMessageActionEnum.Create:
-          showMessageNotification(messageData.msg, data.sender);
-          addMessageToStore(parseInt(data.sender), {
+          showMessageNotification(messageData.msg, `${data.sender}`);
+          addMessageToStore(data.sender, {
             msg: messageData.msg,
             createdTimestamp: messageData.createdTimestamp,
             isDeleted: messageData.isDeleted,
@@ -168,7 +168,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             const newState = prevState.map((item) => {
               if (
                 item.msgId === messageData.msgId &&
-                item.uid === parseInt(data.sender)
+                item.uid === data.sender
               ) {
                 return {
                   ...item,
@@ -187,7 +187,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             const newState = prevState.map((item) => {
               if (
                 item.msgId === messageData.msgId &&
-                item.uid === parseInt(data.sender)
+                item.uid === data.sender
               ) {
                 return {
                   ...item,
@@ -211,9 +211,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       const messageData = payload.value;
       switch (messageAction) {
         case ChatMessageActionEnum.Create:
-          showMessageNotification(messageData.msg, data.sender, true);
+          showMessageNotification(messageData.msg, `${data.sender}`, true);
           addMessageToPrivateStore(
-            parseInt(data.sender),
+            data.sender,
             {
               msg: messageData.msg,
               createdTimestamp: messageData.createdTimestamp,
@@ -227,26 +227,26 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
            * then we will not increment the unread count
            */
 
-          if (!(individualActiveRef.current === parseInt(data.sender))) {
+          if (!(individualActiveRef.current === data.sender)) {
             setUnreadIndividualMessageCount((prevState) => {
               const prevCount =
-                prevState && prevState[parseInt(data.sender)]
-                  ? prevState[parseInt(data.sender)]
+                prevState && prevState[data.sender]
+                  ? prevState[data.sender]
                   : 0;
               return {
                 ...prevState,
-                [parseInt(data.sender)]: prevCount + 1,
+                [data.sender]: prevCount + 1,
               };
             });
           }
           break;
         case ChatMessageActionEnum.Update:
           setPrivateMessageStore((prevState) => {
-            const privateChatOfUid = prevState[parseInt(data.sender)];
+            const privateChatOfUid = prevState[data.sender];
             const updatedData = privateChatOfUid.map((item) => {
               if (
                 item.msgId === messageData.msgId &&
-                item.uid === parseInt(data.sender)
+                item.uid === data.sender
               ) {
                 return {
                   ...item,
@@ -259,18 +259,18 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             });
             const newState = {
               ...prevState,
-              [parseInt(data.sender)]: updatedData,
+              [data.sender]: updatedData,
             };
             return newState;
           });
           break;
         case ChatMessageActionEnum.Delete:
           setPrivateMessageStore((prevState) => {
-            const privateChatOfUid = prevState[parseInt(data.sender)];
+            const privateChatOfUid = prevState[data.sender];
             const updatedData = privateChatOfUid.map((item) => {
               if (
                 item.msgId === messageData.msgId &&
-                item.uid === parseInt(data.sender)
+                item.uid === data.sender
               ) {
                 return {
                   ...item,
@@ -283,7 +283,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             });
             const newState = {
               ...prevState,
-              [parseInt(data.sender)]: updatedData,
+              [data.sender]: updatedData,
             };
             return newState;
           });

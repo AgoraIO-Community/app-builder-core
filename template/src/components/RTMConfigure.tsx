@@ -341,7 +341,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = getMessageTime(ts);
 
-      const sender = isAndroid ? get32BitUid(peerId) : peerId;
+      const sender = isAndroid ? get32BitUid(peerId) : parseInt(peerId);
 
       if (type === messageActionType.Control) {
         switch (msg) {
@@ -386,7 +386,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = getMessageTime(ts);
 
-      const sender = Platform.OS ? get32BitUid(uid) : uid;
+      const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
 
       if (channelId === rtcProps.channel) {
         if (

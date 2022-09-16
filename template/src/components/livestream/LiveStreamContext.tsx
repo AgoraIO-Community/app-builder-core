@@ -89,7 +89,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   };
 
   const addOrUpdateLiveStreamRequest = (
-    userUID: string,
+    userUID: UidType,
     payload: Partial<raiseHandItemInterface>,
   ) => {
     if (userUID && !isEmptyObject(payload)) {
@@ -352,7 +352,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
    */
 
   const hostApprovesRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(`${uid}`, {
+    addOrUpdateLiveStreamRequest(uid, {
       raised: RaiseHandValue.TRUE,
       ts: new Date().getTime(),
     });
@@ -365,7 +365,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   };
 
   const hostRejectsRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(`${uid}`, {
+    addOrUpdateLiveStreamRequest(uid, {
       raised: RaiseHandValue.FALSE,
       ts: new Date().getTime(),
     });
