@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {View, Dimensions, StyleSheet} from 'react-native';
+import {View, Dimensions, StyleSheet, Text} from 'react-native';
 import {PropsContext} from '../../agora-rn-uikit';
 import LocalAudioMute, {
   LocalAudioMuteProps,
@@ -34,6 +34,9 @@ import LiveStreamControls, {
 import {isIOS, isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
+import Spacer from '../atoms/Spacer';
+import LayoutIconButton from '../subComponents/LayoutIconButton';
+import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -51,56 +54,80 @@ const Controls = () => {
 
   return (
     <View
+      testID="videocall-controls"
       style={[
-        style.controlsHolder,
+        style.container,
         {
-          paddingHorizontal: isDesktop ? '25%' : '1%',
-          backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+          paddingHorizontal: isDesktop ? '60px' : '10px',
+          //backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
         },
       ]}
       onLayout={onLayout}>
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-        <LiveStreamControls showControls={true} />
-      ) : (
-        <>
-          {/**
-           * In event mode when raise hand feature is active
-           * and audience is promoted to host, the audience can also
-           * demote himself
-           */}
-          {$config.EVENT_MODE && (
-            <LiveStreamControls
-              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
-            />
-          )}
-          <View style={{alignSelf: 'center'}}>
-            <LocalAudioMute />
-          </View>
-          {!$config.AUDIO_ROOM && (
-            <View style={{alignSelf: 'center'}}>
-              <LocalVideoMute />
-            </View>
-          )}
-          {!$config.AUDIO_ROOM && isMobileOrTablet() && (
-            <View style={{alignSelf: 'center'}}>
-              <LocalSwitchCamera />
-            </View>
-          )}
-          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-            <View style={{alignSelf: 'center'}}>
-              <ScreenshareButton />
-            </View>
-          )}
-          {isHost && $config.CLOUD_RECORDING && (
-            <View style={{alignSelf: 'center'}}>
-              <Recording />
-            </View>
-          )}
-        </>
-      )}
-      <View style={{alignSelf: 'center'}}>
-        <LocalEndcall />
+      <View style={style.leftContent}>
+        <View testID="layout-btn" style={{marginRight: isDesktop ? 40 : 10}}>
+          <LayoutIconButton modalPosition={{bottom: 80, left: 60}} />
+        </View>
+        <View testID="invite-btn">
+          <CopyJoinInfo />
+        </View>
       </View>
+      <View style={style.centerContent}>
+        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          <LiveStreamControls showControls={true} />
+        ) : (
+          <>
+            {/**
+             * In event mode when raise hand feature is active
+             * and audience is promoted to host, the audience can also
+             * demote himself
+             */}
+            {$config.EVENT_MODE && (
+              <LiveStreamControls
+                showControls={
+                  rtcProps?.role == ClientRole.Broadcaster && !isHost
+                }
+              />
+            )}
+            <View
+              testID="localAudio-btn"
+              style={{marginRight: isDesktop ? 40 : 10}}>
+              <LocalAudioMute />
+            </View>
+            {!$config.AUDIO_ROOM && (
+              <View
+                testID="localVideo-btn"
+                style={{marginRight: isDesktop ? 40 : 10}}>
+                <LocalVideoMute />
+              </View>
+            )}
+            {!$config.AUDIO_ROOM && isMobileOrTablet() && (
+              <View
+                testID="switchCamera-btn"
+                style={{marginRight: isDesktop ? 40 : 10}}>
+                <LocalSwitchCamera />
+              </View>
+            )}
+            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
+              <View
+                testID="screenShare-btn"
+                style={{marginRight: isDesktop ? 40 : 10}}>
+                <ScreenshareButton />
+              </View>
+            )}
+            {isHost && $config.CLOUD_RECORDING && (
+              <View
+                testID="recording-btn"
+                style={{marginRight: isDesktop ? 40 : 10}}>
+                <Recording />
+              </View>
+            )}
+          </>
+        )}
+        <View testID="endCall-btn">
+          <LocalEndcall />
+        </View>
+      </View>
+      <View style={style.rightContent}></View>
     </View>
   );
 };
@@ -128,6 +155,24 @@ const style = StyleSheet.create({
   controlsHolder: {
     flex: isWeb ? 1.3 : 1.6,
     ...controlsHolder,
+  },
+  container: {
+    flexDirection: 'row',
+    minHeight: 72,
+    maxHeight: '8%',
+  },
+  leftContent: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  centerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rightContent: {
+    flex: 1,
   },
   chatNotification: {
     width: 20,

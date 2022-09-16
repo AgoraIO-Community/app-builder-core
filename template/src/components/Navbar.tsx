@@ -40,6 +40,7 @@ import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
+import LayoutIconButton from '../subComponents/LayoutIconButton';
 import {
   ButtonTemplateName,
   useButtonTemplate,
@@ -261,81 +262,6 @@ interface LayoutIconButtonInterface {
     buttonTemplateName?: ButtonTemplateName,
   ) => JSX.Element;
 }
-
-const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const {modalPosition} = props;
-  //commented for v1 release
-  //const layoutLabel = useString('layoutLabel')('');
-  const layoutLabel = 'Layouts';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
-  const [showDropdown, setShowDropdown] = useState(false);
-  const layouts = useCustomLayout();
-  const changeLayout = useChangeDefaultLayout();
-  const {activeLayoutName} = useLayout();
-  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
-  const renderLayoutIcon = (showDropdown?: boolean) => {
-    let onPress = () => {};
-    let renderContent = [];
-    if (!showDropdown) {
-      onPress = () => {
-        changeLayout();
-      };
-    } else {
-      onPress = () => {
-        setShowDropdown(true);
-      };
-    }
-    let btnTemplateProps = {
-      onPress: onPress,
-      style: {},
-      btnText: '',
-    };
-    if (buttonTemplateName === ButtonTemplateName.bottomBar) {
-      btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
-      btnTemplateProps.btnText = layoutLabel;
-    } else {
-      btnTemplateProps.style = style.btnHolder;
-      delete btnTemplateProps['btnText'];
-    }
-    renderContent.push(
-      props?.render ? (
-        props.render(onPress, buttonTemplateName)
-      ) : layouts[layout]?.iconName ? (
-        <BtnTemplate
-          key={'defaultLayoutIconWithName'}
-          name={layouts[layout]?.iconName}
-          {...btnTemplateProps}
-        />
-      ) : (
-        <BtnTemplate
-          key={'defaultLayoutIconWithIcon'}
-          icon={layouts[layout]?.icon}
-          {...btnTemplateProps}
-        />
-      ),
-    );
-    return renderContent;
-  };
-  return (
-    <>
-      {/**
-       * Based on the flag. it will render the dropdown
-       */}
-      <LayoutIconDropdown
-        showDropdown={showDropdown}
-        setShowDropdown={setShowDropdown}
-        modalPosition={modalPosition}
-      />
-      {/**
-       * If layout contains more than 2 data. it will render the dropdown.
-       */}
-      {layouts && Array.isArray(layouts) && layouts.length > 2
-        ? renderLayoutIcon(true)
-        : renderLayoutIcon(false)}
-    </>
-  );
-};
 
 const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
