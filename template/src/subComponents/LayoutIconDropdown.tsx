@@ -34,7 +34,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {isDesktop, dim} = getDimensionData();
 
   const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useLayout();
+  const {currentLayout, setLayout} = useLayout();
   const renderSeparatorHorizontal = () => {
     return isWeb && isDesktop ? (
       <View style={style.navItem}>
@@ -50,7 +50,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
       let onPress = () => {
-        setActiveLayoutName(item.name);
+        setLayout(item.name);
         setShowDropdown(false);
       };
       let content = [];
@@ -76,7 +76,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           onPress={onPress}>
           <>
             <View style={style.highlighterContainer}>
-              {selectedItemHighlighter(item.name === activeLayoutName)}
+              {selectedItemHighlighter(item.name === currentLayout)}
             </View>
             <View style={{flex: 1}}>{BtnTemplateLocal}</View>
             <View style={style.layoutNameContainer}>

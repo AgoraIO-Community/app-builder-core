@@ -25,14 +25,14 @@ interface LayoutIconDropdownProps {
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {showDropdown, setShowDropdown} = props;
   const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useLayout();
+  const {currentLayout, setLayout} = useLayout();
   const selectedItemHighlighter = (isSelected: boolean) => {
     return <View style={isSelected ? style.highlighter : {}} />;
   };
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
       let onPress = () => {
-        setActiveLayoutName(item.name);
+        setLayout(item.name);
         setShowDropdown(false);
       };
       let content = [];
@@ -58,7 +58,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           key={'dropdownLayoutIcon' + index}>
           <>
             <View style={style.highlighterContainer}>
-              {selectedItemHighlighter(item.name === activeLayoutName)}
+              {selectedItemHighlighter(item.name === currentLayout)}
             </View>
             <View style={{flex: 1}}>{BtnTemplateLocal}</View>
             <View style={style.layoutNameContainer}>

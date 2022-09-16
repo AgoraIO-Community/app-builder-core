@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useContext, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import KeepAwake from 'react-native-keep-awake';
-import {RtcContext, UidType} from '../../../agora-rn-uikit';
+import {UidType} from '../../../agora-rn-uikit';
 import {
   useChangeDefaultLayout,
   useSetPinnedLayout,
@@ -21,10 +21,10 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import CustomEvents from '../../custom-events';
 import {EventNames, EventActions} from '../../rtm-events';
+import {useRtc} from 'customization-api';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
-  const rtc = useContext(RtcContext);
-  const {dispatch} = rtc;
+  const {dispatch} = useRtc();
   const {renderList, renderPosition} = useUserList();
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release

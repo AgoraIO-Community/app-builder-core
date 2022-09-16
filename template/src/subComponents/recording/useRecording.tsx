@@ -31,14 +31,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
-  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
   isRecordingActive: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
-  setRecordingActive: () => {},
   isRecordingActive: false,
 });
 
@@ -69,7 +67,10 @@ function usePrevious<T = any>(value: any) {
 
 interface RecordingProviderProps {
   children: React.ReactNode;
-  value: Omit<RecordingContextInterface, 'startRecording' | 'stopRecording'>;
+  value: {
+    setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
+    isRecordingActive: boolean;
+  };
 }
 
 /**
@@ -208,7 +209,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         startRecording,
         stopRecording,
         isRecordingActive,
-        setRecordingActive,
       }}>
       {props.children}
     </RecordingContext.Provider>

@@ -11,7 +11,6 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {RenderInterface, useLocalUid} from '../../agora-rn-uikit';
-import {RtcContext} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import StorageContext from './StorageContext';
 import CustomEvents, {EventLevel} from '../custom-events';
@@ -19,6 +18,7 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
+import {useRtc} from 'customization-api';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -34,7 +34,7 @@ const UserPreferenceContext =
 const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   const localUid = useLocalUid();
   const screenShareUid = useLocalScreenShareUid();
-  const {dispatch} = useContext(RtcContext);
+  const {dispatch} = useRtc();
 
   const {store, setStore} = useContext(StorageContext);
   const {hasUserJoinedRTM} = useContext(ChatContext);

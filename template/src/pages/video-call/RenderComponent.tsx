@@ -1,10 +1,7 @@
 import React from 'react';
 import VideoRenderer from './VideoRenderer';
 import {UidType} from '../../../agora-rn-uikit';
-import {
-  renderComponentObjectInterface,
-  useRenderContext,
-} from 'customization-api';
+import {renderComponentObjectInterface, useRender} from 'customization-api';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../../utils/common';
 
@@ -18,7 +15,7 @@ interface RenderComponentProps {
   uid: UidType;
 }
 const RenderComponent = ({uid}: RenderComponentProps) => {
-  const {renderList} = useRenderContext();
+  const {renderList} = useRender();
   const FpeRenderComponent = useCustomization((config) =>
     typeof config?.components?.videoCall === 'object' &&
     typeof config?.components?.videoCall?.customContent === 'object'

@@ -91,7 +91,7 @@ const VideoCall: React.FC = () => {
   //layouts
   const layouts = useCustomLayout();
   const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
-  const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
+  const [currentLayout, setLayout] = useState(defaultLayoutName);
   //layouts
 
   const [isRecordingActive, setRecordingActive] = useState(false);
@@ -217,8 +217,8 @@ const VideoCall: React.FC = () => {
                                 <WhiteboardProvider>
                                   <LayoutProvider
                                     value={{
-                                      activeLayoutName,
-                                      setActiveLayoutName,
+                                      currentLayout,
+                                      setLayout,
                                     }}>
                                     <RecordingProvider
                                       value={{

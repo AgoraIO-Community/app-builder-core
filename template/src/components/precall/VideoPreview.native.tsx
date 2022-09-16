@@ -10,13 +10,14 @@
 *********************************************
 */
 
-import React, {useContext} from 'react';
+import {useRtc} from 'customization-api';
+import React from 'react';
 import {View} from 'react-native';
-import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
+import {MaxVideoView} from '../../../agora-rn-uikit';
 import useUserList from '../../utils/useUserList';
 
 const VideoPreview: React.FC = () => {
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   rtc?.RtcEngine?.startPreview();
 
   const {renderList, renderPosition} = useUserList();

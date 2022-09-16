@@ -23,7 +23,7 @@ export const getPinnedLayoutName = () => DefaultLayouts[1].name;
 export const getGridLayoutName = () => DefaultLayouts[0].name;
 
 export const useSetPinnedLayout = () => {
-  const {setActiveLayoutName} = useLayout();
+  const {setLayout} = useLayout();
   const layouts = useCustomLayout();
   const pinnedLayoutName = getPinnedLayoutName();
   let checkPinnedLayoutExist = false;
@@ -37,12 +37,12 @@ export const useSetPinnedLayout = () => {
     return () => {};
   }
   return () => {
-    setActiveLayoutName(pinnedLayoutName);
+    setLayout(pinnedLayoutName);
   };
 };
 
 export const useChangeDefaultLayout = () => {
-  const {setActiveLayoutName} = useLayout();
+  const {setLayout} = useLayout();
   const layout = useCustomLayout();
 
   if (!layout) {
@@ -58,7 +58,7 @@ export const useChangeDefaultLayout = () => {
   }
 
   return () => {
-    setActiveLayoutName((activeLayout: string) =>
+    setLayout((activeLayout: string) =>
       activeLayout === layout[1].name ? layout[0].name : layout[1].name,
     );
   };

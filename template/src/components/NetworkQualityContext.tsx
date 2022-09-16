@@ -9,11 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext, useContext, useState} from 'react';
-import {RtcContext, UidType, useLocalUid} from '../../agora-rn-uikit';
+import React, {createContext, useState} from 'react';
+import {UidType, useLocalUid} from '../../agora-rn-uikit';
 import useMount from './useMount';
 import icons from '../assets/icons';
 import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
+import {useRtc} from 'customization-api';
 
 /**
  * Network Icons container object with color and string mapping to network quality stat [ 0 - 8]
@@ -101,7 +102,7 @@ export const NetworkQualityProvider: React.FC = (props: {
     useState<NetworkQualityStatsInterface>({
       [localUid]: 0,
     });
-  const {RtcEngine} = useContext(RtcContext);
+  const {RtcEngine} = useRtc();
 
   useMount(() => {
     function handleNetworkQuality(

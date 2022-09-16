@@ -11,7 +11,7 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {RtcContext, PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWeb} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
@@ -27,6 +27,7 @@ import {
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
+import {useRtc} from 'customization-api';
 
 const JoinRoomInputView = () => {
   const {JoinButton, Textbox} = useCustomization((data) => {
@@ -139,7 +140,7 @@ const Precall = (props: any) => {
     return components;
   });
   const {isJoinDataFetched, meetingTitle} = useMeetingInfo();
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   const isSDK = isSDKCheck();
 
   const [dim, setDim] = useState<[number, number]>([

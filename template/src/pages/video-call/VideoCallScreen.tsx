@@ -16,12 +16,12 @@ import {
   ButtonTemplateName,
 } from '../../utils/useButtonTemplate';
 import SDKEvents from '../../utils/SdkEvents';
-import {RtcContext} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRtc} from 'customization-api';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   const {meetingTitle, isHost} = useMeetingInfo();
   const {
     ChatComponent,

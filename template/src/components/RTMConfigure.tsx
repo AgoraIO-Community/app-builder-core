@@ -14,13 +14,12 @@ import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
 import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext, {controlMessageEnum} from './ChatContext';
-import {RtcContext} from '../../agora-rn-uikit';
 import {messageSourceType, messageActionType} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb} from '../utils/common';
-import {useRenderContext} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -59,8 +58,8 @@ const RtmConfigure = (props: any) => {
   const screenShareUid = useLocalScreenShareUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
-  const {RtcEngine, dispatch} = useContext(RtcContext);
-  const {renderList, renderPosition} = useRenderContext();
+  const {RtcEngine, dispatch} = useRtc();
+  const {renderList, renderPosition} = useRender();
   const renderListRef = useRef({renderList: renderList});
   const renderPositionRef = useRef({renderPosition: renderPosition});
 

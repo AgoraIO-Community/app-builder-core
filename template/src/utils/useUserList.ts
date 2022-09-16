@@ -9,14 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRenderContext} from 'customization-api';
+import {useRender} from 'customization-api';
 /**
  * This hook will fetch the user list
  * @returns userList
  */
 
 function useUserList() {
-  const {renderPosition, renderList} = useRenderContext();
+  const {renderPosition, renderList} = useRender();
   return {
     renderList: renderList,
     renderPosition: renderPosition,

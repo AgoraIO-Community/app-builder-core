@@ -272,8 +272,8 @@ const LayoutIconButton = (props: LayoutIconButtonProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const layouts = useCustomLayout();
   const changeLayout = useChangeDefaultLayout();
-  const {activeLayoutName} = useLayout();
-  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
+  const {currentLayout} = useLayout();
+  const layout = layouts.findIndex((item) => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
     let onPress = () => {};
     let renderContent = [];

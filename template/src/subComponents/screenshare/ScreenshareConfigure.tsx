@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {RtcContext, PropsContext, UidType} from '../../../agora-rn-uikit';
+import {PropsContext, UidType} from '../../../agora-rn-uikit';
 import {ScreenshareContext} from './useScreenshare';
 import {
   useChangeDefaultLayout,
@@ -25,12 +25,13 @@ import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
+import {useRtc} from 'customization-api';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   const {dispatch} = rtc;
   const {renderList, renderPosition} = useUserList();
   const {isRecordingActive} = useRecording();

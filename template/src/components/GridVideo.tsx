@@ -9,11 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent} from 'customization-api';
-import React, {useMemo, useContext, useState} from 'react';
+import {layoutComponent, useRtc} from 'customization-api';
+import React, {useMemo, useState} from 'react';
 import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
 import {isWeb} from '../utils/common';
-import {RtcContext} from '../../agora-rn-uikit';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 const layout = (len: number, isDesktop: boolean = true) => {
@@ -35,7 +34,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
 };
 
 const GridVideo: layoutComponent = ({renderData}) => {
-  const {dispatch} = useContext(RtcContext);
+  const {dispatch} = useRtc();
   let onLayout = (e: any) => {
     setDim([
       e.nativeEvent.layout.width,
