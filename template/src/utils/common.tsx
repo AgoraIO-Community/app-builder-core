@@ -10,7 +10,9 @@
 *********************************************
 */
 import React from 'react';
-import {Platform} from 'react-native';
+import {Platform as ReactNativePlatform} from 'react-native';
+import Platform from '../subComponents/Platform';
+
 import * as ReactIs from 'react-is';
 
 const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
@@ -24,9 +26,17 @@ const shouldAuthenticate: boolean =
   $config.ENABLE_MICROSOFT_OAUTH ||
   $config.ENABLE_SLACK_OAUTH;
 
-const isWeb = Platform.OS === 'web';
-const isAndroid = Platform.OS === 'android';
-const isIOS = Platform.OS === 'ios';
+const isWeb = Platform === 'web' && ReactNativePlatform.OS === 'web';
+
+//@ts-ignore
+const isAndroid = Platform === 'native' && ReactNativePlatform.OS === 'android';
+
+//@ts-ignore
+const isIOS = Platform === 'native' && ReactNativePlatform.OS === 'ios';
+
+//@ts-ignore
+const isDestop = Platform === 'electron';
+
 const isArray = (data: any[]) =>
   data && Array.isArray(data) && data.length ? true : false ? true : false;
 export {
@@ -35,6 +45,7 @@ export {
   isWeb,
   isIOS,
   isAndroid,
+  isDestop,
   isArray,
   isValidReactComponent,
 };

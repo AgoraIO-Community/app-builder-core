@@ -68,6 +68,12 @@ export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
 export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
 
 //export common function
-export {hasBrandLogo, isAndroid, isIOS, isWeb} from '../src/utils/common';
+export {
+  hasBrandLogo,
+  isAndroid,
+  isIOS,
+  isWeb,
+  isDestop,
+} from '../src/utils/common';
 export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
