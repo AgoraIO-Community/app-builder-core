@@ -8,7 +8,9 @@ import useSendControlMessage, {
 
 const useRemoteEndCall = () => {
   const sendCtrlMsgToUid = useSendControlMessage();
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const isPSTN = useIsPSTN();
   return (uid: UidType) => {
     if (isHost) {

@@ -19,7 +19,9 @@ import {isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const SettingsView = () => {
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Select Input Device';

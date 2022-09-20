@@ -45,7 +45,9 @@ const Share = () => {
     return components;
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
-  const {roomId, pstn, isSeparateHostLink} = useMeetingInfo();
+  const {
+    data: {roomId, pstn, isSeparateHostLink},
+  } = useMeetingInfo();
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
   // const meetingIdText = useString('meetingIdLabel')();

@@ -24,7 +24,9 @@ export enum MUTE_REMOTE_TYPE {
 }
 function useRemoteMute() {
   const sendCtrlMsgToUid = useSendControlMessage();
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
   return async (type: MUTE_REMOTE_TYPE, uid: UidType) => {

@@ -54,7 +54,9 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const {hasUserJoinedRTM} = useContext(ChatContext);
 
   const {setRtcProps, rtcProps, callActive} = props?.value;
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   const [lastCheckedRequestTimestamp, setLastCheckedRequestTimestamp] =
     useState(0);

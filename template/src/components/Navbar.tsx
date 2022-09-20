@@ -348,7 +348,10 @@ const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
-  const {meetingTitle} = useMeetingInfo();
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
+
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();

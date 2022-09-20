@@ -21,7 +21,9 @@ export enum CONTROL_MESSAGE_TYPE {
 }
 function useSendControlMessage() {
   const {sendControlMessage, sendControlMessageToUid} = useContext(ChatContext);
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   return (
     type: CONTROL_MESSAGE_TYPE,
     message: controlMessageEnum | LiveStreamControlMessageEnum,

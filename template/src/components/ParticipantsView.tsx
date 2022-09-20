@@ -32,7 +32,9 @@ const ParticipantView = () => {
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
   const participantsLabel = 'Participants';
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,

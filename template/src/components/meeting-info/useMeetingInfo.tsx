@@ -14,34 +14,38 @@ import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
 export interface MeetingInfoContextInterface {
   isJoinDataFetched?: boolean;
-  isHost: boolean;
-  meetingTitle: string;
-  roomId: {
-    attendee: string;
-    host?: string;
+  data?: {
+    isHost: boolean;
+    meetingTitle: string;
+    roomId: {
+      attendee: string;
+      host?: string;
+    };
+    pstn?: {
+      number: string;
+      pin: string;
+    };
+    isSeparateHostLink: boolean;
+    channel?: string;
+    uid?: UidType;
+    token?: string;
+    rtmToken?: string;
+    encryptionSecret?: string;
+    screenShareUid?: string;
+    screenShareToken?: string;
   };
-  pstn?: {
-    number: string;
-    pin: string;
-  };
-  isSeparateHostLink: boolean;
-  channel?: string;
-  uid?: UidType;
-  token?: string;
-  rtmToken?: string;
-  encryptionSecret?: string;
-  screenShareUid?: string;
-  screenShareToken?: string;
 }
 
 export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
   isJoinDataFetched: false,
-  isHost: false,
-  meetingTitle: '',
-  roomId: {
-    attendee: '',
+  data: {
+    isHost: false,
+    meetingTitle: '',
+    roomId: {
+      attendee: '',
+    },
+    isSeparateHostLink: true,
   },
-  isSeparateHostLink: true,
 };
 
 const MeetingInfoContext = createContext(MeetingInfoDefaultValue);

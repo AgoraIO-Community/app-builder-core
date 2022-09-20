@@ -13,7 +13,9 @@ const MUTE_PSTN = gql`
 
 const useMutePSTN = () => {
   const [mutePSTN, {data, loading, error}] = useMutation(MUTE_PSTN);
-  const {isHost, roomId} = useMeetingInfo();
+  const {
+    data: {isHost, roomId},
+  } = useMeetingInfo();
   const isPSTN = useIsPSTN();
   return async (uid: UidType) => {
     if (isHost) {

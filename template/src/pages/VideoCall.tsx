@@ -137,10 +137,10 @@ const VideoCall: React.FC = () => {
       });
   }, []);
 
-  const data = useMeetingInfo();
+  const {isJoinDataFetched, data} = useMeetingInfo();
 
   React.useEffect(() => {
-    if (data.isJoinDataFetched === true) {
+    if (isJoinDataFetched === true) {
       setRtcProps({
         appId: $config.APP_ID,
         channel: data.channel,
@@ -167,9 +167,9 @@ const VideoCall: React.FC = () => {
       // if (data.username) {
       //   setUsername(data.username);
       // }
-      queryComplete ? {} : setQueryComplete(data.isJoinDataFetched);
+      queryComplete ? {} : setQueryComplete(isJoinDataFetched);
     }
-  }, [data?.isJoinDataFetched]);
+  }, [isJoinDataFetched]);
 
   const history = useHistory();
   const callbacks = {

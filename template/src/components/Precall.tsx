@@ -139,7 +139,10 @@ const Precall = (props: any) => {
     // }
     return components;
   });
-  const {isJoinDataFetched, meetingTitle} = useMeetingInfo();
+  const {
+    isJoinDataFetched,
+    data: {meetingTitle},
+  } = useMeetingInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 

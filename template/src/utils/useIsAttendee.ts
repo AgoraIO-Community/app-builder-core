@@ -23,7 +23,9 @@ function useIsAttendee() {
     };
     return isAttendee;
   } else {
-    const {isHost} = useMeetingInfo();
+    const {
+      data: {isHost},
+    } = useMeetingInfo();
     const isAttendee = (uid: UidType) => {
       return !isHost ? true : false;
     };

@@ -93,8 +93,9 @@ interface ShareLinkProvideProps {
 }
 
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
-  const {meetingTitle, roomId, pstn, isSeparateHostLink, isHost} =
-    useMeetingInfo();
+  const {
+    data: {meetingTitle, roomId, pstn, isSeparateHostLink, isHost},
+  } = useMeetingInfo();
 
   //commmented for v1 release
   // const copiedToClipboardText = useString(

@@ -22,7 +22,9 @@ function useIsHost() {
     };
     return isHost;
   } else {
-    const {isHost: isHostFlag} = useMeetingInfo();
+    const {
+      data: {isHost: isHostFlag},
+    } = useMeetingInfo();
     const isHost = (uid: UidType) => {
       return isHostFlag ? true : false;
     };

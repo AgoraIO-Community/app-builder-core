@@ -22,7 +22,9 @@ import {useRtc} from 'customization-api';
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
   const rtc = useRtc();
-  const {meetingTitle, isHost} = useMeetingInfo();
+  const {
+    data: {meetingTitle, isHost},
+  } = useMeetingInfo();
   const {
     ChatComponent,
     VideocallComponent,

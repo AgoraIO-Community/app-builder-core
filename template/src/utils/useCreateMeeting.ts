@@ -46,7 +46,7 @@ export default function useCreateMeeting() {
       throw error;
     }
     if (res && res?.data && res?.data?.createChannel) {
-      let meetingInfo: Partial<MeetingInfoContextInterface> = {
+      let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {
         roomId: {
           attendee: '',
         },
@@ -64,11 +64,13 @@ export default function useCreateMeeting() {
         };
       }
       setMeetingInfo({
-        isHost: true,
-        isSeparateHostLink: isSeparateHostLink ? true : false,
-        meetingTitle: roomTitle,
-        roomId: meetingInfo?.roomId,
-        pstn: meetingInfo?.pstn,
+        data: {
+          isHost: true,
+          isSeparateHostLink: isSeparateHostLink ? true : false,
+          meetingTitle: roomTitle,
+          roomId: meetingInfo?.roomId,
+          pstn: meetingInfo?.pstn,
+        },
       });
       SDKEvents.emit(
         'create',

@@ -77,9 +77,7 @@ export default function useJoinMeeting() {
       } else {
         if (response && response.data) {
           let data = response.data;
-          let meetingInfo: Partial<MeetingInfoContextInterface> = {
-            isJoinDataFetched: true,
-          };
+          let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {};
           if (data?.joinChannel?.channel) {
             meetingInfo.channel = data.joinChannel.channel;
           }
@@ -114,7 +112,11 @@ export default function useJoinMeeting() {
           setMeetingInfo((prevState) => {
             return {
               ...prevState,
-              ...meetingInfo,
+              isJoinDataFetched: true,
+              data: {
+                ...prevState.data,
+                ...meetingInfo,
+              },
             };
           });
         } else {
