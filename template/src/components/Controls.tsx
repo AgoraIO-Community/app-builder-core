@@ -73,7 +73,7 @@ const Controls = () => {
       </View>
       <View style={style.centerContent}>
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} />
+          <LiveStreamControls showControls={true} isDesktop />
         ) : (
           <>
             {/**
@@ -83,6 +83,7 @@ const Controls = () => {
              */}
             {$config.EVENT_MODE && (
               <LiveStreamControls
+                isDesktop
                 showControls={
                   rtcProps?.role == ClientRole.Broadcaster && !isHost
                 }
