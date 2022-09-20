@@ -30,7 +30,7 @@ import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import useCustomLayout from '../pages/video-call/CustomLayout';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
@@ -270,7 +270,7 @@ const LayoutIconButton = (props: LayoutIconButtonProps) => {
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const [showDropdown, setShowDropdown] = useState(false);
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
   const layout = layouts.findIndex((item) => item.name === currentLayout);

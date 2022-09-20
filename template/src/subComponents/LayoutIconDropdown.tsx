@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {isWeb} from '../utils/common';
 import {ImageIcon} from '../../agora-rn-uikit';
-import useCustomLayout from '../pages/video-call/CustomLayout';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
 
@@ -33,7 +33,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop, dim} = getDimensionData();
 
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const renderSeparatorHorizontal = () => {
     return isWeb && isDesktop ? (

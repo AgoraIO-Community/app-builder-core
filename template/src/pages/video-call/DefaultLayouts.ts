@@ -1,7 +1,7 @@
 import {layoutObjectType} from 'customization-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
-import useCustomLayout from './CustomLayout';
+import useLayoutsData from './useLayoutsData';
 import {useLayout} from '../../utils/useLayout';
 
 export const DefaultLayouts: layoutObjectType[] = [
@@ -24,7 +24,7 @@ export const getGridLayoutName = () => DefaultLayouts[0].name;
 
 export const useSetPinnedLayout = () => {
   const {setLayout} = useLayout();
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const pinnedLayoutName = getPinnedLayoutName();
   let checkPinnedLayoutExist = false;
   if (layouts && Array.isArray(layouts) && layouts.length) {
@@ -43,7 +43,7 @@ export const useSetPinnedLayout = () => {
 
 export const useChangeDefaultLayout = () => {
   const {setLayout} = useLayout();
-  const layout = useCustomLayout();
+  const layout = useLayoutsData();
 
   if (!layout) {
     return () => {};

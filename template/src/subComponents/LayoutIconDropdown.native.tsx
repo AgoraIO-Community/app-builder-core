@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {ImageIcon} from '../../agora-rn-uikit';
-import useCustomLayout from '../pages/video-call/CustomLayout';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 
 const deviceHeight = Dimensions.get('screen').height;
@@ -24,7 +24,7 @@ interface LayoutIconDropdownProps {
 
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {showDropdown, setShowDropdown} = props;
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const selectedItemHighlighter = (isSelected: boolean) => {
     return <View style={isSelected ? style.highlighter : {}} />;

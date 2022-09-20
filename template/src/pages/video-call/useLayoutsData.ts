@@ -1,8 +1,14 @@
 import {useCustomization} from 'customization-implementation';
 import {DefaultLayouts} from './DefaultLayouts';
 
-function useCustomLayout() {
-  const fpeLayouts = useCustomization((config) => {
+/**
+ * if custom layouts provided in customization api
+ * @returns customLayouts array
+ * else
+ * @returns defaultLayouts array
+ */
+function useLayoutsData() {
+  const layoutsData = useCustomization((config) => {
     if (
       typeof config?.components?.videoCall === 'object' &&
       config?.components?.videoCall?.customLayout
@@ -12,6 +18,6 @@ function useCustomLayout() {
       return DefaultLayouts;
     }
   });
-  return fpeLayouts;
+  return layoutsData;
 }
-export default useCustomLayout;
+export default useLayoutsData;

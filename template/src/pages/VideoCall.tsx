@@ -35,7 +35,7 @@ import {LayoutProvider} from '../utils/useLayout';
 import {useCustomization} from 'customization-implementation';
 import Precall from '../components/Precall';
 import {useString} from '../utils/useString';
-import useCustomLayout from './video-call/CustomLayout';
+import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
@@ -89,7 +89,7 @@ const VideoCall: React.FC = () => {
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
   //layouts
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
   const [currentLayout, setLayout] = useState(defaultLayoutName);
   //layouts
