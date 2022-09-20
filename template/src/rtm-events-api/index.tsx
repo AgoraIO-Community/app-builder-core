@@ -2,4 +2,5 @@ import Events from './Events';
 
 export * from './types';
 
-export default new Events();
+const events = new Events();
+export default events;
