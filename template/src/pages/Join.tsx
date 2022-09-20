@@ -26,7 +26,6 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
-import useNavigateTo from '../utils/useNavigateTo';
 import {useCustomization} from 'customization-implementation';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
@@ -41,7 +40,6 @@ const Join = () => {
   const createMeetingButton = 'Create Meeting';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
-  const navigateTo = useNavigateTo();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
@@ -52,7 +50,7 @@ const Join = () => {
 
   const startCall = async () => {
     setMeetingInfo(MeetingInfoDefaultValue);
-    navigateTo(phrase);
+    history.push(phrase);
   };
   const {JoinComponent} = useCustomization((data) => {
     let components: {

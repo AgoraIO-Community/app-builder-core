@@ -30,7 +30,6 @@ import useJoinMeeting from '../utils/useJoinMeeting';
 import SDKEvents from '../utils/SdkEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
-import useNavigateTo from '../utils/useNavigateTo';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -62,7 +61,6 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
-  const navigateTo = useNavigateTo();
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
   // const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -91,7 +89,7 @@ const Create = () => {
     const unbind = SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
       console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
       setMeetingInfo(MeetingInfoDefaultValue);
-      navigateTo(phrase);
+      history.push(phrase);
     });
     return () => {
       unbind();

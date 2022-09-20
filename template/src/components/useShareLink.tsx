@@ -17,12 +17,60 @@ import isSDKCheck from '../utils/isSDK';
 import Toast from '../../react-native-toast-message';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import platform from '../subComponents/Platform';
-import {
-  GetMeetingInviteID,
-  GetMeetingInviteURL,
-} from '../utils/getMeetingInvite';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import Clipboard from '../subComponents/Clipboard';
+
+export const GetMeetingInviteURL = (
+  baseUrl: string,
+  isHost: boolean,
+  roomId: {
+    host?: string;
+    attendee?: string;
+  },
+  isSeparateHostLink: boolean,
+) => {
+  if (isHost) {
+    if (isSeparateHostLink) {
+      return {
+        host: `${baseUrl}/${roomId.host}`,
+        attendee: `${baseUrl}/${roomId.attendee}`,
+      };
+    } else {
+      return {
+        host: `${baseUrl}/${roomId.host}`,
+      };
+    }
+  } else {
+    return {
+      attendee: `${baseUrl}/${roomId.attendee}`,
+    };
+  }
+};
+export const GetMeetingInviteID = (
+  isHost: boolean,
+  roomId: {
+    host?: string;
+    attendee?: string;
+  },
+  isSeparateHostLink: boolean,
+) => {
+  if (isHost) {
+    if (isSeparateHostLink) {
+      return {
+        host: `${roomId.host}`,
+        attendee: `${roomId.attendee}`,
+      };
+    } else {
+      return {
+        host: `${roomId.host}`,
+      };
+    }
+  } else {
+    return {
+      attendee: `${roomId.attendee}`,
+    };
+  }
+};
 
 export enum SHARE_LINK_CONTENT_TYPE {
   ATTENDEE = 1,

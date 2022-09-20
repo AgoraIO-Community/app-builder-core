@@ -1,7 +1,7 @@
 import {controlMessageEnum} from '../components/ChatContext';
 import {UidType} from '../../agora-rn-uikit';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import useIsPSTN from './isPSTNUser';
+import useIsPSTN from './useIsPSTN';
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../utils/useSendControlMessage';

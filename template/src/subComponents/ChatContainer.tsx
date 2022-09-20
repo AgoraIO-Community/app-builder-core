@@ -42,7 +42,8 @@ const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
   const {renderList} = useRender();
-  const messageStore = useGroupMessages();
+  const groupMessages = useGroupMessages();
+  const messageStore = groupMessages();
   const getPrivateMessage = usePrivateMessages();
   const privateMessageStore = getPrivateMessage();
   const {height, width} = useWindowDimensions();

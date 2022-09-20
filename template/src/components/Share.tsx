@@ -21,7 +21,7 @@ import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
 import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import useNavigateTo from '../utils/useNavigateTo';
+import {useHistory} from '../components/Router';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../utils/common';
 
@@ -71,10 +71,10 @@ const Share = () => {
   const pinLabel = 'Pin';
   const enterMeetingAfterCreateButton = 'Start Meeting (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
-  const navigateTo = useNavigateTo();
+  const history = useHistory();
   const enterMeeting = () => {
     if (roomId?.host) {
-      navigateTo(roomId.host);
+      history.push(roomId.host);
     }
   };
 

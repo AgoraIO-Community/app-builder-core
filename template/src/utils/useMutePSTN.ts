@@ -1,7 +1,7 @@
 import {gql, useMutation} from '@apollo/client';
 import {UidType} from '../../agora-rn-uikit';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import useIsPSTN from './isPSTNUser';
+import useIsPSTN from './useIsPSTN';
 const MUTE_PSTN = gql`
   mutation mutePSTN($uid: Int!, $passphrase: String!, $mute: Boolean!) {
     mutePSTN(uid: $uid, passphrase: $passphrase, mute: $mute) {

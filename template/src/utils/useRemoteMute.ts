@@ -12,7 +12,7 @@
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {UidType} from '../../agora-rn-uikit';
 import {controlMessageEnum} from '../components/ChatContext';
-import useIsPSTN from './isPSTNUser';
+import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,

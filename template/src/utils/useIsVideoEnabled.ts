@@ -10,8 +10,7 @@
 *********************************************
 */
 import {useRender} from 'customization-api';
-import {UidType} from '../../agora-rn-uikit';
-import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {UidType, ToggleState} from '../../agora-rn-uikit';
 
 function useIsVideoEnabled() {
   const {renderList} = useRender();
@@ -21,9 +20,9 @@ function useIsVideoEnabled() {
    * @param uid UidType
    * @returns boolean
    */
-  const videoEnabled = (uid: UidType): boolean =>
+  const isVideoEnabled = (uid: UidType): boolean =>
     renderList[uid]?.video === ToggleState.enabled;
 
-  return videoEnabled;
+  return isVideoEnabled;
 }
 export default useIsVideoEnabled;
