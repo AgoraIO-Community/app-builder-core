@@ -18,7 +18,7 @@ import * as ReactIs from 'react-is';
 const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
   Component && ReactIs.isValidElementType(Component) ? true : false;
 
-const hasBrandLogo: boolean = !!$config.LOGO;
+const useHasBrandLogo = () => () => !!$config.LOGO;
 
 const shouldAuthenticate: boolean =
   $config.ENABLE_APPLE_OAUTH ||
@@ -26,26 +26,29 @@ const shouldAuthenticate: boolean =
   $config.ENABLE_MICROSOFT_OAUTH ||
   $config.ENABLE_SLACK_OAUTH;
 
-const isWeb = Platform === 'web' && ReactNativePlatform.OS === 'web';
+const useIsWeb = () => () =>
+  Platform === 'web' && ReactNativePlatform.OS === 'web';
+
+const useIsAndroid = () => () =>
+  //@ts-ignore
+  Platform === 'native' && ReactNativePlatform.OS === 'android';
+
+const useIsIOS = () => () =>
+  //@ts-ignore
+  Platform === 'native' && ReactNativePlatform.OS === 'ios';
 
 //@ts-ignore
-const isAndroid = Platform === 'native' && ReactNativePlatform.OS === 'android';
-
-//@ts-ignore
-const isIOS = Platform === 'native' && ReactNativePlatform.OS === 'ios';
-
-//@ts-ignore
-const isDestop = Platform === 'electron';
+const useIsDestop = () => () => Platform === 'electron';
 
 const isArray = (data: any[]) =>
   data && Array.isArray(data) && data.length ? true : false ? true : false;
 export {
-  hasBrandLogo,
+  useHasBrandLogo,
+  useIsAndroid,
+  useIsIOS,
+  useIsWeb,
+  useIsDestop,
   shouldAuthenticate,
-  isWeb,
-  isIOS,
-  isAndroid,
-  isDestop,
   isArray,
   isValidReactComponent,
 };

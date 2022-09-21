@@ -13,8 +13,8 @@
 import React from 'react';
 import {Platform} from 'react-native';
 import Toast, {BaseToast} from '../../react-native-toast-message';
-import isMobileOrTablet from '../utils/isMobileOrTablet';
-
+import useIsMobileOrTablet from '../utils/useIsMobileOrTablet';
+const isMobileOrTablet = useIsMobileOrTablet();
 const toastConfig = {
   /* 
       overwrite 'success' type, 

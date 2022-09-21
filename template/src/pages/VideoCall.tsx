@@ -24,7 +24,7 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {hasBrandLogo, isArray} from '../utils/common';
+import {useHasBrandLogo, isArray} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -81,6 +81,7 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   //const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const joiningLoaderLabel = 'Starting Call. Just a second.';
@@ -272,7 +273,7 @@ const VideoCall: React.FC = () => {
           </>
         ) : (
           <View style={style.loader}>
-            <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
+            <View style={style.loaderLogo}>{hasBrandLogo() && <Logo />}</View>
             <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
           </View>
         )

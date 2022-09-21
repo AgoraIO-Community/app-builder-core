@@ -23,7 +23,7 @@ import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
-import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
+import {useIsIOS, isValidReactComponent, useIsWeb} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
@@ -43,6 +43,7 @@ const Chat = (props?: ChatProps) => {
   // commented for v1 release
   // const groupChatLabel = useString('groupChatLabel')();
   // const privateChatLabel = useString('privateChatLabel')();
+  const isWeb = useIsWeb();
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
   const [dim, setDim] = useState([
@@ -142,7 +143,7 @@ const Chat = (props?: ChatProps) => {
     <>
       <View
         style={
-          isWeb
+          isWeb()
             ? !isSmall
               ? style.chatView
               : style.chatViewNative
@@ -237,7 +238,7 @@ const Chat = (props?: ChatProps) => {
     </>
   );
 };
-
+const isIOS = useIsIOS();
 const style = StyleSheet.create({
   chatView: {
     width: '20%',
@@ -351,7 +352,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,
@@ -365,7 +366,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

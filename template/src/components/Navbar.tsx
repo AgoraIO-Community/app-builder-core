@@ -20,7 +20,7 @@ import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import ChatContext from '../components/ChatContext';
-import isMobileOrTablet from '../utils/isMobileOrTablet';
+import useIsMobileOrTablet from '../utils/useIsMobileOrTablet';
 import {
   BtnTemplate,
   BtnTemplateInterface,
@@ -31,7 +31,7 @@ import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
-import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
+import {useIsIOS, isValidReactComponent, useIsWeb} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
@@ -46,10 +46,13 @@ import {
 } from '../utils/useButtonTemplate';
 import Styles from './styles';
 
+const isWeb = useIsWeb();
+const isMobileOrTablet = useIsMobileOrTablet();
+
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
-  return isWeb && isDesktop ? (
+  return isWeb() && isDesktop ? (
     <View style={style.navItem}>
       <View style={style.navItemSeparator}></View>
     </View>
@@ -94,7 +97,7 @@ interface ParticipantsIconButtonProps {
 const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
-      top: isWeb ? -10 : 2,
+      top: isWeb() ? -10 : 2,
       left: undefined,
       right: undefined,
       bottom: undefined,
@@ -173,7 +176,7 @@ interface ChatIconButtonProps {
 const ChatIconButton = (props: ChatIconButtonProps) => {
   const {
     badgeContainerPosition = {
-      top: isWeb ? -10 : 2,
+      top: isWeb() ? -10 : 2,
       left: undefined,
       right: undefined,
       bottom: undefined,
@@ -359,9 +362,9 @@ const Navbar = () => {
   return (
     <View
       style={[
-        isWeb ? style.navHolder : style.navHolderNative,
+        isWeb() ? style.navHolder : style.navHolderNative,
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
-        isWeb
+        isWeb()
           ? {
               justifyContent: isMobileOrTablet() ? 'space-between' : 'flex-end',
             }
@@ -385,7 +388,7 @@ const Navbar = () => {
           {!isMobileOrTablet() && (
             <Text
               style={{
-                fontSize: isWeb ? 16 : 12,
+                fontSize: isWeb() ? 16 : 12,
                 color: '#FD0845',
                 fontWeight: '400',
                 alignSelf: 'center',
@@ -403,11 +406,11 @@ const Navbar = () => {
         style={[
           style.roomNameContainer,
           // @ts-ignore
-          isWeb && !isMobileOrTablet()
+          isWeb() && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
-        {isWeb ? (
+        {isWeb() ? (
           <View
             style={{
               flexDirection: 'row',
@@ -448,7 +451,7 @@ const Navbar = () => {
             style.navContainer,
             {
               minWidth:
-                isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
+                isWeb() && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
             },
           ]}>
           <ParticipantsCountView />
@@ -499,6 +502,7 @@ export const NavBarComponentsArray: NavBarComponentsArrayProps = [
   LayoutIconButton,
   SettingsIconButton,
 ];
+const isIOS = useIsIOS();
 const style = StyleSheet.create({
   backDrop: {
     position: 'absolute',
@@ -572,7 +576,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     paddingHorizontal: 5,
@@ -590,7 +594,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   chipText: {
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_FONT_COLOR,
   },
@@ -604,7 +608,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: isWeb
+    backgroundColor: isWeb()
       ? $config.SECONDARY_FONT_COLOR
       : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,

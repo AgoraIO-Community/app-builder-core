@@ -21,7 +21,7 @@ import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {isWeb, isValidReactComponent} from '../utils/common';
+import {useIsWeb, isValidReactComponent} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
@@ -32,6 +32,7 @@ import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 const Create = () => {
+  const isWeb = useIsWeb();
   const {CreateComponent} = useCustomization((data) => {
     let components: {
       CreateComponent?: React.ElementType;
@@ -83,7 +84,7 @@ const Create = () => {
   const haveMeetingID = 'Have a Meeting ID?';
 
   useEffect(() => {
-    if (isWeb) {
+    if (isWeb()) {
       document.title = $config.APP_NAME;
     }
     const unbind = SDKEvents.on('joinMeetingWithPhrase', (phrase) => {

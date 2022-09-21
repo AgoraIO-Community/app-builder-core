@@ -26,7 +26,7 @@ import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent, isWeb} from '../utils/common';
+import {isValidReactComponent, useIsWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import useGroupMessages from '../utils/useGroupMessages';
@@ -164,7 +164,7 @@ const ChatContainer = (props?: {
     </View>
   );
 };
-
+const isWeb = useIsWeb();
 const style = StyleSheet.create({
   containerView: {flex: 8},
   row: {
@@ -187,7 +187,7 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontWeight: isWeb ? '500' : '700',
+    fontWeight: isWeb() ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,

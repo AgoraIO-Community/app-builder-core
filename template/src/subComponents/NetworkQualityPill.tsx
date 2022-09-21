@@ -13,7 +13,7 @@ import {
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
-import {isWeb} from '../utils/common';
+import {useIsWeb} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
 import {RenderInterface, UidType} from '../../agora-rn-uikit';
 
@@ -112,7 +112,8 @@ const PlatformSpecificWrapper = ({
   setNetworkTextVisible,
   children,
 }: any) => {
-  return !isWeb ? (
+  const isWeb = useIsWeb();
+  return !isWeb() ? (
     <Pressable
       style={{
         height: '100%',

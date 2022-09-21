@@ -17,7 +17,7 @@ import Logo from '../subComponents/Logo';
 import {
   isValidReactComponent,
   shouldAuthenticate,
-  hasBrandLogo,
+  useHasBrandLogo,
 } from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -31,6 +31,7 @@ import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 
 const Join = () => {
+  const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
   // const enterMeetingButton = useString('enterMeetingButton')();
@@ -72,7 +73,7 @@ const Join = () => {
   ) : (
     <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
+        {hasBrandLogo() && <Logo />}
         {error ? <Error error={error} /> : <></>}
       </View>
       <View style={style.content}>

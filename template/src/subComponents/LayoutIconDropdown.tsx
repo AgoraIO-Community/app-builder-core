@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   Modal,
 } from 'react-native';
-import {isWeb} from '../utils/common';
+import {useIsWeb} from '../utils/common';
 import {ImageIcon} from '../../agora-rn-uikit';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
@@ -35,8 +35,9 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
 
   const layouts = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
+  const isWeb = useIsWeb();
   const renderSeparatorHorizontal = () => {
-    return isWeb && isDesktop ? (
+    return isWeb() && isDesktop ? (
       <View style={style.navItem}>
         <View style={style.navItemSeparatorHorizontal}></View>
       </View>

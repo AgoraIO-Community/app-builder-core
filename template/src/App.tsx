@@ -17,7 +17,7 @@ import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
 import StoreToken from './components/StoreToken';
-import {shouldAuthenticate, isIOS} from './utils/common';
+import {shouldAuthenticate, useIsIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 // commented for v1 release
 //import {CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'customization-api';
@@ -30,7 +30,8 @@ import {
 } from './components/meeting-info/useMeetingInfo';
 import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
 import {ShareLinkProvider} from './components/useShareLink';
-if (isIOS) {
+const isIOS = useIsIOS();
+if (isIOS()) {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
   KeyboardManager.setShouldShowToolbarPlaceholder(false);

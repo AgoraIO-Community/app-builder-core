@@ -18,7 +18,7 @@ import {messageSourceType, messageActionType} from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {isAndroid, isWeb} from '../utils/common';
+import {useIsAndroid, useIsWeb} from '../utils/common';
 import {useRender, useRtc} from 'customization-api';
 import {
   safeJsonParse,
@@ -54,6 +54,8 @@ const parsePayload = (data: string) => {
 };
 
 const RtmConfigure = (props: any) => {
+  const isWeb = useIsWeb();
+  const isAndroid = useIsAndroid();
   const localUid = useLocalUid();
   const screenShareUid = useLocalScreenShareUid();
   const {callActive} = props;
@@ -104,7 +106,7 @@ const RtmConfigure = (props: any) => {
       engine.current.leaveChannel(rtcProps.channel);
     };
 
-    if (!isWeb) return;
+    if (!isWeb()) return;
     window.addEventListener('beforeunload', handBrowserClose);
     // cleanup this component
     return () => {
@@ -346,7 +348,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = getMessageTime(ts);
 
-      const sender = isAndroid ? get32BitUid(peerId) : peerId;
+      const sender = isAndroid() ? get32BitUid(peerId) : peerId;
 
       if (type === messageActionType.Control) {
         switch (msg) {
