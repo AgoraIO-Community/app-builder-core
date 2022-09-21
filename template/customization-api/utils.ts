@@ -38,10 +38,6 @@ export {
 export {default as useEditMessage} from '../src/utils/useEditMessage';
 export {default as useDeleteMessage} from '../src/utils/useDeleteMessage';
 export {controlMessageEnum} from '../src/components/ChatContext';
-export {
-  default as useSendControlMessage,
-  CONTROL_MESSAGE_TYPE,
-} from '../src/utils/useSendControlMessage';
 
 //hook to manage audio/video states
 export {default as useIsAudioEnabled} from '../src/utils/useIsAudioEnabled';

@@ -1,23 +1,22 @@
 import {controlMessageEnum} from '../components/ChatContext';
-import {UidType} from '../../agora-rn-uikit';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import useIsPSTN from './useIsPSTN';
-import useSendControlMessage, {
-  CONTROL_MESSAGE_TYPE,
-} from '../utils/useSendControlMessage';
+import {UidType} from '../../agora-rn-uikit';
+import events, {EventPersistLevel} from '../rtm-events-api';
 
 const useRemoteEndCall = () => {
-  const sendCtrlMsgToUid = useSendControlMessage();
   const {
     data: {isHost},
   } = useMeetingInfo();
   const isPSTN = useIsPSTN();
+
   return (uid: UidType) => {
-    if (isHost) {
+    if (isHost && uid) {
       if (!isPSTN(uid)) {
-        sendCtrlMsgToUid(
-          CONTROL_MESSAGE_TYPE.controlMessageToUid,
+        events.send(
           controlMessageEnum.kickUser,
+          '',
+          EventPersistLevel.LEVEL1,
           uid,
         );
       }

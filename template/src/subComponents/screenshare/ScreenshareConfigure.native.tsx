@@ -18,7 +18,7 @@ import {
 } from '../../pages/video-call/DefaultLayouts';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
-import CustomEvents from '../../custom-events';
+import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
 import {useRender, useRtc} from 'customization-api';
 
@@ -55,10 +55,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
-      switch (data?.payload?.action) {
+      switch (action) {
         case EventActions.SCREENSHARE_STARTED:
           setScreenShareData((prevState) => {
             return {
@@ -66,7 +70,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: true,
-                ts: data.payload.value || 0,
+                ts: value || 0,
               },
             };
           });
@@ -80,7 +84,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: false,
-                ts: data.payload.value || 0,
+                ts: value || 0,
               },
             };
           });

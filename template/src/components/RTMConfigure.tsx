@@ -13,8 +13,8 @@
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
 import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
-import ChatContext, {controlMessageEnum} from './ChatContext';
-import {messageSourceType, messageActionType} from './ChatContext';
+import ChatContext from './ChatContext';
+import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
@@ -26,38 +26,20 @@ import {
   hasJsonStructure,
   getMessageTime,
   get32BitUid,
-  adjustUID,
 } from '../rtm/utils';
-import {EventUtils, EventsQueue, eventMessageType} from '../rtm-events';
+import {EventUtils, EventsQueue} from '../rtm-events';
+import {EventPersistLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
-import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 
 export enum UserType {
   ScreenShare = 'screenshare',
 }
 
-const stringifyPayload = (
-  source: messageSourceType,
-  type: messageActionType,
-  msg: string,
-) => {
-  return JSON.stringify({
-    source,
-    type,
-    msg,
-  });
-};
-
-const parsePayload = (data: string) => {
-  return JSON.parse(data);
-};
-
 const RtmConfigure = (props: any) => {
   const isWeb = useIsWeb();
   const isAndroid = useIsAndroid();
   const localUid = useLocalUid();
-  const screenShareUid = useLocalScreenShareUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {RtcEngine, dispatch} = useRtc();
@@ -139,7 +121,7 @@ const RtmConfigure = (props: any) => {
       timerValueRef.current = 5;
       await joinChannel();
       setHasUserJoinedRTM(true);
-      await runQueuedCustomEvents();
+      await runQueuedEvents();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -231,18 +213,11 @@ const RtmConfigure = (props: any) => {
                 // isActive to identify all active screenshare users in the call
                 for (const [key, value] of Object.entries(attr?.attributes)) {
                   if (hasJsonStructure(value as string)) {
-                    const [err, result] = safeJsonParse(value as string);
-                    const payloadValue = result?.value || '';
-                    const payloadAction = result?.action || '';
                     const data = {
                       evt: key,
-                      payload: {
-                        ...result,
-                        value: payloadValue,
-                        action: payloadAction,
-                      },
+                      value: value,
                     };
-                    // Todo:EVENTSUP Add the data to queue, dont add same mulitple events, use set so as to not repeat events
+                    // TODOSUP: Add the data to queue, dont add same mulitple events, use set so as to not repeat events
                     EventsQueue.enqueue({
                       data: data,
                       uid: member.uid,
@@ -335,209 +310,93 @@ const RtmConfigure = (props: any) => {
       // Chat of left user becomes undefined. So don't cleanup
       const uid = data?.uid ? parseInt(data?.uid) : undefined;
       if (!uid) return;
-      //updating the rtc data
+      // updating the rtc data
       updateRenderListState(uid, {
         offline: true,
       });
     });
 
     engine.current.on('messageReceived', (evt: any) => {
+      console.log('CUSTOM_EVENT_API messageReceived: ', evt);
       const {peerId, ts, text} = evt;
-      const textObj = parsePayload(text);
-      const {type, msg} = textObj;
+      const [err, msg] = safeJsonParse(text);
+      if (err) {
+        console.log(
+          'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+        );
+      }
 
       const timestamp = getMessageTime(ts);
 
-      const sender = isAndroid() ? get32BitUid(peerId) : peerId;
+      const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId);
 
-      if (type === messageActionType.Control) {
-        switch (msg) {
-          case controlMessageEnum.muteVideo:
-            RtcEngine.muteLocalVideoStream(true);
-            dispatch({
-              type: 'LocalMuteVideo',
-              value: [0],
-            });
-            break;
-          case controlMessageEnum.muteAudio:
-            RtcEngine.muteLocalAudioStream(true);
-            dispatch({
-              type: 'LocalMuteAudio',
-              value: [0],
-            });
-            break;
-          case controlMessageEnum.kickUser:
-            dispatch({
-              type: 'EndCall',
-              value: [],
-            });
-            break;
-          default:
-            break;
-        }
-      } else if (type === eventMessageType.CUSTOM_EVENT) {
-        console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
-        try {
-          customEventDispatcher(msg, sender, timestamp);
-        } catch (error) {
-          console.log('error while dispacthing', error);
-        }
+      try {
+        eventDispatcher(msg, sender, timestamp);
+      } catch (error) {
+        console.log('error while dispacthing', error);
       }
     });
 
     engine.current.on('channelMessageReceived', (evt) => {
+      console.log('CUSTOM_EVENT_API channelMessageReceived: ', evt);
+
       const {uid, channelId, text, ts} = evt;
-      const textObj = parsePayload(text);
-      const [err, result] = safeJsonParse(text);
-      const {type, msg} = textObj;
+      const [err, msg] = safeJsonParse(text);
+      if (err) {
+        console.log(
+          'CUSTOM_EVENT_API: JSON payload incorrect, Error while parsing the payload',
+        );
+      }
 
       const timestamp = getMessageTime(ts);
 
-      const sender = Platform.OS ? get32BitUid(uid) : uid;
+      const sender = Platform.OS ? get32BitUid(uid) : parseInt(uid);
 
       if (channelId === rtcProps.channel) {
-        if (
-          type === eventMessageType.CONTROL_GROUP ||
-          type === messageActionType.Control
-        ) {
-          let actionMsg = '';
-          if (hasJsonStructure(msg)) {
-            const [err, result] = safeJsonParse(msg);
-            if (!err) {
-              const {action} = result;
-              actionMsg = action;
-            }
-          } else {
-            actionMsg = msg;
-          }
-          switch (actionMsg) {
-            case controlMessageEnum.muteVideo:
-              RtcEngine.muteLocalVideoStream(true);
-              dispatch({
-                type: 'LocalMuteVideo',
-                value: [0],
-              });
-              break;
-            case controlMessageEnum.muteAudio:
-              RtcEngine.muteLocalAudioStream(true);
-              dispatch({
-                type: 'LocalMuteAudio',
-                value: [0],
-              });
-              break;
-            default:
-              break;
-            //   throw new Error('Unsupported message type');
-          }
-        } else if (type === eventMessageType.CUSTOM_EVENT) {
-          console.log('CUSTOM_EVENT_API: inside custom event type ', evt);
-          try {
-            customEventDispatcher(msg, sender, timestamp);
-          } catch (error) {
-            console.log('error while dispacthing', error);
-          }
+        try {
+          eventDispatcher(msg, sender, timestamp);
+        } catch (error) {
+          console.log('error while dispacthing', error);
         }
       }
     });
     doLoginAndSetupRTM();
   };
 
-  const runQueuedCustomEvents = async () => {
+  const runQueuedEvents = async () => {
     try {
       while (!EventsQueue.isEmpty()) {
         const currEvt = EventsQueue.dequeue();
-        await customEventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
+        await eventDispatcher(currEvt.data, currEvt.uid, currEvt.ts);
       }
     } catch (error) {
       console.log('CUSTOM_EVENT_API:  error while running queue events', error);
     }
   };
 
-  const customEventDispatcher = async (
+  const eventDispatcher = async (
     data: {
       evt: string;
-      payload: {
-        level: 1 | 2 | 3;
-        action: string;
-        value: string;
-      };
+      value: string;
     },
     sender: string,
     ts: number,
   ) => {
-    console.log('CUSTOM_EVENT_API: inside customEventDispatcher ', data);
-    const {evt, payload} = data;
+    console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
+    const {evt, value} = data;
     // Step 1: Set local attributes
-    if (payload?.level === 3) {
-      const rtmAttribute = {key: evt, value: JSON.stringify(data.payload)};
+    if (value?.persistLevel === EventPersistLevel.LEVEL3) {
+      const rtmAttribute = {key: evt, value: value};
       await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
     }
     // Step 2: Emit the event
     try {
+      const {payload, persistLevel, source} = JSON.parse(value);
       console.log('CUSTOM_EVENT_API:  emiting event..: ');
-      EventUtils.emitEvent(evt, {payload, sender, ts});
+      EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
     }
-  };
-
-  const sendMessage = async (msg: string) => {
-    if (msg.trim() === '') return;
-    const text = stringifyPayload(
-      messageSourceType.Core,
-      messageActionType.Normal,
-      msg,
-    );
-    await (engine.current as RtmEngine).sendMessageByChannelId(
-      rtcProps.channel,
-      text,
-    );
-  };
-
-  const sendMessageToUid = async (msg: string, uid: UidType) => {
-    if (msg.trim() === '') return;
-
-    const adjustedUID = adjustUID(uid);
-
-    const text = stringifyPayload(
-      messageSourceType.Core,
-      messageActionType.Normal,
-      msg,
-    );
-    await (engine.current as RtmEngine).sendMessageToPeer({
-      peerId: adjustedUID.toString(),
-      offline: false,
-      text,
-    });
-  };
-
-  const sendControlMessage = async (msg: string) => {
-    const text = stringifyPayload(
-      messageSourceType.Core,
-      messageActionType.Control,
-      msg,
-    );
-    await (engine.current as RtmEngine).sendMessageByChannelId(
-      rtcProps.channel,
-      text,
-    );
-  };
-
-  const sendControlMessageToUid = async (msg: string, uid: UidType) => {
-    if (msg.trim() === '') return;
-
-    const adjustedUID = adjustUID(uid);
-
-    const text = stringifyPayload(
-      messageSourceType.Core,
-      messageActionType.Control,
-      msg,
-    );
-    await (engine.current as RtmEngine).sendMessageToPeer({
-      peerId: adjustedUID.toString(),
-      offline: false,
-      text,
-    });
   };
 
   const end = async () => {
@@ -562,10 +421,6 @@ const RtmConfigure = (props: any) => {
     <ChatContext.Provider
       value={{
         hasUserJoinedRTM,
-        sendControlMessage,
-        sendControlMessageToUid,
-        sendMessage,
-        sendMessageToUid,
         engine: engine.current,
         localUid: localUid,
         onlineUsersCount,

@@ -11,13 +11,10 @@
 */
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {controlMessageEnum} from '../components/ChatContext';
 import {BtnTemplate, UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/useIsPSTN';
 import useMutePSTN from '../utils/useMutePSTN';
-import useSendControlMessage, {
-  CONTROL_MESSAGE_TYPE,
-} from '../utils/useSendControlMessage';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 
 export interface RemoteAudioMuteProps {
   uid: UidType;
@@ -31,7 +28,8 @@ export interface RemoteAudioMuteProps {
  */
 const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const {isHost = false} = props;
-  const sendCtrlMsgToUid = useSendControlMessage();
+  const muteRemoteAudio = useRemoteMute();
+
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
   return (
@@ -45,11 +43,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
             console.error('An error occurred while muting the PSTN user.');
           }
         } else {
-          sendCtrlMsgToUid(
-            CONTROL_MESSAGE_TYPE.controlMessageToUid,
-            controlMessageEnum.muteAudio,
-            props.uid,
-          );
+          muteRemoteAudio(MUTE_REMOTE_TYPE.audio, props.uid);
         }
       }}
       style={style.buttonIconMic}
