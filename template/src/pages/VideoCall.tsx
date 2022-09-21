@@ -50,9 +50,9 @@ import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
-import StorageContext from '../components/StorageContext';
 import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
+import EventsConfigure from '../components/EventsConfigure';
 
 enum RnEncryptionEnum {
   /**
@@ -214,51 +214,53 @@ const VideoCall: React.FC = () => {
                               setRecordingActive={setRecordingActive}
                               callActive={callActive}>
                               <UserPreferenceProvider>
-                                <WhiteboardProvider>
-                                  <LayoutProvider
-                                    value={{
-                                      activeLayoutName,
-                                      setActiveLayoutName,
-                                    }}>
-                                    <RecordingProvider
+                                <EventsConfigure>
+                                  <WhiteboardProvider>
+                                    <LayoutProvider
                                       value={{
-                                        setRecordingActive,
-                                        isRecordingActive,
+                                        activeLayoutName,
+                                        setActiveLayoutName,
                                       }}>
-                                      <ScreenshareConfigure>
-                                        <LiveStreamContextProvider
-                                          value={{
-                                            setRtcProps,
-                                            rtcProps,
-                                            callActive,
-                                          }}>
-                                          <LiveStreamDataProvider>
-                                            <LocalUserContext
-                                              localUid={rtcProps?.uid || 0}>
-                                              <CustomUserContextHolder>
-                                                <NetworkQualityProvider>
-                                                  {callActive ? (
-                                                    <VideoCallScreen />
-                                                  ) : $config.PRECALL ? (
-                                                    <PreCallProvider
-                                                      value={{
-                                                        callActive,
-                                                        setCallActive,
-                                                      }}>
-                                                      <Precall />
-                                                    </PreCallProvider>
-                                                  ) : (
-                                                    <></>
-                                                  )}
-                                                </NetworkQualityProvider>
-                                              </CustomUserContextHolder>
-                                            </LocalUserContext>
-                                          </LiveStreamDataProvider>
-                                        </LiveStreamContextProvider>
-                                      </ScreenshareConfigure>
-                                    </RecordingProvider>
-                                  </LayoutProvider>
-                                </WhiteboardProvider>
+                                      <RecordingProvider
+                                        value={{
+                                          setRecordingActive,
+                                          isRecordingActive,
+                                        }}>
+                                        <ScreenshareConfigure>
+                                          <LiveStreamContextProvider
+                                            value={{
+                                              setRtcProps,
+                                              rtcProps,
+                                              callActive,
+                                            }}>
+                                            <LiveStreamDataProvider>
+                                              <LocalUserContext
+                                                localUid={rtcProps?.uid || 0}>
+                                                <CustomUserContextHolder>
+                                                  <NetworkQualityProvider>
+                                                    {callActive ? (
+                                                      <VideoCallScreen />
+                                                    ) : $config.PRECALL ? (
+                                                      <PreCallProvider
+                                                        value={{
+                                                          callActive,
+                                                          setCallActive,
+                                                        }}>
+                                                        <Precall />
+                                                      </PreCallProvider>
+                                                    ) : (
+                                                      <></>
+                                                    )}
+                                                  </NetworkQualityProvider>
+                                                </CustomUserContextHolder>
+                                              </LocalUserContext>
+                                            </LiveStreamDataProvider>
+                                          </LiveStreamContextProvider>
+                                        </ScreenshareConfigure>
+                                      </RecordingProvider>
+                                    </LayoutProvider>
+                                  </WhiteboardProvider>
+                                </EventsConfigure>
                               </UserPreferenceProvider>
                             </RtmConfigure>
                           </ScreenShareProvider>

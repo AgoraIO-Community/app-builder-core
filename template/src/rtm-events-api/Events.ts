@@ -13,7 +13,7 @@
 ('use strict');
 import RtmEngine from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
-import {EventUtils, eventMessageType} from '../rtm-events';
+import {EventUtils} from '../rtm-events';
 import {
   ReceiverUid,
   EventCallback,
@@ -90,10 +90,7 @@ class Events {
     const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
 
-    const text = JSON.stringify({
-      type: eventMessageType.CUSTOM_EVENT,
-      msg: rtmPayload,
-    });
+    const text = JSON.stringify(rtmPayload);
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
@@ -209,7 +206,7 @@ class Events {
   send = async (
     eventName: string = '',
     payload: string = '',
-    persistLevel: EventPersistLevel = EventPersistLevel.LEVEL1,
+    persistLevel: EventPersistLevel,
     receiver?: ReceiverUid,
   ) => {
     if (!this._validateEvt(eventName)) return;

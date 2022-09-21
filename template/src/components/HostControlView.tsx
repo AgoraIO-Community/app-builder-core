@@ -11,27 +11,21 @@
 */
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {controlMessageEnum} from './ChatContext';
 import SecondaryButton from '../atoms/SecondaryButton';
 import {useString} from '../utils/useString';
-import useSendControlMessage, {
-  CONTROL_MESSAGE_TYPE,
-} from '../utils/useSendControlMessage';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
-  const sendCtrlMsg = useSendControlMessage();
+  const muteRemoteAudio = useRemoteMute();
   //commented for v1 release
   //const muteAllAudioButton = useString('muteAllAudioButton')();
   const muteAllAudioButton = 'Mute all audios';
-  const onPress = () =>
-    sendCtrlMsg(
-      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
-      controlMessageEnum.muteAudio,
-    );
+  const onPress = () => muteRemoteAudio(MUTE_REMOTE_TYPE.audio);
+
   return props?.render ? (
     props.render(onPress)
   ) : (
@@ -43,15 +37,13 @@ export interface MuteAllVideoButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
-  const sendCtrlMsg = useSendControlMessage();
+  const muteRemoteVideo = useRemoteMute();
+
   //commented for v1 release
   //const muteAllVideoButton = useString('muteAllVideoButton')();
   const muteAllVideoButton = 'Mute all videos';
-  const onPress = () =>
-    sendCtrlMsg(
-      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
-      controlMessageEnum.muteVideo,
-    );
+  const onPress = () => muteRemoteVideo(MUTE_REMOTE_TYPE.video);
+
   return props?.render ? (
     props.render(onPress)
   ) : (
