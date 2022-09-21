@@ -60,7 +60,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     () => store?.lastActiveMic,
   );
   const [userPreferredCamera, setUserPreferredCamera] = React.useState(
-    () => store?.lastActiveMic,
+    () => store?.lastActiveCam,
   );
 
   // 1. Fetch all available devices
