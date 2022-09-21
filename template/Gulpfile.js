@@ -52,8 +52,6 @@ const pkgNameArg = process.argv.indexOf('--pkgname');
 const PACKAGE_NAME =
   pkgNameArg == -1 ? 'agora-app-builder-sdk' : process.argv[pkgNameArg + 1];
 
-let PRODUCT_NAME;
-
 const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
   const proc = spawn(arg1, arg2, {
@@ -68,28 +66,9 @@ const general = {
     return del([`${BUILD_PATH}/**/*`], {force: true});
   },
   packageJson: async (cb) => {
-    let package = JSON.parse(
+    let {version, private, author, description} = JSON.parse(
       await fs.readFile(path.join(__dirname, 'package.json')),
     );
-    let {
-      name,
-      version,
-      private,
-      author,
-      description,
-      dependencies,
-      optionalDependencies,
-    } = package;
-    PRODUCT_NAME = name;
-    let nativeDeps = require('./nativeDeps').default;
-    let natives = {};
-    let searchDeps = {
-      ...dependencies,
-      ...optionalDependencies,
-    };
-    nativeDeps.map((k) => {
-      natives[k] = searchDeps[k];
-    });
 
     let newPackage = {
       name: PACKAGE_NAME,
@@ -97,11 +76,6 @@ const general = {
       private,
       author,
       description,
-      // dependencies: natives,
-      // agora_electron: {
-      //   electron_version: '5.0.8',
-      //   prebuilt: true,
-      // },
     };
 
     // Target specific changes

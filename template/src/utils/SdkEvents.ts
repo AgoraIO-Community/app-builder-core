@@ -18,7 +18,11 @@ import {createNanoEvents} from 'nanoevents';
 
 interface eventsMapInterface extends userEventsMapInterface {
   addFpe?: callBackType;
-  joinMeetingWithPhrase?: (phrase: string) => void;
+  joinMeetingWithPhrase?: (
+    phrase: string,
+    resolve: () => void,
+    reject: (e: Error) => void,
+  ) => void;
 }
 
 const SDKEvents = createNanoEvents<eventsMapInterface>();
