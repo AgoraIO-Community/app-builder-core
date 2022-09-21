@@ -10,14 +10,13 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {StyleSheet} from 'react-native';
 import LiveStreamContext, {
   RaiseHandValue,
 } from '../../../components/livestream';
 import {PropsContext} from '../../../../agora-rn-uikit';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
-import icons from '../../../assets/icons';
 import {useString} from '../../../utils/useString';
+import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
 
 const LocalRaiseHand = () => {
@@ -32,24 +31,15 @@ const LocalRaiseHand = () => {
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
     toggle ? 'Lower hand' : 'Raise Hand';
+  const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   return (
     <BtnTemplate
-      icon={icons['raiseHandIcon']}
-      btnText={handStatusText(
-        raiseHandList[localUid]?.raised === RaiseHandValue.TRUE,
-      )}
-      color={
-        raiseHandList[localUid]?.raised === RaiseHandValue.TRUE
-          ? '#FD0845'
-          : theme
-      }
-      style={{
-        ...style.localBtn,
-        ...(localBtnStyles as object),
-        ...(muteLocalAudio as object),
-      }}
+      name={isHandRasied ? 'lowerHandIcon' : 'raiseHandIcon'}
+      btnText={handStatusText(isHandRasied)}
+      style={Styles.localButton as Object}
+      styleText={Styles.localButtonText as Object}
       onPress={() => {
-        if (raiseHandList[localUid]?.raised === RaiseHandValue.TRUE) {
+        if (isHandRasied) {
           audienceRecallsRequest();
         } else {
           audienceSendsRequest();
@@ -58,14 +48,5 @@ const LocalRaiseHand = () => {
     />
   );
 };
-
-const style = StyleSheet.create({
-  localBtn: {
-    borderRadius: 23,
-    borderWidth: 4 * StyleSheet.hairlineWidth,
-    borderColor: '#007aff',
-    backgroundColor: '#007aff',
-  },
-});
 
 export default LocalRaiseHand;

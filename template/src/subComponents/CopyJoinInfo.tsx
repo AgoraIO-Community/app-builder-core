@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useEffect} from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 import {useParams} from '../components/Router';
 import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
@@ -24,6 +24,11 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import Styles from '../components/styles';
+import Popup from '../atoms/Popup';
+import InviteInfo from '../atoms/InviteInfo';
+import Spacer from '../atoms/Spacer';
+import PrimaryButton from '../atoms/PrimaryButton';
+import {icons} from 'fpe-api';
 
 export interface CopyJoinInfoProps {
   showText?: boolean;
@@ -38,39 +43,64 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {phrase} = useParams<{phrase: string}>();
   const getMeeting = useGetMeetingPhrase();
   const {copyShareLinkToClipboard} = useShareLink();
+  const [modalVisible, setModalVisible] = React.useState(false);
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
-  const copyMeetingInviteButton = 'Copy Meeting Invite';
+  const copyMeetingInviteButton = 'Invite';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+
   useEffect(() => {
     getMeeting(phrase);
   }, [phrase]);
 
-  const onPress = () =>
-    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
+  const onPress = () => {
+    setModalVisible(true);
+    //copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
+  };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: 'clipboard',
+    name: 'share',
   };
+
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
     btnTemplateProps.btnText = copyMeetingInviteButton;
-    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+    btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.styleText = Styles.localButtonText as Object;
   } else {
     btnTemplateProps.color = $config.PRIMARY_FONT_COLOR;
-    btnTemplateProps.style = style.backButton;
+    btnTemplateProps.style = style.shareIcon;
     btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
   }
 
   return props?.render ? (
     props.render(onPress, buttonTemplateName)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <>
+      <Popup
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        title="Invite others to join this meeting"
+        showCloseIcon={true}>
+        <InviteInfo />
+        <Spacer size={40} />
+        <View style={style.btnContainer}>
+          <PrimaryButton
+            icon={icons.copy}
+            onPress={() =>
+              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+            }
+            text={'Copy Invitation'}
+          />
+        </View>
+      </Popup>
+      <BtnTemplate {...btnTemplateProps} />
+    </>
   );
 };
 
 const style = StyleSheet.create({
-  backButton: {
+  shareIcon: {
     // marginLeft: 5,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -78,11 +108,9 @@ const style = StyleSheet.create({
     width: 28,
     height: 20,
   },
-  backIcon: {
-    width: 28,
-    height: 20,
-    alignSelf: 'center',
-    justifyContent: 'center',
+  btnContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
 });
 
