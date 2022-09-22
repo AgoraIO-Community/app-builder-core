@@ -291,6 +291,15 @@ const Navbar = () => {
   ]);
   const isDesktop = dim[0] > 1224;
 
+  const [showIcon, setShowIcon] = useState(true);
+  React.useEffect(() => {
+    // Change the state every second or the time given by User.
+    const interval = setInterval(() => {
+      setShowIcon((showIcon) => !showIcon);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <View
       testID="videocall-topbar"
@@ -299,40 +308,20 @@ const Navbar = () => {
         isWeb ? style.navHolder : style.navHolderNative,
         {paddingHorizontal: isDesktop ? 60 : 10},
       ]}>
-      {isRecordingActive && !isMobileOrTablet() ? (
-        <View
-          style={[
-            style.recordingView,
-            {backgroundColor: $config.SECONDARY_FONT_COLOR},
-          ]}>
-          <ImageIcon
-            name={'recordingActiveIcon'}
-            style={{
-              width: 20,
-              height: 20,
-              margin: 1,
-            }}
-            color="#FD0845"
-          />
-          <Text
-            style={{
-              fontSize: isWeb ? 16 : 12,
-              color: '#FD0845',
-              fontWeight: '400',
-              alignSelf: 'center',
-              textAlign: 'center',
-              flex: 1,
-            }}>
-            {recordingLabel}
-          </Text>
-        </View>
-      ) : (
-        <></>
-      )}
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
         <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
           {meetingTitle}
         </Text>
+        {isRecordingActive && !isMobileOrTablet() ? (
+          <View style={[style.recordingView]}>
+            <View
+              style={[style.recordingStatus, {opacity: showIcon ? 1 : 0}]}
+            />
+            <Text style={style.recordingText}>{recordingLabel}</Text>
+          </View>
+        ) : (
+          <></>
+        )}
       </View>
       <View style={style.navControlBar} testID="videocall-navcontrols">
         <View testID="videocall-participantsicon">
@@ -384,16 +373,29 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   recordingView: {
-    height: 35,
-    maxHeight: 30,
-    position: 'absolute',
-    left: 10,
-    paddingHorizontal: 5,
+    height: 36,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: 8,
+    backgroundColor: '#FF414D' + '10',
+    marginLeft: 8,
+  },
+  recordingText: {
+    fontSize: 12,
+    lineHeight: 12,
+    fontWeight: '400',
+    fontFamily: 'Source Sans Pro',
+    color: '#ff414D',
+  },
+  recordingStatus: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FF414D',
+    marginRight: 8,
   },
   recordingIcon: {
     width: 20,
@@ -415,6 +417,8 @@ const style = StyleSheet.create({
   roomNameContainer: {
     zIndex: 10,
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   roomNameText: {
     fontSize: 16,
