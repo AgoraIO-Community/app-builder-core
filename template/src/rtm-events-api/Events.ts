@@ -13,15 +13,19 @@
 ('use strict');
 import RtmEngine from 'agora-react-native-rtm';
 import RTMEngine from '../rtm/RTMEngine';
-import {ToOptions, EventPayload} from './types';
-import {EventUtils, eventMessageType} from '../rtm-events';
-import {TEventCallback, EventSourceEnum} from './types';
+import {EventUtils} from '../rtm-events';
+import {
+  ReceiverUid,
+  EventCallback,
+  EventSource,
+  EventPersistLevel,
+} from './types';
 import {adjustUID} from '../rtm/utils';
 
-class CustomEvents {
-  private source: EventSourceEnum = EventSourceEnum.core;
+class Events {
+  private source: EventSource = EventSource.core;
 
-  constructor(source?: EventSourceEnum) {
+  constructor(source?: EventSource) {
     if (source) {
       this.source = source;
     }
@@ -31,13 +35,13 @@ class CustomEvents {
    * Persists the data in the local attributes of the user
    *
    * @param {string} evt  to be stored in rtm Attribute key
-   * @param {any} payload to be stored in rtm Attribute value
+   * @param {string} payload to be stored in rtm Attribute value
    * @api private
    */
-  private _persist = async (evt: string, payload: any) => {
+  private _persist = async (evt: string, payload: string) => {
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
     try {
-      const rtmAttribute = {key: evt, value: JSON.stringify(payload)};
+      const rtmAttribute = {key: evt, value: payload};
       // Step 1: Call RTM API to update local attributes
       await rtmEngine.addOrUpdateLocalUserAttributes([rtmAttribute]);
     } catch (error) {
@@ -63,7 +67,7 @@ class CustomEvents {
     return true;
   };
 
-  private _validateListener = (listener: TEventCallback): boolean => {
+  private _validateListener = (listener: EventCallback): boolean => {
     if (typeof listener !== 'function') {
       throw Error(
         `CUSTOM_EVENT_API Function cannot be of type ${typeof listener}`,
@@ -79,17 +83,14 @@ class CustomEvents {
    * If param 'to' is an array of uids is provided then message is sent to all the individual uids in loop.
    *
    * @param {any} rtmPayload payload to be sent across
-   * @param {ToOptions} to uid or uids[] of user
+   * @param {toUid} to uid or uids[] of user
    * @api private
    */
-  private _send = async (rtmPayload: any, toUid?: ToOptions) => {
+  private _send = async (rtmPayload: any, toUid?: ReceiverUid) => {
     const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
     const rtmEngine: RtmEngine = RTMEngine.getInstance().engine;
 
-    const text = JSON.stringify({
-      type: eventMessageType.CUSTOM_EVENT,
-      msg: rtmPayload,
-    });
+    const text = JSON.stringify(rtmPayload);
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
@@ -146,41 +147,42 @@ class CustomEvents {
    * When the specified event happens, the Events API triggers the callback that you pass.
    * The listener will not be added if it is a duplicate.
    *
-   * @param {String} evt Name of the event to attach the listener to.
+   * @param {String} eventName Name of the event to attach the listener to.
    * @param {Function} listener Method to be called when the event is emitted.
    * @api public
    */
-  on = (evt: string, listener: TEventCallback) => {
+  on = (eventName: string, listener: EventCallback) => {
     try {
-      if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
-      EventUtils.addListener(evt, listener, this.source);
+      if (!this._validateEvt(eventName) || !this._validateListener(listener))
+        return;
+      EventUtils.addListener(eventName, listener, this.source);
+      return () => {
+        EventUtils.removeListener(eventName, listener, this.source);
+      };
     } catch (error) {
       console.log('custom-events-on error: ', error);
     }
   };
 
   /**
-   * Removes a listener function from the specified event if evt and listener function both are provided.
+   * Removes a listener function from the specified event if eventName and listener function both are provided.
    * Removes all listeners from a specified event if listener function is not provided.
    * If you do not specify an event then all listeners will be removed.
    * That means every event will be emptied.
    *
-   * @param {String} evt Name of the event to remove the listener from.
-   * @param {Function} listenerToRemove Method to remove from the event.
+   * @param {String} eventName Name of the event to remove the listener from.
+   * @param {Function} listener Method to remove from the event.
    * @api public
    */
-  off = (evt?: string, listenerToRemove?: TEventCallback) => {
+  off = (eventName?: string, listener?: EventCallback) => {
     try {
-      if (listenerToRemove) {
-        if (
-          this._validateListener(listenerToRemove) &&
-          this._validateEvt(evt)
-        ) {
-          EventUtils.removeListener(evt, listenerToRemove, this.source);
+      if (listener) {
+        if (this._validateListener(listener) && this._validateEvt(eventName)) {
+          EventUtils.removeListener(eventName, listener, this.source);
         }
-      } else if (evt) {
-        if (this._validateEvt(evt)) {
-          EventUtils.removeAllListeners(evt, this.source);
+      } else if (eventName) {
+        if (this._validateEvt(eventName)) {
+          EventUtils.removeAllListeners(eventName, this.source);
         }
       } else {
         EventUtils.removeAll(this.source);
@@ -196,42 +198,47 @@ class CustomEvents {
    *  - If 'to' is empty this method sends channel message.
    *
    *
-   * @param {String} evt  Name of the event to register on which listeners are added
-   * @param {EventPayload} payload contains action, level, value metrics.
-   * - action: {string}
-   * - level: 1 | 2 | 3
-   * - value: {string}. NOTICE: value bytelength has MAX_SIZE 32kb limit.
-   * @param {ToOptions} to uid or uid array. The default mode is to send a message in channel.
+   * @param {String} eventName  Name of the event to register on which listeners are added
+   * @param {String} payload . NOTICE: value bytelength has MAX_SIZE 32kb limit.
+   * @param {ReceiverUid} receiver uid or uid array. The default mode is to send a message in channel.
    * @api public
    * */
-  send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
-    if (!this._validateEvt(evt)) return;
-    const {action = '', value = '', level = 1} = payload;
+  send = async (
+    eventName: string = '',
+    payload: string = '',
+    persistLevel: EventPersistLevel,
+    receiver?: ReceiverUid,
+  ) => {
+    if (!this._validateEvt(eventName)) return;
+
+    const persistValue = JSON.stringify({
+      payload,
+      persistLevel,
+      source: this.source,
+    });
 
     const rtmPayload = {
-      evt: evt,
-      payload: {
-        action,
-        value,
-        level,
-        source: this.source,
-      },
+      evt: eventName,
+      value: persistValue,
     };
 
-    if (level === 2 || level === 3) {
-      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', level);
+    if (
+      persistLevel === EventPersistLevel.LEVEL2 ||
+      persistLevel === EventPersistLevel.LEVEL3
+    ) {
+      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', persistLevel);
       try {
-        await this._persist(evt, {...payload, source: this.source});
+        await this._persist(eventName, persistValue);
       } catch (error) {
         console.log('custom-events-persist error: ', error);
       }
     }
     try {
-      await this._send(rtmPayload, to);
+      await this._send(rtmPayload, receiver);
     } catch (error) {
       console.log('CUSTOM_EVENT_API: sending failed. ', error);
     }
   };
 }
 
-export default CustomEvents;
+export default Events;
