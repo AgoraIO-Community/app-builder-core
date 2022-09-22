@@ -64,7 +64,15 @@ const Controls = () => {
       ]}
       onLayout={onLayout}>
       <View style={style.leftContent}>
-        <View testID="layout-btn" style={{marginRight: isDesktop ? 40 : 10}}>
+        <View
+          testID="layout-btn"
+          style={{marginRight: isDesktop ? 40 : 10}}
+          collapsable={false}>
+          {/**
+           * .measure returns undefined on Android unless collapsable=false or onLayout are specified
+           * so added collapsable property
+           * https://github.com/facebook/react-native/issues/29712
+           * */}
           <LayoutIconButton modalPosition={{bottom: 80, left: 60}} />
         </View>
         <View testID="invite-btn">
