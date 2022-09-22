@@ -13,7 +13,11 @@
 // TODO: Investigate further
 // Exported like so to prevent error while bundling as react-sdk. Cause: some webpack Edgecase
 import {customize} from './customize';
-export {customize};
+import configJSON from '../config.json';
+
+let config = configJSON as unknown as ConfigInterface;
+
+export {customize, config};
 
 export * from './app-state';
 export * from './customEvents';
