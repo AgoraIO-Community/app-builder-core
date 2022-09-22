@@ -201,6 +201,7 @@ func rsdk(iopath *ioPaths) api.BuildResult {
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
+    Sourcemap:         api.SourceMapExternal,
 
 		// debug options. does not affect bundle size
 		// Metafile: true,

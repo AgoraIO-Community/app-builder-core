@@ -7,6 +7,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 module.exports = merge(commons, {
   // Enable optimizations in production
   mode: isDevelopment ? 'development' : 'production',
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : 'source-map',
   // externals: [
   //   nodeExternals({allowlist: [/agora.*/, /fpe.*/]}),
   // ],

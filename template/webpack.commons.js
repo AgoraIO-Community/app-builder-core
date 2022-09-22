@@ -85,7 +85,7 @@ module.exports = {
     ].filter(Boolean),
   },
   // Enable source maps during development
-  // devtool: isDevelopment ? 'eval-cheap-module-source-map' : undefined,
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : undefined,
   module: {
     rules: [
       {

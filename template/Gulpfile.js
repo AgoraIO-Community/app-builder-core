@@ -360,7 +360,7 @@ module.exports.makeRsdkTsDefs = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
-  reactSdk.esbuild,
+  reactSdk.webpack,
   general.typescript,
   general.typescriptFix,
   reactSdk.typescript,
