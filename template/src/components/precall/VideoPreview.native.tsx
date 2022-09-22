@@ -10,16 +10,16 @@
 *********************************************
 */
 
-import React, {useContext} from 'react';
+import {useRender, useRtc} from 'customization-api';
+import React from 'react';
 import {View} from 'react-native';
-import {MaxVideoView, RtcContext} from '../../../agora-rn-uikit';
-import useUserList from '../../utils/useUserList';
+import {MaxVideoView} from '../../../agora-rn-uikit';
 
 const VideoPreview: React.FC = () => {
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   rtc?.RtcEngine?.startPreview();
 
-  const {renderList, renderPosition} = useUserList();
+  const {renderList, renderPosition} = useRender();
   const [maxUid] = renderPosition;
 
   if (!maxUid) {

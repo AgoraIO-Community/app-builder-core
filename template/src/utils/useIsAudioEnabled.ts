@@ -9,26 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
+import {useRender} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
+import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
-function useIsAttendee() {
-  if ($config.EVENT_MODE) {
-    const {audienceUids} = useLiveStreamDataContext();
-    const isAttendee = (uid: UidType) => {
-      return audienceUids.filter((audienceUid) => audienceUid === uid).length
-        ? true
-        : false;
-    };
-    return isAttendee;
-  } else {
-    const {isHost} = useMeetingInfo();
-    const isAttendee = (uid: UidType) => {
-      return !isHost ? true : false;
-    };
-    return isAttendee;
-  }
+function useIsAudioEnabled() {
+  const {renderList} = useRender();
+  /**
+   *
+   * @param uid UidType
+   * @returns boolean
+   */
+  const isAudioEnabled = (uid: UidType): boolean =>
+    renderList[uid]?.audio === ToggleState.enabled;
+
+  return isAudioEnabled;
 }
 
-export default useIsAttendee;
+export default useIsAudioEnabled;

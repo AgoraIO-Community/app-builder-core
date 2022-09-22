@@ -25,9 +25,9 @@ function usePrivateMessages() {
    * @returns If uid is passed then it will return particular private message data
    * otherwise it will return whole private message store
    */
-  const getPrivateMessage = (uid?: UidType) =>
+  const privateMessages = (uid?: UidType) =>
     uid ? privateMessageStore[uid] : privateMessageStore;
-  return getPrivateMessage;
+  return privateMessages;
 }
 
 export default usePrivateMessages;

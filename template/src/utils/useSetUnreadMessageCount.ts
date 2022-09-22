@@ -2,20 +2,20 @@ import {UidType} from '../../agora-rn-uikit';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 
 export enum SET_UNREAD_MESSAGE_COUNT_TYPE {
-  setPublicMessageCount,
+  setGroupMessageCount,
   setIndividualMessageCount,
 }
 
 const useSetUnreadMessageCount = () => {
   const {setUnreadIndividualMessageCount, setUnreadGroupMessageCount} =
     useChatNotification();
-  return (
+  const setUnreadMessageCount = (
     type: SET_UNREAD_MESSAGE_COUNT_TYPE,
     count: number,
     uid?: UidType,
   ) => {
     switch (type) {
-      case SET_UNREAD_MESSAGE_COUNT_TYPE.setPublicMessageCount:
+      case SET_UNREAD_MESSAGE_COUNT_TYPE.setGroupMessageCount:
         setUnreadGroupMessageCount(count);
         break;
       case SET_UNREAD_MESSAGE_COUNT_TYPE.setIndividualMessageCount:
@@ -39,5 +39,6 @@ const useSetUnreadMessageCount = () => {
         break;
     }
   };
+  return setUnreadMessageCount;
 };
 export default useSetUnreadMessageCount;

@@ -18,8 +18,8 @@ import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {isAndroid, isWeb} from '../utils/common';
-import {useRenderContext} from 'fpe-api';
+import {useIsAndroid, useIsWeb} from '../utils/common';
+import {useRender, useRtc} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -37,11 +37,13 @@ export enum UserType {
 }
 
 const RtmConfigure = (props: any) => {
+  const isWeb = useIsWeb();
+  const isAndroid = useIsAndroid();
   const localUid = useLocalUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
-  const {dispatch} = useContext(RtcContext);
-  const {renderList, renderPosition} = useRenderContext();
+  const {RtcEngine, dispatch} = useRtc();
+  const {renderList, renderPosition} = useRender();
   const renderListRef = useRef({renderList: renderList});
   const renderPositionRef = useRef({renderPosition: renderPosition});
 
@@ -86,7 +88,7 @@ const RtmConfigure = (props: any) => {
       engine.current.leaveChannel(rtcProps.channel);
     };
 
-    if (!isWeb) return;
+    if (!isWeb()) return;
     window.addEventListener('beforeunload', handBrowserClose);
     // cleanup this component
     return () => {
@@ -326,7 +328,7 @@ const RtmConfigure = (props: any) => {
 
       const timestamp = getMessageTime(ts);
 
-      const sender = isAndroid ? get32BitUid(peerId) : parseInt(peerId);
+      const sender = isAndroid() ? get32BitUid(peerId) : parseInt(peerId);
 
       try {
         eventDispatcher(msg, sender, timestamp);

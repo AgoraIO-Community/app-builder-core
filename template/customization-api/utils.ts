@@ -10,18 +10,19 @@
 *********************************************
 */
 // commented for v1 release
-//export {default as useIsScreenShare} from '../src/utils/isScreenShareUser';
-export {default as useIsHost} from '../src/utils/isHostUser';
-export {default as useIsAttendee} from '../src/utils/IsAttendeeUser';
-export {default as useIsPSTN} from '../src/utils/isPSTNUser';
-export {default as useUserList} from '../src/utils/useUserList';
+//export {default as useIsScreenShare} from '../src/utils/useIsScreenShare';
+
+//hooks used to check user type
+export {default as useIsHost} from '../src/utils/useIsHost';
+export {default as useIsAttendee} from '../src/utils/useIsAttendee';
+export {default as useIsPSTN} from '../src/utils/useIsPSTN';
+
+//hook used to get/set username
+export {default as useUserName} from '../src/utils/useUserName';
+
+//hooks used to manage messages
 export {default as useGroupMessages} from '../src/utils/useGroupMessages';
 export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
-export {default as useIsAudioEnabled} from '../src/utils/isAudioEnabled';
-export {default as useIsVideoEnabled} from '../src/utils/isVideoEnabled';
-export {default as useSetName} from '../src/utils/useSetName';
-export {default as useGetName} from '../src/utils/useGetName';
-export {useSidePanel} from '../src/utils/useSidePanel';
 export {
   default as useUnreadMessageCount,
   UNREAD_MESSAGE_COUNT_TYPE,
@@ -30,10 +31,6 @@ export {
   default as useSetUnreadMessageCount,
   SET_UNREAD_MESSAGE_COUNT_TYPE,
 } from '../src/utils/useSetUnreadMessageCount';
-export {default as useNavigateTo} from '../src/utils/useNavigateTo';
-export {default as useNavParams} from '../src/utils/useNavParams';
-export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
-export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
 export {
   default as useSendMessage,
   MESSAGE_TYPE,
@@ -41,6 +38,10 @@ export {
 export {default as useEditMessage} from '../src/utils/useEditMessage';
 export {default as useDeleteMessage} from '../src/utils/useDeleteMessage';
 export {controlMessageEnum} from '../src/components/ChatContext';
+
+//hook to manage audio/video states
+export {default as useIsAudioEnabled} from '../src/utils/useIsAudioEnabled';
+export {default as useIsVideoEnabled} from '../src/utils/useIsVideoEnabled';
 export {
   MUTE_LOCAL_TYPE,
   default as useMuteToggleLocal,
@@ -52,15 +53,23 @@ export {
 } from '../src/utils/useRemoteMute';
 export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';
 
+//
+export {useSidePanel} from '../src/utils/useSidePanel';
+
+//hooks used for navigation
+export {useHistory, useParams} from '../src/components/Router';
+
+//hooks used for manage meeting data
+export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
+export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
+
 //export common function
 export {
-  hasBrandLogo,
-  isAndroid,
-  isArray,
-  isIOS,
-  isValidReactComponent,
-  isWeb,
-  shouldAuthenticate,
+  useIsWeb,
+  useIsIOS,
+  useIsAndroid,
+  useIsDestop,
+  useHasBrandLogo,
 } from '../src/utils/common';
-export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
+export {default as useIsMobileOrTablet} from '../src/utils/useIsMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';

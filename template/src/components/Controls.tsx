@@ -26,16 +26,17 @@ import ScreenshareButton, {
   ScreenshareButtonProps,
 } from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import isMobileOrTablet from '../utils/isMobileOrTablet';
+import useIsMobileOrTablet from '../utils/useIsMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {isIOS, isWeb} from '../utils/common';
+import {useIsIOS, useIsWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 
 const Controls = () => {
+  const isMobileOrTablet = useIsMobileOrTablet();
   const {rtcProps} = useContext(PropsContext);
 
   let onLayout = (e: any) => {
@@ -47,7 +48,9 @@ const Controls = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   return (
     <View
@@ -105,7 +108,7 @@ const Controls = () => {
   );
 };
 
-export const ControlsComponentsArray: [
+type ControlsComponentsArrayProps = [
   (props: LocalAudioMuteProps) => JSX.Element,
   (props: LocalVideoMuteProps) => JSX.Element,
   (props: LocalSwitchCameraProps) => JSX.Element,
@@ -113,7 +116,9 @@ export const ControlsComponentsArray: [
   (props: RecordingButtonProps) => JSX.Element,
   (props: LocalEndcallProps) => JSX.Element,
   (props: LiveStreamControlsProps) => JSX.Element,
-] = [
+];
+
+export const ControlsComponentsArray: ControlsComponentsArrayProps = [
   LocalAudioMute,
   LocalVideoMute,
   LocalSwitchCamera,
@@ -123,10 +128,13 @@ export const ControlsComponentsArray: [
   LiveStreamControls,
 ];
 
+const isWeb = useIsWeb();
+const isIOS = useIsIOS();
+
 const style = StyleSheet.create({
   // @ts-ignore
   controlsHolder: {
-    flex: isWeb ? 1.3 : 1.6,
+    flex: isWeb() ? 1.3 : 1.6,
     ...controlsHolder,
   },
   chatNotification: {
@@ -137,7 +145,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,

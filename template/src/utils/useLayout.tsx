@@ -11,16 +11,16 @@
 */
 
 import React, {SetStateAction} from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export interface LayoutContextInterface {
-  activeLayoutName: string;
-  setActiveLayoutName: React.Dispatch<SetStateAction<string>>;
+  currentLayout: string;
+  setLayout: React.Dispatch<SetStateAction<string>>;
 }
 
 const LayoutContext = React.createContext<LayoutContextInterface>({
-  activeLayoutName: '',
-  setActiveLayoutName: () => {},
+  currentLayout: '',
+  setLayout: () => {},
 });
 
 interface LayoutProviderProps {

@@ -11,7 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
-import {isWeb} from '../utils/common';
+import {useIsWeb} from '../utils/common';
 import ColorContext from '../components/ColorContext';
 
 /**
@@ -22,8 +22,8 @@ import ColorContext from '../components/ColorContext';
 const OpenInNativeButton = () => {
   const {primaryColor} = useContext(ColorContext);
   const openInNative = () => {};
-
-  return isWeb ? (
+  const isWeb = useIsWeb();
+  return isWeb() ? (
     <View style={{position: 'absolute', right: 0}}>
       <TouchableOpacity
         style={[style.btn, {borderColor: primaryColor}]}

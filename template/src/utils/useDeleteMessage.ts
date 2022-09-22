@@ -15,7 +15,7 @@ import {MESSAGE_TYPE} from './useSendMessage';
 
 function useDeleteMessage() {
   const {deleteChatMessage} = useChatMessages();
-  return (type: MESSAGE_TYPE, msgId: string, uid?: UidType) => {
+  const deleteMessage = (type: MESSAGE_TYPE, msgId: string, uid?: UidType) => {
     switch (type) {
       case MESSAGE_TYPE.group:
         deleteChatMessage(msgId);
@@ -31,6 +31,7 @@ function useDeleteMessage() {
         break;
     }
   };
+  return deleteMessage;
 }
 
 export default useDeleteMessage;

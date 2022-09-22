@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React, {SetStateAction, useState} from 'react';
 import {UidType} from '../../../agora-rn-uikit';
 

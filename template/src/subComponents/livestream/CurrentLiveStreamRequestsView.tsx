@@ -7,8 +7,8 @@ import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 import {useString} from '../../utils/useString';
-import useUserList from '../../utils/useUserList';
 import {ClientRole} from '../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   //commented for v1 release
@@ -23,7 +23,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const noUserFoundLabel = 'User not found';
   const raisedHandsListTitleLabel = 'Streaming Request';
   const {p_style} = props;
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =

@@ -10,26 +10,26 @@
 *********************************************
 */
 import React from 'react';
-import fpeConfig from 'test-fpe';
-import {FpeApiInterface} from './typeDefinition';
-import {createHook} from 'fpe-implementation';
+import {CustomizationApiInterface} from 'customization-api';
+import customizationConfig from 'test-fpe';
+import createHook from './createHook';
 
-const FpeContext: React.Context<FpeApiInterface> =
-  React.createContext(fpeConfig);
+const CustomizationContext: React.Context<CustomizationApiInterface> =
+  React.createContext(customizationConfig);
 
-export interface FpeProviderInterface {
+export interface CustomizationProviderProps {
   children: React.ReactNode;
-  value: FpeApiInterface;
+  value: CustomizationApiInterface;
 }
 
-const FpeProvider = (props: FpeProviderInterface) => {
+const CustomizationProvider = (props: CustomizationProviderProps) => {
   return (
-    <FpeContext.Provider value={props.value}>
+    <CustomizationContext.Provider value={props.value}>
       {props.children}
-    </FpeContext.Provider>
+    </CustomizationContext.Provider>
   );
 };
 
-const useFpe = createHook(FpeContext);
+const useCustomization = createHook(CustomizationContext);
 
-export {useFpe, FpeProvider};
+export {useCustomization, CustomizationProvider};

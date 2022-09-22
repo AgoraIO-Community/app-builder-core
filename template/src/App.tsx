@@ -17,10 +17,11 @@ import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
 import StoreToken from './components/StoreToken';
-import {shouldAuthenticate, isIOS} from './utils/common';
+import {shouldAuthenticate, useIsIOS} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
 // commented for v1 release
-//import {useFpe, CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'fpe-api';
+//import {CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'customization-api';
+//import {useCustomization} from 'customization-implementation';
 import AppWrapper from './AppWrapper';
 import {
   MeetingInfoContextInterface,
@@ -29,7 +30,8 @@ import {
 } from './components/meeting-info/useMeetingInfo';
 import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
 import {ShareLinkProvider} from './components/useShareLink';
-if (isIOS) {
+const isIOS = useIsIOS();
+if (isIOS()) {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
   KeyboardManager.setShouldShowToolbarPlaceholder(false);
@@ -51,7 +53,7 @@ declare module 'agora-rn-uikit' {
 
 const App: React.FC = () => {
   //commented for v1 release
-  //const CustomRoutes = useFpe((data) => data?.customRoutes);
+  //const CustomRoutes = useCustomization((data) => data?.customRoutes);
   // const RenderCustomRoutes = () => {
   //   try {
   //     return (

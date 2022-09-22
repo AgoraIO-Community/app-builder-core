@@ -6,7 +6,12 @@ import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import ColorContext from '../../components/ColorContext';
 import {useString} from '../../utils/useString';
 
-export const NameWithMicStatus = ({user}: {user: RenderInterface}) => {
+interface NameWithMicIconProps {
+  user: RenderInterface;
+}
+
+const NameWithMicIcon = (props: NameWithMicIconProps) => {
+  const {user} = props;
   const {primaryColor} = useContext(ColorContext);
   const {height, width} = useWindowDimensions();
   //commented for v1 release
@@ -60,3 +65,5 @@ const style = StyleSheet.create({
     resizeMode: 'contain',
   },
 });
+
+export default NameWithMicIcon;

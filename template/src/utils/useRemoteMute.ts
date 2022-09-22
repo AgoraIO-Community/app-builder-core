@@ -11,7 +11,7 @@
 */
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {controlMessageEnum} from '../components/ChatContext';
-import useIsPSTN from './isPSTNUser';
+import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
 import {UidType} from '../../agora-rn-uikit';
 import events, {EventPersistLevel} from '../rtm-events-api';
@@ -21,7 +21,9 @@ export enum MUTE_REMOTE_TYPE {
   video,
 }
 function useRemoteMute() {
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
 

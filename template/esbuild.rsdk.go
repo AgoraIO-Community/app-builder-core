@@ -52,9 +52,9 @@ func commonAliasResolver() api.Plugin {
 				},
 			)
 
-			pb.OnResolve(api.OnResolveOptions{Filter: "fpe-api/install"},
+			pb.OnResolve(api.OnResolveOptions{Filter: "customization-api"},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path, err := filepath.Abs("./fpe-api/install.ts")
+					path, err := filepath.Abs("./customization-api/index.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
@@ -62,19 +62,9 @@ func commonAliasResolver() api.Plugin {
 				},
 			)
 
-			pb.OnResolve(api.OnResolveOptions{Filter: "fpe-api"},
+			pb.OnResolve(api.OnResolveOptions{Filter: "customization-implementation"},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path, err := filepath.Abs("./fpe-api/index.ts")
-					if err != nil {
-						log.Fatalln(err)
-					}
-					return api.OnResolveResult{Path: path}, nil
-				},
-			)
-
-			pb.OnResolve(api.OnResolveOptions{Filter: "fpe-implementation"},
-				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path, err := filepath.Abs("./fpe-implementation/index.ts")
+					path, err := filepath.Abs("./customization-implementation/index.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
@@ -88,7 +78,7 @@ func commonAliasResolver() api.Plugin {
 					if err != nil {
 						log.Fatalln(err)
 					}
-					fpeDummyPath, err := filepath.Abs("./fpe-implementation/dummyFpe.ts")
+					fpeDummyPath, err := filepath.Abs("./customization-implementation/dummyConfig.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}

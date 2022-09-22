@@ -10,19 +10,67 @@
 *********************************************
 */
 
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
 import Toast from '../../react-native-toast-message';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import platform from '../subComponents/Platform';
-import {
-  GetMeetingInviteID,
-  GetMeetingInviteURL,
-} from '../utils/getMeetingInvite';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import Clipboard from '../subComponents/Clipboard';
+
+export const GetMeetingInviteURL = (
+  baseUrl: string,
+  isHost: boolean,
+  roomId: {
+    host?: string;
+    attendee?: string;
+  },
+  isSeparateHostLink: boolean,
+) => {
+  if (isHost) {
+    if (isSeparateHostLink) {
+      return {
+        host: `${baseUrl}/${roomId.host}`,
+        attendee: `${baseUrl}/${roomId.attendee}`,
+      };
+    } else {
+      return {
+        host: `${baseUrl}/${roomId.host}`,
+      };
+    }
+  } else {
+    return {
+      attendee: `${baseUrl}/${roomId.attendee}`,
+    };
+  }
+};
+export const GetMeetingInviteID = (
+  isHost: boolean,
+  roomId: {
+    host?: string;
+    attendee?: string;
+  },
+  isSeparateHostLink: boolean,
+) => {
+  if (isHost) {
+    if (isSeparateHostLink) {
+      return {
+        host: `${roomId.host}`,
+        attendee: `${roomId.attendee}`,
+      };
+    } else {
+      return {
+        host: `${roomId.host}`,
+      };
+    }
+  } else {
+    return {
+      attendee: `${roomId.attendee}`,
+    };
+  }
+};
 
 export enum SHARE_LINK_CONTENT_TYPE {
   ATTENDEE = 1,
@@ -45,8 +93,9 @@ interface ShareLinkProvideProps {
 }
 
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
-  const {meetingTitle, meetingPassphrase, isSeparateHostLink, isHost} =
-    useMeetingInfo();
+  const {
+    data: {meetingTitle, roomId, pstn, isSeparateHostLink, isHost},
+  } = useMeetingInfo();
 
   //commmented for v1 release
   // const copiedToClipboardText = useString(
@@ -111,20 +160,15 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     let stringToCopy = meetingInviteText({
       meetingName: meetingTitle,
       url: baseURL
-        ? GetMeetingInviteURL(
-            baseURL,
-            isHost,
-            meetingPassphrase,
-            isSeparateHostLink,
-          )
+        ? GetMeetingInviteURL(baseURL, isHost, roomId, isSeparateHostLink)
         : undefined,
       id: !baseURL
-        ? GetMeetingInviteID(isHost, meetingPassphrase, isSeparateHostLink)
+        ? GetMeetingInviteID(isHost, roomId, isSeparateHostLink)
         : undefined,
-      pstn: meetingPassphrase?.pstn
+      pstn: pstn
         ? {
-            number: meetingPassphrase.pstn.number,
-            pin: meetingPassphrase.pstn.pin,
+            number: pstn.number,
+            pin: pstn.pin,
           }
         : undefined,
       isHost,
@@ -144,11 +188,11 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const getAttendeeURLOrId = () => {
     let stringToCopy = '';
     let baseURL = getBaseURL();
-    if (meetingPassphrase?.attendee) {
+    if (roomId?.attendee) {
       if (baseURL) {
-        stringToCopy += `${baseURL}/${meetingPassphrase.attendee}`;
+        stringToCopy += `${baseURL}/${roomId.attendee}`;
       } else {
-        stringToCopy += `${meetingPassphrase.attendee}`;
+        stringToCopy += `${roomId.attendee}`;
       }
     }
     return stringToCopy;
@@ -156,12 +200,12 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getHostUrlOrId = () => {
     let stringToCopy = '';
-    if (meetingPassphrase?.host) {
+    if (roomId?.host) {
       let baseURL = getBaseURL();
       if (baseURL) {
-        stringToCopy += `${baseURL}/${meetingPassphrase.host}`;
+        stringToCopy += `${baseURL}/${roomId.host}`;
       } else {
-        stringToCopy += `${meetingPassphrase.host}`;
+        stringToCopy += `${roomId.host}`;
       }
     }
     return stringToCopy;
@@ -169,12 +213,8 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getPstn = () => {
     let stringToCopy = '';
-    if (
-      meetingPassphrase?.pstn &&
-      meetingPassphrase.pstn?.number &&
-      meetingPassphrase.pstn?.pin
-    ) {
-      stringToCopy += `${PSTNNumberText}: ${meetingPassphrase.pstn.number} ${PSTNPinText}: ${meetingPassphrase.pstn.pin}`;
+    if (pstn && pstn?.number && pstn?.pin) {
+      stringToCopy += `${PSTNNumberText}: ${pstn.number} ${PSTNPinText}: ${pstn.pin}`;
     }
 
     return stringToCopy;

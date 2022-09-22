@@ -12,7 +12,7 @@
 import React from 'react';
 import {StyleSheet} from 'react-native';
 import {BtnTemplate, UidType} from '../../agora-rn-uikit';
-import useIsPSTN from '../utils/isPSTNUser';
+import useIsPSTN from '../utils/useIsPSTN';
 import useMutePSTN from '../utils/useMutePSTN';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 

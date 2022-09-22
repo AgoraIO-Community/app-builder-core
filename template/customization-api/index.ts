@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import { installFPE } from "fpe-api/install";
-/**
- * Dummy FPE used to load when project doesn't have the FPE.
- */
-const data = installFPE({});
-export default data;
+export * from './app-state';
+export * from './customEvents';
+export * from './customize';
+export * from './sub-components';
+export * from './typeDefinition';
+export * from './utils';

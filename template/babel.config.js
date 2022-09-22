@@ -10,7 +10,7 @@
 *********************************************
 */
 const configVars = require('./configTransform');
-const getFpePath = require('./fpe.config');
+const getCustomizationApiPath = require('./customization.config');
 
 // This file is read only by react native for IOS & Android. Doesn't apply to electron, Web targets
 module.exports = {
@@ -20,14 +20,14 @@ module.exports = {
     [
       require.resolve('babel-plugin-module-resolver'),
       {
-        root: ["./"],
+        root: ['./'],
         alias: {
-          "fpe-api/install": "./fpe-api/install.ts",
-          "fpe-api": "./fpe-api/index.ts",
-          "fpe-implementation": "./fpe-implementation/index.ts",
-          "test-fpe": getFpePath()
-        }
-      }
-    ]
+          'customization-api': './customization-api/index.ts',
+          'customization-implementation':
+            './customization-implementation/index.ts',
+          'test-fpe': getCustomizationApiPath(),
+        },
+      },
+    ],
   ],
 };

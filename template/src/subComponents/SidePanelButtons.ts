@@ -4,7 +4,7 @@ import {
   RemoteLiveStreamRequestApprove,
   RemoteLiveStreamRequestReject,
   RemoteLiveStreamApprovedRequestRecallProps,
-  RemoteLiveStreamControlInterface,
+  RemoteLiveStreamControlProps,
 } from './livestream';
 import RemoteAudioMute, {RemoteAudioMuteProps} from './RemoteAudioMute';
 import RemoteVideoMute, {RemoteVideoMuteProps} from './RemoteVideoMute';
@@ -16,17 +16,18 @@ import {
   MuteAllVideoButtonProps,
 } from '../components/HostControlView';
 
-export const SidePanelButtonsArray: [
+type SidePanelButtonsArrayProps = [
   (props: RemoteAudioMuteProps) => JSX.Element,
   (props: RemoteVideoMuteProps) => JSX.Element,
   (props: RemoteEndCallProps) => JSX.Element,
   (props: RemoteLiveStreamApprovedRequestRecallProps) => JSX.Element,
-  (props: RemoteLiveStreamControlInterface) => JSX.Element,
-  (props: RemoteLiveStreamControlInterface) => JSX.Element,
+  (props: RemoteLiveStreamControlProps) => JSX.Element,
+  (props: RemoteLiveStreamControlProps) => JSX.Element,
   (props: ChatSendButtonProps) => JSX.Element,
   (props: MuteAllAudioButtonProps) => JSX.Element,
   (props: MuteAllVideoButtonProps) => JSX.Element,
-] = [
+];
+export const SidePanelButtonsArray: SidePanelButtonsArrayProps = [
   RemoteAudioMute,
   RemoteVideoMute,
   RemoteEndCall,

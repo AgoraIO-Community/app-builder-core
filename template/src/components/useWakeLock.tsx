@@ -1,10 +1,12 @@
 import NoSleep from 'nosleep.js';
 import React from 'react';
-import mobileAndTabletCheck from '../utils/isMobileOrTablet';
-import {isWeb} from '../utils/common';
+import useIsMobileOrTablet from '../utils/useIsMobileOrTablet';
+import {useIsWeb} from '../utils/common';
 
 const useWakeLock = () => {
-  if (mobileAndTabletCheck() && isWeb) {
+  const isWeb = useIsWeb();
+  const isMobileOrTablet = useIsMobileOrTablet();
+  if (isMobileOrTablet() && isWeb()) {
     const noSleep = React.useMemo(() => new NoSleep(), []);
     const [awake, set] = React.useState(noSleep.isEnabled);
 

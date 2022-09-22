@@ -16,7 +16,7 @@ export enum UNREAD_MESSAGE_COUNT_TYPE {
   GroupAndPrivateCount,
   GroupCount,
   PrivateCount,
-  PaticularUserUnReadCount,
+  IndivdualCount,
 }
 
 function useUnreadMessageCount() {
@@ -27,7 +27,10 @@ function useUnreadMessageCount() {
     unreadIndividualMessageCount,
   } = useChatNotification();
 
-  const getUnreadCount = (type: UNREAD_MESSAGE_COUNT_TYPE, uid?: UidType) => {
+  const unreadMessageCount = (
+    type: UNREAD_MESSAGE_COUNT_TYPE,
+    uid?: UidType,
+  ) => {
     switch (type) {
       case UNREAD_MESSAGE_COUNT_TYPE.GroupAndPrivateCount:
         return totalUnreadCount;
@@ -35,7 +38,7 @@ function useUnreadMessageCount() {
         return unreadGroupMessageCount;
       case UNREAD_MESSAGE_COUNT_TYPE.PrivateCount:
         return unreadPrivateMessageCount;
-      case UNREAD_MESSAGE_COUNT_TYPE.PaticularUserUnReadCount:
+      case UNREAD_MESSAGE_COUNT_TYPE.IndivdualCount:
         return uid && unreadIndividualMessageCount[uid]
           ? unreadIndividualMessageCount[uid]
           : 0;
@@ -44,7 +47,7 @@ function useUnreadMessageCount() {
     }
   };
 
-  return getUnreadCount;
+  return unreadMessageCount;
 }
 
 export default useUnreadMessageCount;

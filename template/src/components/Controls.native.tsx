@@ -32,7 +32,9 @@ import LocalSwitchCamera, {
 } from '../subComponents/LocalSwitchCamera';
 
 const Controls = () => {
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const {rtcProps} = useContext(PropsContext);
 
   return (

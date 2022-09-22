@@ -17,7 +17,7 @@ import icons from '../assets/icons';
 import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 
 export interface ChatSendButtonProps {
@@ -124,55 +124,57 @@ const ChatInput = (props: {
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
 }) => {
   const {primaryColor} = useContext(ColorContext);
-  const {ChatInputComponent, ChatSendButtonComponent} = useFpe((data) => {
-    let components: {
-      ChatInputComponent: React.ComponentType<ChatTextInputProps>;
-      ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
-    } = {
-      ChatInputComponent: ChatTextInput,
-      ChatSendButtonComponent: ChatSendButton,
-    };
-    if (
-      data?.components?.videoCall &&
-      typeof data?.components?.videoCall === 'object'
-    ) {
+  const {ChatInputComponent, ChatSendButtonComponent} = useCustomization(
+    (data) => {
+      let components: {
+        ChatInputComponent: React.ComponentType<ChatTextInputProps>;
+        ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
+      } = {
+        ChatInputComponent: ChatTextInput,
+        ChatSendButtonComponent: ChatSendButton,
+      };
       if (
-        data?.components?.videoCall?.chat &&
-        typeof data?.components?.videoCall?.chat === 'object'
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
       ) {
         if (
-          data?.components?.videoCall?.chat?.chatInput &&
-          typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+          data?.components?.videoCall?.chat &&
+          typeof data?.components?.videoCall?.chat === 'object'
         ) {
-          components.ChatInputComponent =
-            data?.components?.videoCall?.chat?.chatInput;
+          if (
+            data?.components?.videoCall?.chat?.chatInput &&
+            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+          ) {
+            components.ChatInputComponent =
+              data?.components?.videoCall?.chat?.chatInput;
+          }
+          if (
+            data?.components?.videoCall?.chat?.chatSentButton &&
+            typeof data?.components?.videoCall?.chat?.chatSentButton !==
+              'object' &&
+            isValidReactComponent(
+              data?.components?.videoCall?.chat?.chatSentButton,
+            )
+          ) {
+            components.ChatSendButtonComponent =
+              data?.components?.videoCall?.chat?.chatSentButton;
+          }
+        }
+      } else {
+        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
+          components.ChatInputComponent = props.chatInput;
         }
         if (
-          data?.components?.videoCall?.chat?.chatSentButton &&
-          typeof data?.components?.videoCall?.chat?.chatSentButton !==
-            'object' &&
-          isValidReactComponent(
-            data?.components?.videoCall?.chat?.chatSentButton,
-          )
+          props?.chatSendButton &&
+          isValidReactComponent(props.chatSendButton)
         ) {
-          components.ChatSendButtonComponent =
-            data?.components?.videoCall?.chat?.chatSentButton;
+          components.ChatSendButtonComponent = props.chatSendButton;
         }
       }
-    } else {
-      if (props?.chatInput && isValidReactComponent(props.chatInput)) {
-        components.ChatInputComponent = props.chatInput;
-      }
-      if (
-        props?.chatSendButton &&
-        isValidReactComponent(props.chatSendButton)
-      ) {
-        components.ChatSendButtonComponent = props.chatSendButton;
-      }
-    }
-    return components;
-  });
+      return components;
+    },
+  );
 
   return (
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>

@@ -9,8 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {isWeb} from '../utils/common';
+import {useIsWeb} from '../utils/common';
 
+const isWeb = useIsWeb();
 const styles = {
   temp: {
     width: '100%',
@@ -19,8 +20,8 @@ const styles = {
     borderRadius: 15,
   },
   bottomBar: {
-    flex: isWeb ? 1.3 : 1.6,
-    paddingHorizontal: isWeb ? '20%' : '1%',
+    flex: isWeb() ? 1.3 : 1.6,
+    paddingHorizontal: isWeb() ? '20%' : '1%',
     backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
     flexDirection: 'row',
     justifyContent: 'space-evenly',

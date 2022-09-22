@@ -9,13 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import fpeConfig from 'test-fpe';
-
-export {fpeConfig};
-
-export * from './useFpe';
-export * from './context';
-export * from './components';
-export * from './typeDefinition';
-export * from './utils';
-export * from './fpeEvents';
+import {customize} from 'customization-api';
+/**
+ * Dummy Config used to load when project doesn't have the customization.
+ */
+const dummyConfig = customize({});
+export default dummyConfig;

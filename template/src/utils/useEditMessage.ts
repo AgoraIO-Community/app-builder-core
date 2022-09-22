@@ -15,7 +15,7 @@ import {MESSAGE_TYPE} from './useSendMessage';
 
 function useEditMessage() {
   const {editChatMessage} = useChatMessages();
-  return (
+  const editMessage = (
     type: MESSAGE_TYPE,
     msgId: string,
     message: string,
@@ -36,6 +36,7 @@ function useEditMessage() {
         break;
     }
   };
+  return editMessage;
 }
 
 export default useEditMessage;

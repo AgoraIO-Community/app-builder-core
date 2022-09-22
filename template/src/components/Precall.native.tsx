@@ -12,7 +12,7 @@
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {ClientRole, PropsContext} from '../../agora-rn-uikit';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import {isValidReactComponent} from '../utils/common';
 import {
@@ -36,7 +36,7 @@ const Precall = () => {
     Textbox,
     PrecallAfterView,
     PrecallBeforeView,
-  } = useFpe((data) => {
+  } = useCustomization((data) => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
@@ -111,7 +111,7 @@ const Precall = () => {
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
 
-  const FpePrecallComponent = useFpe((data) => {
+  const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
     // if (
     //   data?.components?.precall &&

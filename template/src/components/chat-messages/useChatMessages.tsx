@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React, {useState, useEffect, useRef} from 'react';
-import {useRenderContext} from 'fpe-api';
+import {useRender} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid, UidType} from '../../../agora-rn-uikit';
 import events, {EventPersistLevel} from '../../rtm-events-api';
@@ -60,7 +60,7 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
-  const {renderList} = useRenderContext();
+  const {renderList} = useRender();
   const localUid = useLocalUid();
   const {setSidePanel} = useSidePanel();
   const {

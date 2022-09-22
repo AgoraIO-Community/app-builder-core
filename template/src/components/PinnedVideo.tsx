@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   View,
@@ -18,9 +18,8 @@ import {
   Text,
   Pressable,
 } from 'react-native';
-import {RtcContext} from '../../agora-rn-uikit';
 import {layoutProps} from '../../theme.json';
-import {layoutComponent} from 'fpe-api';
+import {layoutComponent, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 const {topPinned} = layoutProps;
 
@@ -40,7 +39,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
   const [maxUid, ...minUids] = renderData;
-  const {dispatch} = useContext(RtcContext);
+  const {dispatch} = useRtc();
 
   return (
     <View

@@ -21,12 +21,12 @@ import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
 import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import useNavigateTo from '../utils/useNavigateTo';
-import {useFpe} from 'fpe-api';
+import {useHistory} from '../components/Router';
+import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../utils/common';
 
 const Share = () => {
-  const {FpeShareComponent} = useFpe((data) => {
+  const {FpeShareComponent} = useCustomization((data) => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};
@@ -45,7 +45,9 @@ const Share = () => {
     return components;
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
-  const {meetingPassphrase, isSeparateHostLink} = useMeetingInfo();
+  const {
+    data: {roomId, pstn, isSeparateHostLink},
+  } = useMeetingInfo();
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
   // const meetingIdText = useString('meetingIdLabel')();
@@ -71,10 +73,10 @@ const Share = () => {
   const pinLabel = 'Pin';
   const enterMeetingAfterCreateButton = 'Start Meeting (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
-  const navigateTo = useNavigateTo();
+  const history = useHistory();
   const enterMeeting = () => {
-    if (meetingPassphrase?.host) {
-      navigateTo(meetingPassphrase.host);
+    if (roomId?.host) {
+      history.push(roomId.host);
     }
   };
 
@@ -187,7 +189,7 @@ const Share = () => {
               </View>
             </View>
           </View>
-          {meetingPassphrase?.pstn ? (
+          {pstn ? (
             <View style={style.urlContainer}>
               <View style={{width: '80%'}}>
                 <Text style={style.urlTitle}>{pstnLabel}</Text>
@@ -195,13 +197,13 @@ const Share = () => {
                   <View style={style.pstnHolder}>
                     <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
                     <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                      {meetingPassphrase?.pstn?.number}
+                      {pstn?.number}
                     </Text>
                   </View>
                   <View style={style.pstnHolder}>
                     <Text style={style.urlTitle}>{pinLabel}: </Text>
                     <Text style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                      {meetingPassphrase?.pstn?.pin}
+                      {pstn?.pin}
                     </Text>
                   </View>
                 </View>

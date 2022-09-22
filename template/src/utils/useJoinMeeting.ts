@@ -77,9 +77,7 @@ export default function useJoinMeeting() {
       } else {
         if (response && response.data) {
           let data = response.data;
-          let meetingInfo: Partial<MeetingInfoContextInterface> = {
-            isJoinDataFetched: true,
-          };
+          let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {};
           if (data?.joinChannel?.channel) {
             meetingInfo.channel = data.joinChannel.channel;
           }
@@ -90,10 +88,10 @@ export default function useJoinMeeting() {
             meetingInfo.token = data.joinChannel.mainUser.rtc;
           }
           if (data?.joinChannel?.mainUser?.rtm) {
-            meetingInfo.rtm = data.joinChannel.mainUser.rtm;
+            meetingInfo.rtmToken = data.joinChannel.mainUser.rtm;
           }
           if (data?.joinChannel?.secret) {
-            meetingInfo.secret = data.joinChannel.secret;
+            meetingInfo.encryptionSecret = data.joinChannel.secret;
           }
           if (data?.joinChannel?.screenShare?.uid) {
             meetingInfo.screenShareUid = data.joinChannel.screenShare.uid;
@@ -114,7 +112,11 @@ export default function useJoinMeeting() {
           setMeetingInfo((prevState) => {
             return {
               ...prevState,
-              ...meetingInfo,
+              isJoinDataFetched: true,
+              data: {
+                ...prevState.data,
+                ...meetingInfo,
+              },
             };
           });
         } else {
