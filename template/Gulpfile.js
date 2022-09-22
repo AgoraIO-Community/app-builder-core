@@ -81,6 +81,9 @@ const general = {
     // Target specific changes
 
     if (process.env.TARGET === 'rsdk') {
+      if(pkgNameArg == -1){
+        newPackage.name = "@appbuilder/react"
+      }
       newPackage.main = 'index.js';
       newPackage.types = 'index.d.ts';
 
@@ -95,6 +98,9 @@ const general = {
     }
 
     if (process.env.TARGET === 'wsdk') {
+      if(pkgNameArg == -1){
+        newPackage.name = "@appbuilder/web"
+      }
       newPackage.main = 'app-builder-web-sdk.umd2.js';
       newPackage.types = 'index.d.ts';
     }
