@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   CustomizationApiInterface,
-  customize as createFPE,
+  customize,
 } from 'customization-api';
 import {
   customizationConfig,
@@ -29,8 +29,8 @@ export interface userEventsMapInterface {
 }
 
 export interface AppBuilderSdkApiInterface {
-  customize: (customization: FpeApiInterface) => void;
-  createCustomization: (customization: FpeApiInterface) => FpeApiInterface;
+  customize: (customization: CustomizationApiInterface) => void;
+  createCustomization: (customization: CustomizationApiInterface) => CustomizationApiInterface;
   join: (
     roomid: string,
     resolve: () => void,
@@ -43,14 +43,14 @@ export interface AppBuilderSdkApiInterface {
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
-  customize: (customization: FpeApiInterface) => {
+  customize: (customization: CustomizationApiInterface) => {
     SDKEvents.emit('addFpe', customization);
   },
   join: (roomid: string) =>
     new Promise((resolve, reject) => {
       SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
     }),
-  createCustomization: createFPE,
+  createCustomization: customize,
   on: (userEventName, cb) => {
     SDKEvents.on(userEventName, cb);
     console.log('SDKEvents: Event Registered', userEventName);

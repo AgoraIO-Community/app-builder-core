@@ -66,7 +66,7 @@ const general = {
     return del([`${BUILD_PATH}/**/*`], {force: true});
   },
   packageJson: async (cb) => {
-    let {version, private, author, description} = JSON.parse(
+    let {version, private, author, description, dependencies} = JSON.parse(
       await fs.readFile(path.join(__dirname, 'package.json')),
     );
 
