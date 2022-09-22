@@ -1,7 +1,7 @@
-import {layoutObjectType} from 'fpe-api';
+import {layoutObjectType} from 'customization-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
-import useCustomLayout from './CustomLayout';
+import useLayoutsData from './useLayoutsData';
 import {useLayout} from '../../utils/useLayout';
 
 export const DefaultLayouts: layoutObjectType[] = [
@@ -23,8 +23,8 @@ export const getPinnedLayoutName = () => DefaultLayouts[1].name;
 export const getGridLayoutName = () => DefaultLayouts[0].name;
 
 export const useSetPinnedLayout = () => {
-  const {setActiveLayoutName} = useLayout();
-  const layouts = useCustomLayout();
+  const {setLayout} = useLayout();
+  const layouts = useLayoutsData();
   const pinnedLayoutName = getPinnedLayoutName();
   let checkPinnedLayoutExist = false;
   if (layouts && Array.isArray(layouts) && layouts.length) {
@@ -37,13 +37,13 @@ export const useSetPinnedLayout = () => {
     return () => {};
   }
   return () => {
-    setActiveLayoutName(pinnedLayoutName);
+    setLayout(pinnedLayoutName);
   };
 };
 
 export const useChangeDefaultLayout = () => {
-  const {setActiveLayoutName} = useLayout();
-  const layout = useCustomLayout();
+  const {setLayout} = useLayout();
+  const layout = useLayoutsData();
 
   if (!layout) {
     return () => {};
@@ -58,7 +58,7 @@ export const useChangeDefaultLayout = () => {
   }
 
   return () => {
-    setActiveLayoutName((activeLayout: string) =>
+    setLayout((activeLayout: string) =>
       activeLayout === layout[1].name ? layout[0].name : layout[1].name,
     );
   };

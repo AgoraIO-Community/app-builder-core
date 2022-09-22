@@ -7,8 +7,8 @@ import React from 'react';
 import * as RN from 'react-native-web';
 import jsonFile from './config.json';
 
-export * from 'fpe-api';
-export * from 'fpe-implementation';
+export * from 'customization-api';
+export * from 'customization-implementation';
 
 interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {}
 

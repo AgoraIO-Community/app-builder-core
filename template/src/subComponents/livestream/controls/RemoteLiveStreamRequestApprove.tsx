@@ -4,12 +4,12 @@ import {BtnTemplate, PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
 import icons from '../../../assets/icons';
 
-export interface RemoteLiveStreamControlInterface {
+export interface RemoteLiveStreamControlProps {
   uid: UidType;
 }
 
 const RemoteLiveStreamRequestApprove = (
-  props: RemoteLiveStreamControlInterface,
+  props: RemoteLiveStreamControlProps,
 ) => {
   const {uid} = props;
   const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);

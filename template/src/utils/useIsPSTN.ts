@@ -9,18 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRenderContext} from 'fpe-api';
+import {useRender} from 'customization-api';
+import {UidType} from '../../agora-rn-uikit';
 /**
- * This hook will fetch the user list
- * @returns userList
+ * This hook will return the function to check whether the current user is a PSTN user or not
+ * @returns function
  */
-
-function useUserList() {
-  const {renderPosition, renderList} = useRenderContext();
-  return {
-    renderList: renderList,
-    renderPosition: renderPosition,
-  };
+function useIsPSTN() {
+  const {renderList} = useRender();
+  /**
+   *
+   * @param uid number
+   * @returns boolean
+   */
+  const isPSTN = (uid: UidType) =>
+    !renderList[uid] && String(uid)[0] === '1' ? true : false;
+  return isPSTN;
 }
 
-export default useUserList;
+export default useIsPSTN;

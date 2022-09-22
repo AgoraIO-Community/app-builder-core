@@ -13,10 +13,10 @@ import {
 import {ClientRole, useLocalUid, UidType} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
-import useUserList from '../../utils/useUserList';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {useRender} from 'customization-api';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -29,7 +29,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const screenshareContextInstanceRef = useRef<any>();
   screenshareContextInstanceRef.current = screenshareContextInstance;
 
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const renderListRef = useRef<any>();
   renderListRef.current = renderList;
 
@@ -54,7 +54,9 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const {hasUserJoinedRTM} = useContext(ChatContext);
 
   const {setRtcProps, rtcProps, callActive} = props?.value;
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   const [lastCheckedRequestTimestamp, setLastCheckedRequestTimestamp] =
     useState(0);

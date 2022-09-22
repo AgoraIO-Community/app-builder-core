@@ -23,16 +23,15 @@ import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
-import {useFpe, FpeProvider, fpeConfig, FpeApiInterface} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
 
 interface AppWrapperProps {
   children: React.ReactNode;
-  fpeConfig?: FpeApiInterface;
 }
 
 const AppWrapper = (props: AppWrapperProps) => {
-  const AppRoot = useFpe((data) => {
+  const AppRoot = useCustomization((data) => {
     if (data?.appRoot && isValidReactComponent(data.appRoot)) {
       return data.appRoot;
     }

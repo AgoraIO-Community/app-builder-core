@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {FpeApiInterface} from './typeDefinition';
+import {CustomizationApiInterface} from './typeDefinition';
 import ReactIs from 'react-is';
 /**
  *
- * @param config FPE options to override the UI components and customize the application
- * @returns config options
+ * @param config customization options to override the UI components and customize the application
+ * @returns customization options
  */
 
 function isString(data: any) {
@@ -59,14 +59,14 @@ function validateComponents(components: any) {
           }
         } else {
           console.error(
-            `InstallFPE:Error ${key} should be a react component or object`,
+            `Customize:Error ${key} should be a react component or object`,
           );
         }
       }
     } else {
       let comp = components[key];
       if (comp && !isFunction(comp)) {
-        console.error(`InstallFPE:Error ${key} should be an function`);
+        console.error(`Customize:Error ${key} should be an function`);
       }
     }
   }
@@ -77,7 +77,7 @@ function validateLifecycle(data: any) {
     const callback = data[key];
     if (callback && !isFunction(callback)) {
       console.error(
-        `InstallFPE:Error ${key} should be a function that return async function`,
+        `Customize:Error ${key} should be a function that return async function`,
       );
     }
   }
@@ -85,20 +85,20 @@ function validateLifecycle(data: any) {
 
 function validateCustomRoutes(routes: any) {
   if (routes && !Array.isArray(routes)) {
-    console.error(`InstallFPE:Error customRoutes should be an array`);
+    console.error(`Customize:Error customRoutes should be an array`);
   }
 }
 
 function validateAppRoot(data: any) {
   if (data && !isComponent(data)) {
-    console.error(`InstallFPE:Error appRoot should be a react component`);
+    console.error(`Customize:Error appRoot should be a react component`);
   }
 }
 
 function validatei18n(data: any) {
   if (data) {
     if (!Array.isArray(data)) {
-      console.error(`InstallFPE:Error i18n should be an array`);
+      console.error(`Customize:Error i18n should be an array`);
     } else {
       data.map((item) => {
         const langData = item.data;
@@ -107,7 +107,7 @@ function validatei18n(data: any) {
           if (value) {
             if (!(isString(value) || isFunction(value))) {
               console.error(
-                `InstallFPE:Error ${item.locale} ${key} should be a string or function`,
+                `Customize:Error ${item.locale} ${key} should be a string or function`,
               );
             }
           }
@@ -116,7 +116,7 @@ function validatei18n(data: any) {
     }
   }
 }
-export const installFPE = (config: FpeApiInterface) => {
+export const customize = (config: CustomizationApiInterface) => {
   //validating the components
   config?.components && validateComponents(config.components);
 

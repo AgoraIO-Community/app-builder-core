@@ -1,25 +1,22 @@
 import React from 'react';
-import {MaxVideoRenderer} from './VideoRenderer';
+import VideoRenderer from './VideoRenderer';
 import {UidType} from '../../../agora-rn-uikit';
-import {
-  renderComponentObjectInterface,
-  useFpe,
-  useRenderContext,
-} from 'fpe-api';
+import {renderComponentObjectInterface, useRender} from 'customization-api';
+import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../../utils/common';
 
 export type RenderComponentType = {[key: string]: React.FC<any>};
 
 const DefaultRenderComponent: RenderComponentType = {
-  rtc: MaxVideoRenderer,
-  screenshare: MaxVideoRenderer,
+  rtc: VideoRenderer,
+  screenshare: VideoRenderer,
 };
 interface RenderComponentProps {
   uid: UidType;
 }
 const RenderComponent = ({uid}: RenderComponentProps) => {
-  const {renderList} = useRenderContext();
-  const FpeRenderComponent = useFpe((config) =>
+  const {renderList} = useRender();
+  const FpeRenderComponent = useCustomization((config) =>
     typeof config?.components?.videoCall === 'object' &&
     typeof config?.components?.videoCall?.customContent === 'object'
       ? config?.components?.videoCall?.customContent

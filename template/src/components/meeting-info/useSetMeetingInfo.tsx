@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {createContext, SetStateAction} from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import {MeetingInfoContextInterface} from './useMeetingInfo';
 
 export interface SetMeetingInfoContextInterface {

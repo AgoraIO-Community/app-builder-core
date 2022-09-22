@@ -1,11 +1,13 @@
 import {controlMessageEnum} from '../components/ChatContext';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import useIsPSTN from './isPSTNUser';
+import useIsPSTN from './useIsPSTN';
 import {UidType} from '../../agora-rn-uikit';
 import events, {EventPersistLevel} from '../rtm-events-api';
 
 const useRemoteEndCall = () => {
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const isPSTN = useIsPSTN();
 
   return (uid: UidType) => {

@@ -19,8 +19,8 @@ import {JoinRoomButtonTextInterface} from '../../language/default-labels/precall
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
-import isMobileOrTablet from '../../utils/isMobileOrTablet';
-import {isWeb} from '../../utils/common';
+import useIsMobileOrTablet from '../../utils/useIsMobileOrTablet';
+import {useIsWeb} from '../../utils/common';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -35,6 +35,8 @@ export interface PreCallJoinCallBtnProps {
 }
 
 const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
+  const isMobileOrTablet = useIsMobileOrTablet();
+  const isWeb = useIsWeb();
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();
@@ -53,7 +55,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const onSubmit = () => {
     setCallActive(true);
     // Play a sound to avoid autoblocking in safari
-    if (isWeb || isMobileOrTablet()) {
+    if (isWeb() || isMobileOrTablet()) {
       audio.volume = 0;
       audio.play().then(() => {
         // pause directly once played
@@ -61,7 +63,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
       });
     }
     // Avoid Sleep only on mobile browsers
-    if (isWeb && isMobileOrTablet() && !awake) {
+    if (isWeb() && isMobileOrTablet() && !awake) {
       // Request wake lock
       request();
     }

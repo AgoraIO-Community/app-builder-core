@@ -1,10 +1,10 @@
 {
   // --------------------------------------------------------
   // Use with webpack loader
-  // "files":["./fpe-api/index.ts","./global.d.ts","./bridge/rtm/web/index.ts","./bridge/rtc/webNg/index.ts"],
+  // "files":["./customization-api/index.ts","./global.d.ts","./bridge/rtm/web/index.ts","./bridge/rtc/webNg/index.ts"],
   // --------------------------------------------------------
   // Use with typescript tsc command
-  "files":["./fpe-api/index.ts","./global.d.ts"],
+  "files": ["./customization-api/index.ts", "./global.d.ts"],
   // --------------------------------------------------------
   "compilerOptions": {
     /* Basic Options */
@@ -83,21 +83,20 @@
       "agora-react-native-rtm": ["./bridge/rtm/web/index.ts"],
       "react-native-agora": ["./bridge/rtc/webNg/index.ts"],
       "react-native": ["react-native-web"],
-      "fpe-api": ["./fpe-api/index.ts"],
-      "fpe-api/install": ["./fpe-api/install.ts"],
-      "fpe-implementation": ["./fpe-implementation/index.ts"],
+      "customization-api": ["./customization-api/index.ts"],
+      "customization-implementation": [
+        "./customization-implementation/index.ts"
+      ],
       "./RtcContext": ["agora-rn-uikit/src/index"]
     }
     // --------------------------------------------------------
   },
-  // "references": [{"path": "./fpe-api", "prepend": true}],
+  // "references": [{"path": "./customization-api", "prepend": true}],
   "exclude": [
     //"node_modules",
     "babel.config.js",
     "metro.config.js",
     "jest.config.js"
   ],
-  "include": [
-    "node_modules/agora"
-  ]
+  "include": ["node_modules/agora"]
 }

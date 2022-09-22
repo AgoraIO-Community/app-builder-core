@@ -10,20 +10,26 @@
 *********************************************
 */
 
-/*
-getFpePath - will return test-fpe if exists otherwise it will return the dummy fpe path
-*/
-const fs = require('fs');
-const FpePathTs = './test-fpe/index.ts';
-const FpePathTsx = './test-fpe/index.tsx';
-const FpeDummyPath = './fpe-implementation/dummyFpe.ts';
-const getFpePath = () => {
-  if (fs.existsSync(FpePathTs)) {
-    return FpePathTs;
+import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
+import {UidType} from '../../agora-rn-uikit';
+
+function useIsHost() {
+  if ($config.EVENT_MODE) {
+    const {hostUids} = useLiveStreamDataContext();
+    const isHost = (uid: UidType) => {
+      return hostUids.filter((hostId) => hostId === uid).length ? true : false;
+    };
+    return isHost;
+  } else {
+    const {
+      data: {isHost: isHostFlag},
+    } = useMeetingInfo();
+    const isHost = (uid: UidType) => {
+      return isHostFlag ? true : false;
+    };
+    return isHost;
   }
-  if (fs.existsSync(FpePathTsx)) {
-    return FpePathTsx;
-  }
-  return FpeDummyPath;
-};
-module.exports = getFpePath;
+}
+
+export default useIsHost;

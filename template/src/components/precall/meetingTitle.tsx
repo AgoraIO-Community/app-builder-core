@@ -3,7 +3,9 @@ import {Text, StyleSheet, View} from 'react-native';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 const MeetingTitle: React.FC = () => {
-  const {meetingTitle} = useMeetingInfo();
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
   return (
     <>
       <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>

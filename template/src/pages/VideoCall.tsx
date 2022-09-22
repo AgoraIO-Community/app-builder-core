@@ -24,7 +24,7 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {hasBrandLogo, isArray} from '../utils/common';
+import {useHasBrandLogo, isArray} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -32,10 +32,10 @@ import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfig
 import {ErrorContext} from '.././components/common/index';
 import {PreCallProvider} from '../components/precall/usePreCall';
 import {LayoutProvider} from '../utils/useLayout';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import Precall from '../components/Precall';
 import {useString} from '../utils/useString';
-import useCustomLayout from './video-call/CustomLayout';
+import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
@@ -81,6 +81,7 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
+  const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   //const joiningLoaderLabel = useString('joiningLoaderLabel')();
   const joiningLoaderLabel = 'Starting Call. Just a second.';
@@ -89,9 +90,9 @@ const VideoCall: React.FC = () => {
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
 
   //layouts
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
-  const [activeLayoutName, setActiveLayoutName] = useState(defaultLayoutName);
+  const [currentLayout, setLayout] = useState(defaultLayoutName);
   //layouts
 
   const [isRecordingActive, setRecordingActive] = useState(false);
@@ -99,7 +100,7 @@ const VideoCall: React.FC = () => {
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
   // commented for v1 release
-  //const lifecycle = useFpe((data) => data.lifecycle);
+  //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -137,23 +138,23 @@ const VideoCall: React.FC = () => {
       });
   }, []);
 
-  const data = useMeetingInfo();
+  const {isJoinDataFetched, data} = useMeetingInfo();
 
   React.useEffect(() => {
-    if (data.isJoinDataFetched === true) {
+    if (isJoinDataFetched === true) {
       setRtcProps({
         appId: $config.APP_ID,
         channel: data.channel,
         uid: data.uid,
         token: data.token,
-        rtm: data.rtm,
+        rtm: data.rtmToken,
         dual: true,
         profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
-              key: data.secret,
+              key: data.encryptionSecret,
               mode: RnEncryptionEnum.AES128XTS,
-              screenKey: data.secret,
+              screenKey: data.encryptionSecret,
             }
           : false,
         screenShareUid: data.screenShareUid,
@@ -167,9 +168,9 @@ const VideoCall: React.FC = () => {
       // if (data.username) {
       //   setUsername(data.username);
       // }
-      queryComplete ? {} : setQueryComplete(data.isJoinDataFetched);
+      queryComplete ? {} : setQueryComplete(isJoinDataFetched);
     }
-  }, [data?.isJoinDataFetched]);
+  }, [isJoinDataFetched]);
 
   const history = useHistory();
   const callbacks = {
@@ -218,8 +219,8 @@ const VideoCall: React.FC = () => {
                                   <WhiteboardProvider>
                                     <LayoutProvider
                                       value={{
-                                        activeLayoutName,
-                                        setActiveLayoutName,
+                                        currentLayout,
+                                        setLayout,
                                       }}>
                                       <RecordingProvider
                                         value={{
@@ -274,7 +275,7 @@ const VideoCall: React.FC = () => {
           </>
         ) : (
           <View style={style.loader}>
-            <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
+            <View style={style.loaderLogo}>{hasBrandLogo() && <Logo />}</View>
             <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
           </View>
         )

@@ -9,22 +9,21 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {UidType} from '../../agora-rn-uikit';
-import useUserList from './useUserList';
-/**
- * This hook will return the function to check whether the current user is a PSTN user or not
- * @returns function
- */
-function useIsPSTN() {
-  const {renderList} = useUserList();
-  /**
-   *
-   * @param uid number
-   * @returns boolean
-   */
-  const isPSTN = (uid: UidType) =>
-    !renderList[uid] && String(uid)[0] === '1' ? true : false;
-  return isPSTN;
-}
 
-export default useIsPSTN;
+/*
+getCustomizationApiPath - will return test-fpe if exists otherwise it will return the dummy customization path
+*/
+const fs = require('fs');
+const customizationPathTs = './test-fpe/index.ts';
+const customizationPathTsx = './test-fpe/index.tsx';
+const customizationDummyPath = './customization-implementation/dummyConfig.ts';
+const getCustomizationApiPath = () => {
+  if (fs.existsSync(customizationPathTs)) {
+    return customizationPathTs;
+  }
+  if (fs.existsSync(customizationPathTsx)) {
+    return customizationPathTsx;
+  }
+  return customizationDummyPath;
+};
+module.exports = getCustomizationApiPath;

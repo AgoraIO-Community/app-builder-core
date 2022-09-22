@@ -17,7 +17,7 @@ import Logo from '../subComponents/Logo';
 import {
   isValidReactComponent,
   shouldAuthenticate,
-  hasBrandLogo,
+  useHasBrandLogo,
 } from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -26,12 +26,12 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
-import useNavigateTo from '../utils/useNavigateTo';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 
 const Join = () => {
+  const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
   // const enterMeetingButton = useString('enterMeetingButton')();
@@ -41,7 +41,6 @@ const Join = () => {
   const createMeetingButton = 'Create Meeting';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
-  const navigateTo = useNavigateTo();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
@@ -52,9 +51,9 @@ const Join = () => {
 
   const startCall = async () => {
     setMeetingInfo(MeetingInfoDefaultValue);
-    navigateTo(phrase);
+    history.push(phrase);
   };
-  const {JoinComponent} = useFpe((data) => {
+  const {JoinComponent} = useCustomization((data) => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};
@@ -74,7 +73,7 @@ const Join = () => {
   ) : (
     <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
+        {hasBrandLogo() && <Logo />}
         {error ? <Error error={error} /> : <></>}
       </View>
       <View style={style.content}>

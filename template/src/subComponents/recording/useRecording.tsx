@@ -20,7 +20,7 @@ import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
 import events, {EventPersistLevel} from '../../rtm-events-api';
@@ -31,14 +31,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
-  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
   isRecordingActive: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
-  setRecordingActive: () => {},
   isRecordingActive: false,
 });
 
@@ -69,7 +67,10 @@ function usePrevious<T = any>(value: any) {
 
 interface RecordingProviderProps {
   children: React.ReactNode;
-  value: Omit<RecordingContextInterface, 'startRecording' | 'stopRecording'>;
+  value: {
+    setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
+    isRecordingActive: boolean;
+  };
 }
 
 /**
@@ -218,7 +219,6 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         startRecording,
         stopRecording,
         isRecordingActive,
-        setRecordingActive,
       }}>
       {props.children}
     </RecordingContext.Provider>

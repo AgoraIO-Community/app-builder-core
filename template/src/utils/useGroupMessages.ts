@@ -14,11 +14,12 @@ import {useChatMessages} from '../components/chat-messages/useChatMessages';
 
 /**
  * This hook will fetch the group messages
- * @returns userList
+ * @returns groupMessageData
  */
 function useGroupMessages() {
   const {messageStore} = useChatMessages();
-  return messageStore;
+  const groupMessages = () => messageStore;
+  return groupMessages;
 }
 
 export default useGroupMessages;

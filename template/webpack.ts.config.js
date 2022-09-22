@@ -20,8 +20,8 @@ module.exports = merge(commons, {
   // Enable optimizations in production
   mode: isDevelopment ? 'development' : 'production',
   // Main entry point for the web application
-  module:{
-    rules:[
+  module: {
+    rules: [
       {
         test: /\.tsx?$/,
         loader: 'ts-loader',
@@ -29,9 +29,9 @@ module.exports = merge(commons, {
         exclude: /node_modules|\.d\.ts$/,
         options: {
           configFile: 'tsconfig.json',
-          ignoreDiagnostics: [2339,2554,2539,1005]
+          ignoreDiagnostics: [2339, 2554, 2539, 1005],
           // ignoreDiagnostics: [2554,2539,2339,2551,2769,2305,2614,2322,2362,2369,2698]
-        }
+        },
       },
       {
         // Use babel to transpile all js, ts, jsx and tsx files
@@ -78,10 +78,10 @@ module.exports = merge(commons, {
           },
         ],
       },
-    ]
+    ],
   },
   entry: {
-    main: './fpe-api/index.ts',
+    main: './customization-api/index.ts',
   },
   output: {
     path: path.resolve(__dirname, `../Builds/ts`),

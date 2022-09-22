@@ -1,6 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {fpeConfig, FpeProvider, FpeApiInterface} from 'fpe-api';
-import {installFPE as createFPE} from 'fpe-api/install';
+import {
+  CustomizationApiInterface,
+  customize as createFPE,
+} from 'customization-api';
+import {
+  customizationConfig,
+  CustomizationProvider,
+} from 'customization-implementation';
 import SDKEvents from './utils/SdkEvents';
 import App from './App';
 
@@ -23,8 +29,8 @@ export interface userEventsMapInterface {
 }
 
 export interface AppBuilderSdkApiInterface {
-  addFPE: (fpe: FpeApiInterface) => void;
-  createFPE: (fpe: FpeApiInterface) => FpeApiInterface;
+  addFPE: (fpe: CustomizationApiInterface) => void;
+  createFPE: (fpe: CustomizationApiInterface) => CustomizationApiInterface;
   joinMeeting: (joinPhrase: string) => void;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
@@ -33,7 +39,7 @@ export interface AppBuilderSdkApiInterface {
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
-  addFPE: (fpeConfig: FpeApiInterface) => {
+  addFPE: (fpeConfig: CustomizationApiInterface) => {
     SDKEvents.emit('addFpe', fpeConfig);
   },
   joinMeeting: (joinPhrase: string) => {
@@ -47,7 +53,7 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
 };
 
 const SDKAppWrapper = () => {
-  const [fpe, setFpe] = useState(fpeConfig);
+  const [fpe, setFpe] = useState(customizationConfig);
   useEffect(() => {
     SDKEvents.on('addFpe', (sdkFpeConfig) => {
       console.log('SDKEvents: addFpe event called');
@@ -57,9 +63,9 @@ const SDKAppWrapper = () => {
   }, []);
   return (
     <>
-      <FpeProvider value={fpe}>
+      <CustomizationProvider value={fpe}>
         <App />
-      </FpeProvider>
+      </CustomizationProvider>
     </>
   );
 };

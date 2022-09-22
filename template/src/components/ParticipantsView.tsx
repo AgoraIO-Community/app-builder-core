@@ -18,10 +18,10 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {isWeb} from '../utils/common';
+import {useIsWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
-
+const isWeb = useIsWeb();
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {rtcProps} = useContext(PropsContext);
@@ -32,7 +32,9 @@ const ParticipantView = () => {
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
   const participantsLabel = 'Participants';
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -232,14 +234,14 @@ const style = StyleSheet.create({
   },
   participantText: {
     lineHeight: 24,
-    fontSize: isWeb ? 18 : 16,
+    fontSize: isWeb() ? 18 : 16,
     flexDirection: 'row',
     letterSpacing: 0.3,
     color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '300',
   },
   participantTextSmall: {
-    fontSize: isWeb ? 14 : 12,
+    fontSize: isWeb() ? 14 : 12,
   },
   dummyView: {
     flex: 0.5,

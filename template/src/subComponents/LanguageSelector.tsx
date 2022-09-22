@@ -13,14 +13,14 @@ import React, {useContext} from 'react';
 import {Picker, StyleSheet, Text} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import {useLanguage} from '../language/useLanguage';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import {DEFAULT_I18_DATA} from '../language';
 
 const LanguageSelector = () => {
   const {primaryColor} = useContext(ColorContext);
   const {languageCode, setLanguageCode} = useLanguage();
-  const languageData = useFpe((data) => data?.i18n);
+  const languageData = useCustomization((data) => data?.i18n);
   //commented for v1 release
   //const languageText = useString('language')();
   const languageText = 'Language';

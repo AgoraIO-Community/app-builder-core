@@ -10,10 +10,10 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
-import {isIOS, isWeb} from '../../utils/common';
+import {useIsIOS, useIsWeb} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
-import useUserList from '../../utils/useUserList';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -21,7 +21,7 @@ const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isChatUser = (userId: UidType, userInfo: any) => {
@@ -82,7 +82,8 @@ const ChatParticipants = (props: any) => {
     </ScrollView>
   );
 };
-
+const isWeb = useIsWeb();
+const isIOS = useIsIOS();
 const style = StyleSheet.create({
   participantContainer: {
     flexDirection: 'row',
@@ -95,7 +96,7 @@ const style = StyleSheet.create({
   },
   participantText: {
     flex: 1,
-    fontWeight: isWeb ? '500' : '700',
+    fontWeight: isWeb() ? '500' : '700',
     flexDirection: 'row',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
@@ -110,7 +111,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

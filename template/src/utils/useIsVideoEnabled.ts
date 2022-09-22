@@ -9,21 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {UidType} from '../../agora-rn-uikit';
-import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import useUserList from './useUserList';
+import {useRender} from 'customization-api';
+import {UidType, ToggleState} from '../../agora-rn-uikit';
 
-function useIsAudioEnabled() {
-  const {renderList} = useUserList();
+function useIsVideoEnabled() {
+  const {renderList} = useRender();
+
   /**
    *
    * @param uid UidType
    * @returns boolean
    */
-  const audioEnabled = (uid: UidType): boolean =>
-    renderList[uid]?.audio === ToggleState.enabled;
+  const isVideoEnabled = (uid: UidType): boolean =>
+    renderList[uid]?.video === ToggleState.enabled;
 
-  return audioEnabled;
+  return isVideoEnabled;
 }
-
-export default useIsAudioEnabled;
+export default useIsVideoEnabled;

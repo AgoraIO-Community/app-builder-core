@@ -115,7 +115,7 @@ export interface CustomRoutesInterface {
 
 export type CustomHookType = () => () => Promise<void>;
 
-export interface FpeApiInterface {
+export interface CustomizationApiInterface {
   /**
    * components used to replace whole screen or subcomponents
    */

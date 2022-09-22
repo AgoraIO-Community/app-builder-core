@@ -18,7 +18,7 @@ export enum MESSAGE_TYPE {
 }
 function useSendMessage() {
   const {sendChatMessage} = useChatMessages();
-  return (type: MESSAGE_TYPE, message: string, uid?: UidType) => {
+  const sendMessage = (type: MESSAGE_TYPE, message: string, uid?: UidType) => {
     switch (type) {
       case MESSAGE_TYPE.group:
         sendChatMessage(message);
@@ -34,6 +34,7 @@ function useSendMessage() {
         break;
     }
   };
+  return sendMessage;
 }
 
 export default useSendMessage;
