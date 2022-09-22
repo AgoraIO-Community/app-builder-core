@@ -10,7 +10,7 @@ import {
 } from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
-import {View, Text} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
 
 export interface LocalEndcallProps {
   buttonTemplateName?: ButtonTemplateName;
@@ -48,14 +48,16 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   return props?.render ? (
     props.render(onPress, buttonTemplateName)
   ) : (
-    <View style={Styles.endCallContainer as object}>
+    <TouchableOpacity
+      style={Styles.endCallContainer as object}
+      onPress={onPress}>
       <View style={{width: 20, height: 20}}>
         <BtnTemplate {...btnTemplateProps} />
       </View>
       {!isTopBarTemplate && (
         <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 export default LocalEndcall;

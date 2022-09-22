@@ -47,42 +47,42 @@ const Settings = (props: SettingsIconButtonProps) => {
   };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: isPanelActive ? 'settingsFilled' : 'settings',
+    name: 'settings',
   };
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
     btnTemplateProps.btnText = settingsLabel;
     btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
   } else {
-    btnTemplateProps.style = [
-      style.localButtonWithMatchingStyle,
-      {borderColor: primaryColor},
-    ];
+    btnTemplateProps.style = [Styles.localButton as Object];
+    btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
+    btnTemplateProps.btnText = settingsLabel;
+    btnTemplateProps.styleText = Styles.localButtonText as Object;
   }
   return props?.render ? (
     props.render(onPress, isPanelActive, buttonTemplateName)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
-  );
-};
-
-export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
-  return (
-    <View style={[style.navItem, style.navSmItem]}>
-      <Settings {...props} />
+    <View
+      style={[
+        style.navItem,
+        {
+          backgroundColor: isPanelActive
+            ? $config.PRIMARY_COLOR
+            : 'transparent',
+        },
+      ]}>
+      <BtnTemplate {...btnTemplateProps} />
     </View>
   );
 };
 
+export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
+  return <Settings {...props} />;
+};
+
 const style = StyleSheet.create({
   navItem: {
-    height: '100%',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  navSmItem: {
-    flexGrow: 0,
-    flexShrink: 0,
-    flexBasis: '15%',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
   },
   main: {
     width: '50%',
