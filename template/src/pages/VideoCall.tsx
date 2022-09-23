@@ -48,6 +48,7 @@ import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
 import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
+import {VideoMeetingDataProvider} from '../components/contexts/VideoMeetingDataContext';
 import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
 import SDKEvents from '../utils/SdkEvents';
@@ -240,7 +241,9 @@ const VideoCall: React.FC = () => {
                                                 <CustomUserContextHolder>
                                                   <NetworkQualityProvider>
                                                     {callActive ? (
-                                                      <VideoCallScreen />
+                                                      <VideoMeetingDataProvider>
+                                                        <VideoCallScreen />
+                                                      </VideoMeetingDataProvider>
                                                     ) : $config.PRECALL ? (
                                                       <PreCallProvider
                                                         value={{
