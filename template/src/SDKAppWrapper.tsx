@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
   CustomizationApiInterface,
-  customize as createFPE,
+  customize,
 } from 'customization-api';
 import {
   customizationConfig,
@@ -20,7 +20,7 @@ export interface userEventsMapInterface {
       pin: string;
     },
   ) => void;
-  preJoin: (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
+  'ready-to-join': (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
   join: (
     meetingTitle: string,
     devices: MediaDeviceInfo[],
@@ -29,9 +29,13 @@ export interface userEventsMapInterface {
 }
 
 export interface AppBuilderSdkApiInterface {
-  addFPE: (fpe: CustomizationApiInterface) => void;
-  createFPE: (fpe: CustomizationApiInterface) => CustomizationApiInterface;
-  joinMeeting: (joinPhrase: string) => void;
+  customize: (customization: CustomizationApiInterface) => void;
+  createCustomization: (customization: CustomizationApiInterface) => CustomizationApiInterface;
+  join: (
+    roomid: string,
+    resolve: () => void,
+    reject: () => void,
+  ) => Promise<void>;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
     callBack: userEventsMapInterface[T],
@@ -39,13 +43,14 @@ export interface AppBuilderSdkApiInterface {
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
-  addFPE: (fpeConfig: CustomizationApiInterface) => {
-    SDKEvents.emit('addFpe', fpeConfig);
+  customize: (customization: CustomizationApiInterface) => {
+    SDKEvents.emit('addFpe', customization);
   },
-  joinMeeting: (joinPhrase: string) => {
-    SDKEvents.emit('joinMeetingWithPhrase', joinPhrase);
-  },
-  createFPE,
+  join: (roomid: string) =>
+    new Promise((resolve, reject) => {
+      SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
+    }),
+  createCustomization: customize,
   on: (userEventName, cb) => {
     SDKEvents.on(userEventName, cb);
     console.log('SDKEvents: Event Registered', userEventName);

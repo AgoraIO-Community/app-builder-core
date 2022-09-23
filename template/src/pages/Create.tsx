@@ -87,11 +87,19 @@ const Create = () => {
     if (isWeb()) {
       document.title = $config.APP_NAME;
     }
-    const unbind = SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
-      console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
-      setMeetingInfo(MeetingInfoDefaultValue);
-      history.push(phrase);
-    });
+    const unbind = SDKEvents.on(
+      'joinMeetingWithPhrase',
+      (phrase, resolve, reject) => {
+        console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
+        try {
+          setMeetingInfo(MeetingInfoDefaultValue);
+          navigateTo(phrase);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      },
+    );
     return () => {
       unbind();
     };

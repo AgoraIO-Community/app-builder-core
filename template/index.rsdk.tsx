@@ -18,7 +18,6 @@ import SDKAppWrapper, {
 } from './src/SDKAppWrapper';
 import React from 'react';
 import * as RN from 'react-native-web';
-import jsonFile from './config.json';
 
 export * from 'customization-api';
 export * from 'customization-implementation';
@@ -32,7 +31,5 @@ const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
   View: SDKAppWrapper,
 };
 
-let config: ConfigInterface = jsonFile as unknown as ConfigInterface;
-
-export {React, RN, config};
+export {React, RN};
 export default AppBuilderReactSdkApi;

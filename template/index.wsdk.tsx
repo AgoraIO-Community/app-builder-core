@@ -5,7 +5,6 @@ import SDKAppWrapper, {
 } from './src/SDKAppWrapper';
 import React from 'react';
 import * as RN from 'react-native-web';
-import jsonFile from './config.json';
 
 export * from 'customization-api';
 export * from 'customization-implementation';
@@ -31,7 +30,5 @@ class AppBuilder extends HTMLElement {
 
 customElements.define('app-builder', AppBuilder);
 
-let config: ConfigInterface = jsonFile as unknown as ConfigInterface;
-
-export {React, RN, config};
+export {React, RN};
 export default AppBuilderWebSdkApi;
