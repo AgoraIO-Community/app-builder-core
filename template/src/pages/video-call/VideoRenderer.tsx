@@ -41,20 +41,21 @@ const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
 };
 
 const maxStyle = StyleSheet.create({
-  container: {width: '100%', height: '100%'},
+  container: {width: '100%', height: '100%', position: 'relative'},
   width80: {width: '80%'},
   width100: {width: '100%'},
   flex2: {flex: 2},
   flex4: {flex: 4, backgroundColor: '#ffffff00'},
   flex1: {flex: 1},
   nameHolder: {
-    marginTop: -25,
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
-    alignSelf: 'flex-end',
-    paddingHorizontal: 8,
+    backgroundColor: $config.SECONDARY_FONT_COLOR + 'ba',
+    position: 'absolute',
+    alignItems: 'center',
+    padding: 8,
     height: 25,
-    borderTopLeftRadius: 15,
-    borderBottomRightRadius: 15,
+    left: 12,
+    bottom: 12,
+    borderRadius: 4,
     flexDirection: 'row',
     zIndex: 5,
     maxWidth: '100%',
