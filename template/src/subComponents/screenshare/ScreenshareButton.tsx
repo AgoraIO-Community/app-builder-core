@@ -45,6 +45,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
   let btnTemplateProps: BtnTemplateInterface = {
     name: isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon',
+    color: !isScreenshareActive ? $config.PRIMARY_COLOR : '#FF414D',
     onPress,
   };
 

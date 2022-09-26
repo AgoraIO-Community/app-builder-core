@@ -85,25 +85,26 @@ const Create = () => {
   const createdText = 'has been created';
   const hostControlsToggle = (toggle: boolean) => (
     <View style={style.infoContainer}>
-      <Text style={style.toggleLabel}>Restrict Host Controls</Text>
+      <Text style={style.toggleLabel}>Make everyone a Co-Host</Text>
       <InfoBubble text={toggle ? 'Separate host link' : 'Everyone is a Host'} />
     </View>
   );
 
   const pstnToggle = (value: boolean) => (
     <View style={style.infoContainer}>
-      <Text style={style.toggleLabel}> Use PSTN </Text>
-      <InfoBubble text="Join by dialing a number" />
+      <Text style={style.toggleLabel}> Can join by dialing a number </Text>
+      <InfoBubble text="Users can join via PSTN" />
     </View>
   );
-  const meetingNameInputPlaceholder = useString(
-    'meetingNameInputPlaceholder',
-  )();
+  // const meetingNameInputPlaceholder = useString(
+  //   'meetingNameInputPlaceholder',
+  // )();
+  const meetingNameInputPlaceholder = 'The Annual Galactic Meet';
   const loadingWithDots = 'Loading...';
   const createMeetingButton = isLiveStream
     ? 'CREATE A STREAM'
     : 'CREATE A MEETING';
-  const haveMeetingID = 'Join with a meeting ID?';
+  const haveMeetingID = 'Join with a meeting ID';
 
   useEffect(() => {
     if (isWeb) {
@@ -191,7 +192,6 @@ const Create = () => {
                   /> */}
                   <Spacer size={40} />
                   <Input
-                    autoFocus
                     label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
                     value={roomTitle}
                     helpText={
@@ -209,12 +209,13 @@ const Create = () => {
                       )
                     }
                   />
-                  <View style={{paddingVertical: mobileOrTablet ? 20 : 50}}>
+                  <View style={{paddingVertical: mobileOrTablet ? 40 : 50}}>
                     {$config.EVENT_MODE ? (
                       <></>
                     ) : (
                       <>
-                        <View style={style.toggleContainer}>
+                        <Text style={style.categoryLabel}>Customize</Text>
+                        <View style={[style.toggleContainer, style.upper]}>
                           {hostControlsToggle(hostControlCheckbox)}
                           <Toggle
                             disabled={$config.EVENT_MODE}
@@ -236,7 +237,7 @@ const Create = () => {
                     <View style={style.separator} />
 
                     {$config.PSTN ? (
-                      <View style={style.toggleContainer}>
+                      <View style={[style.toggleContainer, style.lower]}>
                         {pstnToggle(pstnCheckbox)}
                         <Toggle
                           isEnabled={pstnCheckbox}
@@ -295,11 +296,11 @@ const Create = () => {
 
 const style = StyleSheet.create({
   main: {
-    paddingVertical: '8%',
-    marginHorizontal: '8%',
     display: 'flex',
     justifyContent: 'space-evenly',
+    alignItems: 'center',
     flexGrow: 1,
+    paddingHorizontal: 10,
   },
   nav: {
     flex: 1,
@@ -403,7 +404,14 @@ const style = StyleSheet.create({
     backgroundColor: '#F2F2F2',
     paddingVertical: 22,
     paddingHorizontal: 20,
-    borderRadius: 8,
+  },
+  upper: {
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  lower: {
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
   toggleLabel: {
     color: $config.PRIMARY_FONT_COLOR,
@@ -412,8 +420,18 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontWeight: '400',
   },
+  categoryLabel: {
+    color: $config.PRIMARY_FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 12,
+    lineHeight: 12,
+    marginBottom: 16,
+    textTransform: 'uppercase',
+    letterSpacing: 0.09,
+  },
   separator: {
-    height: 5,
+    height: 1,
   },
   infoContainer: {
     flexDirection: 'row',
