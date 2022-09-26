@@ -36,12 +36,12 @@ export const networkIconsObject: {
 } = {
   0: {
     icon: icons.networkIcons['Unsupported'],
-    tint: 'primary',
+    tint: '#737e76d1',
     text: 'unknown',
   },
   1: {
     icon: icons.networkIcons['Excellent'],
-    tint: '#2BD900',
+    tint: '#29C157',
     text: 'excellent',
   },
   2: {
@@ -71,12 +71,12 @@ export const networkIconsObject: {
   },
   7: {
     icon: icons.networkIcons['Unsupported'],
-    tint: 'primary',
+    tint: '#737e76d1',
     text: 'unpublished',
   },
   8: {
     icon: icons.networkIcons['Loading'],
-    tint: 'primary',
+    tint: '#737e76d1',
     text: 'loading',
   },
 };

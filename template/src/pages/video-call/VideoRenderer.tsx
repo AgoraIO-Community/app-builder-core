@@ -21,8 +21,8 @@ const MaxVideoRenderer: React.FC<MaxVideoRendererInterface> = ({user}) => {
         primaryColor={primaryColor}
         rootStyle={{
           marginLeft: 25,
-          top: 8,
-          right: 10,
+          top: 12,
+          right: 12,
         }}
         small
       />
