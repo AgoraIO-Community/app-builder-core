@@ -93,7 +93,7 @@ const Create = () => {
         console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
         try {
           setMeetingInfo(MeetingInfoDefaultValue);
-          navigateTo(phrase);
+          history.push(phrase);
           resolve();
         } catch (error) {
           reject(error);

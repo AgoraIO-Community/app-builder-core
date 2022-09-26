@@ -38,3 +38,5 @@ export {useMeetingInfo} from '../src/components/meeting-info/useMeetingInfo';
 export type {MeetingInfoContextInterface} from '../src/components/meeting-info/useMeetingInfo';
 export {useChatUIControl} from '../src/components/chat-ui/useChatUIControl';
 export type {ChatUIControlInterface} from '../src/components/chat-ui/useChatUIControl';
+export {useMessages} from '../src/app-state/useMessages';
+export type {messageInterface} from '../src/app-state/useMessages';
