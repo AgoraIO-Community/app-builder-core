@@ -57,20 +57,21 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             position: 'absolute',
             zIndex: 50,
             marginTop: 5,
-            width: 35,
-            height: 35,
+            width: 32,
+            height: 32,
             marginLeft: collapse ? 5 : '20.1%',
-            backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
-            borderRadius: 50,
+            backgroundColor: '#90909080',
+            //$config.SECONDARY_FONT_COLOR + 'aa',
+            borderRadius: 16,
             justifyContent: 'center',
           }}>
           <Text
             style={{
               alignSelf: 'center',
               justifyContent: 'center',
-              color: $config.PRIMARY_COLOR,
+              color: '#fff',
               fontWeight: '500',
-              fontSize: 20,
+              fontSize: 14,
             }}>
             {collapse ? '>' : '<'}
           </Text>
