@@ -29,9 +29,8 @@ import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent, useIsWeb} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
-import useGroupMessages from '../utils/useGroupMessages';
-import usePrivateMessages from '../utils/usePrivateMessages';
 import {useRender} from 'customization-api';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -42,10 +41,7 @@ const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
   const {renderList} = useRender();
-  const groupMessages = useGroupMessages();
-  const messageStore = groupMessages();
-  const getPrivateMessage = usePrivateMessages();
-  const privateMessageStore = getPrivateMessage();
+  const {messageStore, privateMessageStore} = useChatMessages();
   const {height, width} = useWindowDimensions();
   const {
     privateActive,

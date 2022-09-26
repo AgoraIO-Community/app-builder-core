@@ -20,23 +20,6 @@ export {default as useIsPSTN} from '../src/utils/useIsPSTN';
 //hook used to get/set username
 export {default as useUserName} from '../src/utils/useUserName';
 
-//hooks used to manage messages
-export {default as useGroupMessages} from '../src/utils/useGroupMessages';
-export {default as usePrivateMessages} from '../src/utils/usePrivateMessages';
-export {
-  default as useUnreadMessageCount,
-  UNREAD_MESSAGE_COUNT_TYPE,
-} from '../src/utils/useUnreadMessageCount';
-export {
-  default as useSetUnreadMessageCount,
-  SET_UNREAD_MESSAGE_COUNT_TYPE,
-} from '../src/utils/useSetUnreadMessageCount';
-export {
-  default as useSendMessage,
-  MESSAGE_TYPE,
-} from '../src/utils/useSendMessage';
-export {default as useEditMessage} from '../src/utils/useEditMessage';
-export {default as useDeleteMessage} from '../src/utils/useDeleteMessage';
 export {controlMessageEnum} from '../src/components/ChatContext';
 
 //hook to manage audio/video states
