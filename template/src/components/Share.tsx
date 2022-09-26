@@ -27,7 +27,7 @@ import {isValidReactComponent} from '../utils/common';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import icons from '../assets/icons';
+import {icons} from 'fpe-api';
 import Icon from '../atoms/Icon';
 
 const isLiveStream = $config.EVENT_MODE;
@@ -67,12 +67,12 @@ const Share = () => {
   //   'enterMeetingAfterCreateButton',
   // )();
   // const copyInviteButton = useString('copyInviteButton')();
-  const meetingUrlText = 'Meeting URL';
+  const meetingUrlText = 'Meeting Link';
   const meetingIdText = 'Meeting ID';
   const hostIdText = 'Host ID';
-  const attendeeUrlLabel = 'Attendee URL';
+  const attendeeUrlLabel = 'Attendee Link';
   const attendeeIdLabel = 'Attendee ID';
-  const hostUrlLabel = 'Host URL';
+  const hostUrlLabel = 'Host Link';
   const pstnLabel = 'PSTN';
   const pstnNumberLabel = 'Number';
   const pinLabel = 'Pin';
@@ -159,8 +159,7 @@ const Share = () => {
                   </View>
                 </View>
                 <Text style={style.helpText}>
-                  Copy the invite and share it with attendees you want to
-                  invite.
+                  Share this with attendees you want to invite.
                 </Text>
                 <Spacer size={20} />
               </>
@@ -198,8 +197,7 @@ const Share = () => {
                 </View>
               </View>
               <Text style={style.helpText}>
-                Copy the invite and share it with other co-hosts you want to
-                invite
+                Share this with other co-hosts you want to invite.
               </Text>
             </>
             {meetingPassphrase?.pstn ? (
@@ -237,7 +235,7 @@ const Share = () => {
                   </View>
                 </View>
                 <Text style={style.helpText}>
-                  Copy the phone number and pin to dial from phone
+                  Share this phone number and pin to dial from phone.
                 </Text>
               </>
             ) : (
@@ -246,6 +244,7 @@ const Share = () => {
             <Spacer size={50} />
             <View style={style.btnContainer}>
               <PrimaryButton
+                icon={icons.createMeeting}
                 onPress={() => enterMeeting()}
                 text={enterMeetingAfterCreateButton}
               />
@@ -270,10 +269,9 @@ const urlWeb = {wordBreak: 'break-all'};
 const style = StyleSheet.create({
   full: {flex: 1},
   scrollMain: {
-    paddingVertical: '8%',
-    marginHorizontal: '8%',
     display: 'flex',
     justifyContent: 'space-evenly',
+    paddingHorizontal: 10,
     flexGrow: 1,
   },
   main: {
@@ -375,9 +373,10 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   helpText: {
-    color: '#CCCCCC',
+    color: '#666666',
     marginTop: 10,
     fontSize: 14,
+    lineHeight: 14,
     fontWeight: '400',
     fontFamily: 'Source Sans Pro',
   },

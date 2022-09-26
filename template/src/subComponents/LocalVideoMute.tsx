@@ -52,6 +52,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: isVideoEnabled ? 'videocam' : 'videocamOff',
+    color: isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D',
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {

@@ -188,7 +188,7 @@ interface ChatIconButtonInterface {
 const ChatIconButton = (props: ChatIconButtonInterface) => {
   const {
     badgeContainerPosition = {
-      top: isWeb ? 0 : 2,
+      top: isWeb ? -2 : 2,
       left: undefined,
       right: undefined,
       bottom: undefined,
@@ -234,6 +234,27 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
     btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
   }
+  const renderBadge = (badgeCount: any) => {
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          top: badgeContainerPosition?.top,
+          bottom: badgeContainerPosition?.bottom,
+          left: badgeContainerPosition?.left,
+          right: badgeContainerPosition?.right,
+        }}>
+        <View style={style.badge}>
+          <Text
+            style={{
+              ...badgeTextStyle,
+            }}>
+            {numFormatter(badgeCount)}
+          </Text>
+        </View>
+      </View>
+    );
+  };
   return props?.render ? (
     props.render(onPress, isPanelActive, totalUnreadCount, buttonTemplateName)
   ) : (
@@ -248,6 +269,9 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
           },
         ]}>
         <BtnTemplate {...btnTemplateProps} />
+        {sidePanel !== SidePanelType.Chat &&
+          totalUnreadCount !== 0 &&
+          renderBadge(totalUnreadCount)}
       </View>
     </>
   );
@@ -429,19 +453,19 @@ const style = StyleSheet.create({
   },
   badge: {
     lineHeight: 1,
-    height: 20,
-    minWidth: 20,
+    height: 15,
+    minWidth: 15,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
     fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
-    borderRadius: 10,
+    borderRadius: 8,
     position: 'absolute',
     paddingHorizontal: 5,
     top: 0,
-    left: -2,
+    left: -5,
   },
   chip: {
     backgroundColor: $config.PRIMARY_COLOR,

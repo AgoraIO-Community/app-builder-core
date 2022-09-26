@@ -25,9 +25,9 @@ export const PrecallScreenLabels: I18nPrecallScreenLabelsInterface = {
   joinRoomButton: ({ready, role}) =>
     ready
       ? !role
-        ? 'Join Room'
-        : `Join Room as ${
-            role === ClientRole.Broadcaster ? 'Host' : 'Audience'
+        ? 'JOIN MEETING'
+        : `JOIN MEETING AS ${
+            role === ClientRole.Broadcaster ? 'HOST' : 'AUDIENCE'
           }`
       : `Loading...`,
 };

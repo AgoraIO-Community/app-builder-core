@@ -35,7 +35,7 @@ export default function PrimaryButton(props: ButtonProps) {
     <Pressable
       style={[
         styles.container,
-        {backgroundColor: props.disabled ? primaryColor + '80' : primaryColor},
+        {backgroundColor: props.disabled ? '#BABABA' : primaryColor},
       ]}
       {...otherProps}>
       {icon && <Image style={styles.icon} source={{uri: icon}} />}

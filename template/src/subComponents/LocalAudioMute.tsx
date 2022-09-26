@@ -54,6 +54,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: isAudioEnabled ? 'mic' : 'micOff',
+    color: isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D',
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {

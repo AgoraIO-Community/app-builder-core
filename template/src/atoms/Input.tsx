@@ -29,12 +29,12 @@ const Input = (props: InputProps) => {
           style,
           {borderColor: isFocussed ? $config.PRIMARY_COLOR : '#666666'},
         ]}
-        placeholderTextColor="#BCBCBC"
+        placeholderTextColor="#BABABA"
         autoCorrect={false}
         autoFocus
         {...otherProps}
-        onFocus={() => setIsFocussed(true)}
-        onBlur={() => setIsFocussed(false)}
+        // onFocus={() => setIsFocussed(true)}
+        // onBlur={() => setIsFocussed(false)}
       />
       {helpText && <Text style={styles.helpText}>{props.helpText}</Text>}
     </View>
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
   },
   helpText: {
-    color: '#CCCCCC',
+    color: $config.PRIMARY_FONT_COLOR,
     fontFamily: 'Source Sans Pro',
   },
 });
