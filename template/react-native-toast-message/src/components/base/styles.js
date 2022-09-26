@@ -16,9 +16,9 @@ export default StyleSheet.create({
     elevation: 2,
     maxWidth: 600
   },
-  borderLeft: {
-    borderLeftWidth: 5,
-    borderLeftColor: colors.alto
+  borderTop: {
+    borderTopWidth: 5,
+    borderTopColor: colors.alto
   },
   leadingIconContainer: {
     width: 50,

@@ -8,7 +8,7 @@ function SuccessToast(props) {
   return (
     <BaseToast
       {...props}
-      style={{ borderLeftColor: colors.mantis }}
+      style={{ borderTopColor: colors.mantis }}
       leadingIcon={icons.success}
       text1Style={{ color: colors.black }}
       text2Style={{ color: colors.black }}

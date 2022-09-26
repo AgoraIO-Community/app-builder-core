@@ -25,7 +25,7 @@ const toastConfig = {
       {...rest}
       //BaseToast is modified to have zIndex: 100
       style={{
-        borderLeftColor: $config.PRIMARY_COLOR,
+        borderTopColor: $config.PRIMARY_COLOR,
         backgroundColor: $config.SECONDARY_FONT_COLOR,
         width: !isMobileOrTablet() ? '40%' : '95%',
       }}

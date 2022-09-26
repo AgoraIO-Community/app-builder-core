@@ -8,7 +8,7 @@ function ErrorToast(props) {
   return (
     <BaseToast
       {...props}
-      style={{ borderLeftColor: colors.blazeOrange }}
+      style={{ borderTopColor: colors.blazeOrange }}
       text1Style={{ color: colors.blazeOrange }}
       text2Style={{ color: colors.blazeOrange }}
     />
