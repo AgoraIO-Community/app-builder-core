@@ -12,8 +12,17 @@
 import React from 'react';
 import {Image, Text, View} from 'react-native';
 
+function getInitials(name: string) {
+  const arr = name.split(' ');
+  const len = arr.length;
+  if (len > 1) {
+    return arr[0][0] + arr[len - 1][0];
+  } else {
+    return arr[0][0];
+  }
+}
+
 export default function FallbackLogo(name: string) {
-  // console.log('!', name);
   return (
     <View
       style={{
@@ -51,7 +60,7 @@ export default function FallbackLogo(name: string) {
             alignSelf: 'center',
             textAlign: 'center',
           }}>
-          {name ? name.slice(0, 2)?.toUpperCase() : 'U'}
+          {name ? getInitials(name).toUpperCase() : 'U'}
         </Text>
       </View>
     </View>
