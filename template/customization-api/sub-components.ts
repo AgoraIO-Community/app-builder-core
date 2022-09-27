@@ -29,6 +29,7 @@ export {
   ChatSendButton,
   ChatTextInput,
   Chat,
+  SettingsView,
 } from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';

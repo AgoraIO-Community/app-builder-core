@@ -37,6 +37,7 @@ export {
 export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';
 
 //
+export type {SidePanelType} from '../src/subComponents/SidePanelEnum';
 export {useSidePanel} from '../src/utils/useSidePanel';
 
 //hooks used for navigation
