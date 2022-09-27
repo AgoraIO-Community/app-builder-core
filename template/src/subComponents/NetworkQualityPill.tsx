@@ -44,19 +44,19 @@ export const NetworkQualityPill = ({
   const getLabel = (quality: string) => {
     switch (quality) {
       case 'unknown':
-        return 'Unknown';
+        return 'Network Unsupported';
       case 'excellent':
-        return 'Excellent';
+        return 'Excellent Network';
       case 'good':
-        return 'Good';
+        return 'Good Network';
       case 'bad':
-        return 'Bad';
+        return 'Bad Network';
       case 'veryBad':
-        return 'Very Bad';
+        return 'Very Bad Network';
       case 'unpublished':
-        return 'Unpublished';
+        return 'Network Unpublished';
       case 'loading':
-        return 'Loading';
+        return 'Network Loading';
       default:
         return 'Loading';
     }
@@ -70,10 +70,13 @@ export const NetworkQualityPill = ({
 
   return (
     <View
+      testID="videocall-networkpill"
       style={[
         style.networkPill,
         {
-          opacity: networkTextVisible ? 1 : 0.8,
+          backgroundColor: networkTextVisible
+            ? networkIconsObject[networkStat].tint
+            : 'transparent',
         },
         rootStyle,
       ]}>
@@ -86,10 +89,11 @@ export const NetworkQualityPill = ({
             style={[
               style.networkIcon,
               {
-                tintColor:
-                  networkIconsObject[networkStat].tint === 'primary'
-                    ? primaryColor
-                    : networkIconsObject[networkStat].tint,
+                tintColor: networkTextVisible
+                  ? '#fff'
+                  : networkIconsObject[networkStat].tint === 'primary'
+                  ? primaryColor
+                  : networkIconsObject[networkStat].tint,
               },
             ]}
             resizeMode={'contain'}
@@ -153,12 +157,12 @@ const PlatformSpecificWrapper = ({
 
 const style = StyleSheet.create({
   networkPill: {
-    height: 30,
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
+    // height: 30,
+    // backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
+    padding: 8,
     position: 'absolute',
     zIndex: 2,
-    paddingHorizontal: 0,
-    borderRadius: 15,
+    borderRadius: 50,
   },
   networkPillContent: {
     display: 'flex',
@@ -166,26 +170,25 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   networkPillText: {
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 30,
-    fontSize: 15,
+    color: '#fff',
+    fontSize: 14,
+    lineHeight: 14,
+    fontFamily: 'Source Sans Pro',
     fontWeight: '600',
-    marginLeft: 5,
-    marginRight: 15,
+    marginLeft: 8,
   },
   networkIcon: {
-    width: '80%',
-    height: '80%',
+    width: 20,
+    height: 20,
     alignSelf: 'center',
   },
   networkIndicatorBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginLeft: 5,
-    marginRight: 5,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    justifyContent: 'center',
+    // width: 20,
+    // height: 20,
+    // borderRadius: 10,
+    // alignSelf: 'center',
+    //marginLeft: 8,
+    // backgroundColor: $config.SECONDARY_FONT_COLOR,
+    // justifyContent: 'center',
   },
 });

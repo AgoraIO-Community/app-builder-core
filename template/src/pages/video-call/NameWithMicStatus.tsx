@@ -14,7 +14,7 @@ export const NameWithMicStatus = ({user}: {user: RenderInterface}) => {
   const remoteUserDefaultLabel = 'User';
   return (
     <>
-      <View style={[style.MicBackdrop]}>
+      <View>
         <ImageIcon
           name={user.audio ? 'mic' : 'micOff'}
           color={user.audio ? primaryColor : 'red'}
@@ -39,9 +39,12 @@ export const NameWithMicStatus = ({user}: {user: RenderInterface}) => {
 const style = StyleSheet.create({
   name: {
     color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 25,
-    fontWeight: '700',
+    fontSize: 14,
+    lineHeight: 14,
+    fontWeight: '600',
+    fontFamily: 'Source Sans Pro',
     flexShrink: 1,
+    marginLeft: 8,
   },
   MicBackdrop: {
     width: 20,
@@ -54,8 +57,8 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   MicIcon: {
-    width: '80%',
-    height: '80%',
+    width: 16,
+    height: 16,
     alignSelf: 'center',
     resizeMode: 'contain',
   },

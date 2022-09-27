@@ -8,7 +8,7 @@ function InfoToast(props) {
   return (
     <BaseToast
       {...props}
-      style={{ borderLeftColor: colors.lightSkyBlue }}
+      style={{ borderTopColor: colors.lightSkyBlue }}
       leadingIcon={icons.info}
       text1Style={{ color: colors.black }}
       text2Style={{ color: colors.black }}

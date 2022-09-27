@@ -12,8 +12,17 @@
 import React from 'react';
 import {Image, Text, View} from 'react-native';
 
+function getInitials(name: string) {
+  const arr = name.split(' ');
+  const len = arr.length;
+  if (len > 1) {
+    return arr[0][0] + arr[len - 1][0];
+  } else {
+    return arr[0][0];
+  }
+}
+
 export default function FallbackLogo(name: string) {
-  // console.log('!', name);
   return (
     <View
       style={{
@@ -21,7 +30,7 @@ export default function FallbackLogo(name: string) {
         backgroundColor: '#000',
         justifyContent: 'center',
         alignContent: 'center',
-        borderRadius: 15,
+        borderRadius: 12,
       }}>
       {/* <Image
         source={{uri: $config.LOGO}}
@@ -32,24 +41,26 @@ export default function FallbackLogo(name: string) {
       /> */}
       <View
         style={{
-          width: 80,
-          height: 80,
+          width: 60,
+          height: 60,
           backgroundColor: $config.PRIMARY_COLOR,
           alignSelf: 'center',
           alignContent: 'center',
           justifyContent: 'center',
-          borderRadius: 10,
-          shadowColor: $config.PRIMARY_COLOR,
-          shadowRadius: 20,
+          borderRadius: 30,
+          // shadowColor: $config.PRIMARY_COLOR,
+          // shadowRadius: 20,
         }}>
         <Text
           style={{
             color: $config.SECONDARY_FONT_COLOR,
             fontSize: 20,
+            lineHeight: 20,
+            fontFamily: 'Source Sans Pro',
             alignSelf: 'center',
             textAlign: 'center',
           }}>
-          {name ? name[0]?.toUpperCase() : 'U'}
+          {name ? getInitials(name).toUpperCase() : 'U'}
         </Text>
       </View>
     </View>

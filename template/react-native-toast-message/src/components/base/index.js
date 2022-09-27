@@ -30,7 +30,7 @@ function BaseToast({
   return (
     <TouchableOpacity
       testID='rootView'
-      style={[styles.base, styles.borderLeft, style]}
+      style={[styles.base, styles.borderTop, style]}
       onPress={onPress}
       activeOpacity={onPress ? activeOpacity : 1}>
       {leadingIcon && (
