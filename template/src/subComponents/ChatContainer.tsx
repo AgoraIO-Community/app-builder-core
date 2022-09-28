@@ -26,7 +26,7 @@ import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent, useIsWeb} from '../utils/common';
+import {isValidReactComponent, useIsWebInternal} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useRender} from 'customization-api';
@@ -88,6 +88,7 @@ const ChatContainer = (props?: {
   //commented for v1 release
   //const userOfflineLabel = useString('userOfflineLabel')();
   const userOfflineLabel = 'User is offline';
+  const style = useStyle();
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -160,48 +161,51 @@ const ChatContainer = (props?: {
     </View>
   );
 };
-const isWeb = useIsWeb();
-const style = StyleSheet.create({
-  containerView: {flex: 8},
-  row: {
-    flexDirection: 'row',
-    marginTop: 2,
-    alignItems: 'baseline',
-    paddingVertical: 10,
-    ...Platform.select({
-      android: {
-        height: 40,
-      },
-      ios: {
-        height: 40,
-      },
-    }),
-  },
-  backButton: {
-    marginHorizontal: 10,
-    justifyContent: 'center',
-    alignSelf: 'flex-end',
-  },
-  name: {
-    fontWeight: isWeb() ? '500' : '700',
-    color: $config.PRIMARY_FONT_COLOR,
-    textAlign: 'left',
-    marginRight: 10,
-  },
-  backIcon: {
-    width: 20,
-    height: 20,
-  },
-  infoTextView: {
-    marginVertical: 2,
-    flexDirection: 'row',
-  },
-  infoText: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    fontWeight: '500',
-    fontSize: 14,
-    flex: 1,
-    textAlign: 'center',
-  },
-});
+
+const useStyle = () => {
+  const isWebInternal = useIsWebInternal();
+  return StyleSheet.create({
+    containerView: {flex: 8},
+    row: {
+      flexDirection: 'row',
+      marginTop: 2,
+      alignItems: 'baseline',
+      paddingVertical: 10,
+      ...Platform.select({
+        android: {
+          height: 40,
+        },
+        ios: {
+          height: 40,
+        },
+      }),
+    },
+    backButton: {
+      marginHorizontal: 10,
+      justifyContent: 'center',
+      alignSelf: 'flex-end',
+    },
+    name: {
+      fontWeight: isWebInternal() ? '500' : '700',
+      color: $config.PRIMARY_FONT_COLOR,
+      textAlign: 'left',
+      marginRight: 10,
+    },
+    backIcon: {
+      width: 20,
+      height: 20,
+    },
+    infoTextView: {
+      marginVertical: 2,
+      flexDirection: 'row',
+    },
+    infoText: {
+      color: $config.PRIMARY_FONT_COLOR + '60',
+      fontWeight: '500',
+      fontSize: 14,
+      flex: 1,
+      textAlign: 'center',
+    },
+  });
+};
 export default ChatContainer;

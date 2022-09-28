@@ -12,12 +12,12 @@
 
 import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-import {useIsWeb} from '../../utils/common';
+import {useIsWebInternal} from '../../utils/common';
 import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
-  const isWeb = useIsWeb();
+  const isWebInternal = useIsWebInternal();
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Select Input Device';
@@ -27,7 +27,7 @@ const selectDevice: React.FC = () => {
       <View
         style={{
           flex: 1,
-          maxWidth: isWeb() ? '25vw' : 'auto',
+          maxWidth: isWebInternal() ? '25vw' : 'auto',
           marginVertical: 30,
         }}>
         <SelectDevice />

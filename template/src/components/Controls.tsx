@@ -31,7 +31,7 @@ import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {useIsIOS, useIsWeb} from '../utils/common';
+import {useIsWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 
@@ -51,11 +51,11 @@ const Controls = () => {
   const {
     data: {isHost},
   } = useMeetingInfo();
-
+  const {controlsHolder} = useStyle();
   return (
     <View
       style={[
-        style.controlsHolder,
+        controlsHolder,
         {
           paddingHorizontal: isDesktop ? '25%' : '1%',
           backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
@@ -128,29 +128,15 @@ export const ControlsComponentsArray: ControlsComponentsArrayProps = [
   LiveStreamControls,
 ];
 
-const isWeb = useIsWeb();
-const isIOS = useIsIOS();
-
-const style = StyleSheet.create({
-  // @ts-ignore
-  controlsHolder: {
-    flex: isWeb() ? 1.3 : 1.6,
-    ...controlsHolder,
-  },
-  chatNotification: {
-    width: 20,
-    height: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: $config.PRIMARY_COLOR,
-    color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-    borderRadius: 10,
-    position: 'absolute',
-    left: 25,
-    top: -10,
-  },
-});
+const useStyle = () => {
+  const isWebInternal = useIsWebInternal();
+  return StyleSheet.create({
+    // @ts-ignore
+    controlsHolder: {
+      flex: isWebInternal() ? 1.3 : 1.6,
+      ...controlsHolder,
+    },
+  });
+};
 
 export default Controls;

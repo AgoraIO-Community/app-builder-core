@@ -11,15 +11,14 @@
 */
 import React, {useContext} from 'react';
 import {TextInputProps, StyleSheet, TextInput, Platform} from 'react-native';
-import {useIsWeb} from '../utils/common';
+import {useIsWebInternal} from '../utils/common';
 import {textInput} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
-
-const isWeb = useIsWeb();
 
 const PrimaryButton = (props: TextInputProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {style, ...otherProps} = props;
+  const styles = useStyles();
   return (
     <TextInput
       style={[
@@ -38,13 +37,16 @@ const PrimaryButton = (props: TextInputProps) => {
 
 export default PrimaryButton;
 
-const styles = StyleSheet.create({
-  textInput,
-  // @ts-ignore
-  noOutline: isWeb() ? {outlineStyle: 'none'} : {},
-  textWrapFix: Platform.select({
-    ios: {
-      paddingVertical: 5,
-    },
-  }),
-});
+const useStyles = () => {
+  const isWebInternal = useIsWebInternal();
+  return StyleSheet.create({
+    textInput,
+    // @ts-ignore
+    noOutline: isWebInternal() ? {outlineStyle: 'none'} : {},
+    textWrapFix: Platform.select({
+      ios: {
+        paddingVertical: 5,
+      },
+    }),
+  });
+};
