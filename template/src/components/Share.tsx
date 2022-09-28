@@ -89,20 +89,20 @@ const Share = () => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
   const isSDK = isSDKCheck();
-  const isWebInternal =
+  const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
   const getAttendeeLabel = () =>
-    isWebInternal ? attendeeUrlLabel : attendeeIdLabel;
+    isWebCheck ? attendeeUrlLabel : attendeeIdLabel;
 
   const getHostLabel = () => {
     if (isSeparateHostLink) {
-      if (isWebInternal) {
+      if (isWebCheck) {
         return hostUrlLabel;
       }
       return hostIdText;
     } else {
-      if (isWebInternal) {
+      if (isWebCheck) {
         return meetingUrlText;
       }
       return meetingIdText;
@@ -122,8 +122,7 @@ const Share = () => {
               <View style={{width: '80%'}}>
                 <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
                 <View style={style.urlHolder}>
-                  <Text
-                    style={[style.url, isWebInternal ? urlWeb : {opacity: 1}]}>
+                  <Text style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
                     {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
                   </Text>
                 </View>
@@ -161,8 +160,7 @@ const Share = () => {
             <View style={{width: '80%'}}>
               <Text style={style.urlTitle}>{getHostLabel()}</Text>
               <View style={style.urlHolder}>
-                <Text
-                  style={[style.url, isWebInternal ? urlWeb : {opacity: 1}]}>
+                <Text style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
                   {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
                 </Text>
               </View>
@@ -201,20 +199,14 @@ const Share = () => {
                   <View style={style.pstnHolder}>
                     <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
                     <Text
-                      style={[
-                        style.url,
-                        isWebInternal ? urlWeb : {opacity: 1},
-                      ]}>
+                      style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
                       {pstn?.number}
                     </Text>
                   </View>
                   <View style={style.pstnHolder}>
                     <Text style={style.urlTitle}>{pinLabel}: </Text>
                     <Text
-                      style={[
-                        style.url,
-                        isWebInternal ? urlWeb : {opacity: 1},
-                      ]}>
+                      style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
                       {pstn?.pin}
                     </Text>
                   </View>
