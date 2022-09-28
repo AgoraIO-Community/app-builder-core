@@ -58,7 +58,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
+    btnTemplateProps.style = Styles.localButton as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.styleText = Styles.localButtonText as Object;
