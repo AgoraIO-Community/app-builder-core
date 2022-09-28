@@ -18,14 +18,14 @@ import ColorContext from '../components/ColorContext';
 const PrimaryButton = (props: TextInputProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {style, ...otherProps} = props;
-  const {textInput, textWrapFix, noOutline} = useStyles();
+  const styles = useStyles();
   return (
     <TextInput
       style={[
-        textInput,
-        textWrapFix,
+        styles.textInput,
+        styles.textWrapFix,
         style,
-        noOutline,
+        styles.noOutline,
         {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR},
       ]}
       placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
