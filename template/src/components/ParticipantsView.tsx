@@ -18,10 +18,9 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {useIsWeb} from '../utils/common';
+import {useIsWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
-const isWeb = useIsWeb();
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {rtcProps} = useContext(PropsContext);
@@ -41,11 +40,12 @@ const ParticipantView = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-
+  const isWebInternal = useIsWebInternal();
+  const style = useStyle();
   return (
     <View
       style={
-        isWeb
+        isWebInternal
           ? isSmall
             ? style.participantViewNative
             : style.participantView
@@ -162,92 +162,95 @@ const ParticipantView = () => {
   );
 };
 
-const style = StyleSheet.create({
-  padding10: {
-    padding: 10,
-  },
-  lineUnderHeading: {
-    borderBottomWidth: 2,
-    borderBottomColor: $config.PRIMARY_COLOR,
-  },
-  participantView: {
-    width: '20%',
-    minWidth: 200,
-    maxWidth: 300,
-    flex: 1,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    shadowColor: $config.PRIMARY_FONT_COLOR + '80',
-    shadowOpacity: 0.5,
-    shadowOffset: {width: -2, height: 0},
-    shadowRadius: 3,
-  },
-  participantViewNative: {
-    position: 'absolute',
-    zIndex: 5,
-    width: '100%',
-    height: '100%',
-    right: 0,
-    top: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-  },
-  bodyContainer: {
-    flex: 1,
-  },
-  participantsection: {
-    marginBottom: 25,
-  },
-  mainHeading: {
-    fontSize: 20,
-    letterSpacing: 0.8,
-    lineHeight: 30,
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  infoText: {
-    fontSize: 12,
-    letterSpacing: 0.8,
-    fontStyle: 'italic',
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  participantContainer: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  participantRow: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  participantActionContainer: {
-    flexDirection: 'row',
-    paddingRight: 5,
-    justifyContent: 'flex-end',
-  },
-  actionBtnIcon: {
-    width: 25,
-    height: 25,
-  },
-  participantText: {
-    lineHeight: 24,
-    fontSize: isWeb() ? 18 : 16,
-    flexDirection: 'row',
-    letterSpacing: 0.3,
-    color: $config.PRIMARY_FONT_COLOR,
-    fontWeight: '300',
-  },
-  participantTextSmall: {
-    fontSize: isWeb() ? 14 : 12,
-  },
-  dummyView: {
-    flex: 0.5,
-    opacity: 0,
-    marginHorizontal: 5,
-  },
-});
+const useStyle = () => {
+  const isWebInternal = useIsWebInternal();
+  return StyleSheet.create({
+    padding10: {
+      padding: 10,
+    },
+    lineUnderHeading: {
+      borderBottomWidth: 2,
+      borderBottomColor: $config.PRIMARY_COLOR,
+    },
+    participantView: {
+      width: '20%',
+      minWidth: 200,
+      maxWidth: 300,
+      flex: 1,
+      backgroundColor: $config.SECONDARY_FONT_COLOR,
+      shadowColor: $config.PRIMARY_FONT_COLOR + '80',
+      shadowOpacity: 0.5,
+      shadowOffset: {width: -2, height: 0},
+      shadowRadius: 3,
+    },
+    participantViewNative: {
+      position: 'absolute',
+      zIndex: 5,
+      width: '100%',
+      height: '100%',
+      right: 0,
+      top: 0,
+      backgroundColor: $config.SECONDARY_FONT_COLOR,
+    },
+    bodyContainer: {
+      flex: 1,
+    },
+    participantsection: {
+      marginBottom: 25,
+    },
+    mainHeading: {
+      fontSize: 20,
+      letterSpacing: 0.8,
+      lineHeight: 30,
+      color: $config.PRIMARY_FONT_COLOR,
+    },
+    infoText: {
+      fontSize: 12,
+      letterSpacing: 0.8,
+      fontStyle: 'italic',
+      color: $config.PRIMARY_FONT_COLOR,
+    },
+    participantContainer: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      paddingTop: 10,
+      paddingBottom: 20,
+    },
+    participantRow: {
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 5,
+    },
+    participantActionContainer: {
+      flexDirection: 'row',
+      paddingRight: 5,
+      justifyContent: 'flex-end',
+    },
+    actionBtnIcon: {
+      width: 25,
+      height: 25,
+    },
+    participantText: {
+      lineHeight: 24,
+      fontSize: isWebInternal() ? 18 : 16,
+      flexDirection: 'row',
+      letterSpacing: 0.3,
+      color: $config.PRIMARY_FONT_COLOR,
+      fontWeight: '300',
+    },
+    participantTextSmall: {
+      fontSize: isWebInternal() ? 14 : 12,
+    },
+    dummyView: {
+      flex: 0.5,
+      opacity: 0,
+      marginHorizontal: 5,
+    },
+  });
+};
 
 export default ParticipantView;

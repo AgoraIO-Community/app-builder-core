@@ -7,7 +7,7 @@ import SettingsView from '../../components/SettingsView';
 import Controls from '../../components/Controls';
 import Chat from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {isValidReactComponent, useIsWeb} from '../../utils/common';
+import {isValidReactComponent, useIsWebInternal} from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
@@ -20,7 +20,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useRtc} from 'customization-api';
 
 const VideoCallScreen = () => {
-  const isWeb = useIsWeb();
+  const isWebInternal = useIsWebInternal();
   const {sidePanel} = useSidePanel();
   const rtc = useRtc();
   const {
@@ -133,9 +133,9 @@ const VideoCallScreen = () => {
     /**
      * OLD: Commenting this code as getDevices API is web only
      * The below code fails on native app
-     * RESPONSE: Added isWeb check to restrict execution only on web.
+     * RESPONSE: Added isWebInternal check to restrict execution only on web.
      */
-    if (isWeb()) {
+    if (isWebInternal()) {
       new Promise((res) =>
         rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
@@ -175,7 +175,7 @@ const VideoCallScreen = () => {
           )}
           {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
         </View>
-        {!isWeb() && sidePanel === SidePanelType.Chat ? (
+        {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
           <></>
         ) : (
           <ButtonTemplateProvider
