@@ -30,7 +30,6 @@ export {
   useIsIOS,
   useIsAndroid,
   useIsDestop,
-  useHasBrandLogo,
 } from '../src/utils/common';
 export {default as useIsMobileOrTablet} from '../src/utils/useIsMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
