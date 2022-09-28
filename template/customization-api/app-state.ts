@@ -40,3 +40,8 @@ export {useChatUIControl} from '../src/components/chat-ui/useChatUIControl';
 export type {ChatUIControlInterface} from '../src/components/chat-ui/useChatUIControl';
 export {useMessages} from '../src/app-state/useMessages';
 export type {messageInterface} from '../src/app-state/useMessages';
+export type {SidePanelType} from '../src/subComponents/SidePanelEnum';
+export {useSidePanel} from '../src/utils/useSidePanel';
+
+//hook used to get/set username
+export {default as useUserName} from '../src/utils/useUserName';

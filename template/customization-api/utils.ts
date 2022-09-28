@@ -17,35 +17,12 @@ export {default as useIsHost} from '../src/utils/useIsHost';
 export {default as useIsAttendee} from '../src/utils/useIsAttendee';
 export {default as useIsPSTN} from '../src/utils/useIsPSTN';
 
-//hook used to get/set username
-export {default as useUserName} from '../src/utils/useUserName';
-
-export {controlMessageEnum} from '../src/components/ChatContext';
-
 //hook to manage audio/video states
 export {default as useIsAudioEnabled} from '../src/utils/useIsAudioEnabled';
 export {default as useIsVideoEnabled} from '../src/utils/useIsVideoEnabled';
-export {
-  MUTE_LOCAL_TYPE,
-  default as useMuteToggleLocal,
-} from '../src/utils/useMuteToggleLocal';
-export {default as useRemoteEndcall} from '../src/utils/useRemoteEndCall';
-export {
-  default as useRemoteMute,
-  MUTE_REMOTE_TYPE,
-} from '../src/utils/useRemoteMute';
-export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';
-
-//
-export type {SidePanelType} from '../src/subComponents/SidePanelEnum';
-export {useSidePanel} from '../src/utils/useSidePanel';
 
 //hooks used for navigation
 export {useHistory, useParams} from '../src/components/Router';
-
-//hooks used for manage meeting data
-export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
-export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
 
 //export common function
 export {
@@ -53,7 +30,6 @@ export {
   useIsIOS,
   useIsAndroid,
   useIsDestop,
-  useHasBrandLogo,
 } from '../src/utils/common';
 export {default as useIsMobileOrTablet} from '../src/utils/useIsMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
