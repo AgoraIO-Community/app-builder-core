@@ -45,7 +45,7 @@ const ParticipantView = () => {
   return (
     <View
       style={
-        isWebInternal
+        isWebInternal()
           ? isSmall
             ? style.participantViewNative
             : style.participantView
