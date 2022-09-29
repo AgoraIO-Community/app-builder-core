@@ -48,6 +48,8 @@ const TS_DEFS_BUILD_PATH =
     ? path.join(__dirname, '../Builds/ts-defs/android')
     : path.join(__dirname, '../Builds/ts-defs/.electron');
 
+const debugFlag = process.argv.indexOf('--debug') !== -1;
+
 const pkgNameArg = process.argv.indexOf('--pkgname');
 const PACKAGE_NAME =
   pkgNameArg == -1 ? 'agora-app-builder-sdk' : process.argv[pkgNameArg + 1];
@@ -56,6 +58,15 @@ const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
   const proc = spawn(arg1, arg2, {
     stdio: 'inherit',
+    shell: true,
+  });
+  proc.on('exit', cb);
+};
+
+const runCliNoOutput = (cmd, cb) => {
+  const [arg1, ...arg2] = cmd.split(' ');
+  const proc = spawn(arg1, arg2, {
+    stdio: 'ignore',
     shell: true,
   });
   proc.on('exit', cb);
@@ -81,8 +92,8 @@ const general = {
     // Target specific changes
 
     if (process.env.TARGET === 'rsdk') {
-      if(pkgNameArg == -1){
-        newPackage.name = "@appbuilder/react"
+      if (pkgNameArg == -1) {
+        newPackage.name = '@appbuilder/react';
       }
       newPackage.main = 'index.js';
       newPackage.types = 'index.d.ts';
@@ -98,8 +109,8 @@ const general = {
     }
 
     if (process.env.TARGET === 'wsdk') {
-      if(pkgNameArg == -1){
-        newPackage.name = "@appbuilder/web"
+      if (pkgNameArg == -1) {
+        newPackage.name = '@appbuilder/web';
       }
       newPackage.main = 'app-builder-web-sdk.umd2.js';
       newPackage.types = 'index.d.ts';
@@ -115,7 +126,8 @@ const general = {
     return fs.mkdir(BUILD_PATH, {recursive: true});
   },
   typescript: (cb) => {
-    runCli(
+    const cli = debugFlag ? runCli : runCliNoOutput;
+    cli(
       'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/customization-api.d.ts',
       () => cb(),
     );
@@ -207,7 +219,8 @@ const reactSdk = {
     runCli(esbuildCmd, cb);
   },
   typescript: (cb) => {
-    runCli(
+    const cli = debugFlag ? runCli : runCliNoOutput;
+    cli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
       'npx -p typescript tsc --project tsconfig_rsdk_index.json --outFile ../Builds/reactSdk.d.ts',
       () => cb(),
@@ -234,7 +247,8 @@ const webSdk = {
     runCli('webpack --config ./webpack.wsdk.config.js', cb);
   },
   typescript: (cb) => {
-    runCli(
+    const cli = debugFlag ? runCli : runCliNoOutput;
+    cli(
       'npx -p typescript tsc --project tsconfig_wsdk_index.json --outFile ../Builds/webSdk.d.ts',
       () => cb(),
     );
