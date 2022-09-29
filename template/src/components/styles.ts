@@ -9,10 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-//import {useIsWebInternal} from '../utils/common';
-//const isWebInternal = useIsWebInternal();
-//todo convert this file to hook to use above util
-import {Platform} from 'react-native';
+import {isWebInternal} from '../utils/common';
 
 const styles = {
   temp: {
@@ -22,8 +19,8 @@ const styles = {
     borderRadius: 15,
   },
   bottomBar: {
-    flex: Platform.OS === 'web' ? 1.3 : 1.6,
-    paddingHorizontal: Platform.OS === 'web' ? '20%' : '1%',
+    flex: isWebInternal() ? 1.3 : 1.6,
+    paddingHorizontal: isWebInternal() ? '20%' : '1%',
     backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
     flexDirection: 'row',
     justifyContent: 'space-evenly',

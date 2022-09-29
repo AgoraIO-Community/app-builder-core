@@ -13,11 +13,10 @@ import React from 'react';
 import {View, StyleSheet, useWindowDimensions, Platform} from 'react-native';
 import TextWithToolTip from '../../subComponents/TextWithTooltip';
 import {RFValue} from 'react-native-responsive-fontsize';
-import {useIsWebInternal} from '../../utils/common';
+import {isWebInternal} from '../../utils/common';
 
 const ParticipantName = ({value}: {value: string}) => {
   const {height, width} = useWindowDimensions();
-  const isWebInternal = useIsWebInternal();
   const fontSize = isWebInternal() ? 14 : 16;
   return (
     <View style={{flex: 1}}>

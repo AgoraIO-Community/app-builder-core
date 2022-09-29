@@ -19,8 +19,8 @@ import {JoinRoomButtonTextInterface} from '../../language/default-labels/precall
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
-import useIsMobileOrTablet from '../../utils/useIsMobileOrTablet';
-import {useIsWebInternal} from '../../utils/common';
+import isMobileOrTablet from '../../utils/isMobileOrTablet';
+import {isWebInternal} from '../../utils/common';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -35,8 +35,6 @@ export interface PreCallJoinCallBtnProps {
 }
 
 const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
-  const isMobileOrTablet = useIsMobileOrTablet();
-  const isWebInternal = useIsWebInternal();
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();

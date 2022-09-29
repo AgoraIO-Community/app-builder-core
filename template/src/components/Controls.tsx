@@ -26,17 +26,16 @@ import ScreenshareButton, {
   ScreenshareButtonProps,
 } from '../subComponents/screenshare/ScreenshareButton';
 import {controlsHolder} from '../../theme.json';
-import useIsMobileOrTablet from '../utils/useIsMobileOrTablet';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {useIsWebInternal} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 
 const Controls = () => {
-  const isMobileOrTablet = useIsMobileOrTablet();
   const {rtcProps} = useContext(PropsContext);
 
   let onLayout = (e: any) => {
@@ -51,11 +50,10 @@ const Controls = () => {
   const {
     data: {isHost},
   } = useMeetingInfo();
-  const {controlsHolder} = useStyle();
   return (
     <View
       style={[
-        controlsHolder,
+        style.controlsHolder,
         {
           paddingHorizontal: isDesktop ? '25%' : '1%',
           backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
@@ -128,15 +126,12 @@ export const ControlsComponentsArray: ControlsComponentsArrayProps = [
   LiveStreamControls,
 ];
 
-const useStyle = () => {
-  const isWebInternal = useIsWebInternal();
-  return StyleSheet.create({
-    // @ts-ignore
-    controlsHolder: {
-      flex: isWebInternal() ? 1.3 : 1.6,
-      ...controlsHolder,
-    },
-  });
-};
+const style = StyleSheet.create({
+  // @ts-ignore
+  controlsHolder: {
+    flex: isWebInternal() ? 1.3 : 1.6,
+    ...controlsHolder,
+  },
+});
 
 export default Controls;

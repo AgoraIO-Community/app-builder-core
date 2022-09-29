@@ -18,7 +18,7 @@ import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {useIsAndroid, useIsWebInternal} from '../utils/common';
+import {isAndroid, isWebInternal} from '../utils/common';
 import {useRender, useRtc} from 'customization-api';
 import {
   safeJsonParse,
@@ -37,8 +37,6 @@ export enum UserType {
 }
 
 const RtmConfigure = (props: any) => {
-  const isWebInternal = useIsWebInternal();
-  const isAndroid = useIsAndroid();
   const localUid = useLocalUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);

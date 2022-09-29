@@ -12,7 +12,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
-import {isValidReactComponent, useIsWebInternal} from '../utils/common';
+import {isValidReactComponent, isWebInternal} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import PreCallLogo from './common/Logo';
@@ -69,8 +69,7 @@ const JoinRoomInputView = () => {
   );
 };
 
-const Precall = (props: any) => {
-  const isWebInternal = useIsWebInternal();
+const Precall = () => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {

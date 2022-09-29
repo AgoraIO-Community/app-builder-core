@@ -10,7 +10,7 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
-import {useIsIOS, useIsWebInternal} from '../../utils/common';
+import {isIOS, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
@@ -33,7 +33,6 @@ const ChatParticipants = (props: any) => {
       !userInfo?.offline
     );
   };
-  const style = useStyle();
 
   return (
     <ScrollView>
@@ -84,42 +83,39 @@ const ChatParticipants = (props: any) => {
   );
 };
 
-const useStyle = () => {
-  const isWebInternal = useIsWebInternal();
-  const isIOS = useIsIOS();
-  return StyleSheet.create({
-    participantContainer: {
-      flexDirection: 'row',
-      flex: 1,
-      height: 20,
-      marginTop: 10,
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-      overflow: 'hidden',
-      marginHorizontal: 10,
-    },
-    participantText: {
-      flex: 1,
-      fontWeight: isWebInternal() ? '500' : '700',
-      flexDirection: 'row',
-      color: $config.PRIMARY_FONT_COLOR,
-      textAlign: 'left',
-      flexShrink: 1,
-      marginRight: 30,
-    },
-    chatNotificationPrivate: {
-      width: 20,
-      height: 20,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: $config.PRIMARY_COLOR,
-      color: $config.SECONDARY_FONT_COLOR,
-      fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-      borderRadius: 10,
-      position: 'absolute',
-      right: 20,
-      top: 0,
-    },
-  });
-};
+const style = StyleSheet.create({
+  participantContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    height: 20,
+    marginTop: 10,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    overflow: 'hidden',
+    marginHorizontal: 10,
+  },
+  participantText: {
+    flex: 1,
+    fontWeight: isWebInternal() ? '500' : '700',
+    flexDirection: 'row',
+    color: $config.PRIMARY_FONT_COLOR,
+    textAlign: 'left',
+    flexShrink: 1,
+    marginRight: 30,
+  },
+  chatNotificationPrivate: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    right: 20,
+    top: 0,
+  },
+});
+
 export default ChatParticipants;

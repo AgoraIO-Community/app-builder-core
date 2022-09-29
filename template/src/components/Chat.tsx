@@ -23,11 +23,7 @@ import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
-import {
-  useIsIOS,
-  isValidReactComponent,
-  useIsWebInternal,
-} from '../utils/common';
+import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
@@ -47,7 +43,6 @@ const Chat = (props?: ChatProps) => {
   // commented for v1 release
   // const groupChatLabel = useString('groupChatLabel')();
   // const privateChatLabel = useString('privateChatLabel')();
-  const isWebInternal = useIsWebInternal();
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
   const [dim, setDim] = useState([
@@ -142,7 +137,7 @@ const Chat = (props?: ChatProps) => {
     }
     return components;
   });
-  const style = useStyle();
+
   return (
     <>
       <View
@@ -243,142 +238,139 @@ const Chat = (props?: ChatProps) => {
   );
 };
 
-const useStyle = () => {
-  const isIOS = useIsIOS();
-  return StyleSheet.create({
-    chatView: {
-      width: '20%',
-      minWidth: 200,
-      maxWidth: 300,
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-      flex: 1,
-      shadowColor: $config.PRIMARY_FONT_COLOR + '80',
-      shadowOpacity: 0.5,
-      shadowOffset: {width: -2, height: 1},
-      shadowRadius: 3,
-    },
-    chatViewNative: {
-      position: 'absolute',
-      zIndex: 5,
-      width: '100%',
-      height: '100%',
-      right: 0,
-      bottom: 0,
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-    },
-    heading: {
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-      width: 150,
-      height: '7%',
-      paddingLeft: 20,
-      flexDirection: 'row',
-    },
-    headingText: {
-      flex: 1,
-      paddingLeft: 5,
-      marginVertical: 'auto',
-      fontWeight: '700',
-      color: $config.PRIMARY_FONT_COLOR,
-      fontSize: 25,
-      alignSelf: 'center',
-      justifyContent: 'center',
-    },
-    chatNav: {
-      flexDirection: 'row',
-      height: '6%',
-    },
-    chatInputContainer: {
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-      paddingBottom: 10,
-    },
-    chatInputLineSeparator: {
-      backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-      width: '100%',
-      height: 1,
-      marginHorizontal: -20,
-      alignSelf: 'center',
-      opacity: 0.5,
-      marginBottom: 10,
-    },
-    groupActive: {
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-      flex: 1,
-      height: '100%',
-      textAlign: 'center',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    group: {
-      backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
-      flex: 1,
-      height: '100%',
-      textAlign: 'center',
-      borderBottomRightRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    privateActive: {
-      backgroundColor: $config.SECONDARY_FONT_COLOR,
-      flex: 1,
-      height: '100%',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    private: {
-      backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
-      flex: 1,
-      height: '100%',
-      borderBottomLeftRadius: 10,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    groupTextActive: {
-      marginVertical: 'auto',
-      fontWeight: '700',
-      textAlign: 'center',
-      fontSize: 16,
-      color: $config.PRIMARY_FONT_COLOR,
-      justifyContent: 'center',
-      paddingVertical: 5,
-    },
-    groupText: {
-      marginVertical: 'auto',
-      fontWeight: '700',
-      textAlign: 'center',
-      fontSize: 16,
-      paddingVertical: 5,
-      justifyContent: 'center',
-      color: $config.PRIMARY_FONT_COLOR + 50,
-    },
-    chatNotification: {
-      width: 20,
-      height: 20,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: $config.PRIMARY_COLOR,
-      color: $config.SECONDARY_FONT_COLOR,
-      fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-      borderRadius: 10,
-      position: 'absolute',
-      left: 25,
-      top: -5,
-    },
-    chatNotificationPrivate: {
-      width: 20,
-      height: 20,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: $config.PRIMARY_COLOR,
-      color: $config.SECONDARY_FONT_COLOR,
-      fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-      borderRadius: 10,
-      position: 'absolute',
-      right: 20,
-      top: 0,
-    },
-  });
-};
+const style = StyleSheet.create({
+  chatView: {
+    width: '20%',
+    minWidth: 200,
+    maxWidth: 300,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    flex: 1,
+    shadowColor: $config.PRIMARY_FONT_COLOR + '80',
+    shadowOpacity: 0.5,
+    shadowOffset: {width: -2, height: 1},
+    shadowRadius: 3,
+  },
+  chatViewNative: {
+    position: 'absolute',
+    zIndex: 5,
+    width: '100%',
+    height: '100%',
+    right: 0,
+    bottom: 0,
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+  },
+  heading: {
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    width: 150,
+    height: '7%',
+    paddingLeft: 20,
+    flexDirection: 'row',
+  },
+  headingText: {
+    flex: 1,
+    paddingLeft: 5,
+    marginVertical: 'auto',
+    fontWeight: '700',
+    color: $config.PRIMARY_FONT_COLOR,
+    fontSize: 25,
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  chatNav: {
+    flexDirection: 'row',
+    height: '6%',
+  },
+  chatInputContainer: {
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    paddingBottom: 10,
+  },
+  chatInputLineSeparator: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: '100%',
+    height: 1,
+    marginHorizontal: -20,
+    alignSelf: 'center',
+    opacity: 0.5,
+    marginBottom: 10,
+  },
+  groupActive: {
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    flex: 1,
+    height: '100%',
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  group: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
+    flex: 1,
+    height: '100%',
+    textAlign: 'center',
+    borderBottomRightRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  privateActive: {
+    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    flex: 1,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  private: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
+    flex: 1,
+    height: '100%',
+    borderBottomLeftRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  groupTextActive: {
+    marginVertical: 'auto',
+    fontWeight: '700',
+    textAlign: 'center',
+    fontSize: 16,
+    color: $config.PRIMARY_FONT_COLOR,
+    justifyContent: 'center',
+    paddingVertical: 5,
+  },
+  groupText: {
+    marginVertical: 'auto',
+    fontWeight: '700',
+    textAlign: 'center',
+    fontSize: 16,
+    paddingVertical: 5,
+    justifyContent: 'center',
+    color: $config.PRIMARY_FONT_COLOR + 50,
+  },
+  chatNotification: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    left: 25,
+    top: -5,
+  },
+  chatNotificationPrivate: {
+    width: 20,
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    right: 20,
+    top: 0,
+  },
+});
 
 export default Chat;

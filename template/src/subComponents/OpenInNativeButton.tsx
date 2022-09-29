@@ -11,7 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
-import {useIsWebInternal} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import ColorContext from '../components/ColorContext';
 
 /**
@@ -22,7 +22,6 @@ import ColorContext from '../components/ColorContext';
 const OpenInNativeButton = () => {
   const {primaryColor} = useContext(ColorContext);
   const openInNative = () => {};
-  const isWebInternal = useIsWebInternal();
   return isWebInternal() ? (
     <View style={{position: 'absolute', right: 0}}>
       <TouchableOpacity

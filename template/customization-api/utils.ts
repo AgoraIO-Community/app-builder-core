@@ -25,11 +25,6 @@ export {default as useIsVideoEnabled} from '../src/utils/useIsVideoEnabled';
 export {useHistory, useParams} from '../src/components/Router';
 
 //export common function
-export {
-  useIsWeb,
-  useIsIOS,
-  useIsAndroid,
-  useIsDestop,
-} from '../src/utils/common';
-export {default as useIsMobileOrTablet} from '../src/utils/useIsMobileOrTablet';
+export {isWeb, isIOS, isAndroid, isDestop} from '../src/utils/common';
+export {default as isMobileOrTablet} from '../src/utils/isMobileOrTablet';
 export {useLocalUid} from '../agora-rn-uikit';
