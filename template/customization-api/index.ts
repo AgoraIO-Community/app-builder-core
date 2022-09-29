@@ -15,9 +15,9 @@
 import {customize} from './customize';
 import configJSON from '../config.json';
 
-let config = configJSON as unknown as ConfigInterface;
+let $config = configJSON as unknown as ConfigInterface;
 
-export {customize, config};
+export {customize, $config};
 export * from './action-library';
 export * from './app-state';
 export * from './customEvents';
