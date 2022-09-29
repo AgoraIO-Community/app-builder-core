@@ -11,11 +11,11 @@
 */
 
 /*
-getCustomizationApiPath - will return test-fpe if exists otherwise it will return the dummy customization path
+getCustomizationApiPath - will return customization if exists otherwise it will return the dummy customization path
 */
 const fs = require('fs');
-const customizationPathTs = './test-fpe/index.ts';
-const customizationPathTsx = './test-fpe/index.tsx';
+const customizationPathTs = './customization/index.ts';
+const customizationPathTsx = './customization/index.tsx';
 const customizationDummyPath = './customization-implementation/dummyConfig.ts';
 const getCustomizationApiPath = () => {
   if (fs.existsSync(customizationPathTs)) {

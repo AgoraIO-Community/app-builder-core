@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import {CustomizationApiInterface} from 'customization-api';
-import customizationConfig from 'test-fpe';
+import customizationConfig from 'customization';
 import createHook from './createHook';
 
 const CustomizationContext: React.Context<CustomizationApiInterface> =

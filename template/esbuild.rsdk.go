@@ -72,9 +72,9 @@ func commonAliasResolver() api.Plugin {
 				},
 			)
 
-			pb.OnResolve(api.OnResolveOptions{Filter: "test-fpe"},
+			pb.OnResolve(api.OnResolveOptions{Filter: "customization"},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					fpePath, err := filepath.Abs("./test-fpe/index.ts")
+					fpePath, err := filepath.Abs("./customization/index.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
