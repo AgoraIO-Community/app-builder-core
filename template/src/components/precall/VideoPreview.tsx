@@ -16,9 +16,9 @@ import {View} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 
 const VideoPreview: React.FC = () => {
-  const {renderList, renderPosition} = useRender();
+  const {renderList, activeUids} = useRender();
 
-  const [maxUid] = renderPosition;
+  const [maxUid] = activeUids;
 
   if (!maxUid) {
     return null;

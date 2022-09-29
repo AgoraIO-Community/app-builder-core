@@ -32,7 +32,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useRtc();
   const {dispatch} = rtc;
-  const {renderList, renderPosition} = useRender();
+  const {renderList, activeUids} = useRender();
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();

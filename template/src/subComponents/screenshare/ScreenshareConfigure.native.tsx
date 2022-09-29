@@ -24,7 +24,7 @@ import {useRender, useRtc} from 'customization-api';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
-  const {renderList, renderPosition} = useRender();
+  const {renderList, activeUids} = useRender();
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');

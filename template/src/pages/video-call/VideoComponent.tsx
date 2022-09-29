@@ -8,7 +8,7 @@ const VideoComponent = () => {
   const [layout, setLayoutIndex] = useState(0);
   const layoutsData = useLayoutsData();
   const {currentLayout} = useLayout();
-  const {renderPosition} = useRender();
+  const {activeUids} = useRender();
   useEffect(() => {
     if (isArray(layoutsData)) {
       let index = layoutsData.findIndex((item) => item.name === currentLayout);
@@ -24,7 +24,7 @@ const VideoComponent = () => {
     isValidReactComponent(layoutsData[layout].component)
   ) {
     const CurrentLayout = layoutsData[layout].component;
-    return <CurrentLayout renderData={renderPosition} />;
+    return <CurrentLayout renderData={activeUids} />;
   } else {
     return <></>;
   }
