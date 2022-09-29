@@ -15,11 +15,11 @@ import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {useIsWeb} from '../utils/common';
+import {useIsWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const SettingsView = () => {
-  const isWeb = useIsWeb();
+  const isWebInternal = useIsWebInternal();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -28,7 +28,8 @@ const SettingsView = () => {
   const selectInputDeviceLabel = 'Select Input Device';
 
   return (
-    <View style={isWeb() ? style.settingsView : style.settingsViewNative}>
+    <View
+      style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
       <View style={style.main}>
         <View>
           <Text style={style.heading}>{selectInputDeviceLabel}</Text>

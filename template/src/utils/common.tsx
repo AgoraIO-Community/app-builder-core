@@ -26,7 +26,11 @@ const shouldAuthenticate: boolean =
   $config.ENABLE_MICROSOFT_OAUTH ||
   $config.ENABLE_SLACK_OAUTH;
 
+//for our internal usage don't check Platform - electron and web will same kind ui checks. thats why we have useIsWeb for external usage
+const useIsWebInternal = () => () => ReactNativePlatform.OS === 'web';
+
 const useIsWeb = () => () =>
+  //@ts-ignore
   Platform === 'web' && ReactNativePlatform.OS === 'web';
 
 const useIsAndroid = () => () =>
@@ -46,6 +50,7 @@ export {
   useHasBrandLogo,
   useIsAndroid,
   useIsIOS,
+  useIsWebInternal,
   useIsWeb,
   useIsDestop,
   shouldAuthenticate,

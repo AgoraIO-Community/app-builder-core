@@ -182,6 +182,9 @@ const electron = {
     const config = webpack(webpackConfig);
     new WebpackDevServer(config, {
       hot: true,
+      client: {
+        overlay: false,
+      },
     }).listen(webpackConfig.devServer.port, 'localhost', (err) => {
       if (err) {
         console.error(err);
@@ -192,7 +195,7 @@ const electron = {
   },
 
   start: (cb) => {
-    runCli('electron .', cb);
+    runCli('electron ./electron/main/index.js', cb);
   },
 };
 

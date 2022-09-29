@@ -18,7 +18,7 @@ import {SessionProvider} from './components/SessionContext';
 import {ImageBackground, SafeAreaView, StatusBar, Platform} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
-import ToastConfig from './subComponents/toastConfig';
+import useToastConfig from './subComponents/useToastConfig';
 import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
@@ -37,6 +37,7 @@ const AppWrapper = (props: AppWrapperProps) => {
     }
     return React.Fragment;
   });
+  const toastConfig = useToastConfig();
 
   return (
     <AppRoot>
@@ -48,7 +49,7 @@ const AppWrapper = (props: AppWrapperProps) => {
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-          <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
+          <Toast ref={(ref) => Toast.setRef(ref)} config={toastConfig} />
           <StorageProvider>
             <GraphQLProvider>
               <Router>
