@@ -25,7 +25,7 @@ module.exports = {
           'customization-api': './customization-api/index.ts',
           'customization-implementation':
             './customization-implementation/index.ts',
-          'test-fpe': getCustomizationApiPath(),
+          customization: getCustomizationApiPath(),
         },
       },
     ],

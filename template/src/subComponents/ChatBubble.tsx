@@ -15,11 +15,10 @@ import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
-import {useIsWebInternal} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import {useRender} from 'customization-api';
 
 const ChatBubble = (props: ChatBubbleProps) => {
-  const isWebInternal = useIsWebInternal();
   const {renderList} = useRender();
   const {primaryColor} = useContext(ColorContext);
   let {

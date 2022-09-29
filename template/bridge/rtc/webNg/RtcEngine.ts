@@ -33,8 +33,8 @@ import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
-import useIsMobileOrTablet from '../../../src/utils/useIsMobileOrTablet';
-const isMobileOrTablet = useIsMobileOrTablet();
+import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
+
 interface MediaDeviceInfo {
   readonly deviceId: string;
   readonly label: string;

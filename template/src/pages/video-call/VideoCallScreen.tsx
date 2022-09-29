@@ -7,7 +7,7 @@ import SettingsView from '../../components/SettingsView';
 import Controls from '../../components/Controls';
 import Chat from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {isValidReactComponent, useIsWebInternal} from '../../utils/common';
+import {isValidReactComponent, isWebInternal} from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
@@ -20,7 +20,6 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useRtc} from 'customization-api';
 
 const VideoCallScreen = () => {
-  const isWebInternal = useIsWebInternal();
   const {sidePanel} = useSidePanel();
   const rtc = useRtc();
   const {

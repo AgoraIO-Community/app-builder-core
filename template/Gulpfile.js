@@ -164,7 +164,7 @@ const general = {
       .pipe(
         replace(
           `declare var $config: ConfigInterface;
-declare module 'test-fpe' {
+declare module 'customization' {
   const customizationConfig: {};
   export default customizationConfig;
 }`,

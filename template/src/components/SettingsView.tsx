@@ -15,11 +15,10 @@ import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {useIsWebInternal} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
 const SettingsView = () => {
-  const isWebInternal = useIsWebInternal();
   const {
     data: {isHost},
   } = useMeetingInfo();

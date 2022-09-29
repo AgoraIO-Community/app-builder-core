@@ -19,8 +19,8 @@ const VideoPreview: React.FC = () => {
   const rtc = useRtc();
   rtc?.RtcEngine?.startPreview();
 
-  const {renderList, renderPosition} = useRender();
-  const [maxUid] = renderPosition;
+  const {renderList, activeUids} = useRender();
+  const [maxUid] = activeUids;
 
   if (!maxUid) {
     return null;

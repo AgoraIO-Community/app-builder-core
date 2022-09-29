@@ -12,12 +12,11 @@
 
 import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
-import {useIsWebInternal} from '../../utils/common';
+import {isWebInternal} from '../../utils/common';
 import SelectDevice from '../../subComponents/SelectDevice';
 import {useString} from '../../utils/useString';
 
 const selectDevice: React.FC = () => {
-  const isWebInternal = useIsWebInternal();
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Select Input Device';

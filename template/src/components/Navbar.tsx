@@ -20,7 +20,7 @@ import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
 import ChatContext from '../components/ChatContext';
-import useIsMobileOrTablet from '../utils/useIsMobileOrTablet';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {
   BtnTemplate,
   BtnTemplateInterface,
@@ -31,11 +31,7 @@ import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
-import {
-  useIsIOS,
-  isValidReactComponent,
-  useIsWebInternal,
-} from '../utils/common';
+import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
@@ -51,8 +47,6 @@ import {
 import Styles from './styles';
 
 const RenderSeparator = () => {
-  const isWebInternal = useIsWebInternal();
-  const style = useStyle();
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
   return isWebInternal() && isDesktop ? (
@@ -66,7 +60,7 @@ const RenderSeparator = () => {
 
 const ParticipantsCountView = () => {
   const {onlineUsersCount} = useContext(ChatContext);
-  const style = useStyle();
+
   return (
     <>
       {onlineUsersCount !== 0 && (
@@ -99,8 +93,6 @@ interface ParticipantsIconButtonProps {
   ) => JSX.Element;
 }
 const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
-  const isWebInternal = useIsWebInternal();
-  const style = useStyle();
   const {
     liveStreamingRequestAlertIconPosition = {
       top: isWebInternal() ? -10 : 2,
@@ -180,8 +172,6 @@ interface ChatIconButtonProps {
 }
 
 const ChatIconButton = (props: ChatIconButtonProps) => {
-  const isWebInternal = useIsWebInternal();
-  const style = useStyle();
   const {
     badgeContainerPosition = {
       top: isWebInternal() ? -10 : 2,
@@ -275,7 +265,7 @@ interface LayoutIconButtonProps {
 
 const LayoutIconButton = (props: LayoutIconButtonProps) => {
   const {modalPosition} = props;
-  const style = useStyle();
+
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
   const layoutLabel = 'Layouts';
@@ -367,9 +357,7 @@ const Navbar = () => {
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
-  const isWebInternal = useIsWebInternal();
-  const isMobileOrTablet = useIsMobileOrTablet();
-  const style = useStyle();
+
   return (
     <View
       style={[
@@ -518,167 +506,162 @@ export const NavBarComponentsArray: NavBarComponentsArrayProps = [
   SettingsIconButton,
 ];
 
-const useStyle = () => {
-  const isIOS = useIsIOS();
-  const isWebInternal = useIsWebInternal();
-  const isMobileOrTablet = useIsMobileOrTablet();
-  return StyleSheet.create({
-    backDrop: {
-      position: 'absolute',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: 'rgba(0,0,0,0.3)',
-    },
-    navHolder: navHolder as ViewStyle,
-    navHolderNative: {
-      position: 'relative',
-      width: '100%',
-      height: '8%',
-      backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 10,
-      justifyContent: 'space-between',
-    },
-    recordingView: {
-      height: 35,
-      maxHeight: 30,
-      position: 'absolute',
-      left: isMobileOrTablet() ? '50%' : 10,
-      paddingHorizontal: 5,
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignContent: 'center',
-      justifyContent: 'center',
-      borderRadius: 10,
-    },
-    recordingIcon: {
-      width: 20,
-      height: 20,
-      margin: 1,
-      resizeMode: 'contain',
-    },
-    btnHolder: {
-      marginHorizontal: isMobileOrTablet() ? 2 : 0,
-      width: '100%',
-      height: '100%',
-      resizeMode: 'contain',
-    },
-    btnHolderCustom: {
-      width: '100%',
-      height: '100%',
-      resizeMode: 'contain',
-    },
-    roomNameContainer: {
-      paddingHorizontal: 1,
-      marginHorizontal: 1,
-      height: 35,
-      maxHeight: 30,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      zIndex: 10,
-    },
-    roomNameText: {
-      fontSize: 18,
-      color: $config.PRIMARY_FONT_COLOR,
-      fontWeight: '500',
-    },
-    badge: {
-      lineHeight: 1,
-      height: 20,
-      minWidth: 20,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: $config.PRIMARY_COLOR,
-      color: $config.SECONDARY_FONT_COLOR,
-      fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-      borderRadius: 10,
-      position: 'absolute',
-      paddingHorizontal: 5,
-      top: 0,
-      left: -2,
-    },
-    chip: {
-      backgroundColor: $config.PRIMARY_COLOR,
-      borderRadius: 2.5,
-      paddingHorizontal: 5,
-      marginHorizontal: 5,
-      paddingVertical: 1,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    chipText: {
-      fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-      fontSize: 12,
-      color: $config.SECONDARY_FONT_COLOR,
-    },
-    navControlBar: {
-      width: '50%',
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      zIndex: 9,
-    },
-    navContainer: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      backgroundColor: isWebInternal()
-        ? $config.SECONDARY_FONT_COLOR
-        : $config.SECONDARY_FONT_COLOR + '00',
-      paddingVertical: 4,
-      paddingHorizontal: isMobileOrTablet() ? 0 : 10,
-      minHeight: 35,
-      borderRadius: 10,
-    },
-    navItem: {
-      height: '100%',
-      alignItems: 'center',
-      position: 'relative',
-    },
-    navSmItem: {
-      flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: '15%',
-    },
-    navItemSeparator: {
-      backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-      width: 1,
-      height: '100%',
-      marginHorizontal: 10,
-      alignSelf: 'center',
-      opacity: 0.8,
-    },
-    navItemSeparatorHorizontal: {
-      backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-      width: '100%',
-      height: 1,
-      marginVertical: 10,
-      alignSelf: 'center',
-      opacity: 0.8,
-    },
-    dropdownIconContainer: {
-      flex: 1,
-      paddingHorizontal: 5,
-    },
-    separaterContainer: {
-      flex: 0.5,
-      paddingHorizontal: 5,
-    },
-    dropdownContainer: {
-      position: 'absolute',
-      marginTop: 5,
-      width: 40,
-      height: 90,
-      backgroundColor: 'white',
-      borderRadius: 10,
-      paddingVertical: 10,
-    },
-  });
-};
+const style = StyleSheet.create({
+  backDrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  navHolder: navHolder as ViewStyle,
+  navHolderNative: {
+    position: 'relative',
+    width: '100%',
+    height: '8%',
+    backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+  },
+  recordingView: {
+    height: 35,
+    maxHeight: 30,
+    position: 'absolute',
+    left: isMobileOrTablet() ? '50%' : 10,
+    paddingHorizontal: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  recordingIcon: {
+    width: 20,
+    height: 20,
+    margin: 1,
+    resizeMode: 'contain',
+  },
+  btnHolder: {
+    marginHorizontal: isMobileOrTablet() ? 2 : 0,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  btnHolderCustom: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  roomNameContainer: {
+    paddingHorizontal: 1,
+    marginHorizontal: 1,
+    height: 35,
+    maxHeight: 30,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  roomNameText: {
+    fontSize: 18,
+    color: $config.PRIMARY_FONT_COLOR,
+    fontWeight: '500',
+  },
+  badge: {
+    lineHeight: 1,
+    height: 20,
+    minWidth: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.PRIMARY_COLOR,
+    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
+    borderRadius: 10,
+    position: 'absolute',
+    paddingHorizontal: 5,
+    top: 0,
+    left: -2,
+  },
+  chip: {
+    backgroundColor: $config.PRIMARY_COLOR,
+    borderRadius: 2.5,
+    paddingHorizontal: 5,
+    marginHorizontal: 5,
+    paddingVertical: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chipText: {
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
+    fontSize: 12,
+    color: $config.SECONDARY_FONT_COLOR,
+  },
+  navControlBar: {
+    width: '50%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    zIndex: 9,
+  },
+  navContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: isWebInternal()
+      ? $config.SECONDARY_FONT_COLOR
+      : $config.SECONDARY_FONT_COLOR + '00',
+    paddingVertical: 4,
+    paddingHorizontal: isMobileOrTablet() ? 0 : 10,
+    minHeight: 35,
+    borderRadius: 10,
+  },
+  navItem: {
+    height: '100%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  navSmItem: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: '15%',
+  },
+  navItemSeparator: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: 1,
+    height: '100%',
+    marginHorizontal: 10,
+    alignSelf: 'center',
+    opacity: 0.8,
+  },
+  navItemSeparatorHorizontal: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: '100%',
+    height: 1,
+    marginVertical: 10,
+    alignSelf: 'center',
+    opacity: 0.8,
+  },
+  dropdownIconContainer: {
+    flex: 1,
+    paddingHorizontal: 5,
+  },
+  separaterContainer: {
+    flex: 0.5,
+    paddingHorizontal: 5,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    marginTop: 5,
+    width: 40,
+    height: 90,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    paddingVertical: 10,
+  },
+});
 
 export default Navbar;
