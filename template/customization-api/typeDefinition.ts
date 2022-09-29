@@ -17,7 +17,7 @@ import {
   RenderStateInterface,
   UidType,
 } from '../agora-rn-uikit';
-import {i18nInterface} from '../src/language/i18nTypes';
+import {I18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
 export type {RenderInterface, RenderStateInterface, UidType};
 export type {
@@ -132,7 +132,7 @@ export interface CustomizationApiInterface {
   /**
    * Internationlization
    */
-  i18n?: i18nInterface[];
+  i18n?: I18nInterface[];
   /**
    * Life cycle events
    */
