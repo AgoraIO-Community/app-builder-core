@@ -53,7 +53,13 @@ const debugFlag = process.argv.indexOf('--debug') !== -1;
 
 const pkgNameArg = process.argv.indexOf('--pkgname');
 const PACKAGE_NAME =
-  pkgNameArg == -1 ? 'agora-app-builder-sdk' : process.argv[pkgNameArg + 1];
+  pkgNameArg == -1
+    ? process.env.TARGET === 'rsdk'
+      ? '@appbuilder/react'
+      : process.env.TARGET === 'wsdk'
+      ? '@appbuilder/web'
+      : 'agora-app-builder-sdk'
+    : process.argv[pkgNameArg + 1];
 
 const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
@@ -118,9 +124,6 @@ const general = {
     // Target specific changes
 
     if (process.env.TARGET === 'rsdk') {
-      if (pkgNameArg == -1) {
-        newPackage.name = '@appbuilder/react';
-      }
       newPackage.main = 'index.js';
       newPackage.types = 'index.d.ts';
 
@@ -135,9 +138,6 @@ const general = {
     }
 
     if (process.env.TARGET === 'wsdk') {
-      if (pkgNameArg == -1) {
-        newPackage.name = '@appbuilder/web';
-      }
       newPackage.main = 'app-builder-web-sdk.umd2.js';
       newPackage.types = 'index.d.ts';
     }
@@ -261,7 +261,7 @@ const reactSdk = {
       .pipe(
         replace(
           'declare module "index.rsdk"',
-          'declare module "agora-app-builder-sdk"',
+          `declare module "${PACKAGE_NAME}"`,
         ),
       )
       .pipe(replace("'customization-api'", "'customization-api/index'"))
@@ -288,7 +288,7 @@ const webSdk = {
       .pipe(
         replace(
           'declare module "index.wsdk"',
-          'declare module "agora-app-builder-sdk"',
+          `declare module "${PACKAGE_NAME}"`,
         ),
       )
       .pipe(replace("'customization-api'", "'customization-api/index'"))
