@@ -139,8 +139,8 @@ const general = {
         replace(
           `declare var $config: ConfigInterface;
 declare module 'test-fpe' {
-  const data: {};
-  export default data;
+  const customizationConfig: {};
+  export default customizationConfig;
 }`,
           ' ',
         ),
