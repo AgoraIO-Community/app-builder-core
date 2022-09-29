@@ -18,6 +18,7 @@ const config = require('./config.json');
 const replace = require('gulp-replace');
 const concat = require('gulp-concat');
 const header = require('gulp-header');
+const semver = require('semver');
 
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -77,9 +78,34 @@ const general = {
     return del([`${BUILD_PATH}/**/*`], {force: true});
   },
   packageJson: async (cb) => {
-    let {version, private, author, description, dependencies} = JSON.parse(
+    let {private, author, description, dependencies} = JSON.parse(
       await fs.readFile(path.join(__dirname, 'package.json')),
     );
+
+    // Tries to fetch version and dependencies from parent package.json
+
+    let {dependencies: parentDependencies, version: parentVersion} = JSON.parse(
+      await fs.readFile(path.join(__dirname, '..', 'package.json')),
+    );
+
+    // If parentDependencies present derives base version from cli version ( prod )
+    // otherwise uses version number from parent package.json ( dev )
+
+    let baseVersion = parentDependencies
+      ? parentDependencies['agora-app-builder-cli']
+      : parentVersion;
+
+    // Generates unique hash
+
+    const nanoid = await import('nanoid');
+    const alphabet =
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+    let versionHash = nanoid.customAlphabet(alphabet, 10)();
+
+    // Hash appended to base version to create unique version for every build.
+
+    let version = semver.minVersion(`${baseVersion}-${versionHash}`).version;
 
     let newPackage = {
       name: PACKAGE_NAME,
