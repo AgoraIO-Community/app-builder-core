@@ -9,7 +9,8 @@ const libraryTargets = ['commonjs2', 'var','umd2'];
 const baseConfig = {
   // Enable optimizations in production
   mode: isDevelopment ? 'development' : 'production',
-  devtool: isDevelopment ? 'eval-cheap-module-source-map' : 'source-map',
+  // Angular doesn't support cheap-eval-module-source-maps 
+  devtool:'source-map',
   // Main entry point for the web application
   entry: {
     main: './index.wsdk.tsx',
