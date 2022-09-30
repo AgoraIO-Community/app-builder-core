@@ -27,7 +27,7 @@ const shouldAuthenticate: boolean =
   $config.ENABLE_SLACK_OAUTH;
 
 //for our internal usage don't check Platform - electron and web will same kind ui checks. thats why we have isWeb for external usage
-const isWebInternal = () => () => ReactNativePlatform.OS === 'web';
+const isWebInternal = () => ReactNativePlatform.OS === 'web';
 
 const isWeb = () => Platform === 'web' && ReactNativePlatform.OS === 'web';
 
