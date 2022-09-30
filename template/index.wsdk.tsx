@@ -3,6 +3,7 @@ import SDKAppWrapper, {
   AppBuilderSdkApi,
   AppBuilderSdkApiInterface,
 } from './src/SDKAppWrapper';
+import SDKEvents from './src/utils/SdkEvents';
 import React from 'react';
 import * as RN from 'react-native-web';
 
@@ -11,7 +12,15 @@ export * from 'customization-implementation';
 
 interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {}
 
-const AppBuilderWebSdkApi: AppBuilderWebSdkInterface = AppBuilderSdkApi;
+const AppBuilderWebSdkApi: AppBuilderWebSdkInterface = {
+  ...AppBuilderSdkApi,
+  // Override customize function for web-sdk
+  customize: (customization) => {
+    SDKEvents.on('addFpeInit', () => {
+      SDKEvents.emit('addFpe', customization);
+    });
+  },
+};
 
 // init code
 class AppBuilder extends HTMLElement {
