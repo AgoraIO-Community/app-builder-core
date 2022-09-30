@@ -51,7 +51,7 @@ export interface ChatCmpInterface {
   //extends BeforeAndAfterInterface
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSentButton?: React.ComponentType<ChatSendButtonProps>;
+  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
 export interface renderComponentInterface {
@@ -63,7 +63,7 @@ export interface renderComponentObjectInterface {
 }
 
 export type layoutComponent = React.ComponentType<{
-  renderData: RenderStateInterface['renderPosition'];
+  renderData: RenderStateInterface['activeUids'];
 }>;
 
 export interface layoutObjectBase {
