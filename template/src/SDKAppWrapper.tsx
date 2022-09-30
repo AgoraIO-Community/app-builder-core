@@ -59,6 +59,7 @@ const SDKAppWrapper = () => {
       console.log('SDKEvents: addFpe event called');
       setFpe(sdkFpeConfig);
     });
+    SDKEvents.emit('addFpeInit');
     // Join event consumed in Create.tsx
   }, []);
   return (
