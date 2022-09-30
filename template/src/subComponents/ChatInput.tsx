@@ -150,15 +150,15 @@ const ChatInput = (props: {
               data?.components?.videoCall?.chat?.chatInput;
           }
           if (
-            data?.components?.videoCall?.chat?.chatSentButton &&
-            typeof data?.components?.videoCall?.chat?.chatSentButton !==
+            data?.components?.videoCall?.chat?.chatSendButton &&
+            typeof data?.components?.videoCall?.chat?.chatSendButton !==
               'object' &&
             isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatSentButton,
+              data?.components?.videoCall?.chat?.chatSendButton,
             )
           ) {
             components.ChatSendButtonComponent =
-              data?.components?.videoCall?.chat?.chatSentButton;
+              data?.components?.videoCall?.chat?.chatSendButton;
           }
         }
       } else {
