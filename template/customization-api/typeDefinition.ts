@@ -95,6 +95,10 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
 }
 
 export type ComponentsInterface = {
+  /**
+   * Custom context/api provider wrapped in root level
+   */
+  appRoot?: React.ComponentType;
   // commented for v1 release
   //precall?: PreCallInterface | React.ComponentType;
   //create?: React.ComponentType;
@@ -125,10 +129,6 @@ export interface CustomizationApiInterface {
    */
   // commented for v1 release
   //customRoutes?: CustomRoutesInterface[];
-  /**
-   * Custom context/api provider wrapped in root level
-   */
-  appRoot?: React.ComponentType;
   /**
    * Internationlization
    */
