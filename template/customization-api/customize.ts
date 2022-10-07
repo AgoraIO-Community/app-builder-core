@@ -89,12 +89,6 @@ function validateCustomRoutes(routes: any) {
   }
 }
 
-function validateAppRoot(data: any) {
-  if (data && !isComponent(data)) {
-    console.error(`Customize:Error appRoot should be a react component`);
-  }
-}
-
 function validatei18n(data: any) {
   if (data) {
     if (!Array.isArray(data)) {
@@ -123,9 +117,6 @@ export const customize = (config: CustomizationApiInterface) => {
   //validating the custom routes
   //commented for v1 release
   //config?.customRoutes && validateCustomRoutes(config.customRoutes);
-
-  //validating the app root
-  config?.appRoot && validateAppRoot(config.appRoot);
 
   //validating the i18n
   config?.i18n && validatei18n(config.i18n);

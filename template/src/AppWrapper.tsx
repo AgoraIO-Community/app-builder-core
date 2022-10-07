@@ -32,8 +32,11 @@ interface AppWrapperProps {
 
 const AppWrapper = (props: AppWrapperProps) => {
   const AppRoot = useCustomization((data) => {
-    if (data?.appRoot && isValidReactComponent(data.appRoot)) {
-      return data.appRoot;
+    if (
+      data?.components?.appRoot &&
+      isValidReactComponent(data?.components?.appRoot)
+    ) {
+      return data.components.appRoot;
     }
     return React.Fragment;
   });
