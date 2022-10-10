@@ -23,6 +23,9 @@ export interface messageInterface {
   >;
 }
 
+/**
+ * The Messages app state governs the chat messages.
+ */
 export const useMessages: () => messageInterface = () => {
   const {
     deleteChatMessage: deleteMessage,

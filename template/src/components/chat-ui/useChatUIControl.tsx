@@ -61,6 +61,9 @@ const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
   );
 };
 
+/**
+ * The ChatUIControl app state governs the chat ui.
+ */
 const useChatUIControl = createHook(ChatUIControlContext);
 
 export {ChatUIControlProvider, useChatUIControl};
