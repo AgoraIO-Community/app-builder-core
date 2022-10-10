@@ -39,7 +39,7 @@ const isAndroid = () =>
 const isIOS = () => Platform === 'native' && ReactNativePlatform.OS === 'ios';
 
 //@ts-ignore
-const isDestop = () => Platform === 'electron';
+const isDesktop = () => Platform === 'electron';
 
 const isArray = (data: any[]) =>
   data && Array.isArray(data) && data.length ? true : false ? true : false;
@@ -49,7 +49,7 @@ export {
   isIOS,
   isWebInternal,
   isWeb,
-  isDestop,
+  isDesktop,
   shouldAuthenticate,
   isArray,
   isValidReactComponent,
