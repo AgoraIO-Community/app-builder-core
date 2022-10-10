@@ -11,8 +11,9 @@
 */
 import {useRender} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
+
 /**
- * This hook will return the function to check whether the current user is a PSTN user or not
+ * Returns a function that checks whether the given uid is a PSTN user and returns true/false
  * @returns function
  */
 function useIsPSTN() {
