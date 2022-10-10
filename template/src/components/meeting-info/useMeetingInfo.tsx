@@ -62,6 +62,9 @@ const MeetingInfoProvider = (props: MeetingInfoProviderProps) => {
     </MeetingInfoContext.Provider>
   );
 };
+/**
+ * The MeetingInfo app state contains information about the active meeting.
+ */
 const useMeetingInfo = createHook(MeetingInfoContext);
 
 export {MeetingInfoProvider, useMeetingInfo};

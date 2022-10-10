@@ -13,7 +13,7 @@ import {UidType} from '../../agora-rn-uikit';
 import {useScreenContext} from '../components/contexts/ScreenShareContext';
 
 /**
- * This hook will return the function to check whether the screen is shared or not
+ * This hook will return the function which take UID and return true if screensharing active on the UID
  * @returns function
  */
 function useIsScreenShare() {

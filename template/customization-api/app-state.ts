@@ -7,8 +7,13 @@ import {RtcContext, RenderContext} from '../agora-rn-uikit';
 // commented for v1 release
 //import {default as DeviceContext} from '../src/components/DeviceContext';
 //import {default as StorageContext} from '../src/components/StorageContext';
-
+/**
+ * The RTC app state exposes the internal RtcEngine object as well as dispatch interface to perform various actions.
+ */
 export const useRtc = createHook(RtcContext);
+/**
+ * The Render app state governs the information necessary to render each user content view displayed in the videocall screen.
+ */
 export const useRender = createHook(RenderContext);
 export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
 

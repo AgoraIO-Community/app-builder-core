@@ -4,6 +4,9 @@ import useIsPSTN from './useIsPSTN';
 import {UidType} from '../../agora-rn-uikit';
 import events, {EventPersistLevel} from '../rtm-events-api';
 
+/**
+ * Returns a function to end the call for a remote user with the given uid.
+ */
 const useRemoteEndCall = () => {
   const {
     data: {isHost},

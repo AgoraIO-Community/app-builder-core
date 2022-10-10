@@ -27,6 +27,9 @@ const CREATE_CHANNEL = gql`
     }
   }
 `;
+/**
+ * Returns an asynchronous function to create a meeting with the given options.
+ */
 export default function useCreateMeeting() {
   const [createChannel, {error}] = useMutation(CREATE_CHANNEL);
   const {setMeetingInfo} = useSetMeetingInfo();

@@ -20,6 +20,9 @@ export enum MUTE_REMOTE_TYPE {
   audio,
   video,
 }
+/**
+ * Returns an asynchronous function to toggle muted state of the given track type for a remote user with the given uid or if no uid provided, mutes everyone else in the meeting.
+ */
 function useRemoteMute() {
   const {
     data: {isHost},

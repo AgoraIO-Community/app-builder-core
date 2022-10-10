@@ -36,6 +36,9 @@ const SidePanelProvider = (props: SidePanelProviderProps) => {
   );
 };
 
+/**
+ * The Side panel app state governs the side panel.
+ */
 const useSidePanel = createHook(SidePanelContext);
 
 export {SidePanelProvider, useSidePanel};
