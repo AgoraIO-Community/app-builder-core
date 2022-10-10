@@ -34,8 +34,8 @@ class Events {
   /**
    * Persists the data in the local attributes of the user
    *
-   * @param {string} evt  to be stored in rtm Attribute key
-   * @param {string} payload to be stored in rtm Attribute value
+   * @param {String} evt  to be stored in rtm Attribute key
+   * @param {String} payload to be stored in rtm Attribute value
    * @api private
    */
   private _persist = async (evt: string, payload: string) => {
@@ -53,7 +53,10 @@ class Events {
   };
 
   /**
+   * event type validator.
    *
+   * @api private
+   * @returns {boolean}
    */
   private _validateEvt = (evt: string): boolean => {
     if (typeof evt !== 'string') {
@@ -67,6 +70,12 @@ class Events {
     return true;
   };
 
+  /**
+   * event listener validator
+   *
+   * @api private
+   * @returns {boolean}
+   */
   private _validateListener = (listener: EventCallback): boolean => {
     if (typeof listener !== 'function') {
       throw Error(
@@ -77,13 +86,13 @@ class Events {
   };
 
   /**
-   * Sets the local attribute of user if  persist level is 2 or 3.
-   * If param 'to' is not provided, message is sent in the channel.
-   * If param 'to' is provided message is sent to that individual.
-   * If param 'to' is an array of uids is provided then message is sent to all the individual uids in loop.
+   * Sets the local attribute of user if persist level is 2 or 3.
+   * If param 'toUid' is not provided, message is sent in the channel.
+   * If param 'toUid' is provided message is sent to that individual.
+   * If param 'toUid' is an array of uids is provided then message is sent to all the individual uids in loop.
    *
-   * @param {any} rtmPayload payload to be sent across
-   * @param {toUid} to uid or uids[] of user
+   * @param {Object} rtmPayload payload to be sent across
+   * @param {ReceiverUid} toUid uid or uids[] of user
    * @api private
    */
   private _send = async (rtmPayload: any, toUid?: ReceiverUid) => {
@@ -142,16 +151,16 @@ class Events {
   };
 
   /**
-   * Listens for a specified event.
-   * Adds a listener function to the specified event.
+   * Listen on a new event by eventName and listener.
    * When the specified event happens, the Events API triggers the callback that you pass.
-   * The listener will not be added if it is a duplicate.
+   * The listener will not be added/listened if it is a duplicate.
    *
-   * @param {String} eventName Name of the event to attach the listener to.
+   * @param {String} eventName Name of the event. It must be a unique string.
    * @param {Function} listener Method to be called when the event is emitted.
+   * @returns {Function} Returns function, call it and this listener will be removed from event
    * @api public
    */
-  on = (eventName: string, listener: EventCallback) => {
+  on = (eventName: string, listener: EventCallback): Function => {
     try {
       if (!this._validateEvt(eventName) || !this._validateListener(listener))
         return;
@@ -160,54 +169,57 @@ class Events {
         EventUtils.removeListener(eventName, listener, this.source);
       };
     } catch (error) {
-      console.log('custom-events-on error: ', error);
+      console.log('CUSTOM_EVENT_API on error: ', error);
     }
   };
 
   /**
-   * Removes a listener function from the specified event if eventName and listener function both are provided.
-   * Removes all listeners from a specified event if listener function is not provided.
-   * If you do not specify an event then all listeners will be removed.
-   * That means every event will be emptied.
+   * Listen off an event by eventName and listener
+   * or listen off events by eventName, when if only eventName argument is passed.
+   * or listen off all events, when if no arguments are passed.
    *
    * @param {String} eventName Name of the event to remove the listener from.
-   * @param {Function} listener Method to remove from the event.
+   * @param {Function} listener Listener to remove from the event.
    * @api public
    */
   off = (eventName?: string, listener?: EventCallback) => {
     try {
       if (listener) {
         if (this._validateListener(listener) && this._validateEvt(eventName)) {
+          // listen off an event by eventName and listener
           EventUtils.removeListener(eventName, listener, this.source);
         }
       } else if (eventName) {
+        // listen off events by name, when if only name is passed.
         if (this._validateEvt(eventName)) {
           EventUtils.removeAllListeners(eventName, this.source);
         }
       } else {
+        // listen off all events, that means every event will be emptied.
         EventUtils.removeAll(this.source);
       }
     } catch (error) {
-      console.log('custom-events-off error: ', error);
+      console.log('CUSTOM_EVENT_API off error: ', error);
     }
   };
 
   /**
-   * This method sends p2p or channel message depending upon the 'to' value.
-   *  - If 'to' is provided this method sends p2p message.
-   *  - If 'to' is empty this method sends channel message.
+   * This method sends p2p or channel message depending upon the 'receiver' value.
+   *  - If 'receiver' is provided this method sends p2p message.
+   *  - If 'receiver' is empty this method sends channel message.
    *
    *
-   * @param {String} eventName  Name of the event to register on which listeners are added
-   * @param {String} payload . NOTICE: value bytelength has MAX_SIZE 32kb limit.
-   * @param {ReceiverUid} receiver uid or uid array. The default mode is to send a message in channel.
+   * @param {String} eventName  Name of the event to send.
+   * @param {String} payload (optional) Additional data to be sent along with the event.
+   * @param {Enum} persistLevel (optional) set different levels of persistance. Default value is Level 1
+   * @param {ReceiverUid} receiver (optional) uid or uid array. Default mode sends message in channel.
    * @api public
    * */
   send = async (
     eventName: string = '',
     payload: string = '',
-    persistLevel: EventPersistLevel,
-    receiver?: ReceiverUid,
+    persistLevel: EventPersistLevel = EventPersistLevel.LEVEL1,
+    receiver: ReceiverUid = -1,
   ) => {
     if (!this._validateEvt(eventName)) return;
 
@@ -226,11 +238,10 @@ class Events {
       persistLevel === EventPersistLevel.LEVEL2 ||
       persistLevel === EventPersistLevel.LEVEL3
     ) {
-      console.log('CUSTOM_EVENT_API: Event lifecycle: persist', persistLevel);
       try {
         await this._persist(eventName, persistValue);
       } catch (error) {
-        console.log('custom-events-persist error: ', error);
+        console.log('CUSTOM_EVENT_API persist error: ', error);
       }
     }
     try {
