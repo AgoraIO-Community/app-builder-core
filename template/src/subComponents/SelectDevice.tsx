@@ -111,8 +111,9 @@ const SelectDevice = () => {
   const [isPickerDisabled] = useSelectDevice();
   //commented for v1 release
   // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
-  const settingScreenInfoMessage =
-    'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
+  const settingScreenInfoMessage = $config.AUDIO_ROOM
+    ? 'Audio sharing is disabled for attendees. Raise hand to request permission to share.'
+    : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
   return (
     <View>
       <View style={{marginTop: 15}}></View>
