@@ -34,7 +34,9 @@ const LayoutProvider = (props: LayoutProviderProps) => {
     </LayoutContext.Provider>
   );
 };
-
+/**
+ * The Layout app state governs the video call screen content display layout.
+ */
 const useLayout = createHook(LayoutContext);
 
 export {LayoutProvider, useLayout};

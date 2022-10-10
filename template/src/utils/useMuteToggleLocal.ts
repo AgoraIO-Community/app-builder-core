@@ -16,6 +16,9 @@ export enum MUTE_LOCAL_TYPE {
   audio,
   video,
 }
+/**
+ * Returns an asynchronous function to toggle muted state of the given track type for the local user.
+ */
 function useMuteToggleLocal() {
   const {RtcEngine, dispatch} = useRtc();
   const local = useLocalUserInfo();

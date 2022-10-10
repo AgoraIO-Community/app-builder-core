@@ -224,7 +224,9 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     </RecordingContext.Provider>
   );
 };
-
+/**
+ * The Recording app state governs the App Builder cloud recording functionality.
+ */
 const useRecording = createHook(RecordingContext);
 
 export {RecordingProvider, useRecording};

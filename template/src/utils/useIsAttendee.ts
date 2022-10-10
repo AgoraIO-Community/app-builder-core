@@ -9,28 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
 import {UidType} from '../../agora-rn-uikit';
+import {useVideoMeetingData} from '../components/contexts/VideoMeetingDataContext';
 
+/**
+ * Returns a function that checks whether the given uid is an attendee and returns true/false
+ * @returns function
+ */
 function useIsAttendee() {
-  if ($config.EVENT_MODE) {
-    const {audienceUids} = useLiveStreamDataContext();
-    const isAttendee = (uid: UidType) => {
-      return audienceUids.filter((audienceUid) => audienceUid === uid).length
-        ? true
-        : false;
-    };
-    return isAttendee;
-  } else {
-    const {
-      data: {isHost},
-    } = useMeetingInfo();
-    const isAttendee = (uid: UidType) => {
-      return !isHost ? true : false;
-    };
-    return isAttendee;
-  }
+  const {audienceUids: lsAudienceUids} = useLiveStreamDataContext();
+  const {attendeeUids: vmAudienceUids} = useVideoMeetingData();
+  const isAttendee = (uid: UidType) => {
+    const attUidsData = $config.EVENT_MODE ? lsAudienceUids : vmAudienceUids;
+    return attUidsData.filter((attId) => attId === uid).length ? true : false;
+  };
+  return isAttendee;
 }
 
 export default useIsAttendee;

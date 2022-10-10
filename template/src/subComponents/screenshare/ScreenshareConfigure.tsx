@@ -163,7 +163,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (isRecordingActive) {
       executeRecordingQuery(isActive);
     }
-    console.log('supriya screenshare query executed');
+    console.log('screenshare query executed');
     try {
       // @ts-ignore
       await rtc.RtcEngine.startScreenshare(

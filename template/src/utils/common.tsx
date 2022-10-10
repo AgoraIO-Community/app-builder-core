@@ -29,17 +29,33 @@ const shouldAuthenticate: boolean =
 //for our internal usage don't check Platform - electron and web will same kind ui checks. thats why we have isWeb for external usage
 const isWebInternal = () => ReactNativePlatform.OS === 'web';
 
+/**
+ * Checks whether the application is running as a web app and returns true/false.
+ * @returns function
+ */
 const isWeb = () => Platform === 'web' && ReactNativePlatform.OS === 'web';
 
+/**
+ * Checks whether the application is running as an android app and returns true/false.
+ * @returns function
+ */
 const isAndroid = () =>
   //@ts-ignore
   Platform === 'native' && ReactNativePlatform.OS === 'android';
 
+/**
+ * Checks whether the application is running as an iOS app and returns true/false.
+ * @returns function
+ */
 //@ts-ignore
 const isIOS = () => Platform === 'native' && ReactNativePlatform.OS === 'ios';
 
+/**
+ * Checks whether the application is running as an electron desktop app and returns true/false.
+ * @returns function
+ */
 //@ts-ignore
-const isDestop = () => Platform === 'electron';
+const isDesktop = () => Platform === 'electron';
 
 const isArray = (data: any[]) =>
   data && Array.isArray(data) && data.length ? true : false ? true : false;
@@ -49,7 +65,7 @@ export {
   isIOS,
   isWebInternal,
   isWeb,
-  isDestop,
+  isDesktop,
   shouldAuthenticate,
   isArray,
   isValidReactComponent,

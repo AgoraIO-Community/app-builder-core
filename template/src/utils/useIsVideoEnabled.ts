@@ -12,6 +12,10 @@
 import {useRender} from 'customization-api';
 import {UidType, ToggleState} from '../../agora-rn-uikit';
 
+/**
+ * Returns a function that checks the video state for a given uid and returns true/false
+ * @returns function
+ */
 function useIsVideoEnabled() {
   const {renderList} = useRender();
 
