@@ -52,15 +52,16 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: isVideoEnabled ? 'videocam' : 'videocamOff',
-    color: isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D',
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.style = Styles.localButtonSmall as Object;
+    btnTemplateProps.color = isVideoEnabled ? $config.PRIMARY_COLOR : '#999999';
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = videoLabel;
+    btnTemplateProps.color = isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D';
   }
 
   return props?.render ? (

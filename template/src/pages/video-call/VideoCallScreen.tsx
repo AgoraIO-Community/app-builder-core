@@ -1,5 +1,5 @@
-import React, {useContext, useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import {useFpe} from 'fpe-api';
 import Navbar from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
@@ -18,6 +18,7 @@ import {
 import SDKEvents from '../../utils/SdkEvents';
 import {RtcContext} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import DimensionContext from '../../components/dimension/DimensionContext';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -140,6 +141,9 @@ const VideoCallScreen = () => {
     // });
   }, []);
 
+  const {height, width} = useWindowDimensions();
+  const isDesktop = width > 1224;
+
   return VideocallComponent ? (
     <VideocallComponent />
   ) : (
@@ -150,7 +154,12 @@ const VideoCallScreen = () => {
           value={{buttonTemplateName: ButtonTemplateName.topBar}}>
           <TopbarComponent />
         </ButtonTemplateProvider>
-        <View style={[style.videoView, {backgroundColor: '#ffffff00'}]}>
+        <View
+          style={[
+            style.videoView,
+            {backgroundColor: '#ffffff00'},
+            {paddingHorizontal: isDesktop ? 20 : 10},
+          ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />

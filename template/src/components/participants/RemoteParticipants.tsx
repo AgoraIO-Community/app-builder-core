@@ -65,11 +65,12 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               uid={user.uid}
             />
           )}
-          <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
+          {/* TODO: move this to popup on click of name */}
+          {/* <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
             <RemoteEndCall uid={user.uid} isHost={isHost} />
-          </View>
+          </View> */}
           {!$config.AUDIO_ROOM && (
-            <View style={[p_styles.actionBtnIcon]}>
+            <View style={[p_styles.actionBtnIcon, {marginRight: 16}]}>
               <RemoteVideoMute
                 uid={user.uid}
                 video={user.video}
@@ -77,7 +78,7 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               />
             </View>
           )}
-          <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
+          <View style={[p_styles.actionBtnIcon]}>
             <RemoteAudioMute
               uid={user.uid}
               audio={user.audio}

@@ -18,6 +18,7 @@ import useMutePSTN from '../utils/useMutePSTN';
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../utils/useSendControlMessage';
+import Styles from '../components/styles';
 
 export interface RemoteAudioMuteProps {
   uid: UidType;
@@ -52,17 +53,11 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
           );
         }
       }}
-      style={style.buttonIconMic}
+      style={[Styles.localButtonSmall as Object]}
+      color={props.audio ? $config.PRIMARY_COLOR : '#999999'}
       name={props.audio ? 'mic' : 'micOff'}
     />
   );
 };
-
-const style = StyleSheet.create({
-  buttonIconMic: {
-    width: 25,
-    height: 24,
-  },
-});
 
 export default RemoteAudioMute;

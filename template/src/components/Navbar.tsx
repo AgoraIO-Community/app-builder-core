@@ -330,7 +330,7 @@ const Navbar = () => {
       onLayout={onLayout}
       style={[
         isWeb ? style.navHolder : style.navHolderNative,
-        {paddingHorizontal: isDesktop ? 60 : 10},
+        {paddingHorizontal: isDesktop ? 30 : 10},
       ]}>
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
         <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">

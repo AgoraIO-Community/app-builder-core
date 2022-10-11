@@ -21,9 +21,16 @@ import {useString} from '../utils/useString';
 import {isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
+import {numFormatter} from '../utils';
+import ChatContext from './ChatContext';
+import {BtnTemplate} from '../../agora-rn-uikit';
+import {useSidePanel} from '../utils/useSidePanel';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
+  const {onlineUsersCount} = useContext(ChatContext);
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
   //commented for v1 release
   // const hostLabel = useString('hostLabel')();
@@ -31,7 +38,7 @@ const ParticipantView = () => {
   // const participantsLabel = useString('participantsLabel')();
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
-  const participantsLabel = 'Participants';
+  const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const {isHost} = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -42,6 +49,7 @@ const ParticipantView = () => {
 
   return (
     <View
+      testID="videocall-participants"
       style={
         isWeb
           ? isSmall
@@ -49,9 +57,19 @@ const ParticipantView = () => {
             : style.participantView
           : style.participantViewNative
       }>
-      <View style={[style.padding10]}>
-        <View style={style.lineUnderHeading}>
+      <View>
+        <View style={style.header}>
           <Text style={style.mainHeading}>{participantsLabel}</Text>
+          <View style={style.closeIcon}>
+            <BtnTemplate
+              style={style.closeIcon}
+              color="#000"
+              name={'close'}
+              onPress={() => {
+                setSidePanel(SidePanelType.None);
+              }}
+            />
+          </View>
         </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
@@ -164,14 +182,14 @@ const style = StyleSheet.create({
   padding10: {
     padding: 10,
   },
-  lineUnderHeading: {
-    borderBottomWidth: 2,
-    borderBottomColor: $config.PRIMARY_COLOR,
-  },
+
   participantView: {
     width: '20%',
     minWidth: 200,
     maxWidth: 300,
+    borderRadius: 12,
+    marginLeft: 24,
+    marginTop: 10,
     flex: 1,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     shadowColor: $config.PRIMARY_FONT_COLOR + '80',
@@ -179,6 +197,19 @@ const style = StyleSheet.create({
     shadowOffset: {width: -2, height: 0},
     shadowRadius: 3,
   },
+  closeIcon: {
+    width: 14,
+    height: 14,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 22,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDEDED',
+  },
+
   participantViewNative: {
     position: 'absolute',
     zIndex: 5,
@@ -186,6 +217,7 @@ const style = StyleSheet.create({
     height: '100%',
     right: 0,
     top: 0,
+    borderBottomWidth: 1,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
   bodyContainer: {
@@ -195,9 +227,11 @@ const style = StyleSheet.create({
     marginBottom: 25,
   },
   mainHeading: {
-    fontSize: 20,
+    fontSize: 16,
     letterSpacing: 0.8,
-    lineHeight: 30,
+    lineHeight: 16,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
     color: $config.PRIMARY_FONT_COLOR,
   },
   infoText: {
@@ -219,7 +253,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 16,
   },
   participantActionContainer: {
     flexDirection: 'row',
@@ -227,8 +261,8 @@ const style = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   actionBtnIcon: {
-    width: 25,
-    height: 25,
+    width: 16,
+    height: 16,
   },
   participantText: {
     lineHeight: 24,
