@@ -26,6 +26,9 @@ import ChatContext from './ChatContext';
 import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
+import TertiaryButton from '../atoms/TertiaryButton';
+import HostControlView from './HostControlView';
+import Spacer from '../atoms/Spacer';
 
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
@@ -163,16 +166,16 @@ const ParticipantView = () => {
         )}
       </ScrollView>
 
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          alignSelf: 'flex-end',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <CopyJoinInfo showText={true} />
+      <View style={style.footer}>
+        {/* TODO: Invite popup*/}
+        {/* <CopyJoinInfo showText={true} /> */}
+        <TertiaryButton text="Invite" />
+        {isHost && (
+          <>
+            <Spacer horizontal size={8} />
+            <HostControlView />
+          </>
+        )}
       </View>
     </View>
   );
@@ -208,6 +211,14 @@ const style = StyleSheet.create({
     paddingVertical: 22,
     borderBottomWidth: 1,
     borderBottomColor: '#EDEDED',
+  },
+  footer: {
+    width: '100%',
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F2F2F2',
   },
 
   participantViewNative: {

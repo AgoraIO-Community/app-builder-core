@@ -47,10 +47,6 @@ const style = StyleSheet.create({
     alignContent: 'center',
     paddingVertical: 5,
     flexGrow: 1,
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
     paddingHorizontal: 20,
   },
   popupPickerHolder: {
@@ -71,6 +67,10 @@ const style = StyleSheet.create({
     marginTop: 10,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 0},
+    shadowRadius: 12,
   },
   settingsViewNative: {
     position: 'absolute',
