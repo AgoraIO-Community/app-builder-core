@@ -29,6 +29,7 @@ import InviteInfo from '../atoms/InviteInfo';
 import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
 import {icons} from 'fpe-api';
+import TertiaryButton from '../atoms/TertiaryButton';
 
 export interface CopyJoinInfoProps {
   showText?: boolean;
@@ -94,7 +95,11 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
           />
         </View>
       </Popup>
-      <BtnTemplate {...btnTemplateProps} />
+      {buttonTemplateName === ButtonTemplateName.topBar ? (
+        <TertiaryButton text="Invite" onPress={onPress} />
+      ) : (
+        <BtnTemplate {...btnTemplateProps} />
+      )}
     </>
   );
 };

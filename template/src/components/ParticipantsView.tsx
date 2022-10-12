@@ -28,6 +28,7 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import TertiaryButton from '../atoms/TertiaryButton';
 import HostControlView from './HostControlView';
+import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
 
 const ParticipantView = () => {
@@ -169,7 +170,8 @@ const ParticipantView = () => {
       <View style={style.footer}>
         {/* TODO: Invite popup*/}
         {/* <CopyJoinInfo showText={true} /> */}
-        <TertiaryButton text="Invite" />
+        {/* <TertiaryButton text="Invite" /> */}
+        <CopyJoinInfo buttonTemplateName={ButtonTemplateName.topBar} />
         {isHost && (
           <>
             <Spacer horizontal size={8} />
