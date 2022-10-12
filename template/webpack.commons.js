@@ -58,7 +58,12 @@ module.exports = {
         __dirname,
         'customization-implementation/index.ts',
       ),
-      customization: path.join(__dirname, getCustomizationApiPath()),
+      customization: path.join(
+        __dirname,
+        isSdk
+          ? './customization-implementation/dummyConfig.ts'
+          : getCustomizationApiPath(),
+      ),
       'agora-react-native-rtm/lib/typescript/src': path.join(
         __dirname,
         'bridge/rtm/web/index.ts',
