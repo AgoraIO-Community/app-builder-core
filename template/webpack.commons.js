@@ -19,7 +19,10 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const configVars = require('./configTransform');
-const getCustomizationApiPath = require('./customization.config');
+const {
+  getCustomizationApiPath,
+  customizationDummyPath,
+} = require('./customization.config');
 
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 const isReactSdk = process.env.TARGET === 'rsdk';
@@ -60,9 +63,7 @@ module.exports = {
       ),
       customization: path.join(
         __dirname,
-        isSdk
-          ? './customization-implementation/dummyConfig.ts'
-          : getCustomizationApiPath(),
+        isSdk ? customizationDummyPath : getCustomizationApiPath(),
       ),
       'agora-react-native-rtm/lib/typescript/src': path.join(
         __dirname,
