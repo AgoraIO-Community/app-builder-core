@@ -76,7 +76,7 @@ const ParticipantView = () => {
           </View>
         </View>
       </View>
-      <ScrollView style={[style.bodyContainer, style.padding10]}>
+      <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
           <>
             {
@@ -209,8 +209,8 @@ const style = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    paddingVertical: 22,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#EDEDED',
   },
@@ -257,7 +257,7 @@ const style = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    paddingTop: 10,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   participantRow: {
@@ -266,7 +266,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   participantActionContainer: {
     flexDirection: 'row',

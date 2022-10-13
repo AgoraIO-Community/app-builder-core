@@ -34,7 +34,7 @@ const MeParticipant = (props: any) => {
   };
 
   return (
-    <View style={p_style.participantRow}>
+    <View style={[p_style.participantRow, {paddingHorizontal: 20}]}>
       <View style={styles.nameContainer}>
         <UserAvatar
           name={name}
