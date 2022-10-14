@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {CustomizationApiInterface, customize} from 'customization-api';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   customizationConfig,
   CustomizationProvider,
@@ -25,8 +26,13 @@ export interface userEventsMapInterface {
   ) => void;
 }
 
+export interface OptionsInterface {
+  token: string;
+}
+
 export interface AppBuilderSdkApiInterface {
   customize: (customization: CustomizationApiInterface) => void;
+  initialize: (options: OptionsInterface) => void;
   createCustomization: (
     customization: CustomizationApiInterface,
   ) => CustomizationApiInterface;
@@ -38,6 +44,9 @@ export interface AppBuilderSdkApiInterface {
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
+  initialize: (options: OptionsInterface) => {
+    SDKEvents.emit('appInit', options);
+  },
   customize: (customization: CustomizationApiInterface) => {
     SDKEvents.emit('addFpe', customization);
   },
@@ -54,19 +63,37 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
 
 const SDKAppWrapper = () => {
   const [fpe, setFpe] = useState(customizationConfig);
+  const [initialized, setInitialized] = React.useState(false);
+
   useEffect(() => {
     SDKEvents.on('addFpe', (sdkFpeConfig) => {
-      console.log('SDKEvents: addFpe event called');
       setFpe(sdkFpeConfig);
     });
     SDKEvents.emit('addFpeInit');
+    SDKEvents.on('appInit', async (options) => {
+      try {
+        if ($config.ENABLE_SDK_AUTHENTICATION) {
+          await AsyncStorage.setItem('SDK_TOKEN', options?.token || null);
+        }
+        setInitialized(true);
+      } catch (error) {
+        // Error retrieving data
+        setInitialized(false);
+        console.log('Error initialize app builder app');
+      }
+    });
     // Join event consumed in Create.tsx
   }, []);
+
   return (
     <>
-      <CustomizationProvider value={fpe}>
-        <App />
-      </CustomizationProvider>
+      {initialized ? (
+        <CustomizationProvider value={fpe}>
+          <App />
+        </CustomizationProvider>
+      ) : (
+        <p>Loading</p>
+      )}
     </>
   );
 };

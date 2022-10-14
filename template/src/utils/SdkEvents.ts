@@ -17,6 +17,7 @@ import {userEventsMapInterface} from '../SDKAppWrapper';
 import {createNanoEvents} from 'nanoevents';
 
 interface eventsMapInterface extends userEventsMapInterface {
+  appInit?: callBackType;
   addFpe?: callBackType;
   addFpeInit?: () => void;
   joinMeetingWithPhrase?: (

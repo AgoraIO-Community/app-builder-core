@@ -45,6 +45,20 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
   const [ready, setReady] = useState(false);
   const [store, setStore] = useState<StoreInterface>(initStoreValue);
 
+  const _retrieveSdkToken = async () => {
+    try {
+      const value = await AsyncStorage.getItem('SDK_TOKEN');
+      if (value !== null) {
+        console.log('supriya return true');
+        return value;
+      }
+    } catch (error) {
+      console.log('supriya return false');
+      // Error retrieving data
+      return null;
+    }
+  };
+
   // Initialize and hydrate store
   useMount(() => {
     const hydrateStore = async () => {
@@ -70,8 +84,13 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     const syncStore = async () => {
       try {
-        await AsyncStorage.setItem('store', JSON.stringify(store));
-        console.log('store synced with value', store);
+        const storeValue = JSON.stringify({
+          ...store,
+          ...($config.ENABLE_SDK_AUTHENTICATION && {
+            token: await _retrieveSdkToken(),
+          }),
+        });
+        await AsyncStorage.setItem('store', storeValue);
       } catch (e) {
         console.log('problem syncing the store', e);
       }
