@@ -10,7 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {View, StyleSheet, Text, Pressable} from 'react-native';
+import {View, StyleSheet, Text, Pressable, LayoutAnimation} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
@@ -19,6 +19,7 @@ import ParticipantName from './ParticipantName';
 import {RenderInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isWeb} from '../../utils/common';
+import ActionMenu from '../../atoms/ActionMenu';
 
 interface remoteParticipantsInterface {
   p_styles: any;
@@ -49,7 +50,13 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
       <View
         style={[
           p_styles.participantRow,
-          {paddingHorizontal: 12, marginBottom: 0, paddingVertical: 8},
+          {
+            paddingHorizontal: 12,
+            marginBottom: 0,
+            paddingVertical: 8,
+            zIndex: -1,
+            elevation: -1,
+          },
         ]}>
         <View style={styles.nameContainer}>
           <UserAvatar
@@ -106,6 +113,7 @@ export default RemoteParticipants;
 
 const PlatformWrapper = ({children}) => {
   const [isHovered, setIsHovered] = React.useState(false);
+  const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   return isWeb ? (
     <div
       style={{
@@ -114,17 +122,47 @@ const PlatformWrapper = ({children}) => {
         borderRadius: 12,
         backgroundColor: isHovered ? $config.PRIMARY_COLOR + '10' : 'inherit',
         cursor: isHovered ? 'pointer' : 'auto',
+        position: 'relative',
       }}
       onMouseEnter={() => {
         setIsHovered(true);
       }}
       onClick={() => {
         //TODO: open modal for actions - web
+        setActionMenuVisible((state) => !state);
       }}
       onMouseLeave={() => {
         setIsHovered(false);
       }}>
       {children}
+
+      <ActionMenu
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        modalPosition={{top: -15, left: 50}}
+        items={[
+          {
+            icon: 'chatIcon',
+            title: 'Message Privately',
+            callback: () => console.warn('Message Privately'),
+          },
+          {
+            icon: 'videocam',
+            title: 'Request Video',
+            callback: () => console.warn('Request Video'),
+          },
+          {
+            icon: 'mic',
+            title: 'Request Mic',
+            callback: () => console.warn('Request Mic'),
+          },
+          {
+            icon: 'cancel',
+            title: 'Remove from meeting',
+            callback: () => console.warn('Message Privately'),
+          },
+        ]}
+      />
     </div>
   ) : (
     <Pressable

@@ -98,7 +98,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       {/**
        * If layout contains more than 2 data. it will render the dropdown.
        */}
-      {layouts && Array.isArray(layouts) && layouts.length > 2
+      {layouts && Array.isArray(layouts) && layouts.length > 1
         ? renderLayoutIcon(true)
         : renderLayoutIcon(false)}
     </>
