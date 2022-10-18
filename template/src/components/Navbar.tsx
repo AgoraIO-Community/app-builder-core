@@ -440,7 +440,11 @@ const Navbar = () => {
           </View>
         ) : (
           <View>
-            <Text style={style.roomNameText}>{meetingTitle}</Text>
+            <Text style={style.roomNameText}>
+              {meetingTitle.length > 13
+                ? meetingTitle.slice(0, 13) + '..'
+                : meetingTitle}
+            </Text>
           </View>
         )}
       </View>
@@ -530,7 +534,7 @@ const style = StyleSheet.create({
     height: 35,
     maxHeight: 30,
     position: 'absolute',
-    left: isMobileOrTablet() ? '50%' : 10,
+    left: isMobileOrTablet() ? '48%' : 10,
     paddingHorizontal: 5,
     flexDirection: 'row',
     alignItems: 'center',
@@ -590,7 +594,8 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_COLOR,
     borderRadius: 2.5,
     paddingHorizontal: 5,
-    marginHorizontal: 5,
+    marginLeft: 5,
+    marginRight: 0,
     paddingVertical: 1,
     display: 'flex',
     alignItems: 'center',
