@@ -15,7 +15,6 @@ import {ImageIcon} from '../../agora-rn-uikit';
 interface ActionMenuProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: React.Dispatch<SetStateAction<boolean>>;
-  children: React.ReactNode;
   modalPosition?: {
     top?: number;
     right?: number;

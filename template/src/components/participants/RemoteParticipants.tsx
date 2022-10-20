@@ -167,7 +167,7 @@ const PlatformWrapper = ({children}) => {
   ) : (
     <Pressable
       onPress={() => {
-        //TODO: open modal for actions - mobile
+        //TODO: open action modal for actions - mobile
       }}>
       <View style={styles.remoteContainer}>{children}</View>
     </Pressable>
