@@ -21,9 +21,20 @@ import {useString} from '../utils/useString';
 import {isWeb} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
+import {numFormatter} from '../utils';
+import ChatContext from './ChatContext';
+import {BtnTemplate} from '../../agora-rn-uikit';
+import {useSidePanel} from '../utils/useSidePanel';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+import TertiaryButton from '../atoms/TertiaryButton';
+import HostControlView from './HostControlView';
+import {ButtonTemplateName} from '../utils/useButtonTemplate';
+import Spacer from '../atoms/Spacer';
 
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
+  const {onlineUsersCount} = useContext(ChatContext);
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
   //commented for v1 release
   // const hostLabel = useString('hostLabel')();
@@ -31,7 +42,7 @@ const ParticipantView = () => {
   // const participantsLabel = useString('participantsLabel')();
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
-  const participantsLabel = 'Participants';
+  const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const {isHost} = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -42,6 +53,7 @@ const ParticipantView = () => {
 
   return (
     <View
+      testID="videocall-participants"
       style={
         isWeb
           ? isSmall
@@ -49,12 +61,22 @@ const ParticipantView = () => {
             : style.participantView
           : style.participantViewNative
       }>
-      <View style={[style.padding10]}>
-        <View style={style.lineUnderHeading}>
+      <View>
+        <View style={style.header}>
           <Text style={style.mainHeading}>{participantsLabel}</Text>
+          <View style={style.closeIcon}>
+            <BtnTemplate
+              style={style.closeIcon}
+              color="#000"
+              name={'close'}
+              onPress={() => {
+                setSidePanel(SidePanelType.None);
+              }}
+            />
+          </View>
         </View>
       </View>
-      <ScrollView style={[style.bodyContainer, style.padding10]}>
+      <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
           <>
             {
@@ -145,16 +167,17 @@ const ParticipantView = () => {
         )}
       </ScrollView>
 
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          alignSelf: 'flex-end',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <CopyJoinInfo showText={true} />
+      <View style={style.footer}>
+        {/* TODO: Invite popup*/}
+        {/* <CopyJoinInfo showText={true} /> */}
+        {/* <TertiaryButton text="Invite" /> */}
+        <CopyJoinInfo buttonTemplateName={ButtonTemplateName.topBar} />
+        {isHost && (
+          <>
+            <Spacer horizontal size={8} />
+            <HostControlView />
+          </>
+        )}
       </View>
     </View>
   );
@@ -164,21 +187,42 @@ const style = StyleSheet.create({
   padding10: {
     padding: 10,
   },
-  lineUnderHeading: {
-    borderBottomWidth: 2,
-    borderBottomColor: $config.PRIMARY_COLOR,
-  },
+
   participantView: {
     width: '20%',
     minWidth: 200,
     maxWidth: 300,
+    borderRadius: 12,
+    marginLeft: 24,
+    marginTop: 10,
     flex: 1,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
-    shadowColor: $config.PRIMARY_FONT_COLOR + '80',
-    shadowOpacity: 0.5,
-    shadowOffset: {width: -2, height: 0},
-    shadowRadius: 3,
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 0, height: 0},
+    shadowRadius: 12,
   },
+  closeIcon: {
+    width: 14,
+    height: 14,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDEDED',
+  },
+  footer: {
+    width: '100%',
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F2F2F2',
+  },
+
   participantViewNative: {
     position: 'absolute',
     zIndex: 5,
@@ -186,6 +230,7 @@ const style = StyleSheet.create({
     height: '100%',
     right: 0,
     top: 0,
+    borderBottomWidth: 1,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
   bodyContainer: {
@@ -195,9 +240,11 @@ const style = StyleSheet.create({
     marginBottom: 25,
   },
   mainHeading: {
-    fontSize: 20,
+    fontSize: 16,
     letterSpacing: 0.8,
-    lineHeight: 30,
+    lineHeight: 16,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
     color: $config.PRIMARY_FONT_COLOR,
   },
   infoText: {
@@ -210,7 +257,7 @@ const style = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
-    paddingTop: 10,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   participantRow: {
@@ -219,7 +266,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   participantActionContainer: {
     flexDirection: 'row',
@@ -227,8 +274,8 @@ const style = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   actionBtnIcon: {
-    width: 25,
-    height: 25,
+    width: 16,
+    height: 16,
   },
   participantText: {
     lineHeight: 24,

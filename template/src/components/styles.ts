@@ -40,6 +40,14 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  localButtonSmall: {
+    width: 16,
+    height: 16,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   localButtonText: {
     fontFamily: 'Source Sans Pro',
     fontSize: 12,

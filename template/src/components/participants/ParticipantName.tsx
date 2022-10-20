@@ -10,7 +10,13 @@
 *********************************************
 */
 import React from 'react';
-import {View, StyleSheet, useWindowDimensions, Platform} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  useWindowDimensions,
+  Platform,
+  Text,
+} from 'react-native';
 import TextWithToolTip from '../../subComponents/TextWithTooltip';
 import {RFValue} from 'react-native-responsive-fontsize';
 import {isWeb} from '../../utils/common';
@@ -18,6 +24,7 @@ import {isWeb} from '../../utils/common';
 const ParticipantName = ({value}: {value: string}) => {
   const {height, width} = useWindowDimensions();
   const fontSize = isWeb ? 14 : 16;
+
   return (
     <View style={{flex: 1}}>
       <TextWithToolTip
@@ -36,13 +43,13 @@ export default ParticipantName;
 
 const style = StyleSheet.create({
   participantText: {
-    flex: 1,
-    fontWeight: '500',
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 15,
+    fontFamily: 'Source Sans Pro',
     flexDirection: 'row',
     color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 20,
-    paddingHorizontal: 5,
     textAlign: 'left',
-    flexShrink: 1,
+    textTransform: 'capitalize',
   },
 });

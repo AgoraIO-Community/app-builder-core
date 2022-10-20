@@ -17,6 +17,8 @@ import {useString} from '../utils/useString';
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../utils/useSendControlMessage';
+import TertiaryButton from '../atoms/TertiaryButton';
+import Spacer from '../atoms/Spacer';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -26,7 +28,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   const sendCtrlMsg = useSendControlMessage();
   //commented for v1 release
   //const muteAllAudioButton = useString('muteAllAudioButton')();
-  const muteAllAudioButton = 'Mute all audios';
+  const muteAllAudioButton = 'Mute all';
   const onPress = () =>
     sendCtrlMsg(
       CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
@@ -35,7 +37,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   return props?.render ? (
     props.render(onPress)
   ) : (
-    <SecondaryButton onPress={onPress} text={muteAllAudioButton} />
+    <TertiaryButton onPress={onPress} text={muteAllAudioButton} />
   );
 };
 
@@ -46,7 +48,7 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const sendCtrlMsg = useSendControlMessage();
   //commented for v1 release
   //const muteAllVideoButton = useString('muteAllVideoButton')();
-  const muteAllVideoButton = 'Mute all videos';
+  const muteAllVideoButton = 'Turn off all cameras';
   const onPress = () =>
     sendCtrlMsg(
       CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
@@ -55,43 +57,29 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   return props?.render ? (
     props.render(onPress)
   ) : (
-    <SecondaryButton onPress={onPress} text={muteAllVideoButton} />
+    <TertiaryButton onPress={onPress} text={muteAllVideoButton} />
   );
 };
 
 const HostControlView = () => {
   //commented for v1 release
   //const hostControlsLabel = useString('hostControlsLabel')();
-  const hostControlsLabel = 'Host Controls';
+
   return (
-    <>
-      <Text style={style.heading}>{hostControlsLabel}</Text>
-      <View>
-        <View style={style.btnContainer}>
-          <MuteAllAudioButton />
-        </View>
-        {!$config.AUDIO_ROOM && (
-          <View style={style.btnContainer}>
-            <MuteAllVideoButton />
-          </View>
-        )}
-      </View>
-    </>
+    <View style={style.container}>
+      {!$config.AUDIO_ROOM && <MuteAllVideoButton />}
+      <Spacer horizontal size={8} />
+      <MuteAllAudioButton />
+    </View>
   );
 };
 
 const style = StyleSheet.create({
-  heading: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: $config.PRIMARY_FONT_COLOR,
-    // marginBottom: 20,
-    alignSelf: 'center',
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  btnContainer: {
-    alignItems: 'center',
-    marginVertical: 15,
-  },
+  btn: {},
 });
 
 export default HostControlView;

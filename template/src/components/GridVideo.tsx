@@ -57,9 +57,7 @@ const GridVideo: layoutComponent = ({renderData}) => {
 
   const setPinnedLayout = useSetPinnedLayout();
   return (
-    <View
-      style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
-      onLayout={onLayout}>
+    <View style={[style.full]} onLayout={onLayout}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (

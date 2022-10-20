@@ -54,15 +54,16 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: isAudioEnabled ? 'mic' : 'micOff',
-    color: isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D',
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
+    btnTemplateProps.style = Styles.localButtonSmall as Object;
+    btnTemplateProps.color = isAudioEnabled ? $config.PRIMARY_COLOR : '#999999';
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = audioLabel;
+    btnTemplateProps.color = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
   }
 
   return props?.render ? (

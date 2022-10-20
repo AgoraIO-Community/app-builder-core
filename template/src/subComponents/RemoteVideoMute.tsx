@@ -16,6 +16,7 @@ import {BtnTemplate, UidType} from '../../agora-rn-uikit';
 import useSendControlMessage, {
   CONTROL_MESSAGE_TYPE,
 } from '../utils/useSendControlMessage';
+import Styles from '../components/styles';
 
 /**
  * Component to mute / unmute remote video.
@@ -41,19 +42,13 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           props.uid,
         );
       }}
-      style={style.buttonIconCam}
+      style={Styles.localButtonSmall as Object}
+      color={props.video ? $config.PRIMARY_COLOR : '#999999'}
       name={props.video ? 'videocam' : 'videocamOff'}
     />
   ) : (
     <></>
   );
 };
-
-const style = StyleSheet.create({
-  buttonIconCam: {
-    width: 25,
-    height: 25,
-  },
-});
 
 export default RemoteVideoMute;

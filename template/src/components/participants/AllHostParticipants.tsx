@@ -25,6 +25,7 @@ export default function AllHostParticipants(props: any) {
           name={getParticipantName(localUid)}
           p_style={p_style}
           key={localUid}
+          isHost={isHost}
         />
       )}
       {/* Others Users in the call */}
