@@ -9,11 +9,11 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {EventSourceEnum} from '../custom-events/types';
+import {EventSource} from '../rtm-events-api/types';
 type TListener = <T>(t: T) => void;
 type TListenerMetaData = {once: boolean; listener: TListener};
 type TEventList = Map<string, TListenerMetaData[]>;
-type TEvents = Record<EventSourceEnum, TEventList> | Record<string, never>;
+type TEvents = Record<EventSource, TEventList> | Record<string, never>;
 
 const EventUtils = (function () {
   'use strict';
@@ -52,7 +52,7 @@ const EventUtils = (function () {
    */
   const _getListeners = function (
     evt: string,
-    source: EventSourceEnum,
+    source: EventSource,
   ): TListenerMetaData[] | [] {
     let response: TListenerMetaData[] | [];
     if (_events.hasOwnProperty(source)) {
@@ -75,14 +75,14 @@ const EventUtils = (function () {
    * This is mainly for internal use but others may find it useful.
    *
    * @param {String} evt Name of the event to return the listeners from.
-   * @param {EventSourceEnum} source Name of the bucket to search events from
+   * @param {EventSource} source Name of the bucket to search events from
    * @return {Object} All listener functions for an event in an object.
    * @api private
    * @example : {evt-name: [{once: false, listener: f}, {once: false, listener: f}...so on and so forth]
    */
   const _getListenersAsObject = function (
     evt: string,
-    source: EventSourceEnum,
+    source: EventSource,
   ): object {
     const listeners = _getListeners(evt, source);
     let response: any;
@@ -114,7 +114,7 @@ const EventUtils = (function () {
   };
 
   return {
-    getEvents(source: EventSourceEnum): TEvents | {} {
+    getEvents(source: EventSource): TEvents | {} {
       return _events[source] || (_events[source] = new Map());
     },
     /**
@@ -123,10 +123,10 @@ const EventUtils = (function () {
      *
      * @param {String} evt Name of the event to attach the listener to.
      * @param {Function} listener Method to be called when the event is emitted.
-     * @param {EventSourceEnum} source Name of the bucket to search events from
+     * @param {EventSource} source Name of the bucket to search events from
      * @return {Object} Current instance of EventUtils
      */
-    addListener(evt: string, listener: any, source: EventSourceEnum): object {
+    addListener(evt: string, listener: any, source: EventSource): object {
       if (!_isValidListener(listener)) {
         throw new Error('Listener must be a function');
       }
@@ -156,13 +156,13 @@ const EventUtils = (function () {
      *
      * @param {String} evt Name of the event to remove the listener from.
      * @param {Function} listenerToRemove Method to remove from the event.
-     * @param {EventSourceEnum} source Name of the bucket to search events from
+     * @param {EventSource} source Name of the bucket to search events from
      * @return {Object} Current instance of EventUtils for chaining.
      */
     removeListener(
       evt: string,
       listenerToRemove: TListener,
-      source: EventSourceEnum,
+      source: EventSource,
     ): Object {
       let listeners = _getListenersAsObject(evt, source);
       for (let key in listeners) {
@@ -182,10 +182,10 @@ const EventUtils = (function () {
      * That means every event will be emptied.
      *
      * @param {String} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
-     * @param {EventSourceEnum} source Name of the bucket to search events from
+     * @param {EventSource} source Name of the bucket to search events from
      * @return {Object} Current instance of EventUtils
      */
-    removeAllListeners(evt: string, source: EventSourceEnum): object {
+    removeAllListeners(evt: string, source: EventSource): object {
       let type = typeof evt;
       let events = this.getEvents(source);
       if (type === 'string') {
@@ -203,7 +203,7 @@ const EventUtils = (function () {
      * @param {source} source source Name of the bucket to search events from
      * @return {Object} Current instance of EventUtils
      */
-    removeAll(source: EventSourceEnum): object {
+    removeAll(source: EventSource): object {
       _events[source] = new Map();
       return this;
     },
@@ -219,11 +219,8 @@ const EventUtils = (function () {
      * @param {Array} [args] Optional array of arguments to be passed to each listener.
      * @return {Object} Current instance of EventUtils
      */
-    emitEvent(evt: string, args: any): object {
-      let listenersMap = _getListenersAsObject(
-        evt,
-        args.payload.source || EventSourceEnum.core,
-      );
+    emitEvent(evt: string, source: EventSource, args: any): object {
+      let listenersMap = _getListenersAsObject(evt, source);
       let listeners: TListenerMetaData[];
       let listener: TListenerMetaData;
       for (let key in listenersMap) {
@@ -235,10 +232,10 @@ const EventUtils = (function () {
             listener = listeners[i];
 
             if (listener.once === true) {
-              this.removeListener(evt, args.payload.source, listener.listener);
+              this.removeListener(evt, source, listener.listener);
             }
 
-            const newargs = [].slice.call(arguments, 1);
+            const newargs = [].slice.call(arguments, 2);
             listener.listener.apply(this, newargs || []);
           }
         }

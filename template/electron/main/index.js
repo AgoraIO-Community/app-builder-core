@@ -1,8 +1,7 @@
-const {app, BrowserWindow, session, Menu, Notification } = require('electron');
+const {app, BrowserWindow, session, Menu, Notification} = require('electron');
 
 const log = require('electron-log');
-const {autoUpdater} = require("electron-updater");
-
+const {autoUpdater} = require('electron-updater');
 
 const path = require('path');
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -20,8 +19,8 @@ autoUpdater.logger.transports.file.level = 'info';
 log.info('App starting...');
 
 const intr = setInterval(() => {
-  autoUpdater.checkForUpdates()
-}, 30000)
+  app.isPackaged && autoUpdater.checkForUpdates();
+}, 30000);
 
 let mainWindow;
 
@@ -31,34 +30,42 @@ function sendStatusToWindow(text) {
 }
 autoUpdater.on('checking-for-update', () => {
   sendStatusToWindow('Checking for update...');
-})
+});
 autoUpdater.on('update-available', (info) => {
   sendStatusToWindow('Update available.');
-})
+});
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
-})
+});
 autoUpdater.on('error', (err) => {
   sendStatusToWindow('Error in auto-updater. ' + err);
-})
+});
 autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
   log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  log_message =
+    log_message +
+    ' (' +
+    progressObj.transferred +
+    '/' +
+    progressObj.total +
+    ')';
   sendStatusToWindow(log_message);
-})
+});
 autoUpdater.on('update-downloaded', (info) => {
   sendStatusToWindow('Update downloaded');
   // autoUpdater.quitAndInstall();
 
-  const NOTIFICATION_TITLE = 'An update is ready'
-  const NOTIFICATION_BODY = 'Please restart your app to complete the update'
+  const NOTIFICATION_TITLE = 'An update is ready';
+  const NOTIFICATION_BODY = 'Please restart your app to complete the update';
 
-  function showNotification () {
-    new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
+  function showNotification() {
+    new Notification({
+      title: NOTIFICATION_TITLE,
+      body: NOTIFICATION_BODY,
+    }).show();
   }
   showNotification();
-
 });
 
 const createWindow = () => {
@@ -98,7 +105,7 @@ const createWindow = () => {
       ],
     },
   ];
-  autoUpdater.checkForUpdatesAndNotify();
+  app.isPackaged && autoUpdater.checkForUpdatesAndNotify();
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
@@ -170,7 +177,7 @@ if (isDevelopment && process.platform === 'win32') {
   // These two additional parameters are only available on windows.
   // Setting this is required to get this working in dev mode.
   app.setAsDefaultProtocolClient('appbuilder', process.execPath, [
-    path.resolve(process.argv[1])
+    path.resolve(process.argv[1]),
   ]);
 } else {
   app.setAsDefaultProtocolClient('appbuilder');
@@ -185,38 +192,38 @@ if (gotTheLock) {
     // argv: An array of the second instance’s (command line / deep linked) arguments
     if (process.platform == 'win32') {
       // Keep only command line / deep linked arguments
-      deeplinkingUrl = argv.slice(1)
+      deeplinkingUrl = argv.slice(1);
     }
-    logEverywhere('app.makeSingleInstance# ' + deeplinkingUrl)
+    logEverywhere('app.makeSingleInstance# ' + deeplinkingUrl);
 
     if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
     }
-  })
-} 
+  });
+}
 
-app.on('will-finish-launching', function() {
+app.on('will-finish-launching', function () {
   // Protocol handler for osx
-  app.on('open-url', function(event, url) {
-    event.preventDefault()
-    deeplinkingUrl = url
-    logEverywhere('open-url# ' + deeplinkingUrl)
-  })
-})
+  app.on('open-url', function (event, url) {
+    event.preventDefault();
+    deeplinkingUrl = url;
+    logEverywhere('open-url# ' + deeplinkingUrl);
+  });
+});
 
 // Log both at dev console and at running node console instance
 function logEverywhere(s) {
-  console.log(s)
+  console.log(s);
   if (mainWindow && mainWindow.webContents) {
-    mainWindow.webContents.executeJavaScript(`console.log("${s}")`)
+    mainWindow.webContents.executeJavaScript(`console.log("${s}")`);
   }
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', ()=> {
+app.on('ready', () => {
   createWindow();
 });
 

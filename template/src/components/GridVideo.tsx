@@ -9,11 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent} from 'fpe-api';
-import React, {useMemo, useContext, useState} from 'react';
+import {layoutComponent, useRtc} from 'customization-api';
+import React, {useMemo, useState} from 'react';
 import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
-import {isWeb} from '../utils/common';
-import {RtcContext} from '../../agora-rn-uikit';
+import {isWebInternal} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 const layout = (len: number, isDesktop: boolean = true) => {
@@ -35,7 +34,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
 };
 
 const GridVideo: layoutComponent = ({renderData}) => {
-  const {dispatch} = useContext(RtcContext);
+  const {dispatch} = useRtc();
   let onLayout = (e: any) => {
     setDim([
       e.nativeEvent.layout.width,
@@ -72,7 +71,7 @@ const GridVideo: layoutComponent = ({renderData}) => {
                 setPinnedLayout();
               }}
               style={{
-                flex: isWeb ? 1 / dims.c : 1,
+                flex: isWebInternal() ? 1 / dims.c : 1,
                 marginHorizontal: 'auto',
               }}
               key={cidx}>

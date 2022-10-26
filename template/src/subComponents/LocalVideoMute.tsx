@@ -9,11 +9,10 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {
   BtnTemplate,
   ToggleState,
-  LocalContext,
   BtnTemplateInterface,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
@@ -23,6 +22,7 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
+import {useLocalUserInfo} from 'customization-api';
 
 /**
  * A component to mute / unmute the local video
@@ -37,7 +37,7 @@ export interface LocalVideoMuteProps {
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
-  const local = useContext(LocalContext);
+  const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();

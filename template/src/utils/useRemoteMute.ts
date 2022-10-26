@@ -10,47 +10,72 @@
 *********************************************
 */
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
-import {UidType} from '../../agora-rn-uikit';
 import {controlMessageEnum} from '../components/ChatContext';
-import useIsPSTN from './isPSTNUser';
+import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
-import useSendControlMessage, {
-  CONTROL_MESSAGE_TYPE,
-} from '../utils/useSendControlMessage';
+import {UidType} from '../../agora-rn-uikit';
+import events, {EventPersistLevel} from '../rtm-events-api';
 
 export enum MUTE_REMOTE_TYPE {
   audio,
   video,
 }
+/**
+ * Returns an asynchronous function to toggle muted state of the given track type for a remote user with the given uid or if no uid provided, mutes everyone else in the meeting.
+ */
 function useRemoteMute() {
-  const sendCtrlMsgToUid = useSendControlMessage();
-  const {isHost} = useMeetingInfo();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
-  return async (type: MUTE_REMOTE_TYPE, uid: UidType) => {
+
+  return async (type: MUTE_REMOTE_TYPE, uid?: UidType) => {
     if (isHost) {
       switch (type) {
         case MUTE_REMOTE_TYPE.audio:
-          if (isPSTN(uid)) {
-            try {
-              mutePSTN(uid);
-            } catch (error) {
-              console.error('An error occurred while muting the PSTN user.');
+          // To individual
+          if (uid) {
+            if (isPSTN(uid)) {
+              try {
+                mutePSTN(uid);
+              } catch (error) {
+                console.error('An error occurred while muting the PSTN user.');
+              }
+            } else {
+              events.send(
+                controlMessageEnum.muteAudio,
+                '',
+                EventPersistLevel.LEVEL1,
+                uid,
+              );
             }
           } else {
-            sendCtrlMsgToUid(
-              CONTROL_MESSAGE_TYPE.controlMessageToUid,
+            // To everyone
+            events.send(
               controlMessageEnum.muteAudio,
-              uid,
+              '',
+              EventPersistLevel.LEVEL1,
             );
           }
           break;
         case MUTE_REMOTE_TYPE.video:
-          if (!isPSTN(uid)) {
-            sendCtrlMsgToUid(
-              CONTROL_MESSAGE_TYPE.controlMessageToUid,
+          if (uid) {
+            // To individual
+            if (!isPSTN(uid)) {
+              events.send(
+                controlMessageEnum.muteVideo,
+                '',
+                EventPersistLevel.LEVEL1,
+                uid,
+              );
+            }
+          } else {
+            // To everyone
+            events.send(
               controlMessageEnum.muteVideo,
-              uid,
+              '',
+              EventPersistLevel.LEVEL1,
             );
           }
           break;

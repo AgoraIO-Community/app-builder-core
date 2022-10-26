@@ -18,23 +18,25 @@ import {SessionProvider} from './components/SessionContext';
 import {ImageBackground, SafeAreaView, StatusBar, Platform} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
-import ToastConfig from './subComponents/toastConfig';
+import ToastConfig from './subComponents/ToastConfig';
 import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
-import {useFpe, FpeProvider, fpeConfig, FpeApiInterface} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
 
 interface AppWrapperProps {
   children: React.ReactNode;
-  fpeConfig?: FpeApiInterface;
 }
 
 const AppWrapper = (props: AppWrapperProps) => {
-  const AppRoot = useFpe((data) => {
-    if (data?.appRoot && isValidReactComponent(data.appRoot)) {
-      return data.appRoot;
+  const AppRoot = useCustomization((data) => {
+    if (
+      data?.components?.appRoot &&
+      isValidReactComponent(data?.components?.appRoot)
+    ) {
+      return data.components.appRoot;
     }
     return React.Fragment;
   });

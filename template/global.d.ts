@@ -78,7 +78,7 @@ interface ConfigInterface {
   AUDIO_ROOM: boolean;
 }
 declare var $config: ConfigInterface;
-declare module 'test-fpe' {
-  const data: {};
-  export default data;
+declare module 'customization' {
+  const customizationConfig: {};
+  export default customizationConfig;
 }

@@ -13,12 +13,13 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Logo from '../../subComponents/Logo';
-import {hasBrandLogo} from '../../utils/common';
+import {useHasBrandLogo} from '../../utils/common';
 
 const CommonLogo: React.FC = () => {
+  const hasBrandLogo = useHasBrandLogo();
   return (
     <View style={style.nav}>
-      {hasBrandLogo && <Logo />}
+      {hasBrandLogo() && <Logo />}
       {/* <OpenInNativeButton /> */}
     </View>
   );

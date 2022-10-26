@@ -2,7 +2,7 @@ import React from 'react';
 import {BtnTemplate, UidType} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
 import icons from '../../../assets/icons';
-import CustomEvents from '../../../custom-events';
+import events, {EventPersistLevel} from '../../../rtm-events-api';
 
 export interface RemoteLiveStreamApprovedRequestRecallProps {
   uid: UidType;
@@ -14,9 +14,10 @@ const RemoteLiveStreamApprovedRequestRecall = (
     <BtnTemplate
       style={{width: 24, height: 22}}
       onPress={() => {
-        CustomEvents.send(
+        events.send(
           LiveStreamControlMessageEnum.raiseHandRequestRejected,
-          {},
+          '',
+          EventPersistLevel.LEVEL1,
           props.uid,
         );
       }}

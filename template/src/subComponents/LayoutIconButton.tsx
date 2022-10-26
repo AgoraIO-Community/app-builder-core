@@ -7,7 +7,7 @@ import {
 import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 
 import LayoutIconDropdown from './LayoutIconDropdown';
-import useCustomLayout from '../pages/video-call/CustomLayout';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useLayout} from '../utils/useLayout';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
@@ -35,11 +35,11 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const [showDropdown, setShowDropdown] = useState(false);
-  const layouts = useCustomLayout();
+  const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
-  const {activeLayoutName} = useLayout();
+  const {currentLayout} = useLayout();
 
-  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
+  const layout = layouts.findIndex((item) => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
     let onPress = () => {};
     let renderContent = [];

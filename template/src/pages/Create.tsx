@@ -21,8 +21,8 @@ import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {isWeb, isValidReactComponent} from '../utils/common';
-import {icons, useFpe, useMeetingInfo} from 'fpe-api';
+import {isWebInternal, isValidReactComponent} from '../utils/common';
+import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
@@ -38,11 +38,12 @@ import InfoBubble from '../atoms/InfoBubble';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
+import {icons} from 'customization-api';
 
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;
 const Create = () => {
-  const {CreateComponent} = useFpe((data) => {
+  const {CreateComponent} = useCustomization((data) => {
     let components: {
       CreateComponent?: React.ElementType;
     } = {};
@@ -71,9 +72,6 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
-  const {
-    meetingPassphrase: {attendee, host, pstn},
-  } = useMeetingInfo();
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
   // const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -107,29 +105,30 @@ const Create = () => {
   const haveMeetingID = 'Join with a meeting ID';
 
   useEffect(() => {
-    if (isWeb) {
+    if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
-    SDKEvents.on('joinMeetingWithPhrase', (phrase) => {
-      console.log(
-        'DEBUG(aditya)-SDKEvents: joinMeetingWithPhrase event called',
-      );
-      useJoin(phrase);
-    });
+    const unbind = SDKEvents.on(
+      'joinMeetingWithPhrase',
+      (phrase, resolve, reject) => {
+        console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
+        try {
+          setMeetingInfo(MeetingInfoDefaultValue);
+          history.push(phrase);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      },
+    );
     return () => {
-      SDKEvents.off('joinMeetingWithPhrase');
+      unbind();
     };
   }, []);
 
   const showShareScreen = () => {
     setRoomCreated(true);
   };
-
-  useEffect(() => {
-    if (attendee) {
-      SDKEvents.emit('create', host, attendee, pstn);
-    }
-  }, [attendee]);
 
   const createRoomAndNavigateToShare = async (
     roomTitle: string,

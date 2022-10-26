@@ -11,12 +11,9 @@
 */
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {controlMessageEnum} from '../components/ChatContext';
 import {BtnTemplate, UidType} from '../../agora-rn-uikit';
-import useSendControlMessage, {
-  CONTROL_MESSAGE_TYPE,
-} from '../utils/useSendControlMessage';
 import Styles from '../components/styles';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 
 /**
  * Component to mute / unmute remote video.
@@ -30,17 +27,13 @@ export interface RemoteVideoMuteProps {
 }
 const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const {isHost = false} = props;
-  const sendCtrlMsgToUid = useSendControlMessage();
+  const muteRemoteVideo = useRemoteMute();
 
   return String(props.uid)[0] !== '1' ? (
     <BtnTemplate
       disabled={!isHost}
       onPress={() => {
-        sendCtrlMsgToUid(
-          CONTROL_MESSAGE_TYPE.controlMessageToUid,
-          controlMessageEnum.muteVideo,
-          props.uid,
-        );
+        muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
       }}
       style={Styles.localButtonSmall as Object}
       color={props.video ? $config.PRIMARY_COLOR : '#999999'}

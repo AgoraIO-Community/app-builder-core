@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {isWeb} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 
 const styles = {
   temp: {
@@ -19,8 +19,8 @@ const styles = {
     borderRadius: 15,
   },
   bottomBar: {
-    flex: isWeb ? 1.3 : 1.6,
-    paddingHorizontal: isWeb ? '20%' : '1%',
+    flex: isWebInternal() ? 1.3 : 1.6,
+    paddingHorizontal: isWebInternal() ? '20%' : '1%',
     backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
     flexDirection: 'row',
     justifyContent: 'space-evenly',

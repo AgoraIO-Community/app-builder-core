@@ -31,7 +31,7 @@ import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {isIOS, isWeb} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 import Spacer from '../atoms/Spacer';
@@ -50,8 +50,9 @@ const Controls = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
-  const {isHost} = useMeetingInfo();
-
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   return (
     <View
       testID="videocall-controls"
@@ -141,7 +142,7 @@ const Controls = () => {
   );
 };
 
-export const ControlsComponentsArray: [
+type ControlsComponentsArrayProps = [
   (props: LocalAudioMuteProps) => JSX.Element,
   (props: LocalVideoMuteProps) => JSX.Element,
   (props: LocalSwitchCameraProps) => JSX.Element,
@@ -149,7 +150,9 @@ export const ControlsComponentsArray: [
   (props: RecordingButtonProps) => JSX.Element,
   (props: LocalEndcallProps) => JSX.Element,
   (props: LiveStreamControlsProps) => JSX.Element,
-] = [
+];
+
+export const ControlsComponentsArray: ControlsComponentsArrayProps = [
   LocalAudioMute,
   LocalVideoMute,
   LocalSwitchCamera,
@@ -162,7 +165,7 @@ export const ControlsComponentsArray: [
 const style = StyleSheet.create({
   // @ts-ignore
   controlsHolder: {
-    flex: isWeb ? 1.3 : 1.6,
+    flex: isWebInternal() ? 1.3 : 1.6,
     ...controlsHolder,
   },
   container: {
@@ -182,20 +185,6 @@ const style = StyleSheet.create({
   },
   rightContent: {
     flex: 1,
-  },
-  chatNotification: {
-    width: 20,
-    height: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: $config.PRIMARY_COLOR,
-    color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
-    borderRadius: 10,
-    position: 'absolute',
-    left: 25,
-    top: -10,
   },
 });
 

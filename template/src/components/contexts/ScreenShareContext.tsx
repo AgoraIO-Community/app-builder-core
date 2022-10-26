@@ -6,7 +6,7 @@ import React, {
   useContext,
   useState,
 } from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export interface ScreenShareObjectInterface {
   [key: string | number]: {

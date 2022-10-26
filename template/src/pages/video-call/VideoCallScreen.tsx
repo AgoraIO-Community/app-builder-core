@@ -1,13 +1,13 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import Navbar from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
 import Controls from '../../components/Controls';
-import Chat from '../../components/Chat';
+import Chat, {ChatProps} from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {isValidReactComponent, isWeb} from '../../utils/common';
+import {isValidReactComponent, isWebInternal} from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
@@ -16,14 +16,16 @@ import {
   ButtonTemplateName,
 } from '../../utils/useButtonTemplate';
 import SDKEvents from '../../utils/SdkEvents';
-import {RtcContext} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
+import {useRtc} from 'customization-api';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
-  const rtc = useContext(RtcContext);
-  const {meetingTitle, isHost} = useMeetingInfo();
+  const rtc = useRtc();
+  const {
+    data: {meetingTitle, isHost},
+  } = useMeetingInfo();
   const {
     ChatComponent,
     VideocallComponent,
@@ -33,10 +35,10 @@ const VideoCallScreen = () => {
     TopbarComponent,
     VideocallBeforeView,
     VideocallAfterView,
-  } = useFpe((data) => {
+  } = useCustomization((data) => {
     let components: {
       VideocallComponent?: React.ComponentType;
-      ChatComponent: React.ComponentType;
+      ChatComponent: React.ComponentType<ChatProps>;
       BottombarComponent: React.ComponentType;
       ParticipantsComponent: React.ComponentType;
       SettingsComponent: React.ComponentType;
@@ -129,16 +131,21 @@ const VideoCallScreen = () => {
 
   useEffect(() => {
     /**
-     * Commenting this code as getDevices API is web only
+     * OLD: Commenting this code as getDevices API is web only
      * The below code fails on native app
+     * RESPONSE: Added isWebInternal check to restrict execution only on web.
      */
-    // new Promise((res) =>
-    //   rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
-    //     res(devices);
-    //   }),
-    // ).then((devices: MediaDeviceInfo[]) => {
-    //   SDKEvents.emit('join', meetingTitle, devices, isHost);
-    // });
+    if (isWebInternal()) {
+      new Promise((res) =>
+        //@ts-ignore
+        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+          res(devices);
+        }),
+      ).then((devices: MediaDeviceInfo[]) => {
+        SDKEvents.emit('join', meetingTitle, devices, isHost);
+        console.log('SDKEvents: Event Called join');
+      });
+    }
   }, []);
 
   const {height, width} = useWindowDimensions();
@@ -177,7 +184,7 @@ const VideoCallScreen = () => {
           )}
           {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
         </View>
-        {!isWeb && sidePanel === SidePanelType.Chat ? (
+        {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
           <></>
         ) : (
           <ButtonTemplateProvider

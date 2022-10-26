@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React, {SetStateAction, useState} from 'react';
 import {UidType} from '../../../agora-rn-uikit';
 
@@ -61,6 +61,9 @@ const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
   );
 };
 
+/**
+ * The ChatUIControl app state governs the chat ui.
+ */
 const useChatUIControl = createHook(ChatUIControlContext);
 
 export {ChatUIControlProvider, useChatUIControl};

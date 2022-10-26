@@ -12,7 +12,7 @@
 
 import React, {SetStateAction} from 'react';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export interface SidePanelContextInterface {
   sidePanel: SidePanelType;
@@ -36,6 +36,9 @@ const SidePanelProvider = (props: SidePanelProviderProps) => {
   );
 };
 
+/**
+ * The Side panel app state governs the side panel.
+ */
 const useSidePanel = createHook(SidePanelContext);
 
 export {SidePanelProvider, useSidePanel};

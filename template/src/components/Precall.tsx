@@ -11,11 +11,12 @@
 */
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {RtcContext, PropsContext, ClientRole} from '../../agora-rn-uikit';
-import {isValidReactComponent, isWeb} from '../utils/common';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {isValidReactComponent, isWebInternal} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import {useFpe} from 'fpe-api';
+import PreCallLogo from './common/Logo';
+import {useCustomization} from 'customization-implementation';
 import PreCallLocalMute from './precall/LocalMute';
 import {
   PreCallJoinBtn,
@@ -23,17 +24,19 @@ import {
   PreCallMeetingTitle,
   PreCallSelectDevice,
   PreCallVideoPreview,
+  PreCallJoinCallBtnProps,
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
 import Logo from './common/Logo';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
+import {useRtc} from 'customization-api';
 
 const JoinRoomInputView = () => {
-  const {JoinButton, Textbox} = useFpe((data) => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
-      JoinButton: React.ComponentType;
+      JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
     // commented for v1 release
@@ -71,9 +74,9 @@ const JoinRoomInputView = () => {
 };
 
 const JoinRoomName = () => {
-  const {JoinButton, Textbox} = useFpe((data) => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
-      JoinButton: React.ComponentType;
+      JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
     // commented for v1 release
@@ -105,9 +108,9 @@ const JoinRoomName = () => {
 };
 
 const JoinRoomButton = () => {
-  const {JoinButton, Textbox} = useFpe((data) => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
-      JoinButton: React.ComponentType;
+      JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
     // commented for v1 release
@@ -147,7 +150,7 @@ const Precall = (props: any) => {
     DeviceSelect,
     PrecallAfterView,
     PrecallBeforeView,
-  } = useFpe((data) => {
+  } = useCustomization((data) => {
     const components: {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
@@ -208,8 +211,11 @@ const Precall = (props: any) => {
     // }
     return components;
   });
-  const {isJoinDataFetched, meetingTitle} = useMeetingInfo();
-  const rtc = useContext(RtcContext);
+  const {
+    isJoinDataFetched,
+    data: {meetingTitle},
+  } = useMeetingInfo();
+  const rtc = useRtc();
   const isSDK = isSDKCheck();
 
   const [dim, setDim] = useState<[number, number]>([
@@ -222,7 +228,7 @@ const Precall = (props: any) => {
   };
 
   useEffect(() => {
-    if (isWeb && !isSDK) {
+    if (isWebInternal() && !isSDK) {
       if (meetingTitle) {
         document.title = meetingTitle + ' | ' + $config.APP_NAME;
       }
@@ -246,7 +252,7 @@ const Precall = (props: any) => {
 
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
 
-  const FpePrecallComponent = useFpe((data) => {
+  const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
     // if (
     //   data?.components?.precall &&

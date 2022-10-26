@@ -23,12 +23,12 @@ import {
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
 
-export interface ButtonProps extends PressableProps {
+export interface PrimaryButtonProps extends PressableProps {
   text?: string;
   icon?: string;
 }
 
-export default function PrimaryButton(props: ButtonProps) {
+export default function PrimaryButton(props: PrimaryButtonProps) {
   const {primaryColor} = useContext(ColorContext);
   const {children, icon, ...otherProps} = props;
   return (

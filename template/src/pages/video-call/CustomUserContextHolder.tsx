@@ -1,8 +1,8 @@
 import React from 'react';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 
 const CustomUserContextHolder: React.FC<{children: any}> = (props) => {
-  const useUserContext = useFpe((config) => {
+  const useUserContext = useCustomization((config) => {
     if (
       config?.components?.videoCall &&
       typeof config?.components?.videoCall === 'object' &&

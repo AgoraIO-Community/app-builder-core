@@ -28,7 +28,7 @@ import Popup from '../atoms/Popup';
 import InviteInfo from '../atoms/InviteInfo';
 import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {icons} from 'fpe-api';
+import {icons} from 'customization-api';
 import TertiaryButton from '../atoms/TertiaryButton';
 
 export interface CopyJoinInfoProps {

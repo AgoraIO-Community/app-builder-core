@@ -11,13 +11,17 @@
 */
 import React from 'react';
 import {Text} from 'react-native';
-import isMobileOrTablet from '../utils/isMobileOrTablet';
 import TextWithToolTipNative from './TextWithTooltip.native';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 /**
  * Text with tooltip
  * web - used title attribute to show the tooltip
  */
-const TextWithToolTip = (props: {touchable?: boolean;value: string; style: object}) => {
+const TextWithToolTip = (props: {
+  touchable?: boolean;
+  value: string;
+  style: object;
+}) => {
   return (
     <div style={style.containerStyle} title={props.value}>
       <Text numberOfLines={1} textBreakStrategy="simple" style={[props.style]}>

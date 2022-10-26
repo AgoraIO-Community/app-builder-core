@@ -21,10 +21,11 @@ import slack from '../assets/slack.png';
 // @ts-ignore
 import microsoft from '../assets/microsoft.png';
 import Logo from './Logo';
-import {hasBrandLogo} from '../utils/common';
+import {useHasBrandLogo} from '../utils/common';
 import {useString} from '../utils/useString';
 
 const SelectOAuth = ({onSelectOAuth}) => {
+  const hasBrandLogo = useHasBrandLogo();
   // Linking.openURL(url);
   const {primaryColor} = useContext(ColorContext);
   //commented for v1 release
@@ -40,7 +41,7 @@ const SelectOAuth = ({onSelectOAuth}) => {
   const appleAuthButton = 'Apple';
   return (
     <View style={style.main}>
-      <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
+      <View style={style.nav}>{hasBrandLogo() && <Logo />}</View>
       <View style={style.content}>
         <View style={style.leftContent}>
           <Text style={style.heading}>{$config.APP_NAME}</Text>

@@ -14,55 +14,18 @@
  */
 type callBackType = (...args: any[]) => void;
 import {userEventsMapInterface} from '../SDKAppWrapper';
+import {createNanoEvents} from 'nanoevents';
 
 interface eventsMapInterface extends userEventsMapInterface {
-  addFpe: callBackType;
-  joinMeetingWithPhrase: (phrase: string) => void;
-}
-interface SDKEventsInterface {
-  eventsMap: eventsMapInterface;
-  eventSubs: {[key in keyof eventsMapInterface]: any};
-  emit: (eventName: keyof eventsMapInterface, ...args: any) => void;
-  on: (eventName: keyof eventsMapInterface, cb: callBackType) => void;
-  off: (eventName: keyof eventsMapInterface) => void;
+  addFpe?: callBackType;
+  addFpeInit?: () => void;
+  joinMeetingWithPhrase?: (
+    phrase: string,
+    resolve: () => void,
+    reject: (e: Error) => void,
+  ) => void;
 }
 
-const SDKEvents: SDKEventsInterface = {
-  eventsMap: {
-    addFpe: () => {},
-    joinMeetingWithPhrase: (p) => {},
-    leave: () => {},
-    create: () => {},
-    preJoin: () => {},
-    join: () => {},
-  },
-  eventSubs: {
-    addFpe: null,
-    joinMeetingWithPhrase: null,
-    leave: null,
-    create: null,
-    preJoin: null,
-    join: null,
-  },
-  on: function (eventName, cb) {
-    console.log(
-      'DEBUG(aditya)-SDKEvents: event registered:',
-      eventName,
-    );
-    this.eventsMap[eventName] = cb;
-    if (this.eventSubs[eventName]) {
-      cb(...this.eventSubs[eventName]);
-    }
-  },
-  emit: function (eventName, ...args) {
-    console.log('DEBUG(aditya)-SDKEvents: emit called:', eventName, ...args);
-    this.eventsMap[eventName](...args);
-    this.eventSubs[eventName] = args;
-  },
-  off: function (eventName) {
-    console.log('DEBUG(aditya)-SDKEvents: event deregistered:', eventName);
-    this.eventSubs[eventName] = null;
-  },
-};
+const SDKEvents = createNanoEvents<eventsMapInterface>();
 
 export default SDKEvents;
