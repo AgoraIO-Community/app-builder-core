@@ -7,9 +7,9 @@ import {
   TouchableWithoutFeedback,
   Modal,
 } from 'react-native';
-import {isWeb} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import {ImageIcon} from '../../agora-rn-uikit';
-import useCustomLayout from '../pages/video-call/CustomLayout';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
 
@@ -33,10 +33,10 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop, dim} = getDimensionData();
 
-  const layouts = useCustomLayout();
-  const {activeLayoutName, setActiveLayoutName} = useLayout();
+  const layouts = useLayoutsData();
+  const {currentLayout, setLayout} = useLayout();
   const renderSeparatorHorizontal = () => {
-    return isWeb && isDesktop ? (
+    return isWebInternal() && isDesktop ? (
       <View style={style.navItem}>
         <View style={style.navItemSeparatorHorizontal}></View>
       </View>
@@ -50,7 +50,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
       let onPress = () => {
-        setActiveLayoutName(item.name);
+        setLayout(item.name);
         setShowDropdown(false);
       };
       let content = [];
@@ -76,7 +76,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           onPress={onPress}>
           <>
             <View style={style.highlighterContainer}>
-              {selectedItemHighlighter(item.name === activeLayoutName)}
+              {selectedItemHighlighter(item.name === currentLayout)}
             </View>
             <View style={{flex: 1}}>{BtnTemplateLocal}</View>
             <View style={style.layoutNameContainer}>

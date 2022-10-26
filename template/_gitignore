@@ -73,5 +73,5 @@ dist/
 .webpack/
 out/
 
-#FPE plugin folder
-template/test-fpe/*
+#Customization plugin folder
+template/customization/*

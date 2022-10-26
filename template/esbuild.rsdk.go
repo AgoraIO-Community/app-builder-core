@@ -52,9 +52,9 @@ func commonAliasResolver() api.Plugin {
 				},
 			)
 
-			pb.OnResolve(api.OnResolveOptions{Filter: "fpe-api/install"},
+			pb.OnResolve(api.OnResolveOptions{Filter: "customization-api"},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path, err := filepath.Abs("./fpe-api/install.ts")
+					path, err := filepath.Abs("./customization-api/index.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
@@ -62,9 +62,9 @@ func commonAliasResolver() api.Plugin {
 				},
 			)
 
-			pb.OnResolve(api.OnResolveOptions{Filter: "fpe-api"},
+			pb.OnResolve(api.OnResolveOptions{Filter: "customization-implementation"},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path, err := filepath.Abs("./fpe-api/index.ts")
+					path, err := filepath.Abs("./customization-implementation/index.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
@@ -72,23 +72,13 @@ func commonAliasResolver() api.Plugin {
 				},
 			)
 
-			pb.OnResolve(api.OnResolveOptions{Filter: "fpe-implementation"},
+			pb.OnResolve(api.OnResolveOptions{Filter: "customization"},
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path, err := filepath.Abs("./fpe-implementation/index.ts")
+					fpePath, err := filepath.Abs("./customization/index.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
-					return api.OnResolveResult{Path: path}, nil
-				},
-			)
-
-			pb.OnResolve(api.OnResolveOptions{Filter: "test-fpe"},
-				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					fpePath, err := filepath.Abs("./test-fpe/index.ts")
-					if err != nil {
-						log.Fatalln(err)
-					}
-					fpeDummyPath, err := filepath.Abs("./fpe-implementation/dummyFpe.ts")
+					fpeDummyPath, err := filepath.Abs("./customization-implementation/dummyConfig.ts")
 					if err != nil {
 						log.Fatalln(err)
 					}
@@ -211,6 +201,7 @@ func rsdk(iopath *ioPaths) api.BuildResult {
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
+    Sourcemap:         api.SourceMapExternal,
 
 		// debug options. does not affect bundle size
 		// Metafile: true,

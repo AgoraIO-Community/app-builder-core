@@ -23,9 +23,9 @@ import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
-import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
+import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
 import {
@@ -33,11 +33,13 @@ import {
   ChatSendButtonProps,
 } from '../subComponents/ChatInput';
 
-const Chat = (props?: {
+export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
-}) => {
+}
+
+const Chat = (props?: ChatProps) => {
   // commented for v1 release
   // const groupChatLabel = useString('groupChatLabel')();
   // const privateChatLabel = useString('privateChatLabel')();
@@ -102,7 +104,7 @@ const Chat = (props?: {
     );
   };
 
-  const {ChatAfterView, ChatBeforeView} = useFpe((data) => {
+  const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
     let components: {
       ChatAfterView: React.ComponentType;
       ChatBeforeView: React.ComponentType;
@@ -140,7 +142,7 @@ const Chat = (props?: {
     <>
       <View
         style={
-          isWeb
+          isWebInternal()
             ? !isSmall
               ? style.chatView
               : style.chatViewNative
@@ -352,7 +354,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,
@@ -366,7 +368,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

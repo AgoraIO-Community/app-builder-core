@@ -15,11 +15,11 @@ import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
-import {isWeb} from '../utils/common';
-import useUserList from '../utils/useUserList';
+import {isWebInternal} from '../utils/common';
+import {useRender} from 'customization-api';
 
 const ChatBubble = (props: ChatBubbleProps) => {
-  const {renderList} = useUserList();
+  const {renderList} = useRender();
   const {primaryColor} = useContext(ColorContext);
   let {
     isLocal,
@@ -35,7 +35,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     ':' +
     new Date(parseInt(createdTimestamp)).getMinutes();
   const handleUrl = (url: string) => {
-    if (isWeb) {
+    if (isWebInternal()) {
       window.open(url, '_blank');
     } else {
       Linking.openURL(url);

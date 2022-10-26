@@ -13,17 +13,18 @@
 import React, {useContext} from 'react';
 import {View, StyleSheet, Image} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
-import useUserList from '../../utils/useUserList';
 import PreCallLocalMute from './LocalMute';
 import {ToggleState, LocalContext} from '../../../agora-rn-uikit';
+//@ts-ignore
 import imgUrl from '../../assets/avatar.png';
+import {useRender} from 'customization-api';
 
 const VideoPreview: React.FC = () => {
-  const {renderList, renderPosition} = useUserList();
+  const {renderList, activeUids} = useRender();
   const local = useContext(LocalContext);
   const isVideoEnabled = local.video === ToggleState.enabled;
 
-  const [maxUid] = renderPosition;
+  const [maxUid] = activeUids;
 
   if (!maxUid) {
     return null;

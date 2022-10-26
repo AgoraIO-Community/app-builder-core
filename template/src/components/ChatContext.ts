@@ -39,35 +39,13 @@ export interface messageStoreInterface {
   msg: string;
 }
 
-export interface messageEventInterface extends messageStoreInterface {
-  type: messageActionType;
-  source: messageSourceType;
-}
-
-export enum messageSourceType {
-  Core = 'core',
-}
-
-export enum messageChannelType {
-  Private = 'private',
-  Public = 'public',
-}
-
 export enum messageActionType {
   Control = '0',
   Normal = '1',
 }
 
-export enum attrRequestTypes {
-  none = 'NONE',
-}
-
 export interface chatContext {
   hasUserJoinedRTM: boolean;
-  sendMessage: (msg: string) => void;
-  sendMessageToUid: (msg: string, uid: number | string) => void;
-  sendControlMessage: (msg: string) => void;
-  sendControlMessageToUid: (msg: string, uid: number) => void;
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
@@ -79,8 +57,6 @@ export enum controlMessageEnum {
   muteSingleVideo = '3',
   muteSingleAudio = '4',
   kickUser = '5',
-  cloudRecordingActive = '6',
-  cloudRecordingUnactive = '7',
 }
 
 const ChatContext = createContext(null as unknown as chatContext);

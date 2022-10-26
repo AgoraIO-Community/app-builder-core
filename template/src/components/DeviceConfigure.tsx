@@ -9,10 +9,11 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect, useCallback} from 'react';
-import {RtcContext, ClientRole} from '../../agora-rn-uikit';
+import React, {useState, useEffect, useCallback} from 'react';
+import {ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC from 'agora-rtc-sdk-ng';
+import {useRtc} from 'customization-api';
 
 interface Props {
   userRole: ClientRole;
@@ -33,7 +34,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedCam, setSelectedCam] = useState('');
   const [selectedMic, setSelectedMic] = useState('');
   const [deviceList, setDeviceList] = useState<any>([]);
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
 
   const refreshDevices = useCallback(async () => {
     rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {

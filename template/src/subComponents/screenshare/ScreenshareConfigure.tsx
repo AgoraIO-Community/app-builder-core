@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {RtcContext, PropsContext, UidType} from '../../../agora-rn-uikit';
+import {PropsContext, UidType} from '../../../agora-rn-uikit';
 import {ScreenshareContext} from './useScreenshare';
 import {
   useChangeDefaultLayout,
@@ -18,21 +18,21 @@ import {
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import useUserList from '../../utils/useUserList';
-import CustomEvents, {EventLevel} from '../../custom-events';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
+import {useRender, useRtc} from 'customization-api';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   const {dispatch} = rtc;
-  const {renderList, renderPosition} = useUserList();
+  const {renderList, activeUids} = useRender();
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
@@ -68,10 +68,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    CustomEvents.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
       const screenUidOfUser =
         renderListRef.current.renderList[data.sender].screenUid;
-      switch (data?.payload?.action) {
+      switch (action) {
         case EventActions.SCREENSHARE_STARTED:
           setScreenShareData((prevState) => {
             return {
@@ -79,7 +83,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: true,
-                ts: data.payload.value || 0,
+                ts: value || 0,
               },
             };
           });
@@ -93,7 +97,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               [screenUidOfUser]: {
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: false,
-                ts: data.payload.value || 0,
+                ts: value || 0,
               },
             };
           });
@@ -112,11 +116,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
       executeNormalQuery();
-      CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-        action: EventActions.SCREENSHARE_STOPPED,
-        value: 0,
-        level: EventLevel.LEVEL2,
-      });
+      events.send(
+        EventNames.SCREENSHARE_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.SCREENSHARE_STOPPED,
+          value: 0,
+        }),
+        EventPersistLevel.LEVEL2,
+      );
       setScreenShareData((prevState) => {
         return {
           ...prevState,
@@ -156,7 +163,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (isRecordingActive) {
       executeRecordingQuery(isActive);
     }
-    console.log('supriya screenshare query executed');
+    console.log('screenshare query executed');
     try {
       // @ts-ignore
       await rtc.RtcEngine.startScreenshare(
@@ -183,11 +190,14 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           };
         });
         // 2. Inform everyone in the channel screenshare is actice
-        CustomEvents.send(EventNames.SCREENSHARE_ATTRIBUTE, {
-          action: EventActions.SCREENSHARE_STARTED,
-          value: timeNow(),
-          level: EventLevel.LEVEL2,
-        });
+        events.send(
+          EventNames.SCREENSHARE_ATTRIBUTE,
+          JSON.stringify({
+            action: EventActions.SCREENSHARE_STARTED,
+            value: timeNow(),
+          }),
+          EventPersistLevel.LEVEL2,
+        );
         //3 . if local user started the screenshare then change layout to pinned
         triggerChangeLayout(true, screenShareUid);
       }

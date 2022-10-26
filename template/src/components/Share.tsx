@@ -9,7 +9,6 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-// @ts-nocheck
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import platform from '../subComponents/Platform';
@@ -21,19 +20,19 @@ import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
 import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import useNavigateTo from '../utils/useNavigateTo';
-import {useFpe} from 'fpe-api';
+import {useHistory} from '../components/Router';
+import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../utils/common';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import {icons} from 'fpe-api';
+import {icons} from 'customization-api';
 import Icon from '../atoms/Icon';
 
 const isLiveStream = $config.EVENT_MODE;
 
 const Share = () => {
-  const {FpeShareComponent} = useFpe((data) => {
+  const {FpeShareComponent} = useCustomization((data) => {
     let components: {
       FpeShareComponent?: React.ElementType;
     } = {};
@@ -52,7 +51,9 @@ const Share = () => {
     return components;
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
-  const {meetingPassphrase, isSeparateHostLink} = useMeetingInfo();
+  const {
+    data: {roomId, pstn, isSeparateHostLink},
+  } = useMeetingInfo();
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
   // const meetingIdText = useString('meetingIdLabel')();
@@ -80,10 +81,10 @@ const Share = () => {
     ? 'Start Stream (as host)'
     : 'Start Meeting (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
-  const navigateTo = useNavigateTo();
+  const history = useHistory();
   const enterMeeting = () => {
-    if (meetingPassphrase?.host) {
-      navigateTo(meetingPassphrase.host);
+    if (roomId?.host) {
+      history.push(roomId.host);
     }
   };
 
@@ -96,18 +97,20 @@ const Share = () => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
   const isSDK = isSDKCheck();
-  const isWeb = $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
+  const isWebCheck =
+    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
-  const getAttendeeLabel = () => (isWeb ? attendeeUrlLabel : attendeeIdLabel);
+  const getAttendeeLabel = () =>
+    isWebCheck ? attendeeUrlLabel : attendeeIdLabel;
 
   const getHostLabel = () => {
     if (isSeparateHostLink) {
-      if (isWeb) {
+      if (isWebCheck) {
         return hostUrlLabel;
       }
       return hostIdText;
     } else {
-      if (isWeb) {
+      if (isWebCheck) {
         return meetingUrlText;
       }
       return meetingIdText;
@@ -134,7 +137,11 @@ const Share = () => {
                       <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
-                        style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                        style={[
+                          style.url,
+                          //@ts-ignore
+                          isWebCheck ? urlWeb : {opacity: 1},
+                        ]}>
                         {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
                       </Text>
                     </View>
@@ -174,7 +181,11 @@ const Share = () => {
                     <Text
                       numberOfLines={1}
                       ellipsizeMode="tail"
-                      style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
+                      style={[
+                        style.url,
+                        //@ts-ignore
+                        isWebCheck ? urlWeb : {opacity: 1},
+                      ]}>
                       {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
                     </Text>
                   </View>
@@ -200,7 +211,7 @@ const Share = () => {
                 Share this with other co-hosts you want to invite.
               </Text>
             </>
-            {meetingPassphrase?.pstn ? (
+            {pstn ? (
               <>
                 <Spacer size={20} />
                 <Text style={style.urlTitle}>{pstnLabel}</Text>
@@ -210,15 +221,23 @@ const Share = () => {
                       <View style={style.pstnHolder}>
                         <Text style={style.url}>{pstnNumberLabel}: </Text>
                         <Text
-                          style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                          {meetingPassphrase?.pstn?.number}
+                          style={[
+                            style.url,
+                            //@ts-ignore
+                            isWebCheck ? urlWeb : {opacity: 1},
+                          ]}>
+                          {pstn?.number}
                         </Text>
                       </View>
                       <View style={style.pstnHolder}>
                         <Text style={style.url}>{pinLabel}: </Text>
                         <Text
-                          style={[style.url, isWeb ? urlWeb : {opacity: 1}]}>
-                          {meetingPassphrase?.pstn?.pin}
+                          style={[
+                            style.url,
+                            //@ts-ignore
+                            isWebCheck ? urlWeb : {opacity: 1},
+                          ]}>
+                          {pstn?.pin}
                         </Text>
                       </View>
                     </View>

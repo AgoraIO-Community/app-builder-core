@@ -10,8 +10,7 @@
 *********************************************
 */
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {createHook} from 'fpe-implementation';
-import {useFpe} from 'fpe-api';
+import {createHook, useCustomization} from 'customization-implementation';
 import {DEFAULT_I18_DATA} from './index';
 import StorageContext from '../components/StorageContext';
 
@@ -31,7 +30,7 @@ const LanguageContext = createContext<LanguageContextInterface>({
 
 const LanguageProvider = (props: LanguagePropsInterface) => {
   const {store, setStore} = useContext(StorageContext);
-  const i18nData = useFpe((data) => data?.i18n);
+  const i18nData = useCustomization((data) => data?.i18n);
 
   //If language code is stored in the localstorage no longer available in fpe data
   //then we will update the localstorage value to default value

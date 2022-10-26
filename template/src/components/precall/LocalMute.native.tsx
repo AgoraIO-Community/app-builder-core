@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
-import {useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../../utils/common';
 import LocalAudioMute, {
   LocalAudioMuteProps,
@@ -24,7 +24,7 @@ import LocalSwitchCamera, {
 } from '../../subComponents/LocalSwitchCamera';
 
 const PreCallLocalMute: React.FC = () => {
-  const {VideoMute, AudioMute} = useFpe((data) => {
+  const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
       AudioMute: React.ComponentType<LocalVideoMuteProps>;

@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {fpeConfig, FpeProvider, FpeApiInterface} from 'fpe-api';
-import {installFPE as createFPE} from 'fpe-api/install';
+import {CustomizationApiInterface, customize} from 'customization-api';
+import {
+  customizationConfig,
+  CustomizationProvider,
+} from 'customization-implementation';
 import SDKEvents from './utils/SdkEvents';
 import App from './App';
 
@@ -9,9 +12,12 @@ export interface userEventsMapInterface {
   create: (
     hostPhrase: string,
     attendeePhrase?: string,
-    pstnNumer?: string,
+    pstnNumer?: {
+      number: string;
+      pin: string;
+    },
   ) => void;
-  preJoin: (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
+  'ready-to-join': (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
   join: (
     meetingTitle: string,
     devices: MediaDeviceInfo[],
@@ -20,46 +26,47 @@ export interface userEventsMapInterface {
 }
 
 export interface AppBuilderSdkApiInterface {
-  addFPE: (fpe: FpeApiInterface) => void;
-  createFPE: (fpe: FpeApiInterface) => FpeApiInterface;
-  joinMeeting: (joinPhrase: string) => void;
+  customize: (customization: CustomizationApiInterface) => void;
+  createCustomization: (
+    customization: CustomizationApiInterface,
+  ) => CustomizationApiInterface;
+  join: (roomid: string) => Promise<void>;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
     callBack: userEventsMapInterface[T],
   ) => void;
-  off: (userEventName: keyof userEventsMapInterface) => void;
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
-  addFPE: (fpeConfig: FpeApiInterface) => {
-    SDKEvents.emit('addFpe', fpeConfig);
+  customize: (customization: CustomizationApiInterface) => {
+    SDKEvents.emit('addFpe', customization);
   },
-  joinMeeting: (joinPhrase: string) => {
-    SDKEvents.emit('joinMeetingWithPhrase', joinPhrase);
-  },
-  createFPE,
+  join: (roomid: string) =>
+    new Promise((resolve, reject) => {
+      SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
+    }),
+  createCustomization: customize,
   on: (userEventName, cb) => {
     SDKEvents.on(userEventName, cb);
-  },
-  off: (userEventName) => {
-    SDKEvents.off(userEventName);
+    console.log('SDKEvents: Event Registered', userEventName);
   },
 };
 
 const SDKAppWrapper = () => {
-  const [fpe, setFpe] = useState(fpeConfig);
+  const [fpe, setFpe] = useState(customizationConfig);
   useEffect(() => {
     SDKEvents.on('addFpe', (sdkFpeConfig) => {
-      console.log('DEBUG(aditya)-SDKEvents: addFpe event called');
+      console.log('SDKEvents: addFpe event called');
       setFpe(sdkFpeConfig);
     });
+    SDKEvents.emit('addFpeInit');
     // Join event consumed in Create.tsx
   }, []);
   return (
     <>
-      <FpeProvider value={fpe}>
+      <CustomizationProvider value={fpe}>
         <App />
-      </FpeProvider>
+      </CustomizationProvider>
     </>
   );
 };

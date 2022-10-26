@@ -11,7 +11,7 @@
 */
 
 import React from 'react';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 
 export enum ButtonTemplateName {
   topBar,

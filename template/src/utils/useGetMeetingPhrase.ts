@@ -37,18 +37,17 @@ export default function useGetMeetingPhrase() {
       try {
         if (response && response.data) {
           let data = response.data;
-          let meetingPassphrase: MeetingInfoContextInterface['meetingPassphrase'] =
-            {
-              attendee: '',
-            };
+          let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {
+            roomId: {attendee: ''},
+          };
           if (data?.share?.passphrase?.view) {
-            meetingPassphrase.attendee = data.share.passphrase.view;
+            meetingInfo.roomId.attendee = data.share.passphrase.view;
           }
           if (data?.share?.passphrase?.host) {
-            meetingPassphrase.host = data.share.passphrase.host;
+            meetingInfo.roomId.host = data.share.passphrase.host;
           }
           if (data?.share?.pstn) {
-            meetingPassphrase.pstn = {
+            meetingInfo.pstn = {
               number: data.share.pstn.number,
               pin: data.share.pstn.dtmf,
             };
@@ -56,7 +55,11 @@ export default function useGetMeetingPhrase() {
           setMeetingInfo((prevState) => {
             return {
               ...prevState,
-              meetingPassphrase,
+              data: {
+                ...prevState.data,
+                roomId: meetingInfo.roomId,
+                pstn: meetingInfo?.pstn,
+              },
             };
           });
         }

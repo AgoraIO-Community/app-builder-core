@@ -6,13 +6,12 @@ import {
 import {useString} from '../utils/useString';
 import {
   BtnTemplate,
-  RtcContext,
   PropsContext,
-  LocalContext,
   ToggleState,
   BtnTemplateInterface,
 } from '../../agora-rn-uikit';
 import Styles from '../components/styles';
+import {useLocalUserInfo, useRtc} from 'customization-api';
 
 export interface LocalSwitchCameraProps {
   buttonTemplateName?: ButtonTemplateName;
@@ -25,8 +24,8 @@ export interface LocalSwitchCameraProps {
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
-  const {RtcEngine} = useContext(RtcContext);
-  const local = useContext(LocalContext);
+  const {RtcEngine} = useRtc();
+  const local = useLocalUserInfo();
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
   const switchCameraButtonText = 'Switch';

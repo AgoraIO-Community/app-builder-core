@@ -9,10 +9,10 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import React, {SetStateAction, useState, useEffect} from 'react';
 
-interface individualUnreadMessageCount {
+export interface individualUnreadMessageCount {
   [key: number]: number;
 }
 

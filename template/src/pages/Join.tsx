@@ -19,7 +19,7 @@ import Spacer from '../atoms/Spacer';
 import {
   isValidReactComponent,
   shouldAuthenticate,
-  hasBrandLogo,
+  useHasBrandLogo,
 } from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -28,8 +28,7 @@ import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
-import useNavigateTo from '../utils/useNavigateTo';
-import {icons, useFpe} from 'fpe-api';
+import {useCustomization} from 'customization-implementation';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 import Card from '../atoms/Card';
@@ -37,13 +36,14 @@ import Input from '../atoms/Input';
 import LinkButton from '../atoms/LinkButton';
 import Toast from '../../react-native-toast-message';
 import useJoinMeeting from '../utils/useJoinMeeting';
-
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import {icons} from 'customization-api';
 
 const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
 
 const Join = () => {
+  const hasBrandLogo = useHasBrandLogo();
   //commented for v1 release
   // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
   // const enterMeetingButton = useString('enterMeetingButton')();
@@ -57,7 +57,6 @@ const Join = () => {
     : 'Create a meeting';
   const history = useHistory();
   const [phrase, setPhrase] = useState('');
-  const navigateTo = useNavigateTo();
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
@@ -72,7 +71,7 @@ const Join = () => {
     useJoin(phrase)
       .then(() => {
         setMeetingInfo(MeetingInfoDefaultValue);
-        navigateTo(phrase);
+        history.push(phrase);
       })
       .catch((error) => {
         const isInvalidUrl =
@@ -87,7 +86,7 @@ const Join = () => {
         });
       });
   };
-  const {JoinComponent} = useFpe((data) => {
+  const {JoinComponent} = useCustomization((data) => {
     let components: {
       JoinComponent?: React.ComponentType;
     } = {};

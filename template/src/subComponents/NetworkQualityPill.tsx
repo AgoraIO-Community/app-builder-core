@@ -13,7 +13,7 @@ import {
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
-import {isWeb} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
 import {RenderInterface, UidType} from '../../agora-rn-uikit';
 
@@ -27,17 +27,14 @@ import {RenderInterface, UidType} from '../../agora-rn-uikit';
  * hover to show network quality text [ ex. Excellent, Good, Bad etc ]
  *
  */
-export const NetworkQualityPill = ({
-  user,
-  primaryColor,
-  small,
-  rootStyle,
-}: {
+interface NetworkQualityPillProps {
   user: RenderInterface;
   primaryColor: any;
   small?: boolean;
   rootStyle?: StyleProp<ViewStyle>;
-}) => {
+}
+const NetworkQualityPill = (props: NetworkQualityPillProps) => {
+  const {user, primaryColor, small, rootStyle} = props;
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   //commented for v1 release
   //const getLabel = useString<NetworkQualities>('networkQualityLabel');
@@ -119,7 +116,7 @@ const PlatformSpecificWrapper = ({
   setNetworkTextVisible,
   children,
 }: any) => {
-  return !isWeb ? (
+  return !isWebInternal() ? (
     <Pressable
       style={{
         height: '100%',
@@ -192,3 +189,5 @@ const style = StyleSheet.create({
     // justifyContent: 'center',
   },
 });
+
+export default NetworkQualityPill;

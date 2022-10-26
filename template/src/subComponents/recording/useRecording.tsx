@@ -20,10 +20,10 @@ import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
 import {PropsContext} from '../../../agora-rn-uikit';
 import Toast from '../../../react-native-toast-message';
-import {createHook} from 'fpe-implementation';
+import {createHook} from 'customization-implementation';
 import {useString} from '../../utils/useString';
 import ChatContext from '../../components/ChatContext';
-import CustomEvents, {EventLevel} from '../../custom-events';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
@@ -31,14 +31,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
-  setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
   isRecordingActive: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
-  setRecordingActive: () => {},
   isRecordingActive: false,
 });
 
@@ -69,7 +67,10 @@ function usePrevious<T = any>(value: any) {
 
 interface RecordingProviderProps {
   children: React.ReactNode;
-  value: Omit<RecordingContextInterface, 'startRecording' | 'stopRecording'>;
+  value: {
+    setRecordingActive: React.Dispatch<SetStateAction<boolean>>;
+    isRecordingActive: boolean;
+  };
 }
 
 /**
@@ -96,8 +97,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {screenShareData} = useScreenContext();
 
   React.useEffect(() => {
-    CustomEvents.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
-      switch (data?.payload?.action) {
+    events.on(EventNames.RECORDING_ATTRIBUTE, (data) => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
+      switch (action) {
         case EventActions.RECORDING_STARTED:
           setRecordingActive(true);
           break;
@@ -109,7 +114,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       }
     });
     () => {
-      CustomEvents.off(EventNames.RECORDING_ATTRIBUTE);
+      events.off(EventNames.RECORDING_ATTRIBUTE);
     };
   }, []);
 
@@ -148,11 +153,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now active.
            */
-          CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
-            action: EventActions.RECORDING_STARTED,
-            value: `${localUid}`,
-            level: EventLevel.LEVEL3,
-          });
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STARTED,
+              value: `${localUid}`,
+            }),
+            EventPersistLevel.LEVEL3,
+          );
           // 2. set the local recording state to true to update the UI
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
@@ -188,11 +196,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
            * 1. Once the backend sucessfuly starts recording, send message
            * in the channel indicating that cloud recording is now inactive.
            */
-          CustomEvents.send(EventNames.RECORDING_ATTRIBUTE, {
-            action: EventActions.RECORDING_STOPPED,
-            value: '',
-            level: EventLevel.LEVEL3,
-          });
+          events.send(
+            EventNames.RECORDING_ATTRIBUTE,
+            JSON.stringify({
+              action: EventActions.RECORDING_STOPPED,
+              value: '',
+            }),
+            EventPersistLevel.LEVEL3,
+          );
           // 2. set the local recording state to false to update the UI
           setRecordingActive(false);
         }
@@ -208,13 +219,14 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         startRecording,
         stopRecording,
         isRecordingActive,
-        setRecordingActive,
       }}>
       {props.children}
     </RecordingContext.Provider>
   );
 };
-
+/**
+ * The Recording app state governs the App Builder cloud recording functionality.
+ */
 const useRecording = createHook(RecordingContext);
 
 export {RecordingProvider, useRecording};

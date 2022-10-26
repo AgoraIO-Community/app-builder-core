@@ -3,8 +3,8 @@ import MeParticipant from './MeParticipant';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
 import {useString} from '../../utils/useString';
-import useUserList from '../../utils/useUserList';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 export default function AllHostParticipants(props: any) {
   const {p_style, isHost} = props;
@@ -12,7 +12,7 @@ export default function AllHostParticipants(props: any) {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
-  const {renderList, renderPosition} = useUserList();
+  const {renderList, activeUids} = useRender();
   const getParticipantName = (uid: UidType) => {
     return renderList[uid]?.name || remoteUserDefaultLabel;
   };
@@ -20,7 +20,7 @@ export default function AllHostParticipants(props: any) {
   return (
     <>
       {/* User should see his name first */}
-      {renderPosition.filter((uid) => uid === localUid).length > 0 && (
+      {activeUids.filter((uid) => uid === localUid).length > 0 && (
         <MeParticipant
           name={getParticipantName(localUid)}
           p_style={p_style}
@@ -29,7 +29,7 @@ export default function AllHostParticipants(props: any) {
         />
       )}
       {/* Others Users in the call */}
-      {renderPosition
+      {activeUids
         .filter((uid) => uid !== localUid)
         .map((uid) =>
           renderList[uid]?.type === 'screenshare' ? (

@@ -19,7 +19,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const configVars = require('./configTransform');
-const getFpePath = require('./fpe.config');
+const getCustomizationApiPath = require('./customization.config');
 
 const isElectron = ['linux', 'windows', 'mac'].includes(process.env.TARGET);
 const isReactSdk = process.env.TARGET === 'rsdk';
@@ -33,9 +33,7 @@ module.exports = {
     !isSdk &&
       new HtmlWebpackPlugin({
         title: configVars['$config.APP_NAME'],
-        template: isElectron
-          ? 'electron/index.html'
-          : 'web/index.html',
+        template: isElectron ? 'electron/index.html' : 'web/index.html',
       }),
     isDevelopment &&
       !isSdk &&
@@ -55,10 +53,12 @@ module.exports = {
       // Using rtc bridge to translate React Native RTC SDK calls to web SDK calls for web and linux
       // Using rtc bridge to translate React Native RTC SDK calls to electron SDK calls for windows and mac
       'react-native-agora$': path.join(__dirname, 'bridge/rtc/webNg/index.ts'),
-      'fpe-api/install': path.join(__dirname, 'fpe-api/install.ts'),
-      'fpe-api': path.join(__dirname, 'fpe-api/index.ts'),
-      'fpe-implementation': path.join(__dirname, 'fpe-implementation/index.ts'),
-      'test-fpe': path.join(__dirname, getFpePath()),
+      'customization-api': path.join(__dirname, 'customization-api/index.ts'),
+      'customization-implementation': path.join(
+        __dirname,
+        'customization-implementation/index.ts',
+      ),
+      customization: path.join(__dirname, getCustomizationApiPath()),
       'agora-react-native-rtm/lib/typescript/src': path.join(
         __dirname,
         'bridge/rtm/web/index.ts',
@@ -85,7 +85,7 @@ module.exports = {
     ].filter(Boolean),
   },
   // Enable source maps during development
-  // devtool: isDevelopment ? 'eval-cheap-module-source-map' : undefined,
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : undefined,
   module: {
     rules: [
       {

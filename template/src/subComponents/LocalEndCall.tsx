@@ -3,14 +3,11 @@ import {
   ButtonTemplateName,
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
-import {
-  BtnTemplate,
-  BtnTemplateInterface,
-  RtcContext,
-} from '../../agora-rn-uikit';
+import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {View, Text, TouchableOpacity} from 'react-native';
+import {useRtc} from 'customization-api';
 
 export interface LocalEndcallProps {
   buttonTemplateName?: ButtonTemplateName;
@@ -21,7 +18,7 @@ export interface LocalEndcallProps {
 }
 
 const LocalEndcall = (props: LocalEndcallProps) => {
-  const {dispatch} = useContext(RtcContext);
+  const {dispatch} = useRtc();
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
   const endCallLabel = 'End';

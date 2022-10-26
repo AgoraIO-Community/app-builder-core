@@ -29,8 +29,8 @@ import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
-import useCustomLayout from '../pages/video-call/CustomLayout';
-import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
+import useLayoutsData from '../pages/video-call/useLayoutsData';
+import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
@@ -49,7 +49,7 @@ import Styles from './styles';
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
-  return isWeb && isDesktop ? (
+  return isWebInternal() && isDesktop ? (
     <View style={style.navItem}>
       <View style={style.navItemSeparator}></View>
     </View>
@@ -60,6 +60,7 @@ const RenderSeparator = () => {
 
 const ParticipantsCountView = () => {
   const {onlineUsersCount} = useContext(ChatContext);
+
   return (
     <>
       {onlineUsersCount !== 0 && (
@@ -77,7 +78,7 @@ const ParticipantsCountView = () => {
   );
 };
 
-interface ParticipantsIconButtonInterface {
+interface ParticipantsIconButtonProps {
   liveStreamingRequestAlertIconPosition?: {
     top?: number;
     right?: number;
@@ -91,10 +92,10 @@ interface ParticipantsIconButtonInterface {
     buttonTemplateName?: ButtonTemplateName,
   ) => JSX.Element;
 }
-const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
+const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
-      top: isWeb ? -10 : 2,
+      top: isWebInternal() ? -10 : 2,
       left: undefined,
       right: undefined,
       bottom: undefined,
@@ -168,7 +169,7 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
   );
 };
 
-interface ChatIconButtonInterface {
+interface ChatIconButtonProps {
   badgeContainerPosition?: {
     top?: number;
     right?: number;
@@ -185,10 +186,10 @@ interface ChatIconButtonInterface {
   ) => JSX.Element;
 }
 
-const ChatIconButton = (props: ChatIconButtonInterface) => {
+const ChatIconButton = (props: ChatIconButtonProps) => {
   const {
     badgeContainerPosition = {
-      top: isWeb ? -2 : 2,
+      top: isWebInternal() ? -2 : 2,
       left: undefined,
       right: undefined,
       bottom: undefined,
@@ -277,7 +278,7 @@ const ChatIconButton = (props: ChatIconButtonInterface) => {
   );
 };
 
-interface LayoutIconButtonInterface {
+interface LayoutIconButtonProps {
   modalPosition?: {
     top?: number;
     right?: number;
@@ -302,7 +303,10 @@ const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
-  const {meetingTitle} = useMeetingInfo();
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
+
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);
   let onLayout = (e: any) => {
@@ -329,7 +333,7 @@ const Navbar = () => {
       testID="videocall-topbar"
       onLayout={onLayout}
       style={[
-        isWeb ? style.navHolder : style.navHolderNative,
+        isWebInternal() ? style.navHolder : style.navHolderNative,
         {paddingHorizontal: isDesktop ? 30 : 10},
       ]}>
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
@@ -363,14 +367,15 @@ const Navbar = () => {
     </View>
   );
 };
-export const NavBarComponentsArray: [
+type NavBarComponentsArrayProps = [
   (props: CopyJoinInfoProps) => JSX.Element,
   () => JSX.Element,
-  (props: ParticipantsIconButtonInterface) => JSX.Element,
-  (props: ChatIconButtonInterface) => JSX.Element,
-  (props: LayoutIconButtonInterface) => JSX.Element,
+  (props: ParticipantsIconButtonProps) => JSX.Element,
+  (props: ChatIconButtonProps) => JSX.Element,
+  (props: LayoutIconButtonProps) => JSX.Element,
   (props: SettingsIconButtonProps) => JSX.Element,
-] = [
+];
+export const NavBarComponentsArray: NavBarComponentsArrayProps = [
   CopyJoinInfo,
   ParticipantsCountView,
   ParticipantsIconButton,
@@ -378,6 +383,7 @@ export const NavBarComponentsArray: [
   LayoutIconButton,
   SettingsIconButton,
 ];
+
 const style = StyleSheet.create({
   navHolder: {
     width: '100%',
@@ -478,7 +484,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   chipText: {
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_FONT_COLOR,
   },
@@ -492,7 +498,7 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: isWeb
+    backgroundColor: isWebInternal()
       ? $config.SECONDARY_FONT_COLOR
       : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,

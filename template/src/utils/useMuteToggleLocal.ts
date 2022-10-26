@@ -9,17 +9,19 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useContext} from 'react';
-import {RtcContext, LocalContext} from '../../agora-rn-uikit';
+import {useLocalUserInfo, useRtc} from 'customization-api';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
   video,
 }
+/**
+ * Returns an asynchronous function to toggle muted state of the given track type for the local user.
+ */
 function useMuteToggleLocal() {
-  const {RtcEngine, dispatch} = useContext(RtcContext);
-  const local = useContext(LocalContext);
+  const {RtcEngine, dispatch} = useRtc();
+  const local = useLocalUserInfo();
 
   return async (type: MUTE_LOCAL_TYPE) => {
     switch (type) {

@@ -11,7 +11,7 @@
 */
 import React, {useContext} from 'react';
 import {TextInputProps, StyleSheet, TextInput, Platform} from 'react-native';
-import {isWeb} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import {textInput} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
 
@@ -39,7 +39,7 @@ export default PrimaryButton;
 const styles = StyleSheet.create({
   textInput,
   // @ts-ignore
-  noOutline: isWeb ? {outlineStyle: 'none'} : {},
+  noOutline: isWebInternal() ? {outlineStyle: 'none'} : {},
   textWrapFix: Platform.select({
     ios: {
       paddingVertical: 5,
