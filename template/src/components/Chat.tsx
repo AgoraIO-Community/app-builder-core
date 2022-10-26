@@ -32,6 +32,9 @@ import {
   ChatTextInputProps,
   ChatSendButtonProps,
 } from '../subComponents/ChatInput';
+import {BtnTemplate} from '../../agora-rn-uikit';
+import {useSidePanel} from '../utils/useSidePanel';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
 
 const Chat = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -41,6 +44,7 @@ const Chat = (props?: {
   // commented for v1 release
   // const groupChatLabel = useString('groupChatLabel')();
   // const privateChatLabel = useString('privateChatLabel')();
+  const chatLabel = 'Chat';
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
   const [dim, setDim] = useState([
@@ -49,6 +53,7 @@ const Chat = (props?: {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
+  const {setSidePanel} = useSidePanel();
 
   const {
     groupActive,
@@ -150,60 +155,53 @@ const Chat = (props?: {
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
          */}
         <ChatBeforeView />
-        <View style={style.chatNav}>
-          <TouchableOpacity
-            onPress={selectGroup}
-            style={
-              groupActive
-                ? [style.groupActive, {borderColor: primaryColor}]
-                : [
-                    style.group,
-                    {
-                      borderColor: primaryColor,
-                      borderTopColor: primaryColor + '80',
-                    },
-                  ]
-            }>
-            {unreadGroupMessageCount !== 0 ? (
-              <View style={style.chatNotification}>
-                <Text>{unreadGroupMessageCount}</Text>
-              </View>
-            ) : null}
-            <Text style={groupActive ? style.groupTextActive : style.groupText}>
-              {groupChatLabel}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={selectPrivate}
-            style={
-              !groupActive
-                ? [style.privateActive, {borderColor: primaryColor}]
-                : [
-                    style.private,
-                    {
-                      borderColor: primaryColor,
-                      borderTopColor: primaryColor + '80',
-                    },
-                  ]
-            }>
-            {unreadPrivateMessageCount !== 0 ? (
-              <View style={style.chatNotification}>
-                <Text>{unreadPrivateMessageCount}</Text>
-              </View>
-            ) : null}
-            <Text
-              style={!groupActive ? style.groupTextActive : style.groupText}>
-              {privateChatLabel}
-            </Text>
-          </TouchableOpacity>
+        <View style={style.header}>
+          <Text style={style.mainHeading}>{chatLabel}</Text>
+          <View style={style.buttonHolder}>
+            <TouchableOpacity
+              onPress={selectGroup}
+              style={groupActive ? [style.groupActive] : [style.group]}>
+              {/* {unreadGroupMessageCount !== 0 ? (
+                <View style={style.chatNotification}>
+                  <Text>{unreadGroupMessageCount}</Text>
+                </View>
+              ) : null} */}
+              <Text
+                style={groupActive ? style.groupTextActive : style.groupText}>
+                {groupChatLabel}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={selectPrivate}
+              style={!groupActive ? [style.privateActive] : [style.private]}>
+              {/* {unreadPrivateMessageCount !== 0 ? (
+                <View style={style.chatNotification}>
+                  <Text>{unreadPrivateMessageCount}</Text>
+                </View>
+              ) : null} */}
+              <Text
+                style={!groupActive ? style.groupTextActive : style.groupText}>
+                {privateChatLabel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={style.closeIcon}>
+            <BtnTemplate
+              style={style.closeIcon}
+              color="#000"
+              name={'close'}
+              onPress={() => {
+                setSidePanel(SidePanelType.None);
+              }}
+            />
+          </View>
         </View>
+
         {groupActive ? (
           <>
             <ChatContainer {...props} />
-            <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
             <View>
               <View style={style.chatInputContainer}>
-                <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
                 <ChatInput {...props} />
               </View>
             </View>
@@ -215,14 +213,8 @@ const Chat = (props?: {
             ) : (
               <>
                 <ChatContainer {...props} />
-                <View
-                  style={[style.chatInputLineSeparator, {marginBottom: 0}]}
-                />
                 <View>
                   <View style={style.chatInputContainer}>
-                    <View
-                      style={[style.chatInputLineSeparator, {opacity: 0.3}]}
-                    />
                     <ChatInput {...props} />
                   </View>
                 </View>
@@ -237,12 +229,40 @@ const Chat = (props?: {
 };
 
 const style = StyleSheet.create({
+  buttonHolder: {
+    backgroundColor: '#E0E0E0',
+    borderRadius: 12,
+    minWidth: 160,
+    flexDirection: 'row',
+  },
+  closeIcon: {
+    width: 14,
+    height: 14,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDEDED',
+    alignItems: 'center',
+    minHeight: 60,
+  },
+  mainHeading: {
+    fontSize: 16,
+    letterSpacing: 0.8,
+    lineHeight: 16,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    color: $config.PRIMARY_FONT_COLOR,
+  },
   chatView: {
     width: '20%',
     minWidth: 200,
-    maxWidth: 300,
+    maxWidth: 383,
     borderRadius: 12,
-    marginLeft: 24,
+    marginLeft: 20,
     marginTop: 10,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
     flex: 1,
@@ -277,72 +297,38 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
   },
-  chatNav: {
-    flexDirection: 'row',
-    height: '6%',
-  },
-  chatInputContainer: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    paddingBottom: 10,
-  },
-  chatInputLineSeparator: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-    width: '100%',
-    height: 1,
-    marginHorizontal: -20,
-    alignSelf: 'center',
-    opacity: 0.5,
-    marginBottom: 10,
-  },
+  chatInputContainer: {},
   groupActive: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    flex: 1,
-    height: '100%',
-    textAlign: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
+    margin: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 11,
   },
   group: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
-    flex: 1,
-    height: '100%',
-    textAlign: 'center',
-    borderBottomRightRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 2,
   },
   privateActive: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    flex: 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    margin: 2,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 11,
   },
   private: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + 22,
-    flex: 1,
-    height: '100%',
-    borderBottomLeftRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 2,
   },
   groupTextActive: {
-    marginVertical: 'auto',
-    fontWeight: '700',
-    textAlign: 'center',
-    fontSize: 16,
-    color: $config.PRIMARY_FONT_COLOR,
-    justifyContent: 'center',
-    paddingVertical: 5,
+    paddingHorizontal: 23,
+    paddingVertical: 10,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 12,
+    color: '#099DFD',
   },
   groupText: {
-    marginVertical: 'auto',
-    fontWeight: '700',
-    textAlign: 'center',
-    fontSize: 16,
-    paddingVertical: 5,
-    justifyContent: 'center',
-    color: $config.PRIMARY_FONT_COLOR + 50,
+    paddingHorizontal: 23,
+    paddingVertical: 10,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 12,
+    color: '#1A1A1A',
   },
   chatNotification: {
     width: 20,

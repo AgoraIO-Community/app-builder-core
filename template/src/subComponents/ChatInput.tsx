@@ -46,7 +46,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
     <TouchableOpacity style={style.chatInputButton} onPress={onPress}>
       <Image
         source={{
-          uri: icons.send,
+          uri: icons.sendIcon,
         }}
         style={style.chatInputButtonIcon}
         resizeMode={'contain'}
@@ -73,7 +73,8 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
   // )();
-  const chatMessageInputPlaceholder = 'Type your message..';
+  //todo - hari update username
+  const chatMessageInputPlaceholder = 'Chat publicly as User...';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {
@@ -97,15 +98,19 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       value={message}
       onChangeText={onChangeText}
       style={{
-        borderRadius: 10,
-        backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
-        borderWidth: 1,
-        color: $config.PRIMARY_FONT_COLOR,
+        minHeight: 56,
+        borderRadius: 0,
+        borderBottomLeftRadius: 12,
+        borderWidth: 0,
+        backgroundColor: '#F3F3F3',
+        color: 'rgba(0,0,0,0.5)',
         textAlign: 'left',
-        height: 40,
-        paddingVertical: 10,
+        paddingVertical: 21,
+        paddingLeft: 20,
         flex: 1,
         alignSelf: 'center',
+        fontFamily: 'Source Sans Pro',
+        fontWeight: '400',
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
@@ -176,7 +181,7 @@ const ChatInput = (props: {
   });
 
   return (
-    <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
+    <View style={[style.inputView]}>
       <ChatInputComponent />
       <ChatSendButtonComponent />
     </View>
@@ -185,10 +190,8 @@ const ChatInput = (props: {
 
 const style = StyleSheet.create({
   inputView: {
-    width: '95%',
+    flex: 1,
     flexDirection: 'row',
-    marginHorizontal: 10,
-    paddingVertical: 15,
   },
   chatInput: {
     flex: 1,
@@ -197,25 +200,16 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
   },
   chatInputButton: {
-    width: 30,
-    marginRight: 0,
-    height: 30,
-    borderRadius: 30,
-    alignSelf: 'center',
-    marginHorizontal: 10,
-    backgroundColor: $config.PRIMARY_COLOR,
-    display: 'flex',
-    justifyContent: 'center',
+    flex: 0.1,
+    backgroundColor: '#F3F3F3',
+    borderBottomRightRadius: 12,
   },
   chatInputButtonIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
-    transform: [
-      {
-        translateX: -2,
-      },
-    ],
+    marginVertical: 20,
+    marginRight: 19,
+    width: 18,
+    height: 16,
+    tintColor: '#BABABA',
   },
 });
 export default ChatInput;
