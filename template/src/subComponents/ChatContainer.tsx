@@ -121,10 +121,15 @@ const ChatContainer = (props?: {
           scrollViewRef.current?.scrollToEnd({animated: true});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any) => (
+          messageStore.map((message: any, index) => (
             <>
               <ChatBubbleComponent
                 isLocal={localUid === message.uid}
+                isSameUser={
+                  index !== 0 && messageStore[index - 1].uid === message.uid
+                    ? true
+                    : false
+                }
                 message={message.msg}
                 createdTimestamp={message.createdTimestamp}
                 updatedTimestamp={message.updatedTimestamp}
@@ -136,9 +141,16 @@ const ChatContainer = (props?: {
             </>
           ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any) => (
+          privateMessageStore[selectedUserID].map((message: any, index) => (
             <ChatBubbleComponent
               isLocal={localUid === message.uid}
+              isSameUser={
+                index !== 0 &&
+                privateMessageStore[selectedUserID][index - 1].uid ===
+                  message.uid
+                  ? true
+                  : false
+              }
               message={message.msg}
               createdTimestamp={message.createdTimestamp}
               updatedTimestamp={message.updatedTimestamp}

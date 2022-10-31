@@ -21,6 +21,7 @@ export interface ChatBubbleProps {
   uid: UidType;
   msgId: string;
   isDeleted: boolean;
+  isSameUser: boolean;
   render?: (
     isLocal: boolean,
     message: string,
@@ -28,6 +29,7 @@ export interface ChatBubbleProps {
     uid: UidType,
     msgId: string,
     isDeleted: boolean,
+    isSameUser: boolean,
     updatedTimestamp?: string,
   ) => JSX.Element;
 }
