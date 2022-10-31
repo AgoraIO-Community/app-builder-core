@@ -5,6 +5,7 @@ import {
   TextInputProps,
   View,
   Platform,
+  TextStyle,
 } from 'react-native';
 import {textInput} from '../../theme.json';
 import React from 'react';
@@ -12,7 +13,7 @@ import React from 'react';
 interface InputProps extends TextInputProps {
   helpText?: string;
   label?: string;
-  labelStyle?: {};
+  labelStyle?: TextStyle;
   autoFocus?: boolean;
 }
 const Input = (props: InputProps) => {

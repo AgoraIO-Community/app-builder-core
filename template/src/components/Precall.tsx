@@ -32,12 +32,14 @@ import Logo from './common/Logo';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import {useRtc} from 'customization-api';
+import {MeetingTitleProps} from './precall/meetingTitle';
+import {PreCallTextInputProps} from './precall/textInput';
 
 const JoinRoomInputView = () => {
   const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
-      Textbox: React.ComponentType;
+      Textbox: React.ComponentType<PreCallTextInputProps>;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
     // commented for v1 release
     // if (
@@ -65,10 +67,23 @@ const JoinRoomInputView = () => {
     return components;
   });
   return (
-    <View style={style.btnContainer}>
-      <Textbox />
+    <View
+      style={$config.EVENT_MODE ? style.lsBtnContainer : style.btnContainer}>
+      <Textbox
+        labelStyle={$config.EVENT_MODE ? style.labelStyle : {}}
+        textInputStyle={$config.EVENT_MODE ? style.textInputStyle : {}}
+      />
+      {$config.EVENT_MODE ? (
+        <Text style={style.subTextStyle}>
+          Enter the name you would like to join the room as
+        </Text>
+      ) : (
+        <></>
+      )}
       <View style={{height: 20}} />
-      <JoinButton />
+      <View style={$config.EVENT_MODE ? style.btnContainerStyle : {}}>
+        <JoinButton />
+      </View>
     </View>
   );
 };
@@ -156,7 +171,7 @@ const Precall = (props: any) => {
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType;
       VideoPreview: React.ComponentType;
-      MeetingName: React.ComponentType;
+      MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
       PrecallAfterView: React.Fragment,
       PrecallBeforeView: React.Fragment,
@@ -274,10 +289,14 @@ const Precall = (props: any) => {
       <View style={style.main} onLayout={onLayout} testID="precall-screen">
         {/* Precall screen only changes for audience in Live Stream event */}
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <View style={style.preCallContainer}>
-            {/* <Logo /> */}
-            <MeetingName />
-            <JoinRoomInputView />
+          <View>
+            <Card>
+              <Logo />
+              <View style={style.meetingTitleContainer}>
+                <MeetingName textStyle={style.meetingTitleStyle} />
+              </View>
+              <JoinRoomInputView />
+            </Card>
           </View>
         ) : (
           <>
@@ -327,18 +346,38 @@ const Precall = (props: any) => {
 
 const style = StyleSheet.create({
   full: {flex: 1},
+  labelStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#1A1A1A',
+    letterSpacing: 0.08,
+    lineHeight: 18,
+  },
+  textInputStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#1A1A1A',
+    letterSpacing: 0.08,
+    lineHeight: 18,
+  },
+  subTextStyle: {
+    marginTop: 8,
+    marginLeft: 8,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 18,
+    color: '#333333',
+    textAlign: 'left',
+  },
+  btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
   main: {
     flex: 2,
     marginHorizontal: '10%',
     minHeight: 500,
     justifyContent: 'center',
-  },
-  preCallContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 350,
-    justifyContent: 'space-between',
-    marginTop: '15%',
   },
   nav: {
     flex: 1,
@@ -394,6 +433,21 @@ const style = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  lsBtnContainer: {
+    flex: 1,
+    width: '100%',
+    // justifyContent: 'center',
+  },
+  meetingTitleContainer: {
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  meetingTitleStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '700',
+    fontSize: 32,
+    color: '#333333',
   },
 });
 

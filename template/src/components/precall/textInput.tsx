@@ -11,6 +11,7 @@
 */
 
 import React from 'react';
+import {TextStyle} from 'react-native';
 import TextInput from '../../atoms/TextInput';
 import {useString} from '../../utils/useString';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
@@ -18,7 +19,11 @@ import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
 import Input from '../../atoms/Input';
 
-const PreCallTextInput: React.FC = () => {
+export interface PreCallTextInputProps {
+  labelStyle?: TextStyle;
+  textInputStyle?: TextStyle;
+}
+const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   //commented for v1 release
   // const userNamePlaceholder = useString('userNamePlaceholder')();
   // const fetchingNamePlaceholder = useString('fetchingNamePlaceholder')();
@@ -30,16 +35,28 @@ const PreCallTextInput: React.FC = () => {
 
   return (
     <Input
-      label="Joining as"
+      label={$config.EVENT_MODE ? 'Your Name' : 'Joining as'}
       value={username}
       autoFocus
       onChangeText={(text) => setUsername(text ? text : '')}
       onSubmitEditing={() => {}}
       placeholder={
-        isJoinDataFetched ? userNamePlaceholder : fetchingNamePlaceholder
+        isJoinDataFetched
+          ? $config.EVENT_MODE
+            ? 'Luke Skywalker'
+            : userNamePlaceholder
+          : fetchingNamePlaceholder
       }
-      style={{fontWeight: '400', fontSize: 14}}
-      labelStyle={{fontWeight: '400', fontSize: 14}}
+      style={
+        props?.textInputStyle
+          ? props?.textInputStyle
+          : {fontWeight: '400', fontSize: 18, color: '#2B2C33'}
+      }
+      labelStyle={
+        props?.labelStyle
+          ? props?.labelStyle
+          : {fontWeight: '400', fontSize: 14, color: '#181818'}
+      }
       editable={isJoinDataFetched}
     />
   );

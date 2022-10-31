@@ -21,6 +21,7 @@ import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
 import isMobileOrTablet from '../../utils/isMobileOrTablet';
 import {isWebInternal} from '../../utils/common';
+import {icons} from 'customization-api';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -84,7 +85,12 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (
-    <PrimaryButton onPress={onPress} disabled={disabled} text={title} />
+    <PrimaryButton
+      icon={icons.createMeeting}
+      onPress={onPress}
+      disabled={disabled}
+      text={title}
+    />
   );
 };
 
