@@ -14,6 +14,7 @@ import {isIOS, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
+import UserAvatar from '../../atoms/UserAvatar';
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -39,6 +40,9 @@ const ChatParticipants = (props: any) => {
       {Object.entries(renderList).map(([uid, value]) => {
         const uidAsNumber = parseInt(uid);
         if (isChatUser(uidAsNumber, value)) {
+          const name = renderList[uidAsNumber]
+            ? renderList[uidAsNumber].name + ''
+            : remoteUserDefaultLabel;
           return (
             <TouchableOpacity
               style={style.participantContainer}
@@ -46,35 +50,24 @@ const ChatParticipants = (props: any) => {
               onPress={() => {
                 selectUser(uidAsNumber);
               }}>
+              <UserAvatar
+                name={name}
+                containerStyle={style.userAvatarContainer}
+                textStyle={style.userAvatarText}
+              />
+              <View style={style.participantTextContainer}>
+                <Text style={[style.participantText]}>{name}</Text>
+              </View>
               {unreadIndividualMessageCount &&
               unreadIndividualMessageCount[uidAsNumber] ? (
                 <View style={style.chatNotificationPrivate}>
-                  <Text>{unreadIndividualMessageCount[uidAsNumber]}</Text>
+                  <Text style={style.chatNotificationCountText}>
+                    {unreadIndividualMessageCount[uidAsNumber]}
+                  </Text>
                 </View>
-              ) : null}
-              <View style={{flex: 1}}>
-                <TextWithTooltip
-                  touchable={false}
-                  style={[
-                    style.participantText,
-                    {
-                      fontSize: RFValue(16, height > width ? height : width),
-                    },
-                  ]}
-                  value={
-                    renderList[uidAsNumber]
-                      ? renderList[uidAsNumber].name + ''
-                      : remoteUserDefaultLabel
-                  }
-                />
-              </View>
-              <View>
-                <Text
-                  style={{
-                    color: $config.PRIMARY_FONT_COLOR,
-                    fontSize: 18,
-                  }}>{`>`}</Text>
-              </View>
+              ) : (
+                <></>
+              )}
             </TouchableOpacity>
           );
         }
@@ -84,37 +77,59 @@ const ChatParticipants = (props: any) => {
 };
 
 const style = StyleSheet.create({
+  userAvatarContainer: {
+    backgroundColor: '#021F3380',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 8,
+    marginLeft: 20,
+    marginVertical: 16,
+  },
+  userAvatarText: {
+    fontSize: 12,
+    lineHeight: 10,
+    fontWeight: '400',
+    color: '#fff',
+  },
   participantContainer: {
     flexDirection: 'row',
     flex: 1,
-    height: 20,
-    marginTop: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
     overflow: 'hidden',
-    marginHorizontal: 10,
+  },
+  participantTextContainer: {
+    flex: 1,
+    marginVertical: 28,
   },
   participantText: {
     flex: 1,
-    fontWeight: isWebInternal() ? '500' : '700',
-    flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 12,
+    color: '#000000',
     textAlign: 'left',
     flexShrink: 1,
-    marginRight: 30,
   },
   chatNotificationPrivate: {
-    width: 20,
-    height: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: $config.PRIMARY_COLOR,
-    color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-    borderRadius: 10,
-    position: 'absolute',
-    right: 20,
-    top: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 8,
+    marginRight: 22,
+    marginTop: 24,
+    marginBottom: 28,
+    width: 24,
+    height: 16,
+  },
+  chatNotificationCountText: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 12,
+    lineHeight: 12,
+    textAlign: 'center',
+    color: '#FFFFFF',
+    paddingVertical: 2,
+    paddingLeft: 8,
+    paddingRight: 9,
   },
 });
 
