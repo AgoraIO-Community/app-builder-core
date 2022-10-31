@@ -29,7 +29,7 @@ const Input = (props: InputProps) => {
           style,
           {borderColor: isFocussed ? $config.PRIMARY_COLOR : '#666666'},
         ]}
-        placeholderTextColor="#BABABA"
+        placeholderTextColor="rgba(126, 126, 126, 0.5)"
         autoCorrect={false}
         autoFocus
         {...otherProps}

@@ -25,10 +25,29 @@ import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
+import {PropsConsumer} from 'agora-rn-uikit';
 
 interface AppWrapperProps {
   children: React.ReactNode;
 }
+
+const ImageBackgroundComp = (props: {
+  bg: string;
+  children?: React.ReactNode;
+}) => {
+  if (props.bg) {
+    return (
+      <ImageBackground
+        source={{uri: props.bg}}
+        style={{flex: 1}}
+        resizeMode={'cover'}>
+        {props.children}
+      </ImageBackground>
+    );
+  } else {
+    return <>{props.children}</>;
+  }
+};
 
 const AppWrapper = (props: AppWrapperProps) => {
   const AppRoot = useCustomization((data) => {
@@ -43,10 +62,7 @@ const AppWrapper = (props: AppWrapperProps) => {
 
   return (
     <AppRoot>
-      <ImageBackground
-        source={{uri: $config.BG}}
-        style={{flex: 1}}
-        resizeMode={'cover'}>
+      <ImageBackgroundComp bg={$config.BG}>
         <SafeAreaView
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
@@ -72,7 +88,7 @@ const AppWrapper = (props: AppWrapperProps) => {
             </GraphQLProvider>
           </StorageProvider>
         </SafeAreaView>
-      </ImageBackground>
+      </ImageBackgroundComp>
     </AppRoot>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}

@@ -18,14 +18,14 @@ export default Card;
 const styles = StyleSheet.create({
   root: {
     borderWidth: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     paddingVertical: mobileOrTablet ? 40 : 60,
     paddingHorizontal: mobileOrTablet ? 20 : 60,
     borderRadius: 20,
-    borderColor: '#ffffff',
+    borderColor: 'rgba(80, 80, 80, 0.2)',
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: 3},
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 5,
     maxWidth: 675,

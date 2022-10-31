@@ -191,6 +191,14 @@ const Create = () => {
                   /> */}
                   <Spacer size={40} />
                   <Input
+                    labelStyle={{
+                      fontFamily: 'Source Sans Pro',
+                      fontWeight: '600',
+                      fontSize: 18,
+                      color: '#1A1A1A',
+                      letterSpacing: 0.08,
+                      lineHeight: 18,
+                    }}
                     label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
                     value={roomTitle}
                     helpText={
@@ -413,7 +421,7 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 8,
   },
   toggleLabel: {
-    color: $config.PRIMARY_FONT_COLOR,
+    color: '#666666',
     fontSize: 16,
     marginRight: 8,
     fontFamily: 'Source Sans Pro',

@@ -92,26 +92,13 @@ const ChatContainer = (props?: {
     <View style={style.containerView}>
       {privateActive && (
         <TouchableOpacity
-          style={style.row}
+          style={style.backButtonContainer}
           onPress={() => setPrivateActive(false)}>
           <View style={style.backButton}>
             <ImageIcon style={[style.backIcon]} name={'backBtn'} />
           </View>
           <View style={{flex: 1}}>
-            <TextWithTooltip
-              style={[
-                style.name,
-                {
-                  flexShrink: 1,
-                  fontSize: RFValue(16, height > width ? height : width),
-                },
-              ]}
-              value={
-                renderList[selectedUserID]
-                  ? renderList[selectedUserID]?.name + ' '
-                  : remoteUserDefaultLabel + ' '
-              }
-            />
+            <Text style={style.backButtonText}>{'Back'}</Text>
           </View>
         </TouchableOpacity>
       )}
@@ -121,10 +108,15 @@ const ChatContainer = (props?: {
           scrollViewRef.current?.scrollToEnd({animated: true});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any) => (
+          messageStore.map((message: any, index) => (
             <>
               <ChatBubbleComponent
                 isLocal={localUid === message.uid}
+                isSameUser={
+                  index !== 0 && messageStore[index - 1].uid === message.uid
+                    ? true
+                    : false
+                }
                 message={message.msg}
                 createdTimestamp={message.createdTimestamp}
                 updatedTimestamp={message.updatedTimestamp}
@@ -136,9 +128,16 @@ const ChatContainer = (props?: {
             </>
           ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any) => (
+          privateMessageStore[selectedUserID].map((message: any, index) => (
             <ChatBubbleComponent
               isLocal={localUid === message.uid}
+              isSameUser={
+                index !== 0 &&
+                privateMessageStore[selectedUserID][index - 1].uid ===
+                  message.uid
+                  ? true
+                  : false
+              }
               message={message.msg}
               createdTimestamp={message.createdTimestamp}
               updatedTimestamp={message.updatedTimestamp}
@@ -163,24 +162,32 @@ const ChatContainer = (props?: {
 
 const style = StyleSheet.create({
   containerView: {flex: 8},
-  row: {
+  backButtonContainer: {
+    flex: 1,
     flexDirection: 'row',
-    marginTop: 2,
-    alignItems: 'baseline',
-    paddingVertical: 10,
-    ...Platform.select({
-      android: {
-        height: 40,
-      },
-      ios: {
-        height: 40,
-      },
-    }),
+    maxWidth: 70,
+    maxHeight: 28,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: 14,
+    marginBottom: 8,
+    marginLeft: 13,
+    marginTop: 20,
+  },
+  backButtonText: {
+    marginVertical: 8,
+    marginLeft: 8.6,
+    marginRight: 12,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 12,
+    lineHeight: 12,
+    letterSpacing: 0.02,
+    color: '#000000',
   },
   backButton: {
-    marginHorizontal: 10,
-    justifyContent: 'center',
-    alignSelf: 'flex-end',
+    marginLeft: 12,
+    marginBottom: 8.6,
+    marginTop: 8,
   },
   name: {
     fontWeight: isWebInternal() ? '500' : '700',
@@ -189,8 +196,9 @@ const style = StyleSheet.create({
     marginRight: 10,
   },
   backIcon: {
-    width: 20,
-    height: 20,
+    width: 12,
+    height: 12,
+    tintColor: '#000000',
   },
   infoTextView: {
     marginVertical: 2,

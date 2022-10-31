@@ -19,6 +19,7 @@ import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+import {useUserName} from 'customization-api';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -29,6 +30,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
     selectedChatUserId: selectedUserId,
     message,
     setMessage,
+    inputActive,
   } = useChatUIControl();
   const {sendChatMessage} = useChatMessages();
   const onPress = () => {
@@ -43,12 +45,20 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   return props?.render ? (
     props.render(onPress)
   ) : (
-    <TouchableOpacity style={style.chatInputButton} onPress={onPress}>
+    <TouchableOpacity
+      style={[
+        style.chatInputButton,
+        {backgroundColor: inputActive ? '#E6F5FF' : '#F3F3F3'},
+      ]}
+      onPress={onPress}>
       <Image
         source={{
-          uri: icons.send,
+          uri: icons.sendIcon,
         }}
-        style={style.chatInputButtonIcon}
+        style={[
+          style.chatInputButtonIcon,
+          {tintColor: inputActive ? '#099DFD' : '#BABABA'},
+        ]}
         resizeMode={'contain'}
       />
     </TouchableOpacity>
@@ -67,13 +77,15 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     selectedChatUserId: selectedUserId,
     message,
     setMessage,
+    inputActive,
   } = useChatUIControl();
   const {sendChatMessage} = useChatMessages();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
   // )();
-  const chatMessageInputPlaceholder = 'Type your message..';
+  const [name] = useUserName();
+  const chatMessageInputPlaceholder = `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {
@@ -84,6 +96,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
       setMessage('');
     }
   };
+  const {setInputActive} = useChatUIControl();
 
   return props?.render ? (
     props.render(
@@ -94,23 +107,29 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     )
   ) : (
     <TextInput
+      onFocus={() => setInputActive(true)}
+      onBlur={() => setInputActive(false)}
       value={message}
       onChangeText={onChangeText}
       style={{
-        borderRadius: 10,
-        backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
-        borderWidth: 1,
-        color: $config.PRIMARY_FONT_COLOR,
+        minHeight: 56,
+        borderRadius: 0,
+        borderBottomLeftRadius: 12,
+        borderWidth: 0,
+        backgroundColor: inputActive ? '#E6F5FF' : '#F3F3F3',
+        color: '#000000',
         textAlign: 'left',
-        height: 40,
-        paddingVertical: 10,
+        paddingVertical: 21,
+        paddingLeft: 20,
         flex: 1,
         alignSelf: 'center',
+        fontFamily: 'Source Sans Pro',
+        fontWeight: '400',
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
       placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={$config.PRIMARY_FONT_COLOR}
+      placeholderTextColor={'rgba(0,0,0,0.5)'}
       autoCorrect={false}
     />
   );
@@ -176,8 +195,10 @@ const ChatInput = (props: {
     },
   );
 
+  const {inputActive} = useChatUIControl();
+
   return (
-    <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
+    <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
       <ChatInputComponent />
       <ChatSendButtonComponent />
     </View>
@@ -185,11 +206,13 @@ const ChatInput = (props: {
 };
 
 const style = StyleSheet.create({
+  inputActiveView: {
+    borderTopWidth: 2,
+    borderColor: '#099DFD',
+  },
   inputView: {
-    width: '95%',
+    flex: 1,
     flexDirection: 'row',
-    marginHorizontal: 10,
-    paddingVertical: 15,
   },
   chatInput: {
     flex: 1,
@@ -198,25 +221,14 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
   },
   chatInputButton: {
-    width: 30,
-    marginRight: 0,
-    height: 30,
-    borderRadius: 30,
-    alignSelf: 'center',
-    marginHorizontal: 10,
-    backgroundColor: $config.PRIMARY_COLOR,
-    display: 'flex',
-    justifyContent: 'center',
+    flex: 0.1,
+    borderBottomRightRadius: 12,
   },
   chatInputButtonIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
-    transform: [
-      {
-        translateX: -2,
-      },
-    ],
+    marginVertical: 20,
+    marginRight: 19,
+    width: 18,
+    height: 16,
   },
 });
 export default ChatInput;
