@@ -1,12 +1,19 @@
 import React from 'react';
-import {Text, StyleSheet, View} from 'react-native';
+import {Text, StyleSheet, View, TextStyle} from 'react-native';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
-const MeetingTitle: React.FC = () => {
+export interface MeetingTitleProps {
+  textStyle?: TextStyle;
+}
+const MeetingTitle: React.FC = (props?: MeetingTitleProps) => {
   const {
     data: {meetingTitle},
   } = useMeetingInfo();
-  return <Text style={[style.titleHeading]}>{meetingTitle}</Text>;
+  return (
+    <Text style={[style.titleHeading, props?.textStyle ? props.textStyle : {}]}>
+      {meetingTitle}
+    </Text>
+  );
 };
 
 export default MeetingTitle;
