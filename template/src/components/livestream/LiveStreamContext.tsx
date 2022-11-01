@@ -399,7 +399,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         action: LiveStreamControlMessageEnum.raiseHandRequest,
         value: RaiseHandValue.TRUE,
       }),
-      EventPersistLevel.LEVEL1,
+      EventPersistLevel.LEVEL2,
     );
     // Update local state
     addOrUpdateLiveStreamRequest(localUidRef.current, {

@@ -260,9 +260,8 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
   },
   chatView: {
-    width: '20%',
+    maxWidth: '23%',
     minWidth: 200,
-    maxWidth: 383,
     borderRadius: 12,
     marginLeft: 20,
     marginTop: 10,

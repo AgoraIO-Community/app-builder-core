@@ -190,11 +190,10 @@ const style = StyleSheet.create({
   },
 
   participantView: {
-    width: '20%',
+    maxWidth: '23%',
     minWidth: 200,
-    maxWidth: 300,
     borderRadius: 12,
-    marginLeft: 24,
+    marginLeft: 20,
     marginTop: 10,
     flex: 1,
     backgroundColor: $config.SECONDARY_FONT_COLOR,
@@ -253,6 +252,7 @@ const style = StyleSheet.create({
     letterSpacing: 0.8,
     fontStyle: 'italic',
     color: $config.PRIMARY_FONT_COLOR,
+    alignSelf: 'center',
   },
   participantContainer: {
     width: '100%',

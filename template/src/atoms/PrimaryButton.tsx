@@ -19,6 +19,7 @@ import {
   TextStyle,
   Image,
   View,
+  ViewStyle,
 } from 'react-native';
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
@@ -26,20 +27,27 @@ import ColorContext from '../components/ColorContext';
 export interface PrimaryButtonProps extends PressableProps {
   text?: string;
   icon?: string;
+  containerStyle?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
   const {primaryColor} = useContext(ColorContext);
-  const {children, icon, ...otherProps} = props;
+  const {children, icon, textStyle, containerStyle, ...otherProps} = props;
   return (
     <Pressable
       style={[
         styles.container,
         {backgroundColor: props.disabled ? '#BABABA' : primaryColor},
+        containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
       {icon && <Image style={styles.icon} source={{uri: icon}} />}
-      {props.text && <Text style={styles.text}>{props.text}</Text>}
+      {props.text && (
+        <Text style={[styles.text, textStyle ? textStyle : {}]}>
+          {props.text}
+        </Text>
+      )}
     </Pressable>
   );
 }

@@ -3,6 +3,7 @@ import {View} from 'react-native';
 import {BtnTemplate, PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
 import icons from '../../../assets/icons';
+import PrimaryButton from '../../../atoms/PrimaryButton';
 
 export interface RemoteLiveStreamControlProps {
   uid: UidType;
@@ -13,22 +14,29 @@ const RemoteLiveStreamRequestApprove = (
 ) => {
   const {uid} = props;
   const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
-  const {styleProps} = useContext(PropsContext);
-  const {remoteBtnStyles} = styleProps || {};
-
-  const {liveStreamHostControlBtns} = remoteBtnStyles || {};
 
   return (
-    <View style={{...(liveStreamHostControlBtns as object), marginRight: 15}}>
-      <BtnTemplate
-        disabled={!uid}
-        icon={icons['checkCircleIcon']}
-        style={{...(liveStreamHostControlBtns as object)}}
-        onPress={() => {
-          hostApprovesRequestOfUID(uid);
-        }}
-      />
-    </View>
+    <PrimaryButton
+      containerStyle={{
+        minWidth: 59,
+        maxWidth: 59,
+        height: 28,
+      }}
+      textStyle={{
+        color: '#ffffff',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        fontFamily: 'Source Sans Pro',
+        fontStyle: 'normal',
+        fontWeight: '600',
+        fontSize: 12,
+      }}
+      disabled={!uid}
+      text={'Accept'}
+      onPress={() => {
+        hostApprovesRequestOfUID(uid);
+      }}
+    />
   );
 };
 
