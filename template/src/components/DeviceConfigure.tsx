@@ -64,9 +64,22 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   }, []);
 
   useEffect(() => {
+    const getDevices = (event) => {
+      console.log('DeviceTesting: Browser API:event', event);
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
+        console.log('DeviceTesting: Browser API:devices', devices);
+      });
+    };
+    navigator.mediaDevices.addEventListener('devicechange', getDevices);
+    return () => {
+      navigator.mediaDevices.removeEventListener('devicechange', getDevices);
+    };
+  }, []);
+
+  useEffect(() => {
     AgoraRTC.onMicrophoneChanged = async (changedDevice: changedDeviceInfo) => {
       // When new audio device is plugged in ,refresh the devices list.
-      console.log('DeviceTesting: on-microphone-changed');
+      console.log('DeviceTesting: on-microphone-changed', changedDevice);
       if (changedDevice && changedDevice.state === 'ACTIVE') {
         if (changedDevice.device?.kind === 'audioinput') {
           console.log('DeviceTesting: NEW audio device detected and selected');
