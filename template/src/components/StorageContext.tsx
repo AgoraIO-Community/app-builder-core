@@ -12,6 +12,7 @@
 import React, {createContext, ReactChildren, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import useMount from './useMount';
+import SDKEvents from '../../src/utils/SdkEvents';
 
 export interface StoreInterface {
   [key: string]: string | null;
@@ -45,20 +46,6 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
   const [ready, setReady] = useState(false);
   const [store, setStore] = useState<StoreInterface>(initStoreValue);
 
-  const _retrieveSdkToken = async () => {
-    try {
-      const value = await AsyncStorage.getItem('SDK_TOKEN');
-      if (value !== null) {
-        console.log('supriya return true');
-        return value;
-      }
-    } catch (error) {
-      console.log('supriya return false');
-      // Error retrieving data
-      return null;
-    }
-  };
-
   // Initialize and hydrate store
   useMount(() => {
     const hydrateStore = async () => {
@@ -84,19 +71,27 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     const syncStore = async () => {
       try {
-        const storeValue = JSON.stringify({
-          ...store,
-          ...($config.ENABLE_SDK_AUTHENTICATION && {
-            token: await _retrieveSdkToken(),
-          }),
-        });
-        await AsyncStorage.setItem('store', storeValue);
+        await AsyncStorage.setItem('store', JSON.stringify(store));
+        console.log('store synced with value', store);
       } catch (e) {
         console.log('problem syncing the store', e);
       }
     };
     ready && syncStore();
   }, [store, ready]);
+
+  useEffect(() => {
+    SDKEvents.on('sdk-token', (token) => {
+      console.log('9 supriya sdk changed in store', token);
+      setStore((prevState) => {
+        return {
+          ...prevState,
+          token: token,
+        };
+      });
+    });
+  }, []);
+
   return (
     <StorageContext.Provider value={{store, setStore}}>
       {ready ? props.children : <></>}
