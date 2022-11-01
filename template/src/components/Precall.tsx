@@ -34,6 +34,8 @@ import Spacer from '../atoms/Spacer';
 import {useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
+import PermissionHelper from './precall/PermissionHelper';
+import StorageContext from './StorageContext';
 
 const JoinRoomInputView = () => {
   const {JoinButton, Textbox} = useCustomization((data) => {
@@ -281,11 +283,26 @@ const Precall = (props: any) => {
     return undefined;
   });
 
+  //permission helper modal show/hide
+  const [isVisible, setIsVisible] = useState(false);
+  const {store} = useContext(StorageContext);
+  useEffect(() => {
+    if (store?.permissionPopupSeen) {
+      const flag = JSON.parse(store?.permissionPopupSeen);
+      if (flag === false) {
+        setIsVisible(true);
+      }
+    } else {
+      setIsVisible(true);
+    }
+  }, []);
+
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
     <>
       <PrecallBeforeView />
+      <PermissionHelper isVisible={isVisible} setIsVisible={setIsVisible} />
       <View style={style.main} onLayout={onLayout} testID="precall-screen">
         {/* Precall screen only changes for audience in Live Stream event */}
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
