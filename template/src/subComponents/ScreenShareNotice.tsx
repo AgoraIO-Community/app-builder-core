@@ -12,8 +12,11 @@
 
 import {PropsContext, UidType} from '../../agora-rn-uikit';
 import React, {useContext} from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import {useString} from '../utils/useString';
+//@ts-ignore
+import closeIcon from '../assets/icons/close-ss.svg';
+import {useScreenshare} from './screenshare/useScreenshare';
 /**
  *
  * @param uid - uid of the user
@@ -26,18 +29,59 @@ function ScreenShareNotice({uid}: {uid: UidType}) {
   // const screensharingActiveOverlayLabel = useString(
   //   'screensharingActiveOverlayLabel',
   // )();
-  const screensharingActiveOverlayLabel = 'Your screen share is active.';
+  const {stopUserScreenShare} = useScreenshare();
+  const screensharingActiveOverlayLabel = 'You are sharing your screen';
   const {rtcProps} = useContext(PropsContext);
   return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>
       <Text style={styles.screensharingMessage}>
         {screensharingActiveOverlayLabel}
       </Text>
+      <TouchableOpacity
+        style={styles.btnContainer}
+        onPress={() => stopUserScreenShare()}>
+        <View style={styles.iconContainer}>
+          <Image source={{uri: closeIcon}} style={styles.icon} />
+        </View>
+        <View style={styles.btnTextContainer}>
+          <Text style={styles.btnText}>Stop Sharing</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   ) : null;
 }
 
 const styles = StyleSheet.create({
+  iconContainer: {
+    marginVertical: 12,
+    marginLeft: 16,
+    marginRight: 12,
+  },
+  icon: {
+    tintColor: '#FFFFFF',
+    width: 20,
+    height: 16,
+  },
+  btnContainer: {
+    alignSelf: 'center',
+    backgroundColor: '#FF414D',
+    borderRadius: 8,
+    height: 40,
+    maxWidth: 129,
+    flexDirection: 'row',
+  },
+  btnTextContainer: {
+    marginVertical: 12,
+    marginRight: 16,
+  },
+  btnText: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
+    color: '#FFFFFF',
+  },
   screenSharingMessageContainer: {
     position: 'absolute',
     top: 0,
@@ -53,8 +97,12 @@ const styles = StyleSheet.create({
   },
   screensharingMessage: {
     alignSelf: 'center',
-    fontSize: 20,
-    color: $config.SECONDARY_FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 32,
+    lineHeight: 40,
+    color: '#FFFFFF',
+    paddingBottom: 24,
   },
 });
 
