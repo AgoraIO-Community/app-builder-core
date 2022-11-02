@@ -14,6 +14,7 @@ import {
   BtnTemplate,
   ToggleState,
   BtnTemplateInterface,
+  PermissionState,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
@@ -23,6 +24,12 @@ import {
 } from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
+//@ts-ignore
+import micOnIcon from '../assets/icons/mic-on.svg';
+//@ts-ignore
+import micOffIcon from '../assets/icons/mic-off.svg';
+//@ts-ignore
+import noMicIcon from '../assets/icons/no-mic.svg';
 /**
  * A component to mute / unmute the local audio
  */
@@ -50,19 +57,35 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const isAudioEnabled = local.audio === ToggleState.enabled;
   const audioLabel = isAudioEnabled ? 'Mute' : 'Unmute';
 
+  const permissionDenied =
+    local.permissionStatus === PermissionState.REJECTED ||
+    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: isAudioEnabled ? 'mic' : 'micOff',
+    //name: isAudioEnabled ? 'mic' : 'micOff',
+    icon: permissionDenied
+      ? noMicIcon
+      : isAudioEnabled
+      ? micOnIcon
+      : micOffIcon,
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
     btnTemplateProps.style = Styles.localButtonSmall as Object;
-    btnTemplateProps.color = isAudioEnabled ? $config.PRIMARY_COLOR : '#999999';
+    btnTemplateProps.color = permissionDenied
+      ? '#8F8F8F'
+      : isAudioEnabled
+      ? $config.PRIMARY_COLOR
+      : '#999999';
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = audioLabel;
-    btnTemplateProps.color = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+    btnTemplateProps.color = permissionDenied
+      ? '#8F8F8F'
+      : isAudioEnabled
+      ? $config.PRIMARY_COLOR
+      : '#FF414D';
   }
 
   return props?.render ? (

@@ -11,18 +11,50 @@
 */
 
 import React, {useContext} from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import PreCallLocalMute from './LocalMute';
-import {ToggleState, LocalContext} from '../../../agora-rn-uikit';
+import {LocalContext, PermissionState} from '../../../agora-rn-uikit';
 //@ts-ignore
 import imgUrl from '../../assets/avatar.png';
 import {useRender} from 'customization-api';
+import {usePreCall} from './usePreCall';
+
+const Fallback = () => {
+  const {isCameraAvailable} = usePreCall();
+  const local = useContext(LocalContext);
+  const requestCameraAndAudioPermission = () => {};
+  return (
+    <View style={styles.fallbackRootContainer}>
+      {isCameraAvailable ||
+      local.permissionStatus === PermissionState.NOT_REQUESTED ? (
+        <Image
+          source={{uri: imgUrl}}
+          style={styles.avatar}
+          resizeMode="contain"
+        />
+      ) : (
+        <View style={styles.fallbackContainer}>
+          <Text style={styles.infoText1}>Can’t Find Your Camera</Text>
+          <Text style={styles.infoText2}>
+            Check your system settings to make sure that a camera is available.
+            If not, plug one in and restart your browser.
+          </Text>
+          <TouchableOpacity
+            style={{flex: 1, paddingBottom: 24}}
+            onPress={() => {
+              requestCameraAndAudioPermission();
+            }}>
+            <Text style={styles.retryBtn}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+};
 
 const VideoPreview: React.FC = () => {
   const {renderList, activeUids} = useRender();
-  const local = useContext(LocalContext);
-  const isVideoEnabled = local.video === ToggleState.enabled;
 
   const [maxUid] = activeUids;
 
@@ -30,18 +62,13 @@ const VideoPreview: React.FC = () => {
     return null;
   }
 
-  console.log(renderList[maxUid]);
   return (
     <View style={styles.container}>
-      {!isVideoEnabled && (
-        <Image
-          source={{uri: imgUrl}}
-          style={styles.avatar}
-          resizeMode="contain"
-        />
-      )}
-
-      <MaxVideoView user={renderList[maxUid]} key={maxUid} />
+      <MaxVideoView
+        user={renderList[maxUid]}
+        key={maxUid}
+        fallback={Fallback}
+      />
       <PreCallLocalMute />
     </View>
   );
@@ -49,6 +76,54 @@ const VideoPreview: React.FC = () => {
 export default VideoPreview;
 
 const styles = StyleSheet.create({
+  infoText1: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '700',
+    fontSize: 20,
+    lineHeight: 25,
+    textAlign: 'center',
+    color: '#040405',
+    paddingTop: 24,
+    paddingBottom: 12,
+  },
+  infoText2: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 18,
+    textAlign: 'center',
+    color: '#2B2C33',
+    paddingHorizontal: 48,
+  },
+  fallbackRootContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fallbackContainer: {
+    flex: 1,
+    maxHeight: '34%',
+    maxWidth: 440,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  retryBtn: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 16,
+    lineHeight: 20,
+    color: '#099DFD',
+    paddingVertical: 32,
+  },
   container: {
     flex: 1,
     justifyContent: 'space-between',

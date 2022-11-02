@@ -9,13 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {Picker, StyleSheet, View, Text} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {StyleSheet, View, Text} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 import {useString} from '../utils/useString';
-import Spacer from '../../src/atoms/Spacer';
+import Spacer from '../atoms/Spacer';
+import Dropdown from '../atoms/Dropdown';
+import {usePreCall} from '../components/precall/usePreCall';
 // import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
@@ -51,34 +53,34 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const data = deviceList
+    .filter((device: any) => {
+      if (device.kind === 'videoinput') {
+        return true;
+      }
+    })
+    ?.map((device) => {
+      return {
+        label: device.label,
+        value: device.deviceId,
+      };
+    });
+
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
     <>
       <Text style={style.label}>Select Camera</Text>
-      <Picker
+      <Dropdown
         enabled={!isPickerDisabled}
-        selectedValue={selectedCam}
-        style={[
-          {borderColor: isFocussed ? btnTheme : '#666666'},
-          style.popupPicker,
-        ]}
-        onValueChange={(itemValue) => {
+        label={!data || !data.length ? 'No Camera Detected' : ''}
+        data={data}
+        onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedCam(itemValue);
-        }}>
-        {deviceList.map((device: any) => {
-          if (device.kind === 'videoinput') {
-            return (
-              <Picker.Item
-                label={device.label}
-                value={device.deviceId}
-                key={device.deviceId}
-              />
-            );
-          }
-        })}
-      </Picker>
+          setSelectedCam(value);
+        }}
+        selectedValue={selectedCam}
+      />
     </>
   );
 };
@@ -96,40 +98,68 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
+
+  const data = deviceList
+    .filter((device) => {
+      if (device.kind === 'audioinput') {
+        return true;
+      }
+    })
+    ?.map((device: any) => {
+      if (device.kind === 'audioinput') {
+        return {
+          label: device.label,
+          value: device.deviceId,
+        };
+      }
+    });
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
-    <>
+    <View>
       <Text style={style.label}>Select Microphone</Text>
-      <Picker
+      <Dropdown
         enabled={!isPickerDisabled}
         selectedValue={selectedMic}
-        style={[
-          {borderColor: isFocussed ? btnTheme : '#666666'},
-          style.popupPicker,
-        ]}
-        onValueChange={(itemValue) => {
+        label={!data || !data.length ? 'No Microphone Detected' : ''}
+        data={data}
+        onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedMic(itemValue);
-        }}>
-        {deviceList.map((device: any) => {
-          if (device.kind === 'audioinput') {
-            return (
-              <Picker.Item
-                label={device.label}
-                value={device.deviceId}
-                key={device.deviceId}
-              />
-            );
-          }
-        })}
-      </Picker>
-    </>
+          setSelectedMic(value);
+        }}
+      />
+    </View>
   );
 };
 
 const SelectDevice = () => {
   const [isPickerDisabled] = useSelectDevice();
+  const {deviceList} = useContext(DeviceContext);
+  const {setCameraAvailable, setMicAvailable} = usePreCall();
+
+  const audioDevices = deviceList.filter((device) => {
+    if (device.kind === 'audioinput') {
+      return true;
+    }
+  });
+  const videoDevices = deviceList.filter((device) => {
+    if (device.kind === 'videoinput') {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    if (audioDevices && audioDevices.length) {
+      setMicAvailable(true);
+    }
+  }, [audioDevices]);
+
+  useEffect(() => {
+    if (videoDevices && videoDevices.length) {
+      setCameraAvailable(true);
+    }
+  }, [videoDevices]);
+
   //commented for v1 release
   // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
   const settingScreenInfoMessage = $config.AUDIO_ROOM
@@ -164,6 +194,13 @@ const style = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Source Sans Pro',
   },
+  pickerItem: {
+    paddingLeft: 12,
+    paddingVertical: 24,
+    marginHorizontal: 8,
+    marginVertical: 20,
+    backgroundColor: '#FFFFFF',
+  },
   infoTxt: {
     textAlign: 'center',
     fontSize: 12,
@@ -172,7 +209,7 @@ const style = StyleSheet.create({
   label: {
     fontWeight: '400',
     fontSize: 14,
-    color: '#040405',
+    color: '#181818',
     fontFamily: 'Source Sans Pro',
     marginBottom: 12,
   },

@@ -181,7 +181,9 @@ const VideoCall: React.FC = () => {
         history.push('/');
       }, 0),
   };
-
+  const [isCameraAvailable, setCameraAvailable] = useState(false);
+  const [isMicAvailable, setMicAvailable] = useState(false);
+  const [isPermissionRequested, setIsPermissionRequested] = useState(false);
   return (
     <>
       {queryComplete ? (
@@ -249,6 +251,12 @@ const VideoCall: React.FC = () => {
                                                         value={{
                                                           callActive,
                                                           setCallActive,
+                                                          isCameraAvailable,
+                                                          isMicAvailable,
+                                                          setCameraAvailable,
+                                                          setMicAvailable,
+                                                          isPermissionRequested,
+                                                          setIsPermissionRequested,
                                                         }}>
                                                         <Precall />
                                                       </PreCallProvider>
