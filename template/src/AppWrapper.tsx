@@ -25,6 +25,7 @@ import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
+import AuthManager from './auth/AuthManager';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -55,19 +56,21 @@ const AppWrapper = (props: AppWrapperProps) => {
           <StorageProvider>
             <GraphQLProvider>
               <Router>
-                <SessionProvider>
-                  <ColorConfigure>
-                    <DimensionProvider>
-                      <LanguageProvider>
-                        <ErrorProvider>
-                          <Error />
-                          <Navigation />
-                          {props.children}
-                        </ErrorProvider>
-                      </LanguageProvider>
-                    </DimensionProvider>
-                  </ColorConfigure>
-                </SessionProvider>
+                <AuthManager>
+                  <SessionProvider>
+                    <ColorConfigure>
+                      <DimensionProvider>
+                        <LanguageProvider>
+                          <ErrorProvider>
+                            <Error />
+                            <Navigation />
+                            {props.children}
+                          </ErrorProvider>
+                        </LanguageProvider>
+                      </DimensionProvider>
+                    </ColorConfigure>
+                  </SessionProvider>
+                </AuthManager>
               </Router>
             </GraphQLProvider>
           </StorageProvider>

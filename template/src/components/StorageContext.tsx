@@ -12,7 +12,6 @@
 import React, {createContext, ReactChildren, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import useMount from './useMount';
-import SDKEvents from '../../src/utils/SdkEvents';
 
 export interface StoreInterface {
   [key: string]: string | null;
@@ -79,18 +78,6 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
     };
     ready && syncStore();
   }, [store, ready]);
-
-  useEffect(() => {
-    SDKEvents.on('sdk-token', (token) => {
-      console.log('9 supriya sdk changed in store', token);
-      setStore((prevState) => {
-        return {
-          ...prevState,
-          token: token,
-        };
-      });
-    });
-  }, []);
 
   return (
     <StorageContext.Provider value={{store, setStore}}>
