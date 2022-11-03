@@ -10,76 +10,92 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Image,
-  Platform,
-  StyleSheet,
-  Text,
-} from 'react-native';
-import {LocalUserContext} from '../../agora-rn-uikit';
-import {
-  LocalAudioMute,
-  LocalVideoMute,
-  SwitchCamera,
-  Endcall,
-  PropsContext,
-  ClientRole,
-} from '../../agora-rn-uikit';
-import Recording from '../subComponents/Recording';
-import LiveStreamControls from './livestream/views/LiveStreamControls';
+import {View, StyleSheet} from 'react-native';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import LocalAudioMute, {
+  LocalAudioMuteProps,
+} from '../subComponents/LocalAudioMute';
+import LocalVideoMute, {
+  LocalVideoMuteProps,
+} from '../subComponents/LocalVideoMute';
+import Recording, {RecordingButtonProps} from '../subComponents/Recording';
+import LiveStreamControls, {
+  LiveStreamControlsProps,
+} from './livestream/views/LiveStreamControls';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import ScreenshareButton, {
+  ScreenshareButtonProps,
+} from '../subComponents/screenshare/ScreenshareButton';
+import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
+import LocalSwitchCamera, {
+  LocalSwitchCameraProps,
+} from '../subComponents/LocalSwitchCamera';
 
-const Controls = (props: any) => {
-  const {setRecordingActive, recordingActive, isHost} = props;
+const Controls = () => {
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const {rtcProps} = useContext(PropsContext);
 
   return (
-    <LocalUserContext>
-      <View style={style.bottomBar}>
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} />
-        ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
-            <View style={{alignSelf: 'center'}}>
-              <LocalAudioMute />
-            </View>
+    <View style={style.bottomBar}>
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <LiveStreamControls showControls={true} />
+      ) : (
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE && (
+            <LiveStreamControls
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          )}
+          <View style={{alignSelf: 'center'}}>
+            <LocalAudioMute />
+          </View>
+          {!$config.AUDIO_ROOM && (
             <View style={{alignSelf: 'center'}}>
               <LocalVideoMute />
             </View>
-            {isHost && $config.CLOUD_RECORDING && (
-              <View style={{alignSelf: 'baseline'}}>
-                <Recording
-                  recordingActive={recordingActive}
-                  setRecordingActive={setRecordingActive}
-                />
-              </View>
-            )}
-            <View style={{alignSelf: 'center'}}>
-              <SwitchCamera />
+          )}
+          {isHost && $config.CLOUD_RECORDING && (
+            <View style={{alignSelf: 'baseline'}}>
+              <Recording />
             </View>
-          </>
-        )}
-        <View style={{alignSelf: 'center'}}>
-          <Endcall />
-        </View>
+          )}
+          {!$config.AUDIO_ROOM && (
+            <View style={{alignSelf: 'center'}}>
+              <LocalSwitchCamera />
+            </View>
+          )}
+        </>
+      )}
+      <View style={{alignSelf: 'center'}}>
+        <LocalEndcall />
       </View>
-    </LocalUserContext>
+    </View>
   );
 };
-
+export const ControlsComponentsArray: [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+  (props: LocalSwitchCameraProps) => JSX.Element,
+  (props: ScreenshareButtonProps) => JSX.Element,
+  (props: RecordingButtonProps) => JSX.Element,
+  (props: LocalEndcallProps) => JSX.Element,
+  (props: LiveStreamControlsProps) => JSX.Element,
+] = [
+  LocalAudioMute,
+  LocalVideoMute,
+  LocalSwitchCamera,
+  ScreenshareButton,
+  Recording,
+  LocalEndcall,
+  LiveStreamControls,
+];
 const style = StyleSheet.create({
   bottomBar: {
     flex: 1,

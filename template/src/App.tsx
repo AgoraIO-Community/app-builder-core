@@ -10,27 +10,29 @@
 *********************************************
 */
 import React, {useState} from 'react';
+import {Platform} from 'react-native';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
-import Authenticate from './pages/Authenticate';
-import {Router, Route, Switch, Redirect} from './components/Router';
+import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
 import OAuth from './components/OAuth';
-import Navigation from './components/Navigation';
 import StoreToken from './components/StoreToken';
-import {StorageProvider} from './components/StorageContext';
-import GraphQLProvider from './components/GraphQLProvider';
-// import JoinPhrase from './components/JoinPhrase';
-import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, Platform, SafeAreaView, StatusBar} from 'react-native';
-import ColorConfigure from './components/ColorConfigure';
-import Toast from '../react-native-toast-message';
-import ToastConfig from './subComponents/toastConfig';
-import shouldAuthenticate from './utils/shouldAuthenticate';
+import {shouldAuthenticate} from './utils/common';
 import KeyboardManager from 'react-native-keyboard-manager';
+// commented for v1 release
+//import {CustomRoutesInterface, CUSTOM_ROUTES_PREFIX} from 'customization-api';
+//import {useCustomization} from 'customization-implementation';
+import AppWrapper from './AppWrapper';
+import {
+  MeetingInfoContextInterface,
+  MeetingInfoDefaultValue,
+  MeetingInfoProvider,
+} from './components/meeting-info/useMeetingInfo';
+import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
+import {ShareLinkProvider} from './components/useShareLink';
 
-
+//hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
   KeyboardManager.setEnableAutoToolbar(false);
@@ -38,59 +40,93 @@ if (Platform.OS === 'ios') {
   KeyboardManager.setShouldResignOnTouchOutside(true);
 }
 
+//Extending the UI Kit Type defintion to add custom attribute to render interface
+declare module 'agora-rn-uikit' {
+  interface DefaultRenderInterface {
+    name: string;
+    screenUid: number;
+    offline: boolean;
+  }
+  interface RtcPropsInterface {
+    screenShareUid: number;
+    screenShareToken?: string;
+  }
+}
+
 const App: React.FC = () => {
-  const [phrase, onChangePhrase] = useState('');
+  //commented for v1 release
+  //const CustomRoutes = useCustomization((data) => data?.customRoutes);
+  // const RenderCustomRoutes = () => {
+  //   try {
+  //     return (
+  //       CustomRoutes &&
+  //       Array.isArray(CustomRoutes) &&
+  //       CustomRoutes.length &&
+  //       CustomRoutes?.map((item: CustomRoutesInterface, i: number) => {
+  //         let RouteComponent = item?.isPrivateRoute ? PrivateRoute : Route;
+  //         return (
+  //           <RouteComponent
+  //             path={CUSTOM_ROUTES_PREFIX + item.path}
+  //             exact={item.exact}
+  //             key={i}
+  //             failureRedirectTo={
+  //               item.failureRedirectTo ? item.failureRedirectTo : '/'
+  //             }
+  //             {...item.routeProps}>
+  //             <item.component {...item.componentProps} />
+  //           </RouteComponent>
+  //         );
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.error('Error on rendering the custom routes');
+  //     return null;
+  //   }
+  // };
+  const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
+    MeetingInfoDefaultValue,
+  );
 
   return (
-    <ImageBackground
-      source={{uri: $config.BG}}
-      style={{flex: 1}}
-      resizeMode={'cover'}>
-      <SafeAreaView style={{flex: 1}}>
-        <StatusBar hidden={true} />
-        <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
-        <StorageProvider>
-          <GraphQLProvider>
-            <Router>
-              <SessionProvider>
-                <ColorConfigure>
-                  <Navigation />
-                  <Switch>
-                    <Route exact path={'/'}>
-                      <Redirect to={'/create'} />
-                    </Route>
-                    <Route exact path={'/authenticate'}>
-                      {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
-                    </Route>
-                    <Route path={'/auth-token/:token'}>
-                      <StoreToken />
-                    </Route>
-                    <Route exact path={'/join'}>
-                      <Join phrase={phrase} onChangePhrase={onChangePhrase} />
-                    </Route>
-                    {shouldAuthenticate ? (
-                      <PrivateRoute
-                        path={'/create'}
-                        failureRedirectTo={'/authenticate'}>
-                        <Create />
-                      </PrivateRoute>
-                    ) : (
-                      <Route path={'/create'}>
-                        <Create />
-                      </Route>
-                    )}
-                    <Route path={'/:phrase'}>
-                      <VideoCall />
-                    </Route>
-                  </Switch>
-                </ColorConfigure>
-              </SessionProvider>
-            </Router>
-          </GraphQLProvider>
-        </StorageProvider>
-      </SafeAreaView>
-    </ImageBackground>
+    <AppWrapper>
+      <SetMeetingInfoProvider value={{setMeetingInfo}}>
+        <MeetingInfoProvider value={{...meetingInfo}}>
+          <ShareLinkProvider>
+            <Switch>
+              {/* commented for v1 release */}
+              {/* {RenderCustomRoutes()} */}
+              <Route exact path={'/'}>
+                <Redirect to={'/create'} />
+              </Route>
+              <Route exact path={'/authenticate'}>
+                {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}
+              </Route>
+              <Route path={'/auth-token/:token'}>
+                <StoreToken />
+              </Route>
+              <Route exact path={'/join'}>
+                <Join />
+              </Route>
+              {shouldAuthenticate ? (
+                <PrivateRoute
+                  path={'/create'}
+                  failureRedirectTo={'/authenticate'}>
+                  <Create />
+                </PrivateRoute>
+              ) : (
+                <Route path={'/create'}>
+                  <Create />
+                </Route>
+              )}
+              <Route path={'/:phrase'}>
+                <VideoCall />
+              </Route>
+            </Switch>
+          </ShareLinkProvider>
+        </MeetingInfoProvider>
+      </SetMeetingInfoProvider>
+    </AppWrapper>
   );
-  // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}
 };
+
 export default App;

@@ -10,86 +10,141 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {View, Text, StyleSheet, Dimensions, Platform} from 'react-native';
-import TextInput from '../atoms/TextInput';
-import PrimaryButton from '../atoms/PrimaryButton';
-import {
-  MaxUidConsumer,
-  MaxVideoView,
-  LocalAudioMute,
-  LocalVideoMute,
-  LocalUserContext,
-  PropsContext,
-  ClientRole,
-} from '../../agora-rn-uikit';
-import SelectDevice from '../subComponents/SelectDevice';
-import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {isValidReactComponent, isWebInternal} from '../utils/common';
 import ColorContext from './ColorContext';
-import Error from '../subComponents/Error';
-import {useWakeLock} from '../components/useWakeLock';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import PreCallLogo from './common/Logo';
+import {useCustomization} from 'customization-implementation';
+import PreCallLocalMute from './precall/LocalMute';
+import {
+  PreCallJoinBtn,
+  PreCallTextInput,
+  PreCallMeetingTitle,
+  PreCallSelectDevice,
+  PreCallVideoPreview,
+} from './precall/index';
+import SDKEvents from '../utils/SdkEvents';
+import isSDKCheck from '../utils/isSDK';
+import {useRtc} from 'customization-api';
 
-const audio = new Audio(
-  'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
-);
+const JoinRoomInputView = () => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
+    let components: {
+      JoinButton: React.ComponentType;
+      Textbox: React.ComponentType;
+    } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
 
-const JoinRoomInputView = (props: any) => {
-  const {
-    username,
-    setUsername,
-    queryComplete,
-    setCallActive,
-    buttonText,
-    error,
-  } = props;
-
-  const {awake, request} = useWakeLock();
-
-  const onSubmit = () => {
-    setCallActive(true);
-    // Play a sound to avoid autoblocking in safari
-    if (Platform.OS === 'web' || mobileAndTabletCheck()) {
-      audio.volume = 0;
-      audio.play().then(() => {
-        // pause directly once played
-        audio.pause();
-      });
-    }
-    // Sleep only on mobile browsers
-    if (Platform.OS === 'web' && mobileAndTabletCheck() && !awake) {
-      // Request wake lock
-      request();
-    }
-  };
-
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+    // }
+    return components;
+  });
   return (
     <View style={style.btnContainer}>
-      <TextInput
-        value={username}
-        onChangeText={(text) => {
-          setUsername(text);
-        }}
-        onSubmitEditing={() => {}}
-        placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-        editable={queryComplete && !error}
-      />
+      <Textbox />
       <View style={{height: 20}} />
-      <PrimaryButton
-        onPress={onSubmit}
-        disabled={!queryComplete || username.trim() === '' || error}
-        text={queryComplete ? buttonText : 'Loading...'}
-      />
+      <JoinButton />
     </View>
   );
 };
 
-const Precall = (props: any) => {
+const Precall = () => {
   const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
+  const {
+    VideoPreview,
+    MeetingName,
+    DeviceSelect,
+    PrecallAfterView,
+    PrecallBeforeView,
+  } = useCustomization((data) => {
+    const components: {
+      PrecallAfterView: React.ComponentType;
+      PrecallBeforeView: React.ComponentType;
+      DeviceSelect: React.ComponentType;
+      VideoPreview: React.ComponentType;
+      MeetingName: React.ComponentType;
+    } = {
+      PrecallAfterView: React.Fragment,
+      PrecallBeforeView: React.Fragment,
+      MeetingName: PreCallMeetingTitle,
+      VideoPreview: PreCallVideoPreview,
+      DeviceSelect: PreCallSelectDevice,
+    };
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.after &&
+    //     isValidReactComponent(data?.components?.precall?.after)
+    //   ) {
+    //     components.PrecallAfterView = data?.components?.precall?.after;
+    //   }
+    //   if (
+    //     data?.components?.precall?.before &&
+    //     isValidReactComponent(data?.components?.precall?.before)
+    //   ) {
+    //     components.PrecallBeforeView = data?.components?.precall?.before;
+    //   }
 
-  const {queryComplete, error, title} = props;
-  const [buttonText, setButtonText] = React.useState('Join Room');
+    //   if (
+    //     data?.components?.precall?.meetingName &&
+    //     typeof data?.components?.precall?.meetingName !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.meetingName)) {
+    //       components.MeetingName = data?.components?.precall?.meetingName;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.deviceSelect &&
+    //     typeof data?.components?.precall?.deviceSelect !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.deviceSelect)) {
+    //       components.DeviceSelect = data?.components?.precall?.deviceSelect;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.preview &&
+    //     typeof data?.components?.precall?.preview !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.preview)) {
+    //       components.VideoPreview = data?.components?.precall?.preview;
+    //     }
+    //   }
+    // }
+    return components;
+  });
+  const {
+    isJoinDataFetched,
+    data: {meetingTitle},
+  } = useMeetingInfo();
+  const rtc = useRtc();
+  const isSDK = isSDKCheck();
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -101,115 +156,99 @@ const Precall = (props: any) => {
   };
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      if (title) {
-        document.title = title + ' | ' + $config.APP_NAME;
+    if (isWebInternal() && !isSDK) {
+      if (meetingTitle) {
+        document.title = meetingTitle + ' | ' + $config.APP_NAME;
       }
     }
   });
 
   useEffect(() => {
-    let clientRole = '';
-    if (rtcProps?.role == 1) {
-      clientRole = 'Host';
+    if (isJoinDataFetched) {
+      new Promise((res) =>
+        // @ts-ignore
+        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+          res(devices);
+        }),
+      ).then((devices: MediaDeviceInfo[]) => {
+        SDKEvents.emit('preJoin', meetingTitle, devices);
+      });
     }
-    if (rtcProps?.role == 2) {
-      clientRole = 'Audience';
-    }
-    setButtonText(
-      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
-    );
-  }, [rtcProps?.role]);
+  }, [isJoinDataFetched]);
 
   const isMobileView = () => dim[0] < dim[1] + 150;
 
-  if (!queryComplete) return <Text style={style.titleFont}>Loading..</Text>;
+  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
 
-  const brandHolder = () => (
-    <View style={style.nav}>
-      {hasBrandLogo && <Logo />}
-      {error && <Error error={error} showBack={true} />}
-    </View>
-  );
+  const brandHolder = () => <PreCallLogo />;
 
-  const meetingTitle = () => (
+  const FpePrecallComponent = useCustomization((data) => {
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall !== 'object'
+    // ) {
+    //   if (isValidReactComponent(data?.components?.precall)) {
+    //     return data?.components?.precall;
+    //   }
+    //   return undefined;
+    // }
+    return undefined;
+  });
+
+  return FpePrecallComponent ? (
+    <FpePrecallComponent />
+  ) : (
     <>
-      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-        {title}
-      </Text>
-      <View style={{height: 50}} />
-    </>
-  );
-
-  return (
-    <View style={style.main} onLayout={onLayout}>
-      {/* Precall screen only changes for audience in Live Stream event */}
-      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-        <View style={style.preCallContainer}>
-          {brandHolder()}
-          {meetingTitle()}
-          <JoinRoomInputView {...props} buttonText={buttonText} />
-        </View>
-      ) : (
-        <>
-          {brandHolder()}
-          <View style={style.content}>
-            <View style={style.upperContainer}>
-              <View
-                style={[
-                  style.leftContent,
-                  isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
-                ]}>
-                <MaxUidConsumer>
-                  {(maxUsers) => (
-                    <View style={{borderRadius: 10, flex: 1}}>
-                      <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
-                    </View>
-                  )}
-                </MaxUidConsumer>
-                <View style={style.precallControls}>
-                  <LocalUserContext>
-                    <View style={{alignSelf: 'center'}}>
-                      <LocalVideoMute />
-                    </View>
-                    <View style={{alignSelf: 'center'}}>
-                      <LocalAudioMute />
-                    </View>
-                  </LocalUserContext>
-                </View>
-                <View style={{marginBottom: '10%'}}>
-                  {/* This view is visible only on MOBILE view */}
-                  {isMobileView() && (
-                    <JoinRoomInputView {...props} buttonText={buttonText} />
-                  )}
-                </View>
-              </View>
-              {/* This view is visible only on WEB view */}
-              {!isMobileView() && (
-                <View style={style.rightContent}>
-                  {meetingTitle()}
-                  <View
-                    style={[{shadowColor: primaryColor}, style.precallPickers]}>
-                    <Text style={style.subHeading}>Select Input Device</Text>
-                    <View
-                      style={{
-                        flex: 1,
-                        maxWidth: Platform.OS === 'web' ? '25vw' : 'auto',
-                        marginVertical: 30,
-                      }}>
-                      <SelectDevice />
-                    </View>
-                    <View style={{width: '100%'}}>
-                      <JoinRoomInputView {...props} buttonText={buttonText} />
-                    </View>
+      <PrecallBeforeView />
+      <View style={style.main} onLayout={onLayout}>
+        {/* Precall screen only changes for audience in Live Stream event */}
+        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          <View style={style.preCallContainer}>
+            {brandHolder()}
+            <MeetingName />
+            <JoinRoomInputView />
+          </View>
+        ) : (
+          <>
+            {brandHolder()}
+            <View style={style.content}>
+              <View style={style.upperContainer}>
+                <View
+                  style={[
+                    style.leftContent,
+                    isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
+                  ]}>
+                  <VideoPreview />
+                  <PreCallLocalMute />
+                  <View style={{marginBottom: '10%'}}>
+                    {/* This view is visible only on MOBILE view */}
+                    {isMobileView() && <JoinRoomInputView />}
                   </View>
                 </View>
-              )}
+                {/* This view is visible only on WEB view */}
+                {!isMobileView() && (
+                  <View style={style.rightContent}>
+                    <MeetingName />
+                    <View
+                      style={[
+                        {shadowColor: primaryColor},
+                        style.precallPickers,
+                      ]}>
+                      <DeviceSelect />
+                      <View style={{width: '100%'}}>
+                        <JoinRoomInputView />
+                      </View>
+                    </View>
+                  </View>
+                )}
+              </View>
             </View>
-          </View>
-        </>
-      )}
-    </View>
+          </>
+        )}
+      </View>
+      <PrecallAfterView />
+    </>
   );
 };
 

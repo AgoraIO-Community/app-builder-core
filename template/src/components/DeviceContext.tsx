@@ -12,12 +12,12 @@
 import {createContext} from 'react';
 
 interface DeviceContext {
-  selectedCam: any;
-  selectedMic: any;
-  deviceList: Array<any>;
-  setDeviceList: (devices: any) => void;
-  setUserPreferredMic: (mic: any) => void;
-  setUserPreferredCamera: (cam: any) => void;
+  selectedCam: string;
+  selectedMic: string;
+  deviceList: MediaDeviceInfo[];
+  setDeviceList: (devices: MediaDeviceInfo[]) => void;
+  setUserPreferredMic: (mic: string) => void;
+  setUserPreferredCamera: (cam: string) => void;
 }
 
 const DeviceContext = createContext(null as unknown as DeviceContext);

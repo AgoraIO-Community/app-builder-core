@@ -9,221 +9,52 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+// @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, Text, Platform} from 'react-native';
-
+import {View, StyleSheet, Text} from 'react-native';
 import {
   RtcConfigure,
   PropsProvider,
   ClientRole,
   ChannelProfile,
+  LocalUserContext,
 } from '../../agora-rn-uikit';
-import Navbar from '../components/Navbar';
-import Precall from '../components/Precall';
-import ParticipantsView from '../components/ParticipantsView';
-import SettingsView from '../components/SettingsView';
-import PinnedVideo from '../components/PinnedVideo';
-import Controls from '../components/Controls';
-import GridVideo from '../components/GridVideo';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
-import Chat from '../components/Chat';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
-import {gql, useQuery} from '@apollo/client';
-import StorageContext from '../components/StorageContext';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
-import ChatContext, {
-  messageActionType,
-  messageChannelType,
-} from '../components/ChatContext';
+import {useHasBrandLogo, isArray} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
-import Layout from '../subComponents/LayoutEnum';
-import Toast from '../../react-native-toast-message';
-import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {LiveStreamContextProvider} from '../components/livestream';
 import ScreenshareConfigure from '../subComponents/screenshare/ScreenshareConfigure';
+import {ErrorContext} from '.././components/common/index';
+import {PreCallProvider} from '../components/precall/usePreCall';
+import {LayoutProvider} from '../utils/useLayout';
+import {useCustomization} from 'customization-implementation';
+import Precall from '../components/Precall';
+import {useString} from '../utils/useString';
+import useLayoutsData from './video-call/useLayoutsData';
+import {RecordingProvider} from '../subComponents/recording/useRecording';
+import useJoinMeeting from '../utils/useJoinMeeting';
+import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {SidePanelProvider} from '../utils/useSidePanel';
+import VideoCallScreen from './video-call/VideoCallScreen';
+import {NetworkQualityProvider} from '../components/NetworkQualityContext';
+import CustomUserContextHolder from './video-call/CustomUserContextHolder';
+import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
+import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
+import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
+import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
+import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
+import {VideoMeetingDataProvider} from '../components/contexts/VideoMeetingDataContext';
+import {WhiteboardProvider} from '../components/contexts/WhiteboardContext';
 import {useWakeLock} from '../components/useWakeLock';
+import SDKEvents from '../utils/SdkEvents';
+import {UserPreferenceProvider} from '../components/useUserPreference';
+import EventsConfigure from '../components/EventsConfigure';
 
-const useChatNotification = (
-  messageStore: string | any[],
-  privateMessageStore: string | any[],
-  chatDisplayed: boolean,
-  isPrivateChatDisplayed: boolean,
-) => {
-  // store the last checked state from the messagestore, to identify unread messages
-  const [lastCheckedPublicState, setLastCheckedPublicState] = useState(0);
-  const [lastCheckedPrivateState, setLastCheckedPrivateState] = useState({});
-  useEffect(() => {
-    if (chatDisplayed && !isPrivateChatDisplayed) {
-      setLastCheckedPublicState(messageStore.length);
-    }
-  }, [messageStore, isPrivateChatDisplayed]);
-
-  const setPrivateMessageLastSeen = ({userId, lastSeenCount}) => {
-    setLastCheckedPrivateState((prevState) => {
-      return {...prevState, [userId]: lastSeenCount || 0};
-    });
-  };
-  return [
-    lastCheckedPublicState,
-    setLastCheckedPublicState,
-    lastCheckedPrivateState,
-    setLastCheckedPrivateState,
-    setPrivateMessageLastSeen,
-  ];
-};
-
-const NotificationControl = ({
-  children,
-  chatDisplayed,
-  setSidePanel,
-  isPrivateChatDisplayed,
-}) => {
-  const {messageStore, privateMessageStore, userList, localUid, events} =
-    useContext(ChatContext);
-  const [
-    lastCheckedPublicState,
-    setLastCheckedPublicState,
-    lastCheckedPrivateState,
-    setLastCheckedPrivateState,
-    setPrivateMessageLastSeen,
-  ] = useChatNotification(
-    messageStore,
-    privateMessageStore,
-    chatDisplayed,
-    isPrivateChatDisplayed,
-  );
-
-  const pendingPublicNotification =
-    messageStore.length - lastCheckedPublicState;
-  const privateMessageCountMap = Object.keys(privateMessageStore).reduce(
-    (acc, curItem) => {
-      let individualPrivateMessageCount = privateMessageStore[curItem].reduce(
-        (total, item) => {
-          if (Platform.OS === 'android') {
-            //In template/src/components/RTMConfigure.tsx
-            //on messageReceived event - For android platform we are passing uid as number type. so checking == for android
-            return item.uid == curItem ? total + 1 : total;
-          } else {
-            return item.uid === curItem ? total + 1 : total;
-          }
-        },
-        0,
-      );
-      return {...acc, [curItem]: individualPrivateMessageCount};
-    },
-    {},
-  );
-  const totalPrivateMessage = Object.keys(privateMessageCountMap).reduce(
-    (acc, item) => acc + privateMessageCountMap[item],
-    0,
-  );
-  const totalPrivateLastSeen = Object.keys(lastCheckedPrivateState).reduce(
-    (acc, item) => acc + lastCheckedPrivateState[item],
-    0,
-  );
-  const pendingPrivateNotification = totalPrivateMessage - totalPrivateLastSeen;
-
-  React.useEffect(() => {
-    const showMessageNotification = (data: any) => {
-      if (data.type === messageActionType.Normal) {
-        const {uid, msg} = data;
-        Toast.show({
-          type: 'success',
-          text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
-          text2: userList[uid]?.name ? 'From: ' + userList[uid]?.name : '',
-          visibilityTime: 1000,
-          onPress: () => {
-            setSidePanel(SidePanelType.Chat);
-            setLastCheckedPublicState(messageStore.length);
-          },
-        });
-      }
-    };
-    events.on(
-      messageChannelType.Public,
-      'onPublicMessageReceived',
-      (data: any, error: any) => {
-        if (!data) return;
-        showMessageNotification(data);
-      },
-    );
-    events.on(
-      messageChannelType.Private,
-      'onPrivateMessageReceived',
-      (data: any, error: any) => {
-        if (!data) return;
-        if (data.uid === localUid) return;
-        showMessageNotification(data);
-      },
-    );
-    return () => {
-      // Cleanup the listeners
-      events.off(messageChannelType.Public, 'onPublicMessageReceived');
-      events.off(messageChannelType.Private, 'onPrivateMessageReceived');
-    };
-  }, [userList, messageStore]);
-
-  return children({
-    pendingPublicNotification,
-    pendingPrivateNotification,
-    lastCheckedPublicState,
-    setLastCheckedPublicState,
-    lastCheckedPrivateState,
-    setLastCheckedPrivateState,
-    privateMessageCountMap,
-    setPrivateMessageLastSeen,
-  });
-};
-
-const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
-      channel
-      title
-      isHost
-      secret
-      mainUser {
-        rtc
-        rtm
-        uid
-      }
-      screenShare {
-        rtc
-        rtm
-        uid
-      }
-    }
-    getUser {
-      name
-      email
-    }
-  }
-`;
-
-const JOIN_CHANNEL_PHRASE = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
-      channel
-      title
-      isHost
-      secret
-      mainUser {
-        rtc
-        rtm
-        uid
-      }
-      screenShare {
-        rtc
-        rtm
-        uid
-      }
-    }
-  }
-`;
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -251,23 +82,26 @@ enum RnEncryptionEnum {
 }
 
 const VideoCall: React.FC = () => {
-  const {store, setStore} = useContext(StorageContext);
+  const hasBrandLogo = useHasBrandLogo();
+  //commented for v1 release
+  //const joiningLoaderLabel = useString('joiningLoaderLabel')();
+  const joiningLoaderLabel = 'Starting Call. Just a second.';
+  const {setGlobalErrorMessage} = useContext(ErrorContext);
   const {awake, release} = useWakeLock();
-  const getInitialUsername = () =>
-    store?.displayName ? store.displayName : '';
-  const [username, setUsername] = useState(getInitialUsername);
-  const [participantsView, setParticipantsView] = useState(false);
   const [callActive, setCallActive] = useState($config.PRECALL ? false : true);
-  const [layout, setLayout] = useState(Layout.Grid);
-  const [recordingActive, setRecordingActive] = useState(false);
-  const [chatDisplayed, setChatDisplayed] = useState(false);
+
+  //layouts
+  const layouts = useLayoutsData();
+  const defaultLayoutName = isArray(layouts) ? layouts[0].name : '';
+  const [currentLayout, setLayout] = useState(defaultLayoutName);
+  //layouts
+
+  const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
-  const [isPrivateChatDisplayed, setPrivateChatDisplayed] = useState(false);
-  const {phrase} = useParams();
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [isHost, setIsHost] = React.useState(false);
-  const [title, setTitle] = React.useState('');
+  const {phrase} = useParams<{phrase: string}>();
+  // commented for v1 release
+  //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
     appId: $config.APP_ID,
     channel: null,
@@ -283,16 +117,10 @@ const VideoCall: React.FC = () => {
       : false,
     role: ClientRole.Broadcaster,
     geoFencing: $config.GEO_FENCING,
+    audioRoom: $config.AUDIO_ROOM,
   });
 
-  const {data, loading, error} = useQuery(
-    store.token === null
-      ? JOIN_CHANNEL_PHRASE
-      : JOIN_CHANNEL_PHRASE_AND_GET_USER,
-    {
-      variables: {passphrase: phrase},
-    },
-  );
+  const useJoin = useJoinMeeting();
 
   React.useEffect(() => {
     return () => {
@@ -303,69 +131,56 @@ const VideoCall: React.FC = () => {
     };
   }, []);
 
-  React.useEffect(() => {
-    if (error) {
-      console.log('error', error);
-      // console.log('error data', data);
-      if (!errorMessage) {
-        setErrorMessage(error);
-        queryComplete ? {} : setQueryComplete(true);
-      }
-      return;
-    }
+  useEffect(() => {
+    useJoin(phrase)
+      .then(() => {})
+      .catch((error) => {
+        setGlobalErrorMessage(error);
+      });
+  }, []);
 
-    if (!loading && data) {
-      console.log('token:', rtcProps.token);
-      console.log('error', data.error);
+  const {isJoinDataFetched, data} = useMeetingInfo();
+
+  React.useEffect(() => {
+    if (isJoinDataFetched === true) {
       setRtcProps({
         appId: $config.APP_ID,
-        channel: data.joinChannel.channel,
-        uid: data.joinChannel.mainUser.uid,
-        token: data.joinChannel.mainUser.rtc,
-        rtm: data.joinChannel.mainUser.rtm,
+        channel: data.channel,
+        uid: data.uid,
+        token: data.token,
+        rtm: data.rtmToken,
         dual: true,
         profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
-              key: data.joinChannel.secret,
+              key: data.encryptionSecret,
               mode: RnEncryptionEnum.AES128XTS,
-              screenKey: data.joinChannel.secret,
+              screenKey: data.encryptionSecret,
             }
           : false,
-        screenShareUid: data.joinChannel.screenShare.uid,
-        screenShareToken: data.joinChannel.screenShare.rtc,
-        role: data.joinChannel.isHost
-          ? ClientRole.Broadcaster
-          : ClientRole.Audience,
+        screenShareUid: data.screenShareUid,
+        screenShareToken: data.screenShareToken,
+        role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
         geoFencing: $config.GEO_FENCING,
+        audioRoom: $config.AUDIO_ROOM,
       });
-      setIsHost(data.joinChannel.isHost);
-      setTitle(data.joinChannel.title);
 
-      console.log('query done: ', data, queryComplete);
       // 1. Store the display name from API
-      if (data.getUser) {
-        setUsername(data.getUser.name);
-      }
-      console.log('token:', rtcProps.token);
-      queryComplete ? {} : setQueryComplete(true);
+      // if (data.username) {
+      //   setUsername(data.username);
+      // }
+      queryComplete ? {} : setQueryComplete(isJoinDataFetched);
     }
-  }, [error, loading, data]);
+  }, [isJoinDataFetched]);
 
   const history = useHistory();
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {
+        SDKEvents.emit('leave');
         history.push('/');
       }, 0),
   };
-
-  React.useEffect(() => {
-    // Update the username in localstorage when username changes
-    if (setStore) {
-      setStore({...store, token: store?.token || null, displayName: username});
-    }
-  }, [username]);
 
   return (
     <>
@@ -377,6 +192,8 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
+                  // commented for v1 release
+                  //lifecycle,
                 },
                 callbacks,
                 styleProps,
@@ -385,162 +202,84 @@ const VideoCall: React.FC = () => {
                   : ChannelProfile.Communication,
               }}>
               <RtcConfigure>
-                <DeviceConfigure userRole={rtcProps.role}>
-                  <RtmConfigure
-                    setRecordingActive={setRecordingActive}
-                    name={username}
-                    callActive={callActive}>
-                    <ScreenshareConfigure
-                      setLayout={setLayout}
-                      recordingActive={recordingActive}>
-                      <LiveStreamContextProvider
-                        setRtcProps={setRtcProps}
-                        isHost={isHost}>
-                        {callActive ? (
-                          <View style={style.full}>
-                            <NotificationControl
-                              setSidePanel={setSidePanel}
-                              chatDisplayed={sidePanel === SidePanelType.Chat}
-                              isPrivateChatDisplayed={isPrivateChatDisplayed}>
-                              {({
-                                pendingPublicNotification,
-                                pendingPrivateNotification,
-                                setLastCheckedPublicState,
-                                lastCheckedPublicState,
-                                lastCheckedPrivateState,
-                                setLastCheckedPrivateState,
-                                privateMessageCountMap,
-                                setPrivateMessageLastSeen,
-                              }) => (
-                                <>
-                                  <Navbar
-                                    sidePanel={sidePanel}
-                                    setSidePanel={setSidePanel}
-                                    layout={layout}
-                                    setLayout={setLayout}
-                                    recordingActive={recordingActive}
-                                    setRecordingActive={setRecordingActive}
-                                    isHost={isHost}
-                                    title={title}
-                                    pendingMessageLength={
-                                      pendingPublicNotification +
-                                      pendingPrivateNotification
-                                    }
-                                    setLastCheckedPublicState={
-                                      setLastCheckedPublicState
-                                    }
-                                  />
-                                  <NetworkQualityProvider>
-                                    <View
-                                      style={[
-                                        style.videoView,
-                                        {backgroundColor: '#ffffff00'},
-                                      ]}>
-                                      {layout === Layout.Pinned ? (
-                                        <PinnedVideo />
-                                      ) : (
-                                        <GridVideo setLayout={setLayout} />
-                                      )}
-                                      {sidePanel ===
-                                      SidePanelType.Participants ? (
-                                        <ParticipantsView
-                                          isHost={isHost}
-                                          // setParticipantsView={setParticipantsView}
-                                          setSidePanel={setSidePanel}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )}
-                                      {sidePanel === SidePanelType.Chat ? (
-                                        $config.CHAT ? (
-                                          <Chat
-                                            setPrivateChatDisplayed={
-                                              setPrivateChatDisplayed
-                                            }
-                                            privateMessageCountMap={
-                                              privateMessageCountMap
-                                            }
-                                            pendingPublicNotification={
-                                              pendingPublicNotification
-                                            }
-                                            pendingPrivateNotification={
-                                              pendingPrivateNotification
-                                            }
-                                            setPrivateMessageLastSeen={
-                                              setPrivateMessageLastSeen
-                                            }
-                                            lastCheckedPrivateState={
-                                              lastCheckedPrivateState
-                                            }
-                                          />
-                                        ) : (
-                                          <></>
-                                        )
-                                      ) : (
-                                        <></>
-                                      )}
-                                      {sidePanel === SidePanelType.Settings ? (
-                                        <SettingsView
-                                          isHost={isHost}
-                                          // setParticipantsView={setParticipantsView}
-                                          setSidePanel={setSidePanel}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )}
-                                    </View>
-                                  </NetworkQualityProvider>
-                                  {Platform.OS !== 'web' &&
-                                  sidePanel === SidePanelType.Chat ? (
-                                    <></>
-                                  ) : (
-                                    <Controls
-                                      setLayout={setLayout}
-                                      recordingActive={recordingActive}
-                                      setRecordingActive={setRecordingActive}
-                                      // chatDisplayed={chatDisplayed}
-                                      // setChatDisplayed={setChatDisplayed}
-                                      isHost={isHost}
-                                      // participantsView={participantsView}
-                                      // setParticipantsView={setParticipantsView}
-                                      sidePanel={sidePanel}
-                                      setSidePanel={setSidePanel}
-                                      pendingMessageLength={
-                                        pendingPublicNotification +
-                                        pendingPrivateNotification
-                                      }
-                                      setLastCheckedPublicState={
-                                        setLastCheckedPublicState
-                                      }
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </NotificationControl>
-                          </View>
-                        ) : $config.PRECALL ? (
-                          <Precall
-                            error={errorMessage}
-                            username={username}
-                            setUsername={setUsername}
-                            setCallActive={setCallActive}
-                            queryComplete={queryComplete}
-                            title={title}
-                          />
-                        ) : (
-                          <></>
-                        )}
-                      </LiveStreamContextProvider>
-                    </ScreenshareConfigure>
-                  </RtmConfigure>
+                <DeviceConfigure>
+                  <ChatUIControlProvider>
+                    <ChatNotificationProvider>
+                      <SidePanelProvider
+                        value={{
+                          sidePanel,
+                          setSidePanel,
+                        }}>
+                        <ChatMessagesProvider>
+                          <ScreenShareProvider>
+                            <RtmConfigure
+                              setRecordingActive={setRecordingActive}
+                              callActive={callActive}>
+                              <UserPreferenceProvider>
+                                <EventsConfigure>
+                                  <WhiteboardProvider>
+                                    <LayoutProvider
+                                      value={{
+                                        currentLayout,
+                                        setLayout,
+                                      }}>
+                                      <RecordingProvider
+                                        value={{
+                                          setRecordingActive,
+                                          isRecordingActive,
+                                        }}>
+                                        <ScreenshareConfigure>
+                                          <LiveStreamContextProvider
+                                            value={{
+                                              setRtcProps,
+                                              rtcProps,
+                                              callActive,
+                                            }}>
+                                            <LiveStreamDataProvider>
+                                              <LocalUserContext
+                                                localUid={rtcProps?.uid || 0}>
+                                                <CustomUserContextHolder>
+                                                  <NetworkQualityProvider>
+                                                    {callActive ? (
+                                                      <VideoMeetingDataProvider>
+                                                        <VideoCallScreen />
+                                                      </VideoMeetingDataProvider>
+                                                    ) : $config.PRECALL ? (
+                                                      <PreCallProvider
+                                                        value={{
+                                                          callActive,
+                                                          setCallActive,
+                                                        }}>
+                                                        <Precall />
+                                                      </PreCallProvider>
+                                                    ) : (
+                                                      <></>
+                                                    )}
+                                                  </NetworkQualityProvider>
+                                                </CustomUserContextHolder>
+                                              </LocalUserContext>
+                                            </LiveStreamDataProvider>
+                                          </LiveStreamContextProvider>
+                                        </ScreenshareConfigure>
+                                      </RecordingProvider>
+                                    </LayoutProvider>
+                                  </WhiteboardProvider>
+                                </EventsConfigure>
+                              </UserPreferenceProvider>
+                            </RtmConfigure>
+                          </ScreenShareProvider>
+                        </ChatMessagesProvider>
+                      </SidePanelProvider>
+                    </ChatNotificationProvider>
+                  </ChatUIControlProvider>
                 </DeviceConfigure>
               </RtcConfigure>
             </PropsProvider>
           </>
         ) : (
           <View style={style.loader}>
-            <View style={style.loaderLogo}>{hasBrandLogo && <Logo />}</View>
-            <Text style={style.loaderText}>Starting Call. Just a second.</Text>
+            <View style={style.loaderLogo}>{hasBrandLogo() && <Logo />}</View>
+            <Text style={style.loaderText}>{joiningLoaderLabel}</Text>
           </View>
         )
       ) : (

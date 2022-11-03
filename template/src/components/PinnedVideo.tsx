@@ -9,39 +9,23 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   View,
   Dimensions,
   StyleSheet,
   Text,
-  Image,
   Pressable,
-  useWindowDimensions,
 } from 'react-native';
-import {MinUidConsumer} from '../../agora-rn-uikit';
-import {RtcContext} from '../../agora-rn-uikit';
-import {MaxVideoView} from '../../agora-rn-uikit';
-import {MaxUidConsumer} from '../../agora-rn-uikit';
-import chatContext from './ChatContext';
-import ColorContext from './ColorContext';
 import {layoutProps} from '../../theme.json';
-import FallbackLogo from '../subComponents/FallbackLogo';
-import {ImageIcon} from '../../agora-rn-uikit';
-import ScreenShareNotice from '../subComponents/ScreenShareNotice';
-import {RFValue} from 'react-native-responsive-fontsize';
+import {layoutComponent, useRtc} from 'customization-api';
+import RenderComponent from '../pages/video-call/RenderComponent';
 const {topPinned} = layoutProps;
-import networkQualityContext from './NetworkQualityContext';
-import {NetworkQualityPill} from '../subComponents/NetworkQualityPill';
-import TextWithTooltip from '../subComponents/TextWithTooltip';
 
-const PinnedVideo = () => {
-  const {height, width} = useWindowDimensions();
-  const {primaryColor} = useContext(ColorContext);
-  const networkQualityStat = useContext(networkQualityContext);
+const PinnedVideo: layoutComponent = ({renderData}) => {
   const [collapse, setCollapse] = useState(false);
-  const [dim, setDim] = useState([
+  const [dim, setDim] = useState<[number, number, boolean]>([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
@@ -54,7 +38,9 @@ const PinnedVideo = () => {
     }, 20);
   };
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const {userList, localUid} = useContext(chatContext);
+  const [maxUid, ...minUids] = renderData;
+  const {dispatch} = useRtc();
+
   return (
     <View
       style={{
@@ -77,13 +63,6 @@ const PinnedVideo = () => {
             borderRadius: 50,
             justifyContent: 'center',
           }}>
-          {/* <Image
-            source={{
-              uri: icons.micOff,
-            }}
-            style={[style.MicIcon]}
-            resizeMode={'contain'}
-          /> */}
           <Text
             style={{
               alignSelf: 'center',
@@ -100,107 +79,36 @@ const PinnedVideo = () => {
         <ScrollView
           horizontal={!isSidePinnedlayout}
           decelerationRate={0}
-          // snapToInterval={
-          //   dim[2] ? dim[0] * 0.1125 + 2 : ((dim[1] / 3.6) * 16) / 9
-          // }
-          // snapToAlignment={'center'}
           style={
             isSidePinnedlayout
               ? {width: '20%', paddingHorizontal: 8}
               : {flex: 1}
           }>
-          <RtcContext.Consumer>
-            {(data) => (
-              <MinUidConsumer>
-                {(minUsers) =>
-                  minUsers.map((user) => (
-                    <Pressable
-                      style={
-                        isSidePinnedlayout
-                          ? {
-                              width: '100%',
-                              height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                              zIndex: 40,
-                              paddingBottom: 8,
-                            }
-                          : {
-                              width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                              height: '100%',
-                              zIndex: 40,
-                              paddingRight: 8,
-                              paddingVertical: 4,
-                            }
-                      }
-                      key={user.uid}
-                      onPress={() => {
-                        data.dispatch({type: 'SwapVideo', value: [user]});
-                      }}>
-                      <View style={style.flex1}>
-                        <NetworkQualityPill
-                          networkStat={
-                            networkQualityStat[user.uid]
-                              ? networkQualityStat[user.uid]
-                              : user.audio || user.video
-                              ? 8
-                              : 7
-                          }
-                          primaryColor={primaryColor}
-                          rootStyle={{left: 5, top: 5}}
-                          small
-                        />
-                        <MaxVideoView
-                          fallback={() => {
-                            if (user.uid === 'local') {
-                              return FallbackLogo(userList[localUid]?.name);
-                            } else if (String(user.uid)[0] === '1') {
-                              return FallbackLogo('PSTN User');
-                            } else {
-                              return FallbackLogo(userList[user.uid]?.name);
-                            }
-                          }}
-                          user={user}
-                          key={user.uid}
-                        />
-                        <View style={style.nameHolder}>
-                          <View style={[style.MicBackdrop]}>
-                            <ImageIcon
-                              name={user.audio ? 'mic' : 'micOff'}
-                              color={user.audio ? primaryColor : 'red'}
-                              style={style.MicIcon}
-                            />
-                          </View>
-                          <View style={{flex:1}}>
-                            <TextWithTooltip 
-                              value={user.uid === 'local'
-                              ? userList[localUid]
-                                ? userList[localUid].name + ' '
-                                : 'You '
-                              : userList[user.uid]
-                              ? userList[user.uid].name + ' '
-                              : user.uid === 1
-                              ? (userList[localUid]?.name + "'s screen ")
-                              : String(user.uid)[0] === '1'
-                              ? 'PSTN User '
-                              : 'User '}
-                              style={[
-                                style.name,
-                                {
-                                  fontSize: RFValue(
-                                    14,
-                                    height > width ? height : width,
-                                  ),
-                                },
-                              ]}
-                            />
-                          </View>
-                        </View>
-                      </View>
-                    </Pressable>
-                  ))
-                }
-              </MinUidConsumer>
-            )}
-          </RtcContext.Consumer>
+          {minUids.map((minUid, i) => (
+            <Pressable
+              style={
+                isSidePinnedlayout
+                  ? {
+                      width: '100%',
+                      height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                      zIndex: 40,
+                      paddingBottom: 8,
+                    }
+                  : {
+                      width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                      height: '100%',
+                      zIndex: 40,
+                      paddingRight: 8,
+                      paddingVertical: 4,
+                    }
+              }
+              key={'minVideo' + i}
+              onPress={() => {
+                dispatch({type: 'SwapVideo', value: [minUid]});
+              }}>
+              <RenderComponent uid={minUid} />
+            </Pressable>
+          ))}
         </ScrollView>
       )}
       <View
@@ -211,70 +119,9 @@ const PinnedVideo = () => {
               : style.width80
             : style.flex4
         }>
-        <MaxUidConsumer>
-          {(maxUsers) => (
-            <>
-              <View style={style.flex1}>
-                <ScreenShareNotice uid={maxUsers[0].uid} />
-                <NetworkQualityPill
-                  networkStat={
-                    networkQualityStat[maxUsers[0].uid]
-                      ? networkQualityStat[maxUsers[0].uid]
-                      : maxUsers[0].audio || maxUsers[0].video
-                      ? 8
-                      : 7
-                  }
-                  primaryColor={primaryColor}
-                  rootStyle={{
-                    marginLeft: 25,
-                    top: 8,
-                    right: 10,
-                  }}
-                  small
-                />
-                <MaxVideoView
-                  fallback={() => {
-                    if (maxUsers[0].uid === 'local') {
-                      return FallbackLogo(userList[localUid]?.name);
-                    } else if (String(maxUsers[0].uid)[0] === '1') {
-                      return FallbackLogo('PSTN User');
-                    } else {
-                      return FallbackLogo(userList[maxUsers[0].uid]?.name);
-                    }
-                  }}
-                  user={maxUsers[0]}
-                  key={maxUsers[0].uid}
-                />
-                <View style={style.nameHolder}>
-                  <View style={[style.MicBackdrop]}>
-                    <ImageIcon
-                      name={maxUsers[0].audio ? 'mic' : 'micOff'}
-                      color={maxUsers[0].audio ? primaryColor : 'red'}
-                      style={style.MicIcon}
-                    />
-                  </View>
-                  <View style={{flex:1}}>
-                    <TextWithTooltip 
-                      value={maxUsers[0].uid === 'local'
-                      ? userList[localUid]
-                        ? userList[localUid].name + ' '
-                        : 'You '
-                      : userList[maxUsers[0].uid]
-                      ? userList[maxUsers[0].uid].name + ' '
-                      : maxUsers[0].uid === 1
-                      ? (userList[localUid].name + "'s screen ")
-                      : 'User '}
-                      style={[
-                        style.name,
-                        {fontSize: RFValue(14, height > width ? height : width)},
-                      ]}
-                    />
-                  </View>
-                </View>
-              </View>
-            </>
-          )}
-        </MaxUidConsumer>
+        <View style={style.flex1} key={'maxVideo' + maxUid}>
+          <RenderComponent uid={maxUid} />
+        </View>
       </View>
     </View>
   );
@@ -298,7 +145,12 @@ const style = StyleSheet.create({
     zIndex: 5,
     maxWidth: '100%',
   },
-  name: {color: $config.PRIMARY_FONT_COLOR, lineHeight: 25, fontWeight: '700', flexShrink: 1},
+  name: {
+    color: $config.PRIMARY_FONT_COLOR,
+    lineHeight: 25,
+    fontWeight: '700',
+    flexShrink: 1,
+  },
   MicBackdrop: {
     width: 20,
     height: 20,

@@ -11,9 +11,10 @@
 */
 import React, {useContext} from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
-import StorageContext from '../components/StorageContext';
+import StorageContext, {initStoreValue} from '../components/StorageContext';
 import {useHistory} from '../components/Router';
 import {gql, useMutation} from '@apollo/client';
+import {useString} from '../utils/useString';
 
 const LOGOUT = gql`
   mutation logoutSession($token: String!) {
@@ -28,10 +29,24 @@ const LogoutButton = () => {
   const {token} = store;
   const history = useHistory();
   const [logoutQuery] = useMutation(LOGOUT);
-
+  //commented for v1 release
+  // const oauthLoginLabel = useString('oauthLoginLabel')();
+  // const logoutButton = useString('logoutButton')();
+  const oauthLoginLabel = 'Login using OAuth';
+  const logoutButton = 'Logout';
   const logout = () => {
     if (setStore) {
-      setStore({...store, token: null, displayName: ''});
+      /**
+       * In case of usage from FPE
+       * User stored some data in localstorage we don't want to remove their on logout.
+       * so setting prevstate with store default value
+       */
+      setStore((prevState) => {
+        return {
+          ...prevState,
+          token: null,
+        };
+      });
     }
     logoutQuery({variables: {token}}).catch((e) => {
       console.log(e);
@@ -46,11 +61,11 @@ const LogoutButton = () => {
     <>
       {token === null ? (
         <TouchableOpacity style={style.btn} onPress={() => login()}>
-          <Text style={style.btnText}>Login using OAuth</Text>
+          <Text style={style.btnText}>{oauthLoginLabel}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={style.btn} onPress={() => logout()}>
-          <Text style={style.btnText}>Logout</Text>
+          <Text style={style.btnText}>{logoutButton}</Text>
         </TouchableOpacity>
       )}
     </>

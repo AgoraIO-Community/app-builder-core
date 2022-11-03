@@ -9,25 +9,42 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
-  Platform,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  useWindowDimensions,
 } from 'react-native';
-import {RFValue} from 'react-native-responsive-fontsize';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
-import chatContext from './ChatContext';
+import {useChatNotification} from './chat-notification/useChatNotification';
+import {useString} from '../utils/useString';
+import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
+import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {useCustomization} from 'customization-implementation';
+import {UidType} from '../../agora-rn-uikit';
+import {ChatBubbleProps} from './ChatContext';
+import {
+  ChatTextInputProps,
+  ChatSendButtonProps,
+} from '../subComponents/ChatInput';
 
-const Chat = (props: any) => {
-  const {height, width} = useWindowDimensions();
+interface ChatProps {
+  chatBubble?: React.ComponentType<ChatBubbleProps>;
+  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+}
+
+const Chat = (props?: ChatProps) => {
+  // commented for v1 release
+  // const groupChatLabel = useString('groupChatLabel')();
+  // const privateChatLabel = useString('privateChatLabel')();
+  const groupChatLabel = 'Group';
+  const privateChatLabel = 'Private';
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -35,154 +52,189 @@ const Chat = (props: any) => {
   ]);
   const isSmall = dim[0] < 700;
 
-  const {userList} = useContext(chatContext);
-
   const {
-    setChatDisplayed,
-    pendingPrivateNotification,
-    pendingPublicNotification,
-    lastCheckedPrivateState,
-    privateMessageCountMap,
-    setPrivateMessageLastSeen,
-    setPrivateChatDisplayed,
-  } = props;
+    groupActive,
+    setGroupActive,
+    privateActive,
+    setPrivateActive,
+    setSelectedChatUserId: setSelectedUser,
+  } = useChatUIControl();
+  const {
+    unreadGroupMessageCount,
+    setUnreadGroupMessageCount,
+    unreadPrivateMessageCount,
+    setUnreadPrivateMessageCount,
+    setUnreadIndividualMessageCount,
+    unreadIndividualMessageCount,
+  } = useChatNotification();
+
   const {primaryColor} = useContext(ColorContext);
-  const [groupActive, setGroupActive] = useState(true);
-  const [privateActive, setPrivateActive] = useState(false);
-  const [selectedUserID, setSelectedUser] = useState('');
 
-  //Initally private state should be false
-  useEffect(() => {
-    setPrivateChatDisplayed(false);
+  React.useEffect(() => {
+    return () => {
+      // reset both the active tabs
+      setGroupActive(false);
+      setPrivateActive(false);
+      setSelectedUser(0);
+    };
   }, []);
-
-  useEffect(() => {
-    if (privateActive && selectedUserID) {
-      setPrivateMessageLastSeen({
-        userId: selectedUserID,
-        lastSeenCount: privateMessageCountMap[selectedUserID],
-      });
-    }
-  }, [pendingPrivateNotification]);
 
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
-    setPrivateChatDisplayed(false);
+    setUnreadGroupMessageCount(0);
+    setSelectedUser(0);
   };
   const selectPrivate = () => {
     setGroupActive(false);
-    setPrivateChatDisplayed(true);
+    setSelectedUser(0);
+    setPrivateActive(false);
   };
-  const selectUser = (userUID: any) => {
+  const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
+    setUnreadIndividualMessageCount((prevState) => {
+      return {
+        ...prevState,
+        [userUID]: 0,
+      };
+    });
+    setUnreadPrivateMessageCount(
+      unreadPrivateMessageCount - (unreadIndividualMessageCount[userUID] || 0),
+    );
   };
 
+  const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
+    let components: {
+      ChatAfterView: React.ComponentType;
+      ChatBeforeView: React.ComponentType;
+    } = {
+      ChatAfterView: React.Fragment,
+      ChatBeforeView: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.chat &&
+      //   typeof data?.components?.videoCall?.chat === 'object'
+      // ) {
+      //   if (
+      //     data?.components?.videoCall?.chat?.after &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
+      //   ) {
+      //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
+      //   }
+      //   if (
+      //     data?.components?.videoCall?.chat?.before &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
+      //   ) {
+      //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
+      //   }
+      // }
+    }
+    return components;
+  });
+
   return (
-    <View
-      style={
-        Platform.OS === 'web'
-          ? !isSmall
-            ? style.chatView
+    <>
+      <View
+        style={
+          isWebInternal()
+            ? !isSmall
+              ? style.chatView
+              : style.chatViewNative
             : style.chatViewNative
-          : style.chatViewNative
-      }>
-      <View style={style.chatNav}>
-        <TouchableOpacity
-          onPress={selectGroup}
-          style={
-            groupActive
-              ? [style.groupActive, {borderColor: primaryColor}]
-              : [
-                  style.group,
-                  {
-                    borderColor: primaryColor,
-                    borderTopColor: primaryColor + '80',
-                  },
-                ]
-          }>
-          {pendingPublicNotification !== 0 ? (
-            <View style={style.chatNotification}>
-              <Text>{pendingPublicNotification}</Text>
-            </View>
-          ) : null}
-          <Text style={groupActive ? style.groupTextActive : style.groupText}>
-            Group
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={selectPrivate}
-          style={
-            !groupActive
-              ? [style.privateActive, {borderColor: primaryColor}]
-              : [
-                  style.private,
-                  {
-                    borderColor: primaryColor,
-                    borderTopColor: primaryColor + '80',
-                  },
-                ]
-          }>
-          {pendingPrivateNotification !== 0 ? (
-            <View style={style.chatNotification}>
-              <Text>{pendingPrivateNotification}</Text>
-            </View>
-          ) : null}
-          <Text style={!groupActive ? style.groupTextActive : style.groupText}>
-            Private
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {groupActive ? (
-        <>
-          <ChatContainer privateActive={privateActive} />
-          <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
-          <View>
-            <View style={style.chatInputContainer}>
-              <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
-              <ChatInput privateActive={privateActive} />
-            </View>
-          </View>
-        </>
-      ) : (
-        <>
-          {!privateActive ? (
-            <ChatParticipants
-              selectUser={selectUser}
-              setPrivateMessageLastSeen={setPrivateMessageLastSeen}
-              privateMessageCountMap={privateMessageCountMap}
-              lastCheckedPrivateState={lastCheckedPrivateState}
-            />
-          ) : (
-            <>
-              <ChatContainer
-                privateActive={privateActive}
-                setPrivateActive={setPrivateActive}
-                selectedUserID={selectedUserID}
-                selectedUsername={
-                  userList[selectedUserID]
-                    ? userList[selectedUserID]?.name + ' '
-                    : 'User '
-                }
-              />
-              <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
-              <View>
-                <View style={style.chatInputContainer}>
-                  <View
-                    style={[style.chatInputLineSeparator, {opacity: 0.3}]}
-                  />
-                  <ChatInput
-                    privateActive={privateActive}
-                    selectedUserID={selectedUserID}
-                  />
-                </View>
+        }>
+        {/**
+         * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
+         */}
+        <ChatBeforeView />
+        <View style={style.chatNav}>
+          <TouchableOpacity
+            onPress={selectGroup}
+            style={
+              groupActive
+                ? [style.groupActive, {borderColor: primaryColor}]
+                : [
+                    style.group,
+                    {
+                      borderColor: primaryColor,
+                      borderTopColor: primaryColor + '80',
+                    },
+                  ]
+            }>
+            {unreadGroupMessageCount !== 0 ? (
+              <View style={style.chatNotification}>
+                <Text>{unreadGroupMessageCount}</Text>
               </View>
-            </>
-          )}
-        </>
-      )}
-    </View>
+            ) : null}
+            <Text style={groupActive ? style.groupTextActive : style.groupText}>
+              {groupChatLabel}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={selectPrivate}
+            style={
+              !groupActive
+                ? [style.privateActive, {borderColor: primaryColor}]
+                : [
+                    style.private,
+                    {
+                      borderColor: primaryColor,
+                      borderTopColor: primaryColor + '80',
+                    },
+                  ]
+            }>
+            {unreadPrivateMessageCount !== 0 ? (
+              <View style={style.chatNotification}>
+                <Text>{unreadPrivateMessageCount}</Text>
+              </View>
+            ) : null}
+            <Text
+              style={!groupActive ? style.groupTextActive : style.groupText}>
+              {privateChatLabel}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {groupActive ? (
+          <>
+            <ChatContainer {...props} />
+            <View style={[style.chatInputLineSeparator, {marginBottom: 0}]} />
+            <View>
+              <View style={style.chatInputContainer}>
+                <View style={[style.chatInputLineSeparator, {opacity: 0.3}]} />
+                <ChatInput {...props} />
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            {!privateActive ? (
+              <ChatParticipants selectUser={selectUser} />
+            ) : (
+              <>
+                <ChatContainer {...props} />
+                <View
+                  style={[style.chatInputLineSeparator, {marginBottom: 0}]}
+                />
+                <View>
+                  <View style={style.chatInputContainer}>
+                    <View
+                      style={[style.chatInputLineSeparator, {opacity: 0.3}]}
+                    />
+                    <ChatInput {...props} />
+                  </View>
+                </View>
+              </>
+            )}
+          </>
+        )}
+        <ChatAfterView />
+      </View>
+    </>
   );
 };
 
@@ -299,7 +351,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     left: 25,
@@ -313,7 +365,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,

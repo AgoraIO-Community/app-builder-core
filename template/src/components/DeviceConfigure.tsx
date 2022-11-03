@@ -34,6 +34,7 @@ import {RtcContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import StorageContext from '../components/StorageContext';
 import AgoraRTC from 'agora-rtc-sdk-ng';
+import {useRtc} from 'customization-api';
 
 interface Props {
   userRole: ClientRole;
@@ -55,7 +56,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedMic, setSelectedMic] = useState('');
   const [deviceList, setDeviceList] = useState<any>([]);
   const {store, setStore} = useContext(StorageContext);
-  const rtc = useContext(RtcContext);
+  const rtc = useRtc();
   const [userPreferredMic, setUserPreferredMic] = React.useState(
     () => store?.lastActiveMic,
   );
@@ -241,7 +242,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         setUserPreferredMic,
         setUserPreferredCamera,
       }}>
-      {true ? props.children : <></>}
+      {props.children}
     </DeviceContext.Provider>
   );
 };

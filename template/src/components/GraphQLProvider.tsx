@@ -14,12 +14,17 @@ import {
   createHttpLink,
   InMemoryCache,
   ApolloProvider,
+  NormalizedCacheObject,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
-import React, {useContext, useRef} from 'react';
+import React, {createContext, useContext, useRef} from 'react';
 import StorageContext from './StorageContext';
 import AsyncStorage from '@react-native-community/async-storage';
+
+export const GraphQLContext = createContext<{
+  client: ApolloClient<NormalizedCacheObject>;
+}>({client: {}});
 
 const GraphQLProvider = (props: {children: React.ReactNode}) => {
   const httpLink = createHttpLink({
@@ -64,7 +69,9 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   console.log('GraphQL render triggered', store);
 
   return (
-    <ApolloProvider client={client.current}>{props.children}</ApolloProvider>
+    <GraphQLContext.Provider value={{client: client.current}}>
+      <ApolloProvider client={client.current}>{props.children}</ApolloProvider>
+    </GraphQLContext.Provider>
   );
 };
 

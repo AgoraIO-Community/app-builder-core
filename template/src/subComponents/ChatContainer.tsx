@@ -9,36 +9,85 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useRef} from 'react';
+import React, {useRef} from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext from '../components/ChatContext';
+import {ChatBubbleProps} from '../components/ChatContext';
+import {useLocalUid} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
+import {useCustomization} from 'customization-implementation';
+import {isValidReactComponent, isWebInternal} from '../utils/common';
+import {useString} from '../utils/useString';
+import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+import {useRender} from 'customization-api';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
 
 /**
  * Chat container is the component which renders all the chat messages
  * It retrieves all the messages from the appropriate stores (Message store an provate message store)
  * and maps it to a ChatBubble
  */
-const ChatContainer = (props: any) => {
-  const {userList} = useContext(ChatContext);
+const ChatContainer = (props?: {
+  chatBubble?: React.ComponentType<ChatBubbleProps>;
+}) => {
+  const {renderList} = useRender();
+  const {messageStore, privateMessageStore} = useChatMessages();
   const {height, width} = useWindowDimensions();
-  const {selectedUserID, privateActive, setPrivateActive, selectedUsername} =
-    props;
-  const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
-
+  const {
+    privateActive,
+    selectedChatUserId: selectedUserID,
+    setPrivateActive,
+  } = useChatUIControl();
+  const localUid = useLocalUid();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
+  const {ChatBubbleComponent} = useCustomization((data) => {
+    let components: {
+      ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
+    } = {
+      ChatBubbleComponent: ChatBubble,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      //commented for v1 release
+      if (
+        data?.components?.videoCall?.chat &&
+        typeof data?.components?.videoCall?.chat === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat?.chatBubble &&
+          typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
+        ) {
+          components.ChatBubbleComponent =
+            data?.components?.videoCall?.chat?.chatBubble;
+        }
+      }
+    } else {
+      if (props?.chatBubble && isValidReactComponent(props?.chatBubble)) {
+        components.ChatBubbleComponent = props?.chatBubble;
+      }
+    }
+    return components;
+  });
+  //commented for v1 release
+  //const userOfflineLabel = useString('userOfflineLabel')();
+  const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -57,7 +106,11 @@ const ChatContainer = (props: any) => {
                   fontSize: RFValue(16, height > width ? height : width),
                 },
               ]}
-              value={selectedUsername}
+              value={
+                renderList[selectedUserID]
+                  ? renderList[selectedUserID]?.name + ' '
+                  : remoteUserDefaultLabel + ' '
+              }
             />
           </View>
         </TouchableOpacity>
@@ -68,35 +121,39 @@ const ChatContainer = (props: any) => {
           scrollViewRef.current?.scrollToEnd({animated: true});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any) => {
-            return (
-              <ChatBubble
+          messageStore.map((message: any) => (
+            <>
+              <ChatBubbleComponent
                 isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
+                message={message.msg}
+                createdTimestamp={message.createdTimestamp}
+                updatedTimestamp={message.updatedTimestamp}
                 uid={message.uid}
                 key={message.ts}
+                msgId={message.msgId}
+                isDeleted={message.isDeleted}
               />
-            );
-          })
+            </>
+          ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any) => {
-            return (
-              <ChatBubble
-                isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-            );
-          })
+          privateMessageStore[selectedUserID].map((message: any) => (
+            <ChatBubbleComponent
+              isLocal={localUid === message.uid}
+              message={message.msg}
+              createdTimestamp={message.createdTimestamp}
+              updatedTimestamp={message.updatedTimestamp}
+              uid={message.uid}
+              key={message.ts}
+              msgId={message.msgId}
+              isDeleted={message.isDeleted}
+            />
+          ))
         ) : (
           <></>
         )}
-        {userList[selectedUserID]?.offline && (
+        {renderList[selectedUserID]?.offline && (
           <View style={style.infoTextView}>
-            <Text style={style.infoText}>User is offline</Text>
+            <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>
         )}
       </ScrollView>
@@ -126,7 +183,7 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
+    fontWeight: isWebInternal() ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,
@@ -147,4 +204,5 @@ const style = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
 export default ChatContainer;

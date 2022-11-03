@@ -6,55 +6,50 @@ import {
   ScrollView,
   useWindowDimensions,
   StyleSheet,
-  Platform,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
-import {UserType} from '../../components/RTMConfigure';
 import TextWithTooltip from '../TextWithTooltip';
-import chatContext from '../../components/ChatContext';
+import {useString} from '../../utils/useString';
+import {isIOS, isWebInternal} from '../../utils/common';
+import {useChatNotification} from '../../components/chat-notification/useChatNotification';
+import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 const ChatParticipants = (props: any) => {
-  const {
-    selectUser,
-    setPrivateMessageLastSeen,
-    privateMessageCountMap,
-    lastCheckedPrivateState,
-  } = props;
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
+  const {selectUser} = props;
   const {height, width} = useWindowDimensions();
-  const {userList, localUid} = useContext(chatContext);
-
-  const isChatUser = (userId: string, userInfo: any) => {
+  const {renderList} = useRender();
+  const localUid = useLocalUid();
+  const {unreadIndividualMessageCount} = useChatNotification();
+  const isChatUser = (userId: UidType, userInfo: any) => {
     return (
-      userId !== localUid &&
-      parseInt(userId) !== 1 &&
-      userInfo?.type !== UserType.ScreenShare &&
+      userId !== localUid && //user can't chat with own user
+      // @ts-ignore
+      userId !== '1' && //user can't chat with pstn user
+      userInfo?.type === 'rtc' &&
       !userInfo?.offline
     );
   };
 
   return (
     <ScrollView>
-      {Object.entries(userList).map(([uid, value]) => {
-        if (isChatUser(uid, value)) {
+      {Object.entries(renderList).map(([uid, value]) => {
+        const uidAsNumber = parseInt(uid);
+        if (isChatUser(uidAsNumber, value)) {
           return (
             <TouchableOpacity
               style={style.participantContainer}
               key={uid}
               onPress={() => {
-                selectUser(uid);
-                setPrivateMessageLastSeen({
-                  userId: uid,
-                  lastSeenCount: privateMessageCountMap[uid],
-                });
+                selectUser(uidAsNumber);
               }}>
-              {(privateMessageCountMap[uid] || 0) -
-                (lastCheckedPrivateState[uid] || 0) !==
-              0 ? (
+              {unreadIndividualMessageCount &&
+              unreadIndividualMessageCount[uidAsNumber] ? (
                 <View style={style.chatNotificationPrivate}>
-                  <Text>
-                    {(privateMessageCountMap[uid] || 0) -
-                      (lastCheckedPrivateState[uid] || 0)}
-                  </Text>
+                  <Text>{unreadIndividualMessageCount[uidAsNumber]}</Text>
                 </View>
               ) : null}
               <View style={{flex: 1}}>
@@ -66,7 +61,11 @@ const ChatParticipants = (props: any) => {
                       fontSize: RFValue(16, height > width ? height : width),
                     },
                   ]}
-                  value={userList[uid] ? userList[uid].name + ' ' : 'User '}
+                  value={
+                    renderList[uidAsNumber]
+                      ? renderList[uidAsNumber].name + ''
+                      : remoteUserDefaultLabel
+                  }
                 />
               </View>
               <View>
@@ -96,7 +95,7 @@ const style = StyleSheet.create({
   },
   participantText: {
     flex: 1,
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
+    fontWeight: isWebInternal() ? '500' : '700',
     flexDirection: 'row',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
@@ -111,11 +110,12 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     right: 20,
     top: 0,
   },
 });
+
 export default ChatParticipants;

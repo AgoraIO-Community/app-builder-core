@@ -9,31 +9,64 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import chatContext, {controlMessageEnum} from './ChatContext';
-import ColorContext from './ColorContext';
+import React from 'react';
+import {View, Text, StyleSheet} from 'react-native';
 import SecondaryButton from '../atoms/SecondaryButton';
+import {useString} from '../utils/useString';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
+
+export interface MuteAllAudioButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
+  const muteRemoteAudio = useRemoteMute();
+  //commented for v1 release
+  //const muteAllAudioButton = useString('muteAllAudioButton')();
+  const muteAllAudioButton = 'Mute all audios';
+  const onPress = () => muteRemoteAudio(MUTE_REMOTE_TYPE.audio);
+
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <SecondaryButton onPress={onPress} text={muteAllAudioButton} />
+  );
+};
+
+export interface MuteAllVideoButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
+  const muteRemoteVideo = useRemoteMute();
+
+  //commented for v1 release
+  //const muteAllVideoButton = useString('muteAllVideoButton')();
+  const muteAllVideoButton = 'Mute all videos';
+  const onPress = () => muteRemoteVideo(MUTE_REMOTE_TYPE.video);
+
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <SecondaryButton onPress={onPress} text={muteAllVideoButton} />
+  );
+};
 
 const HostControlView = () => {
-  const {sendControlMessage} = useContext(chatContext);
-  const {primaryColor} = useContext(ColorContext);
+  //commented for v1 release
+  //const hostControlsLabel = useString('hostControlsLabel')();
+  const hostControlsLabel = 'Host Controls';
   return (
     <>
-      <Text style={style.heading}>Host Controls</Text>
+      <Text style={style.heading}>{hostControlsLabel}</Text>
       <View>
         <View style={style.btnContainer}>
-          <SecondaryButton
-            onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
-            text={'Mute all audios'}
-          />
+          <MuteAllAudioButton />
         </View>
-        <View style={style.btnContainer}>
-          <SecondaryButton
-            onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
-            text={'Mute all videos'}
-          />
-        </View>
+        {!$config.AUDIO_ROOM && (
+          <View style={style.btnContainer}>
+            <MuteAllVideoButton />
+          </View>
+        )}
       </View>
     </>
   );

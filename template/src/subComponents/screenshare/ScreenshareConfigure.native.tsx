@@ -9,76 +9,93 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useContext, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import KeepAwake from 'react-native-keep-awake';
-import Layout from '../LayoutEnum';
-import ChatContext from '../../components/ChatContext';
+import {UidType} from '../../../agora-rn-uikit';
 import {
-  RtcContext,
-  MinUidContext,
-  MaxUidContext,
-} from '../../../agora-rn-uikit/src';
+  useChangeDefaultLayout,
+  useSetPinnedLayout,
+} from '../../pages/video-call/DefaultLayouts';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import {useString} from '../../utils/useString';
+import events from '../../rtm-events-api';
+import {EventNames, EventActions} from '../../rtm-events';
+import {useRender, useRtc} from 'customization-api';
 
-function usePrevious(value: any) {
-  const ref = useRef();
+export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+  const {dispatch} = useRtc();
+  const {renderList, activeUids} = useRender();
+  const {setScreenShareData, screenShareData} = useScreenContext();
+  // commented for v1 release
+  // const getScreenShareName = useString('screenshareUserName');
+  // const userText = useString('remoteUserDefaultLabel')();
+  const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  const userText = 'User';
+  const setPinnedLayout = useSetPinnedLayout();
+  const changeLayout = useChangeDefaultLayout();
+
+  const renderListRef = useRef({renderList: renderList});
+
   useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
 
-export const ScreenshareConfigure: React.FC = (props: any) => {
-  const {userList} = useContext(ChatContext);
-  const rtc = useContext(RtcContext);
-  const {dispatch} = rtc;
-  const max = useContext(MaxUidContext);
-  const min = useContext(MinUidContext);
-  const users = [...max, ...min];
-  const prevUsers = usePrevious({users});
-  const {setLayout} = props;
-
-  useEffect(() => {
-    // determine start and stop of screen share using new user left/join state and their type
-    if (prevUsers !== undefined) {
-      let joinedUser = users.filter((person) =>
-        prevUsers?.users.every((person2) => !(person2.uid === person.uid)),
-      );
-      let leftUser = prevUsers?.users.filter((person) =>
-        users.every((person2) => !(person2.uid === person.uid)),
-      );
-
-      if (joinedUser.length === 1) {
-        const newUserUid = joinedUser[0].uid;
-        // identify remote user screen type, if screen share, swap to PIN
-        if (userList[newUserUid] && userList[newUserUid].type === 1) {
-          dispatch({
-            type: 'SwapVideo',
-            value: [joinedUser[0]],
-          });
-          setLayout(Layout.Pinned);
-        } else if (newUserUid === 1) {
-          // identify local user screen type
-          if (newUserUid !== users[0].uid) {
-            // if not already maximized
-            dispatch({
-              type: 'SwapVideo',
-              value: [joinedUser[0]],
-            });
-          }
-          setLayout(Layout.Pinned);
-        }
-      }
-
-      if (leftUser.length === 1) {
-        const leftUserUid = leftUser[0].uid;
-        if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
-          setLayout((l: Layout) =>
-            l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-          );
-        }
-      }
+  const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+    //screenshare is started set the layout to Pinned View
+    if (pinned && screenShareUid) {
+      dispatch({
+        type: 'SwapVideo',
+        value: [screenShareUid],
+      });
+      setPinnedLayout();
+    } else {
+      //screenshare is stopped set the layout Grid View
+      changeLayout();
     }
-  }, [users, userList]);
+  };
+
+  useEffect(() => {
+    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
+      const screenUidOfUser =
+        renderListRef.current.renderList[data.sender].screenUid;
+      switch (action) {
+        case EventActions.SCREENSHARE_STARTED:
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
+              [screenUidOfUser]: {
+                name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                isActive: true,
+                ts: value || 0,
+              },
+            };
+          });
+          //if remote user started/stopped the screenshare then change the layout to pinned/grid
+          triggerChangeLayout(true, screenUidOfUser);
+          break;
+        case EventActions.SCREENSHARE_STOPPED:
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
+              [screenUidOfUser]: {
+                name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                isActive: false,
+                ts: value || 0,
+              },
+            };
+          });
+          //if remote user started/stopped the screenshare then change the layout to pinned/grid
+          triggerChangeLayout(false);
+          break;
+        default:
+          break;
+      }
+    });
+  }, []);
 
   return (
     <>

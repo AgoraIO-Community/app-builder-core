@@ -103,3 +103,8 @@ template/theme-dark.json
 
 # logflies
 *.log
+
+#FPE plugin folder
+template/customization/*
+Builds
+esbuild-bin

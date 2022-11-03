@@ -1,197 +1,216 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import {useParams} from '../../components/Router';
-import ChatContext from '../../components/ChatContext';
+/*
+********************************************
+ Copyright © 2022 Agora Lab, Inc., all rights reserved.
+ AppBuilder and all associated components, source code, APIs, services, and documentation 
+ (the “Materials”) are owned by Agora Lab, Inc. and its licensors. The Materials may not be 
+ accessed, used, modified, or distributed for any purpose without a license from Agora Lab, Inc.  
+ Use without a license or in violation of any license terms and conditions (including use for 
+ any purpose competitive to Agora Lab, Inc.’s business) is strictly prohibited. For more 
+ information visit https://appbuilder.agora.io. 
+*********************************************
+*/
+import React, {useContext, useEffect, useRef, useState} from 'react';
+import {PropsContext, UidType} from '../../../agora-rn-uikit';
+import {ScreenshareContext} from './useScreenshare';
 import {
-  RtcContext,
-  PropsContext,
-  MinUidContext,
-  MaxUidContext,
-} from '../../../agora-rn-uikit/src';
-import Layout from '../LayoutEnum';
-import {gql, useMutation} from '@apollo/client';
-import ScreenshareContext from './ScreenshareContext';
-
-const SET_PRESENTER = gql`
-  mutation setPresenter($uid: Int!, $passphrase: String!) {
-    setPresenter(uid: $uid, passphrase: $passphrase)
-  }
-`;
-
-const SET_NORMAL = gql`
-  mutation setNormal($passphrase: String!) {
-    setNormal(passphrase: $passphrase)
-  }
-`;
-
-function usePrevious(value: any) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
+  useChangeDefaultLayout,
+  useSetPinnedLayout,
+} from '../../pages/video-call/DefaultLayouts';
+import {useRecording} from '../recording/useRecording';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+import {EventActions, EventNames} from '../../rtm-events';
+import {IAgoraRTC} from 'agora-rtc-sdk-ng';
+import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
+import {useString} from '../../utils/useString';
+import {timeNow} from '../../rtm/utils';
+import {useRender, useRtc} from 'customization-api';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
-export const ScreenshareConfigure = (props: any) => {
-  const {userList} = useContext(ChatContext);
-  const [screenshareActive, setScreenshareActive] = useState(false);
-  const rtc = useContext(RtcContext);
+export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
+  const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const rtc = useRtc();
   const {dispatch} = rtc;
-  const max = useContext(MaxUidContext);
-  const min = useContext(MinUidContext);
-  const users = [...max, ...min];
-  const prevUsers = usePrevious({users});
-  const {phrase} = useParams<any>();
-  const {setLayout, recordingActive} = props;
+  const {renderList, activeUids} = useRender();
+  const {isRecordingActive} = useRecording();
+  const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
+  const {setScreenShareData, screenShareData} = useScreenContext();
+  // commented for v1 release
+  // const getScreenShareName = useString('screenshareUserName');
+  // const userText = useString('remoteUserDefaultLabel')();
+  const getScreenShareName = (name: string) => `${name}'s screenshare`;
+  const userText = 'User';
+  const setPinnedLayout = useSetPinnedLayout();
+  const changeLayout = useChangeDefaultLayout();
+
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
 
-  const [setPresenterQuery] = useMutation(SET_PRESENTER);
-  const [setNormalQuery] = useMutation(SET_NORMAL);
+  const renderListRef = useRef({renderList: renderList});
 
   useEffect(() => {
-    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
-      setScreenshareActive(false);
-      console.log('STOPPED SHARING');
-      setLayout((l: Layout) =>
-        l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-      );
-      setNormalQuery({variables: {passphrase: phrase}})
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.stopRecordingSession === 'success') {
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
+
+  const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+    //screenshare is started set the layout to Pinned View
+    if (pinned && screenShareUid) {
+      dispatch({
+        type: 'SwapVideo',
+        value: [screenShareUid],
+      });
+      setPinnedLayout();
+    } else {
+      //screenshare is stopped set the layout Grid View
+      changeLayout();
+    }
+  };
+
+  useEffect(() => {
+    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+      const payload = JSON.parse(data.payload);
+      const action = payload.action;
+      const value = payload.value;
+
+      const screenUidOfUser =
+        renderListRef.current.renderList[data.sender].screenUid;
+      switch (action) {
+        case EventActions.SCREENSHARE_STARTED:
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
+              [screenUidOfUser]: {
+                name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                isActive: true,
+                ts: value || 0,
+              },
+            };
+          });
+          //if remote user started/stopped the screenshare then change the layout to pinned/grid
+          triggerChangeLayout(true, screenUidOfUser);
+          break;
+        case EventActions.SCREENSHARE_STOPPED:
+          setScreenShareData((prevState) => {
+            return {
+              ...prevState,
+              [screenUidOfUser]: {
+                name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                isActive: false,
+                ts: value || 0,
+              },
+            };
+          });
+          //if remote user started/stopped the screenshare then change the layout to pinned/grid
+          triggerChangeLayout(false);
+          break;
+        default:
+          break;
+      }
     });
   }, []);
 
   useEffect(() => {
-    if (prevUsers !== undefined) {
-      let joinedUser = users.filter((person) =>
-        prevUsers?.users.every((person2) => !(person2.uid === person.uid)),
+    // @ts-ignore
+    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
+      setScreenshareActive(false);
+      console.log('STOPPED SHARING');
+      executeNormalQuery();
+      events.send(
+        EventNames.SCREENSHARE_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.SCREENSHARE_STOPPED,
+          value: 0,
+        }),
+        EventPersistLevel.LEVEL2,
       );
-      let leftUser = prevUsers?.users.filter((person) =>
-        users.every((person2) => !(person2.uid === person.uid)),
-      );
-
-      if (joinedUser.length === 1) {
-        const newUserUid = joinedUser[0].uid;
-        // identify remote user screen type, if screen share, swap to PIN
-        if (userList[newUserUid] && userList[newUserUid].type === 1) {
-          dispatch({
-            type: 'SwapVideo',
-            value: [joinedUser[0]],
-          });
-          setLayout(Layout.Pinned);
-        } else if (newUserUid === 1) {
-          // identify local user screen type
-          if (newUserUid !== users[0].uid) {
-            // if not already maximized
-            dispatch({
-              type: 'SwapVideo',
-              value: [joinedUser[0]],
-            });
-          }
-          setLayout(Layout.Pinned);
-        }
-      }
-
-      if (leftUser.length === 1) {
-        const leftUserUid = leftUser[0].uid;
-        if (userList[leftUserUid] && userList[leftUserUid].type === 1) {
-          setLayout((l: Layout) =>
-            l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-          );
-        }
-      }
-    }
-  }, [users, userList]);
+      setScreenShareData((prevState) => {
+        return {
+          ...prevState,
+          [screenShareUid]: {
+            ...prevState[screenShareUid],
+            isActive: false,
+            ts: 0,
+          },
+        };
+      });
+      //if local user stopped the screenshare then change layout to grid
+      triggerChangeLayout(false);
+    });
+  }, []);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
-    if (!isScreenActive) {
+    if (isScreenActive) {
+      console.log('screenshare: Executing presenter query');
       // If screen share is not going on, start the screen share by executing the graphql query
-      setPresenterQuery({
-        variables: {
-          uid: screenShareUid,
-          passphrase: phrase,
-        },
-      })
-        .then((res) => {
-          if (res.data.setPresenter === 'success') {
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      executePresenterQuery(screenShareUid);
     } else {
       // If recording is already going on, stop the recording by executing the graphql query.
-      setNormalQuery({variables: {passphrase: phrase}})
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.stopRecordingSession === 'success') {
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      executeNormalQuery();
     }
   };
 
   const stopUserScreenShare = () => {
-    if (screenshareActive) {
-      startUserScreenshare();
-    }
+    if (!isScreenshareActive) return;
+    userScreenshare(false);
+  };
+  const startUserScreenshare = () => {
+    if (isScreenshareActive) return;
+    userScreenshare(true);
   };
 
-  const startUserScreenshare = async () => {
-    const isScreenActive = screenshareActive;
-    if (recordingActive) {
-      executeRecordingQuery(isScreenActive);
+  const userScreenshare = async (isActive: boolean) => {
+    if (isRecordingActive) {
+      executeRecordingQuery(isActive);
     }
+    console.log('screenshare query executed');
     try {
+      // @ts-ignore
       await rtc.RtcEngine.startScreenshare(
         screenShareToken,
         channel,
         null,
         screenShareUid,
         appId,
-        rtc.RtcEngine,
-        encryption,
+        rtc.RtcEngine as unknown as IAgoraRTC,
+        encryption as unknown as any,
       );
-      !isScreenActive && setScreenshareActive(true);
+      isActive && setScreenshareActive(true);
+
+      if (isActive) {
+        // 1. Set local state
+        setScreenShareData((prevState) => {
+          return {
+            ...prevState,
+            [screenShareUid]: {
+              name: renderListRef.current.renderList[screenShareUid]?.name,
+              isActive: true,
+              ts: timeNow(),
+            },
+          };
+        });
+        // 2. Inform everyone in the channel screenshare is actice
+        events.send(
+          EventNames.SCREENSHARE_ATTRIBUTE,
+          JSON.stringify({
+            action: EventActions.SCREENSHARE_STARTED,
+            value: timeNow(),
+          }),
+          EventPersistLevel.LEVEL2,
+        );
+        //3 . if local user started the screenshare then change layout to pinned
+        triggerChangeLayout(true, screenShareUid);
+      }
     } catch (e) {
       console.error("can't start the screen share", e);
-      setNormalQuery({variables: {passphrase: phrase}})
-        .then((res) => {
-          console.log(res.data);
-          if (res.data.stopRecordingSession === 'success') {
-            // Once the backend sucessfuly stops recording,
-            // send a control message to everbody in the channel indicating that cloud recording is now inactive.
-            // sendControlMessage(controlMessageEnum.cloudRecordingUnactive);
-            // set the local recording state to false to update the UI
-            // setScreenshareActive(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      executeNormalQuery();
     }
   };
 
   return (
     <ScreenshareContext.Provider
       value={{
-        screenshareActive,
+        isScreenshareActive,
         startUserScreenshare,
         stopUserScreenShare,
       }}>

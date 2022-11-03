@@ -12,19 +12,36 @@
 import React, {useContext} from 'react';
 import {View, TouchableOpacity, Text, StyleSheet, Image} from 'react-native';
 import ColorContext from '../components/ColorContext';
+// @ts-ignore
 import google from '../assets/google.png';
+// @ts-ignore
 import apple from '../assets/apple.png';
+// @ts-ignore
 import slack from '../assets/slack.png';
+// @ts-ignore
 import microsoft from '../assets/microsoft.png';
 import Logo from './Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {useHasBrandLogo} from '../utils/common';
+import {useString} from '../utils/useString';
 
 const SelectOAuth = ({onSelectOAuth}) => {
+  const hasBrandLogo = useHasBrandLogo();
   // Linking.openURL(url);
   const {primaryColor} = useContext(ColorContext);
+  //commented for v1 release
+  // const oauthLoginLabel = useString('oauthLoginLabel')();
+  // const googleAuthButton = useString('googleAuthButton')();
+  // const microsoftAuthButton = useString('microsoftAuthButton')();
+  // const slackAuthButton = useString('slackAuthButton')();
+  // const appleAuthButton = useString('appleAuthButton')();
+  const oauthLoginLabel = 'Login using OAuth';
+  const googleAuthButton = 'Google';
+  const microsoftAuthButton = 'Microsoft';
+  const slackAuthButton = 'Slack';
+  const appleAuthButton = 'Apple';
   return (
     <View style={style.main}>
-      <View style={style.nav}>{hasBrandLogo && <Logo />}</View>
+      <View style={style.nav}>{hasBrandLogo() && <Logo />}</View>
       <View style={style.content}>
         <View style={style.leftContent}>
           <Text style={style.heading}>{$config.APP_NAME}</Text>
@@ -38,14 +55,16 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   marginBottom: 20,
                   color: $config.PRIMARY_FONT_COLOR,
                 }}>
-                Login using OAuth
+                {oauthLoginLabel}
               </Text>
               {$config.ENABLE_GOOGLE_OAUTH ? (
                 <TouchableOpacity
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'google'})}>
                   <Image source={google} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>Google</Text>
+                  <Text style={[style.secondaryBtnText]}>
+                    {googleAuthButton}
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <></>
@@ -55,7 +74,9 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'microsoft'})}>
                   <Image source={microsoft} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>Microsoft</Text>
+                  <Text style={[style.secondaryBtnText]}>
+                    {microsoftAuthButton}
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <></>
@@ -65,7 +86,9 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'slack'})}>
                   <Image source={slack} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>Slack</Text>
+                  <Text style={[style.secondaryBtnText]}>
+                    {slackAuthButton}
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <></>
@@ -75,7 +98,9 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   style={[style.secondaryBtn, {borderColor: primaryColor}]}
                   onPress={() => onSelectOAuth({oAuthSystem: 'apple'})}>
                   <Image source={apple} style={style.logo} />
-                  <Text style={[style.secondaryBtnText]}>Apple</Text>
+                  <Text style={[style.secondaryBtnText]}>
+                    {appleAuthButton}
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <></>

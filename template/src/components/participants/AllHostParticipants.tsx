@@ -1,65 +1,53 @@
-import React, {useContext} from 'react';
-import {MinUidConsumer, MaxUidConsumer} from '../../../agora-rn-uikit';
-import chatContext from '../ChatContext';
-
+import React from 'react';
 import MeParticipant from './MeParticipant';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import RemoteParticipants from './RemoteParticipants';
-import {UserType} from './../RTMConfigure';
+import {useString} from '../../utils/useString';
+import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 export default function AllHostParticipants(props: any) {
   const {p_style, isHost} = props;
-  const {userList, localUid} = useContext(chatContext);
-
-  const getParticipantName = (userUID: number | string) => {
-    if (userUID === 'local')
-      return userList[localUid] ? userList[localUid].name + ' ' : 'You ';
-    else if (userUID === 1)
-      return userList[localUid]
-        ? userList[localUid].name + "'s screenshare "
-        : 'Your screenshare ';
-    else
-      return userList[userUID]
-        ? userList[userUID].name + ' '
-        : String(userUID)[0] === '1'
-        ? 'PSTN User '
-        : 'User ';
+  const localUid = useLocalUid();
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
+  const {renderList, activeUids} = useRender();
+  const getParticipantName = (uid: UidType) => {
+    return renderList[uid]?.name || remoteUserDefaultLabel;
   };
 
   return (
-    <MinUidConsumer>
-      {(minUsers) => (
-        <MaxUidConsumer>
-          {(maxUser) =>
-            [...minUsers, ...maxUser].map((user) =>
-              user.uid === 'local' ? (
-                <MeParticipant
-                  name={getParticipantName(user.uid)}
-                  p_style={p_style}
-                  key={user.uid}
-                />
-              ) : user.uid === 1 ? (
-                <ScreenshareParticipants
-                  name={getParticipantName(user.uid)}
-                  p_styles={p_style}
-                  key={user.uid}
-                />
-              ) : (
-                <RemoteParticipants
-                  name={getParticipantName(user.uid)}
-                  p_styles={p_style}
-                  user={user}
-                  showControls={
-                    userList[user.uid]?.type !== UserType.ScreenShare
-                  }
-                  isHost={isHost}
-                  key={user.uid}
-                />
-              ),
-            )
-          }
-        </MaxUidConsumer>
+    <>
+      {/* User should see his name first */}
+      {activeUids.filter((uid) => uid === localUid).length > 0 && (
+        <MeParticipant
+          name={getParticipantName(localUid)}
+          p_style={p_style}
+          key={localUid}
+        />
       )}
-    </MinUidConsumer>
+      {/* Others Users in the call */}
+      {activeUids
+        .filter((uid) => uid !== localUid)
+        .map((uid) =>
+          renderList[uid]?.type === 'screenshare' ? (
+            <ScreenshareParticipants
+              name={getParticipantName(uid)}
+              p_styles={p_style}
+              key={uid}
+            />
+          ) : (
+            <RemoteParticipants
+              name={getParticipantName(uid)}
+              p_styles={p_style}
+              user={renderList[uid]}
+              showControls={renderList[uid]?.type === 'rtc'}
+              isHost={isHost}
+              key={uid}
+            />
+          ),
+        )}
+    </>
   );
 }

@@ -10,25 +10,34 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text, StyleSheet, Platform} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import HostControlView from './HostControlView';
+import {useString} from '../utils/useString';
+import LanguageSelector from '../subComponents/LanguageSelector';
+import {isWebInternal} from '../utils/common';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 
-const SettingsView = (props: any) => {
-  const {isHost} = props;
+const SettingsView = () => {
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+  //commented for v1 release
+  //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
+  const selectInputDeviceLabel = 'Select Input Device';
+
   return (
     <View
-      style={
-        Platform.OS === 'web' ? style.settingsView : style.settingsViewNative
-      }>
+      style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
       <View style={style.main}>
         <View>
-          <Text style={style.heading}>Select Input Device</Text>
+          <Text style={style.heading}>{selectInputDeviceLabel}</Text>
           <View style={style.popupPickerHolder}>
             <SelectDevice />
           </View>
         </View>
         {isHost ? <HostControlView /> : <></>}
+        <LanguageSelector />
       </View>
     </View>
   );

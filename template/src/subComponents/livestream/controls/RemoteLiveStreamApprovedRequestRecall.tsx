@@ -1,17 +1,23 @@
-import React, {useContext} from 'react';
-import ChatContext from '../../../components/ChatContext';
-import {BtnTemplate} from '../../../../agora-rn-uikit';
+import React from 'react';
+import {BtnTemplate, UidType} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
 import icons from '../../../assets/icons';
+import events, {EventPersistLevel} from '../../../rtm-events-api';
 
-const RemoteLiveStreamApprovedRequestRecall = (props: {uid: number}) => {
-  const {sendControlMessageToUid} = useContext(ChatContext);
+export interface RemoteLiveStreamApprovedRequestRecallProps {
+  uid: UidType;
+}
+const RemoteLiveStreamApprovedRequestRecall = (
+  props: RemoteLiveStreamApprovedRequestRecallProps,
+) => {
   return (
     <BtnTemplate
       style={{width: 24, height: 22}}
       onPress={() => {
-        sendControlMessageToUid(
-          LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall,
+        events.send(
+          LiveStreamControlMessageEnum.raiseHandRequestRejected,
+          '',
+          EventPersistLevel.LEVEL1,
           props.uid,
         );
       }}

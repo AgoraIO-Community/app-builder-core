@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
+// @ts-nocheck
 import AgoraRTC, {
   IAgoraRTCClient,
   ILocalAudioTrack,
@@ -32,7 +33,7 @@ import {ChannelProfile, ClientRole} from '../../../agora-rn-uikit';
 import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
-import mobileAndTabletCheck from '../../../src/utils/mobileWebTest';
+import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -119,6 +120,18 @@ export enum RnEncryptionEnum {
    * @since v3.1.2.
    */
   SM4128ECB = 4,
+  /**
+   * 5: 128-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES128GCM = 5,
+  /**
+   * 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+  AES256GCM = 6,
 }
 
 export enum VideoStreamType {
@@ -138,14 +151,14 @@ interface RemoteStream {
   audio?: IRemoteAudioTrack;
   video?: IRemoteVideoTrack;
 }
-if (GEO_FENCING) {
+if ($config.GEO_FENCING) {
   AgoraRTC.setArea({
     areaCode: AREAS.GLOBAL,
     excludedArea: AREAS.CHINA,
   });
 }
 
-if (LOG_ENABLED) {
+if ($config.LOG_ENABLED) {
   AgoraRTC.setLogLevel(0);
   AgoraRTC.enableLogUpload();
 } else {
@@ -185,8 +198,6 @@ export default class RtcEngine {
 
   // Create channel profile and set it here
 
-  // Create channel profile and set it here
-
   constructor(appId: string) {
     this.appId = appId;
     // this.AgoraRTC = AgoraRTC;
@@ -202,6 +213,17 @@ export default class RtcEngine {
     this.videoProfile = profile;
   }
 
+  async enableAudio(): Promise<void> {
+    try {
+      let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+      this.localStream.audio = localAudio;
+    } catch (e) {
+      let audioError = e;
+      e.status = {audioError};
+      throw e;
+    }
+  }
+
   async enableVideo(): Promise<void> {
     /**
      * Issue: Backgrounding the browser or app causes the audio streaming to be cut off.
@@ -213,9 +235,7 @@ export default class RtcEngine {
      */
 
     const audioConfig =
-      Platform.OS == 'web' && mobileAndTabletCheck()
-        ? {bypassWebAudio: true}
-        : {};
+      Platform.OS == 'web' && isMobileOrTablet() ? {bypassWebAudio: true} : {};
     try {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(audioConfig, {
@@ -296,20 +316,15 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
-      const uid = this.inScreenshare
-        ? user.uid !== this.screenClient.uid
-          ? user.uid
-          : 1
-        : user.uid;
-      (this.eventsMap.get('UserJoined') as callbackType)(uid);
+      (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
-        uid,
+        user.uid,
         0,
         0,
         0,
       );
       (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
-        uid,
+        user.uid,
         0,
         0,
         0,
@@ -317,17 +332,7 @@ export default class RtcEngine {
     });
 
     this.client.on('user-left', (user) => {
-      const uid = this.inScreenshare
-        ? user.uid !== this.screenClient.uid
-          ? user.uid
-          : 1
-        : user.uid;
-      // if (uid ===1) {
-      //   this.screenStream.audio?.close();
-      //   this.screenStream.video?.close();
-      //   this.screenStream = {}
-      // }
-      // else
+      const uid = user.uid;
       if (this.remoteStreams.has(uid)) {
         this.remoteStreams.delete(uid);
       }
@@ -338,7 +343,7 @@ export default class RtcEngine {
       // Initiate the subscription
       if (this.inScreenshare && user.uid === this.screenClient.uid) {
         (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
-          1,
+          user.uid,
           2,
           0,
           0,
@@ -689,6 +694,8 @@ export default class RtcEngine {
           break;
         case RnEncryptionEnum.SM4128ECB:
           mode = 'sm4-128-ecb';
+        default:
+          mode = 'none';
       }
     } else {
       mode = 'none';
@@ -704,7 +711,7 @@ export default class RtcEngine {
     },
   ): Promise<void> {
     let mode: EncryptionMode;
-    mode = this.getEncryptionMode(enabled, config.encryptionMode);
+    mode = this.getEncryptionMode(enabled, config?.encryptionMode);
     try {
       await Promise.all([
         this.client.setEncryptionConfig(mode, config.encryptionKey),
@@ -737,7 +744,9 @@ export default class RtcEngine {
 
   async destroy(): Promise<void> {
     if (this.inScreenshare) {
-      (this.eventsMap.get('UserOffline') as callbackType)(1);
+      (this.eventsMap.get('UserOffline') as callbackType)(
+        this.screenClient.uid,
+      );
       this.screenClient.leave();
       (this.eventsMap.get('ScreenshareStopped') as callbackType)();
     }
@@ -798,20 +807,22 @@ export default class RtcEngine {
       try {
         console.log('[screenshare]: creating stream');
 
-        let mode: EncryptionMode;
-        mode = this.getEncryptionMode(true, encryption.mode);
-        try {
-          /**
-           * Since version 4.7.0, if client leaves a call
-           * and joins again the encryption needs to be
-           * set again
-           */
-          await this.screenClient.setEncryptionConfig(
-            mode,
-            encryption.screenKey,
-          );
-        } catch (e) {
-          console.log('e: Encryption for screenshare failed', e);
+        if (encryption && encryption.screenKey && encryption.mode) {
+          let mode: EncryptionMode;
+          mode = this.getEncryptionMode(true, encryption?.mode);
+          try {
+            /**
+             * Since version 4.7.0, if client leaves a call
+             * and joins again the encryption needs to be
+             * set again
+             */
+            await this.screenClient.setEncryptionConfig(
+              mode,
+              encryption.screenKey,
+            );
+          } catch (e) {
+            console.log('e: Encryption for screenshare failed', e);
+          }
         }
 
         const screenTracks = await AgoraRTC.createScreenVideoTrack(
@@ -844,7 +855,9 @@ export default class RtcEngine {
       );
 
       this.screenStream.video.on('track-ended', () => {
-        (this.eventsMap.get('UserOffline') as callbackType)(1);
+        (this.eventsMap.get('UserOffline') as callbackType)(
+          this.screenClient.uid,
+        );
 
         this.screenClient.leave();
 
@@ -856,7 +869,9 @@ export default class RtcEngine {
         this.inScreenshare = false;
       });
     } else {
-      (this.eventsMap.get('UserOffline') as callbackType)(1);
+      (this.eventsMap.get('UserOffline') as callbackType)(
+        this.screenClient.uid,
+      );
       this.screenClient.leave();
       (this.eventsMap.get('ScreenshareStopped') as callbackType)();
       try {

@@ -9,57 +9,71 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useState} from 'react';
+// @ts-nocheck
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
-import SessionContext from '../components/SessionContext';
-// import OpenInNativeButton from '../subComponents/OpenInNativeButton';
 import Logo from '../subComponents/Logo';
-import hasBrandLogo from '../utils/hasBrandLogo';
+import {
+  isValidReactComponent,
+  shouldAuthenticate,
+  useHasBrandLogo,
+} from '../utils/common';
 import LogoutButton from '../subComponents/LogoutButton';
-import ColorContext from '../components/ColorContext';
-// import Illustration from '../subComponents/Illustration';
-// import {secondaryBtn} from '../../theme.json';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
 import HorizontalRule from '../atoms/HorizontalRule';
 import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
-import shouldAuthenticate from '../utils/shouldAuthenticate';
-// const joinFlag = 0;
-interface joinProps {
-  phrase: string;
-  onChangePhrase: (text: string) => void;
-}
-const Join = (props: joinProps) => {
+import {useString} from '../utils/useString';
+import {useCustomization} from 'customization-implementation';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+
+const Join = () => {
+  const hasBrandLogo = useHasBrandLogo();
+  //commented for v1 release
+  // const meetingIdInputPlaceholder = useString('meetingIdInputPlaceholder')();
+  // const enterMeetingButton = useString('enterMeetingButton')();
+  // const createMeetingButton = useString('createMeetingButton')();
+  const meetingIdInputPlaceholder = 'Enter Meeting ID';
+  const enterMeetingButton = 'Enter Meeting';
+  const createMeetingButton = 'Create Meeting';
   const history = useHistory();
-  const {primaryColor} = useContext(ColorContext);
-  const {joinSession} = useContext(SessionContext);
+  const [phrase, setPhrase] = useState('');
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-  // const [dim, setDim] = useState([
-  //   Dimensions.get('window').width,
-  //   Dimensions.get('window').height,
-  //   Dimensions.get('window').width > Dimensions.get('window').height,
-  // ]);
-  // let onLayout = (e: any) => {
-  //   setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  // };
+  const {setMeetingInfo} = useSetMeetingInfo();
   const createMeeting = () => {
     history.push('/create');
   };
 
-  const phrase = props.phrase;
-  const onChangePhrase = props.onChangePhrase;
   const startCall = async () => {
-    joinSession({phrase});
+    setMeetingInfo(MeetingInfoDefaultValue);
+    history.push(phrase);
   };
+  const {JoinComponent} = useCustomization((data) => {
+    let components: {
+      JoinComponent?: React.ComponentType;
+    } = {};
+    // commented for v1 release
+    // if (
+    //   data?.components?.join &&
+    //   typeof data?.components?.join !== 'object' &&
+    //   isValidReactComponent(data?.components?.join)
+    // ) {
+    //   components.JoinComponent = data?.components?.join;
+    // }
+    return components;
+  });
 
-  return (
+  return JoinComponent ? (
+    <JoinComponent />
+  ) : (
     <ScrollView contentContainerStyle={style.main}>
       <View style={style.nav}>
-        {hasBrandLogo && <Logo />}
+        {hasBrandLogo() && <Logo />}
         {error ? <Error error={error} /> : <></>}
       </View>
       <View style={style.content}>
@@ -69,20 +83,20 @@ const Join = (props: joinProps) => {
           <View style={style.inputs}>
             <TextInput
               value={phrase}
-              onChangeText={(text) => onChangePhrase(text)}
+              onChangeText={(text) => setPhrase(text)}
               onSubmitEditing={() => startCall()}
-              placeholder="Enter Meeting ID"
+              placeholder={meetingIdInputPlaceholder}
             />
             <View style={{height: 10}} />
             <PrimaryButton
               disabled={phrase === ''}
               onPress={() => startCall()}
-              text={'Enter Meeting'}
+              text={enterMeetingButton}
             />
             <HorizontalRule />
             <SecondaryButton
               onPress={() => createMeeting()}
-              text={'Create a meeting'}
+              text={createMeetingButton}
             />
             {shouldAuthenticate ? (
               <LogoutButton setError={setError} /> //setError not available in logout?

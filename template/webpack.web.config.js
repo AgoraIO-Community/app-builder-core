@@ -11,6 +11,7 @@
 */
 const commons = require('./webpack.commons');
 const {merge} = require('webpack-merge');
+const path = require('path');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -21,10 +22,16 @@ module.exports = merge(commons, {
   entry: {
     main: './index.web.js',
   },
+  output: {
+    path: path.resolve(__dirname, `../Builds/web`),
+  },
   // Webpack dev server config
   devServer: {
     port: 9000,
     historyApiFallback: true, // Support for react-router
-    contentBase: './',
+    static: './', // same as contentBase from webpack v4 config
+    client:{
+      overlay: false
+    }
   },
 });

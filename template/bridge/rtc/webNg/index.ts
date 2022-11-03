@@ -20,10 +20,13 @@ export const RtcLocalView = {
 };
 
 export const RtcRemoteView = {
-  SurfaceView: SurfaceView,
-  TextureView: SurfaceView,
+  SurfaceView: SurfaceView as any,
+  TextureView: SurfaceView as any,
 };
 
 export const VideoRenderMode = {...Types.VideoRenderMode};
+export const VideoMirrorMode = {...Types.VideoRenderMode};
 
+export {RnEncryptionEnum as EncryptionMode} from './RtcEngine';
+export {AREAS as AreaCode} from './RtcEngine'
 export default RtcEngine;

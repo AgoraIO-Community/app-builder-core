@@ -9,35 +9,34 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import RtmEngine, {RtmAttribute} from 'agora-react-native-rtm';
-import {createContext} from 'react';
-import {rtmEventsInterface} from './RTMEvents';
+import RtmEngine from 'agora-react-native-rtm';
+import {UidType} from '../../agora-rn-uikit';
+import {createContext, SetStateAction} from 'react';
 
-export interface channelMessage {
+export interface ChatBubbleProps {
   isLocal: boolean;
-  msg: string;
-  ts: string;
-  uid: string;
+  message: string;
+  createdTimestamp: string;
+  updatedTimestamp?: string;
+  uid: UidType;
+  msgId: string;
+  isDeleted: boolean;
+  render?: (
+    isLocal: boolean,
+    message: string,
+    createdTimestamp: string,
+    uid: UidType,
+    msgId: string,
+    isDeleted: boolean,
+    updatedTimestamp?: string,
+  ) => JSX.Element;
 }
 
 export interface messageStoreInterface {
-  ts: string;
-  uid: string;
+  createdTimestamp: string;
+  updatedTimestamp?: string;
+  uid: UidType;
   msg: string;
-}
-
-export interface messageEventInterface extends messageStoreInterface {
-  type: messageActionType;
-  source: messageSourceType;
-}
-
-export enum messageSourceType {
-  Core = 'core',
-}
-
-export enum messageChannelType {
-  Private = 'private',
-  Public = 'public',
 }
 
 export enum messageActionType {
@@ -45,27 +44,11 @@ export enum messageActionType {
   Normal = '1',
 }
 
-export enum attrRequestTypes {
-  none = 'NONE',
-}
-
-interface chatContext {
-  messageStore: messageStoreInterface | any;
-  privateMessageStore: any;
-  sendMessage: (msg: string) => void;
-  sendMessageToUid: (msg: string, uid: number) => void;
-  sendControlMessage: (msg: string) => void;
-  sendControlMessageToUid: (msg: string, uid: number) => void;
-  addOrUpdateLocalUserAttributes: (attributes: RtmAttribute[]) => void;
-  broadcastUserAttributes: (
-    attributes: RtmAttribute[],
-    ctrlMsg: controlMessageEnum,
-  ) => void;
+export interface chatContext {
+  hasUserJoinedRTM: boolean;
   engine: RtmEngine;
-  localUid: string;
-  userList: any;
+  localUid: UidType;
   onlineUsersCount: number;
-  events: rtmEventsInterface;
 }
 
 export enum controlMessageEnum {
@@ -74,10 +57,6 @@ export enum controlMessageEnum {
   muteSingleVideo = '3',
   muteSingleAudio = '4',
   kickUser = '5',
-  cloudRecordingActive = '6',
-  cloudRecordingUnactive = '7',
-  clientRoleChanged = 'CLIENT_ROLE_CHANGED',
-  // TODO move to livestream provider
 }
 
 const ChatContext = createContext(null as unknown as chatContext);

@@ -9,78 +9,63 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
-import Clipboard from './Clipboard';
-import {gql, useQuery} from '@apollo/client';
-import icons from '../assets/icons';
-import platform from '../subComponents/Platform';
+import React, {useEffect} from 'react';
+import {StyleSheet} from 'react-native';
 import {useParams} from '../components/Router';
-import Toast from '../../react-native-toast-message';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
+import {useString} from '../utils/useString';
+import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
+import {
+  SHARE_LINK_CONTENT_TYPE,
+  useShareLink,
+} from '../components/useShareLink';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import Styles from '../components/styles';
 
-const SHARE = gql`
-  query share($passphrase: String!) {
-    share(passphrase: $passphrase) {
-      passphrase {
-        host
-        view
-      }
-      channel
-      title
-      pstn {
-        number
-        dtmf
-      }
-    }
-  }
-`;
+export interface CopyJoinInfoProps {
+  showText?: boolean;
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
 
-const ParticipantView = (props: {showText?: boolean}) => {
+const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {phrase} = useParams<{phrase: string}>();
-  const {data, loading, error} = useQuery(SHARE, {
-    variables: {passphrase: phrase},
-  });
-  const copyToClipboard = () => {
-    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
-    if (data && !loading) {
-      let stringToCopy = '';
-      if ($config.FRONTEND_ENDPOINT) {
-        stringToCopy += `Meeting - ${data.share.title}\nURL for Attendee: ${$config.FRONTEND_ENDPOINT}/${data.share.passphrase.view}`;
-        if (data.share.passphrase.host) {
-          stringToCopy += `\nURL for Host: ${$config.FRONTEND_ENDPOINT}/${data.share.passphrase.host}`;
-        }
-      } else {
-        if (platform === 'web') {
-          stringToCopy += `Meeting - ${data.share.title}\nURL for Attendee: ${window.location.origin}/${data.share.passphrase.view}`;
-          if (data.share.passphrase.host) {
-            stringToCopy += `\nURL for Host: ${window.location.origin}/${data.share.passphrase.host}`;
-          }
-        } else {
-          stringToCopy += `Meeting - ${data.share.title}\nAttendee Meeting ID: ${data.share.passphrase.view}`;
-          if (data.share.passphrase.host) {
-            stringToCopy += `\nHost Meeting ID: ${data.share.passphrase.host}`;
-          }
-        }
-      }
-      if (data.share.pstn) {
-        stringToCopy += `\nPSTN Number: ${data.share.pstn.number}\nPSTN Pin: ${data.share.pstn.dtmf}`;
-      }
-      console.log('Copying string to clipboard:', stringToCopy);
-      Clipboard.setString(stringToCopy);
-      // Clipboard.setString(JSON.stringify(data));
-    }
-  };
+  const getMeeting = useGetMeetingPhrase();
+  const {copyShareLinkToClipboard} = useShareLink();
+  //commented for v1 release
+  //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
+  const copyMeetingInviteButton = 'Copy Meeting Invite';
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  useEffect(() => {
+    getMeeting(phrase);
+  }, [phrase]);
 
-  return (
-    <BtnTemplate
-      disabled={!data}
-      style={style.backButton}
-      onPress={() => copyToClipboard()}
-      name={'clipboard'}
-      btnText={props.showText ? 'Copy Meeting Invite' : ''}
-      color={$config.PRIMARY_FONT_COLOR}
-    />
+  const onPress = () =>
+    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: onPress,
+    name: 'clipboard',
+  };
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = copyMeetingInviteButton;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.color = $config.PRIMARY_FONT_COLOR;
+    btnTemplateProps.style = style.backButton;
+    btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
+  }
+
+  return props?.render ? (
+    props.render(onPress, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
   );
 };
 
@@ -101,4 +86,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default ParticipantView;
+export default CopyJoinInfo;

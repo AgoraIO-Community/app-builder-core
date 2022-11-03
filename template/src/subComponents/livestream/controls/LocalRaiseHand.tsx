@@ -11,34 +11,48 @@
 */
 import React, {useContext} from 'react';
 import {StyleSheet} from 'react-native';
-import LiveStreamContext from '../../../components/livestream';
+import LiveStreamContext, {
+  RaiseHandValue,
+} from '../../../components/livestream';
 import {PropsContext} from '../../../../agora-rn-uikit';
 import {BtnTemplate} from '../../../../agora-rn-uikit';
 import icons from '../../../assets/icons';
+import {useString} from '../../../utils/useString';
+import ChatContext from '../../../components/ChatContext';
 
 const LocalRaiseHand = () => {
   const {styleProps} = useContext(PropsContext);
-  const {audienceSendsRequest, audienceRecallsRequest, raiseHandRequestActive} =
+  const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
+  const {localUid} = useContext(ChatContext);
   const {localBtnStyles} = styleProps || {};
   const {theme} = styleProps || {};
   const {muteLocalAudio} = localBtnStyles || {};
-
+  //commented for v1 release
+  //const handStatusText = useString<boolean>('raiseHandButton');
+  const handStatusText = (toggle: boolean) =>
+    toggle ? 'Lower hand' : 'Raise Hand';
   return (
     <BtnTemplate
       icon={icons['raiseHandIcon']}
-      btnText={raiseHandRequestActive ? 'Lower hand' : 'Raise Hand'}
-      color={raiseHandRequestActive ? '#FD0845' : theme}
+      btnText={handStatusText(
+        raiseHandList[localUid]?.raised === RaiseHandValue.TRUE,
+      )}
+      color={
+        raiseHandList[localUid]?.raised === RaiseHandValue.TRUE
+          ? '#FD0845'
+          : theme
+      }
       style={{
         ...style.localBtn,
         ...(localBtnStyles as object),
         ...(muteLocalAudio as object),
       }}
       onPress={() => {
-        if (!raiseHandRequestActive) {
-          audienceSendsRequest();
-        } else {
+        if (raiseHandList[localUid]?.raised === RaiseHandValue.TRUE) {
           audienceRecallsRequest();
+        } else {
+          audienceSendsRequest();
         }
       }}
     />

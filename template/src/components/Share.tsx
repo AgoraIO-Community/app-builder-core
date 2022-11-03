@@ -9,98 +9,75 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Dimensions,
-  Image,
-  Platform,
-} from 'react-native';
-// import ColorContext from './ColorContext';
-import {useHistory} from './Router';
-import Clipboard from '../subComponents/Clipboard';
-// import Illustration from '../subComponents/Illustration';
+// @ts-nocheck
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
-import icons from '../assets/icons';
-import Toast from '../../react-native-toast-message';
 import {BtnTemplate} from '../../agora-rn-uikit';
-import styles from './styles';
+import {SHARE_LINK_CONTENT_TYPE, useShareLink} from './useShareLink';
+import {useString} from '../utils/useString';
+import isSDKCheck from '../utils/isSDK';
+import Logo from '../components/common/Logo';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useHistory} from '../components/Router';
+import {useCustomization} from 'customization-implementation';
+import {isValidReactComponent} from '../utils/common';
 
-const Share = (props: any) => {
+const Share = () => {
+  const {FpeShareComponent} = useCustomization((data) => {
+    let components: {
+      FpeShareComponent?: React.ElementType;
+    } = {};
+    // commented for v1 release
+    // if (
+    //   data?.components?.share &&
+    //   typeof data?.components?.share !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.share &&
+    //     isValidReactComponent(data?.components?.share)
+    //   ) {
+    //     components.FpeShareComponent = data?.components?.share;
+    //   }
+    // }
+    return components;
+  });
+  const {copyShareLinkToClipboard, getShareLink} = useShareLink();
+  const {
+    data: {roomId, pstn, isSeparateHostLink},
+  } = useMeetingInfo();
+  //commented for v1 release
+  // const meetingUrlText = useString('meetingUrlLabel')();
+  // const meetingIdText = useString('meetingIdLabel')();
+  // const hostIdText = useString('hostIdLabel')();
+  // const attendeeUrlLabel = useString('attendeeUrlLabel')();
+  // const attendeeIdLabel = useString('attendeeIdLabel')();
+  // const hostUrlLabel = useString('hostUrlLabel')();
+  // const pstnLabel = useString('pstnLabel')();
+  // const pstnNumberLabel = useString('pstnNumberLabel')();
+  // const pinLabel = useString('pin')();
+  // const enterMeetingAfterCreateButton = useString(
+  //   'enterMeetingAfterCreateButton',
+  // )();
+  // const copyInviteButton = useString('copyInviteButton')();
+  const meetingUrlText = 'Meeting URL';
+  const meetingIdText = 'Meeting ID';
+  const hostIdText = 'Host ID';
+  const attendeeUrlLabel = 'Attendee URL';
+  const attendeeIdLabel = 'Attendee ID';
+  const hostUrlLabel = 'Host URL';
+  const pstnLabel = 'PSTN';
+  const pstnNumberLabel = 'Number';
+  const pinLabel = 'Pin';
+  const enterMeetingAfterCreateButton = 'Start Meeting (as host)';
+  const copyInviteButton = 'Copy invite to clipboard';
   const history = useHistory();
-  const {urlView, urlHost, pstn, joinPhrase, roomTitle, hostControlCheckbox} =
-    props;
-  // const {primaryColor} = useContext(ColorContext);
-  // const pstn = {number: '+1 206 656 1157', dtmf: '2342'}
   const enterMeeting = () => {
-    if (urlHost) {
-      history.push(`/${joinPhrase}`);
+    if (roomId?.host) {
+      history.push(roomId.host);
     }
-  };
-
-  const copyToClipboard = () => {
-    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
-    let stringToCopy = '';
-
-    $config.FRONTEND_ENDPOINT
-      ? hostControlCheckbox
-        ? (stringToCopy += `Meeting - ${roomTitle}
-URL for Attendee: ${$config.FRONTEND_ENDPOINT}/${urlView}
-URL for Host: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-        : (stringToCopy += `Meeting - ${roomTitle}
-Meeting URL: ${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-      : platform === 'web'
-      ? hostControlCheckbox
-        ? (stringToCopy += `Meeting - ${roomTitle}
-URL for Attendee: ${window.location.origin}/${urlView}
-URL for Host: ${window.location.origin}/${urlHost}`)
-        : (stringToCopy += `Meeting - ${roomTitle}
-Meeting URL: ${window.location.origin}/${urlHost}`)
-      : hostControlCheckbox
-      ? (stringToCopy += `Meeting - ${roomTitle}
-Attendee Meeting ID: ${urlView}
-Host Meeting ID: ${urlHost}`)
-      : (stringToCopy += `Meeting - ${roomTitle}
-Meeting URL: ${urlHost}`);
-
-    pstn
-      ? (stringToCopy += `PSTN Number: ${pstn.number}
-PSTN Pin: ${pstn.dtmf}`)
-      : '';
-    Clipboard.setString(stringToCopy);
-  };
-
-  const copyHostUrl = () => {
-    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
-    let stringToCopy = '';
-    $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${urlHost}`)
-      : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${urlHost}`)
-      : (stringToCopy += `Meeting ID: ${urlHost}`);
-    Clipboard.setString(stringToCopy);
-  };
-
-  const copyAttendeeURL = () => {
-    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
-    let stringToCopy = '';
-    $config.FRONTEND_ENDPOINT
-      ? (stringToCopy += `${$config.FRONTEND_ENDPOINT}/${urlView}`)
-      : platform === 'web'
-      ? (stringToCopy += `${window.location.origin}/${urlView}`)
-      : (stringToCopy += `Meeting ID: ${urlView}`);
-    Clipboard.setString(stringToCopy);
-  };
-
-  const copyPstn = () => {
-    Toast.show({text1: 'Copied to Clipboard', visibilityTime: 1000});
-    let stringToCopy = `PSTN Number: ${pstn?.number} PSTN Pin: ${pstn?.dtmf}`;
-    Clipboard.setString(stringToCopy);
   };
 
   const [dim, setDim] = useState([
@@ -111,33 +88,80 @@ PSTN Pin: ${pstn.dtmf}`)
   let onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
+  const isSDK = isSDKCheck();
+  const isWebCheck =
+    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
-  return (
-    <View style={style.content} onLayout={onLayout}>
-      <View style={style.leftContent}>
-        <View>
+  const getAttendeeLabel = () =>
+    isWebCheck ? attendeeUrlLabel : attendeeIdLabel;
+
+  const getHostLabel = () => {
+    if (isSeparateHostLink) {
+      if (isWebCheck) {
+        return hostUrlLabel;
+      }
+      return hostIdText;
+    } else {
+      if (isWebCheck) {
+        return meetingUrlText;
+      }
+      return meetingIdText;
+    }
+  };
+  return FpeShareComponent ? (
+    <FpeShareComponent />
+  ) : (
+    <ScrollView contentContainerStyle={style.scrollMain}>
+      <Logo />
+      <View style={style.content} onLayout={onLayout}>
+        <View style={style.leftContent}>
           <Text style={style.heading}>{$config.APP_NAME}</Text>
           <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-        </View>
-        {hostControlCheckbox ? (
+          {isSeparateHostLink ? (
+            <View style={style.urlContainer}>
+              <View style={{width: '80%'}}>
+                <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+                <View style={style.urlHolder}>
+                  <Text style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
+                    {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  marginLeft: 'auto',
+                  flexDirection: 'row',
+                  alignSelf: 'center',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: $config.PRIMARY_COLOR + '80',
+                    width: 1,
+                    height: 'auto',
+                    marginRight: 15,
+                  }}
+                />
+                <View style={style.clipboardIconHolder}>
+                  <BtnTemplate
+                    style={style.clipboardIcon}
+                    color={$config.PRIMARY_COLOR}
+                    name={'clipboard'}
+                    onPress={() =>
+                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE)
+                    }
+                  />
+                </View>
+              </View>
+            </View>
+          ) : (
+            <></>
+          )}
           <View style={style.urlContainer}>
             <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>
-                {$config.FRONTEND_ENDPOINT || platform === 'web'
-                  ? 'Attendee URL'
-                  : 'Attendee ID'}
-              </Text>
+              <Text style={style.urlTitle}>{getHostLabel()}</Text>
               <View style={style.urlHolder}>
-                <Text
-                  style={[
-                    style.url,
-                    Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                  ]}>
-                  {$config.FRONTEND_ENDPOINT
-                    ? `${$config.FRONTEND_ENDPOINT}/${urlView}`
-                    : platform === 'web'
-                    ? `${window.location.origin}/${urlView}`
-                    : urlView}
+                <Text style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
+                  {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
                 </Text>
               </View>
             </View>
@@ -160,136 +184,85 @@ PSTN Pin: ${pstn.dtmf}`)
                   style={style.clipboardIcon}
                   color={$config.PRIMARY_COLOR}
                   name={'clipboard'}
-                  onPress={() => copyAttendeeURL()}
+                  onPress={() =>
+                    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
+                  }
                 />
               </View>
             </View>
           </View>
-        ) : (
-          <></>
-        )}
-        <View style={style.urlContainer}>
-          <View style={{width: '80%'}}>
-            <Text style={style.urlTitle}>
-              {$config.FRONTEND_ENDPOINT || platform === 'web'
-                ? hostControlCheckbox
-                  ? 'Host URL'
-                  : 'Meeting URL'
-                : hostControlCheckbox
-                ? 'Host ID'
-                : 'Meeting ID'}
-            </Text>
-            <View style={style.urlHolder}>
-              <Text
-                style={[
-                  style.url,
-                  Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                ]}>
-                {$config.FRONTEND_ENDPOINT
-                  ? `${$config.FRONTEND_ENDPOINT}/${urlHost}`
-                  : platform === 'web'
-                  ? `${window.location.origin}/${urlHost}`
-                  : urlHost}
-              </Text>
+          {pstn ? (
+            <View style={style.urlContainer}>
+              <View style={{width: '80%'}}>
+                <Text style={style.urlTitle}>{pstnLabel}</Text>
+                <View>
+                  <View style={style.pstnHolder}>
+                    <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
+                    <Text
+                      style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
+                      {pstn?.number}
+                    </Text>
+                  </View>
+                  <View style={style.pstnHolder}>
+                    <Text style={style.urlTitle}>{pinLabel}: </Text>
+                    <Text
+                      style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
+                      {pstn?.pin}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
+                <View
+                  style={{
+                    backgroundColor: $config.PRIMARY_COLOR + '80',
+                    width: 1,
+                    height: 'auto',
+                    marginRight: 15,
+                  }}
+                />
+                <View style={style.clipboardIconHolder}>
+                  <BtnTemplate
+                    style={style.clipboardIcon}
+                    color={$config.PRIMARY_COLOR}
+                    name={'clipboard'}
+                    onPress={() =>
+                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
+                    }
+                  />
+                </View>
+              </View>
             </View>
-          </View>
-          <View
-            style={{
-              marginLeft: 'auto',
-              flexDirection: 'row',
-              alignSelf: 'center',
-            }}>
-            <View
-              style={{
-                backgroundColor: $config.PRIMARY_COLOR + '80',
-                width: 1,
-                height: 'auto',
-                marginRight: 15,
-              }}
-            />
-            <View style={style.clipboardIconHolder}>
-              <BtnTemplate
-                style={style.clipboardIcon}
-                color={$config.PRIMARY_COLOR}
-                name={'clipboard'}
-                onPress={() => copyHostUrl()}
-              />
-            </View>
-          </View>
+          ) : (
+            <></>
+          )}
+          <PrimaryButton
+            onPress={() => enterMeeting()}
+            text={enterMeetingAfterCreateButton}
+          />
+          <View style={{height: 10}} />
+          <SecondaryButton
+            onPress={() =>
+              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+            }
+            text={copyInviteButton}
+          />
         </View>
-        {pstn ? (
-          <View style={style.urlContainer}>
-            <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>PSTN</Text>
-              <View>
-                <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>Number: </Text>
-                  <Text
-                    style={[
-                      style.url,
-                      Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                    ]}>
-                    {pstn?.number}
-                  </Text>
-                </View>
-                <View style={style.pstnHolder}>
-                  <Text style={style.urlTitle}>Pin: </Text>
-                  <Text
-                    style={[
-                      style.url,
-                      Platform.OS === 'web' ? urlWeb : {opacity: 1},
-                    ]}>
-                    {pstn?.dtmf}
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_COLOR + '80',
-                  width: 1,
-                  height: 'auto',
-                  marginRight: 15,
-                }}
-              />
-              <View style={style.clipboardIconHolder}>
-                <BtnTemplate
-                  style={style.clipboardIcon}
-                  color={$config.PRIMARY_COLOR}
-                  name={'clipboard'}
-                  onPress={() => copyPstn()}
-                />
-              </View>
-            </View>
-          </View>
-        ) : (
-          <></>
-        )}
-        <PrimaryButton
-          onPress={() => enterMeeting()}
-          text={'Start Meeting (as host)'}
-        />
-        <View style={{height: 10}} />
-        <SecondaryButton
-          onPress={() => copyToClipboard()}
-          text={'Copy invite to clipboard'}
-        />
       </View>
-      {/* {dim[0] > dim[1] + 150 ? (
-        <View style={style.full}>
-          <Illustration />
-        </View>
-      ) : (
-        <></>
-      )} */}
-    </View>
+    </ScrollView>
   );
 };
 const urlWeb = {wordBreak: 'break-all'};
 
 const style = StyleSheet.create({
   full: {flex: 1},
+  scrollMain: {
+    paddingVertical: '8%',
+    marginHorizontal: '8%',
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
+  },
   main: {
     flex: 2,
     justifyContent: 'space-evenly',
@@ -359,6 +332,7 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     fontWeight: '700',
+    textAlign: 'left',
   },
   pstnHolder: {
     width: '100%',

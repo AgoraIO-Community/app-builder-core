@@ -21,11 +21,11 @@ import {
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
 
-export interface ButtonProps extends PressableProps {
+export interface PrimaryButtonProps extends PressableProps {
   text?: string;
 }
 
-export default function PrimaryButton(props: ButtonProps) {
+export default function PrimaryButton(props: PrimaryButtonProps) {
   const {primaryColor} = useContext(ColorContext);
   const {children, ...otherProps} = props;
   return (
@@ -35,14 +35,20 @@ export default function PrimaryButton(props: ButtonProps) {
         {backgroundColor: props.disabled ? primaryColor + '80' : primaryColor},
       ]}
       {...otherProps}>
-      {props.text ? (
-        <Text style={[styles.primaryButtonText as StyleProp<TextStyle>, {color: '#fff'}]}>
-          {props.text}
-        </Text>
-      ) : (
-        <></>
-      )}
-      {children}
+      <>
+        {props.text ? (
+          <Text
+            style={[
+              styles.primaryButtonText as StyleProp<TextStyle>,
+              {color: '#fff'},
+            ]}>
+            {props.text}
+          </Text>
+        ) : (
+          <></>
+        )}
+        {children}
+      </>
     </Pressable>
   );
 }

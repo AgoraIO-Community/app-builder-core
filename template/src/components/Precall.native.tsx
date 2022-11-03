@@ -9,118 +9,152 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {MaxUidContext} from '../../agora-rn-uikit';
-import {MaxVideoView} from '../../agora-rn-uikit';
+import {ClientRole, PropsContext} from '../../agora-rn-uikit';
+import {useCustomization} from 'customization-implementation';
+import {useString} from '../utils/useString';
+import {isValidReactComponent} from '../utils/common';
 import {
-  LocalAudioMute,
-  LocalVideoMute,
-  SwitchCamera,
-  ClientRole,
-  PropsContext,
-} from '../../agora-rn-uikit';
-import {LocalUserContext} from '../../agora-rn-uikit';
-import {RtcContext} from '../../agora-rn-uikit';
-import TextInput from '../atoms/TextInput';
-import Error from '../subComponents/Error';
-import PrimaryButton from '../atoms/PrimaryButton';
+  PreCallJoinBtn,
+  PreCallVideoPreview,
+  PreCallTextInput,
+  PreCallLocalMute,
+  PreCallMeetingTitle,
+} from './precall/index';
 
-const Precall = (props: any) => {
-  const maxUsers = useContext(MaxUidContext);
-  const rtc = useContext(RtcContext);
+const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
-  rtc.RtcEngine.startPreview();
+  //commented for v1 release
+  //const precallLabel = useString('precallLabel')();
+  const precallLabel = 'Precall';
 
-  const {setCallActive, queryComplete, username, setUsername, error, title} =
-    props;
+  const {
+    VideoPreview,
+    MeetingName,
+    JoinButton,
+    Textbox,
+    PrecallAfterView,
+    PrecallBeforeView,
+  } = useCustomization((data) => {
+    const components: {
+      PrecallAfterView: React.ComponentType;
+      PrecallBeforeView: React.ComponentType;
+      VideoPreview: React.ComponentType;
+      MeetingName: React.ComponentType;
+      JoinButton: React.ComponentType;
+      Textbox: React.ComponentType;
+    } = {
+      PrecallAfterView: React.Fragment,
+      PrecallBeforeView: React.Fragment,
+      JoinButton: PreCallJoinBtn,
+      MeetingName: PreCallMeetingTitle,
+      Textbox: PreCallTextInput,
+      VideoPreview: PreCallVideoPreview,
+    };
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.after &&
+    //     isValidReactComponent(data?.components?.precall?.after)
+    //   ) {
+    //     components.PrecallAfterView = data?.components?.precall?.after;
+    //   }
+    //   if (
+    //     data?.components?.precall?.before &&
+    //     isValidReactComponent(data?.components?.precall?.before)
+    //   ) {
+    //     components.PrecallBeforeView = data?.components?.precall?.before;
+    //   }
 
-  const [buttonText, setButtonText] = React.useState('Join Room');
+    //   if (
+    //     data?.components?.precall?.meetingName &&
+    //     typeof data?.components?.precall?.meetingName !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.meetingName)) {
+    //       components.MeetingName = data?.components?.precall?.meetingName;
+    //     }
+    //   }
 
-  useEffect(() => {
-    let clientRole = '';
-    if (rtcProps?.role == 1) {
-      clientRole = 'Host';
-    }
-    if (rtcProps?.role == 2) {
-      clientRole = 'Audience';
-    }
-    setButtonText(
-      $config.EVENT_MODE ? `Join Room as ${clientRole}` : `Join Room`,
-    );
-  }, [rtcProps?.role]);
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
 
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.preview &&
+    //     typeof data?.components?.precall?.preview !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.preview)) {
+    //       components.VideoPreview = data?.components?.precall?.preview;
+    //     }
+    //   }
+    // }
+    return components;
+  });
   const isAudienceInLiveStreaming = () =>
     $config.EVENT_MODE && rtcProps?.role == ClientRole.Audience;
 
-  const meetingTitle = () => (
-    <>
-      <Text style={[style.titleHeading, {color: $config.PRIMARY_COLOR}]}>
-        {title}
-      </Text>
-      <View style={{height: 25}} />
-    </>
-  );
+  const FpePrecallComponent = useCustomization((data) => {
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall !== 'object'
+    // ) {
+    //   if (isValidReactComponent(data?.components?.precall)) {
+    //     return data?.components?.precall;
+    //   }
+    //   return undefined;
+    // }
+    return undefined;
+  });
 
-  return (
-    <View style={style.full}>
-      <View style={style.heading}>
-        <Text style={style.headingText}>Precall </Text>
-      </View>
-      <View
-        style={{
-          zIndex: 50,
-          position: 'absolute',
-          width: '100%',
-          left: '18%',
-          top: 10,
-          alignSelf: 'center',
-        }}>
-        {error ? <Error error={error} showBack={true} /> : <></>}
-      </View>
-      {meetingTitle()}
-      {!isAudienceInLiveStreaming() && (
-        <View style={style.full}>
-          <MaxVideoView user={maxUsers[0]} key={maxUsers[0].uid} />
+  return FpePrecallComponent ? (
+    <FpePrecallComponent />
+  ) : (
+    <>
+      <PrecallBeforeView />
+      <View style={style.full}>
+        <View style={style.heading}>
+          <Text style={style.headingText}>{precallLabel}</Text>
         </View>
-      )}
-      <View style={style.textInputHolder}>
-        <TextInput
-          value={username}
-          onChangeText={(text) => {
-            setUsername(text);
-          }}
-          onSubmitEditing={() => {}}
-          placeholder={queryComplete ? 'Display name*' : 'Getting name...'}
-          editable={queryComplete}
-        />
-      </View>
-      <View style={{height: 20}} />
-      {!isAudienceInLiveStreaming() && (
-        <View style={style.controls}>
-          <LocalUserContext>
-            <View style={style.width50}>
-              <LocalVideoMute />
-            </View>
-            <View style={style.width50} />
-            <View style={style.width50}>
-              <LocalAudioMute />
-            </View>
-            <View style={style.width50} />
-            <View style={style.width50}>
-              <SwitchCamera />
-            </View>
-          </LocalUserContext>
+        <MeetingName />
+        {!isAudienceInLiveStreaming() && (
+          <View style={style.full}>
+            <VideoPreview />
+          </View>
+        )}
+        <View style={style.textInputHolder}>
+          <Textbox />
         </View>
-      )}
-      <View style={{marginBottom: 50, alignItems: 'center'}}>
-        <PrimaryButton
-          text={buttonText}
-          disabled={!queryComplete || username.trim() === ''}
-          onPress={() => setCallActive(true)}
-        />
+        <View style={{height: 20}} />
+        {!isAudienceInLiveStreaming() && (
+          <View style={style.controls}>
+            <PreCallLocalMute />
+          </View>
+        )}
+        <View style={{marginBottom: 50, alignItems: 'center'}}>
+          <JoinButton />
+        </View>
       </View>
-    </View>
+      <PrecallAfterView />
+    </>
   );
 };
 

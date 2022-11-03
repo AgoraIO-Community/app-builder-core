@@ -10,24 +10,24 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
 import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from './ParticipantName';
+import {RenderInterface} from '../../../agora-rn-uikit';
 
 interface remoteParticipantsInterface {
   p_styles: any;
   name: string;
-  user: any;
+  user: RenderInterface;
   showControls: boolean;
   isHost: boolean;
 }
 
 const RemoteParticipants = (props: remoteParticipantsInterface) => {
   const {p_styles, user, name, showControls, isHost} = props;
-
   return (
     <View style={p_styles.participantRow}>
       <ParticipantName value={name} />
@@ -49,13 +49,15 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               isHost={isHost}
             />
           </View>
-          <View style={[p_styles.actionBtnIcon]}>
-            <RemoteVideoMute
-              uid={user.uid}
-              video={user.video}
-              isHost={isHost}
-            />
-          </View>
+          {!$config.AUDIO_ROOM && (
+            <View style={[p_styles.actionBtnIcon]}>
+              <RemoteVideoMute
+                uid={user.uid}
+                video={user.video}
+                isHost={isHost}
+              />
+            </View>
+          )}
         </View>
       ) : (
         <></>

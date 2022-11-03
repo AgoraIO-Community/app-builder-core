@@ -9,87 +9,177 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext, useRef} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Image,
-  TextInput as Ti,
-  UIManager,
-} from 'react-native';
-import ChatContext from '../components/ChatContext';
+import React, {useContext} from 'react';
+import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import icons from '../assets/icons';
+import {useString} from '../utils/useString';
+import {useChatMessages} from '../components/chat-messages/useChatMessages';
+import {isValidReactComponent} from '../utils/common';
+import {useCustomization} from 'customization-implementation';
+import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+
+export interface ChatSendButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+export const ChatSendButton = (props: ChatSendButtonProps) => {
+  const {
+    selectedChatUserId: selectedUserId,
+    message,
+    setMessage,
+  } = useChatUIControl();
+  const {sendChatMessage} = useChatMessages();
+  const onPress = () => {
+    if (!selectedUserId) {
+      sendChatMessage(message);
+      setMessage && setMessage('');
+    } else {
+      sendChatMessage(message, selectedUserId);
+      setMessage && setMessage('');
+    }
+  };
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <TouchableOpacity style={style.chatInputButton} onPress={onPress}>
+      <Image
+        source={{
+          uri: icons.send,
+        }}
+        style={style.chatInputButtonIcon}
+        resizeMode={'contain'}
+      />
+    </TouchableOpacity>
+  );
+};
+export interface ChatTextInputProps {
+  render?: (
+    message: string,
+    onChangeText: (text: string) => void,
+    onSubmitEditing: () => void,
+    chatMessageInputPlaceholder: string,
+  ) => JSX.Element;
+}
+export const ChatTextInput = (props: ChatTextInputProps) => {
+  const {
+    selectedChatUserId: selectedUserId,
+    message,
+    setMessage,
+  } = useChatUIControl();
+  const {sendChatMessage} = useChatMessages();
+  //commented for v1 release
+  // const chatMessageInputPlaceholder = useString(
+  //   'chatMessageInputPlaceholder',
+  // )();
+  const chatMessageInputPlaceholder = 'Type your message..';
+  const onChangeText = (text: string) => setMessage(text);
+  const onSubmitEditing = () => {
+    if (!selectedUserId) {
+      sendChatMessage(message);
+      setMessage('');
+    } else {
+      sendChatMessage(message, selectedUserId);
+      setMessage('');
+    }
+  };
+
+  return props?.render ? (
+    props.render(
+      message,
+      onChangeText,
+      onSubmitEditing,
+      chatMessageInputPlaceholder,
+    )
+  ) : (
+    <TextInput
+      value={message}
+      onChangeText={onChangeText}
+      style={{
+        borderRadius: 10,
+        backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
+        borderWidth: 1,
+        color: $config.PRIMARY_FONT_COLOR,
+        textAlign: 'left',
+        height: 40,
+        paddingVertical: 10,
+        flex: 1,
+        alignSelf: 'center',
+      }}
+      blurOnSubmit={false}
+      onSubmitEditing={onSubmitEditing}
+      placeholder={chatMessageInputPlaceholder}
+      placeholderTextColor={$config.PRIMARY_FONT_COLOR}
+      autoCorrect={false}
+    />
+  );
+};
 
 /**
  * Input component for the Chat interface
  */
-const ChatInput = (props: any) => {
+const ChatInput = (props: {
+  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+}) => {
   const {primaryColor} = useContext(ColorContext);
-  const [message, onChangeMessage] = useState('');
-  // const [height, setHeight] = useState(0);
-  const {privateActive, selectedUserID} = props;
-  const {sendMessage, sendMessageToUid} = useContext(ChatContext);
+  const {ChatInputComponent, ChatSendButtonComponent} = useCustomization(
+    (data) => {
+      let components: {
+        ChatInputComponent: React.ComponentType<ChatTextInputProps>;
+        ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
+      } = {
+        ChatInputComponent: ChatTextInput,
+        ChatSendButtonComponent: ChatSendButton,
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat &&
+          typeof data?.components?.videoCall?.chat === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatInput &&
+            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+          ) {
+            components.ChatInputComponent =
+              data?.components?.videoCall?.chat?.chatInput;
+          }
+          if (
+            data?.components?.videoCall?.chat?.chatSendButton &&
+            typeof data?.components?.videoCall?.chat?.chatSendButton !==
+              'object' &&
+            isValidReactComponent(
+              data?.components?.videoCall?.chat?.chatSendButton,
+            )
+          ) {
+            components.ChatSendButtonComponent =
+              data?.components?.videoCall?.chat?.chatSendButton;
+          }
+        }
+      } else {
+        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
+          components.ChatInputComponent = props.chatInput;
+        }
+        if (
+          props?.chatSendButton &&
+          isValidReactComponent(props.chatSendButton)
+        ) {
+          components.ChatSendButtonComponent = props.chatSendButton;
+        }
+      }
+      return components;
+    },
+  );
 
   return (
     <View style={[style.inputView, {borderColor: primaryColor, height: 40}]}>
-      <TextInput
-        value={message}
-        // onContentSizeChange={(event) => {
-        // causes infinite react state update on ctrl+A -> delete
-        // setHeight(event.nativeEvent.contentSize.height);
-        // }}
-        onChangeText={(text) => onChangeMessage(text)}
-        style={{
-          borderRadius: 10,
-          backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
-          borderWidth: 1,
-          color: $config.PRIMARY_FONT_COLOR,
-          textAlign: 'left',
-          height: 40,
-          paddingVertical: 10,
-          flex: 1,
-          alignSelf: 'center',
-        }}
-        blurOnSubmit={false}
-        onSubmitEditing={() => {
-          // console.log('!click');
-          if (!privateActive) {
-            sendMessage(message);
-            onChangeMessage('');
-          } else {
-            sendMessageToUid(message, selectedUserID);
-            onChangeMessage('');
-          }
-        }}
-        placeholder="Type your message.."
-        placeholderTextColor={$config.PRIMARY_FONT_COLOR}
-        autoCorrect={false}
-      />
-      <TouchableOpacity
-        style={style.chatInputButton}
-        onPress={() => {
-          if (!privateActive) {
-            sendMessage(message);
-            onChangeMessage('');
-            // setHeight(40);
-          } else {
-            sendMessageToUid(message, selectedUserID);
-            onChangeMessage('');
-            // setHeight(40);
-          }
-        }}>
-        <Image
-          source={{
-            uri: icons.send,
-          }}
-          style={style.chatInputButtonIcon}
-          resizeMode={'contain'}
-        />
-      </TouchableOpacity>
+      <ChatInputComponent />
+      <ChatSendButtonComponent />
     </View>
   );
 };

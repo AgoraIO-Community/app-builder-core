@@ -10,42 +10,40 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-  ScrollView,
-  Dimensions,
-  useWindowDimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import chatContext from './ChatContext';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
 import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
-import {
-  ParticipantContextProvider,
-  ParticipantContextConsumer,
-} from './participants/context/ParticipantContext';
-
-const ParticipantView = (props: any) => {
-  const {userList} = useContext(chatContext);
+import {useString} from '../utils/useString';
+import {isWebInternal} from '../utils/common';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
+const ParticipantView = () => {
+  const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {rtcProps} = useContext(PropsContext);
-
+  //commented for v1 release
+  // const hostLabel = useString('hostLabel')();
+  // const audienceLabel = useString('audienceLabel')();
+  // const participantsLabel = useString('participantsLabel')();
+  const hostLabel = 'Host';
+  const audienceLabel = 'Audience';
+  const participantsLabel = 'Participants';
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  let fontSize = Platform.OS === 'web' ? 14 : 16;
   return (
     <View
       style={
-        Platform.OS === 'web'
+        isWebInternal()
           ? isSmall
             ? style.participantViewNative
             : style.participantView
@@ -53,117 +51,100 @@ const ParticipantView = (props: any) => {
       }>
       <View style={[style.padding10]}>
         <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>Participants</Text>
+          <Text style={style.mainHeading}>{participantsLabel}</Text>
         </View>
       </View>
       <ScrollView style={[style.bodyContainer, style.padding10]}>
         {$config.EVENT_MODE ? (
-          // Live streaming is true
-          <ParticipantContextProvider>
-            {/* Host and New host view */}
-            {rtcProps?.role == ClientRole.Broadcaster &&
-              (props.isHost ? (
-                /**
-                 * Original Host
-                 * a) Can view streaming requests
-                 * b) Can view all hosts with remote controls
-                 */
-                <>
-                  {/* a) Live streaming view */}
-                  <View style={style.participantsection}>
-                    <CurrentLiveStreamRequestsView
-                      p_style={style}
-                      userList={userList}
-                    />
-                  </View>
-                  {/* b) Host view with remote controls*/}
-                  <ParticipantContextConsumer>
-                    {({hostCount}) => {
-                      return (
-                        <View style={style.participantsection}>
-                          <ParticipantSectionTitle
-                            title="Host"
-                            count={hostCount}
-                          />
-                          <View style={style.participantContainer}>
-                            <AllHostParticipants
-                              p_style={style}
-                              isHost={props.isHost}
-                            />
-                          </View>
-                        </View>
-                      );
-                    }}
-                  </ParticipantContextConsumer>
-                </>
-              ) : (
-                /** New Host ( earlier was 'audience' and now is host )
-                 *  a) Can view all hosts without remote controls
-                 */
-                <ParticipantContextConsumer>
-                  {({hostList, hostCount}) => {
-                    return (
-                      <View style={style.participantsection}>
-                        <ParticipantSectionTitle
-                          title="Host"
-                          count={hostCount}
-                        />
-                        <AllAudienceParticipants
-                          p_style={style}
-                          participantList={hostList}
-                          isHost={props.isHost}
-                        />
-                      </View>
-                    );
-                  }}
-                </ParticipantContextConsumer>
-              ))}
-            {/**
-             *  Audience views all hosts without remote controls
-             */}
-            {rtcProps?.role == ClientRole.Audience && (
-              <ParticipantContextConsumer>
-                {({hostList, hostCount}) => {
-                  return (
+          <>
+            {
+              /*Live streaming is true            
+                Host and New host view */
+              rtcProps?.role == ClientRole.Broadcaster &&
+                (isHost ? (
+                  /**
+                   * Original Host
+                   * a) Can view streaming requests
+                   * b) Can view all hosts with remote controls
+                   */
+                  <>
+                    {/* a) Live streaming view */}
                     <View style={style.participantsection}>
-                      <ParticipantSectionTitle title="Host" count={hostCount} />
-                      <AllAudienceParticipants
-                        participantList={hostList}
+                      <CurrentLiveStreamRequestsView
                         p_style={style}
-                        isHost={props.isHost}
+                        userList={liveStreamData}
                       />
                     </View>
-                  );
-                }}
-              </ParticipantContextConsumer>
-            )}
-            {/* Everyone can see audience */}
-            <ParticipantContextConsumer>
-              {({audienceList, audienceCount}) => {
-                return (
+                    {/* b) Host view with remote controls*/}
+                    <View style={style.participantsection}>
+                      <ParticipantSectionTitle
+                        title={hostLabel}
+                        count={hostUids.length}
+                      />
+                      <View style={style.participantContainer}>
+                        <AllHostParticipants p_style={style} isHost={isHost} />
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  /** New Host ( earlier was 'audience' and now is host )
+                   *  a) Can view all hosts without remote controls
+                   */
                   <View style={style.participantsection}>
                     <ParticipantSectionTitle
-                      title="Audience"
-                      count={audienceCount}
+                      title={hostLabel}
+                      count={hostUids.length}
                     />
                     <AllAudienceParticipants
+                      uids={hostUids}
                       p_style={style}
-                      participantList={audienceList}
-                      isHost={props.isHost}
+                      isHost={isHost}
                     />
                   </View>
-                );
-              }}
-            </ParticipantContextConsumer>
-          </ParticipantContextProvider>
+                ))
+            }
+            {
+              /**
+               *  Audience views all hosts without remote controls
+               */
+              rtcProps?.role == ClientRole.Audience && (
+                <View style={style.participantsection}>
+                  <ParticipantSectionTitle
+                    title={hostLabel}
+                    count={hostUids.length}
+                  />
+                  <AllAudienceParticipants
+                    uids={hostUids}
+                    p_style={style}
+                    isHost={isHost}
+                  />
+                </View>
+              )
+            }
+            {
+              /* Everyone can see audience */
+              <View style={style.participantsection}>
+                <ParticipantSectionTitle
+                  title={audienceLabel}
+                  count={audienceUids.length}
+                />
+                <AllAudienceParticipants
+                  uids={audienceUids}
+                  p_style={style}
+                  isHost={isHost}
+                />
+              </View>
+            }
+          </>
         ) : (
           <View style={style.participantsection}>
             <View style={style.participantContainer}>
-              <AllHostParticipants p_style={style} isHost={props.isHost} />
+              <AllHostParticipants p_style={style} isHost={isHost} />
             </View>
           </View>
         )}
       </ScrollView>
+
       <View
         style={{
           width: '100%',
@@ -251,19 +232,14 @@ const style = StyleSheet.create({
   },
   participantText: {
     lineHeight: 24,
-    fontSize: Platform.OS === 'web' ? 18 : 16,
+    fontSize: isWebInternal() ? 18 : 16,
     flexDirection: 'row',
     letterSpacing: 0.3,
     color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '300',
   },
   participantTextSmall: {
-    fontSize: Platform.OS === 'web' ? 14 : 12,
-  },
-  dummyView: {
-    flex: 0.5,
-    opacity: 0,
-    marginHorizontal: 5,
+    fontSize: isWebInternal() ? 14 : 12,
   },
   dummyView: {
     flex: 0.5,

@@ -9,46 +9,80 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
-import {View, TouchableOpacity, Text, Image, StyleSheet} from 'react-native';
-import icons from '../assets/icons';
-import SelectDevice from '../subComponents/SelectDevice';
-import HostControlView from './HostControlView';
+import React, {useContext} from 'react';
+import {StyleSheet, View} from 'react-native';
 import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
+import {useSidePanel} from '../utils/useSidePanel';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import {useString} from '../utils/useString';
+import Styles from './styles';
 
-const Settings = (props: any) => {
+export interface SettingsIconButtonProps {
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isPanelActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
+
+const Settings = (props: SettingsIconButtonProps) => {
   const {primaryColor} = useContext(ColorContext);
-  const {isHost, sidePanel, setSidePanel} = props;
+  const {sidePanel, setSidePanel} = useSidePanel();
+  //commented for v1 release
+  //const settingsLabel = useString('settingsLabel')();
+  const settingsLabel = 'Settings';
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  const isPanelActive = sidePanel === SidePanelType.Settings;
+  const onPress = () => {
+    isPanelActive
+      ? setSidePanel(SidePanelType.None)
+      : setSidePanel(SidePanelType.Settings);
+  };
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: onPress,
+    name: isPanelActive ? 'settingsFilled' : 'settings',
+  };
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = settingsLabel;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.style = [
+      style.localButtonWithMatchingStyle,
+      {borderColor: primaryColor},
+    ];
+  }
+  return props?.render ? (
+    props.render(onPress, isPanelActive, buttonTemplateName)
+  ) : (
+    <BtnTemplate {...btnTemplateProps} />
+  );
+};
 
+export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
   return (
-    <BtnTemplate
-      style={[style.localButtonWithMatchingStyle, {borderColor: primaryColor}]}
-      onPress={() => {
-        sidePanel === SidePanelType.Settings
-          ? setSidePanel(SidePanelType.None)
-          : setSidePanel(SidePanelType.Settings);
-      }}
-      name={
-        sidePanel === SidePanelType.Settings ? 'settingsFilled' : 'settings'
-      }
-    />
+    <View style={[style.navItem, style.navSmItem]}>
+      <Settings {...props} />
+    </View>
   );
 };
 
 const style = StyleSheet.create({
-  fullOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
+  navItem: {
     height: '100%',
-    backgroundColor: '#000000aa',
-    justifyContent: 'space-evenly',
-    alignContent: 'center',
-    paddingVertical: 5,
-    zIndex: 50,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  navSmItem: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: '15%',
   },
   main: {
     width: '50%',
@@ -107,11 +141,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     resizeMode: 'contain',
   },
-  localButtonWithMatchingStyle:{    
+  localButtonWithMatchingStyle: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-  }
+  },
 });
 
 export default Settings;
