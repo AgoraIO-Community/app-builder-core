@@ -8,7 +8,7 @@ const useSDKAuth = () => {
   const [serverToken, setServerToken] = React.useState(null);
   const [tokenExpiresAt, setTokenExpiresAt] = React.useState(0);
 
-  const getNewToken = async () => {
+  const getRefreshToken = async () => {
     await fetch(`${$config.BACKEND_ENDPOINT}/token/refresh`, {
       method: 'POST',
       headers: {
@@ -18,7 +18,6 @@ const useSDKAuth = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        // console.log('7. supriya get new token', data);
         setServerToken(data.token || null);
       });
   };
@@ -51,7 +50,7 @@ const useSDKAuth = () => {
       if (diffInSeconds < REFRESH_TOKEN_DURATION_IN_SEC) {
         // console.log('5 . supriya 1 min range reached');
         try {
-          getNewToken();
+          getRefreshToken();
           clearInterval(timer);
         } catch (error) {
           clearInterval(timer);
@@ -74,7 +73,6 @@ const useSDKAuth = () => {
         throw 'Token expired. Pass a new token';
       } else {
         // console.log('3. supriya emitting token');
-        SDKEvents.emit('sdk-token', serverToken);
         setTokenExpiresAt(expiresAt);
       }
     };

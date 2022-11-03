@@ -17,7 +17,7 @@ const AuthManager = (props: {children: React.ReactNode}) => {
   const history = useHistory();
 
   useEffect(() => {
-    SDKEvents.on('sdk-token', (token) => {
+    SDKEvents.on('server-token', (token) => {
       history.push(`/auth-token/${token}`);
     });
   }, []);
