@@ -119,7 +119,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     };
     AgoraRTC.onCameraChanged = async (changedDevice: changedDeviceInfo) => {
       // When new video device is plugged in ,refresh the devices list.
-      console.log('DeviceTesting: on-camera-changed cam added', changedDevice);
+      console.log('DeviceTesting: on-camera-changed', changedDevice);
       if (changedDevice && changedDevice.state === 'ACTIVE') {
         console.log('DeviceTesting: camera added');
         setDeviceList((prevState: deviceInfo[]) => [
