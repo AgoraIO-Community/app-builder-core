@@ -58,10 +58,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const {store, setStore} = useContext(StorageContext);
   const rtc = useRtc();
   const [userPreferredMic, setUserPreferredMic] = React.useState(
-    () => store?.lastActiveMic,
+    () => store?.lastActiveMic || '',
   );
   const [userPreferredCamera, setUserPreferredCamera] = React.useState(
-    () => store?.lastActiveCam,
+    () => store?.lastActiveCam || '',
   );
 
   // 1. Fetch all available devices
@@ -143,7 +143,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   useEffect(() => {
     console.log('DeviceTesting: Devicelist updated', deviceList);
     if (userPreferredMic) {
-      // If
+      // If user prefered device exists and is still valid use the device
       const userStoredMicFound = deviceList.find(
         (device: deviceInfo) => device.deviceId == userPreferredMic,
       );
@@ -181,11 +181,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
    */
   useEffect(() => {
     console.log('DeviceTesting: userPreferredCamera changed');
-    if (!userPreferredCamera) {
-      setStore && setStore((store) => ({...store, lastActiveCam: ''}));
-      setSelectedCam('');
-      return;
-    }
+    if (!userPreferredCamera) return;
     setStore &&
       setStore((store) => ({...store, lastActiveCam: userPreferredCamera}));
     userPreferredCamera && setSelectedCam(userPreferredCamera);
@@ -193,11 +189,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     console.log('DeviceTesting: userPreferredMic changed');
-    if (!userPreferredMic) {
-      setStore && setStore((store) => ({...store, lastActiveMic: ''}));
-      setSelectedMic('');
-      return;
-    }
+    if (!userPreferredMic) return;
     setStore &&
       setStore((store) => ({...store, lastActiveMic: userPreferredMic}));
     userPreferredMic && setSelectedMic(userPreferredMic);
