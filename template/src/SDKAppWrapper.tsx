@@ -20,7 +20,7 @@ export interface userEventsMapInterface {
     },
   ) => void;
   'ready-to-join': (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
-  'sdk-token': (token: string) => void;
+  'server-token': (token: string) => void;
   join: (
     meetingTitle: string,
     devices: MediaDeviceInfo[],
@@ -72,7 +72,10 @@ const SDKAppWrapper = () => {
 
   useEffect(() => {
     if (!initialized) return;
-    $config.ENABLE_TOKEN_SERVER && setServerToken(options.token);
+    if ($config.ENABLE_TOKEN_SERVER) {
+      SDKEvents.emit('server-token', options.token);
+      setServerToken(options.token);
+    }
   }, [initialized]);
 
   useEffect(() => {
