@@ -148,7 +148,7 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <ScrollView contentContainerStyle={style.main}>
-            <Card style={style.cardContainer}>
+            <Card>
               <Logo />
               <Spacer size={20} />
               <Text style={style.heading}>
@@ -271,9 +271,6 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
-  },
-  cardContainer: {
-    marginTop: '7.3%',
   },
   nav: {
     flex: 1,

@@ -22,6 +22,9 @@ export default Card;
 
 const styles = StyleSheet.create({
   root: {
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
     borderWidth: 1,
     backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 60,
@@ -33,7 +36,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 5,
-    width: 676,
-    height: 629,
+    maxWidth: 676,
+    width: '100%',
   },
 });
