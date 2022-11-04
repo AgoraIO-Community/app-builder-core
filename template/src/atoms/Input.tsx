@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {textInput} from '../../theme.json';
 import React from 'react';
+import Spacer from './Spacer';
 
 interface InputProps extends TextInputProps {
   helpText?: string;
@@ -22,8 +23,9 @@ const Input = (props: InputProps) => {
     autoFocus ? true : false,
   );
   return (
-    <View style={styles.container}>
+    <>
       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+      <Spacer size={8} />
       <TextInput
         style={[
           styles.input,
@@ -37,21 +39,17 @@ const Input = (props: InputProps) => {
         // onFocus={() => setIsFocussed(true)}
         // onBlur={() => setIsFocussed(false)}
       />
-      {helpText && <Text style={styles.helpText}>{props.helpText}</Text>}
-    </View>
+      {/* {helpText && <Text style={styles.helpText}>{props.helpText}</Text>} */}
+    </>
   );
 };
 
 export default Input;
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
   input: {
     height: 60,
-    marginTop: 12,
-    marginBottom: 8,
+    width: '100%',
     borderWidth: 1,
     paddingVertical: 21,
     paddingHorizontal: 16,

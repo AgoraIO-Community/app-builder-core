@@ -12,11 +12,7 @@
 import React, {useEffect, useState, useContext} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
-import Checkbox from '../subComponents/Checkbox';
 import PrimaryButton from '../atoms/PrimaryButton';
-import SecondaryButton from '../atoms/SecondaryButton';
-import HorizontalRule from '../atoms/HorizontalRule';
-import TextInput from '../atoms/TextInput';
 import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
@@ -81,19 +77,6 @@ const Create = () => {
   // const haveMeetingID = useString('haveMeetingID')();
 
   const createdText = 'has been created';
-  const hostControlsToggle = (toggle: boolean) => (
-    <View style={style.infoContainer}>
-      <Text style={style.toggleLabel}>Make everyone a Co-Host</Text>
-      <InfoBubble text={toggle ? 'Separate host link' : 'Everyone is a Host'} />
-    </View>
-  );
-
-  const pstnToggle = (value: boolean) => (
-    <View style={style.infoContainer}>
-      <Text style={style.toggleLabel}> Can join by dialing a number </Text>
-      <InfoBubble text="Users can join via PSTN" />
-    </View>
-  );
   // const meetingNameInputPlaceholder = useString(
   //   'meetingNameInputPlaceholder',
   // )();
@@ -165,130 +148,103 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <ScrollView contentContainerStyle={style.main}>
-            <Card>
+            <Card style={style.cardContainer}>
               <Logo />
               <Spacer size={20} />
-              <View style={style.content}>
-                <View style={style.leftContent}>
-                  <Text style={style.heading}>
-                    {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
-                  </Text>
-                  {/* <Text style={style.headline}>
-                  {$config.LANDING_SUB_HEADING}
-                </Text> */}
-
-                  {/* <TextInput
-                    value={roomTitle}
-                    onChangeText={(text) => onChangeRoomTitle(text)}
-                    onSubmitEditing={() =>
-                      createRoomAndNavigateToShare(
-                        roomTitle,
-                        pstnCheckbox,
-                        hostControlCheckbox,
-                      )
-                    }
-                    placeholder={meetingNameInputPlaceholder}
-                  /> */}
-                  <Spacer size={40} />
-                  <Input
-                    labelStyle={{
-                      fontFamily: 'Source Sans Pro',
-                      fontWeight: '600',
-                      fontSize: 18,
-                      color: '#1A1A1A',
-                      letterSpacing: 0.08,
-                      lineHeight: 18,
-                    }}
-                    label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
-                    value={roomTitle}
-                    helpText={
-                      isLiveStream
-                        ? 'Name and create a livestream  where you want to meet with others'
-                        : 'Name and create a meeting room where you want to meet with others'
-                    }
-                    placeholder={meetingNameInputPlaceholder}
-                    onChangeText={(text) => onChangeRoomTitle(text)}
-                    onSubmitEditing={() =>
-                      createRoomAndNavigateToShare(
-                        roomTitle,
-                        pstnCheckbox,
-                        hostControlCheckbox,
-                      )
-                    }
-                  />
-                  <View style={{paddingVertical: mobileOrTablet ? 40 : 50}}>
-                    {$config.EVENT_MODE ? (
-                      <></>
-                    ) : (
-                      <>
-                        <Text style={style.categoryLabel}>Customize</Text>
-                        <View style={[style.toggleContainer, style.upper]}>
-                          {hostControlsToggle(hostControlCheckbox)}
-                          <Toggle
-                            disabled={$config.EVENT_MODE}
-                            isEnabled={hostControlCheckbox}
-                            toggleSwitch={setHostControlCheckbox}
-                          />
-                        </View>
-                        {/* <Checkbox
-                            disabled={$config.EVENT_MODE}
-                            value={hostControlCheckbox}
-                            onValueChange={setHostControlCheckbox}
-                          />
-                          <Text style={style.checkboxTitle}>
-                         
-                            {hostControlsToggle(hostControlCheckbox)}
-                          </Text> */}
-                      </>
-                    )}
-                    <View style={style.separator} />
-
-                    {$config.PSTN ? (
-                      <View style={[style.toggleContainer, style.lower]}>
-                        {pstnToggle(pstnCheckbox)}
-                        <Toggle
-                          isEnabled={pstnCheckbox}
-                          toggleSwitch={setPstnCheckbox}
-                        />
-                      </View>
-                    ) : (
-                      // <View style={style.checkboxHolder}>
-                      //   <Checkbox
-                      //     value={pstnCheckbox}
-                      //     onValueChange={setPstnCheckbox}
-                      //   />
-                      //   <Text style={style.checkboxTitle}>
-                      //     {pstnToggle(pstnCheckbox)}
-                      //   </Text>
-                      // </View>
-                      <></>
-                    )}
-                  </View>
-                  <View style={style.btnContainer}>
-                    <PrimaryButton
-                      icon={icons.createMeeting}
-                      disabled={roomTitle === '' || loading}
-                      onPress={() =>
-                        createRoomAndNavigateToShare(
-                          roomTitle,
-                          pstnCheckbox,
-                          hostControlCheckbox,
-                        )
+              <Text style={style.heading}>
+                {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
+              </Text>
+              <Spacer size={40} />
+              <Input
+                labelStyle={style.inputLabelStyle}
+                label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
+                value={roomTitle}
+                placeholder={meetingNameInputPlaceholder}
+                onChangeText={(text) => onChangeRoomTitle(text)}
+                onSubmitEditing={() =>
+                  createRoomAndNavigateToShare(
+                    roomTitle,
+                    pstnCheckbox,
+                    hostControlCheckbox,
+                  )
+                }
+              />
+              <Spacer size={40} />
+              {$config.EVENT_MODE ? (
+                <></>
+              ) : (
+                <View
+                  style={[
+                    style.toggleContainer,
+                    style.upper,
+                    !$config.PSTN ? style.lower : {},
+                  ]}>
+                  <View style={style.infoContainer}>
+                    <Text style={style.toggleLabel}>
+                      Make everyone a Co-Host
+                    </Text>
+                    <InfoBubble
+                      text={
+                        hostControlCheckbox
+                          ? 'Creates two unique links in order to seperate co-hosts from attendees'
+                          : 'Everyone is a Host'
                       }
-                      text={loading ? loadingWithDots : createMeetingButton}
                     />
-                    {/* <HorizontalRule /> */}
-                    <Spacer size={16} />
-                    <LinkButton
-                      text={haveMeetingID}
-                      onPress={() => history.push('/join')}
+                  </View>
+                  <View style={style.infoToggleContainer}>
+                    <Toggle
+                      disabled={$config.EVENT_MODE}
+                      isEnabled={hostControlCheckbox}
+                      toggleSwitch={setHostControlCheckbox}
                     />
-                    {/* <SecondaryButton
-                      onPress={() => history.push('/join')}
-                      text={haveMeetingID}
-                    /> */}
                   </View>
                 </View>
+              )}
+              {$config.PSTN ? (
+                <>
+                  <View style={style.separator} />
+                  <View
+                    style={[
+                      style.toggleContainer,
+                      style.lower,
+                      $config.EVENT_MODE ? style.upper : {},
+                    ]}>
+                    <View style={style.infoContainer}>
+                      <Text style={style.toggleLabel}>
+                        Can join by dialing a number
+                      </Text>
+                      <InfoBubble text="Users can join via PSTN" />
+                    </View>
+                    <View style={style.infoToggleContainer}>
+                      <Toggle
+                        isEnabled={pstnCheckbox}
+                        toggleSwitch={setPstnCheckbox}
+                      />
+                    </View>
+                  </View>
+                </>
+              ) : (
+                <></>
+              )}
+              <Spacer size={60} />
+              <View style={style.btnContainer}>
+                <PrimaryButton
+                  icon={icons.createMeeting}
+                  disabled={roomTitle === '' || loading}
+                  onPress={() =>
+                    createRoomAndNavigateToShare(
+                      roomTitle,
+                      pstnCheckbox,
+                      hostControlCheckbox,
+                    )
+                  }
+                  text={loading ? loadingWithDots : createMeetingButton}
+                />
+                <Spacer size={16} />
+                <LinkButton
+                  text={haveMeetingID}
+                  onPress={() => history.push('/join')}
+                />
               </View>
             </Card>
           </ScrollView>
@@ -302,12 +258,22 @@ const Create = () => {
 };
 
 const style = StyleSheet.create({
+  inputLabelStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#1A1A1A',
+    letterSpacing: 0.08,
+    lineHeight: 18,
+    paddingLeft: 8,
+  },
   main: {
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    flexGrow: 1,
-    paddingHorizontal: 10,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  cardContainer: {
+    marginTop: '7.3%',
   },
   nav: {
     flex: 1,
@@ -317,18 +283,10 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'row'},
-  leftContent: {
-    width: '100%',
-    flex: 1,
-    justifyContent: 'space-evenly',
-    minHeight: 350,
-    // marginRight: '5%',
-    marginHorizontal: 'auto',
-  },
   heading: {
     fontSize: 32,
     fontWeight: '700',
+    lineHeight: 32,
     color: $config.PRIMARY_FONT_COLOR,
     fontFamily: 'Source Sans Pro',
   },
@@ -406,8 +364,6 @@ const style = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: '#F2F2F2',
     paddingVertical: 22,
     paddingHorizontal: 20,
@@ -427,21 +383,16 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontWeight: '400',
   },
-  categoryLabel: {
-    color: $config.PRIMARY_FONT_COLOR,
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 12,
-    lineHeight: 12,
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 0.09,
-  },
   separator: {
     height: 1,
   },
   infoContainer: {
     flexDirection: 'row',
+    flex: 0.8,
+  },
+  infoToggleContainer: {
+    flex: 0.2,
+    alignItems: 'flex-end',
   },
 });
 

@@ -2,7 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
 interface SpacerProps {
-  size: number;
+  size: number | string;
   horizontal?: boolean;
 }
 

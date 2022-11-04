@@ -11,22 +11,25 @@
 */
 
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-import Logo from '../../subComponents/Logo';
+import {StyleSheet, Image} from 'react-native';
 import {useHasBrandLogo} from '../../utils/common';
-
-const CommonLogo: React.FC = () => {
+//@ts-ignore
+import logoFile from '../../assets/agora-logo-blue.svg';
+const Logo: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
+  const hasLogo = hasBrandLogo();
+  if (!hasLogo) {
+    return null;
+  }
+
   return (
-    <View style={style.nav}>
-      {hasBrandLogo() && <Logo />}
-      {/* <OpenInNativeButton /> */}
-    </View>
+    <Image source={{uri: logoFile}} style={style.logo} resizeMode="contain" />
   );
 };
-export default CommonLogo;
+export default Logo;
 const style = StyleSheet.create({
-  nav: {
-    marginRight: 'auto',
+  logo: {
+    width: 54,
+    height: 19,
   },
 });
