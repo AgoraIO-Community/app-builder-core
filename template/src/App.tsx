@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Platform} from 'react-native';
 import Join from './pages/Join';
 import VideoCall from './pages/VideoCall';
@@ -31,6 +31,8 @@ import {
 } from './components/meeting-info/useMeetingInfo';
 import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
 import {ShareLinkProvider} from './components/useShareLink';
+import {IDPAuth} from './auth/IDPAuth';
+import AuthContext from './auth/AuthProvider';
 
 //hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -54,6 +56,7 @@ declare module 'agora-rn-uikit' {
 }
 
 const App: React.FC = () => {
+  const {sdkToken} = useContext(AuthContext);
   //commented for v1 release
   //const CustomRoutes = useCustomization((data) => data?.customRoutes);
   // const RenderCustomRoutes = () => {
@@ -96,7 +99,13 @@ const App: React.FC = () => {
               {/* commented for v1 release */}
               {/* {RenderCustomRoutes()} */}
               <Route exact path={'/'}>
-                <Redirect to={'/create'} />
+                {$config.ENABLE_TOKEN_SERVER && sdkToken ? (
+                  <Redirect to={`/auth-token/:${sdkToken}`} />
+                ) : $config.ENABLE_IDP_AUTHENTICATION ? (
+                  <IDPAuth />
+                ) : (
+                  <Redirect to={'/create'} />
+                )}
               </Route>
               <Route exact path={'/authenticate'}>
                 {shouldAuthenticate ? <OAuth /> : <Redirect to={'/'} />}

@@ -25,7 +25,7 @@ import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
-import AuthManager from './auth/AuthManager';
+import {AuthProvider} from './auth/AuthProvider';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -54,9 +54,9 @@ const AppWrapper = (props: AppWrapperProps) => {
           <StatusBar hidden={true} />
           <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
           <StorageProvider>
-            <GraphQLProvider>
+            <AuthProvider>
               <Router>
-                <AuthManager>
+                <GraphQLProvider>
                   <SessionProvider>
                     <ColorConfigure>
                       <DimensionProvider>
@@ -70,9 +70,9 @@ const AppWrapper = (props: AppWrapperProps) => {
                       </DimensionProvider>
                     </ColorConfigure>
                   </SessionProvider>
-                </AuthManager>
+                </GraphQLProvider>
               </Router>
-            </GraphQLProvider>
+            </AuthProvider>
           </StorageProvider>
         </SafeAreaView>
       </ImageBackground>
