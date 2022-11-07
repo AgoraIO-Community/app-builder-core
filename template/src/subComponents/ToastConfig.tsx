@@ -31,9 +31,15 @@ const ToastConfig = {
       }}
       contentContainerStyle={{paddingHorizontal: 15, overflow: 'hidden'}}
       text1Style={{
-        fontSize: 15,
-        fontWeight: '400',
+        fontSize: 20,
+        fontFamily: 'Source Sans Pro',
+        fontWeight: '700',
         color: $config.PRIMARY_FONT_COLOR,
+      }}
+      text2Style={{
+        fontSize: 20,
+        fontFamily: 'Source Sans Pro',
+        fontWeight: '400',
       }}
       text1={text1}
       text2={text2}

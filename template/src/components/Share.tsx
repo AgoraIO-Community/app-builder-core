@@ -10,7 +10,15 @@
 *********************************************
 */
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
@@ -28,6 +36,8 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import {icons} from 'customization-api';
 import Icon from '../atoms/Icon';
+//@ts-ignore
+import ClipboardIcon from '../assets/icons/clipboard.svg';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -52,7 +62,7 @@ const Share = () => {
   });
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
-    data: {roomId, pstn, isSeparateHostLink},
+    data: {roomId, pstn, isSeparateHostLink, meetingTitle},
   } = useMeetingInfo();
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
@@ -87,15 +97,6 @@ const Share = () => {
       history.push(roomId.host);
     }
   };
-
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
   const isSDK = isSDKCheck();
   const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
@@ -123,161 +124,141 @@ const Share = () => {
       <Card>
         <Logo />
         <Spacer size={20} />
-        <View style={style.content} onLayout={onLayout}>
-          <View style={style.leftContent}>
-            <Text style={style.heading}>Your Meeting has been created.</Text>
-            <Spacer size={40} />
-            {/* <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text> */}
-            {isSeparateHostLink ? (
-              <>
-                <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
-                <View style={style.urlContainer}>
-                  <View style={{width: '90%'}}>
-                    <View style={style.urlHolder}>
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={[
-                          style.url,
-                          //@ts-ignore
-                          isWebCheck ? urlWeb : {opacity: 1},
-                        ]}>
-                        {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      marginLeft: 'auto',
-                      flexDirection: 'row',
-                      alignSelf: 'center',
-                    }}>
-                    <BtnTemplate
-                      style={style.clipboardIcon}
-                      color={$config.PRIMARY_COLOR}
-                      name={'clipboard'}
-                      onPress={() =>
-                        copyShareLinkToClipboard(
-                          SHARE_LINK_CONTENT_TYPE.ATTENDEE,
-                        )
-                      }
-                    />
-                    {/* </View> */}
-                  </View>
-                </View>
-                <Text style={style.helpText}>
-                  Share this with attendees you want to invite.
-                </Text>
-                <Spacer size={20} />
-              </>
-            ) : (
-              <></>
-            )}
-            <>
-              <Text style={style.urlTitle}>{getHostLabel()}</Text>
+        <Text style={style.heading}>{meetingTitle}</Text>
+        <Spacer size={40} />
+        {isSeparateHostLink ? (
+          <>
+            <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+            <Spacer size={11} />
+            <View style={style.container}>
               <View style={style.urlContainer}>
-                <View style={{width: '90%'}}>
-                  <View style={style.urlHolder}>
-                    <Text
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                      style={[
-                        style.url,
-                        //@ts-ignore
-                        isWebCheck ? urlWeb : {opacity: 1},
-                      ]}>
-                      {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
-                    </Text>
-                  </View>
-                </View>
-
-                <View
-                  style={{
-                    marginLeft: 'auto',
-                    flexDirection: 'row',
-                    alignSelf: 'center',
-                  }}>
-                  <BtnTemplate
-                    style={style.clipboardIcon}
-                    color={$config.PRIMARY_COLOR}
-                    name={'clipboard'}
-                    onPress={() =>
-                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
-                    }
-                  />
-                </View>
-              </View>
-              <Text style={style.helpText}>
-                Share this with other co-hosts you want to invite.
-              </Text>
-            </>
-            {pstn ? (
-              <>
-                <Spacer size={20} />
-                <Text style={style.urlTitle}>{pstnLabel}</Text>
-                <View style={style.urlContainer}>
-                  <View style={{width: '90%'}}>
-                    <View>
-                      <View style={style.pstnHolder}>
-                        <Text style={style.url}>{pstnNumberLabel}: </Text>
-                        <Text
-                          style={[
-                            style.url,
-                            //@ts-ignore
-                            isWebCheck ? urlWeb : {opacity: 1},
-                          ]}>
-                          {pstn?.number}
-                        </Text>
-                      </View>
-                      <View style={style.pstnHolder}>
-                        <Text style={style.url}>{pinLabel}: </Text>
-                        <Text
-                          style={[
-                            style.url,
-                            //@ts-ignore
-                            isWebCheck ? urlWeb : {opacity: 1},
-                          ]}>
-                          {pstn?.pin}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
-                    <BtnTemplate
-                      style={style.clipboardIcon}
-                      color={$config.PRIMARY_COLOR}
-                      name={'clipboard'}
-                      onPress={() =>
-                        copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
-                      }
-                    />
-                  </View>
-                </View>
-                <Text style={style.helpText}>
-                  Share this phone number and pin to dial from phone.
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={[
+                    style.url,
+                    style.urlPadding,
+                    //@ts-ignore
+                    isWebCheck ? urlWeb : {opacity: 1},
+                  ]}>
+                  {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
                 </Text>
-              </>
-            ) : (
-              <></>
-            )}
-            <Spacer size={50} />
-            <View style={style.btnContainer}>
-              <PrimaryButton
-                icon={icons.createMeeting}
-                onPress={() => enterMeeting()}
-                text={enterMeetingAfterCreateButton}
-              />
-              <Spacer size={16} />
-              <LinkButton
-                text={copyInviteButton}
-                onPress={() =>
-                  copyShareLinkToClipboard(
-                    SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
-                  )
-                }
-              />
+              </View>
+              <TouchableOpacity
+                style={style.iconContainer}
+                onPress={() => {
+                  copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE);
+                }}>
+                <Image
+                  source={{uri: ClipboardIcon}}
+                  style={{width: 17, height: 20}}></Image>
+              </TouchableOpacity>
+            </View>
+            <Spacer size={14} />
+            <Text style={style.helpText}>
+              Share this with attendees you want to invite.
+            </Text>
+            <Spacer size={25} />
+          </>
+        ) : (
+          <></>
+        )}
+        <>
+          <Text style={style.urlTitle}>{getHostLabel()}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={style.urlContainer}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[
+                  style.url,
+                  style.urlPadding,
+                  //@ts-ignore
+                  isWebCheck ? urlWeb : {opacity: 1},
+                ]}>
+                {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
+              </Text>
+            </View>
+            <View style={style.iconContainer}>
+              <TouchableOpacity
+                style={style.iconContainer}
+                onPress={() => {
+                  copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
+                }}>
+                <Image
+                  source={{uri: ClipboardIcon}}
+                  style={{width: 17, height: 20}}></Image>
+              </TouchableOpacity>
             </View>
           </View>
+          <Spacer size={14} />
+          <Text style={style.helpText}>
+            Share this with other co-hosts you want to invite.
+          </Text>
+          <Spacer size={25} />
+        </>
+        {pstn ? (
+          <>
+            <Text style={style.urlTitle}>{pstnLabel}</Text>
+            <Spacer size={11} />
+            <View style={style.container}>
+              <View style={[style.urlContainer, style.urlPadding]}>
+                <View>
+                  <Text
+                    style={[
+                      style.url,
+                      //@ts-ignore
+                      isWebCheck ? urlWeb : {opacity: 1},
+                    ]}>
+                    {pstnNumberLabel} - {pstn?.number}
+                  </Text>
+                </View>
+                <Spacer size={11} />
+                <View>
+                  <Text
+                    style={[
+                      style.url,
+                      //@ts-ignore
+                      isWebCheck ? urlWeb : {opacity: 1},
+                    ]}>
+                    {pinLabel} - {pstn?.pin}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={style.iconContainer}
+                onPress={() => {
+                  copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN);
+                }}>
+                <Image
+                  source={{uri: ClipboardIcon}}
+                  style={{width: 17, height: 20}}></Image>
+              </TouchableOpacity>
+            </View>
+            <Spacer size={14} />
+            <Text style={style.helpText}>
+              Share this phone number and pin to dial from phone.
+            </Text>
+            <Spacer size={25} />
+          </>
+        ) : (
+          <></>
+        )}
+        <Spacer size={60} />
+        <View style={style.btnContainer}>
+          <PrimaryButton
+            icon={icons.createMeeting}
+            onPress={() => enterMeeting()}
+            text={enterMeetingAfterCreateButton}
+          />
+          <Spacer size={16} />
+          <LinkButton
+            text={copyInviteButton}
+            onPress={() =>
+              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+            }
+          />
         </View>
       </Card>
     </ScrollView>
@@ -286,27 +267,10 @@ const Share = () => {
 const urlWeb = {wordBreak: 'break-all'};
 
 const style = StyleSheet.create({
-  full: {flex: 1},
   scrollMain: {
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    paddingHorizontal: 10,
-    flexGrow: 1,
-  },
-  main: {
-    flex: 2,
-    justifyContent: 'space-evenly',
-    marginHorizontal: '8%',
-    marginVertical: '2%',
-  },
-  content: {flex: 6, flexDirection: 'row'},
-  leftContent: {
-    width: '100%',
     flex: 1,
-    justifyContent: 'space-evenly',
-
-    // marginRight: '5%',
-    marginHorizontal: 'auto',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   heading: {
     fontSize: 32,
@@ -314,78 +278,50 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     color: $config.PRIMARY_FONT_COLOR,
   },
-  headline: {
-    fontSize: 18,
-    fontWeight: '400',
-    textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
-  },
-  inputs: {
+  container: {
     flex: 1,
-    width: '100%',
-    alignSelf: 'flex-start',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  checkboxHolder: {
-    marginVertical: 0,
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
-    paddingHorizontal: 5,
-    fontWeight: '700',
-  },
-  checkboxCaption: {color: '#333', paddingHorizontal: 5},
-  checkboxTextHolder: {
-    marginVertical: 0, //check if 5
-    flexDirection: 'column',
-  },
-  urlContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F2F2F2',
-    paddingVertical: 22,
-    paddingHorizontal: 20,
-    borderRadius: 8,
   },
   urlTitle: {
     color: $config.PRIMARY_FONT_COLOR,
     fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
-    textAlign: 'left',
-    marginBottom: 8,
+    paddingLeft: 8,
   },
-  pstnHolder: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
+  urlContainer: {
+    flex: 0.9,
+    backgroundColor: '#F1F1F4',
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
   },
-  urlHolder: {
-    width: '100%',
-    flexDirection: 'row',
+  iconContainer: {
+    flex: 0.1,
+    backgroundColor: '#F1F1F4',
+    justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 30,
+    borderLeftColor: '#FFFFFF',
+    borderLeftWidth: 1,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 8,
+    borderTopLeftRadius: 0,
   },
   url: {
-    color: $config.PRIMARY_FONT_COLOR,
+    color: 'rgba(51, 51, 51, 0.7)',
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
   },
-
-  pstnMargin: {
-    marginRight: '10%',
+  urlPadding: {
+    paddingHorizontal: 20,
+    paddingVertical: 21,
   },
   clipboardIcon: {
     width: 17,
     height: 20,
-    marginVertical: 'auto',
   },
   btnContainer: {
     width: '100%',
@@ -393,15 +329,11 @@ const style = StyleSheet.create({
   },
   helpText: {
     color: '#666666',
-    marginTop: 10,
     fontSize: 14,
     lineHeight: 14,
     fontWeight: '400',
     fontFamily: 'Source Sans Pro',
-  },
-  pstnTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
-    fontFamily: 'Source Sans Pro',
+    paddingLeft: 8,
   },
 });
 
