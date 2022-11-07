@@ -105,66 +105,46 @@ const Join = () => {
     <JoinComponent />
   ) : (
     <ScrollView contentContainerStyle={style.main}>
+      {error ? <Error error={error} /> : <></>}
       <Card>
-        <View style={style.nav}>
-          <Logo />
-          {error ? <Error error={error} /> : <></>}
-        </View>
+        <Logo />
         <Spacer size={20} />
-        <View style={style.content}>
-          <View style={style.leftContent}>
-            <Text style={style.heading}>
-              {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
-            </Text>
-            {/* <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text> */}
-
-            <Spacer size={mobileOrTablet ? 20 : 50} />
-            <View style={style.inputs}>
-              {/* <TextInput
-                value={phrase}
-                onChangeText={(text) => setPhrase(text)}
-                onSubmitEditing={() => startCall()}
-                placeholder={meetingIdInputPlaceholder}
-              /> */}
-              <Input
-                label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
-                autoFocus
-                value={phrase}
-                helpText={
-                  isLiveStream
-                    ? 'Enter the stream ID here for the meeting you’d like to join'
-                    : 'Enter the meeting ID here for the meeting you’d like to join'
-                }
-                placeholder={meetingIdInputPlaceholder}
-                onChangeText={(text) => setPhrase(text)}
-                onSubmitEditing={() => startCall()}
-              />
-              <Spacer size={mobileOrTablet ? 20 : 50} />
-
-              <PrimaryButton
-                icon={icons.createMeeting}
-                disabled={phrase === ''}
-                onPress={() => startCall()}
-                text={enterMeetingButton}
-              />
-
-              {/* <SecondaryButton
-                onPress={() => createMeeting()}
-                text={createMeetingButton}
-              /> */}
-              <Spacer size={16} />
-              <LinkButton
-                text={createMeetingButton}
-                onPress={() => createMeeting()}
-              />
-
-              {shouldAuthenticate ? (
-                <LogoutButton setError={setError} /> //setError not available in logout?
-              ) : (
-                <></>
-              )}
-            </View>
-          </View>
+        <Text style={style.heading}>
+          {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
+        </Text>
+        <Spacer size={40} />
+        <Input
+          labelStyle={style.labelStyle}
+          label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
+          autoFocus
+          value={phrase}
+          helpText={
+            isLiveStream
+              ? 'Enter the stream ID here for the meeting you’d like to join'
+              : 'Enter the meeting ID here for the meeting you’d like to join'
+          }
+          placeholder={meetingIdInputPlaceholder}
+          onChangeText={(text) => setPhrase(text)}
+          onSubmitEditing={() => startCall()}
+        />
+        <Spacer size={60} />
+        <View style={style.btnContainer}>
+          <PrimaryButton
+            icon={icons.createMeeting}
+            disabled={phrase === ''}
+            onPress={() => startCall()}
+            text={enterMeetingButton}
+          />
+          <Spacer size={16} />
+          <LinkButton
+            text={createMeetingButton}
+            onPress={() => createMeeting()}
+          />
+          {shouldAuthenticate ? (
+            <LogoutButton setError={setError} /> //setError not available in logout?
+          ) : (
+            <></>
+          )}
         </View>
       </Card>
     </ScrollView>
@@ -172,57 +152,30 @@ const Join = () => {
 };
 
 const style = StyleSheet.create({
-  illustration: {flex: 1, alignSelf: 'flex-end'},
-  main: {
-    paddingVertical: '8%',
-    marginHorizontal: '8%',
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    flexGrow: 1,
-  },
-  nav: {
-    flex: 1,
+  btnContainer: {
     width: '100%',
-    flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'center',
+  },
+  labelStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#1A1A1A',
+    letterSpacing: 0.08,
+    lineHeight: 18,
+    paddingLeft: 8,
+  },
+  main: {
+    flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'row'},
-  leftContent: {
-    width: '100%',
-
-    flex: 1,
-    justifyContent: 'space-evenly',
-    // marginBottom: '15%',
-    //marginTop: '8%',
-    // marginRight: '5%',
-    marginHorizontal: 'auto',
-  },
   heading: {
-    // fontSize: 32,
-    // fontWeight: '700',
-    // textAlign: 'center',
-    // color: $config.PRIMARY_FONT_COLOR,
-    // marginBottom: 20,
     fontSize: 32,
     fontWeight: '700',
+    lineHeight: 32,
     color: $config.PRIMARY_FONT_COLOR,
     fontFamily: 'Source Sans Pro',
-  },
-  headline: {
-    fontSize: 18,
-    fontWeight: '400',
-    textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
-  },
-  inputs: {
-    flex: 1,
-    width: '100%',
-    alignSelf: 'flex-start',
-    alignItems: 'center',
-    // justifyContent: 'space-evenly',
   },
 });
 
