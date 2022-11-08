@@ -23,7 +23,11 @@ const Logo: React.FC = () => {
   }
 
   return (
-    <Image source={{uri: logoFile}} style={style.logo} resizeMode="contain" />
+    <Image
+      source={{uri: $config.LOGO}}
+      style={style.logo}
+      resizeMode="contain"
+    />
   );
 };
 export default Logo;
