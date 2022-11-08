@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 //@ts-ignore
-import InfoIcon from '../assets/icons/info.svg';
+//import InfoIcon from '../assets/icons/info.svg';
+import icons from '../assets/icons';
 
 interface InfoBubbleProps {
   text: string;
@@ -86,7 +87,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         onPress={() => {
           showModal();
         }}>
-        <Image style={styles.iconStyle} source={{uri: InfoIcon}} />
+        <Image style={styles.iconStyle} source={{uri: icons.info}} />
       </Pressable>
     </>
   );

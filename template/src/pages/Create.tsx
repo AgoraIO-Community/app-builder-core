@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useEffect, useState, useContext} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {useHistory} from '../components/Router';
 import PrimaryButton from '../atoms/PrimaryButton';
 import Toast from '../../react-native-toast-message';
@@ -87,6 +87,15 @@ const Create = () => {
     : 'CREATE A MEETING';
   const haveMeetingID = 'Join with a meeting ID';
 
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const [dim, setDim] = React.useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isDesktop = dim[0] > 1200;
   useEffect(() => {
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
@@ -147,90 +156,93 @@ const Create = () => {
         CreateComponent ? (
           <CreateComponent />
         ) : (
-          <ScrollView contentContainerStyle={style.main}>
-            <Card>
-              <Logo />
-              <Spacer size={20} />
-              <Text style={style.heading}>
-                {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
-              </Text>
-              <Spacer size={40} />
-              <Input
-                labelStyle={style.inputLabelStyle}
-                label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
-                value={roomTitle}
-                placeholder={meetingNameInputPlaceholder}
-                onChangeText={(text) => onChangeRoomTitle(text)}
-                onSubmitEditing={() =>
-                  createRoomAndNavigateToShare(
-                    roomTitle,
-                    pstnCheckbox,
-                    hostControlCheckbox,
-                  )
-                }
-              />
-              <Spacer size={40} />
-              {$config.EVENT_MODE ? (
-                <></>
-              ) : (
-                <View
-                  style={[
-                    style.toggleContainer,
-                    style.upper,
-                    !$config.PSTN ? style.lower : {},
-                  ]}>
-                  <View style={style.infoContainer}>
-                    <Text style={style.toggleLabel}>
-                      Make everyone a Co-Host
-                    </Text>
-                    <InfoBubble
-                      text={
-                        hostControlCheckbox
-                          ? 'Creates two unique links in order to seperate co-hosts from attendees'
-                          : 'Everyone is a Host'
-                      }
-                    />
-                  </View>
-                  <View style={style.infoToggleContainer}>
-                    <Toggle
-                      disabled={$config.EVENT_MODE}
-                      isEnabled={hostControlCheckbox}
-                      toggleSwitch={setHostControlCheckbox}
-                    />
-                  </View>
-                </View>
-              )}
-              {$config.PSTN ? (
-                <>
-                  <View style={style.separator} />
+          <ScrollView contentContainerStyle={style.main} onLayout={onLayout}>
+            <Card isDesktop={isDesktop}>
+              <View>
+                <Logo />
+                <Spacer size={isDesktop ? 20 : 16} />
+                <Text style={style.heading}>
+                  {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
+                </Text>
+                <Spacer size={40} />
+                <Input
+                  labelStyle={style.inputLabelStyle}
+                  label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
+                  value={roomTitle}
+                  placeholder={meetingNameInputPlaceholder}
+                  onChangeText={(text) => onChangeRoomTitle(text)}
+                  onSubmitEditing={() =>
+                    createRoomAndNavigateToShare(
+                      roomTitle,
+                      pstnCheckbox,
+                      hostControlCheckbox,
+                    )
+                  }
+                />
+                <Spacer size={40} />
+                {$config.EVENT_MODE ? (
+                  <></>
+                ) : (
                   <View
                     style={[
                       style.toggleContainer,
-                      style.lower,
-                      $config.EVENT_MODE ? style.upper : {},
+                      style.upper,
+                      !$config.PSTN ? style.lower : {},
                     ]}>
                     <View style={style.infoContainer}>
                       <Text style={style.toggleLabel}>
-                        Can join by dialing a number
+                        Make everyone a Co-Host
                       </Text>
-                      <InfoBubble text="Users can join via PSTN" />
+                      <InfoBubble
+                        text={
+                          hostControlCheckbox
+                            ? 'Creates two unique links in order to seperate co-hosts from attendees'
+                            : 'Everyone is a Host'
+                        }
+                      />
                     </View>
                     <View style={style.infoToggleContainer}>
                       <Toggle
-                        isEnabled={pstnCheckbox}
-                        toggleSwitch={setPstnCheckbox}
+                        disabled={$config.EVENT_MODE}
+                        isEnabled={hostControlCheckbox}
+                        toggleSwitch={setHostControlCheckbox}
                       />
                     </View>
                   </View>
-                </>
-              ) : (
-                <></>
-              )}
-              <Spacer size={60} />
-              <View style={style.btnContainer}>
+                )}
+                {$config.PSTN ? (
+                  <>
+                    <View style={style.separator} />
+                    <View
+                      style={[
+                        style.toggleContainer,
+                        style.lower,
+                        $config.EVENT_MODE ? style.upper : {},
+                      ]}>
+                      <View style={style.infoContainer}>
+                        <Text style={style.toggleLabel}>
+                          Can join by dialing a number
+                        </Text>
+                        <InfoBubble text="Users can join via PSTN" />
+                      </View>
+                      <View style={style.infoToggleContainer}>
+                        <Toggle
+                          isEnabled={pstnCheckbox}
+                          toggleSwitch={setPstnCheckbox}
+                        />
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  <></>
+                )}
+                <Spacer size={isDesktop ? 60 : 125} />
+              </View>
+              <View style={[style.btnContainer]}>
                 <PrimaryButton
                   icon={icons.createMeeting}
                   disabled={roomTitle === '' || loading}
+                  containerStyle={!isDesktop && {width: '100%'}}
                   onPress={() =>
                     createRoomAndNavigateToShare(
                       roomTitle,

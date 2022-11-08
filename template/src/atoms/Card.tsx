@@ -5,14 +5,17 @@ import isMobileOrTablet from '../utils/isMobileOrTablet';
 const mobileOrTablet = isMobileOrTablet();
 
 interface CardProps {
+  isDesktop?: boolean;
   style?: ViewStyle;
   children?: React.ReactNode;
 }
 
 const Card = (props: CardProps) => {
-  const {style, children, ...rest} = props;
+  const {style, children, isDesktop = true, ...rest} = props;
   return (
-    <View style={[styles.root, style]} {...rest}>
+    <View
+      style={[styles.root, style, isDesktop ? styles.desktop : styles.mobile]}
+      {...rest}>
       {children}
     </View>
   );
@@ -23,10 +26,21 @@ export default Card;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    elevation: 5,
+    maxWidth: 676,
+    width: '100%',
+  },
+  mobile: {
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+    justifyContent: 'space-between',
+  },
+  desktop: {
     justifyContent: 'center',
     alignSelf: 'center',
     borderWidth: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 60,
     paddingVertical: 60,
     borderRadius: 20,
@@ -35,8 +49,5 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 5,
-    maxWidth: 676,
-    width: '100%',
   },
 });

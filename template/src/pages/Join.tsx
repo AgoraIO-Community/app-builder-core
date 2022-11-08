@@ -11,7 +11,7 @@
 */
 // @ts-nocheck
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {useHistory} from '../components/Router';
 //import Logo from '../subComponents/Logo';
 import Logo from '../components/common/Logo';
@@ -60,6 +60,15 @@ const Join = () => {
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const [dim, setDim] = React.useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isDesktop = dim[0] > 1200;
 
   const useJoin = useJoinMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
@@ -104,36 +113,39 @@ const Join = () => {
   return JoinComponent ? (
     <JoinComponent />
   ) : (
-    <ScrollView contentContainerStyle={style.main}>
+    <ScrollView contentContainerStyle={style.main} onLayout={onLayout}>
       {error ? <Error error={error} /> : <></>}
-      <Card>
-        <Logo />
-        <Spacer size={20} />
-        <Text style={style.heading}>
-          {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
-        </Text>
-        <Spacer size={40} />
-        <Input
-          labelStyle={style.labelStyle}
-          label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
-          autoFocus
-          value={phrase}
-          helpText={
-            isLiveStream
-              ? 'Enter the stream ID here for the meeting you’d like to join'
-              : 'Enter the meeting ID here for the meeting you’d like to join'
-          }
-          placeholder={meetingIdInputPlaceholder}
-          onChangeText={(text) => setPhrase(text)}
-          onSubmitEditing={() => startCall()}
-        />
-        <Spacer size={60} />
+      <Card isDesktop={isDesktop}>
+        <View>
+          <Logo />
+          <Spacer size={20} />
+          <Text style={style.heading}>
+            {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
+          </Text>
+          <Spacer size={40} />
+          <Input
+            labelStyle={style.labelStyle}
+            label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
+            autoFocus
+            value={phrase}
+            helpText={
+              isLiveStream
+                ? 'Enter the stream ID here for the meeting you’d like to join'
+                : 'Enter the meeting ID here for the meeting you’d like to join'
+            }
+            placeholder={meetingIdInputPlaceholder}
+            onChangeText={(text) => setPhrase(text)}
+            onSubmitEditing={() => startCall()}
+          />
+          <Spacer size={60} />
+        </View>
         <View style={style.btnContainer}>
           <PrimaryButton
             icon={icons.createMeeting}
             disabled={phrase === ''}
             onPress={() => startCall()}
             text={enterMeetingButton}
+            containerStyle={!isDesktop && {width: '100%'}}
           />
           <Spacer size={16} />
           <LinkButton
