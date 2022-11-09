@@ -19,6 +19,14 @@ buildscript {
 }
 
 allprojects {
+    //Fix: error: resource android:attr/lStar not found for agora-react-native-rtm
+    //https://issuetracker.google.com/issues/199180389
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.6.0'
+            force 'androidx.core:core-ktx:1.6.0'
+        }
+    }
     repositories {
         mavenLocal()
         maven {
