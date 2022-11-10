@@ -10,7 +10,7 @@
 *********************************************
 */
 // @ts-nocheck
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {useHistory} from '../components/Router';
 //import Logo from '../subComponents/Logo';
@@ -38,6 +38,7 @@ import Toast from '../../react-native-toast-message';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {icons} from 'customization-api';
+import DimensionContext from '../components/dimension/DimensionContext';
 
 const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
@@ -68,7 +69,8 @@ const Join = () => {
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
-  const isDesktop = dim[0] > 1200;
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
 
   const useJoin = useJoinMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
