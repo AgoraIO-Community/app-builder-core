@@ -35,6 +35,7 @@ import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import {icons} from 'customization-api';
+import DimensionContext from '../components/dimension/DimensionContext';
 
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;
@@ -95,7 +96,9 @@ const Create = () => {
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
-  const isDesktop = dim[0] > 1200;
+
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
   useEffect(() => {
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
