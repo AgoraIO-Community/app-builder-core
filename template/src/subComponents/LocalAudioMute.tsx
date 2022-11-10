@@ -24,12 +24,7 @@ import {
 } from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
-//@ts-ignore
-import micOnIcon from '../assets/icons/mic-on.svg';
-//@ts-ignore
-import micOffIcon from '../assets/icons/mic-off.svg';
-//@ts-ignore
-import noMicIcon from '../assets/icons/no-mic.svg';
+import Icons from '../assets/icons';
 /**
  * A component to mute / unmute the local audio
  */
@@ -64,10 +59,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     onPress: onPress,
     //name: isAudioEnabled ? 'mic' : 'micOff',
     icon: permissionDenied
-      ? noMicIcon
+      ? Icons.noMic
       : isAudioEnabled
-      ? micOnIcon
-      : micOffIcon,
+      ? Icons.mic
+      : Icons.micOff,
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {

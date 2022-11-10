@@ -14,9 +14,8 @@ import {PropsContext, UidType} from '../../agora-rn-uikit';
 import React, {useContext} from 'react';
 import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import {useString} from '../utils/useString';
-//@ts-ignore
-import closeIcon from '../assets/icons/close-ss.svg';
 import {useScreenshare} from './screenshare/useScreenshare';
+import Icons from '../assets/icons';
 /**
  *
  * @param uid - uid of the user
@@ -41,7 +40,7 @@ function ScreenShareNotice({uid}: {uid: UidType}) {
         style={styles.btnContainer}
         onPress={() => stopUserScreenShare()}>
         <View style={styles.iconContainer}>
-          <Image source={{uri: closeIcon}} style={styles.icon} />
+          <Image source={{uri: Icons.closeRounded}} style={styles.icon} />
         </View>
         <View style={styles.btnTextContainer}>
           <Text style={styles.btnText}>Stop Sharing</Text>

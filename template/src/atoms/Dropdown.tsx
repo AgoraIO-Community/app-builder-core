@@ -8,12 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
-//@ts-ignore
-import DownArrowIcon from '../assets/icons/down-arrow.svg';
-//@ts-ignore
-import UpArrowIcon from '../assets/icons/up-arrow.svg';
-//@ts-ignore
-import RightTickIcon from '../assets/icons/right-tick.svg';
+import Icons from '../assets/icons';
 
 interface Props {
   label: string;
@@ -88,7 +83,7 @@ const Dropdown: FC<Props> = ({
       {selected && item?.value === selected?.value ? (
         <View style={styles.itemTextSelectedContainer}>
           <Image
-            source={{uri: RightTickIcon}}
+            source={{uri: Icons.tickIcon}}
             style={{
               width: 12,
               height: 8,
@@ -149,7 +144,7 @@ const Dropdown: FC<Props> = ({
       </View>
       <View style={styles.dropdownIconContainer}>
         <Image
-          source={{uri: visible ? UpArrowIcon : DownArrowIcon}}
+          source={{uri: visible ? Icons.upArrowIcon : Icons.downArrowIcon}}
           style={{
             width: 12,
             height: 8,

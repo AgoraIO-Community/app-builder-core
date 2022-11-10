@@ -24,12 +24,7 @@ import {
 } from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
-//@ts-ignore
-import camOnIcon from '../assets/icons/cam-on.svg';
-//@ts-ignore
-import camOffIcon from '../assets/icons/cam-off.svg';
-//@ts-ignore
-import noCamIcon from '../assets/icons/no-cam.svg';
+import Icons from '../assets/icons';
 /**
  * A component to mute / unmute the local video
  */
@@ -64,10 +59,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     onPress: onPress,
     //name: isVideoEnabled ? 'videocam' : 'videocamOff',
     icon: permissionDenied
-      ? noCamIcon
+      ? Icons.noVideocam
       : isVideoEnabled
-      ? camOnIcon
-      : camOffIcon,
+      ? Icons.videocam
+      : Icons.videocamOff,
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
