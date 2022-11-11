@@ -22,6 +22,8 @@ import {
   PreCallLocalMute,
   PreCallMeetingTitle,
 } from './precall/index';
+import Logo from './common/Logo';
+import Spacer from '../atoms/Spacer';
 
 const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -31,7 +33,7 @@ const Precall = () => {
 
   const {
     VideoPreview,
-    MeetingName,
+
     JoinButton,
     Textbox,
     PrecallAfterView,
@@ -41,14 +43,13 @@ const Precall = () => {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
       VideoPreview: React.ComponentType;
-      MeetingName: React.ComponentType;
+
       JoinButton: React.ComponentType;
       Textbox: React.ComponentType;
     } = {
       PrecallAfterView: React.Fragment,
       PrecallBeforeView: React.Fragment,
       JoinButton: PreCallJoinBtn,
-      MeetingName: PreCallMeetingTitle,
       Textbox: PreCallTextInput,
       VideoPreview: PreCallVideoPreview,
     };
@@ -130,27 +131,28 @@ const Precall = () => {
   ) : (
     <>
       <PrecallBeforeView />
-      <View style={style.full}>
-        <View style={style.heading}>
-          <Text style={style.headingText}>{precallLabel}</Text>
+      <View style={style.container}>
+        <View style={{alignSelf: 'center'}}>
+          <Logo />
         </View>
-        <MeetingName />
+        <Spacer size={20} />
+        {/* <MeetingName /> */}
         {!isAudienceInLiveStreaming() && (
-          <View style={style.full}>
+          <View style={style.preview}>
             <VideoPreview />
           </View>
         )}
-        <View style={style.textInputHolder}>
-          <Textbox />
-        </View>
-        <View style={{height: 20}} />
-        {!isAudienceInLiveStreaming() && (
-          <View style={style.controls}>
-            <PreCallLocalMute />
+        <View style={{flex: 1}}>
+          <View style={style.textInputHolder}>
+            <Textbox />
           </View>
-        )}
-        <View style={{marginBottom: 50, alignItems: 'center'}}>
-          <JoinButton />
+
+          {!isAudienceInLiveStreaming() && (
+            <View style={style.controls}>{/* <PreCallLocalMute /> */}</View>
+          )}
+          <View style={{marginTop: 60, width: '100%'}}>
+            <JoinButton />
+          </View>
         </View>
       </View>
       <PrecallAfterView />
@@ -159,11 +161,22 @@ const Precall = () => {
 };
 
 const style = StyleSheet.create({
-  full: {
+  container: {
     flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
+    paddingHorizontal: 16,
     justifyContent: 'center',
+  },
+
+  preview: {
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 3},
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    borderWidth: 1,
+    borderRadius: 20,
+    borderColor: '#ffffff',
+    flex: 3,
   },
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {

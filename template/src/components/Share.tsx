@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -36,6 +36,7 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import {icons} from 'customization-api';
 import Icon from '../atoms/Icon';
+import DimensionContext from '../components/dimension/DimensionContext';
 //@ts-ignore
 //import ClipboardIcon from '../assets/icons/clipboard.svg';
 
@@ -125,7 +126,9 @@ const Share = () => {
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
-  const isDesktop = dim[0] > 1200;
+
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
 
   return FpeShareComponent ? (
     <FpeShareComponent />

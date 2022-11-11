@@ -22,6 +22,7 @@ import Input from '../../atoms/Input';
 export interface PreCallTextInputProps {
   labelStyle?: TextStyle;
   textInputStyle?: TextStyle;
+  isDesktop?: boolean;
 }
 const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   //commented for v1 release
@@ -32,10 +33,11 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   const username = useGetName();
   const setUsername = useSetName();
   const {isJoinDataFetched} = useMeetingInfo();
+  const {isDesktop = false} = props;
 
   return (
     <Input
-      label={$config.EVENT_MODE ? 'Your Name' : 'Joining as'}
+      label={isDesktop ? ($config.EVENT_MODE ? 'Your Name' : 'Joining as') : ''}
       value={username}
       autoFocus
       onChangeText={(text) => setUsername(text ? text : '')}

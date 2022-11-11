@@ -42,7 +42,13 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      {icon && <Image style={styles.icon} source={{uri: icon}} />}
+      {icon && (
+        <Image
+          style={styles.icon}
+          source={{uri: icon}}
+          resizeMode={'contain'}
+        />
+      )}
       {props.text && (
         <Text style={[styles.text, textStyle ? textStyle : {}]}>
           {props.text}
