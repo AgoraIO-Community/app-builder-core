@@ -34,7 +34,7 @@ const LocalRaiseHand = () => {
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   return (
     <BtnTemplate
-      name={isHandRasied ? 'lowerHandIcon' : 'raiseHandIcon'}
+      name={isHandRasied ? 'lowerHand' : 'raiseHand'}
       btnText={handStatusText(isHandRasied)}
       style={Styles.localButton as Object}
       styleText={Styles.localButtonText as Object}

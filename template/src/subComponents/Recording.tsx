@@ -44,18 +44,24 @@ const Recording = (props: RecordingButtonProps) => {
     }
   };
   let btnTemplateProps: BtnTemplateInterface = {
-    name: isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon',
+    name: isRecordingActive ? 'recordingStop' : 'recordingStart',
     onPress,
     color: !isRecordingActive ? $config.PRIMARY_COLOR : '#FF414D',
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    btnTemplateProps.btnText = recordingButton(isRecordingActive);
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
-  }
+  // if (buttonTemplateName === ButtonTemplateName.topBar) {
+  //   btnTemplateProps.style = Styles.fullWidthButton as Object;
+  // } else {
+  btnTemplateProps.btnText = recordingButton(isRecordingActive);
+  btnTemplateProps.style = Styles.localButton as Object;
+  btnTemplateProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+    color: isRecordingActive ? '#FF414D' : '#099DFD',
+  };
+  //}
 
   return props?.render ? (
     props.render(onPress, isRecordingActive, buttonTemplateName)

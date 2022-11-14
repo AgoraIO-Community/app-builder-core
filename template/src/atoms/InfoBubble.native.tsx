@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import icons from '../assets/icons';
+import {ImageIcon} from 'agora-rn-uikit';
 
 interface InfoBubbleProps {
   text: string;
@@ -85,7 +85,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         onPress={() => {
           showModal();
         }}>
-        <Image style={styles.iconStyle} source={{uri: icons.info}} />
+        <ImageIcon name="info" style={styles.iconStyle} />
       </Pressable>
     </>
   );
