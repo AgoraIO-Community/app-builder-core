@@ -65,10 +65,9 @@ const ParticipantView = () => {
       <View>
         <View style={style.header}>
           <Text style={style.mainHeading}>{participantsLabel}</Text>
-          <View style={style.closeIcon}>
+          <View>
             <BtnTemplate
-              style={style.closeIcon}
-              color="#000"
+              styleIcon={style.closeIcon}
               name={'closeRounded'}
               onPress={() => {
                 setSidePanel(SidePanelType.None);
@@ -203,8 +202,8 @@ const style = StyleSheet.create({
     shadowRadius: 12,
   },
   closeIcon: {
-    width: 14,
-    height: 14,
+    width: 24,
+    height: 24,
   },
   header: {
     flexDirection: 'row',

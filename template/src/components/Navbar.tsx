@@ -121,7 +121,11 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: 'participant',
+    name: isPanelActive ? 'participantActive' : 'participant',
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -130,8 +134,14 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = participantsLabel;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
-    btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: isPanelActive ? '700' : '400',
+      color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    };
+    //btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
   }
   return props?.render ? (
     props.render(onPress, isPanelActive, buttonTemplateName)
@@ -187,22 +197,25 @@ interface ChatIconButtonProps {
 }
 
 const ChatIconButton = (props: ChatIconButtonProps) => {
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {
     badgeContainerPosition = {
-      top: isWebInternal() ? -2 : 2,
-      left: undefined,
+      top: 2,
+      left: 35,
       right: undefined,
       bottom: undefined,
+      zIndex: 999,
     },
     badgeTextStyle = {
-      color: $config.SECONDARY_FONT_COLOR,
+      color: sidePanel === SidePanelType.Chat ? '#099DFD' : '#FFFFFF',
       fontSize: 12,
+      textAlign: 'center',
     },
   } = props;
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
   const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
     useChatUIControl();
-  const {sidePanel, setSidePanel} = useSidePanel();
+
   //commented for v1 release
   //const chatLabel = useString('chatLabel')();
   const chatLabel = 'Chat';
@@ -225,7 +238,11 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     //name: totalUnreadCount !== 0 ? 'unreadChatIcon' : 'chatIcon',
     //todo hari
-    name: 'chat',
+    name: isPanelActive ? 'chatActive' : 'chat',
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -234,8 +251,13 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = chatLabel;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
-    btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: isPanelActive ? '700' : '400',
+      color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    };
   }
   const renderBadge = (badgeCount: any) => {
     return (
@@ -246,15 +268,21 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
           bottom: badgeContainerPosition?.bottom,
           left: badgeContainerPosition?.left,
           right: badgeContainerPosition?.right,
+          borderRadius: 10,
+          width: 20,
+          height: 20,
+          backgroundColor:
+            sidePanel === SidePanelType.Chat
+              ? '#FFFFFF'
+              : $config.PRIMARY_COLOR,
+          justifyContent: 'center',
         }}>
-        <View style={style.badge}>
-          <Text
-            style={{
-              ...badgeTextStyle,
-            }}>
-            {numFormatter(badgeCount)}
-          </Text>
-        </View>
+        <Text
+          style={{
+            ...badgeTextStyle,
+          }}>
+          {numFormatter(3)}
+        </Text>
       </View>
     );
   };
@@ -272,9 +300,7 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
           },
         ]}>
         <BtnTemplate {...btnTemplateProps} />
-        {sidePanel !== SidePanelType.Chat &&
-          totalUnreadCount !== 0 &&
-          renderBadge(totalUnreadCount)}
+        {totalUnreadCount !== 1 && renderBadge(totalUnreadCount)}
       </View>
     </>
   );
@@ -458,22 +484,6 @@ const style = StyleSheet.create({
     color: $config.PRIMARY_FONT_COLOR,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
-  },
-  badge: {
-    lineHeight: 1,
-    height: 15,
-    minWidth: 15,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: $config.PRIMARY_COLOR,
-    color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
-    borderRadius: 8,
-    position: 'absolute',
-    paddingHorizontal: 5,
-    top: 0,
-    left: -5,
   },
   chip: {
     backgroundColor: $config.PRIMARY_COLOR,

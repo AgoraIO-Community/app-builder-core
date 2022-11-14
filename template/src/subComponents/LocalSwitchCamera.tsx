@@ -41,6 +41,10 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
     name: 'switchCamera',
     disabled: isVideoEnabled ? false : true,
     onPress: onPress,
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {

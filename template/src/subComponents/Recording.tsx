@@ -46,7 +46,10 @@ const Recording = (props: RecordingButtonProps) => {
   let btnTemplateProps: BtnTemplateInterface = {
     name: isRecordingActive ? 'recordingStop' : 'recordingStart',
     onPress,
-    color: !isRecordingActive ? $config.PRIMARY_COLOR : '#FF414D',
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
 
   // if (buttonTemplateName === ButtonTemplateName.topBar) {

@@ -56,13 +56,16 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
 
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    //name: isVideoEnabled ? 'videocam' : 'videocamOff',
     name: permissionDenied
       ? 'videocamNotAvailable'
       : isVideoEnabled
       ? 'videocamOn'
       : 'videocamOff',
     disabled: permissionDenied ? true : false,
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
   btnTemplateProps.styleText = {
     fontFamily: 'Source Sans Pro',
