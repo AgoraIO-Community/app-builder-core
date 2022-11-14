@@ -48,7 +48,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
     <TouchableOpacity
       style={[
         style.chatInputButton,
-        {backgroundColor: inputActive ? '#E6F5FF' : '#F3F3F3'},
+        {backgroundColor: inputActive ? '#FFFFFF' : 'rgba(0, 0, 0, 0.06)'},
       ]}
       onPress={onPress}>
       <ImageIcon
@@ -110,7 +110,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         borderRadius: 0,
         borderBottomLeftRadius: 12,
         borderWidth: 0,
-        backgroundColor: inputActive ? '#E6F5FF' : '#F3F3F3',
+        backgroundColor: inputActive ? '#FFFFFF' : 'rgba(0, 0, 0, 0.06)',
         color: '#000000',
         textAlign: 'left',
         paddingVertical: 21,

@@ -58,15 +58,18 @@ const ChatBubble = (props: ChatBubbleProps) => {
       updatedTimestamp,
     )
   ) : (
-    <View style={style.bubbleContainer}>
+    <>
       {!isSameUser ? (
-        <View style={isLocal ? style.bubbleImgLocal : style.bubbleImgRemote}>
-          <ImageIcon
-            name={isLocal ? 'chatBubbleLocal' : 'chatBubbleRemote'}
-            style={{width: 8, height: 10}}
-            color={isLocal ? '#E6F5FF' : '#F4F4F4'}
-          />
-        </View>
+        <Text
+          style={
+            isLocal ? style.localUsernameStyle : style.remoteUsernameStyle
+          }>
+          {isLocal
+            ? 'You'
+            : renderList[uid]
+            ? renderList[uid].name
+            : remoteUserDefaultLabel}
+        </Text>
       ) : (
         <></>
       )}
@@ -74,115 +77,79 @@ const ChatBubble = (props: ChatBubbleProps) => {
         style={
           isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView
         }>
-        {!isSameUser ? (
-          <View style={style.usernameViewStyle}>
-            <Text
-              style={
-                isLocal ? style.localUsernameStyle : style.remoteUsernameStyle
-              }>
-              {isLocal
-                ? 'You'
-                : renderList[uid]
-                ? renderList[uid].name
-                : remoteUserDefaultLabel}
-            </Text>
-          </View>
-        ) : (
-          <></>
-        )}
-        <View>
-          <Hyperlink
-            onPress={handleUrl}
-            linkStyle={{
-              color: '#0038FF',
-              textDecorationLine: 'underline',
-            }}>
-            <Text style={style.messageStyle} selectable={true}>
-              {message}
-            </Text>
-          </Hyperlink>
-        </View>
-        <View>
-          <Text style={style.timestampStyle}>{time + ' '}</Text>
-        </View>
+        <Hyperlink
+          onPress={handleUrl}
+          linkStyle={{
+            color: '#0038FF',
+            textDecorationLine: 'underline',
+          }}>
+          <Text style={style.messageStyle} selectable={true}>
+            {message}
+          </Text>
+        </Hyperlink>
+        <Text style={style.timestampStyle}>{time + ' '}</Text>
       </View>
-    </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
-  bubbleContainer: {
-    position: 'relative',
-  },
-  bubbleImgLocal: {
-    position: 'absolute',
-    top: 5,
-    right: 13,
-  },
-  bubbleImgRemote: {
-    position: 'absolute',
-    top: 5,
-    left: 13,
-  },
-  usernameViewStyle: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
   remoteUsernameStyle: {
     fontFamily: 'Source Sans Pro',
     fontWeight: '600',
     fontSize: 14,
     textAlign: 'left',
-    color: '#181818',
+    color: '#000000',
+    alignSelf: 'flex-start',
+    marginTop: 20,
+    marginBottom: 8,
+    marginHorizontal: 20,
   },
   localUsernameStyle: {
     fontFamily: 'Source Sans Pro',
     fontWeight: '600',
     fontSize: 14,
     textAlign: 'left',
-    color: '#099DFD',
-    opacity: 0.7,
+    color: '#000000',
+    alignSelf: 'flex-end',
+    marginTop: 20,
+    marginBottom: 8,
+    marginHorizontal: 20,
   },
   timestampStyle: {
     fontFamily: 'Source Sans Pro',
     fontWeight: '400',
     fontSize: 12,
     textAlign: 'right',
-    color: '#003E66',
-    opacity: 0.5,
-  },
-  full: {
-    flex: 1,
+    color: 'rgba(0, 0, 0, 0.3)',
+    marginTop: 4,
+    marginBottom: 8,
   },
   chatBubbleRemoteView: {
-    backgroundColor: '#F4F4F4',
+    backgroundColor: '#F0F0F0',
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-start',
     flex: 1,
-    marginVertical: 5,
-    paddingVertical: 12,
-    paddingLeft: 12,
-    paddingRight: 12,
+    marginVertical: 2,
     marginHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 12,
   },
   chatBubbleLocalView: {
-    backgroundColor: '#E6F5FF',
+    backgroundColor: '#F0F0F0',
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-end',
     flex: 1,
-    marginVertical: 5,
-    paddingVertical: 12,
-    paddingLeft: 12,
-    paddingRight: 12,
+    marginVertical: 2,
     marginHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     borderTopLeftRadius: 12,
