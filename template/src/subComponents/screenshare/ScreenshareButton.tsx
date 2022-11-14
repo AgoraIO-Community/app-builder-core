@@ -44,19 +44,25 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const onPress = () =>
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
   let btnTemplateProps: BtnTemplateInterface = {
-    name: isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon',
+    name: isScreenshareActive ? 'screenshareStop' : 'screenshareStart',
     color: !isScreenshareActive ? $config.PRIMARY_COLOR : '#FF414D',
     onPress,
   };
 
   const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Start Share';
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    btnTemplateProps.btnText = screenShareButton;
-    btnTemplateProps.style = Styles.localButton as object;
-    btnTemplateProps.styleText = Styles.localButtonText as object;
-  }
+  // if (buttonTemplateName === ButtonTemplateName.topBar) {
+  //   btnTemplateProps.style = Styles.fullWidthButton as Object;
+  // } else {
+  btnTemplateProps.btnText = screenShareButton;
+  btnTemplateProps.style = Styles.localButton as object;
+  btnTemplateProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+    color: isScreenshareActive ? '#FF414D' : '#099DFD',
+  };
+  //}
 
   return props?.render ? (
     props.render(onPress, isScreenshareActive, buttonTemplateName)

@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import icons from '../assets/icons';
+import {Icons, ImageIcon} from '../../agora-rn-uikit';
 
 interface InfoBubbleProps {
   text: string;
@@ -62,16 +62,16 @@ const InfoBubble = (props: InfoBubbleProps) => {
               </Text>
             </View>
             <View style={styles.downsideTriangleIconContainer}>
-              <Image
+              <ImageIcon
                 style={styles.downsideTriangleIcon}
-                source={{uri: icons.downsideTriangle}}
+                name={'downsideTriangle'}
               />
             </View>
           </>
         ) : (
           <></>
         )}
-        <Image style={styles.iconStyle} source={{uri: icons.info}} />
+        <ImageIcon style={styles.iconStyle} name={'info'} />
       </div>
     </>
   );
@@ -81,10 +81,10 @@ export default InfoBubble;
 
 const styles = StyleSheet.create({
   iconStyle: {
-    width: 16,
-    height: 16,
-    marginTop: 5.5,
-    marginLeft: 5.5,
+    width: 20,
+    height: 20,
+    marginTop: 4,
+    marginLeft: 4,
   },
   downsideTriangleIconContainer: {
     position: 'absolute',
@@ -95,12 +95,16 @@ const styles = StyleSheet.create({
   downsideTriangleIcon: {
     width: 36,
     height: 36,
+    shadowColor: '#000000',
+    shadowOpacity: 0.1,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 2,
   },
   textContainer: {
     flex: 1,
     position: 'absolute',
     zIndex: 998,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F2F2F2',
     borderWidth: 1,
     borderColor: '#F2F2F2',
     shadowColor: '#000000',

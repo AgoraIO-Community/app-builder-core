@@ -9,7 +9,6 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-// @ts-nocheck
 import React, {useState, useContext} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {useHistory} from '../components/Router';
@@ -37,7 +36,6 @@ import LinkButton from '../atoms/LinkButton';
 import Toast from '../../react-native-toast-message';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import {icons} from 'customization-api';
 import DimensionContext from '../components/dimension/DimensionContext';
 
 const isLiveStream = $config.EVENT_MODE;
@@ -143,7 +141,7 @@ const Join = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            icon={icons.startMeeting}
+            iconName="videocamWhite"
             disabled={phrase === ''}
             onPress={() => startCall()}
             text={enterMeetingButton}
@@ -155,7 +153,10 @@ const Join = () => {
             onPress={() => createMeeting()}
           />
           {shouldAuthenticate ? (
-            <LogoutButton setError={setError} /> //setError not available in logout?
+            <LogoutButton
+              //@ts-ignore
+              setError={setError}
+            /> //setError not available in logout?
           ) : (
             <></>
           )}

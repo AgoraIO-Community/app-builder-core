@@ -31,7 +31,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       value: [],
     });
   let btnTemplateProps: BtnTemplateInterface = {
-    name: 'callEnd',
+    name: 'endCall',
     color: '#fff',
     onPress: onPress,
   };

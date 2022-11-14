@@ -11,7 +11,7 @@
 */
 import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, TextStyle} from 'react-native';
-import icons from '../assets/icons';
+import {Icons} from '../../agora-rn-uikit';
 import Settings, {
   SettingsWithViewWrapper,
   SettingsIconButtonProps,
@@ -121,7 +121,7 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: 'participantIcon',
+    name: 'participant',
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -148,7 +148,7 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         ]}>
         <BtnTemplate {...btnTemplateProps} />
       </View>
-      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
+      {/* {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
         <View
           style={{
             position: 'absolute',
@@ -159,12 +159,12 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           }}>
           <View style={[style.badge, {paddingHorizontal: 3}]}>
             <ImageIcon
-              icon={icons['exclamationIcon']}
+              icon={Icons['exclamationIcon']}
               color={$config.SECONDARY_FONT_COLOR}
             />
           </View>
         </View>
-      )}
+      )} */}
     </>
   );
 };
@@ -223,7 +223,9 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
   };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: totalUnreadCount !== 0 ? 'unreadChatIcon' : 'chatIcon',
+    //name: totalUnreadCount !== 0 ? 'unreadChatIcon' : 'chatIcon',
+    //todo hari
+    name: 'chat',
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {

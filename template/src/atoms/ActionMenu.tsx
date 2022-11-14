@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
-import icons from '../assets/icons';
-import {ImageIcon} from '../../agora-rn-uikit';
+
+import {ImageIcon, Icons} from '../../agora-rn-uikit';
 
 interface ActionMenuProps {
   actionMenuVisible: boolean;
@@ -51,7 +51,7 @@ const ActionMenu = (props: ActionMenuProps) => {
               <View style={styles.iconContainer}>
                 <ImageIcon
                   style={styles.icon}
-                  icon={icons[icon]}
+                  icon={Icons[icon]}
                   color={icon === 'cancel' ? '#FF414D' : '#1a1a1a'}
                 />
               </View>

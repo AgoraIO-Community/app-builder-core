@@ -21,7 +21,6 @@ import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
 import isMobileOrTablet from '../../utils/isMobileOrTablet';
 import {isWebInternal} from '../../utils/common';
-import {icons} from 'customization-api';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -86,7 +85,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
     props.render(onPress, title, disabled)
   ) : (
     <PrimaryButton
-      icon={icons.startMeeting}
+      iconName={'videocamWhite'}
       onPress={onPress}
       disabled={disabled}
       text={title}

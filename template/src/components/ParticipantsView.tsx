@@ -69,7 +69,7 @@ const ParticipantView = () => {
             <BtnTemplate
               style={style.closeIcon}
               color="#000"
-              name={'close'}
+              name={'closeRounded'}
               onPress={() => {
                 setSidePanel(SidePanelType.None);
               }}

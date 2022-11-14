@@ -34,7 +34,6 @@ import InfoBubble from '../atoms/InfoBubble';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import {icons} from 'customization-api';
 import DimensionContext from '../components/dimension/DimensionContext';
 
 const mobileOrTablet = isMobileOrTablet();
@@ -243,7 +242,7 @@ const Create = () => {
               </View>
               <View style={[style.btnContainer]}>
                 <PrimaryButton
-                  icon={icons.createMeeting}
+                  iconName={'videocamPlus'}
                   disabled={roomTitle === '' || loading}
                   containerStyle={!isDesktop && {width: '100%'}}
                   onPress={() =>

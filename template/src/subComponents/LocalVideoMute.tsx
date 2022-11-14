@@ -24,7 +24,6 @@ import {
 } from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
-import Icons from '../assets/icons';
 /**
  * A component to mute / unmute the local video
  */
@@ -58,29 +57,29 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     //name: isVideoEnabled ? 'videocam' : 'videocamOff',
-    icon: permissionDenied
-      ? Icons.noVideocam
+    name: permissionDenied
+      ? 'videocamNotAvailable'
       : isVideoEnabled
-      ? Icons.videocam
-      : Icons.videocamOff,
+      ? 'videocamOn'
+      : 'videocamOff',
+    disabled: permissionDenied ? true : false,
   };
-
+  btnTemplateProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+    color: permissionDenied
+      ? '#8F8F8F'
+      : isVideoEnabled
+      ? $config.PRIMARY_COLOR
+      : '#FF414D',
+  };
   if (buttonTemplateName === ButtonTemplateName.topBar) {
     btnTemplateProps.style = Styles.localButtonSmall as Object;
-    btnTemplateProps.color = permissionDenied
-      ? '#8F8F8F'
-      : isVideoEnabled
-      ? $config.PRIMARY_COLOR
-      : '#999999';
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = videoLabel;
-    btnTemplateProps.color = permissionDenied
-      ? '#8F8F8F'
-      : isVideoEnabled
-      ? $config.PRIMARY_COLOR
-      : '#FF414D';
   }
 
   return props?.render ? (
