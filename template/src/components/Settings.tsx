@@ -48,6 +48,10 @@ const Settings = (props: SettingsIconButtonProps) => {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: isPanelActive ? 'settingsActive' : 'settings',
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
     btnTemplateProps.btnText = settingsLabel;

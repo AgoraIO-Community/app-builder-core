@@ -52,19 +52,25 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
-    let btnTemplateProps = {
+    let btnTemplateProps: BtnTemplateInterface = {
       onPress: onPress,
-      style: {},
-      styleText: {},
-      btnText: '',
+      styleIcon: {
+        width: 24,
+        height: 24,
+      },
     };
-    if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: '400',
+      color: $config.PRIMARY_COLOR,
+    };
+    if (buttonTemplateName === ButtonTemplateName.topBar) {
+      btnTemplateProps.style = Styles.localButtonSmall as Object;
+    } else {
       btnTemplateProps.style = Styles.localButton as Object;
       btnTemplateProps.btnText = layoutLabel;
-      btnTemplateProps.styleText = Styles.localButtonText as Object;
-    } else {
-      btnTemplateProps.style = style.btnHolder;
-      delete btnTemplateProps['btnText'];
     }
     renderContent.push(
       props?.render ? (

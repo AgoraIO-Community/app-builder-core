@@ -61,6 +61,10 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: 'share',
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -68,7 +72,6 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.styleText = Styles.localButtonText as Object;
   } else {
-    btnTemplateProps.color = $config.PRIMARY_FONT_COLOR;
     btnTemplateProps.style = style.shareIcon;
     btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
   }
