@@ -287,14 +287,6 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  nav: {
-    flex: 1,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
   heading: {
     fontSize: 32,
     fontWeight: '700',
@@ -308,67 +300,6 @@ const style = StyleSheet.create({
     textAlign: 'center',
     color: $config.PRIMARY_FONT_COLOR,
     marginBottom: 40,
-  },
-  inputs: {
-    flex: 1,
-    // marginVertical: '2%',
-    width: '100%',
-    alignSelf: 'flex-start',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  // textInput: textInput,
-  checkboxHolder: {
-    marginVertical: 0,
-    flexDirection: 'row',
-    marginTop: 0,
-    marginBottom: 2,
-    // flex: .2,
-    // height: 10,
-    // justifyContent: 'center',
-    // alignContent: 'center',
-    justifyContent: 'flex-start',
-    // alignItems: 'flex-start',
-  },
-  checkboxTitle: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    paddingHorizontal: 5,
-    alignSelf: 'center',
-    // marginVertical: 'auto',
-    // fontWeight: '700',
-  },
-  checkboxCaption: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    paddingHorizontal: 5,
-  },
-  checkboxTextHolder: {
-    marginVertical: 0, //check if 5
-    flexDirection: 'column',
-  },
-  // urlTitle: {
-  //   color: '#fff',
-  //   fontSize: 14,
-  // },
-  urlHolder: {
-    width: '100%',
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    justifyContent: 'center',
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  // url: {
-  //   color: '#fff',
-  //   fontSize: 18,
-  //   fontWeight: '700',
-  //   textDecorationLine: 'underline',
-  // },
-  pstnHolder: {
-    flexDirection: 'row',
-    width: '80%',
-  },
-  pstnMargin: {
-    marginRight: '10%',
   },
   btnContainer: {
     width: '100%',
