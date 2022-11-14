@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, StyleSheet, useWindowDimensions} from 'react-native';
+import {View, StyleSheet, useWindowDimensions, Text} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import Navbar from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
@@ -19,6 +19,7 @@ import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
 import {useRtc} from 'customization-api';
+import VideoCallMobileScreen from './VideoCallMobileScreen';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -149,11 +150,15 @@ const VideoCallScreen = () => {
   }, []);
 
   const {height, width} = useWindowDimensions();
-  const isDesktop = width > 1224;
+  const isDesktop = width < height + 150 ? false : true;
 
   return VideocallComponent ? (
     <VideocallComponent />
+  ) : !isDesktop ? (
+    // Mobile View
+    <VideoCallMobileScreen title={meetingTitle} />
   ) : (
+    // Desktop View
     <>
       <VideocallBeforeView />
       <View style={style.full}>
@@ -167,6 +172,7 @@ const VideoCallScreen = () => {
             {backgroundColor: '#ffffff00'},
             {paddingHorizontal: isDesktop ? 20 : 10},
           ]}>
+          {/* ffffff00 */}
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />

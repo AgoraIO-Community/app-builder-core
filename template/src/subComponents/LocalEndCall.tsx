@@ -46,7 +46,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     props.render(onPress, buttonTemplateName)
   ) : (
     <TouchableOpacity
-      style={Styles.endCallContainer as object}
+      style={!isTopBarTemplate && (Styles.endCallContainer as object)}
       onPress={onPress}>
       <View style={{width: 20, height: 20}}>
         <BtnTemplate {...btnTemplateProps} />

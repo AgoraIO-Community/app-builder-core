@@ -71,7 +71,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.localButtonSmall as Object;
+    btnTemplateProps.style = Styles.actionSheetButton as Object;
     btnTemplateProps.color = permissionDenied
       ? '#8F8F8F'
       : isVideoEnabled

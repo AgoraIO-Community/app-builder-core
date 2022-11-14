@@ -40,6 +40,11 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  actionSheetButton: {
+    width: 25,
+    height: 25,
+    backgroundColor: 'blue', //TODO: update
+  },
   localButtonSmall: {
     width: 16,
     height: 16,
