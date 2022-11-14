@@ -224,9 +224,9 @@ const Create = () => {
                       ]}>
                       <View style={style.infoContainer}>
                         <Text style={style.toggleLabel}>
-                          Can join by dialing a number
+                          Allow joining via a phone number
                         </Text>
-                        <InfoBubble text="Users can join via PSTN" />
+                        <InfoBubble text="Attendees can dial a number and join via PSTN" />
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle
