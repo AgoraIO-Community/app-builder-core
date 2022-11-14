@@ -15,7 +15,6 @@ import {
   InMemoryCache,
   ApolloProvider,
   NormalizedCacheObject,
-  s,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
