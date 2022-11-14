@@ -4,10 +4,11 @@ import StorageContext from '../components/StorageContext';
 import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import {GraphQLContext} from '../components/GraphQLProvider';
+import useGetName from './useGetName';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
+  query JoinChannel($passphrase: String!, $userName: String!) {
+    joinChannel(passphrase: $passphrase, userName: $userName) {
       channel
       title
       isHost
@@ -31,8 +32,8 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
 `;
 
 const JOIN_CHANNEL_PHRASE = gql`
-  query JoinChannel($passphrase: String!) {
-    joinChannel(passphrase: $passphrase) {
+  query JoinChannel($passphrase: String!, $userName: String!) {
+    joinChannel(passphrase: $passphrase, userName: $userName) {
       channel
       title
       isHost
@@ -57,6 +58,8 @@ export default function useJoinMeeting() {
   const {store} = useContext(StorageContext);
   const {setMeetingInfo} = useSetMeetingInfo();
   const {client} = useContext(GraphQLContext);
+  const username = useGetName();
+
   return async (phrase: string) => {
     setMeetingInfo((prevState) => {
       return {
@@ -72,6 +75,7 @@ export default function useJoinMeeting() {
             : JOIN_CHANNEL_PHRASE_AND_GET_USER,
         variables: {
           passphrase: phrase,
+          userName: username,
         },
       });
       if (response.error) {
