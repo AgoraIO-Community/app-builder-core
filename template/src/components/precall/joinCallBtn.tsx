@@ -86,7 +86,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
     props.render(onPress, title, disabled)
   ) : (
     <PrimaryButton
-      icon={icons.createMeeting}
+      icon={icons.startMeeting}
       onPress={onPress}
       disabled={disabled}
       text={title}
