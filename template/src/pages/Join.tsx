@@ -52,7 +52,7 @@ const Join = () => {
   const meetingIdInputPlaceholder = isLiveStream
     ? 'Enter Stream ID'
     : 'Enter Meeting ID';
-  const enterMeetingButton = isLiveStream ? 'Enter Stream' : 'Enter Meeting';
+  const enterMeetingButton = isLiveStream ? 'Join Stream' : 'Join Meeting';
   const createMeetingButton = isLiveStream
     ? 'Create a Stream'
     : 'Create a meeting';
@@ -143,7 +143,7 @@ const Join = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            icon={icons.createMeeting}
+            icon={icons.startMeeting}
             disabled={phrase === ''}
             onPress={() => startCall()}
             text={enterMeetingButton}

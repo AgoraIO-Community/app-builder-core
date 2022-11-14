@@ -269,7 +269,7 @@ const Share = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            icon={icons.createMeeting}
+            icon={icons.startMeeting}
             onPress={() => enterMeeting()}
             containerStyle={!isDesktop && {width: '100%'}}
             text={enterMeetingAfterCreateButton}
