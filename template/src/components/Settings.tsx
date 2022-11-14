@@ -47,16 +47,21 @@ const Settings = (props: SettingsIconButtonProps) => {
   };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: 'settings',
+    name: isPanelActive ? 'settingsActive' : 'settings',
   };
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
     btnTemplateProps.btnText = settingsLabel;
     btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
   } else {
     btnTemplateProps.style = [Styles.localButton as Object];
-    btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
     btnTemplateProps.btnText = settingsLabel;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: isPanelActive ? '700' : '400',
+      color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    };
   }
   return props?.render ? (
     props.render(onPress, isPanelActive, buttonTemplateName)

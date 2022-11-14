@@ -52,7 +52,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
       ]}
       onPress={onPress}>
       <ImageIcon
-        style={{width: 24, height: 24}}
+        style={style.chatInputButtonIcon}
         name={inputActive ? 'sendActive' : 'send'}
       />
     </TouchableOpacity>
@@ -219,10 +219,10 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 12,
   },
   chatInputButtonIcon: {
-    // marginVertical: 20,
-    // marginRight: 19,
-    // width: 18,
-    // height: 16,
+    marginVertical: 20,
+    marginRight: 19,
+    width: 24,
+    height: 24,
   },
 });
 export default ChatInput;

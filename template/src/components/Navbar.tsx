@@ -121,7 +121,7 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   };
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
-    name: 'participant',
+    name: isPanelActive ? 'participantActive' : 'participant',
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -130,8 +130,14 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = participantsLabel;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
-    btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: isPanelActive ? '700' : '400',
+      color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    };
+    //btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
   }
   return props?.render ? (
     props.render(onPress, isPanelActive, buttonTemplateName)
@@ -225,7 +231,7 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     //name: totalUnreadCount !== 0 ? 'unreadChatIcon' : 'chatIcon',
     //todo hari
-    name: 'chat',
+    name: isPanelActive ? 'chatActive' : 'chat',
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -234,8 +240,13 @@ const ChatIconButton = (props: ChatIconButtonProps) => {
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = chatLabel;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
-    btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: isPanelActive ? '700' : '400',
+      color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    };
   }
   const renderBadge = (badgeCount: any) => {
     return (
