@@ -15,12 +15,14 @@ import {
   InMemoryCache,
   ApolloProvider,
   NormalizedCacheObject,
+  s,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
 import React, {createContext, useContext, useRef} from 'react';
 import StorageContext from './StorageContext';
 import AsyncStorage from '@react-native-community/async-storage';
+// import {onError} from '@apollo/client/link/error';
 
 export const GraphQLContext = createContext<{
   client: ApolloClient<NormalizedCacheObject>;
@@ -29,6 +31,7 @@ export const GraphQLContext = createContext<{
 const GraphQLProvider = (props: {children: React.ReactNode}) => {
   const httpLink = createHttpLink({
     uri: `${$config.BACKEND_ENDPOINT}/query`,
+    credentials: 'include',
   });
   const {store} = useContext(StorageContext);
   const authLink = setContext(async (_, {headers}) => {
@@ -52,9 +55,36 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
     }
   });
 
+  // const errorLink = onError(
+  //   ({graphQLErrors, networkError, operation, forward}) => {
+  //     console.log('supriya graphQLErrors: ', graphQLErrors);
+  //     // To retry on network errors, we recommend the RetryLink
+  //     // instead of the onError link. This just logs the error.
+  //     if (networkError) {
+  //       console.log(`supriya [Network error]: ${networkError}`);
+  //       // switch (err.extensions.code) {
+  //       //   // Apollo Server sets code to UNAUTHENTICATED
+  //       //   // when an AuthenticationError is thrown in a resolver
+  //       //   case 'UNAUTHENTICATED':
+  //       //     // Modify the operation context with a new token
+  //       //     const oldHeaders = operation.getContext().headers;
+  //       //     operation.setContext({
+  //       //       headers: {
+  //       //         ...oldHeaders,
+  //       //         authorization: getNewToken(),
+  //       //       },
+  //       //     });
+  //       //     // Retry the request, returning the new observable
+  //       //     return forward(operation);
+  //       // }
+  //     }
+  //   },
+  // );
+
   const client = useRef(
     new ApolloClient({
       link: authLink.concat(httpLink),
+      // link: from([authLink, errorLink, httpLink]),
       cache: new InMemoryCache(),
     }),
   );
