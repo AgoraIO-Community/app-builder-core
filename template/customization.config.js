@@ -26,4 +26,4 @@ const getCustomizationApiPath = () => {
   }
   return customizationDummyPath;
 };
-module.exports = getCustomizationApiPath;
+module.exports = {getCustomizationApiPath, customizationDummyPath};

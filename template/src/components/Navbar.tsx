@@ -30,7 +30,12 @@ import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
-import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isValidReactComponent,
+  isWebInternal,
+} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
@@ -489,7 +494,8 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_COLOR,
     borderRadius: 2.5,
     paddingHorizontal: 5,
-    marginHorizontal: 5,
+    marginLeft: 5,
+    marginRight: 0,
     paddingVertical: 1,
     display: 'flex',
     alignItems: 'center',
