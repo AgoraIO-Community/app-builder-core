@@ -38,16 +38,13 @@ const Popup = (props: PopupProps) => {
         <View style={styles.modalView}>
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
-            <View style={styles.closeIcon}>
-              <BtnTemplate
-                style={styles.closeIcon}
-                color="#000"
-                name={'closeRounded'}
-                onPress={() => {
-                  setModalVisible(false);
-                }}
-              />
-            </View>
+            <BtnTemplate
+              style={styles.closeIcon}
+              name={'closeRounded'}
+              onPress={() => {
+                setModalVisible(false);
+              }}
+            />
           </View>
           <View>{children}</View>
         </View>
@@ -102,7 +99,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   closeIcon: {
-    width: 14,
-    height: 14,
+    width: 24,
+    height: 24,
   },
 });
