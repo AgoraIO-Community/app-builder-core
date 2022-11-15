@@ -196,7 +196,7 @@ interface ChatIconButtonProps {
   ) => JSX.Element;
 }
 
-const ChatIconButton = (props: ChatIconButtonProps) => {
+export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {
     badgeContainerPosition = {

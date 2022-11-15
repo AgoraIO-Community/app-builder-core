@@ -52,19 +52,19 @@ const Recording = (props: RecordingButtonProps) => {
     },
   };
 
-  // if (buttonTemplateName === ButtonTemplateName.topBar) {
-  //   btnTemplateProps.style = Styles.fullWidthButton as Object;
-  // } else {
-  btnTemplateProps.btnText = recordingButton(isRecordingActive);
-  btnTemplateProps.style = Styles.localButton as Object;
-  btnTemplateProps.styleText = {
-    fontFamily: 'Source Sans Pro',
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: isRecordingActive ? '#FF414D' : '#099DFD',
-  };
-  //}
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
+    btnTemplateProps.style = Styles.actionSheetButton as Object;
+  } else {
+    btnTemplateProps.btnText = recordingButton(isRecordingActive);
+    btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.styleText = {
+      fontFamily: 'Source Sans Pro',
+      fontSize: 12,
+      marginTop: 4,
+      fontWeight: '400',
+      color: isRecordingActive ? '#FF414D' : '#099DFD',
+    };
+  }
 
   return props?.render ? (
     props.render(onPress, isRecordingActive, buttonTemplateName)

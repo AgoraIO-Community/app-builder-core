@@ -37,7 +37,6 @@ const styles = {
   actionSheetButton: {
     width: 25,
     height: 25,
-    backgroundColor: 'blue', //TODO: update
   },
   localButtonSmall: {
     display: 'flex',

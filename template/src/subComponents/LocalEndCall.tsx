@@ -41,13 +41,19 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       style={!isTopBarTemplate && (Styles.endCallContainer as object)}
       onPress={onPress}>
       <ImageIcon
-        style={{
-          width: 20,
-          height: 20,
-        }}
+        style={
+          isTopBarTemplate
+            ? Styles.actionSheetButton
+            : {
+                width: 20,
+                height: 20,
+              }
+        }
         name={'endCall'}
       />
-      <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
+      {!isTopBarTemplate && (
+        <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
+      )}
     </TouchableOpacity>
   );
 };

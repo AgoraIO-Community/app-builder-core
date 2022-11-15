@@ -48,7 +48,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   };
 
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
+    btnTemplateProps.style = Styles.actionSheetButton as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = switchCameraButtonText;

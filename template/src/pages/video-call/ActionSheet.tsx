@@ -1,6 +1,6 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import BottomDrawer from '../../atoms/BottomDrawer'; //TODO: need to add web alternative
+//TODO: need to add web alternative
 
 const ActionSheet = () => {
   return (

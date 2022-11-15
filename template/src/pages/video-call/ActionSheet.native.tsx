@@ -4,7 +4,7 @@ import BottomSheet, {
   BottomSheetProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import BottomDrawer from '../../atoms/BottomDrawer';
+
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
@@ -15,6 +15,11 @@ import LocalEndcall, {
   LocalEndcallProps,
 } from '../../subComponents/LocalEndCall';
 import {ButtonTemplateName} from '../../utils/useButtonTemplate';
+import Styles from '../../components/styles';
+import {ImageIcon} from 'agora-rn-uikit';
+import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
+import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
+import Recording from '../../subComponents/Recording';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -39,14 +44,10 @@ const ActionSheet = () => {
       <BottomSheetView>
         <View style={[styles.row, {borderBottomWidth: 1}]}>
           <View style={styles.iconContainer}>
-            <View style={{width: 25, height: 25}}>
-              <LocalVideoMute buttonTemplateName={ButtonTemplateName.topBar} />
-            </View>
+            <LocalVideoMute buttonTemplateName={ButtonTemplateName.topBar} />
           </View>
           <View style={[styles.iconContainer]}>
-            <View style={{width: 25, height: 25}}>
-              <LocalAudioMute buttonTemplateName={ButtonTemplateName.topBar} />
-            </View>
+            <LocalAudioMute buttonTemplateName={ButtonTemplateName.topBar} />
           </View>
           <View style={[styles.iconContainer, {backgroundColor: '#FF414D'}]}>
             <LocalEndcall buttonTemplateName={ButtonTemplateName.topBar} />
@@ -54,27 +55,44 @@ const ActionSheet = () => {
           <View style={styles.iconContainer}>
             <TouchableOpacity
               onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}>
-              <Text>{isExpanded ? 'Less' : 'More'}</Text>
+              <ImageIcon
+                name={isExpanded ? 'downArrow' : 'more'}
+                style={Styles.actionSheetButton}
+              />
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.row}>
           {/* chat */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <ImageIcon name={'chat'} style={Styles.actionSheetButton} />
+          </View>
           {/* participants */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <ImageIcon name={'participant'} style={Styles.actionSheetButton} />
+          </View>
           {/* record */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <Recording buttonTemplateName={ButtonTemplateName.topBar} />
+          </View>
           {/* switch camera */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <LocalSwitchCamera buttonTemplateName={ButtonTemplateName.topBar} />
+          </View>
         </View>
         <View style={styles.row}>
           {/* List view */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <ImageIcon name={'listView'} style={Styles.actionSheetButton} />
+          </View>
           {/* settings */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <ImageIcon name={'settings'} style={Styles.actionSheetButton} />
+          </View>
           {/* invite */}
-          <View style={styles.iconContainer}></View>
+          <View style={styles.iconContainer}>
+            <CopyJoinInfo />
+          </View>
 
           <View style={styles.emptyContainer}></View>
         </View>
@@ -95,7 +113,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   iconContainer: {
-    backgroundColor: '#F0F4F6',
+    backgroundColor: '#F0F4F6', //TODO : adjust color as theme
     width: 50,
     height: 50,
     borderRadius: 25,
