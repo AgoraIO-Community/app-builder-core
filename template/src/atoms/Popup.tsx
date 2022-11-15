@@ -5,6 +5,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   ModalProps,
+  ViewStyle,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import {BtnTemplate} from '../../agora-rn-uikit';
@@ -15,9 +16,17 @@ interface PopupProps extends ModalProps {
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
   showCloseIcon?: boolean;
   children: React.ReactNode;
+  contentContainerStyle?: ViewStyle;
 }
 const Popup = (props: PopupProps) => {
-  const {title, modalVisible, setModalVisible, children, ...otherProps} = props;
+  const {
+    title,
+    modalVisible,
+    setModalVisible,
+    children,
+    showCloseIcon,
+    ...otherProps
+  } = props;
   return (
     <Modal
       animationType="fade"
@@ -35,21 +44,26 @@ const Popup = (props: PopupProps) => {
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>
 
-        <View style={styles.modalView}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{title}</Text>
-            <View style={styles.closeIcon}>
-              <BtnTemplate
-                style={styles.closeIcon}
-                color="#000"
-                name={'closeRounded'}
-                onPress={() => {
-                  setModalVisible(false);
-                }}
-              />
+        <View style={[styles.modalView, props?.contentContainerStyle]}>
+          {title || showCloseIcon ? (
+            <View style={styles.header}>
+              <Text style={styles.title}>{title}</Text>
+              {showCloseIcon ? (
+                <BtnTemplate
+                  style={styles.closeIcon}
+                  name={'closeRounded'}
+                  onPress={() => {
+                    setModalVisible(false);
+                  }}
+                />
+              ) : (
+                <></>
+              )}
             </View>
-          </View>
-          <View>{children}</View>
+          ) : (
+            <></>
+          )}
+          {children}
         </View>
       </View>
     </Modal>
@@ -102,7 +116,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   closeIcon: {
-    width: 14,
-    height: 14,
+    width: 24,
+    height: 24,
   },
 });

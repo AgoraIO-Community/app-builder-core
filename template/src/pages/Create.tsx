@@ -35,6 +35,7 @@ import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
+import StorageContext from '../components/StorageContext';
 
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;
@@ -58,7 +59,7 @@ const Create = () => {
   });
 
   const useJoin = useJoinMeeting();
-
+  const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [loading, setLoading] = useState(false);
@@ -99,6 +100,13 @@ const Create = () => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
   useEffect(() => {
+    setStore((prevState) => {
+      return {
+        ...prevState,
+        lastMeetingPhrase: '',
+      };
+    });
+
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
