@@ -67,7 +67,7 @@ const InviteInfo = () => {
               <BtnTemplate
                 style={style.copyIcon}
                 color={$config.PRIMARY_COLOR}
-                name={'copy'}
+                name={'clipboard'}
                 onPress={() =>
                   copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE)
                 }
@@ -106,7 +106,7 @@ const InviteInfo = () => {
             <BtnTemplate
               style={style.copyIcon}
               color={$config.PRIMARY_COLOR}
-              name={'copy'}
+              name={'clipboard'}
               onPress={() =>
                 copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
               }

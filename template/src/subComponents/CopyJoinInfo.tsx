@@ -28,7 +28,6 @@ import Popup from '../atoms/Popup';
 import InviteInfo from '../atoms/InviteInfo';
 import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {icons} from 'customization-api';
 import TertiaryButton from '../atoms/TertiaryButton';
 
 export interface CopyJoinInfoProps {
@@ -62,6 +61,10 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: 'share',
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
 
   if (buttonTemplateName === ButtonTemplateName.bottomBar) {
@@ -69,7 +72,6 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.styleText = Styles.localButtonText as Object;
   } else {
-    btnTemplateProps.color = $config.PRIMARY_FONT_COLOR;
     btnTemplateProps.style = style.shareIcon;
     btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
   }
@@ -87,7 +89,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
         <Spacer size={40} />
         <View style={style.btnContainer}>
           <PrimaryButton
-            icon={icons.copy}
+            iconName="clipboard"
             onPress={() =>
               copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
             }

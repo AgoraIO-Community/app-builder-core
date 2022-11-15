@@ -12,7 +12,7 @@
 import React, {createContext, useState} from 'react';
 import {UidType, useLocalUid} from '../../agora-rn-uikit';
 import useMount from './useMount';
-import icons from '../assets/icons';
+import {Icons} from '../../agora-rn-uikit';
 import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
 import {useRtc} from 'customization-api';
 
@@ -36,47 +36,47 @@ export const networkIconsObject: {
   };
 } = {
   0: {
-    icon: icons.networkIcons['Unsupported'],
+    icon: Icons.networkIcons['Unsupported'],
     tint: '#848484',
     text: 'unknown',
   },
   1: {
-    icon: icons.networkIcons['Excellent'],
+    icon: Icons.networkIcons['Excellent'],
     tint: '#29C157',
     text: 'excellent',
   },
   2: {
-    icon: icons.networkIcons['Good'],
+    icon: Icons.networkIcons['Good'],
     tint: '#FFEE00',
     text: 'good',
   },
   3: {
-    icon: icons.networkIcons['Bad'],
+    icon: Icons.networkIcons['Bad'],
     tint: '#F8AA00',
     text: 'bad',
   },
   4: {
-    icon: icons.networkIcons['Bad'],
+    icon: Icons.networkIcons['Bad'],
     tint: '#F8AA00',
     text: 'bad',
   },
   5: {
-    icon: icons.networkIcons['VeryBad'],
+    icon: Icons.networkIcons['VeryBad'],
     tint: 'red',
     text: 'veryBad',
   },
   6: {
-    icon: icons.networkIcons['VeryBad'],
+    icon: Icons.networkIcons['VeryBad'],
     tint: 'red',
     text: 'veryBad',
   },
   7: {
-    icon: icons.networkIcons['Unsupported'],
+    icon: Icons.networkIcons['Unsupported'],
     tint: '#848484',
     text: 'unpublished',
   },
   8: {
-    icon: icons.networkIcons['Loading'],
+    icon: Icons.networkIcons['Loading'],
     tint: '#848484',
     text: 'loading',
   },

@@ -42,7 +42,7 @@ const Popup = (props: PopupProps) => {
               <BtnTemplate
                 style={styles.closeIcon}
                 color="#000"
-                name={'close'}
+                name={'closeRounded'}
                 onPress={() => {
                   setModalVisible(false);
                 }}

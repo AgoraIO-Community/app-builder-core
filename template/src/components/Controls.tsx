@@ -76,7 +76,7 @@ const Controls = () => {
            * */}
           <LayoutIconButton modalPosition={{bottom: 80, left: 60}} />
         </View>
-        <View testID="invite-btn">
+        <View testID="invite-btn" style={{marginVertical: 16}}>
           <CopyJoinInfo />
         </View>
       </View>
@@ -100,40 +100,40 @@ const Controls = () => {
             )}
             <View
               testID="localAudio-btn"
-              style={{marginRight: isDesktop ? 40 : 10}}>
+              style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
               <LocalAudioMute />
             </View>
             {!$config.AUDIO_ROOM && (
               <View
                 testID="localVideo-btn"
-                style={{marginRight: isDesktop ? 40 : 10}}>
+                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
                 <LocalVideoMute />
               </View>
             )}
             {!$config.AUDIO_ROOM && isMobileOrTablet() && (
               <View
                 testID="switchCamera-btn"
-                style={{marginRight: isDesktop ? 40 : 10}}>
+                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
                 <LocalSwitchCamera />
               </View>
             )}
             {$config.SCREEN_SHARING && !isMobileOrTablet() && (
               <View
                 testID="screenShare-btn"
-                style={{marginRight: isDesktop ? 40 : 10}}>
+                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
                 <ScreenshareButton />
               </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View
                 testID="recording-btn"
-                style={{marginRight: isDesktop ? 40 : 10}}>
+                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
                 <Recording />
               </View>
             )}
           </>
         )}
-        <View testID="endCall-btn">
+        <View testID="endCall-btn" style={{marginVertical: 16}}>
           <LocalEndcall />
         </View>
       </View>

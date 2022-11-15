@@ -10,12 +10,10 @@
 *********************************************
 */
 
-import {PropsContext, UidType} from '../../agora-rn-uikit';
+import {ImageIcon, PropsContext, UidType} from '../../agora-rn-uikit';
 import React, {useContext} from 'react';
 import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import {useString} from '../utils/useString';
-//@ts-ignore
-import closeIcon from '../assets/icons/close-ss.svg';
 import {useScreenshare} from './screenshare/useScreenshare';
 /**
  *
@@ -41,7 +39,7 @@ function ScreenShareNotice({uid}: {uid: UidType}) {
         style={styles.btnContainer}
         onPress={() => stopUserScreenShare()}>
         <View style={styles.iconContainer}>
-          <Image source={{uri: closeIcon}} style={styles.icon} />
+          <ImageIcon name={'closeRounded'} style={styles.iconStyle} />
         </View>
         <View style={styles.btnTextContainer}>
           <Text style={styles.btnText}>Stop Sharing</Text>
@@ -57,10 +55,9 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 12,
   },
-  icon: {
-    tintColor: '#FFFFFF',
-    width: 20,
-    height: 16,
+  iconStyle: {
+    width: 24,
+    height: 24,
   },
   btnContainer: {
     alignSelf: 'center',

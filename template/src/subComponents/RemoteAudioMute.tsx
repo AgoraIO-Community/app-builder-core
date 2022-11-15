@@ -49,7 +49,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
       }}
       style={[Styles.localButtonSmall as Object]}
       color={props.audio ? $config.PRIMARY_COLOR : '#999999'}
-      name={props.audio ? 'mic' : 'micOff'}
+      name={props.audio ? 'micOn' : 'micOff'}
     />
   );
 };

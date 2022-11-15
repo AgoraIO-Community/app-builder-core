@@ -3,7 +3,11 @@ import {
   ButtonTemplateName,
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
-import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
+import {
+  BtnTemplate,
+  BtnTemplateInterface,
+  ImageIcon,
+} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {View, Text, TouchableOpacity} from 'react-native';
@@ -30,30 +34,20 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       type: 'EndCall',
       value: [],
     });
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: 'callEnd',
-    color: '#fff',
-    onPress: onPress,
-  };
-
-  if (isTopBarTemplate) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    // btnTemplateProps.btnText = endCallLabel;
-    btnTemplateProps.style = Styles.endCall as Object;
-  }
   return props?.render ? (
     props.render(onPress, buttonTemplateName)
   ) : (
     <TouchableOpacity
       style={!isTopBarTemplate && (Styles.endCallContainer as object)}
       onPress={onPress}>
-      <View style={{width: 20, height: 20}}>
-        <BtnTemplate {...btnTemplateProps} />
-      </View>
-      {!isTopBarTemplate && (
-        <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
-      )}
+      <ImageIcon
+        style={{
+          width: 20,
+          height: 20,
+        }}
+        name={'endCall'}
+      />
+      <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
     </TouchableOpacity>
   );
 };

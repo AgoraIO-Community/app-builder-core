@@ -8,9 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-//@ts-ignore
-//import InfoIcon from '../assets/icons/info.svg';
-import icons from '../assets/icons';
+import {Icons, ImageIcon} from '../../agora-rn-uikit';
 
 interface InfoBubbleProps {
   text: string;
@@ -18,77 +16,63 @@ interface InfoBubbleProps {
 
 const InfoBubble = (props: InfoBubbleProps) => {
   const [toolTipVisible, setToolTipVisible] = useState(false);
-  const [position, setPosition] = useState({});
-  const [isPosCalculated, setIsPosCalculated] = useState(false);
-  const pressableRef = useRef(null);
-  const textViewRef = useRef(null);
+  const [left, setLeft] = useState(0);
 
-  const setModalPosition = (width: number) => {
-    setTimeout(() => {
-      pressableRef?.current?.measure(
-        (
-          _fx: number,
-          _fy: number,
-          _localWidth: number,
-          _localHeight: number,
-          px: number,
-          py: number,
-        ) => {
-          setPosition({
-            top: py - 50,
-            left: px - (width ? width / 2 : 0),
-          });
-          setIsPosCalculated(true);
-        },
-      );
-    });
-  };
-
-  const showModal = () => {
-    setToolTipVisible(!toolTipVisible);
-    setIsPosCalculated(false);
-  };
+  const tooltipRef = useRef(null);
+  const iconRef = useRef(null);
 
   return (
     <>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={toolTipVisible}
-        onRequestClose={() => {
-          setToolTipVisible(!toolTipVisible);
-        }}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setToolTipVisible(!toolTipVisible);
-          }}>
-          <View style={styles.backDrop} />
-        </TouchableWithoutFeedback>
-        <View
-          style={[
-            styles.textContainer,
-            position,
-            {opacity: isPosCalculated ? 1 : 0},
-          ]}
-          onLayout={({
-            nativeEvent: {
-              layout: {x, y, width, height},
-            },
-          }) => {
-            setModalPosition(width);
-          }}
-          ref={textViewRef}>
-          <Text style={styles.textStyle}>{props.text}</Text>
-        </View>
-      </Modal>
-      <Pressable
-        style={styles.container}
-        ref={pressableRef}
-        onPress={() => {
-          showModal();
-        }}>
-        <Image style={styles.iconStyle} source={{uri: icons.info}} />
-      </Pressable>
+      <div
+        style={{
+          position: 'relative',
+          marginTop: -3,
+          marginLeft: -3,
+          background: toolTipVisible ? 'rgba(85, 85, 85, 0.1)' : 'transparent',
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+        }}
+        onMouseEnter={() => {
+          setToolTipVisible(true);
+        }}
+        onMouseLeave={() => {
+          setToolTipVisible(false);
+        }}
+        ref={iconRef}>
+        {toolTipVisible ? (
+          <>
+            <View
+              style={[
+                styles.textContainer,
+                {left: left + 5},
+                {opacity: !left ? 0 : 1},
+              ]}
+              onLayout={({
+                nativeEvent: {
+                  layout: {x, y, width, height},
+                },
+              }) => {
+                //To center align the tooltip above the icons
+                if (!left) setLeft(-(width / 2));
+              }}
+              ref={tooltipRef}>
+              <Text style={styles.textStyle} numberOfLines={1}>
+                {props.text}
+              </Text>
+            </View>
+            <View style={styles.downsideTriangleIconContainer}>
+              <ImageIcon
+                style={styles.downsideTriangleIcon}
+                name={'downsideTriangle'}
+              />
+            </View>
+          </>
+        ) : (
+          <></>
+        )}
+        <ImageIcon style={styles.iconStyle} name={'info'} />
+      </div>
     </>
   );
 };
@@ -97,37 +81,30 @@ export default InfoBubble;
 
 const styles = StyleSheet.create({
   iconStyle: {
-    width: 16,
-    height: 16,
+    width: 20,
+    height: 20,
+    marginTop: 4,
+    marginLeft: 4,
   },
-  infoText: {
-    fontSize: 12,
+  downsideTriangleIconContainer: {
     position: 'absolute',
-    top: -45,
-    left: -20,
-    borderWidth: 1,
-    padding: 5,
-    backgroundColor: '#ffffff',
-    borderColor: '#f2f2f2',
-    borderRadius: 12,
-    minWidth: 100,
+    top: -40,
+    left: -10,
+    zIndex: 999,
   },
-  container: {
-    position: 'relative',
-    alignSelf: 'center',
-  },
-  backDrop: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
+  downsideTriangleIcon: {
+    width: 36,
+    height: 36,
+    shadowColor: '#000000',
+    shadowOpacity: 0.1,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 2,
   },
   textContainer: {
+    flex: 1,
     position: 'absolute',
-    zIndex: 999,
-    backgroundColor: '#FFFFFF',
+    zIndex: 998,
+    backgroundColor: '#F2F2F2',
     borderWidth: 1,
     borderColor: '#F2F2F2',
     shadowColor: '#000000',
@@ -135,14 +112,15 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowRadius: 4,
     borderRadius: 12,
+    top: -100,
   },
   textStyle: {
     fontFamily: 'Source Sans Pro',
     fontWeight: '400',
-    fontSize: 12,
-    lineHeight: 15,
+    fontSize: 16,
+    lineHeight: 24,
     textAlign: 'center',
     color: '#333333',
-    padding: 12,
+    padding: 24,
   },
 });

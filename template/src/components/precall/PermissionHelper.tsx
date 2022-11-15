@@ -8,7 +8,7 @@ import {
   Text,
 } from 'react-native';
 //@ts-ignore
-import permissionHelperSvg from '../../assets/permission-helper.svg';
+import permissionHelper from '../../assets/permission.png';
 import StorageContext from '../StorageContext';
 
 interface PermissionHelperProps {
@@ -47,7 +47,7 @@ const PermissionHelper = (props: PermissionHelperProps) => {
               <Image
                 style={styles.modalImage}
                 resizeMode={'contain'}
-                source={{uri: permissionHelperSvg}}
+                source={{uri: permissionHelper}}
               />
             </View>
             <View style={styles.modalContent}>

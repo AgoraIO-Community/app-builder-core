@@ -13,8 +13,6 @@
 import React from 'react';
 import {StyleSheet, Image} from 'react-native';
 import {useHasBrandLogo} from '../../utils/common';
-//@ts-ignore
-import logoFile from '../../assets/agora-logo-blue.svg';
 const Logo: React.FC = () => {
   const hasBrandLogo = useHasBrandLogo();
   const hasLogo = hasBrandLogo();

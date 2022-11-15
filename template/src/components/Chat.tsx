@@ -158,7 +158,18 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         <View style={style.header}>
-          <Text style={style.mainHeading}>{chatLabel}</Text>
+          <View
+            style={{
+              opacity: privateActive ? 1 : 0,
+            }}>
+            <BtnTemplate
+              styleIcon={style.closeIcon}
+              name={'backBtn'}
+              onPress={() => {
+                setPrivateActive(false);
+              }}
+            />
+          </View>
           <View style={style.buttonHolder}>
             <TouchableOpacity
               onPress={selectGroup}
@@ -187,11 +198,10 @@ const Chat = (props?: ChatProps) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <View style={style.closeIcon}>
+          <View>
             <BtnTemplate
-              style={style.closeIcon}
-              color="#000"
-              name={'close'}
+              styleIcon={style.closeIcon}
+              name={'closeRounded'}
               onPress={() => {
                 setSidePanel(SidePanelType.None);
               }}
@@ -238,8 +248,8 @@ const style = StyleSheet.create({
     flexDirection: 'row',
   },
   closeIcon: {
-    width: 14,
-    height: 14,
+    width: 24,
+    height: 24,
   },
   header: {
     flexDirection: 'row',
@@ -250,14 +260,6 @@ const style = StyleSheet.create({
     borderBottomColor: '#EDEDED',
     alignItems: 'center',
     minHeight: 60,
-  },
-  mainHeading: {
-    fontSize: 16,
-    letterSpacing: 0.8,
-    lineHeight: 16,
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    color: $config.PRIMARY_FONT_COLOR,
   },
   chatView: {
     maxWidth: '23%',

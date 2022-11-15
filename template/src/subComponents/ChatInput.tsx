@@ -13,7 +13,7 @@ import React, {useContext} from 'react';
 import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
-import icons from '../assets/icons';
+import {ImageIcon} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
@@ -48,18 +48,12 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
     <TouchableOpacity
       style={[
         style.chatInputButton,
-        {backgroundColor: inputActive ? '#E6F5FF' : '#F3F3F3'},
+        {backgroundColor: inputActive ? '#FFFFFF' : 'rgba(0, 0, 0, 0.06)'},
       ]}
       onPress={onPress}>
-      <Image
-        source={{
-          uri: icons.sendIcon,
-        }}
-        style={[
-          style.chatInputButtonIcon,
-          {tintColor: inputActive ? '#099DFD' : '#BABABA'},
-        ]}
-        resizeMode={'contain'}
+      <ImageIcon
+        style={style.chatInputButtonIcon}
+        name={inputActive ? 'sendActive' : 'send'}
       />
     </TouchableOpacity>
   );
@@ -116,7 +110,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         borderRadius: 0,
         borderBottomLeftRadius: 12,
         borderWidth: 0,
-        backgroundColor: inputActive ? '#E6F5FF' : '#F3F3F3',
+        backgroundColor: inputActive ? '#FFFFFF' : 'rgba(0, 0, 0, 0.06)',
         color: '#000000',
         textAlign: 'left',
         paddingVertical: 21,
@@ -227,8 +221,8 @@ const style = StyleSheet.create({
   chatInputButtonIcon: {
     marginVertical: 20,
     marginRight: 19,
-    width: 18,
-    height: 16,
+    width: 24,
+    height: 24,
   },
 });
 export default ChatInput;

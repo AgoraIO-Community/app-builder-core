@@ -24,12 +24,6 @@ import {
 } from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
-//@ts-ignore
-import micOnIcon from '../assets/icons/mic-on.svg';
-//@ts-ignore
-import micOffIcon from '../assets/icons/mic-off.svg';
-//@ts-ignore
-import noMicIcon from '../assets/icons/no-mic.svg';
 /**
  * A component to mute / unmute the local audio
  */
@@ -63,29 +57,33 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     //name: isAudioEnabled ? 'mic' : 'micOff',
-    icon: permissionDenied
-      ? noMicIcon
+    name: permissionDenied
+      ? 'micNotAvaiable'
       : isAudioEnabled
-      ? micOnIcon
-      : micOffIcon,
+      ? 'micOn'
+      : 'micOff',
+    disabled: permissionDenied ? true : false,
+    styleIcon: {
+      width: 24,
+      height: 24,
+    },
   };
-
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.actionSheetButton as Object;
-    btnTemplateProps.color = permissionDenied
+  btnTemplateProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+    color: permissionDenied
       ? '#8F8F8F'
       : isAudioEnabled
       ? $config.PRIMARY_COLOR
-      : '#999999';
+      : '#FF414D',
+  };
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
+    btnTemplateProps.style = Styles.localButtonSmall as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
     btnTemplateProps.btnText = audioLabel;
-    btnTemplateProps.color = permissionDenied
-      ? '#8F8F8F'
-      : isAudioEnabled
-      ? $config.PRIMARY_COLOR
-      : '#FF414D';
   }
 
   return props?.render ? (

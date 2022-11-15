@@ -90,18 +90,6 @@ const ChatContainer = (props?: {
   const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
-      {privateActive && (
-        <TouchableOpacity
-          style={style.backButtonContainer}
-          onPress={() => setPrivateActive(false)}>
-          <View style={style.backButton}>
-            <ImageIcon style={[style.backIcon]} name={'backBtn'} />
-          </View>
-          <View style={{flex: 1}}>
-            <Text style={style.backButtonText}>{'Back'}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={() => {
@@ -162,43 +150,11 @@ const ChatContainer = (props?: {
 
 const style = StyleSheet.create({
   containerView: {flex: 8},
-  backButtonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    maxWidth: 70,
-    maxHeight: 28,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    borderRadius: 14,
-    marginBottom: 8,
-    marginLeft: 13,
-    marginTop: 20,
-  },
-  backButtonText: {
-    marginVertical: 8,
-    marginLeft: 8.6,
-    marginRight: 12,
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 12,
-    lineHeight: 12,
-    letterSpacing: 0.02,
-    color: '#000000',
-  },
-  backButton: {
-    marginLeft: 12,
-    marginBottom: 8.6,
-    marginTop: 8,
-  },
   name: {
     fontWeight: isWebInternal() ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,
-  },
-  backIcon: {
-    width: 12,
-    height: 12,
-    tintColor: '#000000',
   },
   infoTextView: {
     marginVertical: 2,

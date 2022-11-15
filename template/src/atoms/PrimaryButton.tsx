@@ -23,17 +23,18 @@ import {
 } from 'react-native';
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
+import {ImageIcon, IconsInterface} from '../../agora-rn-uikit';
 
 export interface PrimaryButtonProps extends PressableProps {
   text?: string;
-  icon?: string;
+  iconName?: keyof IconsInterface;
   containerStyle?: ViewStyle;
   textStyle?: TextStyle;
 }
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
   const {primaryColor} = useContext(ColorContext);
-  const {children, icon, textStyle, containerStyle, ...otherProps} = props;
+  const {children, iconName, textStyle, containerStyle, ...otherProps} = props;
   return (
     <Pressable
       style={[
@@ -42,13 +43,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      {icon && (
-        <Image
-          style={styles.icon}
-          source={{uri: icon}}
-          resizeMode={'contain'}
-        />
-      )}
+      {iconName && <ImageIcon style={styles.icon} name={iconName} />}
       {props.text && (
         <Text style={[styles.text, textStyle ? textStyle : {}]}>
           {props.text}
@@ -62,8 +57,8 @@ const styles = StyleSheet.create({
   primaryButton,
   primaryButtonText,
   icon: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     marginRight: 8,
   },
   container: {

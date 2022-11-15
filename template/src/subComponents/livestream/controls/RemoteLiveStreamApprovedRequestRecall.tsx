@@ -1,7 +1,6 @@
 import React from 'react';
 import {BtnTemplate, UidType} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
-import icons from '../../../assets/icons';
 import events, {EventPersistLevel} from '../../../rtm-events-api';
 
 export interface RemoteLiveStreamApprovedRequestRecallProps {
@@ -22,7 +21,8 @@ const RemoteLiveStreamApprovedRequestRecall = (
         );
       }}
       color="#FD0845"
-      icon={icons['demoteIcon']}
+      //todo hari
+      //icon={Icons['demoteIcon']}
     />
   );
 };

@@ -2,7 +2,6 @@ import React, {useContext} from 'react';
 import {View} from 'react-native';
 import {BtnTemplate, PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
-import icons from '../../../assets/icons';
 import PrimaryButton from '../../../atoms/PrimaryButton';
 
 interface RemoteLiveStreamControlProps {
