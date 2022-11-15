@@ -34,6 +34,10 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  actionSheetButton: {
+    width: 25,
+    height: 25,
+  },
   localButtonSmall: {
     display: 'flex',
     alignSelf: 'center',

@@ -23,7 +23,7 @@ export default function FallbackLogo(name: string) {
   const textStyle = {
     fontSize: 32,
     lineHeight: 32,
-    fontWeight: 600,
+    fontWeight: '600',
     color: $config.SECONDARY_FONT_COLOR,
   };
   return (
