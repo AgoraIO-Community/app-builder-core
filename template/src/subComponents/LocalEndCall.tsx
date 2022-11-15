@@ -38,22 +38,16 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     props.render(onPress, buttonTemplateName)
   ) : (
     <TouchableOpacity
-      style={!isTopBarTemplate && (Styles.endCallContainer as object)}
+      style={Styles.endCallContainer as object}
       onPress={onPress}>
       <ImageIcon
-        style={
-          isTopBarTemplate
-            ? Styles.actionSheetButton
-            : {
-                width: 20,
-                height: 20,
-              }
-        }
+        style={{
+          width: 20,
+          height: 20,
+        }}
         name={'endCall'}
       />
-      {!isTopBarTemplate && (
-        <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
-      )}
+      <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
     </TouchableOpacity>
   );
 };
