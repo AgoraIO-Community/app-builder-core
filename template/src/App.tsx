@@ -31,6 +31,7 @@ import {
 } from './components/meeting-info/useMeetingInfo';
 import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
 import {ShareLinkProvider} from './components/useShareLink';
+import Endcall from './pages/Endcall';
 
 //hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -106,6 +107,9 @@ const App: React.FC = () => {
               </Route>
               <Route exact path={'/join'}>
                 <Join />
+              </Route>
+              <Route exact path={'/leave'}>
+                <Endcall />
               </Route>
               {shouldAuthenticate ? (
                 <PrivateRoute

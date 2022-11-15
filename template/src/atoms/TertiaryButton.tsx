@@ -3,18 +3,22 @@ import {
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
+  ViewStyle,
 } from 'react-native';
 import React from 'react';
 
 interface ButtonProps extends TouchableOpacityProps {
   text?: string;
   children?: React.ReactNode;
+  containerStyle?: ViewStyle;
 }
 
 const TertiaryButton = (props: ButtonProps) => {
   const {text, ...rest} = props;
   return (
-    <TouchableOpacity style={styles.container} {...rest}>
+    <TouchableOpacity
+      style={[styles.container, props?.containerStyle]}
+      {...rest}>
       <Text style={styles.text}>{text}</Text>
     </TouchableOpacity>
   );
