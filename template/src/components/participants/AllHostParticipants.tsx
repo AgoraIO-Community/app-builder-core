@@ -19,15 +19,17 @@ export default function AllHostParticipants(props: any) {
 
   return (
     <>
-      {/* User should see his name first */}
-      {activeUids.filter((uid) => uid === localUid).length > 0 && (
-        <MeParticipant
-          name={getParticipantName(localUid)}
-          p_style={p_style}
-          key={localUid}
-          isHost={isHost}
-        />
-      )}
+      {/* User should see his name first 
+      todo hari check why activeUids.filter((uid) => uid === localUid).length > 0 is used
+      */}
+      <RemoteParticipants
+        isLocal={true}
+        name={getParticipantName(localUid)}
+        user={renderList[localUid]}
+        showControls={renderList[localUid]?.type === 'rtc'}
+        isHost={isHost}
+        key={localUid}
+      />
       {/* Others Users in the call */}
       {activeUids
         .filter((uid) => uid !== localUid)
@@ -40,8 +42,8 @@ export default function AllHostParticipants(props: any) {
             />
           ) : (
             <RemoteParticipants
+              isLocal={false}
               name={getParticipantName(uid)}
-              p_styles={p_style}
               user={renderList[uid]}
               showControls={renderList[uid]?.type === 'rtc'}
               isHost={isHost}

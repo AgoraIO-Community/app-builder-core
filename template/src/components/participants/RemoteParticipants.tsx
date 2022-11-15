@@ -9,20 +9,25 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {View, StyleSheet, Text, Pressable, LayoutAnimation} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
-import RemoteEndCall from '../../subComponents/RemoteEndCall';
 import ParticipantName from './ParticipantName';
-import {RenderInterface} from '../../../agora-rn-uikit';
+import {BtnTemplate, RenderInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
-import {isWeb} from '../../utils/common';
-import ActionMenu from '../../atoms/ActionMenu';
+import {isWeb, isWebInternal} from '../../utils/common';
+import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
+import Spacer from '../../atoms/Spacer';
+import useRemoteEndCall from '../../utils/useRemoteEndCall';
+import {useChatMessages} from '../chat-messages/useChatMessages';
+import LocalVideoMute from '../../subComponents/LocalVideoMute';
+import {ButtonTemplateName} from '../../utils/useButtonTemplate';
+import LocalAudioMute from '../../subComponents/LocalAudioMute';
 
 interface remoteParticipantsInterface {
-  p_styles: any;
+  isLocal: boolean;
   name: string;
   user: RenderInterface;
   showControls: boolean;
@@ -30,7 +35,15 @@ interface remoteParticipantsInterface {
 }
 
 const RemoteParticipants = (props: remoteParticipantsInterface) => {
-  const {p_styles, user, name, showControls, isHost} = props;
+  const [isHovered, setIsHovered] = React.useState(false);
+  const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
+  const usercontainerRef = useRef(null);
+  const {user, name, showControls, isHost, isLocal} = props;
+  const [pos, setPos] = useState({top: 0, left: 0});
+
+  const endRemoteCall = useRemoteEndCall();
+  const {openPrivateChat} = useChatMessages();
+
   const containerStyle = {
     background: '#021F3380',
     width: 36,
@@ -45,140 +58,153 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
     color: '#fff',
   };
 
-  return (
-    <PlatformWrapper>
-      <View
-        style={[
-          p_styles.participantRow,
-          {
-            paddingHorizontal: 12,
-            marginBottom: 0,
-            paddingVertical: 8,
-            zIndex: -1,
-            elevation: -1,
-          },
-        ]}>
-        <View style={styles.nameContainer}>
-          <UserAvatar
-            name={name}
-            containerStyle={containerStyle}
-            textStyle={textStyle}
-          />
-          <View>
-            <ParticipantName value={name} />
-            {isHost && <Text style={styles.subText}>Host</Text>}
-          </View>
-        </View>
+  const renderActionMenu = () => {
+    const items: ActionMenuItem[] = [
+      {
+        icon: 'chat',
+        title: 'Message Privately',
+        callback: () => openPrivateChat(user.uid),
+      },
+    ];
 
-        {showControls ? (
-          <View style={p_styles.participantActionContainer}>
-            {$config.EVENT_MODE && (
-              <ApprovedLiveStreamControlsView
-                p_styles={p_styles}
-                uid={user.uid}
-              />
-            )}
-            {/* TODO: move this to popup on click of name */}
-            {/* <View style={[p_styles.actionBtnIcon, {marginRight: 10}]}>
-            <RemoteEndCall uid={user.uid} isHost={isHost} />
-          </View> */}
-            {!$config.AUDIO_ROOM && (
-              <View style={[p_styles.actionBtnIcon, {marginRight: 16}]}>
-                <RemoteVideoMute
-                  uid={user.uid}
-                  video={user.video}
-                  isHost={isHost}
-                />
-              </View>
-            )}
-            <View style={[p_styles.actionBtnIcon]}>
-              <RemoteAudioMute
-                uid={user.uid}
-                audio={user.audio}
-                isHost={isHost}
-              />
+    if (isHost) {
+      items.push({
+        icon: 'remoteEndCall',
+        title: 'Remove from meeting',
+        callback: () => endRemoteCall(user.uid),
+      });
+    }
+
+    // {
+    //   icon: 'videocam',
+    //   title: 'Request Video',
+    //   callback: () => console.warn('Request Video'),
+    // },
+    // {
+    //   icon: 'mic',
+    //   title: 'Request Mic',
+    //   callback: () => console.warn('Request Mic'),
+    // },
+
+    return (
+      <ActionMenu
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        modalPosition={{top: pos.top - 20, left: pos.left + 50}}
+        items={items}
+      />
+    );
+  };
+
+  const showModal = () => {
+    usercontainerRef.current.ge;
+    usercontainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
+      setPos({
+        top: py + h,
+        left: _px,
+      });
+    });
+    setActionMenuVisible((state) => !state);
+  };
+  return (
+    <>
+      {!isLocal ? renderActionMenu() : <></>}
+      <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
+        <View style={styles.container} ref={usercontainerRef}>
+          <View style={styles.userInfoContainer}>
+            <UserAvatar
+              name={name}
+              containerStyle={containerStyle}
+              textStyle={textStyle}
+            />
+            <View>
+              <ParticipantName value={name} />
+              {isHost && (
+                <Text style={styles.subText}>Host{isLocal ? ', Me' : ''}</Text>
+              )}
             </View>
           </View>
-        ) : (
-          <></>
-          // <View style={p_styles.dummyView}>
-          //   <Text>Remote screen sharing</Text>
-          // </View>
-        )}
-      </View>
-    </PlatformWrapper>
+          {showControls ? (
+            <View style={styles.iconContainer}>
+              <BtnTemplate
+                name="more"
+                style={{
+                  opacity:
+                    (isHovered || actionMenuVisible || !isWebInternal()) &&
+                    !isLocal
+                      ? 1
+                      : 0,
+                }}
+                onPress={() => {
+                  showModal();
+                }}
+                styleIcon={{width: 20, height: 20}}
+              />
+              <Spacer horizontal={true} size={16} />
+              {!$config.AUDIO_ROOM &&
+                (isLocal ? (
+                  <LocalVideoMute
+                    buttonTemplateName={ButtonTemplateName.topBar}
+                  />
+                ) : (
+                  <RemoteVideoMute
+                    uid={user.uid}
+                    video={user.video}
+                    isHost={isHost}
+                  />
+                ))}
+              <Spacer horizontal={true} size={16} />
+              {isLocal ? (
+                <LocalAudioMute
+                  buttonTemplateName={ButtonTemplateName.topBar}
+                />
+              ) : (
+                <RemoteAudioMute
+                  uid={user.uid}
+                  audio={user.audio}
+                  isHost={isHost}
+                />
+              )}
+              {/* TODO hari {$config.EVENT_MODE && (
+              <ApprovedLiveStreamControlsView
+                //p_styles={p_styles}
+                uid={user.uid}
+              />
+            )} */}
+            </View>
+          ) : (
+            <></>
+          )}
+        </View>
+      </PlatformWrapper>
+    </>
   );
 };
 export default RemoteParticipants;
 
-const PlatformWrapper = ({children}) => {
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  return isWeb ? (
+const PlatformWrapper = ({children, showModal, setIsHovered}) => {
+  return isWeb() ? (
     <div
-      style={{
-        marginLeft: 8,
-        marginRight: 8,
-        borderRadius: 12,
-        backgroundColor: isHovered ? $config.PRIMARY_COLOR + '10' : 'inherit',
-        cursor: isHovered ? 'pointer' : 'auto',
-        position: 'relative',
-      }}
+      style={{}}
       onMouseEnter={() => {
         setIsHovered(true);
-      }}
-      onClick={() => {
-        //TODO: open modal for actions - web
-        setActionMenuVisible((state) => !state);
       }}
       onMouseLeave={() => {
         setIsHovered(false);
       }}>
       {children}
-
-      <ActionMenu
-        actionMenuVisible={actionMenuVisible}
-        setActionMenuVisible={setActionMenuVisible}
-        modalPosition={{top: -15, left: 50}}
-        items={[
-          {
-            icon: 'chatIcon',
-            title: 'Message Privately',
-            callback: () => console.warn('Message Privately'),
-          },
-          {
-            icon: 'videocam',
-            title: 'Request Video',
-            callback: () => console.warn('Request Video'),
-          },
-          {
-            icon: 'mic',
-            title: 'Request Mic',
-            callback: () => console.warn('Request Mic'),
-          },
-          {
-            icon: 'cancel',
-            title: 'Remove from meeting',
-            callback: () => console.warn('Message Privately'),
-          },
-        ]}
-      />
     </div>
   ) : (
-    <Pressable
+    <TouchableOpacity
       onPress={() => {
-        //TODO: open action modal for actions - mobile
+        showModal();
       }}>
-      <View style={styles.remoteContainer}>{children}</View>
-    </Pressable>
+      {children}
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  remoteContainer: {
-    marginHorizontal: 8,
-    borderRadius: 12,
-  },
   subText: {
     fontSize: 12,
     lineHeight: 12,
@@ -188,8 +214,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     flex: 1,
   },
-  nameContainer: {
+  container: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  userInfoContainer: {
+    flexDirection: 'row',
+    flex: 0.7,
+  },
+  iconContainer: {
+    flex: 0.3,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignSelf: 'center',
   },
 });

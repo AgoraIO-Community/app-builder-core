@@ -189,8 +189,8 @@ const style = StyleSheet.create({
   },
 
   participantView: {
-    maxWidth: '23%',
-    minWidth: 200,
+    maxWidth: '20%',
+    minWidth: 338,
     borderRadius: 12,
     marginLeft: 20,
     marginTop: 10,
