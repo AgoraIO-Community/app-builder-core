@@ -10,9 +10,9 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
-import {isIOS, isWebInternal} from '../../utils/common';
+import {isIOS, isWeb, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
-import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {ImageIcon, UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 
@@ -34,7 +34,7 @@ const ChatParticipants = (props: any) => {
       !userInfo?.offline
     );
   };
-
+  const [isHovered, setIsHovered] = React.useState(false);
   return (
     <ScrollView>
       {Object.entries(renderList).map(([uid, value]) => {
@@ -44,35 +44,71 @@ const ChatParticipants = (props: any) => {
             ? renderList[uidAsNumber].name + ''
             : remoteUserDefaultLabel;
           return (
-            <TouchableOpacity
-              style={style.participantContainer}
+            <PlatformWrapper
+              isHovered={isHovered}
+              setIsHovered={setIsHovered}
               key={uid}
               onPress={() => {
                 selectUser(uidAsNumber);
               }}>
-              <UserAvatar
-                name={name}
-                containerStyle={style.userAvatarContainer}
-                textStyle={style.userAvatarText}
-              />
-              <View style={style.participantTextContainer}>
-                <Text style={[style.participantText]}>{name}</Text>
-              </View>
-              {unreadIndividualMessageCount &&
-              unreadIndividualMessageCount[uidAsNumber] ? (
-                <View style={style.chatNotificationPrivate}>
-                  <Text style={style.chatNotificationCountText}>
-                    {unreadIndividualMessageCount[uidAsNumber]}
-                  </Text>
+              <View style={style.participantContainer}>
+                <UserAvatar
+                  name={name}
+                  containerStyle={style.userAvatarContainer}
+                  textStyle={style.userAvatarText}
+                />
+                <View style={style.participantTextContainer}>
+                  <Text style={[style.participantText]}>{name}</Text>
                 </View>
-              ) : (
-                <></>
-              )}
-            </TouchableOpacity>
+                {!isHovered ? (
+                  unreadIndividualMessageCount &&
+                  unreadIndividualMessageCount[uidAsNumber] ? (
+                    <View style={style.chatNotificationPrivate}>
+                      <Text style={style.chatNotificationCountText}>
+                        {unreadIndividualMessageCount[uidAsNumber]}
+                      </Text>
+                    </View>
+                  ) : (
+                    <></>
+                  )
+                ) : (
+                  <ImageIcon
+                    name="chat"
+                    style={{
+                      width: 24,
+                      height: 24,
+                      alignSelf: 'center',
+                      marginRight: 22,
+                    }}
+                  />
+                )}
+              </View>
+            </PlatformWrapper>
           );
         }
       })}
     </ScrollView>
+  );
+};
+
+const PlatformWrapper = ({children, isHovered, setIsHovered, onPress}) => {
+  return isWeb() ? (
+    <div
+      style={{
+        backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
+        cursor: isHovered ? 'pointer' : 'auto',
+      }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}
+      onClick={onPress}>
+      {children}
+    </div>
+  ) : (
+    <TouchableOpacity onPress={onPress}>{children}</TouchableOpacity>
   );
 };
 
@@ -96,6 +132,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     flex: 1,
     overflow: 'hidden',
+    justifyContent: 'space-between',
   },
   participantTextContainer: {
     flex: 1,
