@@ -34,10 +34,20 @@ const LocalRaiseHand = () => {
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   return (
     <BtnTemplate
+      styleIcon={{
+        width: 24,
+        height: 24,
+      }}
       name={isHandRasied ? 'lowerHand' : 'raiseHand'}
       btnText={handStatusText(isHandRasied)}
       style={Styles.localButton as Object}
-      styleText={Styles.localButtonText as Object}
+      styleText={{
+        fontFamily: 'Source Sans Pro',
+        fontSize: 12,
+        marginTop: 4,
+        fontWeight: '400',
+        color: isHandRasied ? '#FF414D' : $config.PRIMARY_COLOR,
+      }}
       onPress={() => {
         if (isHandRasied) {
           audienceRecallsRequest();

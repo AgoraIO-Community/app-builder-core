@@ -9,13 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {ApprovedLiveStreamControlsView} from '../../subComponents/livestream';
-import ParticipantName from './ParticipantName';
-import {BtnTemplate, RenderInterface} from '../../../agora-rn-uikit';
+import {
+  BtnTemplate,
+  ClientRole,
+  RenderInterface,
+} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isWeb, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
@@ -25,24 +27,37 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
 import {ButtonTemplateName} from '../../utils/useButtonTemplate';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
-
-interface remoteParticipantsInterface {
+import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {
+  RaiseHandValue,
+  LiveStreamContext,
+  LiveStreamControlMessageEnum,
+} from '../livestream';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+interface ParticipantInterface {
   isLocal: boolean;
   name: string;
   user: RenderInterface;
   showControls: boolean;
-  isHost: boolean;
+  isHostUser: boolean;
+  isAudienceUser: boolean;
 }
 
-const RemoteParticipants = (props: remoteParticipantsInterface) => {
+const Participant = (props: ParticipantInterface) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const usercontainerRef = useRef(null);
-  const {user, name, showControls, isHost, isLocal} = props;
+  const {user, name, showControls, isHostUser, isLocal, isAudienceUser} = props;
   const [pos, setPos] = useState({top: 0, left: 0});
-
+  const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
+    useState(false);
   const endRemoteCall = useRemoteEndCall();
   const {openPrivateChat} = useChatMessages();
+  const {raiseHandList} = useContext(LiveStreamContext);
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   const containerStyle = {
     background: '#021F3380',
@@ -63,7 +78,10 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
       {
         icon: 'chat',
         title: 'Message Privately',
-        callback: () => openPrivateChat(user.uid),
+        callback: () => {
+          setActionMenuVisible(false);
+          openPrivateChat(user.uid);
+        },
       },
     ];
 
@@ -71,8 +89,32 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
       items.push({
         icon: 'remoteEndCall',
         title: 'Remove from meeting',
-        callback: () => endRemoteCall(user.uid),
+        callback: () => {
+          setActionMenuVisible(false);
+          setRemoveMeetingPopupVisible(true);
+        },
       });
+    }
+
+    if (isHost && $config.EVENT_MODE) {
+      if (
+        raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
+        raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+      ) {
+        items.push({
+          icon: 'remoteEndCall',
+          title: 'demote to audience',
+          callback: () => {
+            setActionMenuVisible(false);
+            events.send(
+              LiveStreamControlMessageEnum.raiseHandRequestRejected,
+              '',
+              EventPersistLevel.LEVEL1,
+              user.uid,
+            );
+          },
+        });
+      }
     }
 
     // {
@@ -87,12 +129,24 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
     // },
 
     return (
-      <ActionMenu
-        actionMenuVisible={actionMenuVisible}
-        setActionMenuVisible={setActionMenuVisible}
-        modalPosition={{top: pos.top - 20, left: pos.left + 50}}
-        items={items}
-      />
+      <>
+        {isHost ? (
+          <RemoveMeetingPopup
+            modalVisible={removeMeetingPopupVisible}
+            setModalVisible={setRemoveMeetingPopupVisible}
+            username={user.name}
+            removeUserFromMeeting={() => endRemoteCall(user.uid)}
+          />
+        ) : (
+          <></>
+        )}
+        <ActionMenu
+          actionMenuVisible={actionMenuVisible}
+          setActionMenuVisible={setActionMenuVisible}
+          modalPosition={{top: pos.top - 20, left: pos.left + 50}}
+          items={items}
+        />
+      </>
     );
   };
 
@@ -108,7 +162,7 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
   };
   return (
     <>
-      {!isLocal ? renderActionMenu() : <></>}
+      {!isLocal || isAudienceUser ? renderActionMenu() : <></>}
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>
           <View style={styles.userInfoContainer}>
@@ -117,21 +171,25 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               containerStyle={containerStyle}
               textStyle={textStyle}
             />
-            <View>
-              <ParticipantName value={name} />
-              {isHost && (
+            <View style={{alignSelf: 'center'}}>
+              <Text style={styles.participantNameText}>{name}</Text>
+              {isHostUser && (
                 <Text style={styles.subText}>Host{isLocal ? ', Me' : ''}</Text>
+              )}
+              {!isHostUser && isLocal && (
+                <Text style={styles.subText}>{'Me'}</Text>
               )}
             </View>
           </View>
           {showControls ? (
             <View style={styles.iconContainer}>
               <BtnTemplate
-                name="more"
+                name="more2"
                 style={{
                   opacity:
-                    (isHovered || actionMenuVisible || !isWebInternal()) &&
-                    !isLocal
+                    ((isHovered || actionMenuVisible || !isWebInternal()) &&
+                      !isLocal) ||
+                    (isHovered && isAudienceUser)
                       ? 1
                       : 0,
                 }}
@@ -142,35 +200,33 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               />
               <Spacer horizontal={true} size={16} />
               {!$config.AUDIO_ROOM &&
-                (isLocal ? (
-                  <LocalVideoMute
-                    buttonTemplateName={ButtonTemplateName.topBar}
-                  />
-                ) : (
-                  <RemoteVideoMute
-                    uid={user.uid}
-                    video={user.video}
-                    isHost={isHost}
-                  />
-                ))}
+                (isLocal
+                  ? !isAudienceUser && (
+                      <LocalVideoMute
+                        buttonTemplateName={ButtonTemplateName.topBar}
+                      />
+                    )
+                  : !isAudienceUser && (
+                      <RemoteVideoMute
+                        uid={user.uid}
+                        video={user.video}
+                        isHost={isHost}
+                      />
+                    ))}
               <Spacer horizontal={true} size={16} />
-              {isLocal ? (
-                <LocalAudioMute
-                  buttonTemplateName={ButtonTemplateName.topBar}
-                />
-              ) : (
-                <RemoteAudioMute
-                  uid={user.uid}
-                  audio={user.audio}
-                  isHost={isHost}
-                />
-              )}
-              {/* TODO hari {$config.EVENT_MODE && (
-              <ApprovedLiveStreamControlsView
-                //p_styles={p_styles}
-                uid={user.uid}
-              />
-            )} */}
+              {isLocal
+                ? !isAudienceUser && (
+                    <LocalAudioMute
+                      buttonTemplateName={ButtonTemplateName.topBar}
+                    />
+                  )
+                : !isAudienceUser && (
+                    <RemoteAudioMute
+                      uid={user.uid}
+                      audio={user.audio}
+                      isHost={isHost}
+                    />
+                  )}
             </View>
           ) : (
             <></>
@@ -180,7 +236,7 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
     </>
   );
 };
-export default RemoteParticipants;
+export default Participant;
 
 const PlatformWrapper = ({children, showModal, setIsHovered}) => {
   return isWeb() ? (
@@ -205,6 +261,15 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 };
 
 const styles = StyleSheet.create({
+  participantNameText: {
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 15,
+    fontFamily: 'Source Sans Pro',
+    flexDirection: 'row',
+    color: $config.PRIMARY_FONT_COLOR,
+    textAlign: 'left',
+  },
   subText: {
     fontSize: 12,
     lineHeight: 12,

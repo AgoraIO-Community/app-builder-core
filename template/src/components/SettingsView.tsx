@@ -10,8 +10,8 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import SelectDevice from '../subComponents/SelectDevice';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import SelectDeviceSettings from '../subComponents/SelectDeviceSettings';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWebInternal} from '../utils/common';
@@ -40,20 +40,18 @@ const SettingsView = () => {
       style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
       <View style={style.header}>
         <Text style={style.mainHeading}>{settingsLabel}</Text>
-        <View>
-          <BtnTemplate
-            styleIcon={style.closeIcon}
-            name={'closeRounded'}
-            onPress={() => {
-              setSidePanel(SidePanelType.None);
-            }}
-          />
-        </View>
+        <BtnTemplate
+          styleIcon={style.closeIcon}
+          name={'closeRounded'}
+          onPress={() => {
+            setSidePanel(SidePanelType.None);
+          }}
+        />
       </View>
-      <View style={style.contentContainer}>
+      <ScrollView style={style.contentContainer}>
         <Text style={style.heading}>{selectInputDeviceLabel}</Text>
         <View style={{paddingTop: 20}}>
-          <SelectDevice />
+          <SelectDeviceSettings />
         </View>
         <View style={style.hrLine}></View>
         {isHost ? (
@@ -79,7 +77,7 @@ const SettingsView = () => {
           <></>
         )}
         <LanguageSelector />
-      </View>
+      </ScrollView>
     </View>
   );
 };

@@ -31,14 +31,14 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
 
   return String(props.uid)[0] !== '1' ? (
     <BtnTemplate
-      disabled={!isHost}
+      disabled={!isHost || !props.video}
       onPress={() => {
         muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
       }}
       style={Styles.localButtonSmall as Object}
       styleIcon={{width: 20, height: 20}}
       //color={props.video ? $config.PRIMARY_COLOR : '#999999'}
-      name={props.video ? 'videocamOn' : 'videocamOff'}
+      name={props.video ? 'videocamOn' : 'videocamOffDisabled'}
     />
   ) : (
     <></>
