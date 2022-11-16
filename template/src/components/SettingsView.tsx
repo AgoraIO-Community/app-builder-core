@@ -10,7 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
@@ -48,7 +48,7 @@ const SettingsView = () => {
           }}
         />
       </View>
-      <View style={style.contentContainer}>
+      <ScrollView style={style.contentContainer}>
         <Text style={style.heading}>{selectInputDeviceLabel}</Text>
         <View style={{paddingTop: 20}}>
           <SelectDevice />
@@ -77,7 +77,7 @@ const SettingsView = () => {
           <></>
         )}
         <LanguageSelector />
-      </View>
+      </ScrollView>
     </View>
   );
 };
