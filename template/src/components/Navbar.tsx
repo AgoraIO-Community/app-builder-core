@@ -286,7 +286,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           style={{
             ...badgeTextStyle,
           }}>
-          {numFormatter(3)}
+          {numFormatter(badgeCount)}
         </Text>
       </View>
     );
@@ -305,7 +305,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           },
         ]}>
         <BtnTemplate {...btnTemplateProps} />
-        {totalUnreadCount !== 1 && renderBadge(totalUnreadCount)}
+        {totalUnreadCount !== 0 && renderBadge(totalUnreadCount)}
       </View>
     </>
   );

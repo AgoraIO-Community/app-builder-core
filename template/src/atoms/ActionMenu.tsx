@@ -10,9 +10,14 @@ import {
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 
-import {ImageIcon, Icons} from '../../agora-rn-uikit';
+import {IconsInterface, ImageIcon} from '../../agora-rn-uikit';
 
-interface ActionMenuProps {
+export interface ActionMenuItem {
+  icon: keyof IconsInterface;
+  title: string;
+  callback: () => void;
+}
+export interface ActionMenuProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: React.Dispatch<SetStateAction<boolean>>;
   modalPosition?: {
@@ -21,18 +26,14 @@ interface ActionMenuProps {
     left?: number;
     bottom?: number;
   };
-  items: {
-    icon: string;
-    title: string;
-    callback: () => void;
-  }[];
+  items: ActionMenuItem[];
 }
 
 const ActionMenu = (props: ActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, modalPosition, items} = props;
   return (
     <View>
-      {/* <Modal
+      <Modal
         testID="action-menu"
         animationType="fade"
         transparent={true}
@@ -43,29 +44,20 @@ const ActionMenu = (props: ActionMenuProps) => {
           }}>
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>
-      </Modal> */}
-      {actionMenuVisible && (
         <View style={[styles.modalView, modalPosition]}>
-          {items.map(({icon, title, callback}) => (
-            <TouchableOpacity style={styles.row} onPress={callback}>
+          {items.map(({icon, title, callback}, index) => (
+            <TouchableOpacity
+              style={styles.row}
+              onPress={callback}
+              key={icon + index}>
               <View style={styles.iconContainer}>
-                <ImageIcon
-                  style={styles.icon}
-                  icon={Icons[icon]}
-                  color={icon === 'cancel' ? '#FF414D' : '#1a1a1a'}
-                />
+                <ImageIcon style={styles.icon} name={icon} />
               </View>
-              <Text
-                style={[
-                  styles.text,
-                  {color: icon === 'cancel' ? '#FF414D' : '#1a1a1a'},
-                ]}>
-                {title}
-              </Text>
+              <Text style={[styles.text]}>{title}</Text>
             </TouchableOpacity>
           ))}
         </View>
-      )}
+      </Modal>
     </View>
   );
 };
@@ -75,7 +67,7 @@ export default ActionMenu;
 const styles = StyleSheet.create({
   modalView: {
     position: 'absolute',
-    maxWidth: 220,
+    width: 220,
     backgroundColor: '#ffffff',
     borderRadius: 4,
     shadowColor: '#000',
@@ -89,24 +81,23 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   row: {
-    padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#EDEDED',
     flexDirection: 'row',
   },
-
   iconContainer: {
-    width: 20,
-    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+    marginVertical: 12,
+    marginLeft: 12,
   },
   icon: {
-    width: 16,
-    height: 16,
+    width: 20,
+    height: 20,
   },
   text: {
+    paddingVertical: 14,
     color: '#1A1A1A',
     fontSize: 16,
     fontWeight: '400',
