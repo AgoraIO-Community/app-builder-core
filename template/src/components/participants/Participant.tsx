@@ -184,7 +184,7 @@ const Participant = (props: ParticipantInterface) => {
           {showControls ? (
             <View style={styles.iconContainer}>
               <BtnTemplate
-                name="more"
+                name="more2"
                 style={{
                   opacity:
                     ((isHovered || actionMenuVisible || !isWebInternal()) &&
