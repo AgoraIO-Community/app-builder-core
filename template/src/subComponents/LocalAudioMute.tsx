@@ -76,11 +76,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       : '#FF414D',
   };
   if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.localButtonSmall as Object;
-    btnTemplateProps.styleIcon = {
-      width: 20,
-      height: 20,
-    };
+    btnTemplateProps.style = Styles.actionSheetButton as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = audioLabel;
