@@ -11,7 +11,7 @@
 */
 import React from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
-import SelectDevice from '../subComponents/SelectDevice';
+import SelectDeviceSettings from '../subComponents/SelectDeviceSettings';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWebInternal} from '../utils/common';
@@ -51,7 +51,7 @@ const SettingsView = () => {
       <ScrollView style={style.contentContainer}>
         <Text style={style.heading}>{selectInputDeviceLabel}</Text>
         <View style={{paddingTop: 20}}>
-          <SelectDevice />
+          <SelectDeviceSettings />
         </View>
         <View style={style.hrLine}></View>
         {isHost ? (
