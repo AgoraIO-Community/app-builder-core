@@ -2,7 +2,6 @@ import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import RemoteLiveStreamRequestApprove from './controls/RemoteLiveStreamRequestApprove';
 import RemoteLiveStreamRequestReject from './controls/RemoteLiveStreamRequestReject';
-import ParticipantName from '../../components/participants/ParticipantName';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
@@ -23,7 +22,6 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const remoteUserDefaultLabel = 'User';
   const noUserFoundLabel = 'User not found';
   const raisedHandsListTitleLabel = 'Streaming Request';
-  const {p_style} = props;
   const {renderList} = useRender();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
@@ -46,91 +44,87 @@ const CurrentLiveStreamRequestsView = (props: any) => {
       setLastCheckedRequestTimestamp(new Date().getTime());
     };
   }, []);
-
-  return (
-    <>
-      <ParticipantSectionTitle
-        title={raisedHandsListTitleLabel + ' '}
-        count={Object.keys(activeLiveStreamRequests).length}
-      />
-      <View style={p_style.participantContainer}>
-        {Object.keys(raiseHandList).length == 0 ||
-        Object.keys(activeLiveStreamRequests).length == 0 ? (
-          <Text style={p_style.infoText}>{noLiveStreamingRequestsLabel}</Text>
-        ) : (
-          Object.keys(activeLiveStreamRequests).map(
-            (userUID: any, index: number) =>
-              renderList[userUID] ? (
-                <View style={localStyle.requestContainer} key={index}>
-                  <UserAvatar
-                    name={renderList[userUID]?.name || remoteUserDefaultLabel}
-                    containerStyle={localStyle.userAvatarContainer}
-                    textStyle={localStyle.userAvatarText}
-                  />
-                  <View style={localStyle.usernameTextContainer}>
-                    <Text style={[localStyle.usernameText]}>
-                      {renderList[userUID]?.name || remoteUserDefaultLabel}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      alignSelf: 'center',
-                    }}>
-                    <View>
-                      <RemoteLiveStreamRequestReject uid={userUID} />
-                    </View>
-                    <View style={{marginLeft: 8}}>
-                      <RemoteLiveStreamRequestApprove uid={userUID} />
-                    </View>
-                  </View>
-                </View>
-              ) : (
-                <View style={p_style.participantRow} key={index}>
-                  <ParticipantName value={noUserFoundLabel} />
-                </View>
-              ),
-          )
-        )}
-      </View>
-    </>
-  );
-};
-const localStyle = StyleSheet.create({
-  userAvatarContainer: {
-    backgroundColor: '#021F3380',
+  const containerStyle = {
+    background: '#021F3380',
     width: 36,
     height: 36,
     borderRadius: 18,
     marginRight: 8,
-    marginLeft: 20,
-    marginVertical: 16,
-  },
-  userAvatarText: {
+  };
+  const textStyle = {
     fontSize: 12,
     lineHeight: 10,
-    fontWeight: '400',
+    fontWeight: 400,
     color: '#fff',
-  },
-  requestContainer: {
+  };
+
+  return (
+    <>
+      {Object.keys(raiseHandList).length == 0 ||
+      Object.keys(activeLiveStreamRequests).length == 0 ? (
+        <></>
+      ) : (
+        <>
+          <ParticipantSectionTitle
+            title={raisedHandsListTitleLabel + ' '}
+            count={Object.keys(activeLiveStreamRequests).length}
+          />
+          {Object.keys(activeLiveStreamRequests).map(
+            (userUID: any, index: number) =>
+              renderList[userUID] ? (
+                <View style={styles.container}>
+                  <View style={styles.userInfoContainer}>
+                    <UserAvatar
+                      name={renderList[userUID].name}
+                      containerStyle={containerStyle}
+                      textStyle={textStyle}
+                    />
+                    <View style={{alignSelf: 'center'}}>
+                      <Text style={styles.participantNameText}>
+                        {renderList[userUID].name}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.btnContainer}>
+                    <RemoteLiveStreamRequestReject uid={userUID} />
+                    <RemoteLiveStreamRequestApprove uid={userUID} />
+                  </View>
+                </View>
+              ) : (
+                <View style={{alignSelf: 'center'}} key={index}>
+                  <Text>{noUserFoundLabel}</Text>
+                </View>
+              ),
+          )}
+        </>
+      )}
+    </>
+  );
+};
+const styles = StyleSheet.create({
+  btnContainer: {
+    flex: 0.5,
     flexDirection: 'row',
-    flex: 1,
+    justifyContent: 'space-around',
   },
-  usernameTextContainer: {
+  container: {
     flex: 1,
-    marginVertical: 28,
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
-  usernameText: {
-    flex: 1,
-    fontFamily: 'Source Sans Pro',
+  userInfoContainer: {
+    flexDirection: 'row',
+    flex: 0.5,
+  },
+  participantNameText: {
     fontWeight: '400',
-    fontSize: 14,
-    lineHeight: 12,
-    color: '#000000',
+    fontSize: 12,
+    lineHeight: 15,
+    fontFamily: 'Source Sans Pro',
+    flexDirection: 'row',
+    color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
-    flexShrink: 1,
   },
 });
 

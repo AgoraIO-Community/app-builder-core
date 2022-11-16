@@ -158,18 +158,16 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         <View style={style.header}>
-          <View
+          <BtnTemplate
+            styleIcon={style.closeIcon}
             style={{
               opacity: privateActive ? 1 : 0,
-            }}>
-            <BtnTemplate
-              styleIcon={style.closeIcon}
-              name={'backBtn'}
-              onPress={() => {
-                setPrivateActive(false);
-              }}
-            />
-          </View>
+            }}
+            name={'backBtn'}
+            onPress={() => {
+              setPrivateActive(false);
+            }}
+          />
           <View style={style.buttonHolder}>
             <TouchableOpacity
               onPress={selectGroup}
@@ -198,15 +196,13 @@ const Chat = (props?: ChatProps) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <View>
-            <BtnTemplate
-              styleIcon={style.closeIcon}
-              name={'closeRounded'}
-              onPress={() => {
-                setSidePanel(SidePanelType.None);
-              }}
-            />
-          </View>
+          <BtnTemplate
+            styleIcon={style.closeIcon}
+            name={'closeRounded'}
+            onPress={() => {
+              setSidePanel(SidePanelType.None);
+            }}
+          />
         </View>
 
         {groupActive ? (

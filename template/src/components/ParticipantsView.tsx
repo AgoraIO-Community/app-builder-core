@@ -62,19 +62,15 @@ const ParticipantView = () => {
             : style.participantView
           : style.participantViewNative
       }>
-      <View>
-        <View style={style.header}>
-          <Text style={style.mainHeading}>{participantsLabel}</Text>
-          <View>
-            <BtnTemplate
-              styleIcon={style.closeIcon}
-              name={'closeRounded'}
-              onPress={() => {
-                setSidePanel(SidePanelType.None);
-              }}
-            />
-          </View>
-        </View>
+      <View style={style.header}>
+        <Text style={style.mainHeading}>{participantsLabel}</Text>
+        <BtnTemplate
+          styleIcon={style.closeIcon}
+          name={'closeRounded'}
+          onPress={() => {
+            setSidePanel(SidePanelType.None);
+          }}
+        />
       </View>
       <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
@@ -91,38 +87,25 @@ const ParticipantView = () => {
                    */
                   <>
                     {/* a) Live streaming view */}
-                    <View style={style.participantsection}>
-                      <CurrentLiveStreamRequestsView
-                        p_style={style}
-                        userList={liveStreamData}
-                      />
-                    </View>
+                    <CurrentLiveStreamRequestsView userList={liveStreamData} />
                     {/* b) Host view with remote controls*/}
-                    <View style={style.participantsection}>
-                      <ParticipantSectionTitle
-                        title={hostLabel}
-                        count={hostUids.length}
-                      />
-                      <View style={style.participantContainer}>
-                        <AllHostParticipants p_style={style} isHost={isHost} />
-                      </View>
-                    </View>
+                    <ParticipantSectionTitle
+                      title={hostLabel}
+                      count={hostUids.length}
+                    />
+                    <AllHostParticipants />
                   </>
                 ) : (
                   /** New Host ( earlier was 'audience' and now is host )
                    *  a) Can view all hosts without remote controls
                    */
-                  <View style={style.participantsection}>
+                  <>
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
                     />
-                    <AllAudienceParticipants
-                      uids={hostUids}
-                      p_style={style}
-                      isHost={isHost}
-                    />
-                  </View>
+                    <AllAudienceParticipants uids={hostUids} />
+                  </>
                 ))
             }
             {
@@ -130,40 +113,28 @@ const ParticipantView = () => {
                *  Audience views all hosts without remote controls
                */
               rtcProps?.role == ClientRole.Audience && (
-                <View style={style.participantsection}>
+                <>
                   <ParticipantSectionTitle
                     title={hostLabel}
                     count={hostUids.length}
                   />
-                  <AllAudienceParticipants
-                    uids={hostUids}
-                    p_style={style}
-                    isHost={isHost}
-                  />
-                </View>
+                  <AllAudienceParticipants uids={hostUids} />
+                </>
               )
             }
             {
               /* Everyone can see audience */
-              <View style={style.participantsection}>
+              <>
                 <ParticipantSectionTitle
                   title={audienceLabel}
                   count={audienceUids.length}
                 />
-                <AllAudienceParticipants
-                  uids={audienceUids}
-                  p_style={style}
-                  isHost={isHost}
-                />
-              </View>
+                <AllAudienceParticipants uids={audienceUids} />
+              </>
             }
           </>
         ) : (
-          <View style={style.participantsection}>
-            <View style={style.participantContainer}>
-              <AllHostParticipants p_style={style} isHost={isHost} />
-            </View>
-          </View>
+          <AllHostParticipants />
         )}
       </ScrollView>
 
@@ -181,10 +152,6 @@ const ParticipantView = () => {
 };
 
 const style = StyleSheet.create({
-  padding10: {
-    padding: 10,
-  },
-
   participantView: {
     maxWidth: '20%',
     minWidth: 338,
@@ -232,9 +199,6 @@ const style = StyleSheet.create({
   bodyContainer: {
     flex: 1,
   },
-  participantsection: {
-    marginBottom: 25,
-  },
   mainHeading: {
     fontSize: 16,
     letterSpacing: 0.8,
@@ -242,53 +206,7 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontWeight: '600',
     color: $config.PRIMARY_FONT_COLOR,
-  },
-  infoText: {
-    fontSize: 12,
-    letterSpacing: 0.8,
-    fontStyle: 'italic',
-    color: $config.PRIMARY_FONT_COLOR,
     alignSelf: 'center',
-  },
-  participantContainer: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
-  participantRow: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  participantActionContainer: {
-    flexDirection: 'row',
-    paddingRight: 5,
-    justifyContent: 'flex-end',
-  },
-  actionBtnIcon: {
-    width: 16,
-    height: 16,
-  },
-  participantText: {
-    lineHeight: 24,
-    fontSize: isWebInternal() ? 18 : 16,
-    flexDirection: 'row',
-    letterSpacing: 0.3,
-    color: $config.PRIMARY_FONT_COLOR,
-    fontWeight: '300',
-  },
-  participantTextSmall: {
-    fontSize: isWebInternal() ? 14 : 12,
-  },
-  dummyView: {
-    flex: 0.5,
-    opacity: 0,
-    marginHorizontal: 5,
   },
 });
 

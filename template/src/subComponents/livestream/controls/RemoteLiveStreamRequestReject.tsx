@@ -21,6 +21,7 @@ const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
         borderColor: '#000000',
         borderWidth: 1,
         backgroundColor: 'white',
+        borderRadius: 4,
       }}
       textStyle={{
         color: '#000000',

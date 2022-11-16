@@ -40,15 +40,13 @@ const SettingsView = () => {
       style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
       <View style={style.header}>
         <Text style={style.mainHeading}>{settingsLabel}</Text>
-        <View>
-          <BtnTemplate
-            styleIcon={style.closeIcon}
-            name={'closeRounded'}
-            onPress={() => {
-              setSidePanel(SidePanelType.None);
-            }}
-          />
-        </View>
+        <BtnTemplate
+          styleIcon={style.closeIcon}
+          name={'closeRounded'}
+          onPress={() => {
+            setSidePanel(SidePanelType.None);
+          }}
+        />
       </View>
       <View style={style.contentContainer}>
         <Text style={style.heading}>{selectInputDeviceLabel}</Text>
