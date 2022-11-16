@@ -25,6 +25,7 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
 import {ButtonTemplateName} from '../../utils/useButtonTemplate';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
+import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 
 interface remoteParticipantsInterface {
   isLocal: boolean;
@@ -40,7 +41,8 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
   const usercontainerRef = useRef(null);
   const {user, name, showControls, isHost, isLocal} = props;
   const [pos, setPos] = useState({top: 0, left: 0});
-
+  const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
+    useState(false);
   const endRemoteCall = useRemoteEndCall();
   const {openPrivateChat} = useChatMessages();
 
@@ -71,7 +73,10 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
       items.push({
         icon: 'remoteEndCall',
         title: 'Remove from meeting',
-        callback: () => endRemoteCall(user.uid),
+        callback: () => {
+          setActionMenuVisible(false);
+          setRemoveMeetingPopupVisible(true);
+        },
       });
     }
 
@@ -87,12 +92,24 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
     // },
 
     return (
-      <ActionMenu
-        actionMenuVisible={actionMenuVisible}
-        setActionMenuVisible={setActionMenuVisible}
-        modalPosition={{top: pos.top - 20, left: pos.left + 50}}
-        items={items}
-      />
+      <>
+        {isHost ? (
+          <RemoveMeetingPopup
+            modalVisible={removeMeetingPopupVisible}
+            setModalVisible={setRemoveMeetingPopupVisible}
+            username={user.name}
+            removeUserFromMeeting={() => endRemoteCall(user.uid)}
+          />
+        ) : (
+          <></>
+        )}
+        <ActionMenu
+          actionMenuVisible={actionMenuVisible}
+          setActionMenuVisible={setActionMenuVisible}
+          modalPosition={{top: pos.top - 20, left: pos.left + 50}}
+          items={items}
+        />
+      </>
     );
   };
 
@@ -117,10 +134,13 @@ const RemoteParticipants = (props: remoteParticipantsInterface) => {
               containerStyle={containerStyle}
               textStyle={textStyle}
             />
-            <View>
-              <ParticipantName value={name} />
-              {isHost && (
+            <View style={{alignSelf: 'center'}}>
+              <Text style={styles.participantNameText}>{name}</Text>
+              {isHost && isLocal && (
                 <Text style={styles.subText}>Host{isLocal ? ', Me' : ''}</Text>
+              )}
+              {!isHost && isLocal && (
+                <Text style={styles.subText}>{isLocal ? 'Me' : ''}</Text>
               )}
             </View>
           </View>
@@ -205,6 +225,15 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 };
 
 const styles = StyleSheet.create({
+  participantNameText: {
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 15,
+    fontFamily: 'Source Sans Pro',
+    flexDirection: 'row',
+    color: $config.PRIMARY_FONT_COLOR,
+    textAlign: 'left',
+  },
   subText: {
     fontSize: 12,
     lineHeight: 12,

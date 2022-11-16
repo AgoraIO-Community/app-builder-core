@@ -5,27 +5,27 @@ import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 
-interface RecordingPopupProps {
+interface RemoveMeetingPopupProps {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  stopRecording: () => void;
+  removeUserFromMeeting: () => void;
+  username: string;
 }
-const RecordingPopup = (props: RecordingPopupProps) => {
-  const recordingLabelHeading = 'Stop Recording?';
-  const recordingLabelSubHeading =
-    'Are you sure you want to stop recording? You can’t undo this action.';
+const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
+  const removeMeetingLabelHeading = 'Remove ' + props.username + '?';
+  const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the meeting later.`;
 
   const cancelBtnLabel = 'CANCEL';
-  const stopRecordingBtnLabel = 'END RECORDING';
+  const removeBtnLabel = 'REMOVE';
   return (
     <Popup
       modalVisible={props.modalVisible}
       setModalVisible={props.setModalVisible}
       showCloseIcon={false}
       contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.heading}>{recordingLabelHeading}</Text>
+      <Text style={styles.heading}>{removeMeetingLabelHeading}</Text>
       <Spacer size={8} />
-      <Text style={styles.subHeading}>{recordingLabelSubHeading}</Text>
+      <Text style={styles.subHeading}>{removeMeetingLabelSubHeading}</Text>
       <Spacer size={32} />
       <View style={styles.btnContainer}>
         <View style={{justifyContent: 'center', alignSelf: 'center'}}>
@@ -53,7 +53,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
               height: 48,
               minWidth: 200,
             }}
-            text={stopRecordingBtnLabel}
+            text={removeBtnLabel}
             textStyle={{
               fontFamily: 'Source Sans Pro',
               fontWeight: '600',
@@ -62,7 +62,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
               textAlign: 'center',
               color: 'rgba(255, 255, 255, 0.98)',
             }}
-            onPress={props.stopRecording}
+            onPress={props.removeUserFromMeeting}
           />
         </View>
       </View>
@@ -70,7 +70,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
   );
 };
 
-export default RecordingPopup;
+export default RemoveMeetingPopup;
 
 const styles = StyleSheet.create({
   btnContainer: {

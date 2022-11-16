@@ -1,7 +1,7 @@
 import React from 'react';
 import MeParticipant from './MeParticipant';
 import ScreenshareParticipants from './ScreenshareParticipants';
-import RemoteParticipants from './RemoteParticipants';
+import Participant from './Participant';
 import {useString} from '../../utils/useString';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
@@ -22,11 +22,11 @@ export default function AllHostParticipants(props: any) {
       {/* User should see his name first 
       todo hari check why activeUids.filter((uid) => uid === localUid).length > 0 is used
       */}
-      <RemoteParticipants
+      <Participant
         isLocal={true}
         name={getParticipantName(localUid)}
         user={renderList[localUid]}
-        showControls={renderList[localUid]?.type === 'rtc'}
+        showControls={true}
         isHost={isHost}
         key={localUid}
       />
@@ -41,11 +41,11 @@ export default function AllHostParticipants(props: any) {
               key={uid}
             />
           ) : (
-            <RemoteParticipants
+            <Participant
               isLocal={false}
               name={getParticipantName(uid)}
               user={renderList[uid]}
-              showControls={renderList[uid]?.type === 'rtc'}
+              showControls={renderList[uid]?.type === 'rtc' && isHost}
               isHost={isHost}
               key={uid}
             />

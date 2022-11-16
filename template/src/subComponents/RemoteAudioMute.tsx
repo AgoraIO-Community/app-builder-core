@@ -35,7 +35,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const mutePSTN = useMutePSTN();
   return (
     <BtnTemplate
-      disabled={!isHost}
+      disabled={!isHost || !props.audio}
       onPress={() => {
         if (isPSTN(props.uid)) {
           try {
@@ -50,7 +50,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
       style={[Styles.localButtonSmall as Object]}
       styleIcon={{width: 20, height: 20}}
       //color={props.audio ? $config.PRIMARY_COLOR : '#999999'}
-      name={props.audio ? 'micOn' : 'micOff'}
+      name={props.audio ? 'micOn' : 'micOffDisabled'}
     />
   );
 };

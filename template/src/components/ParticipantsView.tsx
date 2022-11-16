@@ -168,9 +168,6 @@ const ParticipantView = () => {
       </ScrollView>
 
       <View style={style.footer}>
-        {/* TODO: Invite popup*/}
-        {/* <CopyJoinInfo showText={true} /> */}
-        {/* <TertiaryButton text="Invite" /> */}
         <CopyJoinInfo buttonTemplateName={ButtonTemplateName.topBar} />
         {isHost && (
           <>
