@@ -54,15 +54,15 @@ const AppWrapper = (props: AppWrapperProps) => {
           <StatusBar hidden={true} />
           <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
           <StorageProvider>
-            <AuthProvider>
+            <GraphQLProvider>
               <Router>
-                <GraphQLProvider>
+                <AuthProvider>
                   <SessionProvider>
                     <ColorConfigure>
                       <DimensionProvider>
                         <LanguageProvider>
                           <ErrorProvider>
-                            <Error />
+                            {/* <Error /> */}
                             <Navigation />
                             {props.children}
                           </ErrorProvider>
@@ -70,9 +70,9 @@ const AppWrapper = (props: AppWrapperProps) => {
                       </DimensionProvider>
                     </ColorConfigure>
                   </SessionProvider>
-                </GraphQLProvider>
+                </AuthProvider>
               </Router>
-            </AuthProvider>
+            </GraphQLProvider>
           </StorageProvider>
         </SafeAreaView>
       </ImageBackground>

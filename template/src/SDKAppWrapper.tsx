@@ -8,6 +8,7 @@ import SDKEvents from './utils/SdkEvents';
 import App from './App';
 import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
 import useTokenServerAuth from './auth/useTokenServerAuth';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export interface userEventsMapInterface {
   leave: () => void;
@@ -66,23 +67,19 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
 
 const SDKAppWrapper = () => {
   const [fpe, setFpe] = useState(customizationConfig);
-  const {setServerToken, validateToken} = useTokenServerAuth();
   const [initialized, setInitialized] = React.useState(false);
-  const [options, setSdkOptions] = React.useState<OptionsInterface>();
 
-  useEffect(() => {
-    if (!initialized) return;
-    if ($config.ENABLE_TOKEN_SERVER) {
-      SDKEvents.emit('server-token', options.token);
-      setServerToken(options.token);
+  const setSdkToken = async (sdkToken) => {
+    try {
+      await AsyncStorage.setItem('SDK_TOKEN', sdkToken);
+    } catch (e) {
+      console.log('problem syncing the store', e);
     }
-  }, [initialized]);
-
+  };
   useEffect(() => {
     SDKEvents.on('appInit', async (options, resolve, reject) => {
       try {
-        $config.ENABLE_TOKEN_SERVER && validateToken(options);
-        setSdkOptions(options);
+        $config.ENABLE_TOKEN_AUTH && setSdkToken(options?.token);
         setInitialized(true);
         resolve(true);
       } catch (error) {
