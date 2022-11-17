@@ -61,19 +61,29 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   let btnTemplateProps: BtnTemplateInterface = {
     onPress: onPress,
     name: 'share',
-    styleIcon: {
-      width: 24,
-      height: 24,
-    },
+  };
+  btnTemplateProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+    color: $config.PRIMARY_COLOR,
   };
 
-  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
-    btnTemplateProps.btnText = copyMeetingInviteButton;
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.styleText = Styles.localButtonText as Object;
-  } else {
+  if (buttonTemplateName === ButtonTemplateName.topBar) {
     btnTemplateProps.style = style.shareIcon;
     btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
+    btnTemplateProps.styleIcon = {
+      width: 20,
+      height: 20,
+    };
+  } else {
+    btnTemplateProps.btnText = copyMeetingInviteButton;
+    btnTemplateProps.style = Styles.localButton as Object;
+    btnTemplateProps.styleIcon = {
+      width: 24,
+      height: 24,
+    };
   }
 
   return props?.render ? (

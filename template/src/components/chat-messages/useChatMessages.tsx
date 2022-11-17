@@ -49,6 +49,7 @@ interface ChatMessagesInterface {
   sendChatMessage: (msg: string, toUid?: UidType) => void;
   editChatMessage: (msgId: string, msg: string, toUid?: UidType) => void;
   deleteChatMessage: (msgId: string, toUid?: UidType) => void;
+  openPrivateChat: (toUid: UidType) => void;
 }
 
 const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
@@ -57,6 +58,7 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
   sendChatMessage: () => {},
   editChatMessage: () => {},
   deleteChatMessage: () => {},
+  openPrivateChat: () => {},
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
@@ -89,6 +91,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
   const fromText = (name: string) => `From : ${name}`;
+  const privateMessageLabel = 'You’ve recieved a direct message';
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
@@ -101,6 +104,23 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     individualActiveRef.current = selectedChatUserId;
   }, [selectedChatUserId]);
 
+  const openPrivateChat = (uidAsNumber) => {
+    setUnreadPrivateMessageCount(
+      unreadPrivateMessageCount -
+        (unreadIndividualMessageCount[uidAsNumber] || 0),
+    );
+    setUnreadIndividualMessageCount((prevState) => {
+      return {
+        ...prevState,
+        [uidAsNumber]: 0,
+      };
+    });
+    setGroupActive(false);
+    setSelectedChatUserId(uidAsNumber);
+    setPrivateActive(true);
+    setSidePanel(SidePanelType.Chat);
+  };
+
   React.useEffect(() => {
     const showMessageNotification = (
       msg: string,
@@ -110,33 +130,25 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       const uidAsNumber = parseInt(uid);
       Toast.show({
         type: 'success',
-        text1: msg.length > 30 ? msg.slice(0, 30) + '...' : msg,
+        text1: isPrivateMessage
+          ? privateMessageLabel
+          : msg.length > 30
+          ? msg.slice(0, 30) + '...'
+          : msg,
         text2: renderListRef.current.renderList[uidAsNumber]?.name
           ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
           : '',
         visibilityTime: 1000,
         onPress: () => {
           if (isPrivateMessage) {
-            setUnreadPrivateMessageCount(
-              unreadPrivateMessageCount -
-                (unreadIndividualMessageCount[uidAsNumber] || 0),
-            );
-            setUnreadIndividualMessageCount((prevState) => {
-              return {
-                ...prevState,
-                [uidAsNumber]: 0,
-              };
-            });
-            setGroupActive(false);
-            setSelectedChatUserId(uidAsNumber);
-            setPrivateActive(true);
+            openPrivateChat(uidAsNumber);
           } else {
             setUnreadGroupMessageCount(0);
             setPrivateActive(false);
             setSelectedChatUserId(0);
             setGroupActive(true);
+            setSidePanel(SidePanelType.Chat);
           }
-          setSidePanel(SidePanelType.Chat);
         },
       });
     };
@@ -514,6 +526,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         sendChatMessage,
         editChatMessage,
         deleteChatMessage,
+        openPrivateChat,
       }}>
       {props.children}
     </ChatMessagesContext.Provider>

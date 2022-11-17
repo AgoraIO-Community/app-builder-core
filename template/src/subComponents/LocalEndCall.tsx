@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   ButtonTemplateName,
   useButtonTemplate,
@@ -12,6 +12,9 @@ import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {useRtc} from 'customization-api';
+import EndcallPopup from './EndcallPopup';
+import StorageContext from '../components/StorageContext';
+import {useParams} from '../components/Router';
 
 export interface LocalEndcallProps {
   buttonTemplateName?: ButtonTemplateName;
@@ -29,26 +32,56 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
   const isTopBarTemplate = buttonTemplateName === ButtonTemplateName.topBar;
-  const onPress = () =>
-    dispatch({
-      type: 'EndCall',
-      value: [],
+  const {setStore} = useContext(StorageContext);
+  const [endcallVisible, setEndcallVisible] = useState(false);
+  const {phrase} = useParams<{phrase: string}>();
+  const onPress = () => {
+    setEndcallVisible(true);
+  };
+
+  const endCall = async () => {
+    setStore((prevState) => {
+      return {
+        ...prevState,
+        lastMeetingPhrase: phrase,
+      };
     });
+    setTimeout(() => {
+      dispatch({
+        type: 'EndCall',
+        value: [],
+      });
+    });
+  };
+
   return props?.render ? (
     props.render(onPress, buttonTemplateName)
   ) : (
-    <TouchableOpacity
-      style={Styles.endCallContainer as object}
-      onPress={onPress}>
-      <ImageIcon
-        style={{
-          width: 20,
-          height: 20,
-        }}
-        name={'endCall'}
+    <>
+      <EndcallPopup
+        endCall={endCall}
+        setModalVisible={setEndcallVisible}
+        modalVisible={endcallVisible}
       />
-      <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={!isTopBarTemplate && (Styles.endCallContainer as object)}
+        onPress={onPress}>
+        <ImageIcon
+          style={
+            isTopBarTemplate
+              ? Styles.actionSheetButton
+              : {
+                  width: 20,
+                  height: 20,
+                }
+          }
+          name={'endCall'}
+        />
+        {!isTopBarTemplate && (
+          <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
+        )}
+      </TouchableOpacity>
+    </>
   );
 };
 export default LocalEndcall;

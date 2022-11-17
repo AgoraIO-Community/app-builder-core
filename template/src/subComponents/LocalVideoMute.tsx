@@ -62,10 +62,6 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? 'videocamOn'
       : 'videocamOff',
     disabled: permissionDenied ? true : false,
-    styleIcon: {
-      width: 24,
-      height: 24,
-    },
   };
   btnTemplateProps.styleText = {
     fontFamily: 'Source Sans Pro',
@@ -83,6 +79,10 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = videoLabel;
+    btnTemplateProps.styleIcon = {
+      width: 24,
+      height: 24,
+    };
   }
 
   return props?.render ? (

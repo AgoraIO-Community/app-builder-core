@@ -80,10 +80,10 @@ const runCliNoOutput = (cmd, cb) => {
 };
 
 const general = {
-  clean: () => {
+  cleanBuildDirectory: () => {
     return del([`${BUILD_PATH}/**/*`], {force: true});
   },
-  packageJson: async (cb) => {
+  addPackageInfo: async (cb) => {
     let {private, author, description, dependencies} = JSON.parse(
       await fs.readFile(path.join(__dirname, 'package.json')),
     );
@@ -151,14 +151,14 @@ const general = {
   createBuildDirectory: () => {
     return fs.mkdir(BUILD_PATH, {recursive: true});
   },
-  typescript: (cb) => {
+  generateApiTypedefs: (cb) => {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/customization-api.d.ts',
       () => cb(),
     );
   },
-  typescriptFix: () => {
+  bundleApiTypedefs: () => {
     return src(['../Builds/customization-api.d.ts', './global.d.ts'])
       .pipe(concat('./customization-api.d.ts'))
       .pipe(
@@ -174,7 +174,7 @@ declare module 'customization' {
       .pipe(replace('"agora-rn-uikit"', '"agora-rn-uikit/src/index"'))
       .pipe(dest('../Builds/'));
   },
-  typescriptClean: () => {
+  cleanTempFiles: () => {
     return del([`${path.join(BUILD_PATH, '../', '/')}*.d.ts`], {force: true});
   },
   genTsDefs: (cb) => {
@@ -186,7 +186,7 @@ declare module 'customization' {
   useTsDefs: (cb) => {
     runCli(`cp ${TS_DEFS_BUILD_PATH}/index.d.ts ${BUILD_PATH}/index.d.ts`, cb);
   },
-  npmPack: (cb) => {
+  generateNpmPackage: (cb) => {
     runCli(`cd ${BUILD_PATH} && npm pack`, cb);
   },
 };
@@ -247,7 +247,7 @@ const reactSdk = {
     console.log(esbuildCmd);
     runCli(esbuildCmd, cb);
   },
-  typescript: (cb) => {
+  generateSdkTypedefs: (cb) => {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       //'npx -p typescript tsc index.rsdk.tsx --declaration --emitDeclarationOnly --noResolve --outFile ../Builds/temp.d.ts',
@@ -255,7 +255,7 @@ const reactSdk = {
       () => cb(),
     );
   },
-  typescriptFix: () => {
+  bundleSdkTypedefs: () => {
     return src(['../Builds/customization-api.d.ts', '../Builds/reactSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
@@ -275,14 +275,14 @@ const webSdk = {
   webpack: (cb) => {
     runCli('webpack --config ./webpack.wsdk.config.js', cb);
   },
-  typescript: (cb) => {
+  generateSdkTypedefs: (cb) => {
     const cli = debugFlag ? runCli : runCliNoOutput;
     cli(
       'npx -p typescript tsc --project tsconfig_wsdk_index.json --outFile ../Builds/webSdk.d.ts',
       () => cb(),
     );
   },
-  typescriptFix: () => {
+  bundleSdkTypedefs: () => {
     return src(['../Builds/customization-api.d.ts', '../Builds/webSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
@@ -332,18 +332,18 @@ const android = {
 
 // electron
 module.exports.electron_build = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
   parallel(
     electron.webpack_renderer,
     electron.webpack_main,
-    general.packageJson,
+    general.addPackageInfo,
   ),
   electron.build,
 );
 
 module.exports.electron_development = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
   electron.devServer,
   electron.webpack_main,
@@ -352,115 +352,115 @@ module.exports.electron_development = series(
 
 // react-sdk
 module.exports.reactSdk = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   reactSdk.webpack,
-  general.typescript,
-  general.typescriptFix,
-  reactSdk.typescript,
-  reactSdk.typescriptFix,
-  general.typescriptClean,
-  general.npmPack,
+  general.generateApiTypedefs,
+  general.bundleApiTypedefs,
+  reactSdk.generateSdkTypedefs,
+  reactSdk.bundleSdkTypedefs,
+  general.cleanTempFiles,
+  general.generateNpmPackage,
 );
 
 // react-sdk-esbuild
 module.exports.reactSdkEsbuild = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   reactSdk.esbuild,
-  general.typescript,
-  general.typescriptFix,
-  reactSdk.typescript,
-  reactSdk.typescriptFix,
-  general.typescriptClean,
-  general.npmPack,
+  general.generateApiTypedefs,
+  general.bundleApiTypedefs,
+  reactSdk.generateSdkTypedefs,
+  reactSdk.bundleSdkTypedefs,
+  general.cleanTempFiles,
+  general.generateNpmPackage,
 );
 
 // generate typescript definitions
 module.exports.makeRsdkTsDefs = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   reactSdk.webpack,
-  general.typescript,
-  general.typescriptFix,
-  reactSdk.typescript,
-  reactSdk.typescriptFix,
-  general.typescriptClean,
+  general.generateApiTypedefs,
+  general.bundleApiTypedefs,
+  reactSdk.generateSdkTypedefs,
+  reactSdk.bundleSdkTypedefs,
+  general.cleanTempFiles,
   general.genTsDefs,
 );
 
 // react-sdk-esbuild with cached type definitions
 module.exports.reactSdkEsbuildCachedTsc = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   reactSdk.esbuild,
   general.useTsDefs,
-  general.npmPack,
+  general.generateNpmPackage,
 );
 
 // web-sdk
 module.exports.webSdk = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   parallel(
     webSdk.webpack,
     series(
-      general.typescript,
-      general.typescriptFix,
-      webSdk.typescript,
-      webSdk.typescriptFix,
-      general.typescriptClean,
+      general.generateApiTypedefs,
+      general.bundleApiTypedefs,
+      webSdk.generateSdkTypedefs,
+      webSdk.bundleSdkTypedefs,
+      general.cleanTempFiles,
     ),
   ),
-  general.npmPack,
+  general.generateNpmPackage,
 );
 
 module.exports.makeWsdkTsDefs = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   parallel(
     webSdk.webpack,
     series(
-      general.typescript,
-      general.typescriptFix,
-      webSdk.typescript,
-      webSdk.typescriptFix,
-      general.typescriptClean,
+      general.generateApiTypedefs,
+      general.bundleApiTypedefs,
+      webSdk.generateSdkTypedefs,
+      webSdk.bundleSdkTypedefs,
+      general.cleanTempFiles,
     ),
   ),
   general.genTsDefs,
 );
 
 module.exports.webSdkCachedTsc = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
-  general.packageJson,
+  general.addPackageInfo,
   parallel(webSdk.webpack, general.useTsDefs),
-  general.npmPack,
+  general.generateNpmPackage,
 );
 
 module.exports.androidUnix = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
   android.gradleBuildUnix,
   android.copyBuild,
 );
 
 module.exports.androidWin = series(
-  general.clean,
+  general.cleanBuildDirectory,
   general.createBuildDirectory,
   android.gradleBuildWin,
   android.copyBuild,
 );
 
 module.exports.test = series(
-  general.npmPack,
+  general.generateNpmPackage,
   // general.typescript,
   // general.typescriptFix,
   // reactSdk.typescript,

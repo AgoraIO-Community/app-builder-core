@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useRecording} from './recording/useRecording';
 import {useString} from '../utils/useString';
@@ -18,6 +18,7 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import Styles from '../components/styles';
+import RecordingPopup from './RecordingPopup';
 
 export interface RecordingButtonProps {
   buttonTemplateName?: ButtonTemplateName;
@@ -36,11 +37,20 @@ const Recording = (props: RecordingButtonProps) => {
     recording ? 'Stop Record' : 'Start Record';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const doStopRecording = () => {
+    if (isRecordingActive) {
+      stopRecording && stopRecording();
+      setModalVisible(false);
+    }
+  };
+
   const onPress = () => {
     if (!isRecordingActive) {
       startRecording && startRecording();
     } else {
-      stopRecording && stopRecording();
+      setModalVisible(true);
     }
   };
   let btnTemplateProps: BtnTemplateInterface = {
@@ -69,7 +79,14 @@ const Recording = (props: RecordingButtonProps) => {
   return props?.render ? (
     props.render(onPress, isRecordingActive, buttonTemplateName)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <>
+      <RecordingPopup
+        stopRecording={doStopRecording}
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
+      <BtnTemplate {...btnTemplateProps} />
+    </>
   );
 };
 

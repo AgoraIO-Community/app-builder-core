@@ -5,6 +5,7 @@ import {
   CustomizationProvider,
 } from 'customization-implementation';
 import SDKEvents from './utils/SdkEvents';
+import {Unsubscribe} from 'nanoevents';
 import App from './App';
 
 export interface userEventsMapInterface {
@@ -34,7 +35,7 @@ export interface AppBuilderSdkApiInterface {
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
     callBack: userEventsMapInterface[T],
-  ) => void;
+  ) => Unsubscribe;
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
@@ -47,8 +48,8 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     }),
   createCustomization: customize,
   on: (userEventName, cb) => {
-    SDKEvents.on(userEventName, cb);
     console.log('SDKEvents: Event Registered', userEventName);
+    return SDKEvents.on(userEventName, cb);
   },
 };
 

@@ -158,27 +158,23 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         <View style={style.header}>
-          <View
+          <BtnTemplate
+            styleIcon={style.closeIcon}
             style={{
               opacity: privateActive ? 1 : 0,
-            }}>
-            <BtnTemplate
-              styleIcon={style.closeIcon}
-              name={'backBtn'}
-              onPress={() => {
-                setPrivateActive(false);
-              }}
-            />
-          </View>
+            }}
+            name={'backBtn'}
+            onPress={() => {
+              setPrivateActive(false);
+            }}
+          />
           <View style={style.buttonHolder}>
             <TouchableOpacity
               onPress={selectGroup}
               style={groupActive ? [style.groupActive] : [style.group]}>
-              {/* {unreadGroupMessageCount !== 0 ? (
-                <View style={style.chatNotification}>
-                  <Text>{unreadGroupMessageCount}</Text>
-                </View>
-              ) : null} */}
+              {unreadGroupMessageCount !== 0 ? (
+                <View style={style.chatNotification} />
+              ) : null}
               <Text
                 style={groupActive ? style.groupTextActive : style.groupText}>
                 {groupChatLabel}
@@ -187,26 +183,22 @@ const Chat = (props?: ChatProps) => {
             <TouchableOpacity
               onPress={selectPrivate}
               style={!groupActive ? [style.privateActive] : [style.private]}>
-              {/* {unreadPrivateMessageCount !== 0 ? (
-                <View style={style.chatNotification}>
-                  <Text>{unreadPrivateMessageCount}</Text>
-                </View>
-              ) : null} */}
+              {unreadPrivateMessageCount !== 0 ? (
+                <View style={style.chatNotification} />
+              ) : null}
               <Text
                 style={!groupActive ? style.groupTextActive : style.groupText}>
                 {privateChatLabel}
               </Text>
             </TouchableOpacity>
           </View>
-          <View>
-            <BtnTemplate
-              styleIcon={style.closeIcon}
-              name={'closeRounded'}
-              onPress={() => {
-                setSidePanel(SidePanelType.None);
-              }}
-            />
-          </View>
+          <BtnTemplate
+            styleIcon={style.closeIcon}
+            name={'closeRounded'}
+            onPress={() => {
+              setSidePanel(SidePanelType.None);
+            }}
+          />
         </View>
 
         {groupActive ? (
@@ -262,8 +254,8 @@ const style = StyleSheet.create({
     minHeight: 60,
   },
   chatView: {
-    maxWidth: '23%',
-    minWidth: 200,
+    maxWidth: '20%',
+    minWidth: 338,
     borderRadius: 12,
     marginLeft: 20,
     marginTop: 10,
@@ -334,32 +326,13 @@ const style = StyleSheet.create({
     color: '#1A1A1A',
   },
   chatNotification: {
-    width: 20,
-    height: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: $config.PRIMARY_COLOR,
-    color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-    borderRadius: 10,
+    width: 8,
+    height: 8,
+    backgroundColor: '#FF414D',
+    borderRadius: 30,
     position: 'absolute',
-    left: 25,
-    top: -5,
-  },
-  chatNotificationPrivate: {
-    width: 20,
-    height: 20,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: $config.PRIMARY_COLOR,
-    color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
-    borderRadius: 10,
-    position: 'absolute',
-    right: 20,
-    top: 0,
+    right: 5,
+    top: 4,
   },
 });
 

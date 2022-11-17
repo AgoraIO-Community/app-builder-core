@@ -63,10 +63,6 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       ? 'micOn'
       : 'micOff',
     disabled: permissionDenied ? true : false,
-    styleIcon: {
-      width: 24,
-      height: 24,
-    },
   };
   btnTemplateProps.styleText = {
     fontFamily: 'Source Sans Pro',
@@ -84,6 +80,10 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   } else {
     btnTemplateProps.style = Styles.localButton as Object;
     btnTemplateProps.btnText = audioLabel;
+    btnTemplateProps.styleIcon = {
+      width: 24,
+      height: 24,
+    };
   }
 
   return props?.render ? (

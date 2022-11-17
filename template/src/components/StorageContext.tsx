@@ -27,6 +27,7 @@ export const initStoreValue: StoreInterface = {
   displayName: '',
   selectedLanguageCode: '',
   permissionPopupSeen: JSON.stringify(false),
+  lastMeetingPhrase: '',
 };
 
 const initStorageContextValue = {
