@@ -74,7 +74,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? $config.PRIMARY_COLOR
       : '#FF414D',
   };
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
+  if (buttonTemplateName === ButtonTemplateName.actionBar) {
     btnTemplateProps.style = Styles.actionSheetButton as Object;
   } else {
     btnTemplateProps.style = Styles.localButton as Object;

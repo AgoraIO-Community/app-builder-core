@@ -31,7 +31,8 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const endCallLabel = 'End';
   const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
   const {buttonTemplateName = defaultTemplateValue} = props;
-  const isTopBarTemplate = buttonTemplateName === ButtonTemplateName.topBar;
+  const isActionBarTemplate =
+    buttonTemplateName === ButtonTemplateName.actionBar;
   const {setStore} = useContext(StorageContext);
   const [endcallVisible, setEndcallVisible] = useState(false);
   const {phrase} = useParams<{phrase: string}>();
@@ -64,11 +65,11 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         modalVisible={endcallVisible}
       />
       <TouchableOpacity
-        style={!isTopBarTemplate && (Styles.endCallContainer as object)}
+        style={!isActionBarTemplate && (Styles.endCallContainer as object)}
         onPress={onPress}>
         <ImageIcon
           style={
-            isTopBarTemplate
+            isActionBarTemplate
               ? Styles.actionSheetButton
               : {
                   width: 20,
@@ -77,7 +78,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
           }
           name={'endCall'}
         />
-        {!isTopBarTemplate && (
+        {!isActionBarTemplate && (
           <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
         )}
       </TouchableOpacity>

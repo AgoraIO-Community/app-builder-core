@@ -62,7 +62,7 @@ const Recording = (props: RecordingButtonProps) => {
     },
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
+  if (buttonTemplateName === ButtonTemplateName.actionBar) {
     btnTemplateProps.style = Styles.actionSheetButton as Object;
   } else {
     btnTemplateProps.btnText = recordingButton(isRecordingActive);

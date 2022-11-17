@@ -97,7 +97,7 @@ interface ParticipantsIconButtonProps {
     buttonTemplateName?: ButtonTemplateName,
   ) => JSX.Element;
 }
-const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
       top: isWebInternal() ? -10 : 2,

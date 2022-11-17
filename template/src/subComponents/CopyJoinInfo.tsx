@@ -70,13 +70,9 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     color: $config.PRIMARY_COLOR,
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = style.shareIcon;
+  if (buttonTemplateName === ButtonTemplateName.actionBar) {
+    btnTemplateProps.style = Styles.actionSheetButton;
     btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
-    btnTemplateProps.styleIcon = {
-      width: 20,
-      height: 20,
-    };
   } else {
     btnTemplateProps.btnText = copyMeetingInviteButton;
     btnTemplateProps.style = Styles.localButton as Object;

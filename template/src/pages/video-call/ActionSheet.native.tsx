@@ -20,6 +20,7 @@ import {ImageIcon} from 'agora-rn-uikit';
 import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
+import {ChatIconButton, ParticipantsIconButton} from '../../components/Navbar';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -44,13 +45,13 @@ const ActionSheet = () => {
       <BottomSheetView>
         <View style={[styles.row, {borderBottomWidth: 1}]}>
           <View style={styles.iconContainer}>
-            <LocalVideoMute buttonTemplateName={ButtonTemplateName.topBar} />
+            <LocalVideoMute buttonTemplateName={ButtonTemplateName.actionBar} />
           </View>
           <View style={[styles.iconContainer]}>
-            <LocalAudioMute buttonTemplateName={ButtonTemplateName.topBar} />
+            <LocalAudioMute buttonTemplateName={ButtonTemplateName.actionBar} />
           </View>
           <View style={[styles.iconContainer, {backgroundColor: '#FF414D'}]}>
-            <LocalEndcall buttonTemplateName={ButtonTemplateName.topBar} />
+            <LocalEndcall buttonTemplateName={ButtonTemplateName.actionBar} />
           </View>
           <View style={styles.iconContainer}>
             <TouchableOpacity
@@ -64,34 +65,62 @@ const ActionSheet = () => {
         </View>
         <View style={styles.row}>
           {/* chat */}
-          <View style={styles.iconContainer}>
-            <ImageIcon name={'chat'} style={Styles.actionSheetButton} />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <ImageIcon name={'chat'} style={Styles.actionSheetButton} />
+            </View>
+            <Text style={styles.iconText}>Chat</Text>
           </View>
           {/* participants */}
-          <View style={styles.iconContainer}>
-            <ImageIcon name={'participant'} style={Styles.actionSheetButton} />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <ImageIcon
+                name={'participant'}
+                style={Styles.actionSheetButton}
+              />
+              {/* <ParticipantsIconButton /> */}
+            </View>
+            <Text style={styles.iconText}>Participants</Text>
           </View>
           {/* record */}
-          <View style={styles.iconContainer}>
-            <Recording buttonTemplateName={ButtonTemplateName.topBar} />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <Recording buttonTemplateName={ButtonTemplateName.actionBar} />
+            </View>
+            <Text style={styles.iconText}>Record</Text>
           </View>
+
           {/* switch camera */}
-          <View style={styles.iconContainer}>
-            <LocalSwitchCamera buttonTemplateName={ButtonTemplateName.topBar} />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <LocalSwitchCamera
+                buttonTemplateName={ButtonTemplateName.actionBar}
+              />
+            </View>
+            <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
           </View>
         </View>
         <View style={styles.row}>
           {/* List view */}
-          <View style={styles.iconContainer}>
-            <ImageIcon name={'listView'} style={Styles.actionSheetButton} />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <ImageIcon name={'listView'} style={Styles.actionSheetButton} />
+            </View>
+            <Text style={styles.iconText}>List View</Text>
           </View>
           {/* settings */}
-          <View style={styles.iconContainer}>
-            <ImageIcon name={'settings'} style={Styles.actionSheetButton} />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <ImageIcon name={'settings'} style={Styles.actionSheetButton} />
+            </View>
+            <Text style={styles.iconText}>Settings</Text>
           </View>
           {/* invite */}
-          <View style={styles.iconContainer}>
-            <CopyJoinInfo />
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <CopyJoinInfo buttonTemplateName={ButtonTemplateName.actionBar} />
+            </View>
+            <Text style={styles.iconText}>Invite</Text>
           </View>
 
           <View style={styles.emptyContainer}></View>
@@ -138,5 +167,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#A0B9CA',
     width: 40,
     height: 4,
+  },
+  iconWithText: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconText: {
+    color: $config.PRIMARY_COLOR,
+    marginTop: 8,
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: 'Source Sans Pro',
+    textAlign: 'center',
   },
 });
