@@ -15,6 +15,7 @@ import {
   InMemoryCache,
   ApolloProvider,
   NormalizedCacheObject,
+  // from,
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
@@ -41,17 +42,16 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
     if (storeString) {
       token = JSON.parse(storeString).token;
     }
+
     console.log('link module token', storeString);
-    if (token) {
-      return {
-        headers: {
-          ...headers,
-          authorization: token ? `Bearer ${token}` : '',
-        },
-      };
-    } else {
-      return headers;
-    }
+    return {
+      headers: {
+        ...headers,
+        'X-Project-ID': $config.PROJECT_ID,
+        'X-Platform-ID': 'turnkey_web',
+        ...(token && {authorization: token ? `Bearer ${token}` : ''}),
+      },
+    };
   });
 
   // const errorLink = onError(

@@ -21,10 +21,7 @@ const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
 const useHasBrandLogo = () => () => !!$config.LOGO;
 
 const shouldAuthenticate: boolean =
-  $config.ENABLE_APPLE_OAUTH ||
-  $config.ENABLE_GOOGLE_OAUTH ||
-  $config.ENABLE_MICROSOFT_OAUTH ||
-  $config.ENABLE_SLACK_OAUTH;
+  $config.ENABLE_TOKEN_AUTH || $config.ENABLE_IDP_AUTH;
 
 //for our internal usage don't check Platform - electron and web will same kind ui checks. thats why we have isWeb for external usage
 const isWebInternal = () => ReactNativePlatform.OS === 'web';

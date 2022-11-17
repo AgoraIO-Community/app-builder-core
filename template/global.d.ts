@@ -76,6 +76,9 @@ interface ConfigInterface {
   GEO_FENCING: boolean;
   LOG_ENABLED: boolean;
   AUDIO_ROOM: boolean;
+  ENABLE_TOKEN_AUTH: boolean;
+  ENABLE_IDP_AUTH: boolean;
+  PROJECT_ID: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

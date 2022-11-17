@@ -4,23 +4,21 @@ import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
 
 export const idpAuth = {
   auth_uri: `${$config.BACKEND_ENDPOINT}/idp/login`,
-  origin_uri: 'https://google.com',
+  origin_uri: 'https://localhost.9000',
   redirect_uri: 'http://localhost:9000/create',
-  //   redirect_uri: 'https://conferencing.agora.io', // where to redirect the user to after login.
+  // redirect_uri: window.location.origin,
 };
 
 export const IDPAuth = () => {
   useEffect(() => {
-    if ($config.ENABLE_IDP_AUTHENTICATION) {
-      Linking.openURL(
-        `${idpAuth.auth_uri}?project_id=${$config.PROJECT_ID}&redirect_url=${idpAuth.redirect_uri}&origin_url=${idpAuth.origin_uri}`,
-      );
-    }
+    Linking.openURL(
+      `${idpAuth.auth_uri}?project_id=${$config.PROJECT_ID}&redirect_url=${idpAuth.redirect_uri}&origin_url=${idpAuth.origin_uri}&platform_id=turnkey_web`,
+    );
   }, []);
 
   return (
     <View style={styles.overlay}>
-      <Text style={styles.loadingText}>Loading app...</Text>
+      <Text style={styles.loadingText}>Authorizing app...</Text>
       <ActivityIndicator size="large" color={$config.SECONDARY_FONT_COLOR} />
     </View>
   );
