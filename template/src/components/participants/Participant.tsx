@@ -13,11 +13,7 @@ import React, {useContext, useRef, useState} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {
-  BtnTemplate,
-  ClientRole,
-  RenderInterface,
-} from '../../../agora-rn-uikit';
+import {ClientRole, RenderInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isWeb, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
@@ -35,6 +31,7 @@ import {
   LiveStreamControlMessageEnum,
 } from '../livestream';
 import events, {EventPersistLevel} from '../../rtm-events-api';
+import IconButton from 'src/atoms/IconButton';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -183,8 +180,11 @@ const Participant = (props: ParticipantInterface) => {
           </View>
           {showControls ? (
             <View style={styles.iconContainer}>
-              <BtnTemplate
-                name="more2"
+              <IconButton
+                iconProps={{
+                  name: 'more',
+                  iconSize: 'medium',
+                }}
                 style={{
                   opacity:
                     ((isHovered || actionMenuVisible || !isWebInternal()) &&
@@ -196,16 +196,11 @@ const Participant = (props: ParticipantInterface) => {
                 onPress={() => {
                   showModal();
                 }}
-                styleIcon={{width: 20, height: 20}}
               />
               <Spacer horizontal={true} size={16} />
               {!$config.AUDIO_ROOM &&
                 (isLocal
-                  ? !isAudienceUser && (
-                      <LocalVideoMute
-                        buttonTemplateName={ButtonTemplateName.topBar}
-                      />
-                    )
+                  ? !isAudienceUser && <LocalVideoMute />
                   : !isAudienceUser && (
                       <RemoteVideoMute
                         uid={user.uid}
@@ -215,11 +210,7 @@ const Participant = (props: ParticipantInterface) => {
                     ))}
               <Spacer horizontal={true} size={16} />
               {isLocal
-                ? !isAudienceUser && (
-                    <LocalAudioMute
-                      buttonTemplateName={ButtonTemplateName.topBar}
-                    />
-                  )
+                ? !isAudienceUser && <LocalAudioMute />
                 : !isAudienceUser && (
                     <RemoteAudioMute
                       uid={user.uid}

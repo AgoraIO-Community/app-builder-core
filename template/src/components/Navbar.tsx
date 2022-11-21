@@ -20,11 +20,6 @@ import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ChatContext from '../components/ChatContext';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import {
-  BtnTemplate,
-  BtnTemplateInterface,
-  ImageIcon,
-} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
@@ -50,6 +45,7 @@ import {
   useButtonTemplate,
 } from '../utils/useButtonTemplate';
 import Styles from './styles';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
@@ -90,12 +86,7 @@ interface ParticipantsIconButtonProps {
     left?: number;
     bottom?: number;
   };
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isPanelActive: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
@@ -113,8 +104,6 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   //const participantsLabel = useString('participantsLabel')();
   const {onlineUsersCount} = useContext(ChatContext);
   const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
@@ -124,32 +113,26 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     $config.EVENT_MODE && $config.RAISE_HAND;
     setLastCheckedRequestTimestamp(new Date().getTime());
   };
-  let btnTemplateProps: BtnTemplateInterface = {
+  let iconButtonProps: IconButtonProps = {
     onPress: onPress,
-    name: isPanelActive ? 'participantActive' : 'participant',
-    styleIcon: {
-      width: 24,
-      height: 24,
+    iconProps: {
+      name: 'participants',
+      tintColor: isPanelActive ? '#FFFFFF' : '#099DFD',
     },
   };
 
-  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
-    btnTemplateProps.btnText = participantsLabel;
-    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = participantsLabel;
-    btnTemplateProps.styleText = {
-      fontFamily: 'Source Sans Pro',
-      fontSize: 12,
-      marginTop: 4,
-      fontWeight: isPanelActive ? '700' : '400',
-      color: isPanelActive ? '#FFFFFF' : '#099DFD',
-    };
-    //btnTemplateProps.color = isPanelActive ? '#fff' : $config.PRIMARY_COLOR;
-  }
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.btnText = participantsLabel;
+  iconButtonProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: isPanelActive ? '700' : '400',
+    color: isPanelActive ? '#FFFFFF' : '#099DFD',
+  };
+
   return props?.render ? (
-    props.render(onPress, isPanelActive, buttonTemplateName)
+    props.render(onPress, isPanelActive)
   ) : (
     <>
       <View
@@ -161,7 +144,7 @@ const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
               : 'transparent',
           },
         ]}>
-        <BtnTemplate {...btnTemplateProps} />
+        <IconButton {...iconButtonProps} />
       </View>
       {/* {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
         <View
@@ -192,12 +175,10 @@ interface ChatIconButtonProps {
     bottom?: number;
   };
   badgeTextStyle?: TextStyle;
-  buttonTemplateName?: ButtonTemplateName;
   render?: (
     onPress: () => void,
     isPanelActive: boolean,
     totalUnreadCount: number,
-    buttonTemplateName?: ButtonTemplateName,
   ) => JSX.Element;
 }
 
@@ -224,8 +205,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   //commented for v1 release
   //const chatLabel = useString('chatLabel')();
   const chatLabel = 'Chat';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const isPanelActive = sidePanel === SidePanelType.Chat;
   const onPress = () => {
     if (isPanelActive) {
@@ -239,31 +218,24 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       setSidePanel(SidePanelType.Chat);
     }
   };
-  let btnTemplateProps: BtnTemplateInterface = {
+  let iconButtonProps: IconButtonProps = {
     onPress: onPress,
-    //name: totalUnreadCount !== 0 ? 'unreadChatIcon' : 'chatIcon',
-    //todo hari
-    name: isPanelActive ? 'chatActive' : 'chat',
-    styleIcon: {
-      width: 24,
-      height: 24,
+    iconProps: {
+      name: 'chat',
+      tintColor: isPanelActive ? '#FFFFFF' : '#099DFD',
     },
   };
 
-  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
-    btnTemplateProps.btnText = chatLabel;
-    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = chatLabel;
-    btnTemplateProps.styleText = {
-      fontFamily: 'Source Sans Pro',
-      fontSize: 12,
-      marginTop: 4,
-      fontWeight: isPanelActive ? '700' : '400',
-      color: isPanelActive ? '#FFFFFF' : '#099DFD',
-    };
-  }
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.btnText = chatLabel;
+  iconButtonProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: isPanelActive ? '700' : '400',
+    color: isPanelActive ? '#FFFFFF' : '#099DFD',
+  };
+
   const renderBadge = (badgeCount: any) => {
     return (
       <View
@@ -292,7 +264,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     );
   };
   return props?.render ? (
-    props.render(onPress, isPanelActive, totalUnreadCount, buttonTemplateName)
+    props.render(onPress, isPanelActive, totalUnreadCount)
   ) : (
     <>
       <View
@@ -304,7 +276,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
               : 'transparent',
           },
         ]}>
-        <BtnTemplate {...btnTemplateProps} />
+        <IconButton {...iconButtonProps} />
         {totalUnreadCount !== 0 && renderBadge(totalUnreadCount)}
       </View>
     </>
@@ -318,11 +290,8 @@ interface LayoutIconButtonProps {
     left?: number;
     bottom?: number;
   };
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+
+  render?: (onPress: () => void) => JSX.Element;
 }
 
 const SettingsIconButton = (props: SettingsIconButtonProps) => {

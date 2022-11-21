@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import IconButton from './IconButton';
 
 interface PopupProps extends ModalProps {
   title?: string;
@@ -49,9 +49,10 @@ const Popup = (props: PopupProps) => {
             <View style={styles.header}>
               <Text style={styles.title}>{title}</Text>
               {showCloseIcon ? (
-                <BtnTemplate
-                  style={styles.closeIcon}
-                  name={'closeRounded'}
+                <IconButton
+                  iconProps={{
+                    name: 'closeRounded',
+                  }}
                   onPress={() => {
                     setModalVisible(false);
                   }}
@@ -114,9 +115,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 24,
     fontWeight: '600',
-  },
-  closeIcon: {
-    width: 24,
-    height: 24,
   },
 });

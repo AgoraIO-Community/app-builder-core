@@ -10,23 +10,14 @@
 *********************************************
 */
 import React, {useEffect, useState} from 'react';
-import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useRecording} from './recording/useRecording';
 import {useString} from '../utils/useString';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import Styles from '../components/styles';
 import RecordingPopup from './RecordingPopup';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface RecordingButtonProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isRecordingActive: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
 }
 
 const Recording = (props: RecordingButtonProps) => {
@@ -34,9 +25,7 @@ const Recording = (props: RecordingButtonProps) => {
   //commented for v1 release
   //const recordingButton = useString<boolean>('recordingButton');
   const recordingButton = (recording: boolean) =>
-    recording ? 'Stop Record' : 'Start Record';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
+    recording ? 'Stop Recording' : 'Record';
   const [modalVisible, setModalVisible] = useState(false);
 
   const doStopRecording = () => {
@@ -53,31 +42,26 @@ const Recording = (props: RecordingButtonProps) => {
       setModalVisible(true);
     }
   };
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: isRecordingActive ? 'recordingStop' : 'recordingStart',
-    onPress,
-    styleIcon: {
-      width: 24,
-      height: 24,
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: isRecordingActive ? 'recordingStop' : 'recording',
+      tintColor: isRecordingActive ? '#FF414D' : '#099DFD',
     },
+    onPress,
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.actionSheetButton as Object;
-  } else {
-    btnTemplateProps.btnText = recordingButton(isRecordingActive);
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.styleText = {
-      fontFamily: 'Source Sans Pro',
-      fontSize: 12,
-      marginTop: 4,
-      fontWeight: '400',
-      color: isRecordingActive ? '#FF414D' : '#099DFD',
-    };
-  }
+  iconButtonProps.btnText = recordingButton(isRecordingActive);
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.styleText = {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+    color: isRecordingActive ? '#FF414D' : '#099DFD',
+  };
 
   return props?.render ? (
-    props.render(onPress, isRecordingActive, buttonTemplateName)
+    props.render(onPress, isRecordingActive)
   ) : (
     <>
       <RecordingPopup
@@ -85,7 +69,7 @@ const Recording = (props: RecordingButtonProps) => {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
       />
-      <BtnTemplate {...btnTemplateProps} />
+      <IconButton {...iconButtonProps} />
     </>
   );
 };

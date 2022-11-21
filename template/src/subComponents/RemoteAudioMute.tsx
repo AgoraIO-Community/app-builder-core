@@ -11,11 +11,12 @@
 */
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {BtnTemplate, UidType} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/useIsPSTN';
 import useMutePSTN from '../utils/useMutePSTN';
 import Styles from '../components/styles';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
+import IconButton from '../atoms/IconButton';
 
 export interface RemoteAudioMuteProps {
   uid: UidType;
@@ -34,8 +35,9 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
   return (
-    <BtnTemplate
+    <IconButton
       disabled={!isHost || !props.audio}
+      style={Styles.localButtonSmall as Object}
       onPress={() => {
         if (isPSTN(props.uid)) {
           try {
@@ -47,10 +49,11 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
           muteRemoteAudio(MUTE_REMOTE_TYPE.audio, props.uid);
         }
       }}
-      style={[Styles.localButtonSmall as Object]}
-      styleIcon={{width: 20, height: 20}}
-      //color={props.audio ? $config.PRIMARY_COLOR : '#999999'}
-      name={props.audio ? 'micOn' : 'micOffDisabled'}
+      iconProps={{
+        iconSize: 'medium',
+        name: props.audio ? 'micOn' : 'micOff',
+        tintColor: props.audio ? $config.PRIMARY_COLOR : '#999999',
+      }}
     />
   );
 };

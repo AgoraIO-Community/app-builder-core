@@ -20,17 +20,26 @@ const blacklist = require('metro-config/src/defaults/blacklist');
 
 // blacklist is a function that takes an array of regexes and combines
 // them with the default blacklist to return a single regex.
+const {getDefaultConfig} = require('metro-config');
 
-module.exports = {
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: false,
-      },
-    }),
-  },
-  resolver: {
-    blacklistRE: blacklist([/\.electron\/.*/]),
-  },
-};
+module.exports = (async () => {
+  const {
+    resolver: {sourceExts, assetExts},
+  } = await getDefaultConfig();
+  return {
+    transformer: {
+      babelTransformerPath: require.resolve('react-native-svg-transformer'),
+      getTransformOptions: async () => ({
+        transform: {
+          experimentalImportSupport: false,
+          inlineRequires: false,
+        },
+      }),
+    },
+    resolver: {
+      assetExts: assetExts.filter((ext) => ext !== 'svg'),
+      sourceExts: [...sourceExts, 'svg'],
+      blacklistRE: blacklist([/\.electron\/.*/]),
+    },
+  };
+})();

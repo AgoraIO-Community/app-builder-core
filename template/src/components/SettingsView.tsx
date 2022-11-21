@@ -16,11 +16,11 @@ import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import OutlineButton from '../atoms/OutlineButton';
+import IconButton from 'src/atoms/IconButton';
 
 const SettingsView = () => {
   const {
@@ -40,9 +40,11 @@ const SettingsView = () => {
       style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
       <View style={style.header}>
         <Text style={style.mainHeading}>{settingsLabel}</Text>
-        <BtnTemplate
-          styleIcon={style.closeIcon}
-          name={'closeRounded'}
+        <IconButton
+          iconProps={{
+            name: 'closeRounded',
+            tintColor: '#000000',
+          }}
           onPress={() => {
             setSidePanel(SidePanelType.None);
           }}
@@ -98,10 +100,6 @@ const style = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-  },
-  closeIcon: {
-    width: 24,
-    height: 24,
   },
   header: {
     flexDirection: 'row',

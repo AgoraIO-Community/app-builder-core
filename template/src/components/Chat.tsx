@@ -32,9 +32,9 @@ import {
   ChatTextInputProps,
   ChatSendButtonProps,
 } from '../subComponents/ChatInput';
-import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
+import IconButton from 'src/atoms/IconButton';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -158,12 +158,11 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         <View style={style.header}>
-          <BtnTemplate
-            styleIcon={style.closeIcon}
+          <IconButton
+            iconProps={{name: 'backBtn', tintColor: '#000000'}}
             style={{
               opacity: privateActive ? 1 : 0,
             }}
-            name={'backBtn'}
             onPress={() => {
               setPrivateActive(false);
             }}
@@ -192,9 +191,11 @@ const Chat = (props?: ChatProps) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <BtnTemplate
-            styleIcon={style.closeIcon}
-            name={'closeRounded'}
+          <IconButton
+            iconProps={{
+              name: 'closeSquare',
+              tintColor: '#000000',
+            }}
             onPress={() => {
               setSidePanel(SidePanelType.None);
             }}

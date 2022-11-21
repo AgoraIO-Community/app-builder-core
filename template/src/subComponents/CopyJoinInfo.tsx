@@ -12,33 +12,25 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {useParams} from '../components/Router';
-import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
 import {
   SHARE_LINK_CONTENT_TYPE,
   useShareLink,
 } from '../components/useShareLink';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import Styles from '../components/styles';
 import Popup from '../atoms/Popup';
 import InviteInfo from '../atoms/InviteInfo';
 import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
+import IconButton, {IconButtonProps} from 'src/atoms/IconButton';
 
 export interface CopyJoinInfoProps {
   showText?: boolean;
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void) => JSX.Element;
 }
-
+//todo hari update CopyJoinInfo to show text
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {phrase} = useParams<{phrase: string}>();
   const getMeeting = useGetMeetingPhrase();
@@ -47,8 +39,6 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
 
   useEffect(() => {
     getMeeting(phrase);
@@ -58,11 +48,14 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     setModalVisible(true);
     //copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
   };
-  let btnTemplateProps: BtnTemplateInterface = {
+  let iconButtonProps: IconButtonProps = {
     onPress: onPress,
-    name: 'share',
+    iconProps: {
+      name: 'share',
+      tintColor: '#099DFD',
+    },
   };
-  btnTemplateProps.styleText = {
+  iconButtonProps.styleText = {
     fontFamily: 'Source Sans Pro',
     fontSize: 12,
     marginTop: 4,
@@ -70,24 +63,20 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     color: $config.PRIMARY_COLOR,
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = style.shareIcon;
-    btnTemplateProps.btnText = props.showText ? copyMeetingInviteButton : '';
-    btnTemplateProps.styleIcon = {
-      width: 20,
-      height: 20,
-    };
-  } else {
-    btnTemplateProps.btnText = copyMeetingInviteButton;
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.styleIcon = {
-      width: 24,
-      height: 24,
-    };
-  }
+  // iconButtonProps.style = style.shareIcon;
+  // iconButtonProps.btnText = props.showText ? copyMeetingInviteButton : '';
+  // iconButtonProps.styleIcon = {
+  //   width: 20,
+  //   height: 20,
+  // };
+
+  iconButtonProps.btnText = copyMeetingInviteButton;
+  iconButtonProps.style = Styles.localButton as Object;
+
+  //}
 
   return props?.render ? (
-    props.render(onPress, buttonTemplateName)
+    props.render(onPress)
   ) : (
     <>
       <Popup
@@ -107,11 +96,10 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
           />
         </View>
       </Popup>
-      {buttonTemplateName === ButtonTemplateName.topBar ? (
+      {/** todo hari
         <TertiaryButton text="Invite" onPress={onPress} />
-      ) : (
-        <BtnTemplate {...btnTemplateProps} />
-      )}
+          */}
+      <IconButton {...iconButtonProps} />
     </>
   );
 };

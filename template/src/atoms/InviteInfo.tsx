@@ -7,9 +7,9 @@ import {
   useShareLink,
 } from '../components/useShareLink';
 import Spacer from './Spacer';
-import {BtnTemplate} from '../../agora-rn-uikit';
 
 import React from 'react';
+import IconButton from './IconButton';
 
 const InviteInfo = () => {
   const meetingUrlText = 'Meeting Link';
@@ -24,7 +24,9 @@ const InviteInfo = () => {
   const urlWeb = {wordBreak: 'break-all'};
 
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
-  const {meetingPassphrase, isSeparateHostLink} = useMeetingInfo();
+  const {
+    data: {isSeparateHostLink},
+  } = useMeetingInfo();
 
   const isSDK = isSDKCheck();
   const isWeb = $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
@@ -64,9 +66,10 @@ const InviteInfo = () => {
                 flexDirection: 'row',
                 alignSelf: 'center',
               }}>
-              <BtnTemplate
-                style={style.copyIcon}
-                name={'clipboard'}
+              <IconButton
+                iconProps={{
+                  name: 'clipboard',
+                }}
                 onPress={() =>
                   copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE)
                 }
@@ -102,10 +105,11 @@ const InviteInfo = () => {
               flexDirection: 'row',
               alignSelf: 'center',
             }}>
-            <BtnTemplate
-              style={style.copyIcon}
-              color={$config.PRIMARY_COLOR}
-              name={'clipboard'}
+            <IconButton
+              iconProps={{
+                name: 'clipboard',
+                tintColor: $config.PRIMARY_COLOR,
+              }}
               onPress={() =>
                 copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
               }
@@ -158,10 +162,5 @@ const style = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
-  },
-  copyIcon: {
-    width: 24,
-    height: 24,
-    marginVertical: 'auto',
   },
 });

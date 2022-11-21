@@ -22,7 +22,6 @@ import {
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
-import {BtnTemplate, ImageIcon} from '../../agora-rn-uikit';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
@@ -35,6 +34,7 @@ import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
+import ImageIcon from '../atoms/ImageIcon';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -126,6 +126,10 @@ const Share = () => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
 
+  const clipboardIcon = () => {
+    return <ImageIcon tintColor={'#089CFD'} name={'clipboard'} />;
+  };
+
   return FpeShareComponent ? (
     <FpeShareComponent />
   ) : (
@@ -159,10 +163,7 @@ const Share = () => {
                   onPress={() => {
                     copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE);
                   }}>
-                  <ImageIcon
-                    style={{width: 24, height: 24}}
-                    name={'clipboard'}
-                  />
+                  {clipboardIcon()}
                 </TouchableOpacity>
               </View>
               <Spacer size={14} />
@@ -199,10 +200,7 @@ const Share = () => {
                   onPress={() => {
                     copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
                   }}>
-                  <ImageIcon
-                    style={{width: 24, height: 24}}
-                    name={'clipboard'}
-                  />
+                  {clipboardIcon()}
                 </TouchableOpacity>
               </View>
             </View>
@@ -247,10 +245,7 @@ const Share = () => {
                   onPress={() => {
                     copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN);
                   }}>
-                  <ImageIcon
-                    style={{width: 24, height: 24}}
-                    name={'clipboard'}
-                  />
+                  {clipboardIcon()}
                 </TouchableOpacity>
               </View>
               <Spacer size={14} />
@@ -268,7 +263,7 @@ const Share = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            iconName="videocamWhite"
+            iconName="videoOn"
             onPress={() => enterMeeting()}
             containerStyle={!isDesktop && {width: '100%'}}
             text={enterMeetingAfterCreateButton}

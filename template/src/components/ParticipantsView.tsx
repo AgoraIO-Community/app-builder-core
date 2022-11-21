@@ -23,13 +23,13 @@ import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
 import ChatContext from './ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import TertiaryButton from '../atoms/TertiaryButton';
 import HostControlView from './HostControlView';
 import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
+import IconButton from 'src/atoms/IconButton';
 
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
@@ -64,9 +64,11 @@ const ParticipantView = () => {
       }>
       <View style={style.header}>
         <Text style={style.mainHeading}>{participantsLabel}</Text>
-        <BtnTemplate
-          styleIcon={style.closeIcon}
-          name={'closeRounded'}
+        <IconButton
+          iconProps={{
+            name: 'closeRounded',
+            tintColor: '#000000',
+          }}
           onPress={() => {
             setSidePanel(SidePanelType.None);
           }}
@@ -139,7 +141,7 @@ const ParticipantView = () => {
       </ScrollView>
 
       <View style={style.footer}>
-        <CopyJoinInfo buttonTemplateName={ButtonTemplateName.topBar} />
+        <CopyJoinInfo />
         {isHost && (
           <>
             <Spacer horizontal size={8} />
@@ -164,10 +166,6 @@ const style = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
-  },
-  closeIcon: {
-    width: 24,
-    height: 24,
   },
   header: {
     flexDirection: 'row',

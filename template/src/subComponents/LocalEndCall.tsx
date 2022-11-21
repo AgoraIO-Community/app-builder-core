@@ -1,13 +1,4 @@
 import React, {useContext, useState} from 'react';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
-import {
-  BtnTemplate,
-  BtnTemplateInterface,
-  ImageIcon,
-} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {View, Text, TouchableOpacity} from 'react-native';
@@ -15,13 +6,9 @@ import {useRtc} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
 import {useParams} from '../components/Router';
-
+import ImageIcon from '../atoms/ImageIcon';
 export interface LocalEndcallProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void) => JSX.Element;
 }
 
 const LocalEndcall = (props: LocalEndcallProps) => {
@@ -29,9 +16,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
   const endCallLabel = 'End';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
-  const isTopBarTemplate = buttonTemplateName === ButtonTemplateName.topBar;
+
   const {setStore} = useContext(StorageContext);
   const [endcallVisible, setEndcallVisible] = useState(false);
   const {phrase} = useParams<{phrase: string}>();
@@ -55,7 +40,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   };
 
   return props?.render ? (
-    props.render(onPress, buttonTemplateName)
+    props.render(onPress)
   ) : (
     <>
       <EndcallPopup
@@ -64,22 +49,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         modalVisible={endcallVisible}
       />
       <TouchableOpacity
-        style={!isTopBarTemplate && (Styles.endCallContainer as object)}
+        style={Styles.endCallContainer as object}
         onPress={onPress}>
-        <ImageIcon
-          style={
-            isTopBarTemplate
-              ? Styles.actionSheetButton
-              : {
-                  width: 20,
-                  height: 20,
-                }
-          }
-          name={'endCall'}
-        />
-        {!isTopBarTemplate && (
-          <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
-        )}
+        <ImageIcon name={'endCall'} tintColor={'#FFFFFF'} />
+        <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
       </TouchableOpacity>
     </>
   );

@@ -13,32 +13,26 @@ import React, {useContext} from 'react';
 import LiveStreamContext, {
   RaiseHandValue,
 } from '../../../components/livestream';
-import {PropsContext} from '../../../../agora-rn-uikit';
-import {BtnTemplate} from '../../../../agora-rn-uikit';
 import {useString} from '../../../utils/useString';
 import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
+import IconButton from '../../../atoms/IconButton';
 
 const LocalRaiseHand = () => {
-  const {styleProps} = useContext(PropsContext);
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
   const {localUid} = useContext(ChatContext);
-  const {localBtnStyles} = styleProps || {};
-  const {theme} = styleProps || {};
-  const {muteLocalAudio} = localBtnStyles || {};
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
     toggle ? 'Lower hand' : 'Raise Hand';
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   return (
-    <BtnTemplate
-      styleIcon={{
-        width: 24,
-        height: 24,
+    <IconButton
+      iconProps={{
+        name: isHandRasied ? 'lowerHand' : 'raiseHand',
+        tintColor: isHandRasied ? '#FF414D' : $config.PRIMARY_COLOR,
       }}
-      name={isHandRasied ? 'lowerHand' : 'raiseHand'}
       btnText={handStatusText(isHandRasied)}
       style={Styles.localButton as Object}
       styleText={{

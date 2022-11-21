@@ -1,10 +1,5 @@
 import React, {useContext, useState} from 'react';
 import {StyleSheet} from 'react-native';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
-import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 
 import LayoutIconDropdown from './LayoutIconDropdown';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
@@ -12,6 +7,7 @@ import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useLayout} from '../utils/useLayout';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import Styles from '../components/styles';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 interface LayoutIconButtonInterface {
   modalPosition?: {
@@ -20,11 +16,7 @@ interface LayoutIconButtonInterface {
     left?: number;
     bottom?: number;
   };
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void) => JSX.Element;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
@@ -32,8 +24,6 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
   const layoutLabel = 'Layout';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const [showDropdown, setShowDropdown] = useState(false);
   const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
@@ -52,40 +42,40 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
-    let btnTemplateProps: BtnTemplateInterface = {
+    let iconButtonProps: IconButtonProps = {
       onPress: onPress,
-      styleIcon: {
-        width: 24,
-        height: 24,
-      },
     };
-    btnTemplateProps.styleText = {
+    iconButtonProps.styleText = {
       fontFamily: 'Source Sans Pro',
       fontSize: 12,
       marginTop: 4,
       fontWeight: '400',
       color: $config.PRIMARY_COLOR,
     };
-    if (buttonTemplateName === ButtonTemplateName.topBar) {
-      btnTemplateProps.style = Styles.localButtonSmall as Object;
-    } else {
-      btnTemplateProps.style = Styles.localButton as Object;
-      btnTemplateProps.btnText = layoutLabel;
-    }
+
+    iconButtonProps.style = Styles.localButton as Object;
+    iconButtonProps.btnText = layoutLabel;
+
     renderContent.push(
       props?.render ? (
-        props.render(onPress, buttonTemplateName)
+        props.render(onPress)
       ) : layouts[layout]?.iconName ? (
-        <BtnTemplate
+        <IconButton
           key={'defaultLayoutIconWithName'}
-          name={layouts[layout]?.iconName}
-          {...btnTemplateProps}
+          iconProps={{
+            name: layouts[layout]?.iconName,
+            tintColor: '#099DFD',
+          }}
+          {...iconButtonProps}
         />
       ) : (
-        <BtnTemplate
+        <IconButton
           key={'defaultLayoutIconWithIcon'}
-          icon={layouts[layout]?.icon}
-          {...btnTemplateProps}
+          iconProps={{
+            icon: layouts[layout]?.icon,
+            tintColor: '#099DFD',
+          }}
+          {...iconButtonProps}
         />
       ),
     );

@@ -10,30 +10,17 @@
 *********************************************
 */
 import React from 'react';
-import {
-  BtnTemplate,
-  ToggleState,
-  BtnTemplateInterface,
-  PermissionState,
-} from '../../agora-rn-uikit';
+import {ToggleState, PermissionState} from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 /**
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isVideoEnabled: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -42,28 +29,32 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {
     localMute(MUTE_LOCAL_TYPE.video);
   };
   const isVideoEnabled = local.video === ToggleState.enabled;
-  const videoLabel = isVideoEnabled ? 'Stop Video' : 'Start Video';
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
-
-  let btnTemplateProps: BtnTemplateInterface = {
-    onPress: onPress,
-    name: permissionDenied
-      ? 'videocamNotAvailable'
-      : isVideoEnabled
-      ? 'videocamOn'
-      : 'videocamOff',
+  const videoLabel = permissionDenied
+    ? 'Video'
+    : isVideoEnabled
+    ? 'Video On'
+    : 'Video Off';
+  let iconProps: IconButtonProps['iconProps'] = {
+    name: permissionDenied ? 'noCam' : isVideoEnabled ? 'videoOn' : 'videoOff',
+  };
+  if (!permissionDenied) {
+    iconProps.tintColor = isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+  }
+  let iconButtonProps: IconButtonProps = {
+    onPress,
+    iconProps,
     disabled: permissionDenied ? true : false,
   };
-  btnTemplateProps.styleText = {
+
+  iconButtonProps.styleText = {
     fontFamily: 'Source Sans Pro',
     fontSize: 12,
     marginTop: 4,
@@ -74,21 +65,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? $config.PRIMARY_COLOR
       : '#FF414D',
   };
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.actionSheetButton as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = videoLabel;
-    btnTemplateProps.styleIcon = {
-      width: 24,
-      height: 24,
-    };
-  }
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.btnText = videoLabel;
 
   return props?.render ? (
-    props.render(onPress, isVideoEnabled, buttonTemplateName)
+    props.render(onPress, isVideoEnabled)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 }
 

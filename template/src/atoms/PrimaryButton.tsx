@@ -23,7 +23,8 @@ import {
 } from 'react-native';
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import ColorContext from '../components/ColorContext';
-import {ImageIcon, IconsInterface} from '../../agora-rn-uikit';
+import {IconsInterface} from '../assets/icons';
+import ImageIcon from '../atoms/ImageIcon';
 
 export interface PrimaryButtonProps extends PressableProps {
   text?: string;
@@ -43,7 +44,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      {iconName && <ImageIcon style={styles.icon} name={iconName} />}
+      {iconName && <ImageIcon name={iconName} tintColor={'#FFFFFF'} />}
       {props.text && (
         <Text style={[styles.text, textStyle ? textStyle : {}]}>
           {props.text}
@@ -75,5 +76,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     fontFamily: 'Source Sans Pro',
+    paddingLeft: 8,
   },
 });

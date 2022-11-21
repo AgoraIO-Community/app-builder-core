@@ -1,25 +1,12 @@
 import React, {useContext} from 'react';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
-import {
-  BtnTemplate,
-  PropsContext,
-  ToggleState,
-  BtnTemplateInterface,
-} from '../../agora-rn-uikit';
+import {PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useLocalUserInfo, useRtc} from 'customization-api';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface LocalSwitchCameraProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isVideoEnabled: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
@@ -30,34 +17,27 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   //const switchCameraButtonText = useString('switchCameraButton')();
   const switchCameraButtonText = 'Switch';
 
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {
     RtcEngine.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
   };
   const isVideoEnabled = local.video === ToggleState.enabled;
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: 'switchCamera',
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: 'switchCamera',
+      tintColor: '#099DFD',
+    },
     disabled: isVideoEnabled ? false : true,
     onPress: onPress,
-    styleIcon: {
-      width: 24,
-      height: 24,
-    },
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.actionSheetButton as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = switchCameraButtonText;
-  }
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.btnText = switchCameraButtonText;
 
   return props?.render ? (
-    props.render(onPress, isVideoEnabled, buttonTemplateName)
+    props.render(onPress, isVideoEnabled)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 }
 

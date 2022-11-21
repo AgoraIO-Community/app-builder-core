@@ -10,30 +10,17 @@
 *********************************************
 */
 import React from 'react';
-import {
-  BtnTemplate,
-  ToggleState,
-  BtnTemplateInterface,
-  PermissionState,
-} from '../../agora-rn-uikit';
+import {ToggleState, PermissionState} from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 /**
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isAudioEnabled: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -42,29 +29,34 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
 
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
-
   const onPress = () => {
     localMute(MUTE_LOCAL_TYPE.audio);
   };
   const isAudioEnabled = local.audio === ToggleState.enabled;
-  const audioLabel = isAudioEnabled ? 'Mute' : 'Unmute';
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
-  let btnTemplateProps: BtnTemplateInterface = {
-    onPress: onPress,
-    //name: isAudioEnabled ? 'mic' : 'micOff',
-    name: permissionDenied
-      ? 'micNotAvaiable'
-      : isAudioEnabled
-      ? 'micOn'
-      : 'micOff',
+
+  const audioLabel = permissionDenied
+    ? 'Mic'
+    : isAudioEnabled
+    ? 'Mic On'
+    : 'Mic Off';
+
+  let iconProps: IconButtonProps['iconProps'] = {
+    name: permissionDenied ? 'noMic' : isAudioEnabled ? 'micOn' : 'micOff',
+  };
+  if (!permissionDenied) {
+    iconProps.tintColor = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+  }
+
+  let iconButtonProps: IconButtonProps = {
+    onPress,
+    iconProps,
     disabled: permissionDenied ? true : false,
   };
-  btnTemplateProps.styleText = {
+  iconButtonProps.styleText = {
     fontFamily: 'Source Sans Pro',
     fontSize: 12,
     marginTop: 4,
@@ -75,21 +67,14 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       ? $config.PRIMARY_COLOR
       : '#FF414D',
   };
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.actionSheetButton as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = audioLabel;
-    btnTemplateProps.styleIcon = {
-      width: 24,
-      height: 24,
-    };
-  }
+
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.btnText = audioLabel;
 
   return props?.render ? (
-    props.render(onPress, isAudioEnabled, buttonTemplateName)
+    props.render(onPress, isAudioEnabled)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 }
 

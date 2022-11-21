@@ -10,14 +10,10 @@
 *********************************************
 */
 import React from 'react';
-import {BtnTemplate, BtnTemplateInterface} from '../../../agora-rn-uikit';
+import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../../utils/useButtonTemplate';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -25,12 +21,7 @@ import {
  */
 
 export interface ScreenshareButtonProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isScreenshareActive: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isScreenshareActive: boolean) => JSX.Element;
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
@@ -39,38 +30,33 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   //commented for v1 release
   //const screenShareButton = useString('screenShareButton')();
 
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () =>
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: isScreenshareActive ? 'screenshareStop' : 'screenshareStart',
-    onPress,
-    styleIcon: {
-      width: 24,
-      height: 24,
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: isScreenshareActive ? 'screenShareStop' : 'screenShare',
+      tintColor: isScreenshareActive ? '#FF414D' : '#099DFD',
     },
+    onPress,
   };
 
-  const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Start Share';
-  // if (buttonTemplateName === ButtonTemplateName.topBar) {
-  //   btnTemplateProps.style = Styles.fullWidthButton as Object;
-  // } else {
-  btnTemplateProps.btnText = screenShareButton;
-  btnTemplateProps.style = Styles.localButton as object;
-  btnTemplateProps.styleText = {
+  const screenShareButton = isScreenshareActive
+    ? 'Stop Sharing'
+    : 'Share Screen';
+  iconButtonProps.btnText = screenShareButton;
+  iconButtonProps.style = Styles.localButton as object;
+  iconButtonProps.styleText = {
     fontFamily: 'Source Sans Pro',
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
     color: isScreenshareActive ? '#FF414D' : '#099DFD',
   };
-  //}
 
   return props?.render ? (
-    props.render(onPress, isScreenshareActive, buttonTemplateName)
+    props.render(onPress, isScreenshareActive)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 };
 

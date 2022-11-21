@@ -11,9 +11,10 @@
 */
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {BtnTemplate, UidType} from '../../agora-rn-uikit';
+import {UidType} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
+import IconButton from '../atoms/IconButton';
 
 /**
  * Component to mute / unmute remote video.
@@ -30,15 +31,17 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const muteRemoteVideo = useRemoteMute();
 
   return String(props.uid)[0] !== '1' ? (
-    <BtnTemplate
+    <IconButton
       disabled={!isHost || !props.video}
       onPress={() => {
         muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
       }}
       style={Styles.localButtonSmall as Object}
-      styleIcon={{width: 20, height: 20}}
-      //color={props.video ? $config.PRIMARY_COLOR : '#999999'}
-      name={props.video ? 'videocamOn' : 'videocamOffDisabled'}
+      iconProps={{
+        name: 'videoOn',
+        iconSize: 'medium',
+        tintColor: props.video ? $config.PRIMARY_COLOR : '#999999',
+      }}
     />
   ) : (
     <></>

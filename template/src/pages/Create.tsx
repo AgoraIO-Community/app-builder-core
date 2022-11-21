@@ -10,7 +10,14 @@
 *********************************************
 */
 import React, {useEffect, useState, useContext} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  Image,
+} from 'react-native';
 import {useHistory} from '../components/Router';
 import PrimaryButton from '../atoms/PrimaryButton';
 import Toast from '../../react-native-toast-message';
@@ -36,6 +43,9 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import StorageContext from '../components/StorageContext';
+import VideoCamSVG from '../assets/icons/videocam.svg';
+import VideoCam from '../assets/icons/share.svg';
+import ImageIcon from '../atoms/ImageIcon';
 
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;

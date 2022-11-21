@@ -8,7 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
-import {Icons, ImageIcon} from '../../agora-rn-uikit';
+import ImageIcon from './ImageIcon';
 
 interface Props {
   label: string;
@@ -82,13 +82,7 @@ const Dropdown: FC<Props> = ({
       </View>
       {selected && item?.value === selected?.value ? (
         <View style={styles.itemTextSelectedContainer}>
-          <ImageIcon
-            name={'tick'}
-            style={{
-              width: 24,
-              height: 24,
-            }}
-          />
+          <ImageIcon name={'tick'} tintColor={'#099DFD'} />
         </View>
       ) : (
         <></>
@@ -142,23 +136,10 @@ const Dropdown: FC<Props> = ({
         </Text>
       </View>
       <View style={styles.dropdownIconContainer}>
-        {noData ? (
-          <ImageIcon
-            name={'downArrowDisabled'}
-            style={{
-              width: 24,
-              height: 24,
-            }}
-          />
-        ) : (
-          <ImageIcon
-            name={visible ? 'upArrow' : 'downArrow'}
-            style={{
-              width: 24,
-              height: 24,
-            }}
-          />
-        )}
+        <ImageIcon
+          name={visible ? 'arrowUp' : 'arrowDown'}
+          tintColor={noData ? '#A1A1A1' : '#000000'}
+        />
       </View>
     </TouchableOpacity>
   );
