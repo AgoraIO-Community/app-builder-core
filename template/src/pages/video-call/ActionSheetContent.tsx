@@ -1,7 +1,7 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import Styles from '../../components/styles';
-import {ImageIcon} from 'agora-rn-uikit';
+import {ImageIcon} from '../../../agora-rn-uikit';
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';

@@ -31,7 +31,7 @@ import HostControlView from './HostControlView';
 import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
 
-const ParticipantView = () => {
+const ParticipantView = (props) => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {onlineUsersCount} = useContext(ChatContext);
   const {sidePanel, setSidePanel} = useSidePanel();
@@ -69,6 +69,7 @@ const ParticipantView = () => {
           name={'closeRounded'}
           onPress={() => {
             setSidePanel(SidePanelType.None);
+            props.handleClose && props.handleClose();
           }}
         />
       </View>

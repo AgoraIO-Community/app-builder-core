@@ -22,7 +22,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import OutlineButton from '../atoms/OutlineButton';
 
-const SettingsView = () => {
+const SettingsView = (props) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -45,6 +45,7 @@ const SettingsView = () => {
           name={'closeRounded'}
           onPress={() => {
             setSidePanel(SidePanelType.None);
+            props.handleClose && props.handleClose();
           }}
         />
       </View>

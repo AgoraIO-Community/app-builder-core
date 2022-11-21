@@ -40,6 +40,7 @@ export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+  handleClose?: () => void;
 }
 
 const Chat = (props?: ChatProps) => {
@@ -197,6 +198,7 @@ const Chat = (props?: ChatProps) => {
             name={'closeRounded'}
             onPress={() => {
               setSidePanel(SidePanelType.None);
+              props.handleClose && props.handleClose();
             }}
           />
         </View>
