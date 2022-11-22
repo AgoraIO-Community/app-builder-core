@@ -24,7 +24,7 @@ import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
-import {useRender, useRtc} from 'customization-api';
+import {useLastJoinedUser, useRender, useRtc} from 'customization-api';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -33,6 +33,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const rtc = useRtc();
   const {dispatch} = rtc;
   const {renderList, activeUids} = useRender();
+  const {lastUserJoined: lastJoinedUser} = useLastJoinedUser();
+
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
@@ -52,6 +54,24 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
+
+  /**
+   * Event api callback trigger even before screenshare data available in the RTC layer.
+   * so instead of calling triggerChangeLayout from the event api call back
+   * listening for rtc layout lastJoinedUser data and if its screenshare then call triggerChangeLayout
+   */
+  useEffect(() => {
+    if (
+      lastJoinedUser &&
+      lastJoinedUser?.uid &&
+      lastJoinedUser?.type === 'screenshare' &&
+      activeUids &&
+      activeUids.indexOf(lastJoinedUser.uid) !== -1
+    ) {
+      //set to pinned layout
+      triggerChangeLayout(true, lastJoinedUser.uid);
+    }
+  }, [lastJoinedUser]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
     //screenshare is started set the layout to Pinned View
@@ -87,8 +107,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               },
             };
           });
-          //if remote user started/stopped the screenshare then change the layout to pinned/grid
-          triggerChangeLayout(true, screenUidOfUser);
           break;
         case EventActions.SCREENSHARE_STOPPED:
           setScreenShareData((prevState) => {
@@ -198,8 +216,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           }),
           EventPersistLevel.LEVEL2,
         );
-        //3 . if local user started the screenshare then change layout to pinned
-        triggerChangeLayout(true, screenShareUid);
       }
     } catch (e) {
       console.error("can't start the screen share", e);

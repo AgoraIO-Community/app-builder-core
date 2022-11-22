@@ -20,11 +20,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useRender, useRtc} from 'customization-api';
+import {useLastJoinedUser, useRender, useRtc} from 'customization-api';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
   const {renderList, activeUids} = useRender();
+  const {lastUserJoined: lastJoinedUser} = useLastJoinedUser();
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
@@ -39,6 +40,19 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
+
+  useEffect(() => {
+    if (
+      lastJoinedUser &&
+      lastJoinedUser?.uid &&
+      lastJoinedUser?.type === 'screenshare' &&
+      activeUids &&
+      activeUids.indexOf(lastJoinedUser.uid) !== -1
+    ) {
+      //set to pinned layout
+      triggerChangeLayout(true, lastJoinedUser.uid);
+    }
+  }, [lastJoinedUser]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
     //screenshare is started set the layout to Pinned View
@@ -74,8 +88,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               },
             };
           });
-          //if remote user started/stopped the screenshare then change the layout to pinned/grid
-          triggerChangeLayout(true, screenUidOfUser);
           break;
         case EventActions.SCREENSHARE_STOPPED:
           setScreenShareData((prevState) => {
