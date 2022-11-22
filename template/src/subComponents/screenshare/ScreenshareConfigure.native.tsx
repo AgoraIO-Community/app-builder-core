@@ -13,6 +13,8 @@ import React, {useEffect, useRef} from 'react';
 import KeepAwake from 'react-native-keep-awake';
 import {UidType} from '../../../agora-rn-uikit';
 import {
+  getGridLayoutName,
+  getPinnedLayoutName,
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
@@ -20,7 +22,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useLastJoinedUser, useRender, useRtc} from 'customization-api';
+import {
+  useLastJoinedUser,
+  useLayout,
+  useRender,
+  useRtc,
+} from 'customization-api';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
@@ -34,12 +41,17 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
-
+  const {currentLayout} = useLayout();
   const renderListRef = useRef({renderList: renderList});
+  const currentLayoutRef = useRef({currentLayout: currentLayout});
 
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
+
+  useEffect(() => {
+    currentLayoutRef.current.currentLayout = currentLayout;
+  }, [currentLayout]);
 
   useEffect(() => {
     if (
@@ -52,19 +64,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       //set to pinned layout
       triggerChangeLayout(true, lastJoinedUser.uid);
     }
-  }, [lastJoinedUser]);
+  }, [lastJoinedUser, activeUids]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+    let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
       dispatch({
         type: 'SwapVideo',
         value: [screenShareUid],
       });
-      setPinnedLayout();
+      layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
       //screenshare is stopped set the layout Grid View
-      changeLayout();
+      layout !== getGridLayoutName() && changeLayout();
     }
   };
 

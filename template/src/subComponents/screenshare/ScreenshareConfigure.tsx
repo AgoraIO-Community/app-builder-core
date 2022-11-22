@@ -13,6 +13,8 @@ import React, {useContext, useEffect, useRef, useState} from 'react';
 import {PropsContext, UidType} from '../../../agora-rn-uikit';
 import {ScreenshareContext} from './useScreenshare';
 import {
+  getGridLayoutName,
+  getPinnedLayoutName,
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
@@ -24,7 +26,12 @@ import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
-import {useLastJoinedUser, useRender, useRtc} from 'customization-api';
+import {
+  useLastJoinedUser,
+  useLayout,
+  useRender,
+  useRtc,
+} from 'customization-api';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -45,6 +52,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
+  const {currentLayout} = useLayout();
+  const currentLayoutRef = useRef({currentLayout: currentLayout});
 
   const {channel, appId, screenShareUid, screenShareToken, encryption} =
     useContext(PropsContext).rtcProps;
@@ -54,6 +63,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
+
+  useEffect(() => {
+    currentLayoutRef.current.currentLayout = currentLayout;
+  }, [currentLayout]);
 
   /**
    * Event api callback trigger even before screenshare data available in the RTC layer.
@@ -71,19 +84,20 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       //set to pinned layout
       triggerChangeLayout(true, lastJoinedUser.uid);
     }
-  }, [lastJoinedUser]);
+  }, [lastJoinedUser, activeUids]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+    let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
       dispatch({
         type: 'SwapVideo',
         value: [screenShareUid],
       });
-      setPinnedLayout();
+      layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
       //screenshare is stopped set the layout Grid View
-      changeLayout();
+      layout !== getGridLayoutName() && changeLayout();
     }
   };
 
