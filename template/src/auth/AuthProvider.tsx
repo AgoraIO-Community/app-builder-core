@@ -1,7 +1,16 @@
-import React, {createContext, useState, useEffect} from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import {useHistory} from '../components/Router';
 import {gql, useApolloClient} from '@apollo/client';
 import AsyncStorage from '@react-native-community/async-storage';
+import {useAuthRedirect} from './useAuthRedirect';
+import {Linking} from 'react-native';
+import Loading from '../subComponents/Loading';
 
 const GET_USER = gql`
   query getUser {
@@ -12,12 +21,6 @@ const GET_USER = gql`
   }
 `;
 
-export const idpAuth = {
-  auth_uri: `${$config.BACKEND_ENDPOINT}/idp/login`,
-  origin_uri: 'https://google.com',
-  redirect_uri: window.location.origin, // where to redirect the user to after login.
-};
-
 type AuthProviderProps = {
   enableAuth?: boolean;
   children: React.ReactNode;
@@ -25,18 +28,15 @@ type AuthProviderProps = {
 
 interface AuthContextInterface {
   authenticated: boolean;
+  authLogin: () => void;
+  setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
 }
 
-const initStorageContextValue = {
-  authenticated: false,
-};
-
-const AuthContext = createContext<AuthContextInterface>(
-  initStorageContextValue,
-);
+const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
-  const [authenticated, setIsAuthenticated] = useState(true);
+  const [authenticated, setIsAuthenticated] = useState(false);
+  const {idpAuthURL} = useAuthRedirect();
   const [loading, setLoading] = useState(true);
 
   const apolloClient = useApolloClient();
@@ -50,10 +50,10 @@ const AuthProvider = (props: AuthProviderProps) => {
         query: GET_USER,
         fetchPolicy: 'network-only',
       });
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       throw new Error(error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -61,44 +61,45 @@ const AuthProvider = (props: AuthProviderProps) => {
     try {
       const token = await AsyncStorage.getItem('SDK_TOKEN');
       if (token) {
-        history.push(`/authenticate/${token}`);
+        history.push(`/authorize/${token}`);
       } else {
         setIsAuthenticated(false);
         history.push(`/login`);
         throw Error('Token not found');
       }
     } catch (error) {
-      console.log('supriya token auth failed: ', error);
+      console.log('token auth failed: ', error);
     }
   };
   useEffect(() => {
     try {
       getUserDetails()
         .then((_) => {
-          if (!authenticated) {
-            history.push(`/create`);
-          }
+          setIsAuthenticated(true);
+          history.push(`/create`);
         })
         .catch((err) => {
-          if (enableAuth) {
-            if ($config.ENABLE_IDP_AUTH) {
-              history.push(`/authenticate`);
-            } else if ($config.ENABLE_TOKEN_AUTH) {
-              enableTokenAuth();
-            }
-          } else {
-            setIsAuthenticated(false);
-          }
+          history.push(`/login`);
         });
     } catch (error) {
-      setIsAuthenticated(false);
       history.push(`/login`);
     }
   }, []);
 
+  const authLogin = () => {
+    if (enableAuth) {
+      if ($config.ENABLE_IDP_AUTH) {
+        Linking.openURL(idpAuthURL);
+      } else if ($config.ENABLE_TOKEN_AUTH) {
+        enableTokenAuth();
+      }
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{authenticated}}>
-      {loading ? <p>Loading...</p> : props.children}
+    <AuthContext.Provider
+      value={{setIsAuthenticated, authenticated, authLogin}}>
+      {loading ? <Loading text={'Loading..'} /> : props.children}
     </AuthContext.Provider>
   );
 };

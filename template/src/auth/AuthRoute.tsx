@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Route, Redirect} from '../components/Router';
 import Toast from '../../react-native-toast-message';
 
@@ -21,16 +21,19 @@ interface PrivateRouteProps extends RouteProps {
 }
 
 const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
+  const didMountRef = useRef(false);
   const {authenticated} = useAuth();
-  console.log('supriya authenticated: ', authenticated);
 
   useEffect(() => {
-    if (authenticated) return;
-    Toast.show({
-      type: 'error',
-      text1: 'Authentication failed',
-      visibilityTime: 1000,
-    });
+    if (!didMountRef.current) return;
+    if (!authenticated) {
+      Toast.show({
+        type: 'error',
+        text1: 'Authentication failed',
+        visibilityTime: 1000,
+      });
+    }
+    didMountRef.current = true;
   }, [authenticated]);
 
   return authenticated ? (

@@ -17,20 +17,21 @@ import {Route, Switch, Redirect} from './components/Router';
 import AuthRoute from './auth/AuthRoute';
 import StoreToken from './components/StoreToken';
 import {IDPAuth} from './auth/IDPAuth';
+import Login from './pages/Login';
 
-function AppRoutes(props) {
+function AppRoutes() {
   return (
     <Switch>
       <Route exact path={'/login'}>
-        <p>Login</p>
+        <Login />
       </Route>
       <Route exact path={'/'}>
         <Redirect to={'/create'} />
       </Route>
-      <Route exact path={'/authenticate/:token'}>
+      <Route exact path={'/authorize/:token'}>
         <StoreToken />
       </Route>
-      <Route exact path={'/authenticate'}>
+      <Route exact path={'/authorize'}>
         <IDPAuth />
       </Route>
       <AuthRoute exact path={'/join'}>
