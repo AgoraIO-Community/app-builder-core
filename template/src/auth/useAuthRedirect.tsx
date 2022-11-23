@@ -1,9 +1,5 @@
 import {useState, useEffect} from 'react';
-
-const idpAuth = {
-  auth_uri: `${$config.BACKEND_ENDPOINT}/idp/login`,
-  redirect_uri: 'http://localhost:9000/authorize',
-};
+import {AUTH_ENDPOINT_URL, AUTH_REDIRECT_URL} from './constants';
 
 export const useAuthRedirect = () => {
   const [originURL, setOriginURL] = useState('');
@@ -12,7 +8,7 @@ export const useAuthRedirect = () => {
     setOriginURL(window.location.origin);
   }, []);
 
-  const idpAuthURL = `${idpAuth.auth_uri}?project_id=${$config.PROJECT_ID}&redirect_url=${idpAuth.redirect_uri}&origin_url=${originURL}&platform_id=turnkey_web`;
+  const idpAuthURL = `${AUTH_ENDPOINT_URL}?project_id=${$config.PROJECT_ID}&redirect_url=${AUTH_REDIRECT_URL}&origin_url=${originURL}&platform_id=turnkey_web`;
 
   return {
     idpAuthURL,

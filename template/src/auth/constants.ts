@@ -1,0 +1,6 @@
+const BACKEND_URL = $config.BACKEND_ENDPOINT;
+const VERCEL_URL = process.env.AGORA_APP_VERCEL_URL;
+const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/idp/login`;
+const AUTH_REDIRECT_URL = `${process.env.AGORA_APP_VERCEL_URL}/authorize`;
+
+export {BACKEND_URL, VERCEL_URL, AUTH_ENDPOINT_URL, AUTH_REDIRECT_URL};
