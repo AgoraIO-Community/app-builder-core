@@ -64,6 +64,13 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     () => store?.lastActiveCam || '',
   );
 
+  const deviceExists = (dvId: string) => {
+    const response = deviceList.find(
+      (device: deviceInfo) => device.deviceId == dvId,
+    );
+    return response;
+  };
+
   // 1. Fetch all available devices
   const refreshDevices = useCallback(async () => {
     rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {
@@ -90,7 +97,6 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           device?.deviceId !== '' &&
           (device.kind == 'audioinput' || device.kind == 'videoinput'),
       );
-      console.log('DeviceTesting: set unique devices', uniqueDevices);
       setDeviceList(uniqueDevices);
     });
   }, []);
@@ -142,32 +148,32 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   // 3. Update the selected mic and camera when devicelist changes
   useEffect(() => {
     console.log('DeviceTesting: Devicelist updated', deviceList);
-    if (userPreferredMic) {
-      // If user prefered device exists and is still valid use the device
-      const userStoredMicFound = deviceList.find(
-        (device: deviceInfo) => device.deviceId == userPreferredMic,
-      );
-      console.log('DeviceTesting: set stored selected audio');
-      userStoredMicFound && setSelectedMic(userPreferredMic);
-    } else if (!selectedMic || selectedMic.trim().length == 0) {
+    // 3.a If selectedMic exist and still active
+    if (selectedMic && deviceExists(selectedMic)) {
+      console.log('DeviceTesting:MIC using the current device');
+    } else if (userPreferredMic && deviceExists(userPreferredMic)) {
+      // 3.b If user prefered device exists and is still valid use the device
+      console.log('DeviceTesting:MIC current device removed. Using preferred');
+      setSelectedMic(userPreferredMic);
+    } else {
       for (const i in deviceList) {
         if (deviceList[i].kind === 'audioinput') {
-          console.log('DeviceTesting: set auto selected audio');
+          console.log('DeviceTesting:MIC set auto selected device');
           setSelectedMic(deviceList[i].deviceId);
           break;
         }
       }
     }
-    if (userPreferredCamera) {
-      const userStoredCamFound = deviceList.find(
-        (device: deviceInfo) => device.deviceId == userPreferredCamera,
-      );
-      console.log('DeviceTesting: set stored selected video');
-      userStoredCamFound && setSelectedCam(userPreferredCamera);
+
+    if (selectedCam && deviceExists(selectedCam)) {
+      console.log('DeviceTesting:CAM using the current device');
+    } else if (userPreferredCamera && deviceExists(userPreferredCamera)) {
+      console.log('DeviceTesting:CAM current device removed. Using preferred');
+      setSelectedCam(userPreferredCamera);
     } else if (!selectedCam || selectedCam.trim().length == 0) {
       for (const i in deviceList) {
         if (deviceList[i].kind === 'videoinput') {
-          console.log('DeviceTesting: set auto selected camera');
+          console.log('DeviceTesting:CAM set auto selected device');
           setSelectedCam(deviceList[i].deviceId);
           break;
         }
@@ -180,16 +186,16 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
    * the store and update the selected mic or camera
    */
   useEffect(() => {
-    console.log('DeviceTesting: userPreferredCamera changed');
     if (!userPreferredCamera) return;
+    console.log('DeviceTesting: userPreferredCamera changed');
     setStore &&
       setStore((store) => ({...store, lastActiveCam: userPreferredCamera}));
     userPreferredCamera && setSelectedCam(userPreferredCamera);
   }, [userPreferredCamera]);
 
   useEffect(() => {
-    console.log('DeviceTesting: userPreferredMic changed');
     if (!userPreferredMic) return;
+    console.log('DeviceTesting: userPreferredMic changed');
     setStore &&
       setStore((store) => ({...store, lastActiveMic: userPreferredMic}));
     userPreferredMic && setSelectedMic(userPreferredMic);
