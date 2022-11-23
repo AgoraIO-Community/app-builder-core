@@ -44,7 +44,7 @@ const LogoutButton = () => {
       setStore((prevState) => {
         return {
           ...prevState,
-          ...initStoreValue,
+          token: null,
         };
       });
     }

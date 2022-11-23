@@ -47,16 +47,22 @@ interface SelectVideoDeviceProps {
 }
 
 const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
-  const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
+  const {selectedCam, setUserPreferredCamera, deviceList} =
+    useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   return props?.render ? (
-    props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
+    props.render(
+      selectedCam,
+      setUserPreferredCamera,
+      deviceList,
+      isPickerDisabled,
+    )
   ) : (
     <Picker
       enabled={!isPickerDisabled}
       selectedValue={selectedCam}
       style={[{borderColor: btnTheme}, style.popupPicker]}
-      onValueChange={(itemValue) => setSelectedCam(itemValue)}>
+      onValueChange={(itemValue) => setUserPreferredCamera(itemValue)}>
       {deviceList.map((device: any) => {
         if (device.kind === 'videoinput') {
           return (
@@ -82,16 +88,17 @@ interface SelectAudioDeviceProps {
 }
 
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
-  const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
+  const {selectedMic, setUserPreferredMic, deviceList} =
+    useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   return props?.render ? (
-    props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
+    props.render(selectedMic, setUserPreferredMic, deviceList, isPickerDisabled)
   ) : (
     <Picker
       enabled={!isPickerDisabled}
       selectedValue={selectedMic}
       style={[{borderColor: btnTheme}, style.popupPicker]}
-      onValueChange={(itemValue) => setSelectedMic(itemValue)}>
+      onValueChange={(itemValue) => setUserPreferredMic(itemValue)}>
       {deviceList.map((device: any) => {
         if (device.kind === 'audioinput') {
           return (
