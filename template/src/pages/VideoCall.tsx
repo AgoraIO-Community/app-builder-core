@@ -180,8 +180,8 @@ const VideoCall: React.FC = () => {
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {
+        // TODO: These callbacks are being called twice
         SDKEvents.emit('leave');
-        authLogout();
       }, 0),
   };
 
