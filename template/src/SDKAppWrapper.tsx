@@ -6,9 +6,8 @@ import {
 } from 'customization-implementation';
 import SDKEvents from './utils/SdkEvents';
 import App from './App';
-import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
-import useTokenServerAuth from './auth/useTokenServerAuth';
 import AsyncStorage from '@react-native-community/async-storage';
+import Loading from './subComponents/Loading';
 
 export interface userEventsMapInterface {
   leave: () => void;
@@ -69,7 +68,7 @@ const SDKAppWrapper = () => {
   const [fpe, setFpe] = useState(customizationConfig);
   const [initialized, setInitialized] = React.useState(false);
 
-  const setSdkToken = async (sdkToken) => {
+  const setSdkToken = async (sdkToken: string) => {
     try {
       await AsyncStorage.setItem('SDK_TOKEN', sdkToken);
     } catch (e) {
@@ -101,39 +100,10 @@ const SDKAppWrapper = () => {
           <App />
         </CustomizationProvider>
       ) : (
-        <></>
-        // <View style={styles.overlay}>
-        // <Text style={styles.loadingText}>Initializing app...</Text>
-        // <ActivityIndicator
-        //   size="large"
-        //   color={$config.SECONDARY_FONT_COLOR}
-        // />
-        // </View>
+        <Loading text="Initializing..." />
       )}
     </>
   );
 };
 
 export default SDKAppWrapper;
-
-const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    zIndex: 2,
-    backgroundColor: 'rgba(0,0,0,0.9)',
-    borderRadius: 15,
-  },
-  loadingText: {
-    alignSelf: 'center',
-    fontSize: 20,
-    color: $config.SECONDARY_FONT_COLOR,
-    marginBottom: 10,
-  },
-});
