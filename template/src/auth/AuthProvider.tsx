@@ -28,8 +28,9 @@ type AuthProviderProps = {
 
 interface AuthContextInterface {
   authenticated: boolean;
-  authLogin: () => void;
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
+  authLogin: () => void;
+  authLogout: () => void;
 }
 
 const AuthContext = createContext<AuthContextInterface | null>(null);
@@ -96,9 +97,27 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
   };
 
+  const authLogout = () => {
+    if (enableAuth) {
+      if ($config.ENABLE_IDP_AUTH) {
+        fetch(`${$config.BACKEND_ENDPOINT}/logout`, {
+          credentials: 'include',
+        })
+          .then((response) => response.json())
+          .then((_) => {
+            setIsAuthenticated(false);
+            history.push('/login');
+          });
+      }
+    } else {
+      setIsAuthenticated(false);
+      history.push('/login');
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{setIsAuthenticated, authenticated, authLogin}}>
+      value={{setIsAuthenticated, authenticated, authLogin, authLogout}}>
       {loading ? <Loading text={'Loading..'} /> : props.children}
     </AuthContext.Provider>
   );

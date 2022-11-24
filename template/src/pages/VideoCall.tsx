@@ -54,6 +54,7 @@ import {useWakeLock} from '../components/useWakeLock';
 import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
+import {useAuth} from '../auth/AuthProvider';
 
 enum RnEncryptionEnum {
   /**
@@ -100,6 +101,8 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
+  // auth
+  const {authLogout} = useAuth();
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -178,7 +181,7 @@ const VideoCall: React.FC = () => {
     EndCall: () =>
       setTimeout(() => {
         SDKEvents.emit('leave');
-        history.push('/');
+        authLogout();
       }, 0),
   };
 
