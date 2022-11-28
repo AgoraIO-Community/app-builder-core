@@ -7,7 +7,8 @@ import {
   Modal,
   View,
 } from 'react-native';
-import {Icons, IconsInterface, ImageIcon} from '../../agora-rn-uikit';
+import {IconsInterface} from '../assets/Icons';
+import ImageIcon from '../atoms/ImageIcon';
 
 interface Props {
   icon: keyof IconsInterface;
@@ -83,13 +84,7 @@ const IconDropdown: FC<Props> = ({
       </View>
       {selected && item?.value === selected?.value ? (
         <View style={styles.itemTextSelectedContainer}>
-          <ImageIcon
-            name={'tick'}
-            style={{
-              width: 20,
-              height: 20,
-            }}
-          />
+          <ImageIcon name={'tick'} iconSize="medium" />
         </View>
       ) : (
         <></>
@@ -138,10 +133,7 @@ const IconDropdown: FC<Props> = ({
       <View style={styles.dropdownIconContainer}>
         <ImageIcon
           name={!enabled || !data || !data.length ? icon : icon}
-          style={{
-            width: 20,
-            height: 20,
-          }}
+          iconSize="medium"
         />
       </View>
       <View
@@ -159,23 +151,11 @@ const IconDropdown: FC<Props> = ({
         </Text>
       </View>
       <View style={styles.dropdownIconContainer}>
-        {noData ? (
-          <ImageIcon
-            name={'downArrowTriangle'}
-            style={{
-              width: 20,
-              height: 20,
-            }}
-          />
-        ) : (
-          <ImageIcon
-            name={visible ? 'downArrowTriangle' : 'downArrowTriangle'}
-            style={{
-              width: 20,
-              height: 20,
-            }}
-          />
-        )}
+        <ImageIcon
+          name={visible ? 'arrowUp' : 'arrowDown'}
+          tintColor={noData ? '#A1A1A1' : '#000000'}
+          iconSize={'medium'}
+        />
       </View>
     </TouchableOpacity>
   );

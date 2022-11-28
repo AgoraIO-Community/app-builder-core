@@ -1,4 +1,5 @@
-import {IconsInterface, ImageIcon} from '../../agora-rn-uikit';
+import {IconsInterface} from '../assets/Icons';
+import ImageIcon from './ImageIcon';
 import React from 'react';
 import {
   ImageStyle,
@@ -7,6 +8,7 @@ import {
   ViewStyle,
   StyleSheet,
   Text,
+  View,
 } from 'react-native';
 
 interface OutlineButtonProps {
@@ -24,7 +26,9 @@ const OutlineButton = (props: OutlineButtonProps) => {
       onPress={props.onPress}
       style={[styles.containerStyle, props?.containerStyle]}>
       {props?.iconName ? (
-        <ImageIcon style={styles.iconStyle} name={props.iconName} />
+        <View style={styles.iconStyleView}>
+          <ImageIcon iconSize="medium" name={props.iconName} />
+        </View>
       ) : (
         <></>
       )}
@@ -44,9 +48,7 @@ const styles = StyleSheet.create({
     borderColor: '#099DFD',
     borderRadius: 4,
   },
-  iconStyle: {
-    width: 20,
-    height: 20,
+  iconStyleView: {
     margin: 8,
     alignSelf: 'center',
   },

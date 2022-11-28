@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import {ImageIcon} from 'agora-rn-uikit';
+import ImageIcon from '../atoms/ImageIcon';
 
 interface InfoBubbleProps {
   text: string;
@@ -85,7 +85,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         onPress={() => {
           showModal();
         }}>
-        <ImageIcon name="info" style={styles.iconStyle} />
+        <ImageIcon name="info" iconSize="small" />
       </Pressable>
     </>
   );
@@ -94,10 +94,6 @@ const InfoBubble = (props: InfoBubbleProps) => {
 export default InfoBubble;
 
 const styles = StyleSheet.create({
-  iconStyle: {
-    width: 16,
-    height: 16,
-  },
   infoText: {
     fontSize: 12,
     position: 'absolute',

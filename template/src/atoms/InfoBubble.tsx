@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import {Icons, ImageIcon} from '../../agora-rn-uikit';
+import ImageIcon from '../atoms/ImageIcon';
 
 interface InfoBubbleProps {
   text: string;
@@ -63,15 +63,20 @@ const InfoBubble = (props: InfoBubbleProps) => {
             </View>
             <View style={styles.downsideTriangleIconContainer}>
               <ImageIcon
-                style={styles.downsideTriangleIcon}
-                name={'downsideTriangle'}
+                customSize={{
+                  width: styles.downsideTriangleIcon.width,
+                  height: styles.downsideTriangleIcon.height,
+                }}
+                name={'arrowDown'}
               />
             </View>
           </>
         ) : (
           <></>
         )}
-        <ImageIcon style={styles.iconStyle} name={'info'} />
+        <View style={styles.iconStyleView}>
+          <ImageIcon iconSize="medium" name={'info'} />
+        </View>
       </div>
     </>
   );
@@ -80,9 +85,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
 export default InfoBubble;
 
 const styles = StyleSheet.create({
-  iconStyle: {
-    width: 20,
-    height: 20,
+  iconStyleView: {
     marginTop: 4,
     marginLeft: 4,
   },

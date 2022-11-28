@@ -13,13 +13,13 @@ import React, {useContext} from 'react';
 import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
-import {ImageIcon} from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useUserName} from 'customization-api';
+import ImageIcon from '../atoms/ImageIcon';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -52,8 +52,8 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
       ]}
       onPress={onPress}>
       <ImageIcon
-        style={style.chatInputButtonIcon}
-        name={inputActive ? 'sendActive' : 'send'}
+        tintColor={inputActive ? '#099DFD' : '#BABABA'}
+        name={'send'}
       />
     </TouchableOpacity>
   );
@@ -217,12 +217,6 @@ const style = StyleSheet.create({
   chatInputButton: {
     flex: 0.1,
     borderBottomRightRadius: 12,
-  },
-  chatInputButtonIcon: {
-    marginVertical: 20,
-    marginRight: 19,
-    width: 24,
-    height: 24,
   },
 });
 export default ChatInput;

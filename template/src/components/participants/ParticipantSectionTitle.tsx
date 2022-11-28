@@ -1,4 +1,4 @@
-import {ImageIcon} from '../../../agora-rn-uikit';
+import ImageIcon from '../../atoms/ImageIcon';
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
@@ -14,7 +14,9 @@ export default function ParticipantSectionTitle(props: PropsInterface) {
       <Text style={style.subheading}>
         {title} {count > 0 ? '(' + count + ')' : ''}
       </Text>
-      <ImageIcon name="downArrowTriangle" style={style.icon} />
+      <View style={style.iconView}>
+        <ImageIcon name="arrowDown" iconSize="medium" tintColor="#1A1A1A" />
+      </View>
     </View>
   );
 }
@@ -35,9 +37,7 @@ const style = StyleSheet.create({
     paddingVertical: 12,
     alignSelf: 'center',
   },
-  icon: {
-    width: 20,
-    height: 20,
+  iconView: {
     paddingVertical: 8,
     alignSelf: 'center',
   },

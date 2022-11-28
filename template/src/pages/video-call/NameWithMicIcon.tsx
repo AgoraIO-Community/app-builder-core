@@ -1,7 +1,8 @@
 import React, {useContext} from 'react';
 import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
-import {ImageIcon, RenderInterface} from '../../../agora-rn-uikit';
+import {RenderInterface} from '../../../agora-rn-uikit';
+import ImageIcon from '../../atoms/ImageIcon';
 import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import ColorContext from '../../components/ColorContext';
 import {useString} from '../../utils/useString';
@@ -21,9 +22,9 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
     <>
       <View>
         <ImageIcon
-          name={user.audio ? 'mic' : 'micOff'}
-          color={user.audio ? primaryColor : 'red'}
-          style={style.MicIcon}
+          name={user.audio ? 'micOn' : 'micOff'}
+          tintColor={user.audio ? primaryColor : 'red'}
+          iconSize={'small'}
         />
       </View>
       <View style={{flex: 1}}>
@@ -60,12 +61,6 @@ const style = StyleSheet.create({
     display: 'flex',
     alignSelf: 'center',
     justifyContent: 'center',
-  },
-  MicIcon: {
-    width: 16,
-    height: 16,
-    alignSelf: 'center',
-    resizeMode: 'contain',
   },
 });
 

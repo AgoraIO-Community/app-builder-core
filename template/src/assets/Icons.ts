@@ -61,6 +61,10 @@ import layout from '../assets/icons/layout.svg';
 import pinnedLayout from '../assets/icons/pinned-layout.svg';
 //@ts-ignore
 import gridLayout from '../assets/icons/grid-layout.svg';
+//@ts-ignore
+import info from '../assets/icons/info.svg';
+//@ts-ignore
+import send from '../assets/icons/send.svg';
 
 export interface IconsInterface {
   videoPlus: string;
@@ -94,6 +98,8 @@ export interface IconsInterface {
   layout: string;
   pinnedLayout: string;
   gridLayout: string;
+  info: string;
+  send: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
@@ -179,8 +185,11 @@ const Icons: IconsInterface = {
   share,
   switchCamera,
   remove,
+  layout,
   pinnedLayout,
   gridLayout,
+  info,
+  send,
 };
 
 export default Icons;

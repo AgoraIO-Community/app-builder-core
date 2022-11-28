@@ -8,7 +8,7 @@ import {
   Modal,
 } from 'react-native';
 import {isWebInternal} from '../utils/common';
-import {ImageIcon} from '../../agora-rn-uikit';
+import ImageIcon from '../atoms/ImageIcon';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
@@ -58,15 +58,10 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
         item?.iconName ? (
           <ImageIcon
             key={'btnTemplateNameDropdown' + index}
-            style={style.btnHolderCustom}
             name={item?.iconName}
           />
         ) : (
-          <ImageIcon
-            key={'btnTemplateIconDropdown' + index}
-            style={style.btnHolderCustom}
-            icon={item.icon}
-          />
+          <ImageIcon key={'btnTemplateIconDropdown' + index} icon={item.icon} />
         ),
       ];
       content.push(

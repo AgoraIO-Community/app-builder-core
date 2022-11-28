@@ -17,7 +17,6 @@ import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWebInternal} from '../utils/common';
 import {useRender} from 'customization-api';
-import {ImageIcon} from '../../agora-rn-uikit';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {renderList} = useRender();

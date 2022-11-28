@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 
-import {IconsInterface, ImageIcon} from '../../agora-rn-uikit';
+import ImageIcon from '../atoms/ImageIcon';
+import {IconsInterface} from '../assets/Icons';
 
 export interface ActionMenuItem {
   icon: keyof IconsInterface;
@@ -51,7 +52,7 @@ const ActionMenu = (props: ActionMenuProps) => {
               onPress={callback}
               key={icon + index}>
               <View style={styles.iconContainer}>
-                <ImageIcon style={styles.icon} name={icon} />
+                <ImageIcon iconSize="medium" name={icon} />
               </View>
               <Text style={[styles.text]}>{title}</Text>
             </TouchableOpacity>

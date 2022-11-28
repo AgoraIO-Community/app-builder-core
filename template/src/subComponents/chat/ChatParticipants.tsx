@@ -12,7 +12,8 @@ import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
 import {isIOS, isWeb, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
-import {ImageIcon, UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import ImageIcon from '../../atoms/ImageIcon.native';
 import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 
@@ -72,15 +73,7 @@ const ChatParticipants = (props: any) => {
                     <></>
                   )
                 ) : (
-                  <ImageIcon
-                    name="chat"
-                    style={{
-                      width: 24,
-                      height: 24,
-                      alignSelf: 'center',
-                      marginRight: 22,
-                    }}
-                  />
+                  <ImageIcon name="chat" />
                 )}
               </View>
             </PlatformWrapper>

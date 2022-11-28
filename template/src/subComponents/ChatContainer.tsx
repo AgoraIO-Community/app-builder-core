@@ -23,7 +23,6 @@ import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import {ChatBubbleProps} from '../components/ChatContext';
 import {useLocalUid} from '../../agora-rn-uikit';
-import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent, isWebInternal} from '../utils/common';

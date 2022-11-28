@@ -10,11 +10,12 @@
 *********************************************
 */
 
-import {ImageIcon, PropsContext, UidType} from '../../agora-rn-uikit';
+import {PropsContext, UidType} from '../../agora-rn-uikit';
 import React, {useContext} from 'react';
 import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import {useString} from '../utils/useString';
 import {useScreenshare} from './screenshare/useScreenshare';
+import ImageIcon from '../atoms/ImageIcon';
 /**
  *
  * @param uid - uid of the user
@@ -39,7 +40,7 @@ function ScreenShareNotice({uid}: {uid: UidType}) {
         style={styles.btnContainer}
         onPress={() => stopUserScreenShare()}>
         <View style={styles.iconContainer}>
-          <ImageIcon name={'closeRounded'} style={styles.iconStyle} />
+          <ImageIcon name={'closeRounded'} />
         </View>
         <View style={styles.btnTextContainer}>
           <Text style={styles.btnText}>Stop Sharing</Text>
@@ -54,10 +55,6 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginLeft: 16,
     marginRight: 12,
-  },
-  iconStyle: {
-    width: 24,
-    height: 24,
   },
   btnContainer: {
     alignSelf: 'center',
