@@ -34,7 +34,7 @@ import {
 } from '../subComponents/ChatInput';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import IconButton from 'src/atoms/IconButton';
+import IconButton from '../atoms/IconButton';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;

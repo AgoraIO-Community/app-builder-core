@@ -20,7 +20,7 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import OutlineButton from '../atoms/OutlineButton';
-import IconButton from 'src/atoms/IconButton';
+import IconButton from '../atoms/IconButton';
 
 const SettingsView = (props) => {
   const {

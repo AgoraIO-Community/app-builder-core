@@ -31,7 +31,7 @@ import {
   LiveStreamControlMessageEnum,
 } from '../livestream';
 import events, {EventPersistLevel} from '../../rtm-events-api';
-import IconButton from 'src/atoms/IconButton';
+import IconButton from '../../atoms/IconButton';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;

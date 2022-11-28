@@ -29,7 +29,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import HostControlView from './HostControlView';
 import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
-import IconButton from 'src/atoms/IconButton';
+import IconButton from '../atoms/IconButton';
 
 const ParticipantView = (props) => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();

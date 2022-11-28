@@ -24,7 +24,7 @@ import InviteInfo from '../atoms/InviteInfo';
 import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
-import IconButton, {IconButtonProps} from 'src/atoms/IconButton';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface CopyJoinInfoProps {
   showText?: boolean;
