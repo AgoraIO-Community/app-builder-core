@@ -4,13 +4,16 @@ import React, {
   useEffect,
   Dispatch,
   SetStateAction,
+  useRef,
 } from 'react';
-import {useHistory} from '../components/Router';
+import {useHistory, useLocation} from '../components/Router';
 import {gql, useApolloClient} from '@apollo/client';
-import AsyncStorage from '@react-native-community/async-storage';
-import {useAuthRedirect} from './useAuthRedirect';
-import {Linking} from 'react-native';
+import {useIDPAuth} from './useIDPAuth';
 import Loading from '../subComponents/Loading';
+import useTokenAuth from './useTokenAuth';
+import Toast from '../../react-native-toast-message';
+import {getHeaders} from './config';
+import isSDK from '../utils/isSDK';
 
 const GET_USER = gql`
   query getUser {
@@ -37,13 +40,28 @@ const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
   const [authenticated, setIsAuthenticated] = useState(false);
-  const {idpAuthURL} = useAuthRedirect();
+  const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  // auth hooks
+  const {enableIDPAuth, idpLogout} = useIDPAuth();
+  const {enableTokenAuth, tokenLogout} = useTokenAuth();
+  // routing
+  const history = useHistory();
+  const location = useLocation();
+  // client
   const apolloClient = useApolloClient();
 
   const enableAuth = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
-  const history = useHistory();
+
+  useEffect(() => {
+    if (!authenticated && authError) {
+      Toast.show({
+        type: 'error',
+        text1: authError,
+        visibilityTime: 3000,
+      });
+    }
+  }, [authenticated, authError]);
 
   async function getUserDetails() {
     try {
@@ -58,53 +76,101 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
   }
 
-  const enableTokenAuth = async () => {
-    try {
-      const token = await AsyncStorage.getItem('SDK_TOKEN');
-      if (token) {
-        history.push(`/authorize/${token}`);
-      } else {
-        setIsAuthenticated(false);
-        history.push(`/login`);
-        throw Error('Token not found');
-      }
-    } catch (error) {
-      console.log('token auth failed: ', error);
-    }
-  };
   useEffect(() => {
-    try {
-      getUserDetails()
-        .then((_) => {
-          setIsAuthenticated(true);
-          history.push(`/create`);
-        })
-        .catch((err) => {
-          history.push(`/login`);
-        });
-    } catch (error) {
-      history.push(`/login`);
-    }
+    getUserDetails()
+      .then((_) => {
+        setIsAuthenticated(true);
+        history.push(location.pathname);
+      })
+      .catch((err) => {
+        if (err instanceof Error) {
+          console.error('err: ', err.name);
+          setAuthError(err.message);
+        } else {
+          setAuthError('Your session has expired. Kindly login again');
+        }
+        setIsAuthenticated(false);
+
+        history.push(`/login`);
+      });
   }, []);
 
   const authLogin = () => {
     if (enableAuth) {
-      if ($config.ENABLE_IDP_AUTH) {
-        Linking.openURL(idpAuthURL);
-      } else if ($config.ENABLE_TOKEN_AUTH) {
-        enableTokenAuth();
+      console.log('supriya enable AUTH');
+      // Authenticated login flow
+      if ($config.ENABLE_IDP_AUTH && !isSDK()) {
+        console.log('supriya enable IDP');
+        enableIDPAuth();
+      } else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
+        console.log('supriya enable SDK');
+        enableTokenAuth()
+          .then((res) => {
+            setIsAuthenticated(true);
+            history.push('/create');
+          })
+          .catch((error) => {
+            console.error('error: ', error);
+            if (error instanceof Error) {
+              setAuthError(error.message);
+            } else {
+              setAuthError(error);
+            }
+            setIsAuthenticated(false);
+            history.push('/login');
+          });
       }
+    } else {
+      // Unauthenticated login flow
+      console.log('supriya enable UNAUTH');
+      fetch(`${$config.BACKEND_ENDPOINT}/v1/login`, {
+        headers: {
+          ...getHeaders(),
+        },
+      })
+        .then((response) => response.json())
+        .then((_) => {
+          setIsAuthenticated(true);
+          history.push('/create');
+        })
+        .catch((error) => {
+          console.error('error: ', error);
+          if (error instanceof Error) {
+            setAuthError(error.message);
+          } else {
+            setAuthError(error);
+          }
+          setIsAuthenticated(false);
+          history.push('/login');
+        });
     }
   };
 
   const authLogout = () => {
     if (enableAuth) {
       if ($config.ENABLE_IDP_AUTH) {
-        fetch(`${$config.BACKEND_ENDPOINT}/logout`, {
-          credentials: 'include',
-        })
-          .then((response) => response.json())
-          .then((_) => {
+        idpLogout()
+          .then((res) => {
+            console.log('user successfully logged out');
+          })
+          .catch(() => {
+            console.error('user logout failed');
+            setAuthError('user logout failed');
+          })
+          .finally(() => {
+            setIsAuthenticated(false);
+            history.push('/login');
+          });
+      } else if ($config.ENABLE_TOKEN_AUTH) {
+        tokenLogout()
+          .then((res) => {
+            console.log('user successfully logged out');
+          })
+          .catch(() => {
+            console.error('user logout failed');
+            setAuthError('user logout failed');
+          })
+          .finally(() => {
             setIsAuthenticated(false);
             history.push('/login');
           });
@@ -117,7 +183,12 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{setIsAuthenticated, authenticated, authLogin, authLogout}}>
+      value={{
+        setIsAuthenticated,
+        authenticated,
+        authLogin,
+        authLogout,
+      }}>
       {loading ? <Loading text={'Loading..'} /> : props.children}
     </AuthContext.Provider>
   );

@@ -101,8 +101,7 @@ const VideoCall: React.FC = () => {
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
-  // auth
-  const {authLogout} = useAuth();
+
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
