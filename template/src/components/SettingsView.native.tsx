@@ -16,13 +16,14 @@ import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWebInternal} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import OutlineButton from '../atoms/OutlineButton';
-import IconButton from 'src/atoms/IconButton';
+import {useBottomSheet} from '@gorhom/bottom-sheet';
 
-const SettingsView = (props) => {
+const SettingsView = () => {
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -32,6 +33,7 @@ const SettingsView = (props) => {
   const settingsLabel = 'Settings';
   const hostControlsLabel = 'Host Controls';
   const {sidePanel, setSidePanel} = useSidePanel();
+  const {close} = useBottomSheet();
   const muteRemote = useRemoteMute();
   const onPressMuteVideo = () => muteRemote(MUTE_REMOTE_TYPE.video);
   const onPressMuteAudio = () => muteRemote(MUTE_REMOTE_TYPE.audio);
@@ -40,14 +42,12 @@ const SettingsView = (props) => {
       style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
       <View style={style.header}>
         <Text style={style.mainHeading}>{settingsLabel}</Text>
-        <IconButton
-          iconProps={{
-            name: 'closeRounded',
-            tintColor: '#000000',
-          }}
+        <BtnTemplate
+          styleIcon={style.closeIcon}
+          name={'closeRounded'}
           onPress={() => {
-            setSidePanel(SidePanelType.None);
-            props.handleClose && props.handleClose();
+            // setSidePanel(SidePanelType.None);
+            close();
           }}
         />
       </View>
@@ -101,6 +101,10 @@ const style = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
+  },
+  closeIcon: {
+    width: 24,
+    height: 24,
   },
   header: {
     flexDirection: 'row',

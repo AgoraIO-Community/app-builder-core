@@ -66,7 +66,7 @@ const Participant = (props: ParticipantInterface) => {
   const textStyle = {
     fontSize: 12,
     lineHeight: 10,
-    fontWeight: 400,
+    fontWeight: '400',
     color: '#fff',
   };
 

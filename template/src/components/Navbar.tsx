@@ -88,7 +88,7 @@ interface ParticipantsIconButtonProps {
   };
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
-const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
       top: isWebInternal() ? -10 : 2,

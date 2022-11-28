@@ -16,7 +16,6 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
   const endCallLabel = 'End';
-
   const {setStore} = useContext(StorageContext);
   const [endcallVisible, setEndcallVisible] = useState(false);
   const {phrase} = useParams<{phrase: string}>();

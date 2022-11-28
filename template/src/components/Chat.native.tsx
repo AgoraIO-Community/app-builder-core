@@ -23,7 +23,12 @@ import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
-import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isValidReactComponent,
+  isWebInternal,
+} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
@@ -32,15 +37,15 @@ import {
   ChatTextInputProps,
   ChatSendButtonProps,
 } from '../subComponents/ChatInput';
+import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import IconButton from 'src/atoms/IconButton';
+import {useBottomSheet} from '@gorhom/bottom-sheet';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
-  handleClose?: () => void;
 }
 
 const Chat = (props?: ChatProps) => {
@@ -57,6 +62,7 @@ const Chat = (props?: ChatProps) => {
   ]);
   const isSmall = dim[0] < 700;
   const {setSidePanel} = useSidePanel();
+  const {close} = useBottomSheet();
 
   const {
     groupActive,
@@ -159,11 +165,12 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         <View style={style.header}>
-          <IconButton
-            iconProps={{name: 'backBtn', tintColor: '#000000'}}
+          <BtnTemplate
+            styleIcon={style.closeIcon}
             style={{
               opacity: privateActive ? 1 : 0,
             }}
+            name={'backBtn'}
             onPress={() => {
               setPrivateActive(false);
             }}
@@ -192,14 +199,12 @@ const Chat = (props?: ChatProps) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <IconButton
-            iconProps={{
-              name: 'closeSquare',
-              tintColor: '#000000',
-            }}
+          <BtnTemplate
+            styleIcon={style.closeIcon}
+            name={'closeRounded'}
             onPress={() => {
-              setSidePanel(SidePanelType.None);
-              props.handleClose && props.handleClose();
+              // setSidePanel(SidePanelType.None);
+              close();
             }}
           />
         </View>
