@@ -65,6 +65,8 @@ import gridLayout from '../assets/icons/grid-layout.svg';
 import info from '../assets/icons/info.svg';
 //@ts-ignore
 import send from '../assets/icons/send.svg';
+//@ts-ignore
+import downsideTriangle from '../assets/icons/down-side-triangle.svg';
 
 export interface IconsInterface {
   videoPlus: string;
@@ -100,6 +102,7 @@ export interface IconsInterface {
   gridLayout: string;
   info: string;
   send: string;
+  downsideTriangle: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
@@ -190,6 +193,7 @@ const Icons: IconsInterface = {
   gridLayout,
   info,
   send,
+  downsideTriangle,
 };
 
 export default Icons;

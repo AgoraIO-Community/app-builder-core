@@ -15,7 +15,13 @@ import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, SafeAreaView, StatusBar, Platform} from 'react-native';
+import {
+  ImageBackground,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  View,
+} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
 import Toast from '../react-native-toast-message';
 import ToastConfig from './subComponents/ToastConfig';
@@ -32,10 +38,11 @@ interface AppWrapperProps {
 }
 
 const ImageBackgroundComp = (props: {
-  bg: string;
+  bg?: string;
+  color?: string;
   children?: React.ReactNode;
 }) => {
-  if (props.bg) {
+  if (props?.bg) {
     return (
       <ImageBackground
         source={{uri: props.bg}}
@@ -43,6 +50,12 @@ const ImageBackgroundComp = (props: {
         resizeMode={'cover'}>
         {props.children}
       </ImageBackground>
+    );
+  } else if (props?.color) {
+    return (
+      <View style={{flex: 1, backgroundColor: props.color}}>
+        {props.children}
+      </View>
     );
   } else {
     return <>{props.children}</>;
@@ -62,7 +75,9 @@ const AppWrapper = (props: AppWrapperProps) => {
 
   return (
     <AppRoot>
-      <ImageBackgroundComp bg={$config.BG}>
+      <ImageBackgroundComp
+        bg={$config.BACKGROUND_IMAGE}
+        color={$config.BACKGROUND_COLOR}>
         <SafeAreaView
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>

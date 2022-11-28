@@ -30,11 +30,24 @@ export interface ImageIconProps {
 
 const ImageIcon = (props: ImageIconProps) => {
   const {name, iconSize = 'normal', customSize, tintColor} = props;
+  let iconSizeLocal = {};
+  if (iconSize === 'medium') {
+    iconSizeLocal = {
+      width: 20,
+      height: 20,
+    };
+  } else if (iconSize === 'small') {
+    iconSizeLocal = {
+      width: 16,
+      height: 16,
+    };
+  } else {
+    iconSizeLocal = {width: 24, height: 24};
+  }
   return (
     <Image
       style={[
-        styles[iconSize],
-        styles.normal,
+        iconSizeLocal,
         tintColor ? {tintColor: tintColor} : {},
         customSize ? customSize : {},
       ]}
@@ -47,18 +60,3 @@ const ImageIcon = (props: ImageIconProps) => {
 };
 
 export default ImageIcon;
-
-const styles = {
-  normal: {
-    width: 24,
-    height: 24,
-  },
-  medium: {
-    width: 20,
-    height: 20,
-  },
-  small: {
-    width: 16,
-    height: 16,
-  },
-};

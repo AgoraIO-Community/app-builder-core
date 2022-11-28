@@ -63,11 +63,12 @@ const InfoBubble = (props: InfoBubbleProps) => {
             </View>
             <View style={styles.downsideTriangleIconContainer}>
               <ImageIcon
-                customSize={{
-                  width: styles.downsideTriangleIcon.width,
-                  height: styles.downsideTriangleIcon.height,
-                }}
-                name={'arrowDown'}
+                // customSize={{
+                //   width: styles.downsideTriangleIcon.width,
+                //   height: styles.downsideTriangleIcon.height,
+                // }}
+                name={'downsideTriangle'}
+                tintColor={'#F2F2F2'}
               />
             </View>
           </>
@@ -75,7 +76,11 @@ const InfoBubble = (props: InfoBubbleProps) => {
           <></>
         )}
         <View style={styles.iconStyleView}>
-          <ImageIcon iconSize="medium" name={'info'} />
+          <ImageIcon
+            iconSize="medium"
+            name={'info'}
+            tintColor={'rgba(186, 186, 186, 0.5)'}
+          />
         </View>
       </div>
     </>
@@ -91,12 +96,12 @@ const styles = StyleSheet.create({
   },
   downsideTriangleIconContainer: {
     position: 'absolute',
-    top: -40,
-    left: -10,
+    top: -20,
+    left: 2,
     zIndex: 999,
   },
   downsideTriangleIcon: {
-    width: 36,
+    width: 27,
     height: 36,
     shadowColor: '#000000',
     shadowOpacity: 0.1,
@@ -115,7 +120,7 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowRadius: 4,
     borderRadius: 12,
-    top: -100,
+    top: -87,
   },
   textStyle: {
     fontFamily: 'Source Sans Pro',

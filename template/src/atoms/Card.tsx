@@ -26,8 +26,7 @@ export default Card;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
     elevation: 5,
     maxWidth: 676,
     width: '100%',
@@ -44,7 +43,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 60,
     paddingVertical: 60,
     borderRadius: 20,
-    borderColor: 'rgba(80, 80, 80, 0.2)',
+    borderColor: $config.CARD_LAYER_2_COLOR,
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.1,

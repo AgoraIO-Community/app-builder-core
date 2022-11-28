@@ -37,6 +37,7 @@ import Toast from '../../react-native-toast-message';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import DimensionContext from '../components/dimension/DimensionContext';
+import ThemeConfig from '../theme';
 
 const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
@@ -141,7 +142,7 @@ const Join = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            iconName="videocamWhite"
+            iconName="videoOn"
             disabled={phrase === ''}
             onPress={() => startCall()}
             text={enterMeetingButton}
@@ -172,12 +173,6 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   labelStyle: {
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#1A1A1A',
-    letterSpacing: 0.08,
-    lineHeight: 18,
     paddingLeft: 8,
   },
   main: {
@@ -186,11 +181,11 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   heading: {
-    fontSize: 32,
+    fontSize: ThemeConfig.FontSize.extraLarge,
     fontWeight: '700',
-    lineHeight: 32,
-    color: $config.PRIMARY_FONT_COLOR,
-    fontFamily: 'Source Sans Pro',
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 });
 
