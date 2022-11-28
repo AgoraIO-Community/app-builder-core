@@ -15,6 +15,7 @@ import StorageContext from './StorageContext';
 import {Text} from 'react-native';
 import useMount from './useMount';
 import {useString} from '../utils/useString';
+import {useAuth} from '../auth/AuthProvider';
 
 const Authenticated = () => {
   //commented for v1 release
@@ -26,14 +27,17 @@ const Authenticated = () => {
 const StoreToken = () => {
   const [ready, setReady] = useState(false);
   const {token}: {token: string} = useParams();
+  const {setIsAuthenticated} = useAuth();
   const {setStore} = useContext(StorageContext);
   console.log('store token api', token);
 
   useMount(() => {
     setStore && setStore((store) => ({...store, token}));
+    setIsAuthenticated(true);
     setReady(true);
   });
-  return ready ? <Redirect to={'/'} /> : <Authenticated />;
+
+  return ready ? <Redirect to={'/create'} /> : <Authenticated />;
 };
 
 export default StoreToken;

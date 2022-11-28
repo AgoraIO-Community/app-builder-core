@@ -12,8 +12,9 @@ import {useIDPAuth} from './useIDPAuth';
 import Loading from '../subComponents/Loading';
 import useTokenAuth from './useTokenAuth';
 import Toast from '../../react-native-toast-message';
-import {getHeaders} from './config';
+import {getRequestHeaders, GET_UNAUTH_FLOW_API_ENDPOINT} from './config';
 import isSDK from '../utils/isSDK';
+import {Linking} from 'react-native';
 
 const GET_USER = gql`
   query getUser {
@@ -83,14 +84,8 @@ const AuthProvider = (props: AuthProviderProps) => {
         history.push(location.pathname);
       })
       .catch((err) => {
-        if (err instanceof Error) {
-          console.error('err: ', err.name);
-          setAuthError(err.message);
-        } else {
-          setAuthError('Your session has expired. Kindly login again');
-        }
+        setAuthError('Your session has expird. Kindly login again');
         setIsAuthenticated(false);
-
         history.push(`/login`);
       });
   }, []);
@@ -110,7 +105,6 @@ const AuthProvider = (props: AuthProviderProps) => {
             history.push('/create');
           })
           .catch((error) => {
-            console.error('error: ', error);
             if (error instanceof Error) {
               setAuthError(error.message);
             } else {
@@ -123,25 +117,33 @@ const AuthProvider = (props: AuthProviderProps) => {
     } else {
       // Unauthenticated login flow
       console.log('supriya enable UNAUTH');
-      fetch(`${$config.BACKEND_ENDPOINT}/v1/login`, {
+      // Linking.openURL(GET_UNAUTH_FLOW_API_ENDPOINT());
+      fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         headers: {
-          ...getHeaders(),
+          Accept: '*/*',
+          ...getRequestHeaders(),
         },
       })
-        .then((response) => response.json())
-        .then((_) => {
-          setIsAuthenticated(true);
-          history.push('/create');
+        .then((response) => {
+          console.log('supriya headers', response.headers);
+          return response.text();
+        })
+        .then((response) => {
+          console.log('supriya response: ', response);
+          // setIsAuthenticated(true);
+          // history.push('/create');
         })
         .catch((error) => {
-          console.error('error: ', error);
-          if (error instanceof Error) {
-            setAuthError(error.message);
-          } else {
-            setAuthError(error);
-          }
-          setIsAuthenticated(false);
-          history.push('/login');
+          console.log('supriya error', error);
+
+          // console.error('error: ', error);
+          // if (error instanceof Error) {
+          //   setAuthError(error.message);
+          // } else {
+          //   setAuthError(error);
+          // }
+          // setIsAuthenticated(false);
+          // history.push('/login');
         });
     }
   };

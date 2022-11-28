@@ -28,9 +28,9 @@ function AppRoutes() {
       <Route exact path={'/'}>
         <Redirect to={'/create'} />
       </Route>
-      <Route exact path={'/authorize/:token'}>
+      {/* <Route exact path={'/authorize/:token'}>
         <StoreToken />
-      </Route>
+      </Route> */}
       <Route exact path={'/authorize'}>
         <IDPAuth />
       </Route>
