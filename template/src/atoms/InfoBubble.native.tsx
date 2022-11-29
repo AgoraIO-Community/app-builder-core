@@ -85,7 +85,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         onPress={() => {
           showModal();
         }}>
-        <ImageIcon name="info" iconSize="small" />
+        <ImageIcon name="info" iconSize="medium" tintColor="grey" />
       </Pressable>
     </>
   );

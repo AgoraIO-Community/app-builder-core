@@ -8,6 +8,7 @@ import StorageContext from '../components/StorageContext';
 import {useParams} from '../components/Router';
 import ImageIcon from '../atoms/ImageIcon';
 export interface LocalEndcallProps {
+  hideLabel?: boolean;
   render?: (onPress: () => void) => JSX.Element;
 }
 
@@ -48,10 +49,13 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         modalVisible={endcallVisible}
       />
       <TouchableOpacity
-        style={Styles.endCallContainer as object}
+        style={props.hideLabel ? {} : (Styles.endCallContainer as object)}
+        {...props}
         onPress={onPress}>
         <ImageIcon name={'endCall'} tintColor={'#FFFFFF'} />
-        <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
+        {!props.hideLabel && (
+          <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
+        )}
       </TouchableOpacity>
     </>
   );

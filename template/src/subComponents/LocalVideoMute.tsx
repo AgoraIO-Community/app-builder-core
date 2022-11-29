@@ -20,6 +20,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
+  hideLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
 }
 
@@ -66,7 +67,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       : '#FF414D',
   };
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = videoLabel;
+  iconButtonProps.btnText = props.hideLabel ? '' : videoLabel;
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)

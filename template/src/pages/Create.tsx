@@ -260,7 +260,7 @@ const Create = () => {
               </View>
               <View style={[style.btnContainer]}>
                 <PrimaryButton
-                  iconName={'videocamPlus'}
+                  iconName={'videoPlus'}
                   disabled={roomTitle === '' || loading}
                   containerStyle={!isDesktop && {width: '100%'}}
                   onPress={() =>
