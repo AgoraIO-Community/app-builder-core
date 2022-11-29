@@ -12,11 +12,6 @@
 import React from 'react';
 import {Image} from 'react-native';
 import Icons, {IconsInterface} from '../assets/icons';
-// export enum IconSize {
-//   normal = 'normal',
-//   medium = 'medium',
-//   small = 'small',
-// }
 
 export interface ImageIconProps {
   tintColor?: string;
@@ -49,7 +44,9 @@ const ImageIcon = (props: ImageIconProps) => {
       style={[
         iconSizeLocal,
         tintColor ? {tintColor: tintColor} : {},
-        customSize ? customSize : {},
+        customSize?.height && customSize?.width
+          ? {width: customSize.width, height: customSize.height}
+          : {},
       ]}
       resizeMode={'contain'}
       source={{

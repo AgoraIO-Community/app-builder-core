@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.medium,
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    opacity: ThemeConfig.Emphasis.medium,
+    opacity: ThemeConfig.EmphasisOpacity.medium,
   },
   helpText: {
     color: $config.PRIMARY_FONT_COLOR,

@@ -37,6 +37,7 @@ import {PreCallTextInputProps} from './precall/textInput';
 import PermissionHelper from './precall/PermissionHelper';
 import StorageContext from './StorageContext';
 import DimensionContext from '../components/dimension/DimensionContext';
+import ThemeConfig from '../theme';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {JoinButton, Textbox} = useCustomization((data) => {
@@ -78,7 +79,6 @@ const JoinRoomInputView = ({isDesktop}) => {
       <Textbox
         isDesktop={isDesktop}
         labelStyle={$config.EVENT_MODE ? style.labelStyle : {}}
-        textInputStyle={$config.EVENT_MODE ? style.textInputStyle : {}}
       />
       {$config.EVENT_MODE ? (
         <Text style={style.subTextStyle}>
@@ -388,29 +388,16 @@ const Precall = (props: any) => {
 const style = StyleSheet.create({
   full: {flex: 1},
   labelStyle: {
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#1A1A1A',
-    letterSpacing: 0.08,
-    lineHeight: 18,
-  },
-  textInputStyle: {
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#1A1A1A',
-    letterSpacing: 0.08,
-    lineHeight: 18,
+    paddingLeft: 8,
   },
   subTextStyle: {
     marginTop: 8,
     marginLeft: 8,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 14,
+    fontSize: ThemeConfig.FontSize.extraSmall,
     lineHeight: 18,
-    color: '#333333',
+    color: $config.FONT_COLOR,
     textAlign: 'left',
   },
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
@@ -437,8 +424,9 @@ const style = StyleSheet.create({
   },
   leftContent: {
     flex: 2.5,
-    borderRadius: 20,
+    borderRadius: 16,
     height: '90vh',
+    overflow: 'hidden',
   },
   boxStyle: {
     shadowColor: '#000000',
@@ -447,9 +435,7 @@ const style = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
     marginRight: 24,
-    borderWidth: 1,
     height: '100%',
-    borderColor: '#ffffff',
   },
   mobileBoxStyle: {
     marginRight: 0,
@@ -465,18 +451,7 @@ const style = StyleSheet.create({
   titleFont: {
     textAlign: 'center',
     fontSize: 20,
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  titleHeading: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
-  },
-  subHeading: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
   btnContainer: {
     flex: 1,
@@ -494,10 +469,10 @@ const style = StyleSheet.create({
     marginBottom: 40,
   },
   meetingTitleStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
-    fontSize: 32,
-    color: '#333333',
+    fontSize: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
   },
 });
 

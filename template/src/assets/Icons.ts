@@ -67,6 +67,10 @@ import info from '../assets/icons/info.svg';
 import send from '../assets/icons/send.svg';
 //@ts-ignore
 import downsideTriangle from '../assets/icons/down-side-triangle.svg';
+//@ts-ignore
+import profileImg from '../assets/icons/profile-img.svg';
+//@ts-ignore
+import link from '../assets/icons/link.svg';
 
 export interface IconsInterface {
   videoPlus: string;
@@ -103,6 +107,8 @@ export interface IconsInterface {
   info: string;
   send: string;
   downsideTriangle: string;
+  profileImg: string;
+  link: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
@@ -194,6 +200,8 @@ const Icons: IconsInterface = {
   info,
   send,
   downsideTriangle,
+  profileImg,
+  link,
 };
 
 export default Icons;

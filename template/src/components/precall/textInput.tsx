@@ -18,6 +18,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
 import Input from '../../atoms/Input';
+import ThemeConfig from '../../theme';
 
 export interface PreCallTextInputProps {
   labelStyle?: TextStyle;
@@ -38,6 +39,17 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   return (
     <Input
       label={isDesktop ? ($config.EVENT_MODE ? 'Your Name' : 'Joining as') : ''}
+      labelStyle={
+        props?.labelStyle
+          ? props.labelStyle
+          : {
+              fontFamily: ThemeConfig.FontFamily.sansPro,
+              fontWeight: '400',
+              fontSize: ThemeConfig.FontSize.extraSmall,
+              lineHeight: ThemeConfig.FontSize.extraSmall,
+              color: $config.FONT_COLOR,
+            }
+      }
       value={username}
       autoFocus
       onChangeText={(text) => setUsername(text ? text : '')}
@@ -48,16 +60,6 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
             ? 'Luke Skywalker'
             : userNamePlaceholder
           : fetchingNamePlaceholder
-      }
-      style={
-        props?.textInputStyle
-          ? props?.textInputStyle
-          : {fontWeight: '400', fontSize: 18, color: '#2B2C33'}
-      }
-      labelStyle={
-        props?.labelStyle
-          ? props?.labelStyle
-          : {fontWeight: '400', fontSize: 14, color: '#181818'}
       }
       editable={isJoinDataFetched}
     />

@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text, StyleSheet, View, TextStyle} from 'react-native';
+import ThemeConfig from '../../theme';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 export interface MeetingTitleProps {
@@ -22,7 +23,7 @@ const style = StyleSheet.create({
   titleHeading: {
     fontSize: 24,
     fontWeight: '700',
-    color: $config.PRIMARY_FONT_COLOR,
-    fontFamily: 'Source Sans Pro',
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 });

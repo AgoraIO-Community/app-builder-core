@@ -8,6 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
+import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 
 interface Props {
@@ -71,6 +72,7 @@ const Dropdown: FC<Props> = ({
       onPress={() => onItemPress(item)}>
       <View style={styles.itemTextContainer}>
         <Text
+          numberOfLines={1}
           style={[
             styles.itemText,
             selected && item?.value === selected?.value
@@ -82,7 +84,11 @@ const Dropdown: FC<Props> = ({
       </View>
       {selected && item?.value === selected?.value ? (
         <View style={styles.itemTextSelectedContainer}>
-          <ImageIcon name={'tick'} tintColor={'#099DFD'} />
+          <ImageIcon
+            name={'tick'}
+            customSize={{width: 12, height: 9}}
+            tintColor={'#099DFD'}
+          />
         </View>
       ) : (
         <></>
@@ -122,13 +128,19 @@ const Dropdown: FC<Props> = ({
     <TouchableOpacity
       disabled={!enabled || !data || !data.length}
       ref={DropdownButton}
-      style={noData ? styles.dropdownOptionNoData : styles.dropdownOption}
+      style={[
+        noData ? styles.dropdownOptionNoData : styles.dropdownOption,
+        !enabled || !data || !data.length
+          ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
+          : {},
+      ]}
       onPress={toggleDropdown}>
       {enabled && !noData ? renderDropdown() : <></>}
       <View
         onLayout={() => updateDropdownPosition()}
         style={styles.dropdownOptionTextContainer}>
         <Text
+          numberOfLines={1}
           style={
             noData ? styles.dropdownOptionNoDataText : styles.dropdownOptionText
           }>
@@ -150,9 +162,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     minHeight: 60,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderWidth: 1,
-    borderColor: '#484848',
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: 12,
   },
   dropdownOptionTextContainer: {
@@ -163,11 +175,11 @@ const styles = StyleSheet.create({
   dropdownOptionText: {
     flex: 1,
     textAlign: 'left',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 14,
-    lineHeight: 14,
-    color: '#181818',
+    fontSize: ThemeConfig.FontSize.extraSmall,
+    lineHeight: ThemeConfig.FontSize.extraSmall,
+    color: $config.FONT_COLOR,
     paddingLeft: 20,
     paddingVertical: 23,
   },
@@ -175,17 +187,17 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     minHeight: 60,
-    backgroundColor: '#F2F2F2',
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderRadius: 12,
   },
   dropdownOptionNoDataText: {
     flex: 1,
     textAlign: 'left',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 14,
-    lineHeight: 14,
-    color: '#A1A1A1',
+    fontSize: ThemeConfig.FontSize.extraSmall,
+    lineHeight: ThemeConfig.FontSize.extraSmall,
+    color: $config.FONT_COLOR,
     paddingLeft: 20,
     paddingVertical: 23,
   },
@@ -196,11 +208,11 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: 'absolute',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#F2F2F2',
-    shadowColor: '#000000',
+    borderColor: $config.CARD_LAYER_2_COLOR,
+    shadowColor: $config.HARD_CODED_CARD_SHADOW_COLOR,
     shadowOffset: {width: 5, height: 5},
     shadowOpacity: 0.07,
     shadowRadius: 20,
@@ -211,7 +223,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   itemContainer: {
-    backgroundColor: '#FFFFFF',
+    //backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     marginHorizontal: 8,
     minHeight: 40,
     flex: 1,
@@ -223,17 +235,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   itemText: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 16,
-    lineHeight: 16,
-    color: '#000000',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR,
     paddingVertical: 12,
     paddingLeft: 12,
   },
   itemTextSelected: {
     fontWeight: '400',
-    color: '#099DFD',
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   itemTextSelectedContainer: {
     flex: 0.2,

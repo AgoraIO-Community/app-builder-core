@@ -18,6 +18,7 @@ import {useString} from '../utils/useString';
 import Spacer from '../atoms/Spacer';
 import Dropdown from '../atoms/Dropdown';
 import {usePreCall} from '../components/precall/usePreCall';
+import ThemeConfig from '../theme';
 // import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
@@ -208,9 +209,9 @@ const style = StyleSheet.create({
   },
   label: {
     fontWeight: '400',
-    fontSize: 14,
-    color: '#181818',
-    fontFamily: 'Source Sans Pro',
+    fontSize: ThemeConfig.FontSize.extraSmall,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     marginBottom: 12,
   },
 });

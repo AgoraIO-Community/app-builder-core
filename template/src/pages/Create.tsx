@@ -302,7 +302,7 @@ const style = StyleSheet.create({
     lineHeight: ThemeConfig.FontSize.extraLarge,
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    opacity: ThemeConfig.Emphasis.high,
+    opacity: ThemeConfig.EmphasisOpacity.high,
   },
   headline: {
     fontSize: 18,

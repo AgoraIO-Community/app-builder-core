@@ -35,6 +35,7 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -127,7 +128,12 @@ const Share = () => {
   const {isDesktop} = getDimensionData();
 
   const clipboardIcon = () => {
-    return <ImageIcon tintColor={'#089CFD'} name={'clipboard'} />;
+    return (
+      <ImageIcon
+        tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+        name={'clipboard'}
+      />
+    );
   };
 
   return FpeShareComponent ? (
@@ -289,16 +295,17 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   heading: {
-    fontSize: 32,
+    fontSize: ThemeConfig.FontSize.extraLarge,
     fontWeight: '700',
-    fontFamily: 'Source Sans Pro',
-    color: $config.PRIMARY_FONT_COLOR,
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   container: {
     flexDirection: 'row',
   },
   urlTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
@@ -306,7 +313,7 @@ const style = StyleSheet.create({
   },
   urlContainer: {
     flex: 0.9,
-    backgroundColor: '#F1F1F4',
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
     borderTopRightRadius: 0,
@@ -314,10 +321,10 @@ const style = StyleSheet.create({
   },
   iconContainer: {
     flex: 0.1,
-    backgroundColor: '#F1F1F4',
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
-    borderLeftColor: '#FFFFFF',
+    borderLeftColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderLeftWidth: 1,
     borderTopRightRadius: 8,
     borderBottomLeftRadius: 0,
@@ -325,10 +332,10 @@ const style = StyleSheet.create({
     borderTopLeftRadius: 0,
   },
   url: {
-    color: 'rgba(51, 51, 51, 0.7)',
-    fontSize: 14,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    fontSize: ThemeConfig.FontSize.extraSmall,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   urlPadding: {
     paddingHorizontal: 20,
@@ -344,10 +351,10 @@ const style = StyleSheet.create({
   },
   helpText: {
     color: '#666666',
-    fontSize: 14,
-    lineHeight: 14,
+    fontSize: ThemeConfig.FontSize.extraSmall,
+    lineHeight: ThemeConfig.FontSize.extraSmall,
     fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingLeft: 8,
   },
 });

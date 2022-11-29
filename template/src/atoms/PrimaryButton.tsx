@@ -49,7 +49,10 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
       {...otherProps}>
       {iconName && (
         <View style={props?.disabled ? {opacity: 0.4} : {}}>
-          <ImageIcon name={iconName} tintColor={'#FFFFFF'} />
+          <ImageIcon
+            name={iconName}
+            tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          />
         </View>
       )}
       {props.text && (
