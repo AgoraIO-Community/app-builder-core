@@ -143,7 +143,7 @@ const ParticipantView = () => {
       </ScrollView>
 
       <View style={style.footer}>
-        <CopyJoinInfo buttonTemplateName={ButtonTemplateName.topBar} />
+        <CopyJoinInfo hideLabel />
         {isHost && (
           <>
             <Spacer horizontal size={8} />

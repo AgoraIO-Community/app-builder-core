@@ -27,7 +27,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface CopyJoinInfoProps {
-  showText?: boolean;
+  hideLabel?: boolean;
   render?: (onPress: () => void) => JSX.Element;
 }
 //todo hari update CopyJoinInfo to show text
@@ -70,7 +70,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //   height: 20,
   // };
 
-  iconButtonProps.btnText = copyMeetingInviteButton;
+  iconButtonProps.btnText = props.hideLabel ? '' : copyMeetingInviteButton;
   iconButtonProps.style = Styles.localButton as Object;
 
   //}

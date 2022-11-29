@@ -6,6 +6,7 @@ import {useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface LocalSwitchCameraProps {
+  hideLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
 }
 
@@ -32,7 +33,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = switchCameraButtonText;
+  iconButtonProps.btnText = props.hideLabel ? '' : switchCameraButtonText;
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)

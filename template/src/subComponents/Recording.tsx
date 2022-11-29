@@ -17,6 +17,7 @@ import RecordingPopup from './RecordingPopup';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface RecordingButtonProps {
+  hideLabel?: boolean;
   render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
 }
 
@@ -50,7 +51,9 @@ const Recording = (props: RecordingButtonProps) => {
     onPress,
   };
 
-  iconButtonProps.btnText = recordingButton(isRecordingActive);
+  iconButtonProps.btnText = props.hideLabel
+    ? ''
+    : recordingButton(isRecordingActive);
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.styleText = {
     fontFamily: 'Source Sans Pro',

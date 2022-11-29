@@ -1,7 +1,6 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
-import Styles from '../../components/styles';
-import {ImageIcon} from '../../../agora-rn-uikit';
+import ImageIcon from '../../atoms/ImageIcon';
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
@@ -15,28 +14,26 @@ import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 
-import {ButtonTemplateName} from '../../utils/useButtonTemplate';
-
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, updateActionSheet, isExpanded} = props;
   return (
     <View>
       <View style={[styles.row, {borderBottomWidth: 1}]}>
         <View style={styles.iconContainer}>
-          <LocalVideoMute buttonTemplateName={ButtonTemplateName.actionBar} />
+          <LocalVideoMute hideLabel />
         </View>
         <View style={[styles.iconContainer]}>
-          <LocalAudioMute buttonTemplateName={ButtonTemplateName.actionBar} />
+          <LocalAudioMute hideLabel />
         </View>
         <View style={[styles.iconContainer, {backgroundColor: '#FF414D'}]}>
-          <LocalEndcall buttonTemplateName={ButtonTemplateName.actionBar} />
+          <LocalEndcall hideLabel />
         </View>
         <View style={styles.iconContainer}>
           <TouchableOpacity
             onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}>
             <ImageIcon
-              name={isExpanded ? 'downArrow' : 'more'}
-              style={Styles.actionSheetButton}
+              name={isExpanded ? 'arrowDown' : 'more'}
+              tintColor={$config.PRIMARY_COLOR}
             />
           </TouchableOpacity>
         </View>
@@ -47,7 +44,7 @@ const ActionSheetContent = (props) => {
           <TouchableOpacity
             style={styles.iconContainer}
             onPress={() => updateActionSheet('chat')}>
-            <ImageIcon name={'chat'} style={Styles.actionSheetButton} />
+            <ImageIcon name={'chat'} tintColor={$config.PRIMARY_COLOR} />
           </TouchableOpacity>
           <Text style={styles.iconText}>Chat</Text>
         </View>
@@ -56,7 +53,10 @@ const ActionSheetContent = (props) => {
           <TouchableOpacity
             style={styles.iconContainer}
             onPress={() => updateActionSheet('participants')}>
-            <ImageIcon name={'participant'} style={Styles.actionSheetButton} />
+            <ImageIcon
+              name={'participants'}
+              tintColor={$config.PRIMARY_COLOR}
+            />
             {/* <ParticipantsIconButton /> */}
           </TouchableOpacity>
           <Text style={styles.iconText}>Participants</Text>
@@ -64,7 +64,7 @@ const ActionSheetContent = (props) => {
         {/* record */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <Recording buttonTemplateName={ButtonTemplateName.actionBar} />
+            <Recording hideLabel />
           </View>
           <Text style={styles.iconText}>Record</Text>
         </View>
@@ -72,9 +72,7 @@ const ActionSheetContent = (props) => {
         {/* switch camera */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <LocalSwitchCamera
-              buttonTemplateName={ButtonTemplateName.actionBar}
-            />
+            <LocalSwitchCamera hideLabel />
           </View>
           <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
         </View>
@@ -83,7 +81,7 @@ const ActionSheetContent = (props) => {
         {/* List view */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <ImageIcon name={'listView'} style={Styles.actionSheetButton} />
+            <ImageIcon name={'listView'} tintColor={$config.PRIMARY_COLOR} />
           </View>
           <Text style={styles.iconText}>List View</Text>
         </View>
@@ -92,14 +90,14 @@ const ActionSheetContent = (props) => {
           <TouchableOpacity
             style={styles.iconContainer}
             onPress={() => updateActionSheet('settings')}>
-            <ImageIcon name={'settings'} style={Styles.actionSheetButton} />
+            <ImageIcon name={'settings'} tintColor={$config.PRIMARY_COLOR} />
           </TouchableOpacity>
           <Text style={styles.iconText}>Settings</Text>
         </View>
         {/* invite */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <CopyJoinInfo buttonTemplateName={ButtonTemplateName.actionBar} />
+            <CopyJoinInfo hideLabel />
           </View>
           <Text style={styles.iconText}>Invite</Text>
         </View>

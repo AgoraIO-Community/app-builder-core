@@ -20,6 +20,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
+  hideLabel?: true;
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
 }
 
@@ -69,7 +70,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = audioLabel;
+  iconButtonProps.btnText = props.hideLabel ? '' : audioLabel;
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

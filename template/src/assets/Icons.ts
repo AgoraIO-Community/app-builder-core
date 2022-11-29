@@ -71,6 +71,8 @@ import downsideTriangle from '../assets/icons/down-side-triangle.svg';
 import profileImg from '../assets/icons/profile-img.svg';
 //@ts-ignore
 import link from '../assets/icons/link.svg';
+//@ts-ignore
+import listView from '../assets/icons/list-view.svg'; //TODO: list-view.svg
 
 export interface IconsInterface {
   videoPlus: string;
@@ -109,6 +111,7 @@ export interface IconsInterface {
   downsideTriangle: string;
   profileImg: string;
   link: string;
+  listView: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
@@ -202,6 +205,7 @@ const Icons: IconsInterface = {
   downsideTriangle,
   profileImg,
   link,
+  listView,
 };
 
 export default Icons;
