@@ -51,7 +51,7 @@ const Popup = (props: PopupProps) => {
               {showCloseIcon ? (
                 <IconButton
                   iconProps={{
-                    name: 'closeRounded',
+                    name: 'close-rounded',
                   }}
                   onPress={() => {
                     setModalVisible(false);

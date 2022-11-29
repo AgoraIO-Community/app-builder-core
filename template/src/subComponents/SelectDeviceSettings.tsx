@@ -72,7 +72,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     <>
       <Text style={[style.label]}>Camera</Text>
       <IconDropdown
-        icon={'videocamBlack'}
+        icon={'video-on'}
         enabled={!isPickerDisabled}
         label={!data || !data.length ? 'No Camera Detected' : ''}
         data={data}
@@ -120,7 +120,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     <>
       <Text style={[style.label]}>Microphone</Text>
       <IconDropdown
-        icon="micBlack"
+        icon="mic-on"
         enabled={!isPickerDisabled}
         selectedValue={selectedMic}
         label={!data || !data.length ? 'No Microphone Detected' : ''}

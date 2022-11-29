@@ -44,7 +44,11 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     ? 'Video On'
     : 'Video Off';
   let iconProps: IconButtonProps['iconProps'] = {
-    name: permissionDenied ? 'noCam' : isVideoEnabled ? 'videoOn' : 'videoOff',
+    name: permissionDenied
+      ? 'no-cam'
+      : isVideoEnabled
+      ? 'video-on'
+      : 'video-off',
   };
   if (!permissionDenied) {
     iconProps.tintColor = isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D';

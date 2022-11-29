@@ -66,43 +66,44 @@ import info from '../assets/icons/info.svg';
 //@ts-ignore
 import send from '../assets/icons/send.svg';
 //@ts-ignore
-import listView from '../assets/icons/send.svg'; //TODO: list-view.svg
+import listView from '../assets/icons/list-view.svg'; //TODO: list-view.svg
 
 export interface IconsInterface {
-  videoPlus: string;
-  videoOn: string;
-  videoOff: string;
-  micOn: string;
-  micOff: string;
-  noCam: string;
-  noMic: string;
+  'video-plus': string;
+  'video-on': string;
+  'video-off': string;
+  'mic-on': string;
+  'mic-off': string;
+  'no-cam': string;
+  'no-mic': string;
   clipboard: string;
   tick: string;
-  arrowDown: string;
-  arrowUp: string;
-  screenShare: string;
-  screenShareStop: string;
+  'tick-fill': string;
+  'arrow-down': string;
+  'arrow-up': string;
+  'screen-share': string;
+  'stop-screen-share': string;
   recording: string;
-  recordingStop: string;
-  endCall: string;
-  raiseHand: string;
-  lowerHand: string;
-  closeRounded: string;
-  closeSquare: string;
-  backBtn: string;
+  'stop-recording': string;
+  'end-call': string;
+  'raise-hand': string;
+  'loer-hand': string;
+  'close-rounded': string;
+  'close-square': string;
+  'back-btn': string;
   participants: string;
   chat: string;
   settings: string;
-  more: string;
+  'more-menu': string;
   share: string;
-  switchCamera: string;
+  'switch-camera': string;
   remove: string;
   layout: string;
-  pinnedLayout: string;
-  gridLayout: string;
+  'pinned-layout': string;
+  'grid-layout': string;
   info: string;
   send: string;
-  listView: string;
+  'list-view': string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
@@ -160,40 +161,40 @@ export interface IconsInterface {
 }
 
 const Icons: IconsInterface = {
-  videoOn,
-  videoPlus,
-  videoOff,
-  clipboard,
-  noCam,
-  noMic,
-  micOff,
-  micOn,
-  tick,
-  arrowDown,
-  arrowUp,
-  screenShare,
-  screenShareStop,
-  recording,
-  recordingStop,
-  endCall,
-  raiseHand,
-  lowerHand,
-  closeRounded,
-  closeSquare,
-  backBtn,
-  participants,
-  chat,
-  settings,
-  more,
-  share,
-  switchCamera,
-  remove,
-  layout,
-  pinnedLayout,
-  gridLayout,
-  info,
-  send,
-  listView,
+  // videoOn,
+  // videoPlus,
+  // videoOff,
+  // clipboard,
+  // noCam,
+  // noMic,
+  // micOff,
+  // micOn,
+  // tick,
+  // arrowDown,
+  // arrowUp,
+  // screenShare,
+  // screenShareStop,
+  // recording,
+  // recordingStop,
+  // endCall,
+  // raiseHand,
+  // lowerHand,
+  // closeRounded,
+  // closeSquare,
+  // backBtn,
+  // participants,
+  // chat,
+  // settings,
+  // more,
+  // share,
+  // switchCamera,
+  // remove,
+  // layout,
+  // pinnedLayout,
+  // gridLayout,
+  // info,
+  // send,
+  // listView,
 };
 
 export default Icons;

@@ -61,7 +61,10 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             name={item?.iconName}
           />
         ) : (
-          <ImageIcon key={'btnTemplateIconDropdown' + index} icon={item.icon} />
+          <ImageIcon
+            key={'btnTemplateIconDropdown' + index}
+            name={item?.iconName}
+          />
         ),
       ];
       content.push(

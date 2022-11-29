@@ -11,7 +11,9 @@
 */
 import React from 'react';
 import {Image} from 'react-native';
-import Icons, {IconsInterface} from '../assets/icons';
+import {IconsInterface} from '../assets/icons';
+import CustomIcon from '../atoms/CustomIcon';
+
 // export enum IconSize {
 //   normal = 'normal',
 //   medium = 'medium',
@@ -31,18 +33,25 @@ export interface ImageIconProps {
 const ImageIcon = (props: ImageIconProps) => {
   const {name, iconSize = 'normal', customSize, tintColor} = props;
   return (
-    <Image
-      style={[
-        styles[iconSize],
-        styles.normal,
-        tintColor ? {tintColor: tintColor} : {},
-        customSize ? customSize : {},
-      ]}
-      resizeMode={'contain'}
-      source={{
-        uri: Icons[name],
-      }}
+    <CustomIcon
+      name={name}
+      color={tintColor}
+      size={customSize?.width ? customSize.width : styles[iconSize].width}
     />
+    // return (
+    //   <Image
+    //     style={[
+    //       styles[iconSize],
+    //       styles.normal,
+    //       tintColor ? {tintColor: tintColor} : {},
+    //       customSize ? customSize : {},
+    //     ]}
+    //     resizeMode={'contain'}
+    //     source={{
+    //       uri: Icons[name],
+    //     }}
+    //   />
+    //);
   );
 };
 

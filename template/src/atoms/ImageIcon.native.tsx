@@ -10,7 +10,8 @@
 *********************************************
 */
 import React from 'react';
-import Icons, {IconsInterface} from '../assets/Icons';
+import {IconsInterface} from '../assets/Icons';
+import CustomIcon from '../atoms/CustomIcon';
 
 // export enum IconSize {
 //   normal = '',
@@ -30,16 +31,23 @@ interface ImageIconProps {
 
 const ImageIcon = (props: ImageIconProps) => {
   const {name, iconSize = 'normal', customSize, tintColor} = props;
-  const SvgComponent = Icons[name];
-
+  //const SvgComponent = Icons[name];
   return (
-    <SvgComponent
-      //@ts-ignore
-      width={customSize?.width ? customSize.width : styles[iconSize].width}
-      height={customSize?.height ? customSize.height : styles[iconSize].height}
-      fill={tintColor}
+    <CustomIcon
+      name={name}
+      color={tintColor}
+      size={customSize?.width ? customSize.width : styles[iconSize].width}
     />
   );
+
+  // return (
+  //   <SvgComponent
+  //     //@ts-ignore
+  //     width={customSize?.width ? customSize.width : styles[iconSize].width}
+  //     height={customSize?.height ? customSize.height : styles[iconSize].height}
+  //     fill={tintColor}
+  //   />
+  // );
 };
 
 export default ImageIcon;

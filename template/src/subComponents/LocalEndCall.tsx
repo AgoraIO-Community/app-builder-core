@@ -52,7 +52,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         style={props.hideLabel ? {} : (Styles.endCallContainer as object)}
         {...props}
         onPress={onPress}>
-        <ImageIcon name={'endCall'} tintColor={'#FFFFFF'} />
+        <ImageIcon name={'end-call'} tintColor={'#FFFFFF'} />
         {!props.hideLabel && (
           <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
         )}

@@ -152,7 +152,7 @@ const IconDropdown: FC<Props> = ({
       </View>
       <View style={styles.dropdownIconContainer}>
         <ImageIcon
-          name={visible ? 'arrowUp' : 'arrowDown'}
+          name={visible ? 'arrow-up' : 'arrow-down'}
           tintColor={noData ? '#A1A1A1' : '#000000'}
           iconSize={'medium'}
         />

@@ -67,7 +67,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
                   width: styles.downsideTriangleIcon.width,
                   height: styles.downsideTriangleIcon.height,
                 }}
-                name={'arrowDown'}
+                name={'arrow-down'}
               />
             </View>
           </>

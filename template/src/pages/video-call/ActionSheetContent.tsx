@@ -32,7 +32,7 @@ const ActionSheetContent = (props) => {
           <TouchableOpacity
             onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}>
             <ImageIcon
-              name={isExpanded ? 'arrowDown' : 'more'}
+              name={isExpanded ? 'arrow-down' : 'more-menu'}
               tintColor={$config.PRIMARY_COLOR}
             />
           </TouchableOpacity>
@@ -81,7 +81,7 @@ const ActionSheetContent = (props) => {
         {/* List view */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <ImageIcon name={'listView'} tintColor={$config.PRIMARY_COLOR} />
+            <ImageIcon name={'list-view'} tintColor={$config.PRIMARY_COLOR} />
           </View>
           <Text style={styles.iconText}>List View</Text>
         </View>

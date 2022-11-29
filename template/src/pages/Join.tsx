@@ -141,7 +141,7 @@ const Join = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            iconName="videocamWhite"
+            iconName="video-on"
             disabled={phrase === ''}
             onPress={() => startCall()}
             text={enterMeetingButton}

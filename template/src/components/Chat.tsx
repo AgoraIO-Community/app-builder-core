@@ -160,7 +160,7 @@ const Chat = (props?: ChatProps) => {
         <ChatBeforeView />
         <View style={style.header}>
           <IconButton
-            iconProps={{name: 'backBtn', tintColor: '#000000'}}
+            iconProps={{name: 'back-btn', tintColor: '#000000'}}
             style={{
               opacity: privateActive ? 1 : 0,
             }}
@@ -194,7 +194,7 @@ const Chat = (props?: ChatProps) => {
           </View>
           <IconButton
             iconProps={{
-              name: 'closeSquare',
+              name: 'close-square',
               tintColor: '#000000',
             }}
             onPress={() => {
