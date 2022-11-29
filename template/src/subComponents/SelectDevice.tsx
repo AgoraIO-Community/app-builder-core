@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {Picker, StyleSheet, View, Text} from 'react-native';
+import {Picker, StyleSheet, View, Text, Button} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
@@ -47,22 +47,16 @@ interface SelectVideoDeviceProps {
 }
 
 const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
-  const {selectedCam, setUserPreferredCamera, deviceList} =
-    useContext(DeviceContext);
+  const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   return props?.render ? (
-    props.render(
-      selectedCam,
-      setUserPreferredCamera,
-      deviceList,
-      isPickerDisabled,
-    )
+    props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
     <Picker
       enabled={!isPickerDisabled}
       selectedValue={selectedCam}
       style={[{borderColor: btnTheme}, style.popupPicker]}
-      onValueChange={(itemValue) => setUserPreferredCamera(itemValue)}>
+      onValueChange={(itemValue) => setSelectedCam(itemValue)}>
       {deviceList.map((device: any) => {
         if (device.kind === 'videoinput') {
           return (
@@ -88,17 +82,16 @@ interface SelectAudioDeviceProps {
 }
 
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
-  const {selectedMic, setUserPreferredMic, deviceList} =
-    useContext(DeviceContext);
+  const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   return props?.render ? (
-    props.render(selectedMic, setUserPreferredMic, deviceList, isPickerDisabled)
+    props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
     <Picker
       enabled={!isPickerDisabled}
       selectedValue={selectedMic}
       style={[{borderColor: btnTheme}, style.popupPicker]}
-      onValueChange={(itemValue) => setUserPreferredMic(itemValue)}>
+      onValueChange={(itemValue) => setSelectedMic(itemValue)}>
       {deviceList.map((device: any) => {
         if (device.kind === 'audioinput') {
           return (
@@ -114,8 +107,50 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   );
 };
 
+interface SelectSpeakerDeviceProps {
+  render?: (
+    selectedSpeaker: string,
+    setSelectedSpeaker: (mic: string) => void,
+    deviceList: MediaDeviceInfo[],
+    isDisabled: boolean,
+  ) => JSX.Element;
+}
+
+const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
+  const {selectedSpeaker, setSelectedSpeaker, deviceList} =
+    useContext(DeviceContext);
+  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  return props?.render ? (
+    props.render(
+      selectedSpeaker,
+      setSelectedSpeaker,
+      deviceList,
+      isPickerDisabled,
+    )
+  ) : (
+    <Picker
+      enabled={!isPickerDisabled}
+      selectedValue={selectedSpeaker}
+      style={[{borderColor: btnTheme}, style.popupPicker]}
+      onValueChange={(itemValue) => setSelectedSpeaker(itemValue)}>
+      {deviceList.map((device: any) => {
+        if (device.kind === 'audiooutput') {
+          return (
+            <Picker.Item
+              label={device.label}
+              value={device.deviceId}
+              key={device.deviceId}
+            />
+          );
+        }
+      })}
+    </Picker>
+  );
+};
+
 const SelectDevice = () => {
   const [isPickerDisabled] = useSelectDevice();
+  const {debugTrack} = useContext(DeviceContext);
   //commented for v1 release
   // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
   const settingScreenInfoMessage = $config.AUDIO_ROOM
@@ -127,6 +162,7 @@ const SelectDevice = () => {
       <View>
         {!$config.AUDIO_ROOM && <SelectVideoDevice />}
         <SelectAudioDevice />
+        <SelectSpeakerDevice />
       </View>
       <View style={{marginTop: 15}}></View>
       {$config.EVENT_MODE && isPickerDisabled && (
@@ -134,13 +170,15 @@ const SelectDevice = () => {
           <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
         </View>
       )}
+      <Button title="Audio Track Label" onPress={debugTrack} />
     </View>
   );
 };
 export const SelectDeviceComponentsArray: [
   (props: SelectVideoDeviceProps) => JSX.Element,
   (props: SelectAudioDeviceProps) => JSX.Element,
-] = [SelectVideoDevice, SelectAudioDevice];
+  (props: SelectSpeakerDeviceProps) => JSX.Element,
+] = [SelectVideoDevice, SelectAudioDevice, SelectSpeakerDevice];
 
 const style = StyleSheet.create({
   popupPicker: {

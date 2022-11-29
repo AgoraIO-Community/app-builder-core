@@ -14,10 +14,12 @@ import {createContext} from 'react';
 interface DeviceContext {
   selectedCam: string;
   selectedMic: string;
+  selectedSpeaker: string;
   deviceList: MediaDeviceInfo[];
-  setDeviceList: (devices: MediaDeviceInfo[]) => void;
-  setUserPreferredMic: React.Dispatch<React.SetStateAction<string>>;
-  setUserPreferredCamera: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedCam: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedMic: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedSpeaker: React.Dispatch<React.SetStateAction<string>>;
+  debugTrack: () => void;
 }
 
 const DeviceContext = createContext(null as unknown as DeviceContext);

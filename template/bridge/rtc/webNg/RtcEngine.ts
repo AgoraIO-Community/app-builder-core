@@ -640,9 +640,35 @@ export default class RtcEngine {
   }
 
   async changeMic(micId, callback, error) {
+    console.log('DeviceTesting: change mic is called');
     try {
       await this.localStream.audio?.setDevice(micId);
       callback(micId);
+    } catch (e) {
+      error(e);
+    }
+  }
+
+  async changePlaybackDevice(playbackDeviceId, callback, error): Promise<void> {
+    try {
+      await this.localStream.audio?.setPlaybackDevice(playbackDeviceId);
+      this.deviceId = playbackDeviceId;
+      callback(playbackDeviceId);
+    } catch (e) {
+      error(e);
+    }
+  }
+
+  async debugTrack() {
+    try {
+      const resLabel = this.localStream.audio?.getTrackLabel();
+      const resTrackId = this.localStream.audio?.getTrackId();
+      const resMedia = this.localStream.audio?.getMediaStreamTrack();
+      const res2 = this.localStream.video?.getTrackLabel();
+
+      console.log('DeviceTesting: TRACK label', resLabel);
+      console.log('DeviceTesting: TRACK ID', resTrackId);
+      console.log('DeviceTesting: TRACK MEDIA', resMedia);
     } catch (e) {
       error(e);
     }
