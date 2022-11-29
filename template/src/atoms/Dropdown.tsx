@@ -8,6 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
+import {isWeb} from '../utils/common';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 
@@ -30,6 +31,7 @@ const Dropdown: FC<Props> = ({
   const [visible, setVisible] = useState(false);
   const [selected, setSelected] = useState(undefined);
   const [dropdownPos, setDropdownPos] = useState({top: 0, left: 0, width: 0});
+  const [isHovered, setIsHovered] = React.useState(false);
 
   useEffect(() => {
     if (selectedValue && data && data.length) {
@@ -67,33 +69,33 @@ const Dropdown: FC<Props> = ({
   };
 
   const renderItem = ({item}): ReactElement<any, any> => (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => onItemPress(item)}>
-      <View style={styles.itemTextContainer}>
-        <Text
-          numberOfLines={1}
-          style={[
-            styles.itemText,
-            selected && item?.value === selected?.value
-              ? styles.itemTextSelected
-              : {},
-          ]}>
-          {item.label}
-        </Text>
-      </View>
-      {selected && item?.value === selected?.value ? (
-        <View style={styles.itemTextSelectedContainer}>
-          <ImageIcon
-            name={'tick'}
-            customSize={{width: 12, height: 9}}
-            tintColor={'#099DFD'}
-          />
+    <PlatformWrapper onPress={() => onItemPress(item)}>
+      <View style={styles.itemContainer}>
+        <View style={styles.itemTextContainer}>
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.itemText,
+              selected && item?.value === selected?.value
+                ? styles.itemTextSelected
+                : {},
+            ]}>
+            {item.label}
+          </Text>
         </View>
-      ) : (
-        <></>
-      )}
-    </TouchableOpacity>
+        {selected && item?.value === selected?.value ? (
+          <View style={styles.itemTextSelectedContainer}>
+            <ImageIcon
+              name={'tick'}
+              customSize={{width: 12, height: 9}}
+              tintColor={'#099DFD'}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
+      </View>
+    </PlatformWrapper>
   );
 
   const renderDropdown = (): ReactElement<any, any> => {
@@ -157,6 +159,31 @@ const Dropdown: FC<Props> = ({
   );
 };
 
+const PlatformWrapper = ({children, onPress}) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+  return isWeb() ? (
+    <div
+      style={{
+        backgroundColor: isHovered ? '#EFEFEF' : 'transparent',
+        cursor: isHovered ? 'pointer' : 'auto',
+        borderRadius: 6,
+        marginLeft: 8,
+        marginRight: 8,
+      }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}
+      onClick={onPress}>
+      {children}
+    </div>
+  ) : (
+    <TouchableOpacity onPress={onPress}>{children}</TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   dropdownOption: {
     flex: 1,
@@ -217,6 +244,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 20,
     elevation: 5,
+    paddingVertical: 10,
   },
   overlay: {
     width: '100%',
