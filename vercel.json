@@ -5,7 +5,7 @@
       "destination": "/src/assets/(.*)"
     },
     { "source": "/font-styles1", "destination": "/font-styles1" },
-    { "source": "/(.*)", "destination": "/index.html" },
+    { "source": "/(^(?:(?!.css).)*$)", "destination": "/index.html" },
     {
       "source": "/src/assets/(.*)",
       "destination": "/src/assets/(.*)"
