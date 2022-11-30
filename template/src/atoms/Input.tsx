@@ -32,7 +32,9 @@ const Input = (props: InputProps) => {
           style,
           // {borderColor: isFocussed ? $config.FONT_COLOR : '#666666'},
         ]}
-        placeholderTextColor={$config.FONT_COLOR + '40'}
+        placeholderTextColor={
+          $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+        }
         autoCorrect={false}
         autoFocus
         {...otherProps}
@@ -69,9 +71,8 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: '600',
     fontSize: ThemeConfig.FontSize.medium,
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    opacity: ThemeConfig.EmphasisOpacity.medium,
   },
   helpText: {
     color: $config.PRIMARY_FONT_COLOR,

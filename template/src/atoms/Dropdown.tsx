@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_2_COLOR,
-    shadowColor: $config.HARD_CODED_CARD_SHADOW_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOffset: {width: 5, height: 5},
     shadowOpacity: 0.07,
     shadowRadius: 20,

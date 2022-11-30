@@ -4,9 +4,9 @@ const EmphasisOpacity = {
   disabled: 0.4,
 };
 const EmphasisPlus = {
-  high: 100,
-  medium: 85,
-  disabled: 40,
+  high: '',
+  medium: '85',
+  disabled: '40',
 };
 const FontSize = {
   extraLarge: 32,

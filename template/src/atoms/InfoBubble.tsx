@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 
 interface InfoBubbleProps {
   text: string;
@@ -123,9 +124,9 @@ const styles = StyleSheet.create({
     top: -87,
   },
   textStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 16,
+    fontSize: ThemeConfig.FontSize.small,
     lineHeight: 24,
     textAlign: 'center',
     color: '#333333',

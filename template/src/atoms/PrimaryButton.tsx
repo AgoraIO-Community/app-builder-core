@@ -39,16 +39,12 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
     <Pressable
       style={[
         styles.container,
-        {
-          backgroundColor: props.disabled
-            ? $config.PRIMARY_ACTION_BRAND_COLOR + 40
-            : $config.PRIMARY_ACTION_BRAND_COLOR,
-        },
+        props?.disabled ? {opacity: ThemeConfig.EmphasisOpacity.disabled} : {},
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
       {iconName && (
-        <View style={props?.disabled ? {opacity: 0.4} : {}}>
+        <View>
           <ImageIcon
             name={iconName}
             tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
@@ -56,12 +52,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
         </View>
       )}
       {props.text && (
-        <Text
-          style={[
-            styles.text,
-            props?.disabled ? {opacity: 0.4} : {},
-            textStyle ? textStyle : {},
-          ]}>
+        <Text style={[styles.text, textStyle ? textStyle : {}]}>
           {props.text}
         </Text>
       )}
@@ -85,6 +76,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 12,
     minWidth: 250,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   text: {
     color: $config.PRIMARY_ACTION_TEXT_COLOR,
