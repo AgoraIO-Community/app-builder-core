@@ -10,15 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {Image} from 'react-native';
-import {IconsInterface} from '../assets/icons';
-import CustomIcon from '../atoms/CustomIcon';
-
-// export enum IconSize {
-//   normal = 'normal',
-//   medium = 'medium',
-//   small = 'small',
-// }
+import CustomIcon, {IconsInterface} from '../atoms/CustomIcon';
 
 export interface ImageIconProps {
   tintColor?: string;

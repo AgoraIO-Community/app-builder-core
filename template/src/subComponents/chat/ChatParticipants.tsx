@@ -13,7 +13,7 @@ import {useString} from '../../utils/useString';
 import {isIOS, isWeb, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
-import ImageIcon from '../../atoms/ImageIcon.native';
+import ImageIcon from '../../atoms/ImageIcon';
 import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 

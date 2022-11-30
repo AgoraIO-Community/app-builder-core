@@ -67,12 +67,12 @@ const SettingsView = () => {
             <Text style={style.heading2}>{hostControlsLabel}</Text>
             <OutlineButton
               onPress={onPressMuteVideo}
-              iconName="videocamOn"
+              iconName="video-on"
               text="Mute everyone’s camera"
             />
             <OutlineButton
               onPress={onPressMuteAudio}
-              iconName="micOn"
+              iconName="mic-on"
               text="Mute everyone’s mic"
             />
           </View>
