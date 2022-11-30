@@ -1,9 +1,3 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" },
-    {
-      "source": "/src/assets/font-styles.css",
-      "destination": "/src/assets/font-styles.css"
-    }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
