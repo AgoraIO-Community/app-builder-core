@@ -269,7 +269,7 @@ const Share = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            iconName="videoOn"
+            iconName="video-on"
             onPress={() => enterMeeting()}
             containerStyle={!isDesktop && {width: '100%'}}
             text={enterMeetingAfterCreateButton}

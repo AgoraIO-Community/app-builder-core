@@ -25,7 +25,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const isVideoEnabled = local.video === ToggleState.enabled;
   let iconButtonProps: IconButtonProps = {
     iconProps: {
-      name: 'switchCamera',
+      name: 'switch-camera',
       tintColor: '#099DFD',
     },
     disabled: isVideoEnabled ? false : true,

@@ -85,7 +85,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
     props.render(onPress, title, disabled)
   ) : (
     <PrimaryButton
-      iconName={'videoOn'}
+      // iconName={'video-on'}
       onPress={onPress}
       disabled={disabled}
       text={title}

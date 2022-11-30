@@ -182,7 +182,7 @@ const Participant = (props: ParticipantInterface) => {
             <View style={styles.iconContainer}>
               <IconButton
                 iconProps={{
-                  name: 'more',
+                  name: 'more-menu',
                   iconSize: 'medium',
                 }}
                 style={{

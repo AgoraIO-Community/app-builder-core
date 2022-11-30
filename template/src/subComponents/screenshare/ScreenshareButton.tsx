@@ -34,7 +34,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
   let iconButtonProps: IconButtonProps = {
     iconProps: {
-      name: isScreenshareActive ? 'screenShareStop' : 'screenShare',
+      name: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
       tintColor: isScreenshareActive ? '#FF414D' : '#099DFD',
     },
     onPress,

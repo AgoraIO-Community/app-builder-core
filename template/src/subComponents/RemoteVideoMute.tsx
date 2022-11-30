@@ -38,7 +38,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
       }}
       style={Styles.localButtonSmall as Object}
       iconProps={{
-        name: 'videoOn',
+        name: 'video-on',
         iconSize: 'medium',
         tintColor: props.video ? $config.PRIMARY_COLOR : '#999999',
       }}

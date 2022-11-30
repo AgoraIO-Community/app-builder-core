@@ -10,8 +10,7 @@
 *********************************************
 */
 import React from 'react';
-import {Image} from 'react-native';
-import Icons, {IconsInterface} from '../assets/icons';
+import CustomIcon, {IconsInterface} from '../atoms/CustomIcon';
 
 export interface ImageIconProps {
   tintColor?: string;
@@ -25,7 +24,7 @@ export interface ImageIconProps {
 
 const ImageIcon = (props: ImageIconProps) => {
   const {name, iconSize = 'normal', customSize, tintColor} = props;
-  let iconSizeLocal = {};
+  let iconSizeLocal = {width: 24, height: 24};
   if (iconSize === 'medium') {
     iconSizeLocal = {
       width: 20,
@@ -37,21 +36,12 @@ const ImageIcon = (props: ImageIconProps) => {
       height: 16,
     };
   } else {
-    iconSizeLocal = {width: 24, height: 24};
   }
   return (
-    <Image
-      style={[
-        iconSizeLocal,
-        tintColor ? {tintColor: tintColor} : {},
-        customSize?.height && customSize?.width
-          ? {width: customSize.width, height: customSize.height}
-          : {},
-      ]}
-      resizeMode={'contain'}
-      source={{
-        uri: Icons[name],
-      }}
+    <CustomIcon
+      name={name}
+      color={tintColor}
+      size={customSize?.width ? customSize.width : iconSizeLocal.width}
     />
   );
 };

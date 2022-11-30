@@ -51,7 +51,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
       }}
       iconProps={{
         iconSize: 'medium',
-        name: props.audio ? 'micOn' : 'micOff',
+        name: props.audio ? 'mic-on' : 'mic-off',
         tintColor: props.audio ? $config.PRIMARY_COLOR : '#999999',
       }}
     />
