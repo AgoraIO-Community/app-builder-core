@@ -52,6 +52,8 @@ export interface IconsInterface {
   profile: string;
   'link-share': string;
   'list-view': string;
+  expand: string;
+  collapse: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

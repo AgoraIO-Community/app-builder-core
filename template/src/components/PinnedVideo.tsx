@@ -21,6 +21,7 @@ import {
 import {layoutProps} from '../../theme.json';
 import {layoutComponent, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
+import ImageIcon from '../atoms/ImageIcon';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
@@ -55,25 +56,20 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           style={{
             position: 'absolute',
             zIndex: 50,
-            marginTop: 5,
+            marginTop: 12,
             width: 32,
             height: 32,
-            marginLeft: collapse ? 5 : '20.1%',
-            backgroundColor: '#90909080',
-            //$config.SECONDARY_FONT_COLOR + 'aa',
+            marginLeft: collapse ? 12 : '20.5%',
+            backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
             borderRadius: 16,
             justifyContent: 'center',
           }}>
-          <Text
-            style={{
-              alignSelf: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontWeight: '500',
-              fontSize: 14,
-            }}>
-            {collapse ? '>' : '<'}
-          </Text>
+          <View style={{alignSelf: 'center', justifyContent: 'center'}}>
+            <ImageIcon
+              name={collapse ? 'collapse' : 'expand'}
+              tintColor={'#FFFFFF'}
+            />
+          </View>
         </Pressable>
       )}
       {!collapse && (

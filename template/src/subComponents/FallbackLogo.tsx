@@ -10,36 +10,61 @@
 *********************************************
 */
 import React from 'react';
-import {Image, Text, View} from 'react-native';
+import {Image, Text, View, StyleSheet} from 'react-native';
 import UserAvatar from '../atoms/UserAvatar';
 
-export default function FallbackLogo(name: string) {
-  const containerStyle = {
-    backgroundColor: $config.PRIMARY_COLOR,
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  };
-  const textStyle = {
-    fontSize: 32,
-    lineHeight: 32,
-    fontWeight: '600',
-    color: $config.SECONDARY_FONT_COLOR,
-  };
+export default function FallbackLogo(name: string, isActiveSpeaker?: boolean) {
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#000',
-        justifyContent: 'center',
-        alignContent: 'center',
-        borderRadius: 12,
-      }}>
-      <UserAvatar
-        name={name}
-        containerStyle={containerStyle}
-        textStyle={textStyle}
-      />
+    <View style={styles.container}>
+      <View
+        style={[
+          styles.activeSpeakerBg,
+          {
+            backgroundColor: isActiveSpeaker
+              ? $config.PRIMARY_ACTION_BRAND_COLOR + '15'
+              : 'transparent',
+          },
+        ]}>
+        <UserAvatar
+          name={name}
+          containerStyle={[
+            styles.avatarBg,
+            {
+              backgroundColor: isActiveSpeaker
+                ? $config.PRIMARY_ACTION_BRAND_COLOR
+                : $config.SEMANTIC_NETRUAL,
+            },
+          ]}
+          textStyle={styles.textStyle}
+        />
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    justifyContent: 'center',
+    borderRadius: 12,
+  },
+  activeSpeakerBg: {
+    width: 140,
+    height: 140,
+    borderRadius: 80,
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  avatarBg: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  textStyle: {
+    fontSize: 32,
+    lineHeight: 32,
+    fontWeight: '600',
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+  },
+});
