@@ -20,7 +20,7 @@ import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
 import React, {createContext, useContext, useRef} from 'react';
 import StorageContext from './StorageContext';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'; //'@react-native-community/async-storage';
 
 export const GraphQLContext = createContext<{
   client: ApolloClient<NormalizedCacheObject>;
