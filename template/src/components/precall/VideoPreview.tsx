@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   retryBtn: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
     alignSelf: 'center',
   },

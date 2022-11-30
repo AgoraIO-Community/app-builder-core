@@ -394,7 +394,7 @@ const style = StyleSheet.create({
     marginLeft: 8,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.extraSmall,
+    fontSize: ThemeConfig.FontSize.small,
     lineHeight: 18,
     color: $config.FONT_COLOR,
     textAlign: 'left',

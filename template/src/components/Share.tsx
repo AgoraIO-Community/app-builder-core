@@ -338,7 +338,7 @@ const style = StyleSheet.create({
   },
   url: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    fontSize: ThemeConfig.FontSize.extraSmall,
+    fontSize: ThemeConfig.FontSize.small,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
@@ -356,8 +356,8 @@ const style = StyleSheet.create({
   },
   helpText: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
-    fontSize: ThemeConfig.FontSize.extraSmall,
-    lineHeight: ThemeConfig.FontSize.extraSmall,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingLeft: 8,

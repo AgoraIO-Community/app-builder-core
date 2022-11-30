@@ -465,8 +465,8 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   roomNameText: {
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
+    lineHeight: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,

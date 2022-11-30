@@ -55,8 +55,8 @@ const style = StyleSheet.create({
   },
   name: {
     color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-    fontSize: ThemeConfig.FontSize.extraSmall,
-    lineHeight: ThemeConfig.FontSize.extraSmall,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexShrink: 1,

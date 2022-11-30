@@ -32,7 +32,7 @@ export interface IconsInterface {
   'stop-recording': string;
   'end-call': string;
   'raise-hand': string;
-  'loer-hand': string;
+  'lower-hand': string;
   'close-rounded': string;
   'close-square': string;
   'back-btn': string;

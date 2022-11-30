@@ -331,7 +331,7 @@ const style = StyleSheet.create({
   },
   toggleLabel: {
     color: $config.FONT_COLOR,
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     marginRight: 8,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',

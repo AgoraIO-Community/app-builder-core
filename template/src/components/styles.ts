@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 
 const styles = {
@@ -77,12 +78,12 @@ const styles = {
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: '#FF414D',
+    backgroundColor: $config.SEMANTIC_ERROR,
     borderRadius: 8,
   },
   endCallText: {
-    color: '#fff',
-    fontFamily: 'Source Sans Pro',
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginLeft: 8,
     fontWeight: '700',

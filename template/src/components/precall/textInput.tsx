@@ -45,8 +45,8 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
           : {
               fontFamily: ThemeConfig.FontFamily.sansPro,
               fontWeight: '400',
-              fontSize: ThemeConfig.FontSize.extraSmall,
-              lineHeight: ThemeConfig.FontSize.extraSmall,
+              fontSize: ThemeConfig.FontSize.small,
+              lineHeight: ThemeConfig.FontSize.small,
               color: $config.FONT_COLOR,
             }
       }

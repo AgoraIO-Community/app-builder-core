@@ -16,6 +16,7 @@ import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 /**
  * A component to mute / unmute the local video
  */
@@ -51,7 +52,9 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       : 'video-off',
   };
   if (!permissionDenied) {
-    iconProps.tintColor = isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+    iconProps.tintColor = isVideoEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR;
   } else {
     iconProps.tintColor = '#8F8F8F';
   }
@@ -62,15 +65,15 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
 
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
     color: permissionDenied
       ? '#8F8F8F'
       : isVideoEnabled
-      ? $config.PRIMARY_COLOR
-      : '#FF414D',
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = props.hideLabel ? '' : videoLabel;

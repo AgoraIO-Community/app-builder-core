@@ -25,6 +25,7 @@ import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 export interface CopyJoinInfoProps {
   hideLabel?: boolean;
@@ -52,15 +53,15 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     onPress: onPress,
     iconProps: {
       name: 'share',
-      tintColor: '#099DFD',
+      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
-    color: $config.PRIMARY_COLOR,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
   // iconButtonProps.style = style.shareIcon;

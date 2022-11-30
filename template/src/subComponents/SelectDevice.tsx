@@ -209,7 +209,7 @@ const style = StyleSheet.create({
   },
   label: {
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.extraSmall,
+    fontSize: ThemeConfig.FontSize.small,
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     marginBottom: 12,

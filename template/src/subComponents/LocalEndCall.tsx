@@ -16,7 +16,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useRtc();
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
-  const endCallLabel = 'End';
+  const endCallLabel = 'Leave';
   const {setStore} = useContext(StorageContext);
   const [endcallVisible, setEndcallVisible] = useState(false);
   const {phrase} = useParams<{phrase: string}>();
@@ -52,7 +52,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         style={props.hideLabel ? {} : (Styles.endCallContainer as object)}
         {...props}
         onPress={onPress}>
-        <ImageIcon name={'end-call'} tintColor={'#FFFFFF'} />
+        <ImageIcon
+          name={'end-call'}
+          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+        />
         {!props.hideLabel && (
           <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
         )}

@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   textStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     lineHeight: 24,
     textAlign: 'center',
     color: '#333333',

@@ -16,6 +16,7 @@ import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 /**
  * A component to mute / unmute the local audio
  */
@@ -49,7 +50,9 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     name: permissionDenied ? 'no-mic' : isAudioEnabled ? 'mic-on' : 'mic-off',
   };
   if (!permissionDenied) {
-    iconProps.tintColor = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+    iconProps.tintColor = isAudioEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR;
   } else {
     iconProps.tintColor = '#8F8F8F';
   }
@@ -60,15 +63,15 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     disabled: permissionDenied ? true : false,
   };
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
     color: permissionDenied
       ? '#8F8F8F'
       : isAudioEnabled
-      ? $config.PRIMARY_COLOR
-      : '#FF414D',
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR,
   };
 
   iconButtonProps.style = Styles.localButton as Object;

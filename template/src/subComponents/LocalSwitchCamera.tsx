@@ -26,7 +26,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: 'switch-camera',
-      tintColor: '#099DFD',
+      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     },
     disabled: isVideoEnabled ? false : true,
     onPress: onPress,
