@@ -21,6 +21,7 @@ export default MeetingTitle;
 
 const style = StyleSheet.create({
   titleHeading: {
+    padding: 32,
     fontSize: 24,
     fontWeight: '700',
     color: $config.FONT_COLOR,

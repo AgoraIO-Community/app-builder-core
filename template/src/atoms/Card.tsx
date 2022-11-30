@@ -14,7 +14,7 @@ const Card = (props: CardProps) => {
   const {style, children, isDesktop = true, ...rest} = props;
   return (
     <View
-      style={[styles.root, style, isDesktop ? styles.desktop : styles.mobile]}
+      style={[styles.root, isDesktop ? styles.desktop : styles.mobile, style]}
       {...rest}>
       {children}
     </View>

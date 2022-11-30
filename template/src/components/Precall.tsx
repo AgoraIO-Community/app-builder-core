@@ -358,13 +358,12 @@ const Precall = (props: any) => {
 
               {/* This view is visible only on desktop view */}
               {!isMobileView() ? (
-                <Card testID="precall-settings" style={style.rightContent}>
+                <Card style={style.rightContent}>
                   <View>
                     <MeetingName />
-                    <Spacer size={50} />
-                    <View>
+                    <View style={style.rightInputContent}>
                       <JoinRoomName isDesktop={isDesktop} />
-                      <Spacer size={40} />
+                      <Spacer size={32} />
                       <DeviceSelect />
                       <Spacer size={60} />
                       <View style={{width: '100%'}}>
@@ -429,7 +428,7 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   boxStyle: {
-    shadowColor: '#000000',
+    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -444,9 +443,14 @@ const style = StyleSheet.create({
   },
   rightContent: {
     flex: 1,
-    paddingHorizontal: 40,
-    paddingVertical: 40,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     maxWidth: 450,
+  },
+  rightInputContent: {
+    padding: 32,
+    borderTopWidth: 1,
+    borderTopColor: $config.CARD_LAYER_3_COLOR,
   },
   titleFont: {
     textAlign: 'center',
