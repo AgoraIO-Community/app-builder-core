@@ -20,13 +20,13 @@ const ActionSheetContent = (props) => {
     <View>
       <View style={[styles.row, {borderBottomWidth: 1}]}>
         <View style={styles.iconContainer}>
-          <LocalVideoMute hideLabel />
+          <LocalVideoMute showLabel={false} />
         </View>
         <View style={[styles.iconContainer]}>
-          <LocalAudioMute hideLabel />
+          <LocalAudioMute showLabel={false} />
         </View>
         <View style={[styles.iconContainer, {backgroundColor: '#FF414D'}]}>
-          <LocalEndcall hideLabel />
+          <LocalEndcall showLabel={false} />
         </View>
         <View style={styles.iconContainer}>
           <TouchableOpacity
@@ -64,7 +64,7 @@ const ActionSheetContent = (props) => {
         {/* record */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <Recording hideLabel />
+            <Recording showLabel={false} />
           </View>
           <Text style={styles.iconText}>Record</Text>
         </View>
@@ -72,7 +72,7 @@ const ActionSheetContent = (props) => {
         {/* switch camera */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <LocalSwitchCamera hideLabel />
+            <LocalSwitchCamera showLabel={false} />
           </View>
           <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
         </View>
@@ -97,7 +97,7 @@ const ActionSheetContent = (props) => {
         {/* invite */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <CopyJoinInfo hideLabel />
+            <CopyJoinInfo showLabel={false} />
           </View>
           <Text style={styles.iconText}>Invite</Text>
         </View>

@@ -6,6 +6,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import React from 'react';
+import ThemeConfig from '../theme';
 
 interface ButtonProps extends TouchableOpacityProps {
   text?: string;
@@ -31,12 +32,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#000000',
-    backgroundColor: '#ffffff',
+    borderColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 4,
   },
   text: {
-    fontFamily: 'Source Sans Pro',
+    color: $config.SECONDARY_ACTION_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     lineHeight: 12,
     fontWeight: '600',

@@ -21,13 +21,15 @@ import ThemeConfig from '../theme';
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
-  hideLabel?: true;
+  showLabel?: boolean;
+  iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
+  const {showLabel = true} = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
 
@@ -49,6 +51,9 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   let iconProps: IconButtonProps['iconProps'] = {
     name: permissionDenied ? 'no-mic' : isAudioEnabled ? 'mic-on' : 'mic-off',
   };
+  if (props?.iconSize) {
+    iconProps.iconSize = props.iconSize;
+  }
   if (!permissionDenied) {
     iconProps.tintColor = isAudioEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -75,7 +80,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = props.hideLabel ? '' : audioLabel;
+  iconButtonProps.btnText = showLabel ? audioLabel : '';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

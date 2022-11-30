@@ -18,7 +18,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 
 export interface RecordingButtonProps {
-  hideLabel?: boolean;
+  showLabel?: boolean;
   render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
 }
 
@@ -29,6 +29,7 @@ const Recording = (props: RecordingButtonProps) => {
   const recordingButton = (recording: boolean) =>
     recording ? 'Stop Recording' : 'Record';
   const [modalVisible, setModalVisible] = useState(false);
+  const {showLabel} = props;
 
   const doStopRecording = () => {
     if (isRecordingActive) {
@@ -54,9 +55,7 @@ const Recording = (props: RecordingButtonProps) => {
     onPress,
   };
 
-  iconButtonProps.btnText = props.hideLabel
-    ? ''
-    : recordingButton(isRecordingActive);
+  iconButtonProps.btnText = showLabel ? recordingButton(isRecordingActive) : '';
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,

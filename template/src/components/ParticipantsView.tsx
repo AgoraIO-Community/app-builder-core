@@ -23,13 +23,14 @@ import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
 import ChatContext from './ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import TertiaryButton from '../atoms/TertiaryButton';
 import HostControlView from './HostControlView';
 import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
+import IconButton from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
@@ -64,12 +65,13 @@ const ParticipantView = () => {
       }>
       <View style={style.header}>
         <Text style={style.mainHeading}>{participantsLabel}</Text>
-        <BtnTemplate
-          styleIcon={style.closeIcon}
-          name={'closeRounded'}
+        <IconButton
+          iconProps={{
+            name: 'close-rounded',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          }}
           onPress={() => {
             setSidePanel(SidePanelType.None);
-            props.handleClose && props.handleClose();
           }}
         />
       </View>
@@ -140,7 +142,7 @@ const ParticipantView = () => {
       </ScrollView>
 
       <View style={style.footer}>
-        <CopyJoinInfo hideLabel />
+        <CopyJoinInfo showTeritaryButton />
         {isHost && (
           <>
             <Spacer horizontal size={8} />
@@ -160,33 +162,24 @@ const style = StyleSheet.create({
     marginLeft: 20,
     marginTop: 10,
     flex: 1,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    shadowColor: '#000000',
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    borderWidth: 1,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
+    overflow: 'hidden',
   },
-  closeIcon: {
-    width: 24,
-    height: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EDEDED',
-  },
+
   footer: {
     width: '100%',
     height: 50,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
-
   participantViewNative: {
     position: 'absolute',
     zIndex: 5,
@@ -200,13 +193,21 @@ const style = StyleSheet.create({
   bodyContainer: {
     flex: 1,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: $config.CARD_LAYER_3_COLOR,
+  },
   mainHeading: {
-    fontSize: 16,
+    fontSize: ThemeConfig.FontSize.normal,
     letterSpacing: 0.8,
-    lineHeight: 16,
-    fontFamily: 'Source Sans Pro',
+    lineHeight: ThemeConfig.FontSize.normal,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     alignSelf: 'center',
   },
 });

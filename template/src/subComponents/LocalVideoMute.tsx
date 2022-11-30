@@ -21,13 +21,15 @@ import ThemeConfig from '../theme';
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
-  hideLabel?: boolean;
+  showLabel?: boolean;
+  iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
+  const {showLabel = true} = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
@@ -51,6 +53,9 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? 'video-on'
       : 'video-off',
   };
+  if (props?.iconSize) {
+    iconProps.iconSize = props.iconSize;
+  }
   if (!permissionDenied) {
     iconProps.tintColor = isVideoEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -76,7 +81,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = props.hideLabel ? '' : videoLabel;
+  iconButtonProps.btnText = showLabel ? videoLabel : '';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
