@@ -1,5 +1,6 @@
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import React from 'react';
+import ThemeConfig from '../theme';
 
 interface LinkButtonProps {
   onPress: () => void;
@@ -18,8 +19,10 @@ export default LinkButton;
 
 const styles = StyleSheet.create({
   text: {
-    color: $config.PRIMARY_COLOR,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
   },
 });

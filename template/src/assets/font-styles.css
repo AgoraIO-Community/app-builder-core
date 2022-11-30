@@ -1,0 +1,223 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('fonts/icomoon.ttf?tqnckb') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^='icon-'],
+[class*=' icon-'] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-arrow-down:before {
+  content: '\e900';
+}
+.icon-arrow-up:before {
+  content: '\e901';
+}
+.icon-back-btn:before {
+  content: '\e902';
+}
+.icon-cancel:before {
+  content: '\e903';
+  color: #ff414d;
+}
+.icon-chat:before {
+  content: '\e904';
+}
+.icon-check:before {
+  content: '\e905';
+  color: #29c157;
+}
+.icon-clipboard:before {
+  content: '\e906';
+}
+.icon-close-rounded:before {
+  content: '\e907';
+}
+.icon-close-square:before {
+  content: '\e908';
+}
+.icon-connection-bad:before {
+  content: '\e909';
+  color: #ffab00;
+}
+.icon-connection-good:before {
+  content: '\e90a';
+  color: #29c157;
+}
+.icon-connection-loading:before {
+  content: '\e90b';
+  color: #b3b3b3;
+}
+.icon-connection-unpublished:before {
+  content: '\e90c';
+  color: #b3b3b3;
+}
+.icon-connection-unsupported:before {
+  content: '\e90d';
+  color: #b3b3b3;
+}
+.icon-connection-very-bad:before {
+  content: '\e90e';
+  color: #ff414d;
+}
+.icon-downside-triangle:before {
+  content: '\e936';
+  color: #555;
+}
+.icon-end-call:before {
+  content: '\e90f';
+}
+.icon-grid-layout:before {
+  content: '\e910';
+}
+.icon-info:before {
+  content: '\e911';
+}
+.icon-layout:before {
+  content: '\e912';
+}
+.icon-link-share:before {
+  content: '\e93b';
+  color: #099dfd;
+}
+.icon-list-view:before {
+  content: '\e914';
+}
+.icon-lower-hand:before {
+  content: '\e915';
+  color: #ff414d;
+}
+.icon-mic-off:before {
+  content: '\e916';
+}
+.icon-mic-on:before {
+  content: '\e917';
+}
+.icon-more-menu:before {
+  content: '\e918';
+}
+.icon-no-cam .path1:before {
+  content: '\e919';
+  color: rgb(143, 143, 143);
+}
+.icon-no-cam .path2:before {
+  content: '\e91a';
+  margin-left: -1em;
+  color: rgb(255, 171, 0);
+}
+.icon-no-cam .path3:before {
+  content: '\e91b';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-no-cam .path4:before {
+  content: '\e91c';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-no-mic .path1:before {
+  content: '\e91d';
+  color: rgb(143, 143, 143);
+}
+.icon-no-mic .path2:before {
+  content: '\e91e';
+  margin-left: -1em;
+  color: rgb(255, 171, 0);
+}
+.icon-no-mic .path3:before {
+  content: '\e91f';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-no-mic .path4:before {
+  content: '\e920';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-participants:before {
+  content: '\e921';
+}
+.icon-pinned-layout:before {
+  content: '\e922';
+}
+.icon-profile .path1:before {
+  content: '\e937';
+  color: rgb(0, 0, 0);
+}
+.icon-profile .path2:before {
+  content: '\e938';
+  margin-left: -1em;
+  color: rgb(9, 157, 253);
+}
+.icon-profile .path3:before {
+  content: '\e939';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-profile .path4:before {
+  content: '\e93a';
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-raise-hand:before {
+  content: '\e927';
+  color: #099dfd;
+}
+.icon-recording:before {
+  content: '\e928';
+}
+.icon-remove:before {
+  content: '\e929';
+}
+.icon-screen-share:before {
+  content: '\e92a';
+}
+.icon-send:before {
+  content: '\e92b';
+}
+.icon-settings:before {
+  content: '\e92c';
+}
+.icon-share:before {
+  content: '\e92d';
+}
+.icon-stop-recording:before {
+  content: '\e92e';
+}
+.icon-stop-screen-share:before {
+  content: '\e92f';
+}
+.icon-switch-camera:before {
+  content: '\e930';
+}
+.icon-tick:before {
+  content: '\e932';
+}
+.icon-tick-fill:before {
+  content: '\e931';
+  color: #36b37e;
+}
+.icon-video-off:before {
+  content: '\e933';
+}
+.icon-video-on:before {
+  content: '\e934';
+}
+.icon-video-plus:before {
+  content: '\e935';
+}

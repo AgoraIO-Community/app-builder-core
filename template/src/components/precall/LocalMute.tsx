@@ -85,5 +85,6 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 30,
     justifyContent: 'center',
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
 });

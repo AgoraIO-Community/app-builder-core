@@ -15,10 +15,11 @@ import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import PreCallLocalMute from './LocalMute';
 import {LocalContext, PermissionState} from '../../../agora-rn-uikit';
-//@ts-ignore
-import imgUrl from '../../assets/avatar.png';
 import {useRender} from 'customization-api';
 import {usePreCall} from './usePreCall';
+import ImageIcon from '../../atoms/ImageIcon';
+import ThemeConfig from '../../theme';
+import Spacer from '../../atoms/Spacer';
 
 const Fallback = () => {
   const {isCameraAvailable} = usePreCall();
@@ -28,11 +29,9 @@ const Fallback = () => {
     <View style={styles.fallbackRootContainer}>
       {isCameraAvailable ||
       local.permissionStatus === PermissionState.NOT_REQUESTED ? (
-        <Image
-          source={{uri: imgUrl}}
-          style={styles.avatar}
-          resizeMode="contain"
-        />
+        <View style={styles.avatar}>
+          <ImageIcon name="profile" customSize={{width: 100, height: 100}} />
+        </View>
       ) : (
         <View style={styles.fallbackContainer}>
           <Text style={styles.infoText1}>Can’t Find Your Camera</Text>
@@ -40,13 +39,26 @@ const Fallback = () => {
             Check your system settings to make sure that a camera is available.
             If not, plug one in and restart your browser.
           </Text>
+          <Spacer size={33} />
           <TouchableOpacity
-            style={{flex: 1, paddingBottom: 24}}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignSelf: 'center',
+            }}
             onPress={() => {
               requestCameraAndAudioPermission();
             }}>
-            <Text style={styles.retryBtn}>Retry</Text>
+            <Text style={styles.retryBtn}>Learn More</Text>
+            <Spacer horizontal={true} size={4} />
+            <View style={{alignSelf: 'center'}}>
+              <ImageIcon
+                name={'link-share'}
+                tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+              />
+            </View>
           </TouchableOpacity>
+          <Spacer size={23} />
         </View>
       )}
     </View>
@@ -117,12 +129,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   retryBtn: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 16,
-    lineHeight: 20,
-    color: '#099DFD',
-    paddingVertical: 32,
+    fontSize: ThemeConfig.FontSize.small,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    alignSelf: 'center',
   },
   container: {
     flex: 1,

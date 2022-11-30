@@ -35,6 +35,7 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -127,7 +128,12 @@ const Share = () => {
   const {isDesktop} = getDimensionData();
 
   const clipboardIcon = () => {
-    return <ImageIcon tintColor={'#089CFD'} name={'clipboard'} />;
+    return (
+      <ImageIcon
+        tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+        name={'clipboard'}
+      />
+    );
   };
 
   return FpeShareComponent ? (
@@ -263,7 +269,7 @@ const Share = () => {
         </View>
         <View style={style.btnContainer}>
           <PrimaryButton
-            iconName="videoOn"
+            iconName="video-on"
             onPress={() => enterMeeting()}
             containerStyle={!isDesktop && {width: '100%'}}
             text={enterMeetingAfterCreateButton}
@@ -289,24 +295,27 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   heading: {
-    fontSize: 32,
+    fontSize: ThemeConfig.FontSize.extraLarge,
     fontWeight: '700',
-    fontFamily: 'Source Sans Pro',
-    color: $config.PRIMARY_FONT_COLOR,
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   container: {
     flexDirection: 'row',
   },
   urlTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
-    fontSize: 18,
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.medium,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingLeft: 8,
   },
   urlContainer: {
     flex: 0.9,
-    backgroundColor: '#F1F1F4',
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderWidth: 1,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
     borderTopRightRadius: 0,
@@ -314,21 +323,24 @@ const style = StyleSheet.create({
   },
   iconContainer: {
     flex: 0.1,
-    backgroundColor: '#F1F1F4',
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
-    borderLeftColor: '#FFFFFF',
-    borderLeftWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderLeftWidth: 0,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderTopRightRadius: 8,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 8,
     borderTopLeftRadius: 0,
   },
   url: {
-    color: 'rgba(51, 51, 51, 0.7)',
-    fontSize: 14,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    fontSize: ThemeConfig.FontSize.extraSmall,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   urlPadding: {
     paddingHorizontal: 20,
@@ -343,11 +355,11 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   helpText: {
-    color: '#666666',
-    fontSize: 14,
-    lineHeight: 14,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
+    fontSize: ThemeConfig.FontSize.extraSmall,
+    lineHeight: ThemeConfig.FontSize.extraSmall,
     fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingLeft: 8,
   },
 });

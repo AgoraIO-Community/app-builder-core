@@ -45,7 +45,7 @@ const Recording = (props: RecordingButtonProps) => {
   };
   let iconButtonProps: IconButtonProps = {
     iconProps: {
-      name: isRecordingActive ? 'recordingStop' : 'recording',
+      name: isRecordingActive ? 'stop-recording' : 'recording',
       tintColor: isRecordingActive ? '#FF414D' : '#099DFD',
     },
     onPress,

@@ -76,6 +76,27 @@ interface ConfigInterface {
   GEO_FENCING: boolean;
   LOG_ENABLED: boolean;
   AUDIO_ROOM: boolean;
+  PRIMARY_ACTION_BRAND_COLOR: string;
+  PRIMARY_ACTION_TEXT_COLOR: string;
+  SECONDARY_ACTION_COLOR: string;
+  FONT_COLOR: string;
+  BACKGROUND_IMAGE: string;
+  BACKGROUND_COLOR: string;
+  VIDEO_AUDIO_TILE_COLOR: string;
+  VIDEO_AUDIO_TILE_OVERLAY_COLOR: string;
+  VIDEO_AUDIO_TILE_TEXT_COLOR: string;
+  SEMANTIC_ERROR: string;
+  SEMANTIC_SUCCESS: string;
+  SEMANTIC_WARNING: string;
+  SEMANTIC_NETRUAL: string;
+  INPUT_FIELD_BACKGROUND_COLOR: string;
+  INPUT_FIELD_BORDER_COLOR: string;
+  CARD_LAYER_1_COLOR: string;
+  CARD_LAYER_2_COLOR: string;
+  CARD_LAYER_3_COLOR: string;
+  CARD_LAYER_4_COLOR: string;
+  CARD_LAYER_5_COLOR: string;
+  HARD_CODED_BLACK_COLOR: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

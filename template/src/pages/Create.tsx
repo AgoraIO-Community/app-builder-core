@@ -43,9 +43,7 @@ import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import StorageContext from '../components/StorageContext';
-import VideoCamSVG from '../assets/icons/videocam.svg';
-import VideoCam from '../assets/icons/share.svg';
-import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;
@@ -260,7 +258,7 @@ const Create = () => {
               </View>
               <View style={[style.btnContainer]}>
                 <PrimaryButton
-                  iconName={'videoPlus'}
+                  iconName={'video-plus'}
                   disabled={roomTitle === '' || loading}
                   containerStyle={!isDesktop && {width: '100%'}}
                   onPress={() =>
@@ -291,12 +289,6 @@ const Create = () => {
 
 const style = StyleSheet.create({
   inputLabelStyle: {
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#1A1A1A',
-    letterSpacing: 0.08,
-    lineHeight: 18,
     paddingLeft: 8,
   },
   main: {
@@ -305,11 +297,12 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   heading: {
-    fontSize: 32,
+    fontSize: ThemeConfig.FontSize.extraLarge,
     fontWeight: '700',
-    lineHeight: 32,
-    color: $config.PRIMARY_FONT_COLOR,
-    fontFamily: 'Source Sans Pro',
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    opacity: ThemeConfig.EmphasisOpacity.high,
   },
   headline: {
     fontSize: 18,
@@ -324,7 +317,7 @@ const style = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
     paddingVertical: 22,
     paddingHorizontal: 20,
   },
@@ -337,10 +330,10 @@ const style = StyleSheet.create({
     borderBottomRightRadius: 8,
   },
   toggleLabel: {
-    color: '#666666',
-    fontSize: 16,
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
     marginRight: 8,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
   },
   separator: {

@@ -7,6 +7,7 @@ import {
   Text,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
+import CustomIcon from '../atoms/CustomIcon';
 
 export interface IconButtonProps {
   onPress?: TouchableOpacityProps['onPress'];

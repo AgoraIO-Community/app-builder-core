@@ -30,7 +30,7 @@ const LocalRaiseHand = () => {
   return (
     <IconButton
       iconProps={{
-        name: isHandRasied ? 'lowerHand' : 'raiseHand',
+        name: isHandRasied ? 'loer-hand' : 'raise-hand',
         tintColor: isHandRasied ? '#FF414D' : $config.PRIMARY_COLOR,
       }}
       btnText={handStatusText(isHandRasied)}

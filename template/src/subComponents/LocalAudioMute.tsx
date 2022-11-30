@@ -46,10 +46,12 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     : 'Mic Off';
 
   let iconProps: IconButtonProps['iconProps'] = {
-    name: permissionDenied ? 'noMic' : isAudioEnabled ? 'micOn' : 'micOff',
+    name: permissionDenied ? 'no-mic' : isAudioEnabled ? 'mic-on' : 'mic-off',
   };
   if (!permissionDenied) {
     iconProps.tintColor = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+  } else {
+    iconProps.tintColor = '#8F8F8F';
   }
 
   let iconButtonProps: IconButtonProps = {

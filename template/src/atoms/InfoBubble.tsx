@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 
 interface InfoBubbleProps {
   text: string;
@@ -67,7 +68,8 @@ const InfoBubble = (props: InfoBubbleProps) => {
                   width: styles.downsideTriangleIcon.width,
                   height: styles.downsideTriangleIcon.height,
                 }}
-                name={'arrowDown'}
+                name={'downside-triangle'}
+                tintColor={'#F2F2F2'}
               />
             </View>
           </>
@@ -75,7 +77,11 @@ const InfoBubble = (props: InfoBubbleProps) => {
           <></>
         )}
         <View style={styles.iconStyleView}>
-          <ImageIcon iconSize="medium" name={'info'} />
+          <ImageIcon
+            iconSize="medium"
+            name={'info'}
+            tintColor={'rgba(186, 186, 186, 0.5)'}
+          />
         </View>
       </div>
     </>
@@ -91,12 +97,12 @@ const styles = StyleSheet.create({
   },
   downsideTriangleIconContainer: {
     position: 'absolute',
-    top: -40,
-    left: -10,
+    top: -20,
+    left: 2,
     zIndex: 999,
   },
   downsideTriangleIcon: {
-    width: 36,
+    width: 27,
     height: 36,
     shadowColor: '#000000',
     shadowOpacity: 0.1,
@@ -115,12 +121,12 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowRadius: 4,
     borderRadius: 12,
-    top: -100,
+    top: -87,
   },
   textStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 16,
+    fontSize: ThemeConfig.FontSize.small,
     lineHeight: 24,
     textAlign: 'center',
     color: '#333333',

@@ -15,7 +15,7 @@ export default function ParticipantSectionTitle(props: PropsInterface) {
         {title} {count > 0 ? '(' + count + ')' : ''}
       </Text>
       <View style={style.iconView}>
-        <ImageIcon name="arrowDown" iconSize="medium" tintColor="#1A1A1A" />
+        <ImageIcon name="arrow-down" iconSize="medium" tintColor="#1A1A1A" />
       </View>
     </View>
   );

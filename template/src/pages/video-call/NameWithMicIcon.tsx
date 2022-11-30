@@ -22,7 +22,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
     <>
       <View>
         <ImageIcon
-          name={user.audio ? 'micOn' : 'micOff'}
+          name={user.audio ? 'mic-on' : 'mic-off'}
           tintColor={user.audio ? primaryColor : 'red'}
           iconSize={'small'}
         />

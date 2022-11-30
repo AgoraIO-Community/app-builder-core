@@ -20,11 +20,7 @@ const selectDevice: React.FC = () => {
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Select Input Device';
-  return (
-    <View>
-      <SelectDevice />
-    </View>
-  );
+  return <SelectDevice />;
 };
 
 export default selectDevice;

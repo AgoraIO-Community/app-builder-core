@@ -7,9 +7,9 @@ import {
   Platform,
   TextStyle,
 } from 'react-native';
-import {textInput} from '../../theme.json';
 import React from 'react';
 import Spacer from './Spacer';
+import ThemeConfig from '../theme';
 
 interface InputProps extends TextInputProps {
   helpText?: string;
@@ -30,9 +30,11 @@ const Input = (props: InputProps) => {
         style={[
           styles.input,
           style,
-          {borderColor: isFocussed ? $config.PRIMARY_COLOR : '#666666'},
+          // {borderColor: isFocussed ? $config.FONT_COLOR : '#666666'},
         ]}
-        placeholderTextColor="rgba(126, 126, 126, 0.5)"
+        placeholderTextColor={
+          $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+        }
         autoCorrect={false}
         autoFocus
         {...otherProps}
@@ -53,11 +55,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingVertical: 21,
     paddingHorizontal: 16,
-    borderColor: '#CCCCCC',
-    color: '#2B2C33',
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    color: $config.FONT_COLOR,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
-    fontSize: 18,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.medium,
     borderRadius: 8,
     ...Platform.select({
       web: {
@@ -67,12 +70,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '600',
-    fontSize: 18,
-    color: '#040405',
-    fontFamily: 'Source Sans Pro',
+    fontSize: ThemeConfig.FontSize.medium,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   helpText: {
     color: $config.PRIMARY_FONT_COLOR,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 });

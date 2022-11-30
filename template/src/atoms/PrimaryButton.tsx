@@ -21,8 +21,8 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import ThemeConfig from '../theme';
 import {primaryButton, primaryButtonText} from '../../theme.json';
-import ColorContext from '../components/ColorContext';
 import {IconsInterface} from '../assets/icons';
 import ImageIcon from '../atoms/ImageIcon';
 
@@ -34,17 +34,23 @@ export interface PrimaryButtonProps extends PressableProps {
 }
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
-  const {primaryColor} = useContext(ColorContext);
   const {children, iconName, textStyle, containerStyle, ...otherProps} = props;
   return (
     <Pressable
       style={[
         styles.container,
-        {backgroundColor: props.disabled ? '#BABABA' : primaryColor},
+        props?.disabled ? {opacity: ThemeConfig.EmphasisOpacity.disabled} : {},
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      {iconName && <ImageIcon name={iconName} tintColor={'#FFFFFF'} />}
+      {iconName && (
+        <View>
+          <ImageIcon
+            name={iconName}
+            tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          />
+        </View>
+      )}
       {props.text && (
         <Text style={[styles.text, textStyle ? textStyle : {}]}>
           {props.text}
@@ -70,12 +76,13 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 12,
     minWidth: 250,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   text: {
-    color: '#ffffff',
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
     fontSize: 16,
     fontWeight: '700',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingLeft: 8,
   },
 });
