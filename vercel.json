@@ -1,10 +1,14 @@
 {
   "rewrites": [
-    { "source": "/font-styles1.css", "destination": "/font-styles1.css" },
+    {
+      "source": "/src/assets/*",
+      "destination": "/src/assets/*"
+    },
+    { "source": "/font-styles1", "destination": "/font-styles1" },
     { "source": "/(.*)", "destination": "/index.html" },
     {
-      "source": "/src/assets/font-styles.css",
-      "destination": "/src/assets/font-styles.css"
+      "source": "/src/assets/*",
+      "destination": "/src/assets/*"
     }
   ]
 }
