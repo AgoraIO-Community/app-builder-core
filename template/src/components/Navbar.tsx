@@ -46,6 +46,7 @@ import {
 } from '../utils/useButtonTemplate';
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
@@ -117,18 +118,22 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'participants',
-      tintColor: isPanelActive ? '#FFFFFF' : '#099DFD',
+      tintColor: isPanelActive
+        ? $config.PRIMARY_ACTION_TEXT_COLOR
+        : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
 
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = participantsLabel;
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    color: isPanelActive
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
+      : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
   return props?.render ? (
@@ -193,7 +198,10 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       zIndex: 999,
     },
     badgeTextStyle = {
-      color: sidePanel === SidePanelType.Chat ? '#099DFD' : '#FFFFFF',
+      color:
+        sidePanel === SidePanelType.Chat
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : $config.PRIMARY_ACTION_TEXT_COLOR,
       fontSize: 12,
       textAlign: 'center',
     },
@@ -222,18 +230,22 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'chat',
-      tintColor: isPanelActive ? '#FFFFFF' : '#099DFD',
+      tintColor: isPanelActive
+        ? $config.PRIMARY_ACTION_TEXT_COLOR
+        : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
 
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = chatLabel;
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    color: isPanelActive
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
+      : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
   const renderBadge = (badgeCount: any) => {
@@ -250,8 +262,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           height: 20,
           backgroundColor:
             sidePanel === SidePanelType.Chat
-              ? '#FFFFFF'
-              : $config.PRIMARY_COLOR,
+              ? $config.PRIMARY_ACTION_TEXT_COLOR
+              : $config.PRIMARY_ACTION_BRAND_COLOR,
           justifyContent: 'center',
         }}>
         <Text
@@ -453,11 +465,11 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   roomNameText: {
-    fontSize: 16,
-    lineHeight: 16,
-    color: $config.PRIMARY_FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   chip: {
     backgroundColor: $config.PRIMARY_COLOR,
