@@ -69,6 +69,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
                   height: styles.downsideTriangleIcon.height,
                 }}
                 name={'downside-triangle'}
+                tintColor={'#F2F2F2'}
               />
             </View>
           </>

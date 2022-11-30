@@ -48,6 +48,9 @@ export interface IconsInterface {
   'grid-layout': string;
   info: string;
   send: string;
+  'downside-triangle': string;
+  profile: string;
+  'link-share': string;
   'list-view': string;
   // screenshareStart: string;
   // screenshareStop: string;

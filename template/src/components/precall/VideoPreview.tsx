@@ -30,7 +30,7 @@ const Fallback = () => {
       {isCameraAvailable ||
       local.permissionStatus === PermissionState.NOT_REQUESTED ? (
         <View style={styles.avatar}>
-          <ImageIcon name="profileImg" customSize={{width: 100, height: 100}} />
+          <ImageIcon name="profile" customSize={{width: 100, height: 100}} />
         </View>
       ) : (
         <View style={styles.fallbackContainer}>
@@ -53,7 +53,7 @@ const Fallback = () => {
             <Spacer horizontal={true} size={4} />
             <View style={{alignSelf: 'center'}}>
               <ImageIcon
-                name={'link'}
+                name={'link-share'}
                 tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
               />
             </View>

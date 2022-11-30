@@ -110,8 +110,8 @@ export interface IconsInterface {
   info: string;
   send: string;
   'downside-triangle': string;
-  profileImg: string;
-  link: string;
+  profile: string;
+  'link-share': string;
   listView: string;
   'list-view': string;
   // screenshareStart: string;

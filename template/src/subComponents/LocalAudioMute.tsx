@@ -50,6 +50,8 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
   if (!permissionDenied) {
     iconProps.tintColor = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+  } else {
+    iconProps.tintColor = '#8F8F8F';
   }
 
   let iconButtonProps: IconButtonProps = {

@@ -52,6 +52,8 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
   if (!permissionDenied) {
     iconProps.tintColor = isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+  } else {
+    iconProps.tintColor = '#8F8F8F';
   }
   let iconButtonProps: IconButtonProps = {
     onPress,

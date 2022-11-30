@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('./fonts/icomoon.ttf?59kqso1') format('truetype');
+  src: url('fonts/icomoon.ttf?tqnckb') format('truetype'),
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -74,6 +74,10 @@
   content: "\e90e";
   color: #ff414d;
 }
+.icon-downside-triangle:before {
+  content: "\e936";
+  color: #555;
+}
 .icon-end-call:before {
   content: "\e90f";
 }
@@ -87,7 +91,7 @@
   content: "\e912";
 }
 .icon-link-share:before {
-  content: "\e913";
+  content: "\e93b";
   color: #099dfd;
 }
 .icon-list-view:before {
@@ -151,21 +155,21 @@
   content: "\e922";
 }
 .icon-profile .path1:before {
-  content: "\e923";
+  content: "\e937";
   color: rgb(0, 0, 0);
 }
 .icon-profile .path2:before {
-  content: "\e924";
+  content: "\e938";
   margin-left: -1em;
   color: rgb(9, 157, 253);
 }
 .icon-profile .path3:before {
-  content: "\e925";
+  content: "\e939";
   margin-left: -1em;
   color: rgb(255, 255, 255);
 }
 .icon-profile .path4:before {
-  content: "\e926";
+  content: "\e93a";
   margin-left: -1em;
   color: rgb(255, 255, 255);
 }
@@ -200,12 +204,12 @@
 .icon-switch-camera:before {
   content: "\e930";
 }
+.icon-tick:before {
+  content: "\e932";
+}
 .icon-tick-fill:before {
   content: "\e931";
   color: #36b37e;
-}
-.icon-tick:before {
-  content: "\e932";
 }
 .icon-video-off:before {
   content: "\e933";
