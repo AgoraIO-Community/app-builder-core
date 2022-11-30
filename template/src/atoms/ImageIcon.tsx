@@ -30,20 +30,6 @@ const ImageIcon = (props: ImageIconProps) => {
       color={tintColor}
       size={customSize?.width ? customSize.width : styles[iconSize].width}
     />
-    // return (
-    //   <Image
-    //     style={[
-    //       styles[iconSize],
-    //       styles.normal,
-    //       tintColor ? {tintColor: tintColor} : {},
-    //       customSize ? customSize : {},
-    //     ]}
-    //     resizeMode={'contain'}
-    //     source={{
-    //       uri: Icons[name],
-    //     }}
-    //   />
-    //);
   );
 };
 
