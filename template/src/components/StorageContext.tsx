@@ -25,8 +25,6 @@ export interface StorageContextInterface {
 export const initStoreValue: StoreInterface = {
   token: null,
   displayName: '',
-  lastActiveCam: '',
-  lastActiveMic: '',
   selectedLanguageCode: '',
 };
 
