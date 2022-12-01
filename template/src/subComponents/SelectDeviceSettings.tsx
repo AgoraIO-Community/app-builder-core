@@ -16,7 +16,7 @@ import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 import {useString} from '../utils/useString';
 import Spacer from '../atoms/Spacer';
-import IconDropdown from '../atoms/IconDropdown';
+import Dropdown from '../atoms/Dropdown';
 import {usePreCall} from '../components/precall/usePreCall';
 import ThemeConfig from '../theme';
 // import {dropdown} from '../../theme.json';
@@ -72,7 +72,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   ) : (
     <>
       <Text style={[style.label]}>Camera</Text>
-      <IconDropdown
+      <Dropdown
         icon={'video-on'}
         enabled={!isPickerDisabled}
         label={!data || !data.length ? 'No Camera Detected' : ''}
@@ -120,7 +120,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   ) : (
     <>
       <Text style={[style.label]}>Microphone</Text>
-      <IconDropdown
+      <Dropdown
         icon="mic-on"
         enabled={!isPickerDisabled}
         selectedValue={selectedMic}
