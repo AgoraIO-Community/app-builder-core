@@ -2,7 +2,11 @@
  * Core contexts
  */
 import {createHook} from 'customization-implementation';
-import {RtcContext, RenderContext} from '../agora-rn-uikit';
+import {
+  RtcContext,
+  RenderContext,
+  LastJoinedUserContext,
+} from '../agora-rn-uikit';
 
 // commented for v1 release
 //import {default as DeviceContext} from '../src/components/DeviceContext';
@@ -15,6 +19,8 @@ export const useRtc = createHook(RtcContext);
  * The Render app state governs the information necessary to render each user content view displayed in the videocall screen.
  */
 export const useRender = createHook(RenderContext);
+
+export const useLastJoinedUser = createHook(LastJoinedUserContext);
 export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
 
 // commented for v1 release

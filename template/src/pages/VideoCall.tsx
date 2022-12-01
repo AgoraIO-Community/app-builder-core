@@ -205,24 +205,24 @@ const VideoCall: React.FC = () => {
                 <DeviceConfigure>
                   <ChatUIControlProvider>
                     <ChatNotificationProvider>
-                      <SidePanelProvider
+                      <LayoutProvider
                         value={{
-                          sidePanel,
-                          setSidePanel,
+                          currentLayout,
+                          setLayout,
                         }}>
-                        <ChatMessagesProvider>
-                          <ScreenShareProvider>
-                            <RtmConfigure
-                              setRecordingActive={setRecordingActive}
-                              callActive={callActive}>
-                              <UserPreferenceProvider>
-                                <EventsConfigure>
-                                  <WhiteboardProvider>
-                                    <LayoutProvider
-                                      value={{
-                                        currentLayout,
-                                        setLayout,
-                                      }}>
+                        <SidePanelProvider
+                          value={{
+                            sidePanel,
+                            setSidePanel,
+                          }}>
+                          <ChatMessagesProvider>
+                            <ScreenShareProvider>
+                              <RtmConfigure
+                                setRecordingActive={setRecordingActive}
+                                callActive={callActive}>
+                                <UserPreferenceProvider>
+                                  <EventsConfigure>
+                                    <WhiteboardProvider>
                                       <RecordingProvider
                                         value={{
                                           setRecordingActive,
@@ -262,14 +262,14 @@ const VideoCall: React.FC = () => {
                                           </LiveStreamContextProvider>
                                         </ScreenshareConfigure>
                                       </RecordingProvider>
-                                    </LayoutProvider>
-                                  </WhiteboardProvider>
-                                </EventsConfigure>
-                              </UserPreferenceProvider>
-                            </RtmConfigure>
-                          </ScreenShareProvider>
-                        </ChatMessagesProvider>
-                      </SidePanelProvider>
+                                    </WhiteboardProvider>
+                                  </EventsConfigure>
+                                </UserPreferenceProvider>
+                              </RtmConfigure>
+                            </ScreenShareProvider>
+                          </ChatMessagesProvider>
+                        </SidePanelProvider>
+                      </LayoutProvider>
                     </ChatNotificationProvider>
                   </ChatUIControlProvider>
                 </DeviceConfigure>
