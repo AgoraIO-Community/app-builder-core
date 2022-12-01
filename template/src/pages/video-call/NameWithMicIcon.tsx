@@ -1,10 +1,10 @@
 import React, {useContext} from 'react';
-import {View, StyleSheet, useWindowDimensions} from 'react-native';
+import {View, StyleSheet, useWindowDimensions, Text} from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
+import ThemeConfig from '../../theme';
 import {RenderInterface} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
 import TextWithTooltip from '../../subComponents/TextWithTooltip';
-import ColorContext from '../../components/ColorContext';
 import {useString} from '../../utils/useString';
 
 interface NameWithMicIconProps {
@@ -13,54 +13,54 @@ interface NameWithMicIconProps {
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
   const {user} = props;
-  const {primaryColor} = useContext(ColorContext);
   const {height, width} = useWindowDimensions();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   return (
-    <>
+    <View style={style.container}>
       <View>
         <ImageIcon
           name={user.audio ? 'mic-on' : 'mic-off'}
-          tintColor={user.audio ? primaryColor : 'red'}
+          tintColor={
+            user.audio
+              ? $config.PRIMARY_ACTION_BRAND_COLOR
+              : $config.SEMANTIC_ERROR
+          }
           iconSize={'small'}
         />
       </View>
       <View style={{flex: 1}}>
-        <TextWithTooltip
-          value={user.name || remoteUserDefaultLabel}
-          style={[
-            style.name,
-            {
-              fontSize: RFValue(14, height > width ? height : width),
-            },
-          ]}
-        />
+        <Text numberOfLines={1} textBreakStrategy="simple" style={style.name}>
+          {user.name || remoteUserDefaultLabel}
+        </Text>
       </View>
-    </>
+    </View>
   );
 };
 
 const style = StyleSheet.create({
+  container: {
+    backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+    position: 'absolute',
+    alignItems: 'center',
+    padding: 8,
+    height: 30,
+    left: 12,
+    bottom: 12,
+    borderRadius: 20,
+    flexDirection: 'row',
+    zIndex: 5,
+    maxWidth: '100%',
+  },
   name: {
-    color: $config.PRIMARY_FONT_COLOR,
-    fontSize: 14,
-    lineHeight: 14,
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
     fontWeight: '600',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     flexShrink: 1,
     marginLeft: 8,
-  },
-  MicBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 15,
-    marginHorizontal: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    display: 'flex',
-    alignSelf: 'center',
-    justifyContent: 'center',
   },
 });
 

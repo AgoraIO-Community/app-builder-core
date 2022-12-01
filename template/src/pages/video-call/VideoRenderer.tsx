@@ -4,7 +4,6 @@ import {RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
-import ColorContext from '../../components/ColorContext';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 
@@ -12,17 +11,17 @@ interface VideoRendererProps {
   user: RenderInterface;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
-  const {primaryColor} = useContext(ColorContext);
   return (
     <View style={maxStyle.container}>
       <ScreenShareNotice uid={user.uid} />
       <NetworkQualityPill
         user={user}
-        primaryColor={primaryColor}
+        primaryColor={$config.PRIMARY_ACTION_BRAND_COLOR}
         rootStyle={{
           marginLeft: 25,
           top: 12,
           right: 12,
+          backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
         }}
         small
       />
@@ -33,55 +32,13 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
         user={user}
         key={user.uid}
       />
-      <View style={maxStyle.nameHolder}>
-        <NameWithMicIcon user={user} />
-      </View>
+      <NameWithMicIcon user={user} />
     </View>
   );
 };
 
 const maxStyle = StyleSheet.create({
   container: {width: '100%', height: '100%', position: 'relative'},
-  width80: {width: '80%'},
-  width100: {width: '100%'},
-  flex2: {flex: 2},
-  flex4: {flex: 4, backgroundColor: '#ffffff00'},
-  flex1: {flex: 1},
-  nameHolder: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'ba',
-    position: 'absolute',
-    alignItems: 'center',
-    padding: 8,
-    height: 25,
-    left: 12,
-    bottom: 12,
-    borderRadius: 4,
-    flexDirection: 'row',
-    zIndex: 5,
-    maxWidth: '100%',
-  },
-  name: {
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 25,
-    fontWeight: '700',
-    flexShrink: 1,
-  },
-  MicBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 15,
-    marginHorizontal: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    display: 'flex',
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  MicIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
-    resizeMode: 'contain',
-  },
 });
 
 export default VideoRenderer;

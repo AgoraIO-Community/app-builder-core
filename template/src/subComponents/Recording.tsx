@@ -15,9 +15,10 @@ import {useString} from '../utils/useString';
 import Styles from '../components/styles';
 import RecordingPopup from './RecordingPopup';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 export interface RecordingButtonProps {
-  hideLabel?: boolean;
+  showLabel?: boolean;
   render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
 }
 
@@ -28,6 +29,7 @@ const Recording = (props: RecordingButtonProps) => {
   const recordingButton = (recording: boolean) =>
     recording ? 'Stop Recording' : 'Record';
   const [modalVisible, setModalVisible] = useState(false);
+  const {showLabel} = props;
 
   const doStopRecording = () => {
     if (isRecordingActive) {
@@ -46,21 +48,23 @@ const Recording = (props: RecordingButtonProps) => {
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: isRecordingActive ? 'stop-recording' : 'recording',
-      tintColor: isRecordingActive ? '#FF414D' : '#099DFD',
+      tintColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
     onPress,
   };
 
-  iconButtonProps.btnText = props.hideLabel
-    ? ''
-    : recordingButton(isRecordingActive);
+  iconButtonProps.btnText = showLabel ? recordingButton(isRecordingActive) : '';
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
-    color: isRecordingActive ? '#FF414D' : '#099DFD',
+    color: isRecordingActive
+      ? $config.SEMANTIC_ERROR
+      : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
   return props?.render ? (

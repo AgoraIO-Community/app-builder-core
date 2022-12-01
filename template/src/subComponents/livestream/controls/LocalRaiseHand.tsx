@@ -17,6 +17,7 @@ import {useString} from '../../../utils/useString';
 import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
 import IconButton from '../../../atoms/IconButton';
+import ThemeConfig from '../../../theme';
 
 const LocalRaiseHand = () => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
@@ -30,17 +31,21 @@ const LocalRaiseHand = () => {
   return (
     <IconButton
       iconProps={{
-        name: isHandRasied ? 'loer-hand' : 'raise-hand',
-        tintColor: isHandRasied ? '#FF414D' : $config.PRIMARY_COLOR,
+        name: isHandRasied ? 'lower-hand' : 'raise-hand',
+        tintColor: isHandRasied
+          ? $config.SEMANTIC_ERROR
+          : $config.PRIMARY_ACTION_BRAND_COLOR,
       }}
       btnText={handStatusText(isHandRasied)}
       style={Styles.localButton as Object}
       styleText={{
-        fontFamily: 'Source Sans Pro',
+        fontFamily: ThemeConfig.FontFamily.sansPro,
         fontSize: 12,
         marginTop: 4,
         fontWeight: '400',
-        color: isHandRasied ? '#FF414D' : $config.PRIMARY_COLOR,
+        color: isHandRasied
+          ? $config.SEMANTIC_ERROR
+          : $config.PRIMARY_ACTION_BRAND_COLOR,
       }}
       onPress={() => {
         if (isHandRasied) {

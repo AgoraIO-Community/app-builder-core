@@ -25,9 +25,11 @@ import Spacer from '../atoms/Spacer';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 export interface CopyJoinInfoProps {
-  hideLabel?: boolean;
+  showLabel?: boolean;
+  showTeritaryButton?: boolean;
   render?: (onPress: () => void) => JSX.Element;
 }
 //todo hari update CopyJoinInfo to show text
@@ -36,6 +38,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const getMeeting = useGetMeetingPhrase();
   const {copyShareLinkToClipboard} = useShareLink();
   const [modalVisible, setModalVisible] = React.useState(false);
+  const {showLabel = true, showTeritaryButton = false} = props;
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
@@ -52,15 +55,15 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     onPress: onPress,
     iconProps: {
       name: 'share',
-      tintColor: '#099DFD',
+      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
-    color: $config.PRIMARY_COLOR,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
   // iconButtonProps.style = style.shareIcon;
@@ -70,7 +73,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //   height: 20,
   // };
 
-  iconButtonProps.btnText = props.hideLabel ? '' : copyMeetingInviteButton;
+  iconButtonProps.btnText = props.showLabel ? copyMeetingInviteButton : '';
   iconButtonProps.style = Styles.localButton as Object;
 
   //}
@@ -96,10 +99,11 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
           />
         </View>
       </Popup>
-      {/** todo hari
+      {showTeritaryButton ? (
         <TertiaryButton text="Invite" onPress={onPress} />
-          */}
-      <IconButton {...iconButtonProps} />
+      ) : (
+        <IconButton {...iconButtonProps} />
+      )}
     </>
   );
 };

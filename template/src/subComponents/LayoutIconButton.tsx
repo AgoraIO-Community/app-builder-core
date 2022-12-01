@@ -8,6 +8,7 @@ import {useLayout} from '../utils/useLayout';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import Styles from '../components/styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 interface LayoutIconButtonInterface {
   modalPosition?: {
@@ -46,11 +47,11 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       onPress: onPress,
     };
     iconButtonProps.styleText = {
-      fontFamily: 'Source Sans Pro',
+      fontFamily: ThemeConfig.FontFamily.sansPro,
       fontSize: 12,
       marginTop: 4,
       fontWeight: '400',
-      color: $config.PRIMARY_COLOR,
+      color: $config.PRIMARY_ACTION_BRAND_COLOR,
     };
 
     iconButtonProps.style = Styles.localButton as Object;
@@ -64,7 +65,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
           key={'defaultLayoutIconWithName'}
           iconProps={{
             name: layouts[layout]?.iconName,
-            tintColor: '#099DFD',
+            tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
           }}
           {...iconButtonProps}
         />

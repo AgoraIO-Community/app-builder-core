@@ -32,6 +32,7 @@ import {
 } from '../livestream';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import IconButton from '../../atoms/IconButton';
+import ThemeConfig from '../../theme';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -56,18 +57,24 @@ const Participant = (props: ParticipantInterface) => {
     data: {isHost},
   } = useMeetingInfo();
 
-  const containerStyle = {
-    background: '#021F3380',
+  const bgContainerStyle = {
+    background: $config.CARD_LAYER_5_COLOR + '20',
     width: 36,
     height: 36,
     borderRadius: 18,
     marginRight: 8,
   };
+  const containerStyle = {
+    background: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  };
   const textStyle = {
-    fontSize: 12,
+    fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 10,
     fontWeight: '400',
-    color: '#fff',
+    color: $config.FONT_COLOR,
   };
 
   const renderActionMenu = () => {
@@ -163,11 +170,13 @@ const Participant = (props: ParticipantInterface) => {
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>
           <View style={styles.userInfoContainer}>
-            <UserAvatar
-              name={name}
-              containerStyle={containerStyle}
-              textStyle={textStyle}
-            />
+            <View style={bgContainerStyle}>
+              <UserAvatar
+                name={name}
+                containerStyle={containerStyle}
+                textStyle={textStyle}
+              />
+            </View>
             <View style={{alignSelf: 'center'}}>
               <Text style={styles.participantNameText}>{name}</Text>
               {isHostUser && (
@@ -180,27 +189,38 @@ const Participant = (props: ParticipantInterface) => {
           </View>
           {showControls ? (
             <View style={styles.iconContainer}>
-              <IconButton
-                iconProps={{
-                  name: 'more-menu',
-                  iconSize: 'medium',
-                }}
+              <View
                 style={{
+                  width: 24,
+                  height: 24,
+                  backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
                   opacity:
                     ((isHovered || actionMenuVisible || !isWebInternal()) &&
                       !isLocal) ||
                     (isHovered && isAudienceUser)
                       ? 1
                       : 0,
-                }}
-                onPress={() => {
-                  showModal();
-                }}
-              />
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 20,
+                }}>
+                <IconButton
+                  iconProps={{
+                    name: 'more-menu',
+                    iconSize: 'medium',
+                  }}
+                  onPress={() => {
+                    showModal();
+                  }}
+                />
+              </View>
               <Spacer horizontal={true} size={16} />
               {!$config.AUDIO_ROOM &&
                 (isLocal
-                  ? !isAudienceUser && <LocalVideoMute />
+                  ? !isAudienceUser && (
+                      <LocalVideoMute iconSize="medium" showLabel={false} />
+                    )
                   : !isAudienceUser && (
                       <RemoteVideoMute
                         uid={user.uid}
@@ -210,7 +230,9 @@ const Participant = (props: ParticipantInterface) => {
                     ))}
               <Spacer horizontal={true} size={16} />
               {isLocal
-                ? !isAudienceUser && <LocalAudioMute />
+                ? !isAudienceUser && (
+                    <LocalAudioMute iconSize="medium" showLabel={false} />
+                  )
                 : !isAudienceUser && (
                     <RemoteAudioMute
                       uid={user.uid}
@@ -254,19 +276,19 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 const styles = StyleSheet.create({
   participantNameText: {
     fontWeight: '400',
-    fontSize: 12,
+    fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 15,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     textAlign: 'left',
   },
   subText: {
-    fontSize: 12,
-    lineHeight: 12,
-    fontFamily: 'Source Sans Pro',
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: ThemeConfig.FontSize.tiny,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    color: '#858585',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
     marginTop: 4,
     flex: 1,
   },

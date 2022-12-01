@@ -16,17 +16,20 @@ import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 /**
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
-  hideLabel?: true;
+  showLabel?: boolean;
+  iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
+  const {showLabel = true} = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
 
@@ -48,8 +51,13 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   let iconProps: IconButtonProps['iconProps'] = {
     name: permissionDenied ? 'no-mic' : isAudioEnabled ? 'mic-on' : 'mic-off',
   };
+  if (props?.iconSize) {
+    iconProps.iconSize = props.iconSize;
+  }
   if (!permissionDenied) {
-    iconProps.tintColor = isAudioEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+    iconProps.tintColor = isAudioEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR;
   } else {
     iconProps.tintColor = '#8F8F8F';
   }
@@ -60,19 +68,19 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     disabled: permissionDenied ? true : false,
   };
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
     color: permissionDenied
       ? '#8F8F8F'
       : isAudioEnabled
-      ? $config.PRIMARY_COLOR
-      : '#FF414D',
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR,
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = props.hideLabel ? '' : audioLabel;
+  iconButtonProps.btnText = showLabel ? audioLabel : '';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

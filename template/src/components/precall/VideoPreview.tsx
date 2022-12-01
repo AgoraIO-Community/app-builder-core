@@ -14,7 +14,11 @@ import React, {useContext} from 'react';
 import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import PreCallLocalMute from './LocalMute';
-import {LocalContext, PermissionState} from '../../../agora-rn-uikit';
+import {
+  LocalContext,
+  PermissionState,
+  ImageIcon as UiKitImageIcon,
+} from '../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
 import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
@@ -30,7 +34,8 @@ const Fallback = () => {
       {isCameraAvailable ||
       local.permissionStatus === PermissionState.NOT_REQUESTED ? (
         <View style={styles.avatar}>
-          <ImageIcon name="profile" customSize={{width: 100, height: 100}} />
+          {/*TODO fix ttf file <ImageIcon name="profile" customSize={{width: 100, height: 100}} /> */}
+          <UiKitImageIcon name={'profile'} />
         </View>
       ) : (
         <View style={styles.fallbackContainer}>
@@ -109,8 +114,7 @@ const styles = StyleSheet.create({
   },
   fallbackRootContainer: {
     flex: 1,
-    backgroundColor: '#000',
-    borderRadius: 12,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -131,7 +135,7 @@ const styles = StyleSheet.create({
   retryBtn: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
     alignSelf: 'center',
   },

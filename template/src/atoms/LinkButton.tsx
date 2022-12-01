@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
+    lineHeight: ThemeConfig.FontSize.normal,
   },
 });

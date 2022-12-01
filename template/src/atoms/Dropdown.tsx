@@ -131,7 +131,7 @@ const Dropdown: FC<Props> = ({
       disabled={!enabled || !data || !data.length}
       ref={DropdownButton}
       style={[
-        noData ? styles.dropdownOptionNoData : styles.dropdownOption,
+        styles.dropdownOptionContainer,
         !enabled || !data || !data.length
           ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
           : {},
@@ -141,18 +141,14 @@ const Dropdown: FC<Props> = ({
       <View
         onLayout={() => updateDropdownPosition()}
         style={styles.dropdownOptionTextContainer}>
-        <Text
-          numberOfLines={1}
-          style={
-            noData ? styles.dropdownOptionNoDataText : styles.dropdownOptionText
-          }>
+        <Text numberOfLines={1} style={styles.dropdownOptionText}>
           {(selected && selected.label) || label}
         </Text>
       </View>
       <View style={styles.dropdownIconContainer}>
         <ImageIcon
           name={visible ? 'arrow-up' : 'arrow-down'}
-          tintColor={noData ? '#A1A1A1' : '#000000'}
+          tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </View>
     </TouchableOpacity>
@@ -164,7 +160,9 @@ const PlatformWrapper = ({children, onPress}) => {
   return isWeb() ? (
     <div
       style={{
-        backgroundColor: isHovered ? '#EFEFEF' : 'transparent',
+        backgroundColor: isHovered
+          ? $config.CARD_LAYER_5_COLOR + '20'
+          : 'transparent',
         cursor: isHovered ? 'pointer' : 'auto',
         borderRadius: 6,
         marginLeft: 8,
@@ -185,7 +183,7 @@ const PlatformWrapper = ({children, onPress}) => {
 };
 
 const styles = StyleSheet.create({
-  dropdownOption: {
+  dropdownOptionContainer: {
     flex: 1,
     flexDirection: 'row',
     minHeight: 60,
@@ -204,26 +202,8 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.extraSmall,
-    lineHeight: ThemeConfig.FontSize.extraSmall,
-    color: $config.FONT_COLOR,
-    paddingLeft: 20,
-    paddingVertical: 23,
-  },
-  dropdownOptionNoData: {
-    flex: 1,
-    flexDirection: 'row',
-    minHeight: 60,
-    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    borderRadius: 12,
-  },
-  dropdownOptionNoDataText: {
-    flex: 1,
-    textAlign: 'left',
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.extraSmall,
-    lineHeight: ThemeConfig.FontSize.extraSmall,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
     color: $config.FONT_COLOR,
     paddingLeft: 20,
     paddingVertical: 23,
@@ -265,9 +245,9 @@ const styles = StyleSheet.create({
   itemText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small,
-    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.normal,
+    lineHeight: ThemeConfig.FontSize.normal,
+    color: $config.SECONDARY_ACTION_COLOR,
     paddingVertical: 12,
     paddingLeft: 12,
   },

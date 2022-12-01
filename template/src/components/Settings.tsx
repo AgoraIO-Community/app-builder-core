@@ -17,6 +17,7 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {useString} from '../utils/useString';
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
@@ -38,17 +39,21 @@ const Settings = (props: SettingsIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'settings',
-      tintColor: isPanelActive ? '#FFFFFF' : '#099DFD',
+      tintColor: isPanelActive
+        ? $config.PRIMARY_ACTION_TEXT_COLOR
+        : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
   iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = settingsLabel;
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive ? '#FFFFFF' : '#099DFD',
+    color: isPanelActive
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
+      : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
   return props?.render ? (
     props.render(onPress, isPanelActive)

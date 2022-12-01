@@ -10,6 +10,7 @@
 *********************************************
 */
 import React from 'react';
+import ThemeConfig from '../../theme';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
@@ -35,7 +36,9 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
-      tintColor: isScreenshareActive ? '#FF414D' : '#099DFD',
+      tintColor: isScreenshareActive
+        ? $config.SEMANTIC_ERROR
+        : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
     onPress,
   };
@@ -46,11 +49,13 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   iconButtonProps.btnText = screenShareButton;
   iconButtonProps.style = Styles.localButton as object;
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
-    color: isScreenshareActive ? '#FF414D' : '#099DFD',
+    color: isScreenshareActive
+      ? $config.SEMANTIC_ERROR
+      : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
   return props?.render ? (

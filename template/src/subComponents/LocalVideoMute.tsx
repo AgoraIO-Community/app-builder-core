@@ -16,17 +16,20 @@ import Styles from '../components/styles';
 import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 /**
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
-  hideLabel?: boolean;
+  showLabel?: boolean;
+  iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
+  const {showLabel = true} = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
@@ -50,8 +53,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? 'video-on'
       : 'video-off',
   };
+  if (props?.iconSize) {
+    iconProps.iconSize = props.iconSize;
+  }
   if (!permissionDenied) {
-    iconProps.tintColor = isVideoEnabled ? $config.PRIMARY_COLOR : '#FF414D';
+    iconProps.tintColor = isVideoEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR;
   } else {
     iconProps.tintColor = '#8F8F8F';
   }
@@ -62,18 +70,18 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
 
   iconButtonProps.styleText = {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
     color: permissionDenied
       ? '#8F8F8F'
       : isVideoEnabled
-      ? $config.PRIMARY_COLOR
-      : '#FF414D',
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = props.hideLabel ? '' : videoLabel;
+  iconButtonProps.btnText = showLabel ? videoLabel : '';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)

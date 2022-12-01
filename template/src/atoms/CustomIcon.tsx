@@ -32,7 +32,7 @@ export interface IconsInterface {
   'stop-recording': string;
   'end-call': string;
   'raise-hand': string;
-  'loer-hand': string;
+  'lower-hand': string;
   'close-rounded': string;
   'close-square': string;
   'back-btn': string;
@@ -52,6 +52,8 @@ export interface IconsInterface {
   profile: string;
   'link-share': string;
   'list-view': string;
+  expand: string;
+  collapse: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
