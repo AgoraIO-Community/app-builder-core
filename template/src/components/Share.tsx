@@ -39,29 +39,15 @@ import ThemeConfig from '../theme';
 
 const isLiveStream = $config.EVENT_MODE;
 
-const Share = () => {
-  const {FpeShareComponent} = useCustomization((data) => {
-    let components: {
-      FpeShareComponent?: React.ElementType;
-    } = {};
-    // commented for v1 release
-    // if (
-    //   data?.components?.share &&
-    //   typeof data?.components?.share !== 'object'
-    // ) {
-    //   if (
-    //     data?.components?.share &&
-    //     isValidReactComponent(data?.components?.share)
-    //   ) {
-    //     components.FpeShareComponent = data?.components?.share;
-    //   }
-    // }
-    return components;
-  });
+export interface CopyMeetingInfoProps {
+  showSubLabel?: boolean;
+}
+export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
     data: {roomId, pstn, isSeparateHostLink, meetingTitle},
   } = useMeetingInfo();
+  const {showSubLabel = true} = props;
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
   // const meetingIdText = useString('meetingIdLabel')();
@@ -135,6 +121,189 @@ const Share = () => {
       />
     );
   };
+  return (
+    <>
+      {isSeparateHostLink ? (
+        <>
+          <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={style.urlContainer}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[
+                  style.url,
+                  style.urlPadding,
+                  //@ts-ignore
+                  isWebCheck ? urlWeb : {opacity: 1},
+                ]}>
+                {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={style.iconContainer}
+              onPress={() => {
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE);
+              }}>
+              {clipboardIcon()}
+            </TouchableOpacity>
+          </View>
+
+          {isDesktop && showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                Share this with attendees you want to invite.
+              </Text>
+            </>
+          )}
+          <Spacer size={25} />
+        </>
+      ) : (
+        <></>
+      )}
+      <>
+        <Text style={style.urlTitle}>{getHostLabel()}</Text>
+        <Spacer size={11} />
+        <View style={style.container}>
+          <View style={style.urlContainer}>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={[
+                style.url,
+                style.urlPadding,
+                //@ts-ignore
+                isWebCheck ? urlWeb : {opacity: 1},
+              ]}>
+              {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
+            </Text>
+          </View>
+          <View style={style.iconContainer}>
+            <TouchableOpacity
+              style={style.iconContainer}
+              onPress={() => {
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
+              }}>
+              {clipboardIcon()}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {isDesktop && showSubLabel && (
+          <>
+            <Spacer size={14} />
+            <Text style={style.helpText}>
+              Share this with other co-hosts you want to invite.
+            </Text>
+          </>
+        )}
+        <Spacer size={25} />
+      </>
+      {pstn ? (
+        <>
+          <Text style={style.urlTitle}>{pstnLabel}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={[style.urlContainer, style.urlPadding]}>
+              <View>
+                <Text
+                  style={[
+                    style.url,
+                    //@ts-ignore
+                    isWebCheck ? urlWeb : {opacity: 1},
+                  ]}>
+                  {pstnNumberLabel} - {pstn?.number}
+                </Text>
+              </View>
+              <Spacer size={11} />
+              <View>
+                <Text
+                  style={[
+                    style.url,
+                    //@ts-ignore
+                    isWebCheck ? urlWeb : {opacity: 1},
+                  ]}>
+                  {pinLabel} - {pstn?.pin}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={style.iconContainer}
+              onPress={() => {
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN);
+              }}>
+              {clipboardIcon()}
+            </TouchableOpacity>
+          </View>
+
+          {isDesktop && showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                Share this phone number and pin to dial from phone.
+              </Text>
+            </>
+          )}
+          <Spacer size={25} />
+        </>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
+
+const Share = () => {
+  const {FpeShareComponent} = useCustomization((data) => {
+    let components: {
+      FpeShareComponent?: React.ElementType;
+    } = {};
+    // commented for v1 release
+    // if (
+    //   data?.components?.share &&
+    //   typeof data?.components?.share !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.share &&
+    //     isValidReactComponent(data?.components?.share)
+    //   ) {
+    //     components.FpeShareComponent = data?.components?.share;
+    //   }
+    // }
+    return components;
+  });
+  const {copyShareLinkToClipboard} = useShareLink();
+  const {
+    data: {roomId, meetingTitle},
+  } = useMeetingInfo();
+
+  const enterMeetingAfterCreateButton = isLiveStream
+    ? 'Start Stream (as host)'
+    : 'Start Meeting (as host)';
+  const copyInviteButton = 'Copy invite to clipboard';
+  const history = useHistory();
+  const enterMeeting = () => {
+    if (roomId?.host) {
+      history.push(roomId.host);
+    }
+  };
+  const isSDK = isSDKCheck();
+  const isWebCheck =
+    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
+
+  let onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const [dim, setDim] = React.useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
 
   return FpeShareComponent ? (
     <FpeShareComponent />
@@ -146,125 +315,7 @@ const Share = () => {
           <Spacer size={20} />
           <Text style={style.heading}>{meetingTitle}</Text>
           <Spacer size={40} />
-          {isSeparateHostLink ? (
-            <>
-              <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
-              <Spacer size={11} />
-              <View style={style.container}>
-                <View style={style.urlContainer}>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={[
-                      style.url,
-                      style.urlPadding,
-                      //@ts-ignore
-                      isWebCheck ? urlWeb : {opacity: 1},
-                    ]}>
-                    {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={style.iconContainer}
-                  onPress={() => {
-                    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE);
-                  }}>
-                  {clipboardIcon()}
-                </TouchableOpacity>
-              </View>
-              <Spacer size={14} />
-              {isDesktop && (
-                <Text style={style.helpText}>
-                  Share this with attendees you want to invite.
-                </Text>
-              )}
-              <Spacer size={25} />
-            </>
-          ) : (
-            <></>
-          )}
-          <>
-            <Text style={style.urlTitle}>{getHostLabel()}</Text>
-            <Spacer size={11} />
-            <View style={style.container}>
-              <View style={style.urlContainer}>
-                <Text
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  style={[
-                    style.url,
-                    style.urlPadding,
-                    //@ts-ignore
-                    isWebCheck ? urlWeb : {opacity: 1},
-                  ]}>
-                  {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
-                </Text>
-              </View>
-              <View style={style.iconContainer}>
-                <TouchableOpacity
-                  style={style.iconContainer}
-                  onPress={() => {
-                    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
-                  }}>
-                  {clipboardIcon()}
-                </TouchableOpacity>
-              </View>
-            </View>
-            <Spacer size={14} />
-            {isDesktop && (
-              <Text style={style.helpText}>
-                Share this with other co-hosts you want to invite.
-              </Text>
-            )}
-            <Spacer size={25} />
-          </>
-          {pstn ? (
-            <>
-              <Text style={style.urlTitle}>{pstnLabel}</Text>
-              <Spacer size={11} />
-              <View style={style.container}>
-                <View style={[style.urlContainer, style.urlPadding]}>
-                  <View>
-                    <Text
-                      style={[
-                        style.url,
-                        //@ts-ignore
-                        isWebCheck ? urlWeb : {opacity: 1},
-                      ]}>
-                      {pstnNumberLabel} - {pstn?.number}
-                    </Text>
-                  </View>
-                  <Spacer size={11} />
-                  <View>
-                    <Text
-                      style={[
-                        style.url,
-                        //@ts-ignore
-                        isWebCheck ? urlWeb : {opacity: 1},
-                      ]}>
-                      {pinLabel} - {pstn?.pin}
-                    </Text>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  style={style.iconContainer}
-                  onPress={() => {
-                    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN);
-                  }}>
-                  {clipboardIcon()}
-                </TouchableOpacity>
-              </View>
-              <Spacer size={14} />
-              {isDesktop && (
-                <Text style={style.helpText}>
-                  Share this phone number and pin to dial from phone.
-                </Text>
-              )}
-              <Spacer size={25} />
-            </>
-          ) : (
-            <></>
-          )}
+          <CopyMeetingInfo />
           <Spacer size={60} />
         </View>
         <View style={style.btnContainer}>
