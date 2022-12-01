@@ -11,10 +11,13 @@ import {
 import React, {SetStateAction} from 'react';
 
 import ImageIcon from '../atoms/ImageIcon';
-import {IconsInterface} from '../assets/Icons';
+import {IconsInterface} from '../atoms/CustomIcon';
+import ThemeConfig from '../theme';
 
 export interface ActionMenuItem {
   icon: keyof IconsInterface;
+  iconColor: string;
+  textColor: string;
   title: string;
   callback: () => void;
 }
@@ -46,15 +49,21 @@ const ActionMenu = (props: ActionMenuProps) => {
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>
         <View style={[styles.modalView, modalPosition]}>
-          {items.map(({icon, title, callback}, index) => (
+          {items.map(({icon, title, callback, iconColor, textColor}, index) => (
             <TouchableOpacity
               style={styles.row}
               onPress={callback}
               key={icon + index}>
               <View style={styles.iconContainer}>
-                <ImageIcon iconSize="medium" name={icon} />
+                <ImageIcon
+                  iconSize="medium"
+                  name={icon}
+                  tintColor={iconColor}
+                />
               </View>
-              <Text style={[styles.text]}>{title}</Text>
+              <Text style={[styles.text, textColor ? {color: textColor} : {}]}>
+                {title}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -69,7 +78,7 @@ const styles = StyleSheet.create({
   modalView: {
     position: 'absolute',
     width: 220,
-    backgroundColor: '#ffffff',
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     shadowColor: '#000',
     shadowOffset: {
@@ -83,7 +92,7 @@ const styles = StyleSheet.create({
   },
   row: {
     borderBottomWidth: 1,
-    borderBottomColor: '#EDEDED',
+    borderBottomColor: $config.CARD_LAYER_3_COLOR,
     flexDirection: 'row',
   },
   iconContainer: {
@@ -99,10 +108,10 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingVertical: 14,
-    color: '#1A1A1A',
-    fontSize: 16,
+    color: $config.SECONDARY_ACTION_COLOR,
+    fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 
   backDrop: {

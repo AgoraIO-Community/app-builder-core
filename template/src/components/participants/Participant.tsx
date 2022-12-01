@@ -81,6 +81,8 @@ const Participant = (props: ParticipantInterface) => {
     const items: ActionMenuItem[] = [
       {
         icon: 'chat',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
         callback: () => {
           setActionMenuVisible(false);
@@ -91,7 +93,10 @@ const Participant = (props: ParticipantInterface) => {
 
     if (isHost) {
       items.push({
-        icon: 'remoteEndCall',
+        icon: 'cancel',
+        iconColor: $config.SEMANTIC_ERROR,
+
+        textColor: $config.SEMANTIC_ERROR,
         title: 'Remove from meeting',
         callback: () => {
           setActionMenuVisible(false);
@@ -106,7 +111,9 @@ const Participant = (props: ParticipantInterface) => {
         raiseHandList[user.uid]?.role == ClientRole.Broadcaster
       ) {
         items.push({
-          icon: 'remoteEndCall',
+          icon: 'cancel',
+          iconColor: $config.SEMANTIC_ERROR,
+          textColor: $config.SEMANTIC_ERROR,
           title: 'demote to audience',
           callback: () => {
             setActionMenuVisible(false);
@@ -209,6 +216,7 @@ const Participant = (props: ParticipantInterface) => {
                   iconProps={{
                     name: 'more-menu',
                     iconSize: 'medium',
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
                   onPress={() => {
                     showModal();

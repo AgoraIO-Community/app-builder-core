@@ -23,7 +23,7 @@ import {
 } from 'react-native';
 import ThemeConfig from '../theme';
 import {primaryButton, primaryButtonText} from '../../theme.json';
-import {IconsInterface} from '../assets/icons';
+import {IconsInterface} from '../atoms/CustomIcon';
 import ImageIcon from '../atoms/ImageIcon';
 
 export interface PrimaryButtonProps extends PressableProps {
