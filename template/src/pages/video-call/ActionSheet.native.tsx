@@ -93,7 +93,7 @@ const ActionSheet = () => {
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
-        <BottomSheetView style={styles.content}>
+        <BottomSheetView>
           <ParticipantView />
         </BottomSheetView>
       </BottomSheetModal>
@@ -107,7 +107,7 @@ const ActionSheet = () => {
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
-        <BottomSheetView style={styles.content}>
+        <BottomSheetView>
           <SettingsView />
         </BottomSheetView>
       </BottomSheetModal>
