@@ -13,28 +13,20 @@ import React, {useContext} from 'react';
 import {TextInputProps, StyleSheet, TextInput, Platform} from 'react-native';
 import {isWebInternal} from '../utils/common';
 import {textInput} from '../../theme.json';
-import ColorContext from '../components/ColorContext';
 
-const PrimaryButton = (props: TextInputProps) => {
-  const {primaryColor} = useContext(ColorContext);
+const TextInputCustom = (props: TextInputProps) => {
   const {style, ...otherProps} = props;
   return (
     <TextInput
-      style={[
-        styles.textInput,
-        styles.textWrapFix,
-        style,
-        styles.noOutline,
-        {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR},
-      ]}
+      style={[styles.textInput, styles.textWrapFix, styles.noOutline, style]}
       placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
-      {...otherProps}
       autoCorrect={false}
+      {...otherProps}
     />
   );
 };
 
-export default PrimaryButton;
+export default TextInputCustom;
 
 const styles = StyleSheet.create({
   textInput,

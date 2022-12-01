@@ -16,6 +16,7 @@ import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
 import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
+import ThemeConfig from '../../theme';
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -53,11 +54,13 @@ const ChatParticipants = (props: any) => {
                 selectUser(uidAsNumber);
               }}>
               <View style={style.participantContainer}>
-                <UserAvatar
-                  name={name}
-                  containerStyle={style.userAvatarContainer}
-                  textStyle={style.userAvatarText}
-                />
+                <View style={style.bgContainerStyle}>
+                  <UserAvatar
+                    name={name}
+                    containerStyle={style.userAvatarContainer}
+                    textStyle={style.userAvatarText}
+                  />
+                </View>
                 <View style={style.participantTextContainer}>
                   <Text style={[style.participantText]}>{name}</Text>
                 </View>
@@ -73,7 +76,12 @@ const ChatParticipants = (props: any) => {
                     <></>
                   )
                 ) : (
-                  <ImageIcon name="chat" />
+                  <View style={{alignSelf: 'center', marginRight: 20}}>
+                    <ImageIcon
+                      name="chat"
+                      tintColor={$config.SECONDARY_ACTION_COLOR}
+                    />
+                  </View>
                 )}
               </View>
             </PlatformWrapper>
@@ -88,7 +96,9 @@ const PlatformWrapper = ({children, isHovered, setIsHovered, onPress}) => {
   return isWeb() ? (
     <div
       style={{
-        backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.04)' : 'transparent',
+        backgroundColor: isHovered
+          ? $config.CARD_LAYER_5_COLOR + '10'
+          : 'transparent',
         cursor: isHovered ? 'pointer' : 'auto',
       }}
       onMouseEnter={() => {
@@ -106,8 +116,8 @@ const PlatformWrapper = ({children, isHovered, setIsHovered, onPress}) => {
 };
 
 const style = StyleSheet.create({
-  userAvatarContainer: {
-    backgroundColor: '#021F3380',
+  bgContainerStyle: {
+    backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -115,11 +125,17 @@ const style = StyleSheet.create({
     marginLeft: 20,
     marginVertical: 16,
   },
+  userAvatarContainer: {
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
   userAvatarText: {
-    fontSize: 12,
+    fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 10,
     fontWeight: '400',
-    color: '#fff',
+    color: $config.FONT_COLOR,
   },
   participantContainer: {
     flexDirection: 'row',
@@ -133,16 +149,16 @@ const style = StyleSheet.create({
   },
   participantText: {
     flex: 1,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 14,
     lineHeight: 12,
-    color: '#000000',
+    color: $config.FONT_COLOR,
     textAlign: 'left',
     flexShrink: 1,
   },
   chatNotificationPrivate: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: $config.SEMANTIC_NETRUAL,
     borderRadius: 8,
     marginRight: 22,
     marginTop: 24,
@@ -151,12 +167,12 @@ const style = StyleSheet.create({
     height: 16,
   },
   chatNotificationCountText: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
     lineHeight: 12,
     textAlign: 'center',
-    color: '#FFFFFF',
+    color: $config.FONT_COLOR,
     paddingVertical: 2,
     paddingLeft: 8,
     paddingRight: 9,
