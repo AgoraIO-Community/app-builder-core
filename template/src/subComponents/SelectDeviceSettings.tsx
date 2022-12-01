@@ -18,6 +18,7 @@ import {useString} from '../utils/useString';
 import Spacer from '../atoms/Spacer';
 import IconDropdown from '../atoms/IconDropdown';
 import {usePreCall} from '../components/precall/usePreCall';
+import ThemeConfig from '../theme';
 // import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
@@ -188,33 +189,18 @@ export const SelectDeviceSettingsComponentsArray: [
 ] = [SelectVideoDevice, SelectAudioDevice];
 
 const style = StyleSheet.create({
-  popupPicker: {
-    // height: 30,
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-    fontSize: 14,
-    fontFamily: 'Source Sans Pro',
-  },
-  pickerItem: {
-    paddingLeft: 12,
-    paddingVertical: 24,
-    marginHorizontal: 8,
-    marginVertical: 20,
-    backgroundColor: '#FFFFFF',
-  },
   infoTxt: {
     textAlign: 'center',
     fontSize: 12,
     color: '#FF0000',
   },
   label: {
-    fontWeight: '600',
-    fontSize: 14,
-    color: '#181818',
-    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     marginBottom: 12,
-    lineHeight: 14,
+    lineHeight: ThemeConfig.FontSize.small,
   },
 });
 

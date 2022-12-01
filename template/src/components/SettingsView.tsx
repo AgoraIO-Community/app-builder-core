@@ -21,6 +21,7 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import OutlineButton from '../atoms/OutlineButton';
 import IconButton from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 const SettingsView = (props) => {
   const {
@@ -43,7 +44,7 @@ const SettingsView = (props) => {
         <IconButton
           iconProps={{
             name: 'close-rounded',
-            tintColor: '#000000',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           onPress={() => {
             setSidePanel(SidePanelType.None);
@@ -56,8 +57,8 @@ const SettingsView = (props) => {
         <View style={{paddingTop: 20}}>
           <SelectDeviceSettings />
         </View>
-        <View style={style.hrLine}></View>
-        {isHost ? (
+        {/* <View style={style.hrLine}></View> */}
+        {/* {isHost ? (
           <View
             style={{
               flex: 1,
@@ -78,7 +79,7 @@ const SettingsView = (props) => {
           </View>
         ) : (
           <></>
-        )}
+        )} */}
         <LanguageSelector />
       </ScrollView>
     </View>
@@ -108,30 +109,22 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#EDEDED',
+    borderBottomColor: $config.CARD_LAYER_3_COLOR,
   },
   mainHeading: {
-    alignSelf: 'center',
-    fontSize: 16,
+    fontSize: ThemeConfig.FontSize.normal,
     letterSpacing: 0.8,
-    lineHeight: 16,
-    fontFamily: 'Source Sans Pro',
+    lineHeight: ThemeConfig.FontSize.normal,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  main: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    justifyContent: 'space-evenly',
-    alignContent: 'center',
-    paddingVertical: 5,
-    flexGrow: 1,
-    paddingHorizontal: 20,
+    color: $config.FONT_COLOR,
+    alignSelf: 'center',
   },
   heading: {
-    color: '#000000',
-    fontFamily: 'Source Sans Pro',
-    fontSize: 14,
-    lineHeight: 14,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
     fontWeight: '600',
     textAlign: 'left',
   },
@@ -141,12 +134,15 @@ const style = StyleSheet.create({
     borderRadius: 12,
     marginLeft: 20,
     marginTop: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    borderWidth: 1,
     flex: 1,
-    shadowColor: '#000000',
+    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
+    overflow: 'hidden',
   },
   settingsViewNative: {
     position: 'absolute',
