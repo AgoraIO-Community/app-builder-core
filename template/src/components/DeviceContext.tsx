@@ -16,8 +16,8 @@ interface DeviceContext {
   selectedMic: string;
   deviceList: MediaDeviceInfo[];
   setDeviceList: (devices: MediaDeviceInfo[]) => void;
-  setUserPreferredMic: React.Dispatch<React.SetStateAction<string>>;
-  setUserPreferredCamera: React.Dispatch<React.SetStateAction<string>>;
+  setUserPreferredMic: (mic: string) => void;
+  setUserPreferredCamera: (cam: string) => void;
 }
 
 const DeviceContext = createContext(null as unknown as DeviceContext);
