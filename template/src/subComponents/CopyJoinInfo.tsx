@@ -26,6 +26,7 @@ import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import {CopyMeetingInfo} from '../components/Share';
 
 export interface CopyJoinInfoProps {
   showLabel?: boolean;
@@ -73,7 +74,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //   height: 20,
   // };
 
-  iconButtonProps.btnText = props.showLabel ? copyMeetingInviteButton : '';
+  iconButtonProps.btnText = showLabel ? copyMeetingInviteButton : '';
   iconButtonProps.style = Styles.localButton as Object;
 
   //}
@@ -87,15 +88,24 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
         setModalVisible={setModalVisible}
         title="Invite others to join this meeting"
         showCloseIcon={true}>
-        <InviteInfo />
-        <Spacer size={40} />
+        <CopyMeetingInfo showSubLabel={false} />
         <View style={style.btnContainer}>
+          <TertiaryButton
+            text={'CANCEL'}
+            containerStyle={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              maxWidth: 180,
+            }}
+            onPress={() => setModalVisible(false)}
+          />
+          <Spacer size={20} horizontal={true} />
           <PrimaryButton
-            iconName="clipboard"
             onPress={() =>
               copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
             }
-            text={'Copy Invitation'}
+            text={'COPY INVITATION'}
           />
         </View>
       </Popup>
@@ -118,8 +128,9 @@ const style = StyleSheet.create({
     height: 20,
   },
   btnContainer: {
-    width: '100%',
-    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 

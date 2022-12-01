@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 4,
+    justifyContent: 'center',
   },
   text: {
     color: $config.SECONDARY_ACTION_COLOR,

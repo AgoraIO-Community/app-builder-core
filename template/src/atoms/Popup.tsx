@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
+import ThemeConfig from '../theme';
 
 interface PopupProps extends ModalProps {
   title?: string;
@@ -52,6 +53,7 @@ const Popup = (props: PopupProps) => {
                 <IconButton
                   iconProps={{
                     name: 'close-rounded',
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
                   onPress={() => {
                     setModalVisible(false);
@@ -81,7 +83,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
-    backgroundColor: '#fff',
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
     borderRadius: 8,
     padding: 32,
     shadowColor: '#000',
@@ -100,8 +104,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#0C0C0C',
-    opacity: 0.6,
+    backgroundColor: $config.HARD_CODED_BLACK_COLOR + '60',
   },
   header: {
     flexDirection: 'row',
@@ -110,8 +113,8 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
-    color: '#181818',
-    fontFamily: 'Source Sans Pro',
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 24,
     lineHeight: 24,
     fontWeight: '600',

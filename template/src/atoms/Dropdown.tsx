@@ -11,9 +11,11 @@ import {
 import {isWeb} from '../utils/common';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
+import {IconsInterface} from './CustomIcon';
 
 interface Props {
   label: string;
+  icon?: keyof IconsInterface;
   data: Array<{label: string; value: string}>;
   onSelect: (item: {label: string; value: string}) => void;
   enabled: boolean;
@@ -26,6 +28,7 @@ const Dropdown: FC<Props> = ({
   onSelect,
   enabled,
   selectedValue,
+  icon,
 }) => {
   const DropdownButton = useRef();
   const [visible, setVisible] = useState(false);
@@ -108,7 +111,7 @@ const Dropdown: FC<Props> = ({
             style={[
               styles.dropdown,
               {
-                top: dropdownPos.top + 4,
+                top: dropdownPos.top,
                 left: dropdownPos.left,
                 width: dropdownPos.width,
               },
@@ -135,15 +138,29 @@ const Dropdown: FC<Props> = ({
         !enabled || !data || !data.length
           ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
           : {},
+        visible ? {borderBottomLeftRadius: 0, borderBottomRightRadius: 0} : {},
       ]}
       onPress={toggleDropdown}>
       {enabled && !noData ? renderDropdown() : <></>}
-      <View
-        onLayout={() => updateDropdownPosition()}
-        style={styles.dropdownOptionTextContainer}>
-        <Text numberOfLines={1} style={styles.dropdownOptionText}>
-          {(selected && selected.label) || label}
-        </Text>
+      <View style={{justifyContent: 'flex-start', flexDirection: 'row'}}>
+        {icon ? (
+          <View style={styles.dropdownIconContainer}>
+            <ImageIcon
+              name={icon}
+              iconSize="medium"
+              tintColor={$config.SEMANTIC_NETRUAL}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
+        <View
+          onLayout={() => updateDropdownPosition()}
+          style={[styles.dropdownOptionTextContainer]}>
+          <Text numberOfLines={1} style={styles.dropdownOptionText}>
+            {(selected && selected.label) || label}
+          </Text>
+        </View>
       </View>
       <View style={styles.dropdownIconContainer}>
         <ImageIcon
@@ -164,9 +181,6 @@ const PlatformWrapper = ({children, onPress}) => {
           ? $config.CARD_LAYER_5_COLOR + '20'
           : 'transparent',
         cursor: isHovered ? 'pointer' : 'auto',
-        borderRadius: 6,
-        marginLeft: 8,
-        marginRight: 8,
       }}
       onMouseEnter={() => {
         setIsHovered(true);
@@ -191,48 +205,50 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: 12,
+    paddingLeft: 12,
+    paddingRight: 20,
+    justifyContent: 'space-between',
   },
   dropdownOptionTextContainer: {
-    flex: 0.8,
-    justifyContent: 'center',
     alignSelf: 'center',
   },
   dropdownOptionText: {
-    flex: 1,
     textAlign: 'left',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: ThemeConfig.FontSize.small,
     color: $config.FONT_COLOR,
-    paddingLeft: 20,
-    paddingVertical: 23,
+    paddingLeft: 8,
+    paddingVertical: 20,
   },
   dropdownIconContainer: {
-    flex: 0.2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignSelf: 'center',
   },
   dropdown: {
     position: 'absolute',
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_2_COLOR,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderLeftColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderRightColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 2,
     shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOffset: {width: 5, height: 5},
     shadowOpacity: 0.07,
     shadowRadius: 20,
     elevation: 5,
-    paddingVertical: 10,
   },
   overlay: {
     width: '100%',
     height: '100%',
   },
   itemContainer: {
-    //backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    marginHorizontal: 8,
     minHeight: 40,
     flex: 1,
     flexDirection: 'row',
@@ -249,7 +265,7 @@ const styles = StyleSheet.create({
     lineHeight: ThemeConfig.FontSize.normal,
     color: $config.SECONDARY_ACTION_COLOR,
     paddingVertical: 12,
-    paddingLeft: 12,
+    paddingHorizontal: 15,
   },
   itemTextSelected: {
     fontWeight: '400',
