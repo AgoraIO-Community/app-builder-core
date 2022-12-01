@@ -20,6 +20,7 @@ import {useCustomization} from 'customization-implementation';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 
 export interface ChatSendButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -45,14 +46,13 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   return props?.render ? (
     props.render(onPress)
   ) : (
-    <TouchableOpacity
-      style={[
-        style.chatInputButton,
-        {backgroundColor: inputActive ? '#FFFFFF' : 'rgba(0, 0, 0, 0.06)'},
-      ]}
-      onPress={onPress}>
+    <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
       <ImageIcon
-        tintColor={inputActive ? '#099DFD' : '#BABABA'}
+        tintColor={
+          inputActive
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
+            : $config.SEMANTIC_NETRUAL
+        }
         name={'send'}
       />
     </TouchableOpacity>
@@ -110,20 +110,21 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
         borderRadius: 0,
         borderBottomLeftRadius: 12,
         borderWidth: 0,
-        backgroundColor: inputActive ? '#FFFFFF' : 'rgba(0, 0, 0, 0.06)',
-        color: '#000000',
+        color: $config.FONT_COLOR,
         textAlign: 'left',
         paddingVertical: 21,
         paddingLeft: 20,
         flex: 1,
         alignSelf: 'center',
-        fontFamily: 'Source Sans Pro',
+        fontFamily: ThemeConfig.FontFamily.sansPro,
         fontWeight: '400',
       }}
       blurOnSubmit={false}
       onSubmitEditing={onSubmitEditing}
       placeholder={chatMessageInputPlaceholder}
-      placeholderTextColor={'rgba(0,0,0,0.5)'}
+      placeholderTextColor={
+        $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+      }
       autoCorrect={false}
     />
   );
@@ -202,21 +203,16 @@ const ChatInput = (props: {
 const style = StyleSheet.create({
   inputActiveView: {
     borderTopWidth: 2,
-    borderColor: '#099DFD',
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   inputView: {
     flex: 1,
     flexDirection: 'row',
   },
-  chatInput: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: $config.PRIMARY_FONT_COLOR,
-    color: $config.PRIMARY_FONT_COLOR,
-  },
   chatInputButton: {
     flex: 0.1,
     borderBottomRightRadius: 12,
+    alignSelf: 'center',
   },
 });
 export default ChatInput;

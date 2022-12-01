@@ -1,4 +1,4 @@
-import {IconsInterface} from '../assets/Icons';
+import {IconsInterface} from '../atoms/CustomIcon';
 import ImageIcon from './ImageIcon';
 import React from 'react';
 import {

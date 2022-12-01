@@ -57,30 +57,12 @@ const Participant = (props: ParticipantInterface) => {
     data: {isHost},
   } = useMeetingInfo();
 
-  const bgContainerStyle = {
-    background: $config.CARD_LAYER_5_COLOR + '20',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginRight: 8,
-  };
-  const containerStyle = {
-    background: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-  };
-  const textStyle = {
-    fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 10,
-    fontWeight: '400',
-    color: $config.FONT_COLOR,
-  };
-
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [
       {
         icon: 'chat',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
         callback: () => {
           setActionMenuVisible(false);
@@ -91,7 +73,10 @@ const Participant = (props: ParticipantInterface) => {
 
     if (isHost) {
       items.push({
-        icon: 'remoteEndCall',
+        icon: 'cancel',
+        iconColor: $config.SEMANTIC_ERROR,
+
+        textColor: $config.SEMANTIC_ERROR,
         title: 'Remove from meeting',
         callback: () => {
           setActionMenuVisible(false);
@@ -106,7 +91,9 @@ const Participant = (props: ParticipantInterface) => {
         raiseHandList[user.uid]?.role == ClientRole.Broadcaster
       ) {
         items.push({
-          icon: 'remoteEndCall',
+          icon: 'cancel',
+          iconColor: $config.SEMANTIC_ERROR,
+          textColor: $config.SEMANTIC_ERROR,
           title: 'demote to audience',
           callback: () => {
             setActionMenuVisible(false);
@@ -170,11 +157,11 @@ const Participant = (props: ParticipantInterface) => {
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>
           <View style={styles.userInfoContainer}>
-            <View style={bgContainerStyle}>
+            <View style={styles.bgContainerStyle}>
               <UserAvatar
                 name={name}
-                containerStyle={containerStyle}
-                textStyle={textStyle}
+                containerStyle={styles.containerStyle}
+                textStyle={styles.textStyle}
               />
             </View>
             <View style={{alignSelf: 'center'}}>
@@ -209,6 +196,7 @@ const Participant = (props: ParticipantInterface) => {
                   iconProps={{
                     name: 'more-menu',
                     iconSize: 'medium',
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
                   onPress={() => {
                     showModal();
@@ -274,6 +262,25 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 };
 
 const styles = StyleSheet.create({
+  bgContainerStyle: {
+    backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 8,
+  },
+  containerStyle: {
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  textStyle: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 10,
+    fontWeight: '400',
+    color: $config.FONT_COLOR,
+  },
   participantNameText: {
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.tiny,

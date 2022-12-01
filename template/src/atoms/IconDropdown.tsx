@@ -7,7 +7,7 @@ import {
   Modal,
   View,
 } from 'react-native';
-import {IconsInterface} from '../assets/Icons';
+import {IconsInterface} from '../atoms/CustomIcon';
 import ImageIcon from '../atoms/ImageIcon';
 
 interface Props {

@@ -11,7 +11,7 @@
 */
 import React, {useContext, useEffect} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import {PropsContext, ClientRole, IconsInterface} from '../../agora-rn-uikit';
+import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 import {useString} from '../utils/useString';
