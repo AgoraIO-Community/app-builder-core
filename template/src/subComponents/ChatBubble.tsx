@@ -17,6 +17,7 @@ import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWebInternal} from '../utils/common';
 import {useRender} from 'customization-api';
+import ThemeConfig from '../theme';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {renderList} = useRender();
@@ -94,38 +95,38 @@ const ChatBubble = (props: ChatBubbleProps) => {
 
 const style = StyleSheet.create({
   remoteUsernameStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: ThemeConfig.FontSize.small,
     textAlign: 'left',
-    color: '#000000',
+    color: $config.FONT_COLOR,
     alignSelf: 'flex-start',
     marginTop: 20,
     marginBottom: 8,
     marginHorizontal: 20,
   },
   localUsernameStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: ThemeConfig.FontSize.small,
     textAlign: 'left',
-    color: '#000000',
+    color: $config.FONT_COLOR,
     alignSelf: 'flex-end',
     marginTop: 20,
     marginBottom: 8,
     marginHorizontal: 20,
   },
   timestampStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 12,
+    fontSize: ThemeConfig.FontSize.tiny,
     textAlign: 'right',
-    color: 'rgba(0, 0, 0, 0.3)',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
     marginTop: 4,
     marginBottom: 8,
   },
   chatBubbleRemoteView: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-start',
@@ -140,7 +141,7 @@ const style = StyleSheet.create({
     borderTopRightRadius: 12,
   },
   chatBubbleLocalView: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-end',
@@ -155,11 +156,11 @@ const style = StyleSheet.create({
     borderTopRightRadius: 0,
   },
   messageStyle: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 14,
+    fontSize: ThemeConfig.FontSize.small,
     lineHeight: 18,
-    color: '#000000',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
   },
 });
 

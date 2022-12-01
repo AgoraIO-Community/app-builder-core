@@ -54,6 +54,7 @@ export interface IconsInterface {
   'list-view': string;
   expand: string;
   collapse: string;
+  cancel: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

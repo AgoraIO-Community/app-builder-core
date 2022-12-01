@@ -35,6 +35,7 @@ import {
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -160,7 +161,10 @@ const Chat = (props?: ChatProps) => {
         <ChatBeforeView />
         <View style={style.header}>
           <IconButton
-            iconProps={{name: 'back-btn', tintColor: '#000000'}}
+            iconProps={{
+              name: 'back-btn',
+              tintColor: $config.SECONDARY_ACTION_COLOR,
+            }}
             style={{
               opacity: privateActive ? 1 : 0,
             }}
@@ -195,7 +199,7 @@ const Chat = (props?: ChatProps) => {
           <IconButton
             iconProps={{
               name: 'close-square',
-              tintColor: '#000000',
+              tintColor: $config.SECONDARY_ACTION_COLOR,
             }}
             onPress={() => {
               setSidePanel(SidePanelType.None);
@@ -237,7 +241,7 @@ const Chat = (props?: ChatProps) => {
 
 const style = StyleSheet.create({
   buttonHolder: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: $config.HARD_CODED_BLACK_COLOR + '20',
     borderRadius: 12,
     minWidth: 160,
     flexDirection: 'row',
@@ -252,7 +256,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#EDEDED',
+    borderBottomColor: $config.CARD_LAYER_3_COLOR,
     alignItems: 'center',
     minHeight: 60,
   },
@@ -262,12 +266,15 @@ const style = StyleSheet.create({
     borderRadius: 12,
     marginLeft: 20,
     marginTop: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderColor: $config.CARD_LAYER_3_COLOR,
     flex: 1,
-    shadowColor: '#000000',
+    borderWidth: 1,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
+    overflow: 'hidden',
   },
   chatViewNative: {
     position: 'absolute',
@@ -298,7 +305,7 @@ const style = StyleSheet.create({
   chatInputContainer: {},
   groupActive: {
     margin: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
   },
   group: {
@@ -306,7 +313,7 @@ const style = StyleSheet.create({
   },
   privateActive: {
     margin: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
   },
   private: {
@@ -315,23 +322,23 @@ const style = StyleSheet.create({
   groupTextActive: {
     paddingHorizontal: 23,
     paddingVertical: 10,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
-    color: '#099DFD',
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
   groupText: {
     paddingHorizontal: 23,
     paddingVertical: 10,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
-    color: '#1A1A1A',
+    color: $config.FONT_COLOR,
   },
   chatNotification: {
     width: 8,
     height: 8,
-    backgroundColor: '#FF414D',
+    backgroundColor: $config.SEMANTIC_ERROR,
     borderRadius: 30,
     position: 'absolute',
     right: 5,
