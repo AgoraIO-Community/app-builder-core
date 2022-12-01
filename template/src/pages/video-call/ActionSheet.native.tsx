@@ -72,44 +72,44 @@ const ActionSheet = () => {
       </BottomSheetModal>
       {/* Chat  */}
       <BottomSheetModal
-        snapPoints={['50%']}
+        snapPoints={['100%']}
         name="ChatSheet"
         ref={chatSheetRef}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
-        <BottomSheetScrollView style={styles.content}>
+        <BottomSheetView>
           <Chat />
-        </BottomSheetScrollView>
+        </BottomSheetView>
       </BottomSheetModal>
 
       {/* Participants  */}
       <BottomSheetModal
-        snapPoints={['50%']}
+        snapPoints={['100%']}
         ref={participantsSheetRef}
         name="ParticipantsSheet"
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
-        <BottomSheetScrollView style={styles.content}>
+        <BottomSheetView style={styles.content}>
           <ParticipantView />
-        </BottomSheetScrollView>
+        </BottomSheetView>
       </BottomSheetModal>
 
       {/* Settings  */}
       <BottomSheetModal
-        snapPoints={['50%']}
+        snapPoints={['100%']}
         ref={settingsSheetRef}
         name="SettingsSheet"
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
-        <BottomSheetScrollView style={styles.content}>
+        <BottomSheetView style={styles.content}>
           <SettingsView />
-        </BottomSheetScrollView>
+        </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>
   );
@@ -119,7 +119,7 @@ export default ActionSheet;
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   row: {
     flexDirection: 'row',
@@ -148,24 +148,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   backgroundStyle: {
-    backgroundColor: '#FFF', //TODO: to be derived from configs for dark theme
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
 
   handleIndicatorStyle: {
-    backgroundColor: '#A0B9CA',
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     width: 40,
     height: 4,
-  },
-  iconWithText: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconText: {
-    color: $config.PRIMARY_COLOR,
-    marginTop: 8,
-    fontSize: 12,
-    fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
-    textAlign: 'center',
   },
 });

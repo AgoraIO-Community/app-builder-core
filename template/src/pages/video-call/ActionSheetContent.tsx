@@ -116,11 +116,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 24,
     paddingHorizontal: 16,
-    borderColor: '#EDF0F1',
+    borderColor: $config.CARD_LAYER_3_COLOR,
     flexWrap: 'wrap',
   },
   iconContainer: {
-    backgroundColor: '#F0F4F6', //TODO : adjust color as theme
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -130,12 +130,6 @@ const styles = StyleSheet.create({
   emptyContainer: {
     width: 50,
     height: 50,
-  },
-  container: {
-    shadowColor: '#000000',
-    shadowOffset: {width: 0, height: -4},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   backgroundStyle: {
     backgroundColor: '#FFF', //TODO: to be derived from configs for dark theme
@@ -151,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconText: {
-    color: $config.PRIMARY_COLOR,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
     marginTop: 8,
     fontSize: 12,
     fontWeight: '400',
