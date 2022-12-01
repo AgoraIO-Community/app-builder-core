@@ -29,7 +29,9 @@ const InfoBubble = (props: InfoBubbleProps) => {
           position: 'relative',
           marginTop: -3,
           marginLeft: -3,
-          background: toolTipVisible ? 'rgba(85, 85, 85, 0.1)' : 'transparent',
+          background: toolTipVisible
+            ? $config.HARD_CODED_BLACK_COLOR + '20'
+            : 'transparent',
           width: 28,
           height: 28,
           borderRadius: '50%',
@@ -69,7 +71,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
                   height: styles.downsideTriangleIcon.height,
                 }}
                 name={'downside-triangle'}
-                tintColor={'#F2F2F2'}
+                tintColor={$config.CARD_LAYER_3_COLOR}
               />
             </View>
           </>
@@ -80,7 +82,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
           <ImageIcon
             iconSize="medium"
             name={'info'}
-            tintColor={'rgba(186, 186, 186, 0.5)'}
+            tintColor={$config.SEMANTIC_NETRUAL}
           />
         </View>
       </div>
@@ -97,29 +99,29 @@ const styles = StyleSheet.create({
   },
   downsideTriangleIconContainer: {
     position: 'absolute',
-    top: -20,
-    left: 2,
+    top: -24,
+    left: -2,
     zIndex: 999,
   },
   downsideTriangleIcon: {
     width: 27,
     height: 36,
-    shadowColor: '#000000',
-    shadowOpacity: 0.1,
-    shadowOffset: {width: 0, height: 2},
-    shadowRadius: 2,
+    // shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    // shadowOpacity: 0.1,
+    // shadowOffset: {width: 0, height: 2},
+    // shadowRadius: 2,
   },
   textContainer: {
     flex: 1,
     position: 'absolute',
     zIndex: 998,
-    backgroundColor: '#F2F2F2',
-    borderWidth: 1,
-    borderColor: '#F2F2F2',
-    shadowColor: '#000000',
-    shadowOpacity: 0.1,
-    shadowOffset: {width: 0, height: 4},
-    shadowRadius: 4,
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    // borderWidth: 1,
+    // borderColor: '#F2F2F2',
+    // shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    // shadowOpacity: 0.1,
+    // shadowOffset: {width: 0, height: 4},
+    // shadowRadius: 4,
     borderRadius: 12,
     top: -87,
   },
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.normal,
     lineHeight: 24,
     textAlign: 'center',
-    color: '#333333',
+    color: $config.FONT_COLOR,
     padding: 24,
   },
 });

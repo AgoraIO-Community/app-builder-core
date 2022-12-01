@@ -39,7 +39,9 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
     <Pressable
       style={[
         styles.container,
-        props?.disabled ? {opacity: ThemeConfig.EmphasisOpacity.disabled} : {},
+        props?.disabled
+          ? {backgroundColor: $config.SEMANTIC_NETRUAL}
+          : {backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR},
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
@@ -76,7 +78,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 12,
     minWidth: 250,
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   text: {
     color: $config.PRIMARY_ACTION_TEXT_COLOR,
