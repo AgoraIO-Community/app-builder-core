@@ -6,11 +6,14 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
+import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
 
 interface VideoRendererProps {
   user: RenderInterface;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
+  const isActiveSpeaker = useIsActiveSpeaker();
+
   return (
     <View style={maxStyle.container}>
       <ScreenShareNotice uid={user.uid} />
@@ -27,7 +30,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
       />
       <MaxVideoView
         fallback={() => {
-          return FallbackLogo(user?.name);
+          return FallbackLogo(user?.name, isActiveSpeaker(user.uid));
         }}
         user={user}
         key={user.uid}

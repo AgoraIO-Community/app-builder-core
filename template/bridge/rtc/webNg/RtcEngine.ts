@@ -166,6 +166,7 @@ if ($config.LOG_ENABLED) {
 }
 
 export default class RtcEngine {
+  private activeSpeakerUid: number;
   public appId: string;
   // public AgoraRTC: any;
   public client: any | IAgoraRTCClient;
@@ -178,6 +179,7 @@ export default class RtcEngine {
     ['RemoteAudioStateChanged', () => null],
     ['RemoteVideoStateChanged', () => null],
     ['NetworkQuality', () => null],
+    ['ActiveSpeaker', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -269,6 +271,11 @@ export default class RtcEngine {
       //     audioError ? 'No Microphone found' : 'No Video device found',
       //   );
     }
+  }
+
+  async enableAudioVolumeIndication(interval, smooth, isLocal) {
+    AgoraRTC.setParameter('AUDIO_VOLUME_INDICATION_INTERVAL', interval);
+    this.client.enableAudioVolumeIndicator();
   }
 
   async publish() {
@@ -404,6 +411,35 @@ export default class RtcEngine {
       }
     });
 
+    this.client.on('volume-indicator', (volumes) => {
+      const highestvolumeObj = volumes.reduce(
+        (highestVolume, volume, index) => {
+          if (highestVolume === null) {
+            return volume;
+          } else {
+            if (volume.level > highestVolume.level) {
+              return volume;
+            }
+            return highestVolume;
+          }
+          // console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
+        },
+        null,
+      );
+      const activeSpeakerUid = highestvolumeObj
+        ? highestvolumeObj.uid
+        : undefined;
+
+      //To avoid infinite calling dispatch checking if condition.
+      if (this.activeSpeakerUid !== activeSpeakerUid) {
+        const activeSpeakerCallBack = this.eventsMap.get(
+          'ActiveSpeaker',
+        ) as callbackType;
+        activeSpeakerCallBack(activeSpeakerUid);
+        this.activeSpeakerUid = activeSpeakerUid;
+      }
+    });
+
     // this.client.on('stream-fallback', (evt))
     this.client.on('stream-type-changed', function (uid, streamType) {
       console.log('[fallback]: ', uid, streamType);
@@ -468,7 +504,8 @@ export default class RtcEngine {
       event === 'ScreenshareStopped' ||
       event === 'RemoteAudioStateChanged' ||
       event === 'RemoteVideoStateChanged' ||
-      event === 'NetworkQuality'
+      event === 'NetworkQuality' ||
+      event === 'ActiveSpeaker'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }

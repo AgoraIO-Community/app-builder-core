@@ -55,6 +55,7 @@ export interface IconsInterface {
   expand: string;
   collapse: string;
   cancel: string;
+  'active-speaker': string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
