@@ -6,6 +6,8 @@ import {RenderInterface} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
 import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import {useString} from '../../utils/useString';
+import {useRender} from 'customization-api';
+import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
 
 interface NameWithMicIconProps {
   user: RenderInterface;
@@ -14,6 +16,7 @@ interface NameWithMicIconProps {
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
   const {user} = props;
   const {height, width} = useWindowDimensions();
+  const isActiveSpeaker = useIsActiveSpeaker();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
@@ -21,9 +24,17 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
     <View style={style.container}>
       <View>
         <ImageIcon
-          name={user.audio ? 'mic-on' : 'mic-off'}
+          name={
+            isActiveSpeaker(user.uid)
+              ? 'active-speaker'
+              : user.audio
+              ? 'mic-on'
+              : 'mic-off'
+          }
           tintColor={
-            user.audio
+            isActiveSpeaker(user.uid)
+              ? $config.PRIMARY_ACTION_BRAND_COLOR
+              : user.audio
               ? $config.PRIMARY_ACTION_BRAND_COLOR
               : $config.SEMANTIC_ERROR
           }

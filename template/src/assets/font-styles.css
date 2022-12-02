@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?5j9wdh') format('truetype');
+  src: url('fonts/icomoon.ttf?2jz7tv') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -22,6 +22,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-active-speaker:before {
+  content: '\e903';
+  color: #099dfd;
+}
 .icon-expand:before {
   content: '\e913';
   color: #fff;
@@ -38,10 +42,6 @@
 }
 .icon-back-btn:before {
   content: '\e902';
-}
-.icon-cancel:before {
-  content: '\e903';
-  color: #ff414d;
 }
 .icon-chat:before {
   content: '\e904';
