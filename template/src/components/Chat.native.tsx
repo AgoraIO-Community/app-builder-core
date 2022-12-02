@@ -37,10 +37,9 @@ import {
   ChatTextInputProps,
   ChatSendButtonProps,
 } from '../subComponents/ChatInput';
-import {BtnTemplate} from '../../agora-rn-uikit';
-import {useSidePanel} from '../utils/useSidePanel';
-import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useBottomSheet} from '@gorhom/bottom-sheet';
+import IconButton from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -61,8 +60,7 @@ const Chat = (props?: ChatProps) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  const {setSidePanel} = useSidePanel();
-  const {close} = useBottomSheet();
+  const {close} = useBottomSheet(); //TODO bn - handle for recat spring bottom sheet
 
   const {
     groupActive,
@@ -151,137 +149,114 @@ const Chat = (props?: ChatProps) => {
   });
 
   return (
-    <>
-      <View
-        style={
-          isWebInternal()
-            ? !isSmall
-              ? style.chatView
-              : style.chatViewNative
-            : style.chatViewNative
-        }>
-        {/**
-         * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
-         */}
-        <ChatBeforeView />
-        <View style={style.header}>
-          <BtnTemplate
-            styleIcon={style.closeIcon}
-            style={{
-              opacity: privateActive ? 1 : 0,
-            }}
-            name={'backBtn'}
-            onPress={() => {
-              setPrivateActive(false);
-            }}
-          />
-          <View style={style.buttonHolder}>
-            <TouchableOpacity
-              onPress={selectGroup}
-              style={groupActive ? [style.groupActive] : [style.group]}>
-              {unreadGroupMessageCount !== 0 ? (
-                <View style={style.chatNotification} />
-              ) : null}
-              <Text
-                style={groupActive ? style.groupTextActive : style.groupText}>
-                {groupChatLabel}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={selectPrivate}
-              style={!groupActive ? [style.privateActive] : [style.private]}>
-              {unreadPrivateMessageCount !== 0 ? (
-                <View style={style.chatNotification} />
-              ) : null}
-              <Text
-                style={!groupActive ? style.groupTextActive : style.groupText}>
-                {privateChatLabel}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <BtnTemplate
-            styleIcon={style.closeIcon}
-            name={'closeRounded'}
-            onPress={() => {
-              // setSidePanel(SidePanelType.None);
-              close();
-            }}
-          />
+    <View style={style.chatViewNative}>
+      {/**
+       * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
+       */}
+      <ChatBeforeView />
+      <View style={style.header}>
+        <IconButton
+          iconProps={{name: 'back-btn', tintColor: '#fff'}}
+          style={{
+            opacity: privateActive ? 1 : 0,
+          }}
+          onPress={() => {
+            setPrivateActive(false);
+          }}
+        />
+        <View style={style.buttonHolder}>
+          <TouchableOpacity
+            onPress={selectGroup}
+            style={groupActive ? [style.groupActive] : [style.group]}>
+            {unreadGroupMessageCount !== 0 ? (
+              <View style={style.chatNotification} />
+            ) : null}
+            <Text style={groupActive ? style.groupTextActive : style.groupText}>
+              {groupChatLabel}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={selectPrivate}
+            style={!groupActive ? [style.privateActive] : [style.private]}>
+            {unreadPrivateMessageCount !== 0 ? (
+              <View style={style.chatNotification} />
+            ) : null}
+            <Text
+              style={!groupActive ? style.groupTextActive : style.groupText}>
+              {privateChatLabel}
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {groupActive ? (
-          <>
-            <ChatContainer {...props} />
-            <View>
-              <View style={style.chatInputContainer}>
-                <ChatInput {...props} />
-              </View>
-            </View>
-          </>
-        ) : (
-          <>
-            {!privateActive ? (
-              <ChatParticipants selectUser={selectUser} />
-            ) : (
-              <>
-                <ChatContainer {...props} />
-                <View>
-                  <View style={style.chatInputContainer}>
-                    <ChatInput {...props} />
-                  </View>
-                </View>
-              </>
-            )}
-          </>
-        )}
-        <ChatAfterView />
+        <IconButton
+          style={style.closeIcon}
+          iconProps={{
+            name: 'close-square',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          }}
+          onPress={() => {
+            close();
+          }}
+        />
       </View>
-    </>
+
+      {groupActive ? (
+        <>
+          <ChatContainer {...props} />
+          <View>
+            <View style={style.chatInputContainer}>
+              <ChatInput {...props} />
+            </View>
+          </View>
+        </>
+      ) : (
+        <>
+          {!privateActive ? (
+            <ChatParticipants selectUser={selectUser} />
+          ) : (
+            <>
+              <ChatContainer {...props} />
+              <View>
+                <View style={style.chatInputContainer}>
+                  <ChatInput {...props} />
+                </View>
+              </View>
+            </>
+          )}
+        </>
+      )}
+      <ChatAfterView />
+    </View>
   );
 };
 
 const style = StyleSheet.create({
   buttonHolder: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#00000020',
     borderRadius: 12,
     minWidth: 160,
     flexDirection: 'row',
+    //marginLeft: 'auto',
   },
   closeIcon: {
-    width: 24,
-    height: 24,
+    // marginLeft: 'auto',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#EDEDED',
+    borderBottomColor: $config.CARD_LAYER_3_COLOR,
     alignItems: 'center',
-    minHeight: 60,
+    justifyContent: 'space-between',
   },
-  chatView: {
-    maxWidth: '20%',
-    minWidth: 338,
-    borderRadius: 12,
-    marginLeft: 20,
-    marginTop: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    flex: 1,
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
-  },
+
   chatViewNative: {
-    position: 'absolute',
     zIndex: 5,
     width: '100%',
     height: '100%',
     right: 0,
     bottom: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
   heading: {
     backgroundColor: $config.SECONDARY_FONT_COLOR,
@@ -303,7 +278,7 @@ const style = StyleSheet.create({
   chatInputContainer: {},
   groupActive: {
     margin: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
   },
   group: {
@@ -311,7 +286,7 @@ const style = StyleSheet.create({
   },
   privateActive: {
     margin: 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
   },
   private: {
@@ -323,7 +298,7 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontWeight: '600',
     fontSize: 12,
-    color: '#099DFD',
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
   groupText: {
     paddingHorizontal: 23,
@@ -331,12 +306,12 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontWeight: '600',
     fontSize: 12,
-    color: '#1A1A1A',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.high,
   },
   chatNotification: {
     width: 8,
     height: 8,
-    backgroundColor: '#FF414D',
+    backgroundColor: '#FF414D', //TODO: bn- update to semantic color
     borderRadius: 30,
     position: 'absolute',
     right: 5,

@@ -7,13 +7,14 @@
     --rsbs-ml: env(safe-area-inset-left);
     --rsbs-mr: env(safe-area-inset-right);
     --rsbs-overlay-rounded: 16px;
+    --handleColor: $config.PRIMARY_ACTION_BRAND_COLOR;
   }
   
   [data-rsbs-overlay] {
     border-top-left-radius: var(--rsbs-overlay-rounded);
     border-top-right-radius: var(--rsbs-overlay-rounded);
     display: flex;
-    background: var(--rsbs-bg);
+    background: var(--sheet-background); /* var(--rsbs-bg);*/
     flex-direction: column;
     height: var(--rsbs-overlay-h);
     transform: translate3d(0, var(--rsbs-overlay-translate-y), 0);
@@ -93,7 +94,7 @@
     left: 50%;
     transform: translateX(-50%);
     border-radius: 2px;
-    background-color: var(--rsbs-handle-bg);
+    background-color: var(--handle-background); /*var(--rsbs-handle-bg); */
   }
   @media (min-resolution: 2dppx) {
     [data-rsbs-header]:before {

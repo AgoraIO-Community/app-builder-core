@@ -32,6 +32,8 @@ import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
 import {isAndroid, isIOS} from '../utils/common';
 import {useBottomSheet} from '@gorhom/bottom-sheet';
+import IconButton from '../atoms/IconButton';
+import ThemeConfig from '../theme';
 
 const ParticipantView = () => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
@@ -56,22 +58,15 @@ const ParticipantView = () => {
   const isSmall = dim[0] < 700;
   const {close} = useBottomSheet();
   return (
-    <View
-      testID="videocall-participants"
-      style={
-        isWebInternal()
-          ? isSmall
-            ? style.participantViewNative
-            : style.participantView
-          : style.participantViewNative
-      }>
+    <View testID="videocall-participants" style={style.participantView}>
       <View style={style.header}>
         <Text style={style.mainHeading}>{participantsLabel}</Text>
-        <BtnTemplate
-          styleIcon={style.closeIcon}
-          name={'closeRounded'}
+        <IconButton
+          iconProps={{
+            name: 'close-rounded',
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+          }}
           onPress={() => {
-            //setSidePanel(SidePanelType.None);
             close();
           }}
         />
@@ -143,7 +138,7 @@ const ParticipantView = () => {
       </ScrollView>
 
       <View style={style.footer}>
-        <CopyJoinInfo showLabel={false} />
+        <CopyJoinInfo showTeritaryButton />
         {isHost && (
           <>
             <Spacer horizontal size={8} />
@@ -157,17 +152,9 @@ const ParticipantView = () => {
 
 const style = StyleSheet.create({
   participantView: {
-    maxWidth: '20%',
-    minWidth: 338,
-    borderRadius: 12,
-    marginLeft: 20,
-    marginTop: 10,
-    flex: 1,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
+    // borderWidth: 1,
+    // borderColor: 'yellow',
+    height: '100%',
   },
   closeIcon: {
     width: 24,
@@ -187,7 +174,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F2F2F2',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
 
   participantViewNative: {
@@ -210,6 +197,14 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
     fontWeight: '600',
     color: $config.PRIMARY_FONT_COLOR,
+    alignSelf: 'center',
+
+    fontSize: ThemeConfig.FontSize.normal,
+    letterSpacing: 0.8,
+    lineHeight: ThemeConfig.FontSize.normal,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    color: $config.FONT_COLOR,
     alignSelf: 'center',
   },
 });
