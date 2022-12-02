@@ -15,10 +15,23 @@ import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
 import ChatContext from '../../components/ChatContext';
 import {numFormatter} from '../../utils';
+import IconButton from '../../atoms/IconButton';
+import {useLayout} from '../../utils/useLayout';
+import useLayoutsData from '../../pages/video-call/useLayoutsData';
+import {useChangeDefaultLayout} from '../../pages/video-call/DefaultLayouts';
 
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, updateActionSheet, isExpanded} = props;
   const {onlineUsersCount} = useContext(ChatContext);
+  const layouts = useLayoutsData();
+  const {currentLayout} = useLayout();
+  const changeLayout = useChangeDefaultLayout();
+  const layout = layouts.findIndex((item) => item.name === currentLayout);
+
+  const handleLayoutChange = () => {
+    console.warn('current layout', layouts[layout]?.iconName);
+    changeLayout();
+  };
   return (
     <View>
       <View style={[styles.row, {borderBottomWidth: 1}]}>
@@ -86,9 +99,19 @@ const ActionSheetContent = (props) => {
         {/* List view */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <ImageIcon name={'list-view'} tintColor={$config.PRIMARY_COLOR} />
+            <IconButton
+              onPress={handleLayoutChange}
+              iconProps={{
+                name:
+                  layouts[layout]?.iconName === 'grid-layout'
+                    ? 'layout'
+                    : 'list-view',
+                tintColor: $config.PRIMARY_COLOR,
+              }}
+            />
+            {/* layout */}
           </View>
-          <Text style={styles.iconText}>List View</Text>
+          <Text style={styles.iconText}>Layout</Text>
         </View>
         {/* settings */}
         <View style={styles.iconWithText}>
