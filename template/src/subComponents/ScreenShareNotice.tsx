@@ -16,6 +16,7 @@ import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import {useString} from '../utils/useString';
 import {useScreenshare} from './screenshare/useScreenshare';
 import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
 /**
  *
  * @param uid - uid of the user
@@ -40,7 +41,11 @@ function ScreenShareNotice({uid}: {uid: UidType}) {
         style={styles.btnContainer}
         onPress={() => stopUserScreenShare()}>
         <View style={styles.iconContainer}>
-          <ImageIcon name={'closeRounded'} />
+          <ImageIcon
+            customSize={{width: 20, height: 16}}
+            name={'close-rounded'}
+            tintColor={$config.SEMANTIC_ERROR}
+          />
         </View>
         <View style={styles.btnTextContainer}>
           <Text style={styles.btnText}>Stop Sharing</Text>
@@ -55,10 +60,14 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginLeft: 16,
     marginRight: 12,
+    backgroundColor: $config.FONT_COLOR,
+    alignSelf: 'center',
+    width: 20,
+    height: 20,
   },
   btnContainer: {
     alignSelf: 'center',
-    backgroundColor: '#FF414D',
+    backgroundColor: $config.SEMANTIC_ERROR,
     borderRadius: 8,
     height: 40,
     maxWidth: 129,
@@ -69,12 +78,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   btnText: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 12,
     lineHeight: 16,
     textAlign: 'center',
-    color: '#FFFFFF',
+    color: $config.FONT_COLOR,
   },
   screenSharingMessageContainer: {
     position: 'absolute',
@@ -86,16 +95,17 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: $config.HARD_CODED_BLACK_COLOR + '90',
     borderRadius: 15,
   },
   screensharingMessage: {
     alignSelf: 'center',
-    fontFamily: 'Source Sans Pro',
+    textAlign: 'center',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 32,
     lineHeight: 40,
-    color: '#FFFFFF',
+    color: $config.FONT_COLOR,
     paddingBottom: 24,
   },
 });

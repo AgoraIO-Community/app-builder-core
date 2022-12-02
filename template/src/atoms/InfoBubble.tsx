@@ -30,7 +30,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
           marginTop: -3,
           marginLeft: -3,
           background: toolTipVisible
-            ? $config.HARD_CODED_BLACK_COLOR + '20'
+            ? $config.CARD_LAYER_5_COLOR + '20'
             : 'transparent',
           width: 28,
           height: 28,
