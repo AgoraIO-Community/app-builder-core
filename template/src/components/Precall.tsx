@@ -469,14 +469,14 @@ const style = StyleSheet.create({
     // justifyContent: 'center',
   },
   meetingTitleContainer: {
-    marginTop: 20,
-    marginBottom: 40,
+    marginVertical: 10,
   },
   meetingTitleStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     fontSize: ThemeConfig.FontSize.extraLarge,
     color: $config.FONT_COLOR,
+    paddingLeft: 0,
   },
 });
 
