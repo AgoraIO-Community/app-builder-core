@@ -1,5 +1,5 @@
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import React, {useRef, useCallback} from 'react';
+import React, {useRef, useCallback, useLayoutEffect, useEffect} from 'react';
 import {BottomSheet, BottomSheetRef} from 'react-spring-bottom-sheet';
 import './ActionSheetStyles.css';
 import ActionSheetContent from './ActionSheetContent';
@@ -19,6 +19,21 @@ const ActionSheet = () => {
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
 
+  const handleSheetChanges = useCallback((index: number) => {
+    bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
+    index === 0 ? setIsExpanded(false) : setIsExpanded(true);
+  }, []);
+
+  const root = document.documentElement;
+
+  useEffect(() => {
+    root.style.setProperty('--sheet-background', $config.CARD_LAYER_1_COLOR);
+    root.style.setProperty(
+      '--handle-background',
+      $config.PRIMARY_ACTION_BRAND_COLOR,
+    );
+  }, []);
+
   function onDismiss() {
     setIsOpen(false);
   }
@@ -31,11 +46,6 @@ const ActionSheet = () => {
   function onSettingsDismiss() {
     setIsSettingsOpen(false);
   }
-
-  const handleSheetChanges = useCallback((index: number) => {
-    bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
-    index === 0 ? setIsExpanded(false) : setIsExpanded(true);
-  }, []);
 
   const handleSpringStart = (event: SpringEvent) => {
     if (event.type == 'SNAP' && event.source == 'dragging') {
@@ -60,6 +70,7 @@ const ActionSheet = () => {
         //  participantsSheetRef?.current.present();
         break;
       case 'settings':
+        console.warn('settings selected');
         setIsSettingsOpen(true);
         // settingsSheetRef?.current.present();
         break;
@@ -94,13 +105,14 @@ const ActionSheet = () => {
         onDismiss={onChatDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight]}
+        snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) =>
           lastSnap ?? Math.max(...snapPoints)
         }
         blocking={false}>
         <ScrollView style={styles.content}>
-          <Text>Chat Screen</Text>
+          <Text>Chat</Text>
+          {/* <Chat handleClose={onChatDismiss} /> */}
         </ScrollView>
       </BottomSheet>
       {/* Participants Action Sheet */}
@@ -110,13 +122,14 @@ const ActionSheet = () => {
         onDismiss={onParticipantsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight]}
+        snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) =>
           lastSnap ?? Math.max(...snapPoints)
         }
         blocking={false}>
         <ScrollView style={styles.content}>
           <Text>Participants</Text>
+          {/* <ParticipantView handleClose={onParticipantsDismiss} /> */}
         </ScrollView>
       </BottomSheet>
       {/* Settings Screen */}
@@ -127,7 +140,7 @@ const ActionSheet = () => {
         onDismiss={onSettingsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight]}
+        snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) =>
           lastSnap ?? Math.max(...snapPoints)
         }

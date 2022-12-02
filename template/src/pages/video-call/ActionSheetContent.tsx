@@ -1,5 +1,5 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, {useContext} from 'react';
 import ImageIcon from '../../atoms/ImageIcon';
 import LocalAudioMute, {
   LocalAudioMuteProps,
@@ -13,9 +13,12 @@ import LocalEndcall, {
 import CopyJoinInfo from '../../subComponents/CopyJoinInfo';
 import LocalSwitchCamera from '../../subComponents/LocalSwitchCamera';
 import Recording from '../../subComponents/Recording';
+import ChatContext from '../../components/ChatContext';
+import {numFormatter} from '../../utils';
 
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, updateActionSheet, isExpanded} = props;
+  const {onlineUsersCount} = useContext(ChatContext);
   return (
     <View>
       <View style={[styles.row, {borderBottomWidth: 1}]}>
@@ -59,7 +62,9 @@ const ActionSheetContent = (props) => {
             />
             {/* <ParticipantsIconButton /> */}
           </TouchableOpacity>
-          <Text style={styles.iconText}>Participants</Text>
+          <Text style={styles.iconText}>
+            Participants {'\n'} ({numFormatter(onlineUsersCount)})
+          </Text>
         </View>
         {/* record */}
         <View style={styles.iconWithText}>
