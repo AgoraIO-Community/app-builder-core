@@ -12,7 +12,7 @@
 import React, {useContext} from 'react';
 import {Picker, StyleSheet, View, Text} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
-import DeviceContext from '../components/DeviceContext';
+import DeviceContext, {DeviceList} from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 import {useString} from '../utils/useString';
 // import {dropdown} from '../../theme.json';
@@ -41,13 +41,14 @@ interface SelectVideoDeviceProps {
   render?: (
     selectedCam: string,
     setSelectedCam: (cam: string) => void,
-    deviceList: MediaDeviceInfo[],
+    deviceList: DeviceList,
     isDisabled: boolean,
   ) => JSX.Element;
 }
 
 const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
+  console.log('deviceList: ', deviceList);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
@@ -57,17 +58,17 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
       selectedValue={selectedCam}
       style={[{borderColor: btnTheme}, style.popupPicker]}
       onValueChange={(itemValue) => setSelectedCam(itemValue)}>
-      {deviceList.map((device: any) => {
-        if (device.kind === 'videoinput') {
-          return (
+      {deviceList &&
+        deviceList.videoinput &&
+        Object.entries(deviceList.videoinput).map(([key, devices]) =>
+          devices.map((device: InputDeviceInfo) => (
             <Picker.Item
               label={device.label}
               value={device.deviceId}
               key={device.deviceId}
             />
-          );
-        }
-      })}
+          )),
+        )}
     </Picker>
   );
 };
@@ -76,7 +77,7 @@ interface SelectAudioDeviceProps {
   render?: (
     selectedMic: string,
     setSelectedMic: (mic: string) => void,
-    deviceList: MediaDeviceInfo[],
+    deviceList: DeviceList,
     isDisabled: boolean,
   ) => JSX.Element;
 }
@@ -92,17 +93,17 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       selectedValue={selectedMic}
       style={[{borderColor: btnTheme}, style.popupPicker]}
       onValueChange={(itemValue) => setSelectedMic(itemValue)}>
-      {deviceList.map((device: any) => {
-        if (device.kind === 'audioinput') {
-          return (
+      {deviceList &&
+        deviceList.audioinput &&
+        Object.entries(deviceList.audioinput).map(([key, devices]) =>
+          devices.map((device: InputDeviceInfo) => (
             <Picker.Item
               label={device.label}
               value={device.deviceId}
               key={device.deviceId}
             />
-          );
-        }
-      })}
+          )),
+        )}
     </Picker>
   );
 };
