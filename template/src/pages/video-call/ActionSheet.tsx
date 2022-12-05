@@ -10,7 +10,6 @@ import SettingsView from '../../components/SettingsView';
 
 const ActionSheet = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(true);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const [isParticipantsOpen, setIsParticipantsOpen] = React.useState(false);
@@ -49,8 +48,6 @@ const ActionSheet = () => {
 
   const handleSpringStart = (event: SpringEvent) => {
     if (event.type == 'SNAP' && event.source == 'dragging') {
-      console.warn('up');
-      console.log(event);
       setIsExpanded(!isExpanded);
     }
   };
@@ -82,7 +79,7 @@ const ActionSheet = () => {
       {/* Controls Action Sheet */}
       <BottomSheet
         ref={bottomSheetRef}
-        open={isOpen}
+        open={true}
         //  onDismiss={onDismiss}
         onSpringStart={handleSpringStart}
         expandOnContentDrag={true}

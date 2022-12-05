@@ -68,6 +68,7 @@ const ActionSheet = () => {
         snapPoints={['15%', '50%']}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
+        enablePanDownToClose={false}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         stackBehavior="push"
