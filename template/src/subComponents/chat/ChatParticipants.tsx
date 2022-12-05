@@ -36,20 +36,22 @@ const ChatParticipants = (props: any) => {
       !userInfo?.offline
     );
   };
-  const [isHovered, setIsHovered] = React.useState(false);
+  const [isHoveredUid, setIsHoveredUid] = React.useState(0);
   return (
     <ScrollView>
       {Object.entries(renderList).map(([uid, value]) => {
         const uidAsNumber = parseInt(uid);
+
         if (isChatUser(uidAsNumber, value)) {
           const name = renderList[uidAsNumber]
             ? renderList[uidAsNumber].name + ''
             : remoteUserDefaultLabel;
           return (
             <PlatformWrapper
-              isHovered={isHovered}
-              setIsHovered={setIsHovered}
+              isHoveredUid={isHoveredUid}
+              setIsHoveredUid={setIsHoveredUid}
               key={uid}
+              uid={uidAsNumber}
               onPress={() => {
                 selectUser(uidAsNumber);
               }}>
@@ -64,7 +66,7 @@ const ChatParticipants = (props: any) => {
                 <View style={style.participantTextContainer}>
                   <Text style={[style.participantText]}>{name}</Text>
                 </View>
-                {!isHovered ? (
+                {isHoveredUid !== uidAsNumber ? (
                   unreadIndividualMessageCount &&
                   unreadIndividualMessageCount[uidAsNumber] ? (
                     <View style={style.chatNotificationPrivate}>
@@ -92,20 +94,27 @@ const ChatParticipants = (props: any) => {
   );
 };
 
-const PlatformWrapper = ({children, isHovered, setIsHovered, onPress}) => {
+const PlatformWrapper = ({
+  children,
+  isHoveredUid,
+  setIsHoveredUid,
+  uid,
+  onPress,
+}) => {
   return isWeb() ? (
     <div
       style={{
-        backgroundColor: isHovered
-          ? $config.CARD_LAYER_5_COLOR + '10'
-          : 'transparent',
-        cursor: isHovered ? 'pointer' : 'auto',
+        backgroundColor:
+          isHoveredUid === uid
+            ? $config.CARD_LAYER_5_COLOR + '10'
+            : 'transparent',
+        cursor: isHoveredUid === uid ? 'pointer' : 'auto',
       }}
       onMouseEnter={() => {
-        setIsHovered(true);
+        setIsHoveredUid(uid);
       }}
       onMouseLeave={() => {
-        setIsHovered(false);
+        setIsHoveredUid(0);
       }}
       onClick={onPress}>
       {children}
