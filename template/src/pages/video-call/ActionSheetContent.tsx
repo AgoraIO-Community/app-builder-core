@@ -29,7 +29,6 @@ const ActionSheetContent = (props) => {
   const layout = layouts.findIndex((item) => item.name === currentLayout);
 
   const handleLayoutChange = () => {
-    console.warn('current layout', layouts[layout]?.iconName);
     changeLayout();
   };
   return (
@@ -41,7 +40,11 @@ const ActionSheetContent = (props) => {
         <View style={[styles.iconContainer]}>
           <LocalAudioMute showLabel={false} />
         </View>
-        <View style={[styles.iconContainer, {backgroundColor: '#FF414D'}]}>
+        <View
+          style={[
+            styles.iconContainer,
+            {backgroundColor: $config.SEMANTIC_ERROR},
+          ]}>
           <LocalEndcall showLabel={false} />
         </View>
         <View style={styles.iconContainer}>
@@ -158,15 +161,6 @@ const styles = StyleSheet.create({
   emptyContainer: {
     width: 50,
     height: 50,
-  },
-  backgroundStyle: {
-    backgroundColor: '#FFF', //TODO: to be derived from configs for dark theme
-  },
-
-  handleIndicatorStyle: {
-    backgroundColor: '#A0B9CA',
-    width: 40,
-    height: 4,
   },
   iconWithText: {
     justifyContent: 'center',
