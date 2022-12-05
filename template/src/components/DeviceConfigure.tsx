@@ -38,6 +38,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   const updateDeviceList = () => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
+      console.log('WEBAPI: device-list orgiginal: ', devices);
       const deviceList = devices.reduce(
         (acc, device: InputDeviceInfo) => {
           const {kind, groupId} = device;
@@ -56,34 +57,42 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           videooutput: {},
         },
       );
+      console.log('WEBAPI: device-list modified: ', deviceList);
+
       setDeviceList(deviceList);
     });
   };
 
   useEffect(() => {
     navigator.mediaDevices.ondevicechange = (event) => {
-      console.log('WEB API: device-change: ', event);
+      console.log('WEBAPI: device-change: ', event);
       updateDeviceList();
     };
   }, []);
 
   useEffect(() => {
     if (!selectedMic || selectedMic.trim().length == 0) {
-      (deviceList.audioinput &&
-        deviceList.audioinput[Object.keys(deviceList.audioinput)[0]][0]
-          .deviceId) ||
-        '';
+      setSelectedMic(
+        (deviceList.audioinput &&
+          deviceList.audioinput[Object.keys(deviceList.audioinput)[0]][0]
+            .deviceId) ||
+          '',
+      );
     }
     if (!selectedCam || selectedCam.trim().length == 0) {
-      (deviceList.videoinput &&
-        deviceList.videoinput[Object.keys(deviceList.videoinput)[0]][0]
-          .deviceId) ||
-        '';
+      setSelectedCam(
+        (deviceList.videoinput &&
+          deviceList.videoinput[Object.keys(deviceList.videoinput)[0]][0]
+            .deviceId) ||
+          '',
+      );
     }
   }, [deviceList]);
 
   useEffect(() => {
     if (selectedCam.length !== 0) {
+      console.log('WEBAPI: setting camera: ', selectedCam);
+
       rtc.RtcEngine.changeCamera(
         selectedCam,
         () => {},
@@ -95,6 +104,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     if (selectedMic.length !== 0) {
+      console.log('WEBAPI: setting camera: ', selectedMic);
       rtc.RtcEngine.changeMic(
         selectedMic,
         () => {},
