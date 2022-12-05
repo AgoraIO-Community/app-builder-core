@@ -116,34 +116,24 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
     } else {
       // Unauthenticated login flow
-      console.log('supriya enable UNAUTH');
-      // Linking.openURL(GET_UNAUTH_FLOW_API_ENDPOINT());
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
-        headers: {
-          Accept: '*/*',
-          ...getRequestHeaders(),
-        },
+        credentials: 'include',
       })
+        .then((response) => response.json())
         .then((response) => {
-          console.log('supriya headers', response.headers);
-          return response.text();
-        })
-        .then((response) => {
-          console.log('supriya response: ', response);
-          // setIsAuthenticated(true);
-          // history.push('/create');
+          if (response && response.Code == 0) {
+            setIsAuthenticated(true);
+            history.push('/create');
+          }
         })
         .catch((error) => {
-          console.log('supriya error', error);
-
-          // console.error('error: ', error);
-          // if (error instanceof Error) {
-          //   setAuthError(error.message);
-          // } else {
-          //   setAuthError(error);
-          // }
-          // setIsAuthenticated(false);
-          // history.push('/login');
+          if (error instanceof Error) {
+            setAuthError(error.message);
+          } else {
+            setAuthError(error);
+          }
+          setIsAuthenticated(false);
+          history.push('/login');
         });
     }
   };

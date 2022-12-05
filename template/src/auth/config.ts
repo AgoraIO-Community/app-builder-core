@@ -40,6 +40,6 @@ export const getOriginURL = () => {
 };
 
 export const GET_UNAUTH_FLOW_API_ENDPOINT = () =>
-  `${
-    $config.BACKEND_ENDPOINT
-  }/v1/login?redirect_url=${getUnauthLoginRedirectURL()}&origin_url=${getOriginURL()}`;
+  `${$config.BACKEND_ENDPOINT}/v1/login?project_id=${
+    $config.PROJECT_ID
+  }&platform_id=${getPlatformId()}`;
