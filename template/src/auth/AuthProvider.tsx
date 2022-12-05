@@ -92,13 +92,13 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogin = () => {
     if (enableAuth) {
-      console.log('supriya enable AUTH');
+      console.log('supriya enable AUTH FLOW');
       // Authenticated login flow
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
-        console.log('supriya enable IDP');
+        console.log('supriya enable AUTH IDP');
         enableIDPAuth();
       } else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
-        console.log('supriya enable SDK');
+        console.log('supriya enable AUTH SDK');
         enableTokenAuth()
           .then((res) => {
             setIsAuthenticated(true);
@@ -116,6 +116,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
     } else {
       // Unauthenticated login flow
+      console.log('supriya enable UNAUTH FLOW');
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
       })
