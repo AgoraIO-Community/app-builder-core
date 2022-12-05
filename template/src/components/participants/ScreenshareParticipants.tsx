@@ -11,31 +11,21 @@
 */
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 
 const ScreenshareParticipants = (props: {name: string}) => {
-  const containerStyle = {
-    background: '#021F3380',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    marginRight: 8,
-  };
-  const textStyle = {
-    fontSize: 12,
-    lineHeight: 10,
-    fontWeight: '400',
-    color: '#fff',
-  };
   const {name} = props;
   return (
     <View style={styles.container}>
       <View style={styles.userInfoContainer}>
-        <UserAvatar
-          name={name}
-          containerStyle={containerStyle}
-          textStyle={textStyle}
-        />
+        <View style={styles.bgContainerStyle}>
+          <UserAvatar
+            name={name}
+            containerStyle={styles.containerStyle}
+            textStyle={styles.textStyle}
+          />
+        </View>
         <View style={{alignSelf: 'center'}}>
           <Text style={styles.participantNameText}>{name}</Text>
         </View>
@@ -45,13 +35,32 @@ const ScreenshareParticipants = (props: {name: string}) => {
 };
 export default ScreenshareParticipants;
 const styles = StyleSheet.create({
+  bgContainerStyle: {
+    backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 8,
+  },
+  containerStyle: {
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  textStyle: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 10,
+    fontWeight: '400',
+    color: $config.FONT_COLOR,
+  },
   participantNameText: {
     fontWeight: '400',
     fontSize: 12,
     lineHeight: 15,
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     textAlign: 'left',
   },
   container: {

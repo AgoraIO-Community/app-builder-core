@@ -31,7 +31,7 @@ const AllAudienceParticipants = (props: any) => {
             fontWeight: '400',
             fontSize: 14,
             lineHeight: 12,
-            color: '#333333',
+            color: $config.FONT_COLOR,
           }}>
           {participantListPlaceholder}
         </Text>

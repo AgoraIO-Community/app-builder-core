@@ -6,6 +6,7 @@ import Spacer from '../atoms/Spacer';
 import {Logo} from '../components/common';
 import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
+import ThemeConfig from '../theme';
 
 const Timer = () => {
   const [seconds, setSeconds] = useState(60);
@@ -31,7 +32,7 @@ const Timer = () => {
         flex: 1,
         justifyContent: 'center',
         alignSelf: 'center',
-        borderColor: '#099DFD',
+        borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
         borderWidth: 3,
         borderRadius: 30,
       }}>
@@ -40,12 +41,12 @@ const Timer = () => {
           minHeight: 40,
           minWidth: 40,
           padding: 12,
-          fontFamily: 'Source Sans Pro',
+          fontFamily: ThemeConfig.FontFamily.sansPro,
           fontWeight: '700',
           fontSize: 14,
           lineHeight: 18,
           textAlign: 'center',
-          color: '#1A1A1A',
+          color: $config.FONT_COLOR,
         }}>
         {seconds}
       </Text>
@@ -79,9 +80,6 @@ const Endcall = () => {
               containerStyle={{
                 height: 60,
                 justifyContent: 'center',
-                backgroundColor: '#FFFFFF',
-                borderWidth: 1,
-                borderColor: '#000000',
               }}
               text={rejoinBtnLabel}
               onPress={() => {
@@ -118,11 +116,11 @@ export default Endcall;
 
 const styles = StyleSheet.create({
   returnHomeText: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: 14,
+    fontSize: ThemeConfig.FontSize.small,
     lineHeight: 18,
-    color: '#1A1A1A',
+    color: $config.FONT_COLOR,
     textAlign: 'center',
   },
   bottomContainer: {
@@ -140,10 +138,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   heading: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 40,
     lineHeight: 40,
-    color: '#1A1A1A',
+    color: $config.FONT_COLOR,
   },
 });

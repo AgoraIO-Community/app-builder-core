@@ -7,13 +7,21 @@ import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
+import {useLayout, useRender} from 'customization-api';
+import {getPinnedLayoutName} from './DefaultLayouts';
 
 interface VideoRendererProps {
   user: RenderInterface;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
   const isActiveSpeaker = useIsActiveSpeaker();
-
+  const {currentLayout} = useLayout();
+  const {activeUids} = useRender();
+  // const showShareNotice =
+  //   currentLayout === getPinnedLayoutName() &&
+  //   activeUids &&
+  //   activeUids?.length &&
+  //   activeUids[0] === user.uid;
   return (
     <View style={maxStyle.container}>
       <ScreenShareNotice uid={user.uid} />
