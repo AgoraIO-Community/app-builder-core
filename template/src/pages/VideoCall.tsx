@@ -54,6 +54,7 @@ import {useWakeLock} from '../components/useWakeLock';
 import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
+import PermissionHelper from '../components/precall/PermissionHelper';
 
 enum RnEncryptionEnum {
   /**
@@ -242,6 +243,7 @@ const VideoCall: React.FC = () => {
                                                 localUid={rtcProps?.uid || 0}>
                                                 <CustomUserContextHolder>
                                                   <NetworkQualityProvider>
+                                                    <PermissionHelper />
                                                     {callActive ? (
                                                       <VideoMeetingDataProvider>
                                                         <VideoCallScreen />

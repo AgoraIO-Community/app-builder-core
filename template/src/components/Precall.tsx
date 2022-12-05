@@ -34,7 +34,7 @@ import Spacer from '../atoms/Spacer';
 import {useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
-import PermissionHelper from './precall/PermissionHelper';
+
 import StorageContext from './StorageContext';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
@@ -296,26 +296,11 @@ const Precall = (props: any) => {
     return undefined;
   });
 
-  //permission helper modal show/hide
-  const [isVisible, setIsVisible] = useState(false);
-  const {store} = useContext(StorageContext);
-  useEffect(() => {
-    if (store?.permissionPopupSeen) {
-      const flag = JSON.parse(store?.permissionPopupSeen);
-      if (flag === false) {
-        setIsVisible(true);
-      }
-    } else {
-      setIsVisible(true);
-    }
-  }, []);
-
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
     <>
       <PrecallBeforeView />
-      <PermissionHelper isVisible={isVisible} setIsVisible={setIsVisible} />
       <View
         style={isDesktop ? style.main : style.mainMobile}
         onLayout={onLayout}

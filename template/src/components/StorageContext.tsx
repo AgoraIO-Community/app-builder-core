@@ -26,7 +26,6 @@ export const initStoreValue: StoreInterface = {
   token: null,
   displayName: '',
   selectedLanguageCode: '',
-  permissionPopupSeen: JSON.stringify(false),
   lastMeetingPhrase: '',
 };
 
