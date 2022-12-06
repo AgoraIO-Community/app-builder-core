@@ -180,15 +180,14 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
               {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
             </Text>
           </View>
-          <View style={style.iconContainer}>
-            <TouchableOpacity
-              style={style.iconContainer}
-              onPress={() => {
-                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
-              }}>
-              {clipboardIcon()}
-            </TouchableOpacity>
-          </View>
+
+          <TouchableOpacity
+            style={style.iconContainer}
+            onPress={() => {
+              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
+            }}>
+            {clipboardIcon()}
+          </TouchableOpacity>
         </View>
 
         {isDesktop && showSubLabel && (
