@@ -12,7 +12,7 @@
 import React, {useState} from 'react';
 import {Platform} from 'react-native';
 import Join from './pages/Join';
-import VideoCall from './pages/VideoCall';
+// import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
 import {Route, Switch, Redirect} from './components/Router';
 import PrivateRoute from './components/PrivateRoute';
@@ -118,9 +118,9 @@ const App: React.FC = () => {
                   <Create />
                 </Route>
               )}
-              <Route path={'/:phrase'}>
+              {/* <Route path={'/:phrase'}>
                 <VideoCall />
-              </Route>
+              </Route> */}
             </Switch>
           </ShareLinkProvider>
         </MeetingInfoProvider>
