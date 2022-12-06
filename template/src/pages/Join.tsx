@@ -103,9 +103,12 @@ const Join = () => {
             },
           },
         };
-        RNCallKeep.setup(options).then((accepted) => {
-          console.warn(accepted);
-        });
+
+        // RNCallKeep.setup(options).then((accepted) => {
+        //   RNCallKeep.setAvailable(true);
+        //   console.warn('accepted', accepted);
+        // });
+
         history.push(phrase);
       })
 
