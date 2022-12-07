@@ -39,7 +39,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const updateDeviceList = () => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       console.log('WEBAPI: enumarated devices: ', devices);
-      setDeviceList(devices);
+      // Decvice ids are empty until when permissions are not taken
+      const filteredDevices = devices.filter(
+        (device) => device.deviceId !== '',
+      );
+      setDeviceList(filteredDevices);
     });
   };
 
