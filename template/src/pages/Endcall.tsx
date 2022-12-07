@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, Dimensions} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
@@ -11,6 +11,7 @@ import ThemeConfig from '../theme';
 const Timer = () => {
   const [seconds, setSeconds] = useState(60);
   const history = useHistory();
+
   useEffect(() => {
     const timerInterval = setInterval(() => {
       setSeconds((seconds) => seconds - 1);
@@ -29,18 +30,19 @@ const Timer = () => {
   return (
     <View
       style={{
-        flex: 1,
         justifyContent: 'center',
         alignSelf: 'center',
         borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
         borderWidth: 3,
         borderRadius: 30,
+        minHeight: 40,
+        minWidth: 40,
       }}>
       <Text
         style={{
+          padding: 12,
           minHeight: 40,
           minWidth: 40,
-          padding: 12,
           fontFamily: ThemeConfig.FontFamily.sansPro,
           fontWeight: '700',
           fontSize: 14,
@@ -61,6 +63,16 @@ const Endcall = () => {
   const returnToHomeLabel = 'Returning to the home screen';
   const {store} = useContext(StorageContext);
   const history = useHistory();
+
+  const [dim, setDim] = useState<[number, number]>([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+  ]);
+  const onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const isDesktop = dim[0] > dim[1] + 150;
+
   const reJoin = () => {
     history.push(store.lastMeetingPhrase);
   };
@@ -68,39 +80,48 @@ const Endcall = () => {
     history.push('/');
   };
   return (
-    <View style={styles.main}>
-      <View style={styles.contentContainer}>
-        <Logo />
+    <View style={styles.main} onLayout={onLayout}>
+      <View
+        style={[styles.contentContainer, isDesktop && {alignItems: 'center'}]}>
+        <View style={{alignSelf: 'center'}}>
+          <Logo />
+        </View>
         <Spacer size={20} />
-        <Text style={styles.heading}>{leftMeetingLabel}</Text>
+        <Text
+          style={[
+            styles.heading,
+            !isDesktop && {fontSize: 20, lineHeight: 25},
+          ]}>
+          {leftMeetingLabel}
+        </Text>
         <Spacer size={40} />
-        <View style={styles.btnContainer}>
-          <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-            <TertiaryButton
-              containerStyle={{
-                height: 60,
-                justifyContent: 'center',
-              }}
-              text={rejoinBtnLabel}
-              onPress={() => {
-                reJoin();
-              }}
-            />
-          </View>
-          <View
-            style={{
-              marginLeft: 16,
-              justifyContent: 'center',
-              alignSelf: 'center',
-            }}>
-            <PrimaryButton
-              containerStyle={{height: 60}}
-              text={createMeetingLabel}
-              onPress={() => {
-                goToCreate();
-              }}
-            />
-          </View>
+        <View
+          style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
+          <TertiaryButton
+            containerStyle={{
+              paddingVertical: 17,
+              minWidth: isDesktop ? 'auto' : '100%',
+              marginRight: isDesktop ? 12 : 0,
+            }}
+            textStyle={styles.btnText}
+            text={rejoinBtnLabel}
+            onPress={() => {
+              reJoin();
+            }}
+          />
+
+          <PrimaryButton
+            containerStyle={{
+              paddingVertical: 17,
+              minWidth: isDesktop ? 'auto' : '100%',
+              marginBottom: isDesktop ? 0 : 20,
+            }}
+            text={createMeetingLabel}
+            textStyle={styles.btnText}
+            onPress={() => {
+              goToCreate();
+            }}
+          />
         </View>
       </View>
       <View style={styles.bottomContainer}>
@@ -128,14 +149,23 @@ const styles = StyleSheet.create({
   },
   main: {
     flex: 1,
+    paddingHorizontal: 40,
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
   },
   btnContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  btnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  btnContainerMobile: {
+    flexDirection: 'column-reverse',
   },
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -143,5 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 40,
     lineHeight: 40,
     color: $config.FONT_COLOR,
+    alignSelf: 'center',
   },
 });

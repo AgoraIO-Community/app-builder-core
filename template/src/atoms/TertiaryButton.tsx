@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle,
+  TextStyle,
 } from 'react-native';
 import React from 'react';
 import ThemeConfig from '../theme';
@@ -12,6 +13,7 @@ interface ButtonProps extends TouchableOpacityProps {
   text?: string;
   children?: React.ReactNode;
   containerStyle?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
 const TertiaryButton = (props: ButtonProps) => {
@@ -20,7 +22,7 @@ const TertiaryButton = (props: ButtonProps) => {
     <TouchableOpacity
       style={[styles.container, props?.containerStyle]}
       {...rest}>
-      <Text style={styles.text}>{text}</Text>
+      <Text style={[styles.text, props?.textStyle]}>{text}</Text>
     </TouchableOpacity>
   );
 };
@@ -42,5 +44,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 12,
     fontWeight: '600',
+    textAlign: 'center',
   },
 });

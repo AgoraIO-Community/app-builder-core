@@ -1,10 +1,11 @@
-import React, {SetStateAction} from 'react';
+import React, {SetStateAction, useContext} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../atoms/Spacer';
 import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
+import DimensionContext from '../components/dimension/DimensionContext';
 
 interface RecordingPopupProps {
   modalVisible: boolean;
@@ -12,6 +13,8 @@ interface RecordingPopupProps {
   stopRecording: () => void;
 }
 const RecordingPopup = (props: RecordingPopupProps) => {
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
   const recordingLabelHeading = 'Stop Recording?';
   const recordingLabelSubHeading =
     'Are you sure you want to stop recording? You can’t undo this action.';
@@ -28,33 +31,27 @@ const RecordingPopup = (props: RecordingPopupProps) => {
       <Spacer size={8} />
       <Text style={styles.subHeading}>{recordingLabelSubHeading}</Text>
       <Spacer size={32} />
-      <View style={styles.btnContainer}>
-        <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-          <TertiaryButton
-            containerStyle={{
-              height: 46,
-              justifyContent: 'center',
-            }}
-            text={cancelBtnLabel}
-            onPress={() => props.setModalVisible(false)}
-          />
-        </View>
-        <View
-          style={{
-            marginLeft: 16,
-            justifyContent: 'center',
-            alignSelf: 'center',
-          }}>
-          <PrimaryButton
-            containerStyle={{
-              backgroundColor: $config.SEMANTIC_ERROR,
-              height: 48,
-              minWidth: 200,
-            }}
-            text={stopRecordingBtnLabel}
-            onPress={props.stopRecording}
-          />
-        </View>
+      <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
+        <TertiaryButton
+          containerStyle={{
+            paddingVertical: 12,
+          }}
+          textStyle={styles.btnText}
+          text={cancelBtnLabel}
+          onPress={() => props.setModalVisible(false)}
+        />
+
+        <PrimaryButton
+          containerStyle={{
+            backgroundColor: $config.SEMANTIC_ERROR,
+            paddingVertical: 12,
+            minWidth: 'auto',
+            marginBottom: isDesktop ? 0 : 20,
+          }}
+          textStyle={styles.btnText}
+          text={stopRecordingBtnLabel}
+          onPress={props.stopRecording}
+        />
       </View>
     </Popup>
   );
@@ -64,8 +61,17 @@ export default RecordingPopup;
 
 const styles = StyleSheet.create({
   btnContainer: {
-    flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  btnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+
+  btnContainerMobile: {
+    flexDirection: 'column-reverse',
   },
   contentContainer: {
     padding: 24,
