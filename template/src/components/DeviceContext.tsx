@@ -11,27 +11,12 @@
 */
 import {createContext} from 'react';
 
-export type DeviceList = {
-  audioinput: {
-    [key: string]: InputDeviceInfo[];
-  };
-  audiooutput: {
-    [key: string]: MediaDeviceInfo[];
-  };
-  videoinput: {
-    [key: string]: MediaDeviceInfo[];
-  };
-  videooutput: {
-    [key: string]: MediaDeviceInfo[];
-  };
-} | null;
-
 interface DeviceContext {
   selectedCam: string;
   setSelectedCam: (cam: string) => void;
   selectedMic: string;
   setSelectedMic: (mic: string) => void;
-  deviceList: DeviceList;
+  deviceList: MediaDeviceInfo[];
 }
 
 const DeviceContext = createContext<DeviceContext>({

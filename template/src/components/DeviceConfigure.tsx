@@ -33,66 +33,47 @@ interface changedDeviceInfo {
 const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedCam, setSelectedCam] = useState('');
   const [selectedMic, setSelectedMic] = useState('');
-  const [deviceList, setDeviceList] = useState<DeviceList>(null);
+  const [deviceList, setDeviceList] = useState([]);
   const rtc = useRtc();
 
   const updateDeviceList = () => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
-      console.log('WEBAPI: device-list orgiginal: ', devices);
-      const deviceList = devices.reduce(
-        (acc, device: InputDeviceInfo) => {
-          const {kind, groupId} = device;
-          return {
-            ...acc,
-            [kind]: {
-              ...acc[kind],
-              [groupId]: [...(acc[kind][groupId] || []), device],
-            },
-          };
-        },
-        {
-          audioinput: {},
-          audiooutput: {},
-          videoinput: {},
-          videooutput: {},
-        },
-      );
-      console.log('WEBAPI: device-list modified: ', deviceList);
-
-      setDeviceList(deviceList);
+      console.log('WEBAPI: enumarated devices: ', devices);
+      setDeviceList(devices);
     });
   };
 
   useEffect(() => {
     navigator.mediaDevices.ondevicechange = (event) => {
-      console.log('WEBAPI: device-change: ', event);
+      console.log('WEBAPI: device-change event occured: ', event);
       updateDeviceList();
     };
   }, []);
 
   useEffect(() => {
-    if (!selectedMic || selectedMic.trim().length == 0) {
-      setSelectedMic(
-        (deviceList.audioinput &&
-          deviceList.audioinput[Object.keys(deviceList.audioinput)[0]][0]
-            .deviceId) ||
-          '',
-      );
+    if (!selectedMic) {
+      for (const i in deviceList) {
+        if (deviceList[i].kind === 'videoinput') {
+          console.log('WEBAPI: setting camera ', deviceList[i]);
+          setSelectedCam(deviceList[i].deviceId);
+          break;
+        }
+      }
     }
-    if (!selectedCam || selectedCam.trim().length == 0) {
-      setSelectedCam(
-        (deviceList.videoinput &&
-          deviceList.videoinput[Object.keys(deviceList.videoinput)[0]][0]
-            .deviceId) ||
-          '',
-      );
+    if (!selectedCam) {
+      for (const i in deviceList) {
+        if (deviceList[i].kind === 'audioinput') {
+          console.log('WEBAPI: setting microphone ', deviceList[i]);
+          setSelectedMic(deviceList[i].deviceId);
+          break;
+        }
+      }
     }
   }, [deviceList]);
 
   useEffect(() => {
     if (selectedCam.length !== 0) {
       console.log('WEBAPI: setting camera: ', selectedCam);
-
       rtc.RtcEngine.changeCamera(
         selectedCam,
         () => {},
@@ -116,9 +97,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     // If stream exists and deviceList are empty, check for devices again
-    // if (deviceList.length === 0) {
-    updateDeviceList();
-  }, []);
+    if (!deviceList || deviceList.length === 0) {
+      console.log('WEBAPI: calling update device list');
+      updateDeviceList();
+    }
+  }, [rtc]);
 
   return (
     <DeviceContext.Provider
