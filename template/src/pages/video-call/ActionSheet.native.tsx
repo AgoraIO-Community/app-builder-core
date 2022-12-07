@@ -29,6 +29,16 @@ const ActionSheet = () => {
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
   }, []);
 
+  function onChatDismiss() {
+    chatSheetRef?.current.close();
+  }
+  function onParticipantsDismiss() {
+    participantsSheetRef?.current.close();
+  }
+  function onSettingsDismiss() {
+    settingsSheetRef?.current.close();
+  }
+
   const updateActionSheet = (
     screenName: 'chat' | 'participants' | 'settings',
   ) => {
@@ -58,6 +68,7 @@ const ActionSheet = () => {
         snapPoints={['15%', '50%']}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
+        enablePanDownToClose={false}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         stackBehavior="push"
@@ -80,7 +91,7 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <Chat />
+          <Chat handleClose={onChatDismiss} />
         </BottomSheetView>
       </BottomSheetModal>
 
@@ -94,7 +105,7 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <ParticipantView />
+          <ParticipantView handleClose={onParticipantsDismiss} />
         </BottomSheetView>
       </BottomSheetModal>
 
@@ -108,7 +119,7 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <SettingsView />
+          <SettingsView handleClose={onSettingsDismiss} />
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>

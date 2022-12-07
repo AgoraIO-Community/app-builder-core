@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   ModalProps,
   ViewStyle,
+  useWindowDimensions,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
@@ -28,6 +29,8 @@ const Popup = (props: PopupProps) => {
     showCloseIcon,
     ...otherProps
   } = props;
+  const {height, width} = useWindowDimensions();
+  const isDesktop = width > 675;
   return (
     <Modal
       animationType="fade"
@@ -37,7 +40,7 @@ const Popup = (props: PopupProps) => {
         setModalVisible(false);
       }}
       {...otherProps}>
-      <View style={styles.centeredView}>
+      <View style={[styles.centeredView, isDesktop && {alignItems: 'center'}]}>
         <TouchableWithoutFeedback
           onPress={() => {
             setModalVisible(false);
@@ -80,7 +83,8 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
+    paddingHorizontal: 20,
   },
   modalView: {
     backgroundColor: $config.CARD_LAYER_1_COLOR,

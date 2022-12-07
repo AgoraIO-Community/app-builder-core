@@ -150,7 +150,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
             </TouchableOpacity>
           </View>
 
-          {isDesktop && showSubLabel && (
+          {showSubLabel && (
             <>
               <Spacer size={14} />
               <Text style={style.helpText}>
@@ -180,18 +180,17 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
               {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
             </Text>
           </View>
-          <View style={style.iconContainer}>
-            <TouchableOpacity
-              style={style.iconContainer}
-              onPress={() => {
-                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
-              }}>
-              {clipboardIcon()}
-            </TouchableOpacity>
-          </View>
+
+          <TouchableOpacity
+            style={style.iconContainer}
+            onPress={() => {
+              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
+            }}>
+            {clipboardIcon()}
+          </TouchableOpacity>
         </View>
 
-        {isDesktop && showSubLabel && (
+        {showSubLabel && (
           <>
             <Spacer size={14} />
             <Text style={style.helpText}>
@@ -238,7 +237,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
             </TouchableOpacity>
           </View>
 
-          {isDesktop && showSubLabel && (
+          {showSubLabel && (
             <>
               <Spacer size={14} />
               <Text style={style.helpText}>
@@ -246,7 +245,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
               </Text>
             </>
           )}
-          <Spacer size={25} />
+          {/* <Spacer size={25} /> */}
         </>
       ) : (
         <></>
@@ -323,7 +322,7 @@ const Share = () => {
             iconName="video-on"
             onPress={() => enterMeeting()}
             containerStyle={!isDesktop && {width: '100%'}}
-            text={enterMeetingAfterCreateButton}
+            text={enterMeetingAfterCreateButton.toUpperCase()}
           />
           <Spacer size={16} />
           <LinkButton

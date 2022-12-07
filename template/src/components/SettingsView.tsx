@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import SelectDeviceSettings from '../subComponents/SelectDeviceSettings';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
@@ -27,6 +27,12 @@ const SettingsView = (props) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const [dim, setDim] = useState([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  const isSmall = dim[0] < 700;
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Input Device Settings';
@@ -38,7 +44,13 @@ const SettingsView = (props) => {
   const onPressMuteAudio = () => muteRemote(MUTE_REMOTE_TYPE.audio);
   return (
     <View
-      style={isWebInternal() ? style.settingsView : style.settingsViewNative}>
+      style={
+        isWebInternal()
+          ? isSmall
+            ? style.settingsViewNative
+            : style.settingsView
+          : style.settingsViewNative
+      }>
       <View style={style.header}>
         <Text style={style.mainHeading}>{settingsLabel}</Text>
         <IconButton
@@ -47,8 +59,11 @@ const SettingsView = (props) => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           onPress={() => {
-            setSidePanel(SidePanelType.None);
-            props.handleClose && props.handleClose();
+            if (!isSmall) {
+              setSidePanel(SidePanelType.None);
+            } else {
+              props.handleClose && props.handleClose();
+            }
           }}
         />
       </View>
@@ -145,13 +160,13 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   settingsViewNative: {
-    position: 'absolute',
+    // position: 'absolute',
     zIndex: 5,
     width: '100%',
     height: '100%',
-    right: 0,
-    top: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    // right: 0,
+    // top: 0,
+    // backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
 });
 

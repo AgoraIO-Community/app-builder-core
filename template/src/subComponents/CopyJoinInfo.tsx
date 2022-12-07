@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {useParams} from '../components/Router';
 import {useString} from '../utils/useString';
@@ -27,6 +27,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {CopyMeetingInfo} from '../components/Share';
+import DimensionContext from '../components/dimension/DimensionContext';
 
 export interface CopyJoinInfoProps {
   showLabel?: boolean;
@@ -43,6 +44,8 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
 
   useEffect(() => {
     getMeeting(phrase);
@@ -87,21 +90,29 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         title="Invite others to join this meeting"
-        showCloseIcon={true}>
+        showCloseIcon={true}
+        contentContainerStyle={style.contentContainer}>
         <CopyMeetingInfo showSubLabel={false} />
-        <View style={style.btnContainer}>
-          <TertiaryButton
-            text={'CANCEL'}
-            containerStyle={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              maxWidth: 180,
-            }}
-            onPress={() => setModalVisible(false)}
-          />
-          <Spacer size={20} horizontal={true} />
+        <View style={isDesktop ? style.btnContainer : style.btnContainerMobile}>
+          {isDesktop ? (
+            <>
+              <TertiaryButton
+                text={'CANCEL'}
+                textStyle={style.btnText}
+                containerStyle={{
+                  flex: 1,
+                  paddingVertical: 12,
+                }}
+                onPress={() => setModalVisible(false)}
+              />
+              <Spacer size={20} horizontal={true} />
+            </>
+          ) : null}
           <PrimaryButton
+            textStyle={style.btnText}
+            containerStyle={{
+              paddingVertical: 12,
+            }}
             onPress={() =>
               copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
             }
@@ -128,9 +139,23 @@ const style = StyleSheet.create({
     height: 20,
   },
   btnContainer: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 48,
+  },
+  btnContainerMobile: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
+  btnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  contentContainer: {
+    padding: 24,
+    minWidth: 342,
   },
 });
 

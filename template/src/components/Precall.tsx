@@ -249,9 +249,9 @@ const Precall = (props: any) => {
     Dimensions.get('window').height,
   ]);
 
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
+  //permission helper modal show/hide
+  const [isVisible, setIsVisible] = useState(false);
+  const {store} = useContext(StorageContext);
 
   useEffect(() => {
     if (isWebInternal() && !isSDK) {
@@ -274,13 +274,16 @@ const Precall = (props: any) => {
     }
   }, [isJoinDataFetched]);
 
-  const isMobileView = () => dim[0] < dim[1] + 150;
-  // const isDesktop = dim[0] > 1200;
-
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
-
-  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
+  useEffect(() => {
+    if (store?.permissionPopupSeen) {
+      const flag = JSON.parse(store?.permissionPopupSeen);
+      if (flag === false) {
+        setIsVisible(true);
+      }
+    } else {
+      setIsVisible(true);
+    }
+  }, []);
 
   const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
@@ -296,20 +299,13 @@ const Precall = (props: any) => {
     return undefined;
   });
 
-  //permission helper modal show/hide
-  const [isVisible, setIsVisible] = useState(false);
-  const {store} = useContext(StorageContext);
-  useEffect(() => {
-    if (store?.permissionPopupSeen) {
-      const flag = JSON.parse(store?.permissionPopupSeen);
-      if (flag === false) {
-        setIsVisible(true);
-      }
-    } else {
-      setIsVisible(true);
-    }
-  }, []);
+  const onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const isMobileView = dim[0] < dim[1] + 150;
+  const isDesktop = !isMobileView;
 
+  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
@@ -337,27 +333,14 @@ const Precall = (props: any) => {
               <Logo />
             </View>
             <Spacer size={20} />
-            <View style={style.container}>
-              <View
-                testID="precall-preview"
-                style={[style.leftContent, isDesktop && style.boxStyle]}>
-                {isDesktop ? (
-                  <VideoPreview />
-                ) : (
-                  <View style={{flex: 1}}>
-                    <View style={[style.boxStyle, style.mobileBoxStyle]}>
-                      <VideoPreview />
-                    </View>
-                    <View testID="precall-mobile-join" style={{flex: 1}}>
-                      {/* This view is visible only on MOBILE view */}
-                      <JoinRoomInputView isDesktop={isDesktop} />
-                    </View>
-                  </View>
-                )}
-              </View>
 
-              {/* This view is visible only on desktop view */}
-              {!isMobileView() ? (
+            {isDesktop ? (
+              <View style={[style.container]}>
+                <View
+                  testID="precall-preview"
+                  style={[style.leftContent, style.boxStyle]}>
+                  <VideoPreview />
+                </View>
                 <Card style={style.rightContent}>
                   <View>
                     <MeetingName />
@@ -372,10 +355,19 @@ const Precall = (props: any) => {
                     </View>
                   </View>
                 </Card>
-              ) : (
-                <View></View>
-              )}
-            </View>
+              </View>
+            ) : (
+              <View style={{flex: 1}}>
+                <View
+                  style={[style.mobileBoxStyle]}
+                  testID="precall-mobile-preview">
+                  <VideoPreview />
+                </View>
+                <View testID="precall-mobile-join" style={{flex: 1}}>
+                  <JoinRoomInputView isDesktop={isDesktop} />
+                </View>
+              </View>
+            )}
           </>
         )}
       </View>
@@ -407,6 +399,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   mainMobile: {
+    flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 32,
   },
@@ -424,7 +417,6 @@ const style = StyleSheet.create({
   leftContent: {
     flex: 2.5,
     borderRadius: 16,
-    height: '90vh',
     overflow: 'hidden',
   },
   boxStyle: {

@@ -10,7 +10,6 @@ import SettingsView from '../../components/SettingsView';
 
 const ActionSheet = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(true);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const [isParticipantsOpen, setIsParticipantsOpen] = React.useState(false);
@@ -49,8 +48,6 @@ const ActionSheet = () => {
 
   const handleSpringStart = (event: SpringEvent) => {
     if (event.type == 'SNAP' && event.source == 'dragging') {
-      console.warn('up');
-      console.log(event);
       setIsExpanded(!isExpanded);
     }
   };
@@ -60,7 +57,6 @@ const ActionSheet = () => {
   ) => {
     switch (screenName) {
       case 'chat':
-        console.warn('chat selected');
         // setIsOpen(false);
         setIsChatOpen(true);
         //chatSheetRef?.current?.snapTo(({snapPoints}) => snapPoints[0]);
@@ -83,7 +79,7 @@ const ActionSheet = () => {
       {/* Controls Action Sheet */}
       <BottomSheet
         ref={bottomSheetRef}
-        open={isOpen}
+        open={true}
         //  onDismiss={onDismiss}
         onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
@@ -108,11 +104,10 @@ const ActionSheet = () => {
         snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) =>
           lastSnap ?? Math.max(...snapPoints)
-        }
-        blocking={false}>
+        }>
         <ScrollView style={styles.content}>
-          <Text>Chat</Text>
-          {/* <Chat handleClose={onChatDismiss} /> */}
+          {/* <Text>Chat</Text> */}
+          <Chat handleClose={onChatDismiss} />
         </ScrollView>
       </BottomSheet>
       {/* Participants Action Sheet */}
@@ -127,9 +122,9 @@ const ActionSheet = () => {
           lastSnap ?? Math.max(...snapPoints)
         }
         blocking={false}>
-        <ScrollView style={styles.content}>
-          <Text>Participants</Text>
-          {/* <ParticipantView handleClose={onParticipantsDismiss} /> */}
+        <ScrollView>
+          {/* <Text>Participants</Text> */}
+          <ParticipantView handleClose={onParticipantsDismiss} />
         </ScrollView>
       </BottomSheet>
       {/* Settings Screen */}
@@ -145,7 +140,7 @@ const ActionSheet = () => {
           lastSnap ?? Math.max(...snapPoints)
         }
         blocking={false}>
-        <ScrollView style={styles.content}>
+        <ScrollView>
           <SettingsView handleClose={onSettingsDismiss} />
         </ScrollView>
       </BottomSheet>
@@ -161,6 +156,8 @@ const styles = StyleSheet.create({
     borderColor: 'red',
   },
   content: {
-    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: 'yellow',
+    flex: 1,
   },
 });

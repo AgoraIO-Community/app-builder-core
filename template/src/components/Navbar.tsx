@@ -333,15 +333,6 @@ const Navbar = () => {
   ]);
   const isDesktop = dim[0] > 1224;
 
-  const [showIcon, setShowIcon] = useState(true);
-  React.useEffect(() => {
-    // Change the state every second or the time given by User.
-    const interval = setInterval(() => {
-      setShowIcon((showIcon) => !showIcon);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <View
       testID="videocall-topbar"
@@ -356,9 +347,7 @@ const Navbar = () => {
         </Text>
         {isRecordingActive && !isMobileOrTablet() ? (
           <View style={[style.recordingView]}>
-            <View
-              style={[style.recordingStatus, {opacity: showIcon ? 1 : 0}]}
-            />
+            <View style={[style.recordingStatus]} />
             <Text style={style.recordingText}>{recordingLabel}</Text>
           </View>
         ) : (
@@ -417,15 +406,14 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   recordingView: {
-    height: 36,
-    padding: 12,
+    padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 8,
     backgroundColor: '#FF414D' + '10',
-    marginLeft: 8,
+    marginLeft: 20,
   },
   recordingText: {
     fontSize: 12,

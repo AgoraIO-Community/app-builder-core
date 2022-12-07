@@ -202,8 +202,11 @@ const Chat = (props?: ChatProps) => {
               tintColor: $config.SECONDARY_ACTION_COLOR,
             }}
             onPress={() => {
-              setSidePanel(SidePanelType.None);
-              props.handleClose && props.handleClose();
+              if (!isSmall) {
+                setSidePanel(SidePanelType.None);
+              } else {
+                props?.handleClose();
+              }
             }}
           />
         </View>
@@ -277,13 +280,11 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   chatViewNative: {
-    position: 'absolute',
     zIndex: 5,
     width: '100%',
     height: '100%',
     right: 0,
     bottom: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
   },
   heading: {
     backgroundColor: $config.SECONDARY_FONT_COLOR,

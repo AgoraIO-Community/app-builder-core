@@ -32,7 +32,7 @@ import Spacer from '../atoms/Spacer';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 
-const ParticipantView = () => {
+const ParticipantView = (props) => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {onlineUsersCount} = useContext(ChatContext);
   const {sidePanel, setSidePanel} = useSidePanel();
@@ -71,7 +71,11 @@ const ParticipantView = () => {
             tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
           onPress={() => {
-            setSidePanel(SidePanelType.None);
+            if (!isSmall) {
+              setSidePanel(SidePanelType.None);
+            } else {
+              props?.handleClose();
+            }
           }}
         />
       </View>
@@ -181,14 +185,20 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
   participantViewNative: {
-    position: 'absolute',
+    //  position: 'absolute',
+    // zIndex: 5,
+    // width: '100%',
+    // height: '100%',
+    // right: 0,
+    // top: 0,
+    //borderBottomWidth: 1,
+    // backgroundColor: $config.SECONDARY_FONT_COLOR,
     zIndex: 5,
     width: '100%',
     height: '100%',
-    right: 0,
-    top: 0,
-    borderBottomWidth: 1,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    //right: 0,
+    // top: 0,
+    //flex: 1,
   },
   bodyContainer: {
     flex: 1,

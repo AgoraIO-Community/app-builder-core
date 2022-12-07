@@ -150,7 +150,7 @@ const VideoCallScreen = () => {
   }, []);
 
   const {height, width} = useWindowDimensions();
-  const isDesktop = width < height + 150 ? false : true;
+  const isDesktop = width > 700; //< height + 150 ? false : true; //TODO: verify in with other mobile screens
 
   return VideocallComponent ? (
     <VideocallComponent />

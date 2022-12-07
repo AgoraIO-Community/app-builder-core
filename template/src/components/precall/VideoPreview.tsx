@@ -10,8 +10,15 @@
 *********************************************
 */
 
-import React, {useContext} from 'react';
-import {View, StyleSheet, Image, Text, TouchableOpacity} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  Image,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import PreCallLocalMute from './LocalMute';
 import {
@@ -24,6 +31,7 @@ import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
+import {isWebInternal} from '../../utils/common';
 
 const Fallback = () => {
   const {isCameraAvailable} = usePreCall();
@@ -79,14 +87,26 @@ const VideoPreview: React.FC = () => {
     return null;
   }
 
+  const [dim, setDim] = useState<[number, number]>([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+  ]);
+  const onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+  const isMobileView = dim[0] < dim[1] + 150;
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, {flex: isMobileView ? 0.8 : 1}]}
+      onLayout={onLayout}>
       <MaxVideoView
         user={renderList[maxUid]}
         key={maxUid}
         fallback={Fallback}
       />
-      <PreCallLocalMute />
+
+      <PreCallLocalMute isMobileView={isMobileView} />
     </View>
   );
 };
@@ -140,19 +160,18 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   container: {
-    flex: 1,
     justifyContent: 'space-between',
     position: 'relative',
   },
   avatar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    margin: 'auto',
+    // position: 'absolute',
+    // top: 0,
+    // left: 0,
+    // right: 0,
+    // bottom: 0,
+    // margin: 'auto',
     width: 100,
     height: 100,
-    zIndex: 99,
+    // zIndex: 99,
   },
 });
