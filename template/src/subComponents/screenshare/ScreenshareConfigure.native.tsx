@@ -22,17 +22,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {
-  useLastJoinedUser,
-  useLayout,
-  useRender,
-  useRtc,
-} from 'customization-api';
+import {useLayout, useRender, useRtc} from 'customization-api';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
-  const {renderList, activeUids} = useRender();
-  const {lastUserJoined: lastJoinedUser} = useLastJoinedUser();
+  const {renderList, activeUids, lastJoinedUid} = useRender();
+  const isPinned = useRef(0);
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
@@ -55,27 +50,30 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     if (
-      lastJoinedUser &&
-      lastJoinedUser?.uid &&
-      lastJoinedUser?.type === 'screenshare' &&
+      lastJoinedUid &&
       activeUids &&
-      activeUids.indexOf(lastJoinedUser.uid) !== -1
+      activeUids.indexOf(lastJoinedUid) !== -1 &&
+      renderListRef.current.renderList[lastJoinedUid] &&
+      renderListRef.current.renderList[lastJoinedUid].type === 'screenshare' &&
+      isPinned.current !== lastJoinedUid
     ) {
       //set to pinned layout
-      triggerChangeLayout(true, lastJoinedUser.uid);
+      triggerChangeLayout(true, lastJoinedUid);
     }
-  }, [lastJoinedUser, activeUids]);
+  }, [lastJoinedUid, activeUids, renderListRef.current.renderList]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
     let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
+      isPinned.current = lastJoinedUid;
       dispatch({
         type: 'SwapVideo',
         value: [screenShareUid],
       });
       layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
+      isPinned.current = 0;
       //screenshare is stopped set the layout Grid View
       layout !== getGridLayoutName() && changeLayout();
     }
