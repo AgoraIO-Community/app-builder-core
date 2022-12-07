@@ -98,7 +98,7 @@ const ActionSheetContent = (props) => {
           <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
         </View>
       </View>
-      <View style={styles.row}>
+      <View style={[styles.row, {paddingVertical: 0}]}>
         {/* List view */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingVertical: 24,
     paddingHorizontal: 16,
     borderColor: $config.CARD_LAYER_3_COLOR,
