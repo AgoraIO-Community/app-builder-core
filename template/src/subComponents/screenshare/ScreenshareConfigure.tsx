@@ -66,6 +66,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
    * Event api callback trigger even before screenshare data available in the RTC layer.
    * so instead of calling triggerChangeLayout from the event api call back
    * listening for rtc layout lastJoinedUid data and if its screenshare then call triggerChangeLayout
+   * lastJoinedUid will be coming from the user joined event
+   * cross check lastJoinedUid data with renderlist
    */
   useEffect(() => {
     if (
