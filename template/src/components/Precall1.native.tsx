@@ -33,7 +33,6 @@ const Precall = () => {
 
   const {
     VideoPreview,
-
     JoinButton,
     Textbox,
     PrecallAfterView,
@@ -131,11 +130,12 @@ const Precall = () => {
   ) : (
     <>
       <PrecallBeforeView />
+
+      <View style={{alignSelf: 'center'}}>
+        <Logo />
+      </View>
+      <Spacer size={20} />
       <View style={style.container}>
-        <View style={{alignSelf: 'center'}}>
-          <Logo />
-        </View>
-        <Spacer size={20} />
         {/* <MeetingName /> */}
         {!isAudienceInLiveStreaming() && (
           <View style={style.preview}>
@@ -164,19 +164,17 @@ const style = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
 
   preview: {
-    shadowColor: '#000000',
+    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
-    borderWidth: 1,
     borderRadius: 20,
-    borderColor: '#ffffff',
-    flex: 3,
+    flex: 4,
   },
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {

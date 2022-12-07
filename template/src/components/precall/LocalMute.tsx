@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {View, StyleSheet, Dimensions, Text} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../../utils/common';
 import LocalVideoMute, {
@@ -20,7 +20,7 @@ import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
 
-const PreCallLocalMute: React.FC = () => {
+const PreCallLocalMute: React.FC = (props: any) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
@@ -60,8 +60,14 @@ const PreCallLocalMute: React.FC = () => {
     // }
     return components;
   });
+
   return (
-    <View style={style.precallControls} testID="precall-controls">
+    <View
+      style={[
+        style.precallControls,
+        {paddingVertical: props.isMobileView ? 20 : 30},
+      ]}
+      testID="precall-controls">
       {!$config.AUDIO_ROOM && (
         <View style={{alignSelf: 'center', marginRight: 30}}>
           <VideoMute />
@@ -83,7 +89,6 @@ export default PreCallLocalMute;
 const style = StyleSheet.create({
   precallControls: {
     flexDirection: 'row',
-    paddingVertical: 30,
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',

@@ -150,7 +150,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
             </TouchableOpacity>
           </View>
 
-          {isDesktop && showSubLabel && (
+          {showSubLabel && (
             <>
               <Spacer size={14} />
               <Text style={style.helpText}>
@@ -190,7 +190,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           </TouchableOpacity>
         </View>
 
-        {isDesktop && showSubLabel && (
+        {showSubLabel && (
           <>
             <Spacer size={14} />
             <Text style={style.helpText}>
@@ -237,7 +237,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
             </TouchableOpacity>
           </View>
 
-          {isDesktop && showSubLabel && (
+          {showSubLabel && (
             <>
               <Spacer size={14} />
               <Text style={style.helpText}>
@@ -245,7 +245,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
               </Text>
             </>
           )}
-          <Spacer size={25} />
+          {/* <Spacer size={25} /> */}
         </>
       ) : (
         <></>
@@ -322,7 +322,7 @@ const Share = () => {
             iconName="video-on"
             onPress={() => enterMeeting()}
             containerStyle={!isDesktop && {width: '100%'}}
-            text={enterMeetingAfterCreateButton}
+            text={enterMeetingAfterCreateButton.toUpperCase()}
           />
           <Spacer size={16} />
           <LinkButton
