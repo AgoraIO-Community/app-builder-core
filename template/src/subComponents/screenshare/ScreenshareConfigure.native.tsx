@@ -23,6 +23,7 @@ import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
 import {useLayout, useRender, useRtc} from 'customization-api';
+import {filterObject} from '../../utils';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
@@ -48,25 +49,45 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     currentLayoutRef.current.currentLayout = currentLayout;
   }, [currentLayout]);
 
+  // useEffect(() => {
+  //   if (
+  //     lastJoinedUid &&
+  //     activeUids &&
+  //     activeUids.indexOf(lastJoinedUid) !== -1 &&
+  //     renderListRef.current.renderList[lastJoinedUid] &&
+  //     renderListRef.current.renderList[lastJoinedUid].type === 'screenshare' &&
+  //     isPinned.current !== lastJoinedUid
+  //   ) {
+  //     //set to pinned layout
+  //     //triggerChangeLayout(true, lastJoinedUid);
+  //   }
+  // }, [lastJoinedUid, activeUids, renderListRef.current.renderList]);
+
   useEffect(() => {
-    if (
-      lastJoinedUid &&
-      activeUids &&
-      activeUids.indexOf(lastJoinedUid) !== -1 &&
-      renderListRef.current.renderList[lastJoinedUid] &&
-      renderListRef.current.renderList[lastJoinedUid].type === 'screenshare' &&
-      isPinned.current !== lastJoinedUid
-    ) {
-      //set to pinned layout
-      triggerChangeLayout(true, lastJoinedUid);
+    const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
+    if (data) {
+      const recentScreenshare = Object.keys(data)
+        .map((i) => parseInt(i))
+        .sort((a, b) => {
+          return data[a].ts - data[b].ts;
+        });
+      if (recentScreenshare?.length) {
+        recentScreenshare.reverse();
+        if (
+          isPinned.current !== recentScreenshare[0] &&
+          activeUids.indexOf(recentScreenshare[0]) !== -1
+        ) {
+          triggerChangeLayout(true, recentScreenshare[0]);
+        }
+      }
     }
-  }, [lastJoinedUid, activeUids, renderListRef.current.renderList]);
+  }, [activeUids, screenShareData]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
     let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
-      isPinned.current = lastJoinedUid;
+      isPinned.current = screenShareUid;
       dispatch({
         type: 'SwapVideo',
         value: [screenShareUid],
