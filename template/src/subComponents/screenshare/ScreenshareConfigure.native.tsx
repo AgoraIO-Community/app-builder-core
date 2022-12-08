@@ -49,20 +49,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     currentLayoutRef.current.currentLayout = currentLayout;
   }, [currentLayout]);
 
-  // useEffect(() => {
-  //   if (
-  //     lastJoinedUid &&
-  //     activeUids &&
-  //     activeUids.indexOf(lastJoinedUid) !== -1 &&
-  //     renderListRef.current.renderList[lastJoinedUid] &&
-  //     renderListRef.current.renderList[lastJoinedUid].type === 'screenshare' &&
-  //     isPinned.current !== lastJoinedUid
-  //   ) {
-  //     //set to pinned layout
-  //     //triggerChangeLayout(true, lastJoinedUid);
-  //   }
-  // }, [lastJoinedUid, activeUids, renderListRef.current.renderList]);
-
   useEffect(() => {
     const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
     if (data) {
