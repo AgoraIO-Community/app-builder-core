@@ -472,7 +472,6 @@ const style = StyleSheet.create({
     zIndex: 9,
   },
   navItem: {
-    paddingHorizontal: 20,
     paddingVertical: 8,
   },
   navSmItem: {

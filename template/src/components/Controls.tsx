@@ -68,7 +68,7 @@ const Controls = () => {
       <View style={style.leftContent}>
         <View
           testID="layout-btn"
-          style={{marginRight: isDesktop ? 40 : 10}}
+          style={{marginRight: isDesktop ? 0 : 10}}
           collapsable={false}>
           {/**
            * .measure returns undefined on Android unless collapsable=false or onLayout are specified
