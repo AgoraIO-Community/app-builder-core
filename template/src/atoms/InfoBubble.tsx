@@ -69,6 +69,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         width: 28,
         height: 28,
         borderRadius: '50%',
+        cursor: toolTipVisible ? 'pointer' : 'auto',
       }}
       onMouseEnter={() => {
         setToolTipVisible(true);
@@ -116,7 +117,11 @@ const InfoBubble = (props: InfoBubbleProps) => {
         <ImageIcon
           iconSize="medium"
           name={'info'}
-          tintColor={$config.SEMANTIC_NETRUAL}
+          tintColor={
+            toolTipVisible
+              ? $config.SECONDARY_ACTION_COLOR
+              : $config.SEMANTIC_NETRUAL
+          }
         />
       </View>
     </div>
@@ -174,7 +179,11 @@ const InfoBubble = (props: InfoBubbleProps) => {
             <ImageIcon
               iconSize="medium"
               name={'info'}
-              tintColor={$config.SEMANTIC_NETRUAL}
+              tintColor={
+                toolTipVisible
+                  ? $config.SECONDARY_ACTION_COLOR
+                  : $config.SEMANTIC_NETRUAL
+              }
             />
           </>
         </Pressable>
@@ -213,6 +222,15 @@ const styles = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_3_COLOR,
     top: -87,
     borderRadius: 12,
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowOffset: {
+      height: 4,
+      width: 0,
+    },
+    shadowOpacity: 0.2,
+    elevation: 5,
+    shadowRadius: 2,
   },
   textStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

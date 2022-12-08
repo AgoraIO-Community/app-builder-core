@@ -65,11 +65,6 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
 const styles = StyleSheet.create({
   primaryButton,
   primaryButtonText,
-  icon: {
-    width: 24,
-    height: 24,
-    marginRight: 8,
-  },
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -85,5 +80,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingLeft: 8,
+    textTransform: 'uppercase',
   },
 });

@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Animated,
   PanResponder,
-  TouchableWithoutFeedback,
+  TouchableOpacity,
   ViewPropTypes,
 } from 'react-native';
 import PropTypes from 'prop-types';
@@ -199,7 +199,7 @@ export default class Switch extends Component {
     });
 
     return (
-      <TouchableWithoutFeedback onPress={this.handleSwitch} {...restProps}>
+      <TouchableOpacity onPress={this.handleSwitch} {...restProps}>
         <Animated.View
           style={[
             styles.container,
@@ -249,7 +249,7 @@ export default class Switch extends Component {
             )}
           </Animated.View>
         </Animated.View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     );
   }
 }
