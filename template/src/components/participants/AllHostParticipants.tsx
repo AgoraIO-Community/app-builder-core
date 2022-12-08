@@ -7,7 +7,7 @@ import {useMeetingInfo, useRender} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {useVideoMeetingData} from '../contexts/VideoMeetingDataContext';
 
-export default function AllHostParticipants() {
+export default function AllHostParticipants(props: any) {
   const localUid = useLocalUid();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
@@ -20,6 +20,7 @@ export default function AllHostParticipants() {
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const {isMobile = false, handleClose, updateActionSheet} = props;
   return (
     <>
       <Spacer size={4} />
@@ -33,6 +34,9 @@ export default function AllHostParticipants() {
           showControls={true}
           isHostUser={hostUids.indexOf(localUid) !== -1}
           key={localUid}
+          isMobile={isMobile}
+          handleClose={handleClose}
+          updateActionSheet={updateActionSheet}
         />
       ) : (
         <></>
@@ -52,6 +56,9 @@ export default function AllHostParticipants() {
               showControls={renderList[uid]?.type === 'rtc' && isHost}
               isHostUser={hostUids.indexOf(uid) !== -1}
               key={uid}
+              isMobile={isMobile}
+              handleClose={handleClose}
+              updateActionSheet={updateActionSheet}
             />
           ),
         )}

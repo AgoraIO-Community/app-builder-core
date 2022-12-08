@@ -100,15 +100,11 @@ const ActionSheet = () => {
         open={isChatOpen}
         onDismiss={onChatDismiss}
         //onSpringStart={handleSpringStart}
+        blocking={true}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.max(...snapPoints)
-        }>
-        <ScrollView style={styles.content}>
-          {/* <Text>Chat</Text> */}
-          <Chat handleClose={onChatDismiss} />
-        </ScrollView>
+        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
+        <Chat handleClose={onChatDismiss} />
       </BottomSheet>
       {/* Participants Action Sheet */}
       <BottomSheet
@@ -117,15 +113,13 @@ const ActionSheet = () => {
         onDismiss={onParticipantsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.max(...snapPoints)
-        }
+        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
-        <ScrollView>
-          {/* <Text>Participants</Text> */}
-          <ParticipantView handleClose={onParticipantsDismiss} />
-        </ScrollView>
+        <ParticipantView
+          handleClose={onParticipantsDismiss}
+          updateActionSheet={updateActionSheet}
+        />
       </BottomSheet>
       {/* Settings Screen */}
 
@@ -135,14 +129,10 @@ const ActionSheet = () => {
         onDismiss={onSettingsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.max(...snapPoints)
-        }
+        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
-        <ScrollView>
-          <SettingsView handleClose={onSettingsDismiss} />
-        </ScrollView>
+        <SettingsView handleClose={onSettingsDismiss} />
       </BottomSheet>
     </View>
   );

@@ -100,7 +100,11 @@ const ParticipantView = (props) => {
                       title={hostLabel}
                       count={hostUids.length}
                     />
-                    <AllHostParticipants />
+                    <AllHostParticipants
+                      isMobile={isSmall}
+                      updateActionSheet={props.updateActionSheet}
+                      handleClose={props.handleClose}
+                    />
                   </>
                 ) : (
                   /** New Host ( earlier was 'audience' and now is host )
@@ -111,7 +115,12 @@ const ParticipantView = (props) => {
                       title={hostLabel}
                       count={hostUids.length}
                     />
-                    <AllAudienceParticipants uids={hostUids} />
+                    <AllAudienceParticipants
+                      uids={hostUids}
+                      isMobile={isSmall}
+                      updateActionSheet={props.updateActionSheet}
+                      handleClose={props.handleClose}
+                    />
                   </>
                 ))
             }
@@ -125,7 +134,12 @@ const ParticipantView = (props) => {
                     title={hostLabel}
                     count={hostUids.length}
                   />
-                  <AllAudienceParticipants uids={hostUids} />
+                  <AllAudienceParticipants
+                    uids={hostUids}
+                    isMobile={isSmall}
+                    updateActionSheet={props.updateActionSheet}
+                    handleClose={props.handleClose}
+                  />
                 </>
               )
             }
@@ -136,12 +150,21 @@ const ParticipantView = (props) => {
                   title={audienceLabel}
                   count={audienceUids.length}
                 />
-                <AllAudienceParticipants uids={audienceUids} />
+                <AllAudienceParticipants
+                  uids={audienceUids}
+                  isMobile={isSmall}
+                  updateActionSheet={props.updateActionSheet}
+                  handleClose={props.handleClose}
+                />
               </>
             }
           </>
         ) : (
-          <AllHostParticipants />
+          <AllHostParticipants
+            isMobile={isSmall}
+            updateActionSheet={props.updateActionSheet}
+            handleClose={props.handleClose}
+          />
         )}
       </ScrollView>
 

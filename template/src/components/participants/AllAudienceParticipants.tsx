@@ -6,7 +6,7 @@ import {UidType, useMeetingInfo, useRender} from 'customization-api';
 import Participant from './Participant';
 
 const AllAudienceParticipants = (props: any) => {
-  const {uids} = props;
+  const {uids, isMobile = false, handleClose, updateActionSheet} = props;
   const {renderList} = useRender();
   const {localUid} = useContext(chatContext);
   //commented for v1 release
@@ -47,6 +47,9 @@ const AllAudienceParticipants = (props: any) => {
               showControls={renderList[localUid]?.type === 'rtc' && isHost}
               isHostUser={false}
               key={localUid}
+              isMobile={isMobile}
+              handleClose={handleClose}
+              updateActionSheet={updateActionSheet}
             />
           ) : (
             <></>
@@ -63,6 +66,9 @@ const AllAudienceParticipants = (props: any) => {
                 isAudienceUser={true}
                 isHostUser={false}
                 key={uid}
+                isMobile={isMobile}
+                handleClose={handleClose}
+                updateActionSheet={updateActionSheet}
               />
             ))}
         </>
