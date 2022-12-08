@@ -55,22 +55,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   }, []);
 
   useEffect(() => {
-    if (!selectedMic) {
-      for (const i in deviceList) {
-        if (deviceList[i].kind === 'videoinput') {
-          console.log('WEBAPI: setting camera ', deviceList[i]);
-          setSelectedCam(deviceList[i].deviceId);
-          break;
-        }
+    for (const i in deviceList) {
+      if (deviceList[i].kind === 'videoinput') {
+        console.log('WEBAPI: setting camera ', deviceList[i]);
+        setSelectedCam(deviceList[i].deviceId);
+        break;
       }
     }
-    if (!selectedCam) {
-      for (const i in deviceList) {
-        if (deviceList[i].kind === 'audioinput') {
-          console.log('WEBAPI: setting microphone ', deviceList[i]);
-          setSelectedMic(deviceList[i].deviceId);
-          break;
-        }
+    for (const i in deviceList) {
+      if (deviceList[i].kind === 'audioinput') {
+        console.log('WEBAPI: setting microphone ', deviceList[i]);
+        setSelectedMic(deviceList[i].deviceId);
+        break;
       }
     }
   }, [deviceList]);
