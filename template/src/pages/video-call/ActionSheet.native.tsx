@@ -32,6 +32,7 @@ const ActionSheet = () => {
   function onChatDismiss() {
     chatSheetRef?.current.close();
   }
+
   function onParticipantsDismiss() {
     participantsSheetRef?.current.close();
   }
@@ -105,7 +106,10 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <ParticipantView handleClose={onParticipantsDismiss} />
+          <ParticipantView
+            handleClose={onParticipantsDismiss}
+            updateActionSheet={updateActionSheet}
+          />
         </BottomSheetView>
       </BottomSheetModal>
 

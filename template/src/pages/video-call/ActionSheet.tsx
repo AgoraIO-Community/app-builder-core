@@ -120,7 +120,10 @@ const ActionSheet = () => {
         blocking={false}>
         <ScrollView>
           {/* <Text>Participants</Text> */}
-          <ParticipantView handleClose={onParticipantsDismiss} />
+          <ParticipantView
+            handleClose={onParticipantsDismiss}
+            updateActionSheet={updateActionSheet}
+          />
         </ScrollView>
       </BottomSheet>
       {/* Settings Screen */}

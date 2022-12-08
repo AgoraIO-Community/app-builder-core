@@ -1,10 +1,11 @@
-import React, {SetStateAction} from 'react';
+import React, {SetStateAction, useContext} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Spacer from '../atoms/Spacer';
 import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
+import DimensionContext from '../components/dimension/DimensionContext';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -13,6 +14,8 @@ interface RemoveMeetingPopupProps {
   username: string;
 }
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
   const removeMeetingLabelHeading = 'Remove ' + props.username + '?';
   const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the meeting later.`;
 
@@ -28,33 +31,27 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
       <Spacer size={8} />
       <Text style={styles.subHeading}>{removeMeetingLabelSubHeading}</Text>
       <Spacer size={32} />
-      <View style={styles.btnContainer}>
-        <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-          <TertiaryButton
-            containerStyle={{
-              height: 46,
-              justifyContent: 'center',
-            }}
-            text={cancelBtnLabel}
-            onPress={() => props.setModalVisible(false)}
-          />
-        </View>
-        <View
-          style={{
-            marginLeft: 16,
-            justifyContent: 'center',
-            alignSelf: 'center',
-          }}>
-          <PrimaryButton
-            containerStyle={{
-              backgroundColor: $config.SEMANTIC_ERROR,
-              height: 48,
-              minWidth: 200,
-            }}
-            text={removeBtnLabel}
-            onPress={props.removeUserFromMeeting}
-          />
-        </View>
+      <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
+        <TertiaryButton
+          containerStyle={{
+            paddingVertical: 12,
+          }}
+          textStyle={styles.btnText}
+          text={cancelBtnLabel}
+          onPress={() => props.setModalVisible(false)}
+        />
+
+        <PrimaryButton
+          containerStyle={{
+            backgroundColor: $config.SEMANTIC_ERROR,
+            paddingVertical: 12,
+            minWidth: 180,
+            marginBottom: isDesktop ? 0 : 20,
+          }}
+          textStyle={styles.btnText}
+          text={removeBtnLabel}
+          onPress={props.removeUserFromMeeting}
+        />
       </View>
     </Popup>
   );
@@ -64,13 +61,23 @@ export default RemoveMeetingPopup;
 
 const styles = StyleSheet.create({
   btnContainer: {
-    flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   contentContainer: {
     padding: 24,
     maxWidth: 342,
   },
+  btnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+
+  btnContainerMobile: {
+    flexDirection: 'column-reverse',
+  },
+
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
