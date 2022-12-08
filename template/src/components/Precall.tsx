@@ -34,7 +34,7 @@ import Spacer from '../atoms/Spacer';
 import {useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
-import PermissionHelper from './precall/PermissionHelper';
+
 import StorageContext from './StorageContext';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
@@ -311,7 +311,6 @@ const Precall = (props: any) => {
   ) : (
     <>
       <PrecallBeforeView />
-      <PermissionHelper isVisible={isVisible} setIsVisible={setIsVisible} />
       <View
         style={isDesktop ? style.main : style.mainMobile}
         onLayout={onLayout}
