@@ -101,10 +101,8 @@ const ActionSheet = () => {
         onDismiss={onChatDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.max(...snapPoints)
-        }>
+        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
         <ScrollView style={styles.content}>
           {/* <Text>Chat</Text> */}
           <Chat handleClose={onChatDismiss} />
@@ -117,10 +115,8 @@ const ActionSheet = () => {
         onDismiss={onParticipantsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.max(...snapPoints)
-        }
+        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
         <ScrollView>
           {/* <Text>Participants</Text> */}
@@ -135,10 +131,8 @@ const ActionSheet = () => {
         onDismiss={onSettingsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.max(...snapPoints)
-        }
+        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
         <ScrollView>
           <SettingsView handleClose={onSettingsDismiss} />
