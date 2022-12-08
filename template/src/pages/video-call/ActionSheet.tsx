@@ -100,13 +100,11 @@ const ActionSheet = () => {
         open={isChatOpen}
         onDismiss={onChatDismiss}
         //onSpringStart={handleSpringStart}
+        blocking={true}
         expandOnContentDrag={true}
         snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
-        <ScrollView style={styles.content}>
-          {/* <Text>Chat</Text> */}
-          <Chat handleClose={onChatDismiss} />
-        </ScrollView>
+        <Chat handleClose={onChatDismiss} />
       </BottomSheet>
       {/* Participants Action Sheet */}
       <BottomSheet
@@ -118,13 +116,10 @@ const ActionSheet = () => {
         snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
-        <ScrollView>
-          {/* <Text>Participants</Text> */}
-          <ParticipantView
-            handleClose={onParticipantsDismiss}
-            updateActionSheet={updateActionSheet}
-          />
-        </ScrollView>
+        <ParticipantView
+          handleClose={onParticipantsDismiss}
+          updateActionSheet={updateActionSheet}
+        />
       </BottomSheet>
       {/* Settings Screen */}
 
@@ -137,9 +132,7 @@ const ActionSheet = () => {
         snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
-        <ScrollView>
-          <SettingsView handleClose={onSettingsDismiss} />
-        </ScrollView>
+        <SettingsView handleClose={onSettingsDismiss} />
       </BottomSheet>
     </View>
   );
