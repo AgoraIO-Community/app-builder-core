@@ -22,8 +22,15 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
   //   activeUids &&
   //   activeUids?.length &&
   //   activeUids[0] === user.uid;
+  const activeSpeaker = isActiveSpeaker(user.uid);
   return (
-    <View style={maxStyle.container}>
+    <View
+      style={[
+        maxStyle.container,
+        activeSpeaker
+          ? maxStyle.activeContainerStyle
+          : maxStyle.nonActiveContainerStyle,
+      ]}>
       <ScreenShareNotice uid={user.uid} />
       <NetworkQualityPill
         user={user}
@@ -38,9 +45,10 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
       />
       <MaxVideoView
         fallback={() => {
-          return FallbackLogo(user?.name, isActiveSpeaker(user.uid));
+          return FallbackLogo(user?.name, activeSpeaker);
         }}
         user={user}
+        containerStyle={{borderRadius: 12}}
         key={user.uid}
       />
       <NameWithMicIcon user={user} />
@@ -49,7 +57,19 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
 };
 
 const maxStyle = StyleSheet.create({
-  container: {width: '100%', height: '100%', position: 'relative'},
+  container: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    borderRadius: 12,
+    borderWidth: 4,
+  },
+  activeContainerStyle: {
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  },
+  nonActiveContainerStyle: {
+    borderColor: $config.VIDEO_AUDIO_TILE_COLOR,
+  },
 });
 
 export default VideoRenderer;

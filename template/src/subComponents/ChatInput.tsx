@@ -72,6 +72,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     message,
     setMessage,
     inputActive,
+    privateActive,
   } = useChatUIControl();
   const {sendChatMessage} = useChatMessages();
   //commented for v1 release
@@ -79,7 +80,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
-  const chatMessageInputPlaceholder = `Chat publicly as ${name}...`;
+  const chatMessageInputPlaceholder = privateActive
+    ? `Chat privately as ${name}...`
+    : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {

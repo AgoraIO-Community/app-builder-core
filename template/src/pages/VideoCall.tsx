@@ -54,6 +54,7 @@ import {useWakeLock} from '../components/useWakeLock';
 import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
+import PermissionHelper from '../components/precall/PermissionHelper';
 
 enum RnEncryptionEnum {
   /**
@@ -207,24 +208,24 @@ const VideoCall: React.FC = () => {
                 <DeviceConfigure>
                   <ChatUIControlProvider>
                     <ChatNotificationProvider>
-                      <SidePanelProvider
+                      <LayoutProvider
                         value={{
-                          sidePanel,
-                          setSidePanel,
+                          currentLayout,
+                          setLayout,
                         }}>
-                        <ChatMessagesProvider>
-                          <ScreenShareProvider>
-                            <RtmConfigure
-                              setRecordingActive={setRecordingActive}
-                              callActive={callActive}>
-                              <UserPreferenceProvider>
-                                <EventsConfigure>
-                                  <WhiteboardProvider>
-                                    <LayoutProvider
-                                      value={{
-                                        currentLayout,
-                                        setLayout,
-                                      }}>
+                        <SidePanelProvider
+                          value={{
+                            sidePanel,
+                            setSidePanel,
+                          }}>
+                          <ChatMessagesProvider>
+                            <ScreenShareProvider>
+                              <RtmConfigure
+                                setRecordingActive={setRecordingActive}
+                                callActive={callActive}>
+                                <UserPreferenceProvider>
+                                  <EventsConfigure>
+                                    <WhiteboardProvider>
                                       <RecordingProvider
                                         value={{
                                           setRecordingActive,
@@ -242,6 +243,7 @@ const VideoCall: React.FC = () => {
                                                 localUid={rtcProps?.uid || 0}>
                                                 <CustomUserContextHolder>
                                                   <NetworkQualityProvider>
+                                                    <PermissionHelper />
                                                     {callActive ? (
                                                       <VideoMeetingDataProvider>
                                                         <VideoCallScreen />
@@ -270,14 +272,14 @@ const VideoCall: React.FC = () => {
                                           </LiveStreamContextProvider>
                                         </ScreenshareConfigure>
                                       </RecordingProvider>
-                                    </LayoutProvider>
-                                  </WhiteboardProvider>
-                                </EventsConfigure>
-                              </UserPreferenceProvider>
-                            </RtmConfigure>
-                          </ScreenShareProvider>
-                        </ChatMessagesProvider>
-                      </SidePanelProvider>
+                                    </WhiteboardProvider>
+                                  </EventsConfigure>
+                                </UserPreferenceProvider>
+                              </RtmConfigure>
+                            </ScreenShareProvider>
+                          </ChatMessagesProvider>
+                        </SidePanelProvider>
+                      </LayoutProvider>
                     </ChatNotificationProvider>
                   </ChatUIControlProvider>
                 </DeviceConfigure>

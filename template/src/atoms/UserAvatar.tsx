@@ -1,14 +1,13 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import ThemeConfig from '../theme';
 
 function getInitials(name: string) {
-  const arr = name.split(' ');
-  const len = arr.length;
-  if (len > 1) {
-    return arr[0][0] + arr[len - 1][0];
-  } else {
-    return arr[0][0];
-  }
+  let rgx = new RegExp(/(\p{L}{1})\p{L}+/, 'gu');
+  let initials = [...name.matchAll(rgx)] || [];
+  return (
+    (initials.shift()?.[1] || '') + (initials.pop()?.[1] || '')
+  ).toUpperCase();
 }
 
 const UserAvatar = ({name, containerStyle, textStyle}) => {
@@ -26,7 +25,7 @@ const UserAvatar = ({name, containerStyle, textStyle}) => {
         style={[
           textStyle,
           {
-            fontFamily: 'Source Sans Pro',
+            fontFamily: ThemeConfig.FontFamily.sansPro,
             alignSelf: 'center',
             textAlign: 'center',
           },

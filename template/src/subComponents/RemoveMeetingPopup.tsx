@@ -4,6 +4,7 @@ import Spacer from '../atoms/Spacer';
 import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
+import ThemeConfig from '../theme';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -33,9 +34,6 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
             containerStyle={{
               height: 46,
               justifyContent: 'center',
-              backgroundColor: '#FFFFFF',
-              borderWidth: 1,
-              borderColor: '#000000',
             }}
             text={cancelBtnLabel}
             onPress={() => props.setModalVisible(false)}
@@ -49,19 +47,11 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
           }}>
           <PrimaryButton
             containerStyle={{
-              backgroundColor: '#FF414D',
+              backgroundColor: $config.SEMANTIC_ERROR,
               height: 48,
               minWidth: 200,
             }}
             text={removeBtnLabel}
-            textStyle={{
-              fontFamily: 'Source Sans Pro',
-              fontWeight: '600',
-              fontSize: 16,
-              lineHeight: 24,
-              textAlign: 'center',
-              color: 'rgba(255, 255, 255, 0.98)',
-            }}
             onPress={props.removeUserFromMeeting}
           />
         </View>
@@ -82,19 +72,19 @@ const styles = StyleSheet.create({
     maxWidth: 342,
   },
   heading: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 22,
     lineHeight: 24,
     letterSpacing: 0.15,
-    color: '#FF414D',
+    color: $config.SEMANTIC_ERROR,
   },
   subHeading: {
-    fontFamily: 'Source Sans Pro',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0.25,
-    color: 'rgba(0, 0, 0, 0.8)',
+    color: $config.FONT_COLOR,
   },
 });
