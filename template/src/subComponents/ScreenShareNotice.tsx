@@ -17,6 +17,7 @@ import {useString} from '../utils/useString';
 import {useScreenshare} from './screenshare/useScreenshare';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 /**
  *
  * @param uid - uid of the user
@@ -95,7 +96,8 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
-    backgroundColor: $config.HARD_CODED_BLACK_COLOR + '90',
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['90%'],
     borderRadius: 15,
   },
   screensharingMessage: {

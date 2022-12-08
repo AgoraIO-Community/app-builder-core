@@ -47,18 +47,7 @@ import {
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
-
-const RenderSeparator = () => {
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
-  return isWebInternal() && isDesktop ? (
-    <View style={style.navItem}>
-      <View style={style.navItemSeparator}></View>
-    </View>
-  ) : (
-    <View style={{marginHorizontal: 2}}></View>
-  );
-};
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const ParticipantsCountView = () => {
   const {onlineUsersCount} = useContext(ChatContext);
@@ -145,7 +134,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           style.navItem,
           {
             backgroundColor: isPanelActive
-              ? $config.PRIMARY_COLOR
+              ? $config.PRIMARY_ACTION_BRAND_COLOR
               : 'transparent',
           },
         ]}>
@@ -163,7 +152,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
           <View style={[style.badge, {paddingHorizontal: 3}]}>
             <ImageIcon
               icon={Icons['exclamationIcon']}
-              color={$config.SECONDARY_FONT_COLOR}
+              color={$config.SECONDARY_ACTION_COLOR}
             />
           </View>
         </View>
@@ -284,7 +273,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           style.navItem,
           {
             backgroundColor: isPanelActive
-              ? $config.PRIMARY_COLOR
+              ? $config.PRIMARY_ACTION_BRAND_COLOR
               : 'transparent',
           },
         ]}>
@@ -399,7 +388,8 @@ const style = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: '8%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
+    backgroundColor:
+      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -412,7 +402,7 @@ const style = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    backgroundColor: '#FF414D' + '10',
+    backgroundColor: '#FF414D' + hexadecimalTransparency['10%'],
     marginLeft: 20,
   },
   recordingText: {
@@ -460,7 +450,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   chip: {
-    backgroundColor: $config.PRIMARY_COLOR,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 2.5,
     paddingHorizontal: 5,
     marginLeft: 5,
@@ -473,25 +463,13 @@ const style = StyleSheet.create({
   chipText: {
     fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
-    color: $config.SECONDARY_FONT_COLOR,
+    color: $config.SECONDARY_ACTION_COLOR,
   },
   navControlBar: {
     width: '50%',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     zIndex: 9,
-  },
-  navContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: isWebInternal()
-      ? $config.SECONDARY_FONT_COLOR
-      : $config.SECONDARY_FONT_COLOR + '00',
-    paddingVertical: 4,
-    paddingHorizontal: isMobileOrTablet() ? 0 : 10,
-    minHeight: 35,
-    borderRadius: 10,
   },
   navItem: {
     paddingHorizontal: 20,
@@ -501,22 +479,6 @@ const style = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: '15%',
-  },
-  navItemSeparator: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-    width: 1,
-    height: '100%',
-    marginHorizontal: 10,
-    alignSelf: 'center',
-    opacity: 0.8,
-  },
-  navItemSeparatorHorizontal: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-    width: '100%',
-    height: 1,
-    marginVertical: 10,
-    alignSelf: 'center',
-    opacity: 0.8,
   },
   dropdownIconContainer: {
     flex: 1,

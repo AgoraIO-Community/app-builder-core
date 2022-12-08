@@ -22,6 +22,7 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import OutlineButton from '../atoms/OutlineButton';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const SettingsView = (props) => {
   const {
@@ -153,7 +154,8 @@ const style = StyleSheet.create({
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
     flex: 1,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
@@ -166,7 +168,7 @@ const style = StyleSheet.create({
     height: '100%',
     // right: 0,
     // top: 0,
-    // backgroundColor: $config.SECONDARY_FONT_COLOR,
+    // backgroundColor: $config.SECONDARY_ACTION_COLOR,
   },
 });
 

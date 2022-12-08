@@ -11,6 +11,7 @@
 */
 import React, {useContext} from 'react';
 import CheckBox from '@react-native-community/checkbox';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 /**
  * A checkbox component for mobile
@@ -24,12 +25,22 @@ const Checkbox = (props: any) => {
       onValueChange={setUrlCheckbox}
       disabled={props?.disabled}
       tintColors={{
-        true: props?.disabled ? 'grey' : $config.PRIMARY_COLOR,
-        false: props?.disabled ? 'grey' : $config.PRIMARY_FONT_COLOR + 80,
+        true: props?.disabled ? 'grey' : $config.PRIMARY_ACTION_BRAND_COLOR,
+        false: props?.disabled
+          ? 'grey'
+          : $config.FONT_COLOR + hexadecimalTransparency['80%'],
       }}
-      tintColor={props?.disabled ? 'grey' : $config.PRIMARY_FONT_COLOR + 80}
-      onCheckColor={props?.disabled ? 'grey' : $config.PRIMARY_COLOR}
-      onTintColor={props?.disabled ? 'grey' : $config.PRIMARY_COLOR}
+      tintColor={
+        props?.disabled
+          ? 'grey'
+          : $config.FONT_COLOR + hexadecimalTransparency['80%']
+      }
+      onCheckColor={
+        props?.disabled ? 'grey' : $config.PRIMARY_ACTION_BRAND_COLOR
+      }
+      onTintColor={
+        props?.disabled ? 'grey' : $config.PRIMARY_ACTION_BRAND_COLOR
+      }
     />
   );
 };

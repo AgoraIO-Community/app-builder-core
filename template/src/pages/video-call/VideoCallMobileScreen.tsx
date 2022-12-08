@@ -5,6 +5,7 @@ import ActionSheet from './ActionSheet';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import {useRecording} from '../../subComponents/recording/useRecording';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 interface VideoCallMobileScreenProps {
   title: string;
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    backgroundColor: '#FF414D' + '10',
+    backgroundColor: '#FF414D' + hexadecimalTransparency['10%'],
     marginLeft: 20,
   },
   recordingText: {

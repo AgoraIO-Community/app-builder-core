@@ -107,21 +107,5 @@ const style = StyleSheet.create({
     // margin: 1,
     marginHorizontal: 10,
   },
-  MicBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginHorizontal: 10,
-    marginRight: 20,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  MicIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
-  },
 });
 export default GridVideo;

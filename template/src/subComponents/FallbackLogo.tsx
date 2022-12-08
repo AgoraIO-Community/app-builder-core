@@ -11,6 +11,7 @@
 */
 import React from 'react';
 import {Image, Text, View, StyleSheet} from 'react-native';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import UserAvatar from '../atoms/UserAvatar';
 
 export default function FallbackLogo(name: string, isActiveSpeaker?: boolean) {
@@ -21,7 +22,8 @@ export default function FallbackLogo(name: string, isActiveSpeaker?: boolean) {
           styles.activeSpeakerBg,
           {
             backgroundColor: isActiveSpeaker
-              ? $config.PRIMARY_ACTION_BRAND_COLOR + '15'
+              ? $config.PRIMARY_ACTION_BRAND_COLOR +
+                hexadecimalTransparency['15%']
               : 'transparent',
           },
         ]}>

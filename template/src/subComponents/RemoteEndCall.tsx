@@ -49,7 +49,7 @@ const style = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.SECONDARY_ACTION_COLOR,
   },
 });
 

@@ -24,6 +24,7 @@ import {
 } from './precall/index';
 import Logo from './common/Logo';
 import Spacer from '../atoms/Spacer';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const Precall = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -168,7 +169,8 @@ const style = StyleSheet.create({
   },
 
   preview: {
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -179,7 +181,7 @@ const style = StyleSheet.create({
   heading: {flex: 0.1, justifyContent: 'center'},
   headingText: {
     fontSize: 24,
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontWeight: '700',
     alignSelf: 'center',
   },
@@ -192,9 +194,9 @@ const style = StyleSheet.create({
   textInput: {
     width: '80%',
     paddingLeft: 8,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderWidth: 2,
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontSize: 16,
     minHeight: 45,
     alignSelf: 'center',
@@ -207,16 +209,7 @@ const style = StyleSheet.create({
   },
   width50: {width: 50},
   buttonActive: {
-    backgroundColor: $config.PRIMARY_COLOR,
-    height: 50,
-    width: 180,
-    alignSelf: 'center',
-    alignContent: 'center',
-    justifyContent: 'center',
-    marginBottom: 50,
-  },
-  buttonDisabled: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     height: 50,
     width: 180,
     alignSelf: 'center',
@@ -231,13 +224,13 @@ const style = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     textAlignVertical: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
+    color: $config.SECONDARY_ACTION_COLOR,
   },
   titleHeading: {
     fontSize: 22,
     fontWeight: '700',
     textAlign: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
+    color: $config.SECONDARY_ACTION_COLOR,
   },
 });
 

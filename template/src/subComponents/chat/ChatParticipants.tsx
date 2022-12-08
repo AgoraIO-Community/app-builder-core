@@ -17,6 +17,7 @@ import ImageIcon from '../../atoms/ImageIcon';
 import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import ThemeConfig from '../../theme';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -106,7 +107,7 @@ const PlatformWrapper = ({
       style={{
         backgroundColor:
           isHoveredUid === uid
-            ? $config.CARD_LAYER_5_COLOR + '10'
+            ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%']
             : 'transparent',
         cursor: isHoveredUid === uid ? 'pointer' : 'auto',
       }}
@@ -126,7 +127,8 @@ const PlatformWrapper = ({
 
 const style = StyleSheet.create({
   bgContainerStyle: {
-    backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -135,7 +137,8 @@ const style = StyleSheet.create({
     marginVertical: 16,
   },
   userAvatarContainer: {
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
     width: 36,
     height: 36,
     borderRadius: 18,

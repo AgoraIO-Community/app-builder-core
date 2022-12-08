@@ -108,7 +108,7 @@ const InviteInfo = () => {
             <IconButton
               iconProps={{
                 name: 'clipboard',
-                tintColor: $config.PRIMARY_COLOR,
+                tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
               }}
               onPress={() =>
                 copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
@@ -137,7 +137,7 @@ const style = StyleSheet.create({
     borderRadius: 8,
   },
   urlTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
@@ -158,7 +158,7 @@ const style = StyleSheet.create({
     fontFamily: 'Source Sans Pro',
   },
   url: {
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',

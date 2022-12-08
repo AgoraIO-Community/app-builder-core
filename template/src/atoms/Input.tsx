@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   helpText: {
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
 });

@@ -38,6 +38,7 @@ import {PreCallTextInputProps} from './precall/textInput';
 import StorageContext from './StorageContext';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {JoinButton, Textbox} = useCustomization((data) => {
@@ -419,7 +420,8 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   boxStyle: {
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.2,
     shadowRadius: 6,

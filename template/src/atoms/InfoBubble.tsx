@@ -14,6 +14,7 @@ import React, {useRef, useState} from 'react';
 import ImageIcon from './ImageIcon';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface InfoBubbleProps {
   text: string;
@@ -63,7 +64,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         marginTop: -3,
         marginLeft: -3,
         background: toolTipVisible
-          ? $config.CARD_LAYER_5_COLOR + '20'
+          ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%']
           : 'transparent',
         width: 28,
         height: 28,
@@ -204,22 +205,12 @@ const styles = StyleSheet.create({
   downsideTriangleIcon: {
     width: 27,
     height: 36,
-    // shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
-    // shadowOpacity: 0.1,
-    // shadowOffset: {width: 0, height: 2},
-    // shadowRadius: 2,
   },
   textContainer: {
     flex: 1,
     position: 'absolute',
     zIndex: 998,
     backgroundColor: $config.CARD_LAYER_3_COLOR,
-    // borderWidth: 1,
-    // borderColor: '#F2F2F2',
-    // shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
-    // shadowOpacity: 0.1,
-    // shadowOffset: {width: 0, height: 4},
-    // shadowRadius: 4,
     top: -87,
     borderRadius: 12,
   },

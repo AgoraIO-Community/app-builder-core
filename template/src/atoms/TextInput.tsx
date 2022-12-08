@@ -13,13 +13,14 @@ import React, {useContext} from 'react';
 import {TextInputProps, StyleSheet, TextInput, Platform} from 'react-native';
 import {isWebInternal} from '../utils/common';
 import {textInput} from '../../theme.json';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const TextInputCustom = (props: TextInputProps) => {
   const {style, ...otherProps} = props;
   return (
     <TextInput
       style={[styles.textInput, styles.textWrapFix, styles.noOutline, style]}
-      placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
+      placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
       autoCorrect={false}
       {...otherProps}
     />

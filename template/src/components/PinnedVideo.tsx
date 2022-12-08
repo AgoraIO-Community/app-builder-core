@@ -128,42 +128,8 @@ const style = StyleSheet.create({
   width80: {width: '80%'},
   width100: {width: '100%'},
   flex2: {flex: 2},
-  flex4: {flex: 4, backgroundColor: '#ffffff00'},
+  flex4: {flex: 4},
   flex1: {flex: 1},
-  nameHolder: {
-    marginTop: -25,
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
-    alignSelf: 'flex-end',
-    paddingHorizontal: 8,
-    height: 25,
-    borderTopLeftRadius: 15,
-    borderBottomRightRadius: 15,
-    flexDirection: 'row',
-    zIndex: 5,
-    maxWidth: '100%',
-  },
-  name: {
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 25,
-    fontWeight: '700',
-    flexShrink: 1,
-  },
-  MicBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 15,
-    marginHorizontal: 10,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    display: 'flex',
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  MicIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
-    resizeMode: 'contain',
-  },
 });
 
 export default PinnedVideo;

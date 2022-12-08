@@ -1,6 +1,7 @@
 import {StyleSheet, Text, View, ViewStyle} from 'react-native';
 import React from 'react';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const mobileOrTablet = isMobileOrTablet();
 
@@ -44,7 +45,8 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     borderRadius: 20,
     borderColor: $config.CARD_LAYER_3_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOffset: {width: 0, height: 3},
     shadowOpacity: 0.1,
     shadowRadius: 6,

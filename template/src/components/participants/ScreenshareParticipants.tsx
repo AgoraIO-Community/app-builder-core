@@ -13,6 +13,7 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const ScreenshareParticipants = (props: {name: string}) => {
   const {name} = props;
@@ -36,14 +37,16 @@ const ScreenshareParticipants = (props: {name: string}) => {
 export default ScreenshareParticipants;
 const styles = StyleSheet.create({
   bgContainerStyle: {
-    backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     width: 36,
     height: 36,
     borderRadius: 18,
     marginRight: 8,
   },
   containerStyle: {
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
     width: 36,
     height: 36,
     borderRadius: 18,

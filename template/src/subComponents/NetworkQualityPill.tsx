@@ -154,8 +154,6 @@ const PlatformSpecificWrapper = ({
 
 const style = StyleSheet.create({
   networkPill: {
-    // height: 30,
-    // backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
     padding: 8,
     position: 'absolute',
     zIndex: 2,
@@ -185,7 +183,7 @@ const style = StyleSheet.create({
     // borderRadius: 10,
     // alignSelf: 'center',
     //marginLeft: 8,
-    // backgroundColor: $config.SECONDARY_FONT_COLOR,
+    // backgroundColor: $config.SECONDARY_ACTION_COLOR,
     // justifyContent: 'center',
   },
 });

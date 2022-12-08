@@ -1,3 +1,5 @@
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+
 const EmphasisOpacity = {
   high: 1,
   medium: 0.85,
@@ -5,8 +7,8 @@ const EmphasisOpacity = {
 };
 const EmphasisPlus = {
   high: '',
-  medium: '85',
-  disabled: '40',
+  medium: hexadecimalTransparency['85%'],
+  disabled: hexadecimalTransparency['40%'],
 };
 const FontSize: {
   extraLarge: 32;

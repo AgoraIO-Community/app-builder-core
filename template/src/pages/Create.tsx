@@ -308,7 +308,7 @@ const style = StyleSheet.create({
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     marginBottom: 40,
   },
   btnContainer: {

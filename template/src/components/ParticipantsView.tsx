@@ -31,6 +31,7 @@ import {ButtonTemplateName} from '../utils/useButtonTemplate';
 import Spacer from '../atoms/Spacer';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const ParticipantView = (props) => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
@@ -169,7 +170,8 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
@@ -192,7 +194,7 @@ const style = StyleSheet.create({
     // right: 0,
     // top: 0,
     //borderBottomWidth: 1,
-    // backgroundColor: $config.SECONDARY_FONT_COLOR,
+    // backgroundColor: $config.SECONDARY_ACTION_COLOR,
     zIndex: 5,
     width: '100%',
     height: '100%',

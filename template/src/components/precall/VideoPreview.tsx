@@ -32,6 +32,7 @@ import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import {isWebInternal} from '../../utils/common';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const Fallback = () => {
   const {isCameraAvailable} = usePreCall();
@@ -144,7 +145,8 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: 20,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 20,

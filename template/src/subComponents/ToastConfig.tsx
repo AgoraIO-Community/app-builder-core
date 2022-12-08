@@ -25,8 +25,8 @@ const ToastConfig = {
       {...rest}
       //BaseToast is modified to have zIndex: 100
       style={{
-        borderTopColor: $config.PRIMARY_COLOR,
-        backgroundColor: $config.SECONDARY_FONT_COLOR,
+        borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        backgroundColor: $config.SECONDARY_ACTION_COLOR,
         width: !isMobileOrTablet() ? '40%' : '95%',
       }}
       contentContainerStyle={{paddingHorizontal: 15, overflow: 'hidden'}}
@@ -34,7 +34,7 @@ const ToastConfig = {
         fontSize: 20,
         fontFamily: 'Source Sans Pro',
         fontWeight: '700',
-        color: $config.PRIMARY_FONT_COLOR,
+        color: $config.FONT_COLOR,
       }}
       text2Style={{
         fontSize: 20,

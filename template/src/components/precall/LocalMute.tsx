@@ -19,6 +19,7 @@ import LocalVideoMute, {
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const PreCallLocalMute: React.FC = (props: any) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
@@ -91,7 +92,8 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 3},
     shadowRadius: 6,

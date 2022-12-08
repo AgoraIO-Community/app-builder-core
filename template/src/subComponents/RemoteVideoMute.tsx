@@ -40,7 +40,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
       iconProps={{
         name: 'video-on',
         iconSize: 'medium',
-        tintColor: props.video ? $config.PRIMARY_COLOR : '#999999',
+        tintColor: props.video ? $config.PRIMARY_ACTION_BRAND_COLOR : '#999999',
       }}
     />
   ) : (

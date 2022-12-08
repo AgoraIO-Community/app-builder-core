@@ -312,7 +312,7 @@ const styleProps = {
     recording: styles.localButton,
     screenshare: styles.localButton,
   },
-  theme: $config.PRIMARY_COLOR,
+  theme: $config.PRIMARY_ACTION_BRAND_COLOR,
   remoteBtnStyles: {
     muteRemoteAudio: styles.remoteButton,
     muteRemoteVideo: styles.remoteButton,
@@ -340,7 +340,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 30,
   },
-  loaderText: {fontWeight: '500', color: $config.PRIMARY_FONT_COLOR},
+  loaderText: {fontWeight: '500', color: $config.FONT_COLOR},
 });
 
 export default VideoCall;

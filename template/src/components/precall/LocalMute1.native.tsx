@@ -22,6 +22,7 @@ import LocalVideoMute, {
 import LocalSwitchCamera, {
   LocalSwitchCameraProps,
 } from '../../subComponents/LocalSwitchCamera';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const PreCallLocalMute: React.FC = () => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
@@ -106,7 +107,8 @@ const style = StyleSheet.create({
     paddingVertical: 10,
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOpacity: 0.1,
     shadowOffset: {width: 0, height: 3},
     shadowRadius: 6,

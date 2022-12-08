@@ -47,7 +47,7 @@ const style = StyleSheet.create({
     lineHeight: 15,
     fontFamily: 'Source Sans Pro',
     flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     textAlign: 'left',
     textTransform: 'capitalize',
   },

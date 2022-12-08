@@ -30,6 +30,7 @@ import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useRender} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -92,7 +93,7 @@ const ChatContainer = (props?: {
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={() => {
-          scrollViewRef.current?.scrollToEnd({animated: true});
+          scrollViewRef.current?.scrollToEnd({animated: false});
         }}>
         {!privateActive ? (
           messageStore.map((message: any, index) => (
@@ -151,7 +152,7 @@ const style = StyleSheet.create({
   containerView: {flex: 8},
   name: {
     fontWeight: isWebInternal() ? '500' : '700',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,
   },
@@ -160,7 +161,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
   },
   infoText: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
+    color: $config.FONT_COLOR + hexadecimalTransparency['60%'],
     fontWeight: '500',
     fontSize: 14,
     flex: 1,

@@ -11,6 +11,7 @@ import {
 import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface PopupProps extends ModalProps {
   title?: string;
@@ -33,7 +34,7 @@ const Popup = (props: PopupProps) => {
   const isDesktop = width > 675;
   return (
     <Modal
-      animationType="fade"
+      animationType="none"
       transparent={true}
       visible={modalVisible}
       onRequestClose={() => {
@@ -108,7 +109,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: $config.HARD_CODED_BLACK_COLOR + '60',
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['60%'],
   },
   header: {
     flexDirection: 'row',

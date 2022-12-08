@@ -36,6 +36,7 @@ import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -244,7 +245,8 @@ const Chat = (props?: ChatProps) => {
 
 const style = StyleSheet.create({
   buttonHolder: {
-    backgroundColor: $config.HARD_CODED_BLACK_COLOR + '20',
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['20%'],
     borderRadius: 12,
     minWidth: 160,
     flexDirection: 'row',
@@ -273,7 +275,8 @@ const style = StyleSheet.create({
     borderColor: $config.CARD_LAYER_3_COLOR,
     flex: 1,
     borderWidth: 1,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
     shadowRadius: 12,
@@ -286,19 +289,12 @@ const style = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  heading: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    width: 150,
-    height: '7%',
-    paddingLeft: 20,
-    flexDirection: 'row',
-  },
   headingText: {
     flex: 1,
     paddingLeft: 5,
     marginVertical: 'auto',
     fontWeight: '700',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     fontSize: 25,
     alignSelf: 'center',
     justifyContent: 'center',

@@ -12,6 +12,7 @@ import {isWeb} from '../utils/common';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 import {IconsInterface} from './CustomIcon';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface Props {
   label: string;
@@ -178,7 +179,7 @@ const PlatformWrapper = ({children, onPress}) => {
     <div
       style={{
         backgroundColor: isHovered
-          ? $config.CARD_LAYER_5_COLOR + '20'
+          ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%']
           : 'transparent',
         cursor: isHovered ? 'pointer' : 'auto',
       }}
@@ -238,7 +239,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderTopWidth: 2,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR + '10',
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
     shadowOffset: {width: 5, height: 5},
     shadowOpacity: 0.07,
     shadowRadius: 20,

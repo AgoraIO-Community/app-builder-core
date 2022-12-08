@@ -47,7 +47,6 @@ interface ConfigInterface {
   APP_NAME: string;
   LOGO: string;
   APP_ID: string;
-  PRIMARY_COLOR: string;
   FRONTEND_ENDPOINT: string;
   BACKEND_ENDPOINT: string;
   PSTN: boolean;
@@ -57,11 +56,8 @@ interface ConfigInterface {
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;
-  BG: string;
   ENCRYPTION_ENABLED: boolean;
   PROFILE: VideoProfile;
-  PRIMARY_FONT_COLOR: string;
-  SECONDARY_FONT_COLOR: string;
   SENTRY_DSN: string;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;

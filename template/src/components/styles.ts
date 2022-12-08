@@ -9,6 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 
@@ -22,7 +23,8 @@ const styles = {
   bottomBar: {
     flex: isWebInternal() ? 1.3 : 1.6,
     paddingHorizontal: isWebInternal() ? '20%' : '1%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+    backgroundColor:
+      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -53,7 +55,7 @@ const styles = {
   },
   localButtonWithoutBG: {
     borderRadius: 23,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderWidth: 0,
     width: 40,
     height: 40,
@@ -99,7 +101,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
+    backgroundColor: $config.SECONDARY_ACTION_COLOR, //'#fff',
   },
   liveStreamHostControlBtns: {
     width: 20,
@@ -112,7 +114,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.SECONDARY_ACTION_COLOR,
   },
   minCloseBtn: {
     alignItems: 'center',

@@ -37,6 +37,7 @@ import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 import Spacer from '../atoms/Spacer';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -60,7 +61,7 @@ const Controls = () => {
         style.container,
         {
           paddingHorizontal: isDesktop ? '60px' : '10px',
-          //backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+          //backgroundColor: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'] ,
         },
       ]}
       onLayout={onLayout}>
@@ -100,40 +101,42 @@ const Controls = () => {
             )}
             <View
               testID="localAudio-btn"
-              style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
+              style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
               <LocalAudioMute />
             </View>
             {!$config.AUDIO_ROOM && (
               <View
                 testID="localVideo-btn"
-                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
                 <LocalVideoMute />
               </View>
             )}
             {!$config.AUDIO_ROOM && isMobileOrTablet() && (
               <View
                 testID="switchCamera-btn"
-                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
                 <LocalSwitchCamera />
               </View>
             )}
             {$config.SCREEN_SHARING && !isMobileOrTablet() && (
               <View
                 testID="screenShare-btn"
-                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
                 <ScreenshareButton />
               </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View
                 testID="recording-btn"
-                style={{marginRight: isDesktop ? 40 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
                 <Recording />
               </View>
             )}
           </>
         )}
-        <View testID="endCall-btn" style={{marginVertical: 16}}>
+        <View
+          testID="endCall-btn"
+          style={{marginVertical: 16, marginHorizontal: 20}}>
           <LocalEndcall />
         </View>
       </View>

@@ -52,7 +52,7 @@ const ActionSheetContent = (props) => {
             onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}>
             <ImageIcon
               name={isExpanded ? 'arrow-down' : 'more-menu'}
-              tintColor={$config.PRIMARY_COLOR}
+              tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
             />
           </TouchableOpacity>
         </View>
@@ -63,7 +63,10 @@ const ActionSheetContent = (props) => {
           <TouchableOpacity
             style={styles.iconContainer}
             onPress={() => updateActionSheet('chat')}>
-            <ImageIcon name={'chat'} tintColor={$config.PRIMARY_COLOR} />
+            <ImageIcon
+              name={'chat'}
+              tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            />
           </TouchableOpacity>
           <Text style={styles.iconText}>Chat</Text>
         </View>
@@ -74,7 +77,7 @@ const ActionSheetContent = (props) => {
             onPress={() => updateActionSheet('participants')}>
             <ImageIcon
               name={'participants'}
-              tintColor={$config.PRIMARY_COLOR}
+              tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
             />
             {/* <ParticipantsIconButton /> */}
           </TouchableOpacity>
@@ -109,7 +112,7 @@ const ActionSheetContent = (props) => {
                   layouts[layout]?.iconName === 'grid-layout'
                     ? 'layout'
                     : 'list-view',
-                tintColor: $config.PRIMARY_COLOR,
+                tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
               }}
             />
             {/* layout */}
@@ -121,7 +124,10 @@ const ActionSheetContent = (props) => {
           <TouchableOpacity
             style={styles.iconContainer}
             onPress={() => updateActionSheet('settings')}>
-            <ImageIcon name={'settings'} tintColor={$config.PRIMARY_COLOR} />
+            <ImageIcon
+              name={'settings'}
+              tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+            />
           </TouchableOpacity>
           <Text style={styles.iconText}>Settings</Text>
         </View>

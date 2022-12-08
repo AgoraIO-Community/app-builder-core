@@ -12,6 +12,7 @@ import ImageIcon from '../atoms/ImageIcon';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -144,7 +145,7 @@ const style = StyleSheet.create({
     width: 1,
     borderRadius: 10,
     borderWidth: 4,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   highlighterContainer: {flex: 0.5, justifyContent: 'center'},
   dropdownInnerIconContainer: {
@@ -160,7 +161,7 @@ const style = StyleSheet.create({
     position: 'relative',
   },
   navItemSeparatorHorizontal: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    backgroundColor: $config.FONT_COLOR + hexadecimalTransparency['80%'],
     width: '100%',
     height: 1,
     marginVertical: 10,

@@ -63,7 +63,7 @@ const Settings = (props: SettingsIconButtonProps) => {
         style.navItem,
         {
           backgroundColor: isPanelActive
-            ? $config.PRIMARY_COLOR
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
             : 'transparent',
         },
       ]}>
@@ -83,7 +83,7 @@ const style = StyleSheet.create({
   },
   localButton: {
     borderRadius: 2,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     width: 30,
     height: 30,
     display: 'flex',

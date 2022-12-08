@@ -33,6 +33,7 @@ import {
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import IconButton from '../../atoms/IconButton';
 import ThemeConfig from '../../theme';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -180,7 +181,8 @@ const Participant = (props: ParticipantInterface) => {
                 style={{
                   width: 24,
                   height: 24,
-                  backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
+                  backgroundColor:
+                    $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
                   opacity:
                     ((isHovered || actionMenuVisible || !isWebInternal()) &&
                       !isLocal) ||
@@ -263,14 +265,16 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 
 const styles = StyleSheet.create({
   bgContainerStyle: {
-    backgroundColor: $config.CARD_LAYER_5_COLOR + '20',
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     width: 36,
     height: 36,
     borderRadius: 18,
     marginRight: 8,
   },
   containerStyle: {
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR + '10',
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
     width: 36,
     height: 36,
     borderRadius: 18,
