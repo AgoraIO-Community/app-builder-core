@@ -36,6 +36,7 @@ import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
+import InfoBubble from '../atoms/InfoBubble';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -113,12 +114,25 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
 
-  const clipboardIcon = () => {
+  const clipboardIconButton = (type: SHARE_LINK_CONTENT_TYPE) => {
     return (
-      <ImageIcon
-        tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-        name={'clipboard'}
-      />
+      <View style={style.iconContainer}>
+        <InfoBubble
+          bubbleIconProps={{
+            name: 'tick-fill',
+            tintColor: $config.SEMANTIC_SUCCESS,
+            activeTintColor: $config.SEMANTIC_SUCCESS,
+          }}
+          hoverMode={false}
+          iconProps={{
+            name: 'clipboard',
+            tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+            activeTintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+          }}
+          text="Copied to clipboard"
+          onPress={() => copyShareLinkToClipboard(type)}
+        />
+      </View>
     );
   };
   return (
@@ -141,13 +155,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                 {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
               </Text>
             </View>
-            <TouchableOpacity
-              style={style.iconContainer}
-              onPress={() => {
-                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE);
-              }}>
-              {clipboardIcon()}
-            </TouchableOpacity>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
           </View>
 
           {showSubLabel && (
@@ -181,14 +189,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                 {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
               </Text>
             </View>
-
-            <TouchableOpacity
-              style={style.iconContainer}
-              onPress={() => {
-                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
-              }}>
-              {clipboardIcon()}
-            </TouchableOpacity>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.HOST)}
           </View>
 
           {showSubLabel && (
@@ -232,13 +233,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={style.iconContainer}
-              onPress={() => {
-                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN);
-              }}>
-              {clipboardIcon()}
-            </TouchableOpacity>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.PSTN)}
           </View>
 
           {showSubLabel && (
@@ -377,6 +372,7 @@ const style = StyleSheet.create({
   },
   iconContainer: {
     flex: 0.1,
+    minWidth: 25,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     justifyContent: 'center',
     alignItems: 'center',

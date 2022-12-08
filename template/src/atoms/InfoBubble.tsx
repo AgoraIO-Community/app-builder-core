@@ -11,13 +11,21 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import ImageIcon from './ImageIcon';
+import ImageIcon, {ImageIconProps} from './ImageIcon';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
+interface iconProps extends ImageIconProps {
+  activeTintColor: string;
+}
+
 interface InfoBubbleProps {
   text: string;
+  iconProps: iconProps;
+  bubbleIconProps?: iconProps;
+  hoverMode?: boolean;
+  onPress?: () => void;
 }
 
 const InfoBubble = (props: InfoBubbleProps) => {
@@ -25,7 +33,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
   const [left, setLeft] = useState(0);
   const [position, setPosition] = useState({});
   const [arrowPosition, setArrowPosition] = useState({});
-
+  const {hoverMode = true} = props;
   const tooltipRef = useRef(null);
   const iconRef = useRef(null);
   const pressableRef = useRef(null);
@@ -44,8 +52,8 @@ const InfoBubble = (props: InfoBubbleProps) => {
           py: number,
         ) => {
           setPosition({
-            top: py - 80,
-            left: 40,
+            top: py - (hoverMode ? 80 : 70),
+            left: hoverMode ? 40 : px - (width ? width / 1.5 : 0),
             //left: px - (width ? width / 2 : 0), //TODO: need to dynamically adjust
           });
           setArrowPosition({
@@ -57,7 +65,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
     });
   };
 
-  return isWebInternal() && !isSmall ? (
+  return hoverMode && isWebInternal() && !isSmall ? (
     <div
       style={{
         position: 'relative',
@@ -115,12 +123,12 @@ const InfoBubble = (props: InfoBubbleProps) => {
       )}
       <View style={styles.iconStyleView}>
         <ImageIcon
-          iconSize="medium"
-          name={'info'}
+          iconSize={props.iconProps.iconSize}
+          name={props.iconProps.name}
           tintColor={
             toolTipVisible
-              ? $config.SECONDARY_ACTION_COLOR
-              : $config.SEMANTIC_NETRUAL
+              ? props?.iconProps.activeTintColor || props?.iconProps.tintColor
+              : props?.iconProps.tintColor
           }
         />
       </View>
@@ -128,7 +136,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
   ) : (
     <>
       <Modal
-        animationType="fade"
+        animationType="none"
         transparent={true}
         visible={toolTipVisible}
         onRequestClose={() => {
@@ -152,6 +160,14 @@ const InfoBubble = (props: InfoBubbleProps) => {
             setModalPosition(width);
           }}
           ref={tooltipRef}>
+          {props?.bubbleIconProps ? (
+            <View
+              style={{paddingLeft: 12, marginRight: -4, alignSelf: 'center'}}>
+              <ImageIcon {...props.bubbleIconProps} />
+            </View>
+          ) : (
+            <></>
+          )}
           <Text style={[styles.textStyle, {padding: 12}]}>{props.text}</Text>
         </View>
       </Modal>
@@ -159,15 +175,18 @@ const InfoBubble = (props: InfoBubbleProps) => {
         <Pressable
           hitSlop={5}
           ref={pressableRef}
-          style={[styles.iconStyleView]}
-          onPress={() => setToolTipVisible(true)}>
+          //style={[styles.iconStyleView]}
+          onPress={() => {
+            setToolTipVisible(true);
+            props?.onPress && props.onPress();
+          }}>
           <>
             {toolTipVisible ? (
               <View style={[styles.downsideTriangleIconContainer1]}>
                 <ImageIcon
                   customSize={{
-                    width: 15,
-                    height: 15,
+                    width: styles.downsideTriangleIcon.width,
+                    height: styles.downsideTriangleIcon.height,
                   }}
                   name={'downside-triangle'}
                   tintColor={$config.CARD_LAYER_3_COLOR}
@@ -177,12 +196,13 @@ const InfoBubble = (props: InfoBubbleProps) => {
               <></>
             )}
             <ImageIcon
-              iconSize="medium"
-              name={'info'}
+              iconSize={props.iconProps.iconSize}
+              name={props.iconProps.name}
               tintColor={
                 toolTipVisible
-                  ? $config.SECONDARY_ACTION_COLOR
-                  : $config.SEMANTIC_NETRUAL
+                  ? props?.iconProps.activeTintColor ||
+                    props?.iconProps.tintColor
+                  : props?.iconProps.tintColor
               }
             />
           </>
@@ -207,7 +227,7 @@ const styles = StyleSheet.create({
   },
   downsideTriangleIconContainer1: {
     position: 'absolute',
-    top: -15,
+    top: -30,
     left: -2,
     zIndex: 999,
   },
@@ -217,6 +237,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    flexDirection: 'row',
     position: 'absolute',
     zIndex: 998,
     backgroundColor: $config.CARD_LAYER_3_COLOR,

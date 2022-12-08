@@ -212,6 +212,12 @@ const Create = () => {
                         Make everyone a Co-Host
                       </Text>
                       <InfoBubble
+                        iconProps={{
+                          name: 'info',
+                          iconSize: 'medium',
+                          tintColor: $config.SEMANTIC_NETRUAL,
+                          activeTintColor: $config.SECONDARY_ACTION_COLOR,
+                        }}
                         text={
                           hostControlCheckbox
                             ? 'Creates two unique links in order to seperate co-hosts from attendees'
@@ -241,7 +247,15 @@ const Create = () => {
                         <Text style={style.toggleLabel}>
                           Allow joining via a phone number
                         </Text>
-                        <InfoBubble text="Attendees can dial a number and join via PSTN" />
+                        <InfoBubble
+                          iconProps={{
+                            iconSize: 'medium',
+                            name: 'info',
+                            tintColor: $config.SEMANTIC_NETRUAL,
+                            activeTintColor: $config.SECONDARY_ACTION_COLOR,
+                          }}
+                          text="Attendees can dial a number and join via PSTN"
+                        />
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle

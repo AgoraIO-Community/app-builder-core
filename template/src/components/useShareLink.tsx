@@ -14,7 +14,6 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
-import Toast from '../../react-native-toast-message';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import platform from '../subComponents/Platform';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
@@ -258,11 +257,6 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
         break;
     }
     Clipboard.setString(stringToCopy);
-    Toast.show({
-      type: 'success',
-      text1: copiedToClipboardText,
-      visibilityTime: 1000,
-    });
   };
 
   return (
