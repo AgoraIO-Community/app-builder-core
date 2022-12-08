@@ -45,7 +45,7 @@ export interface CopyMeetingInfoProps {
 export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
-    data: {roomId, pstn, isSeparateHostLink, meetingTitle},
+    data: {roomId, isHost, pstn, isSeparateHostLink, meetingTitle},
   } = useMeetingInfo();
   const {showSubLabel = true} = props;
   //commented for v1 release
@@ -163,43 +163,47 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
       ) : (
         <></>
       )}
-      <>
-        <Text style={style.urlTitle}>{getHostLabel()}</Text>
-        <Spacer size={11} />
-        <View style={style.container}>
-          <View style={style.urlContainer}>
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={[
-                style.url,
-                style.urlPadding,
-                //@ts-ignore
-                isWebCheck ? urlWeb : {opacity: 1},
-              ]}>
-              {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
-            </Text>
+      {isHost ? (
+        <>
+          <Text style={style.urlTitle}>{getHostLabel()}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={style.urlContainer}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[
+                  style.url,
+                  style.urlPadding,
+                  //@ts-ignore
+                  isWebCheck ? urlWeb : {opacity: 1},
+                ]}>
+                {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={style.iconContainer}
+              onPress={() => {
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
+              }}>
+              {clipboardIcon()}
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={style.iconContainer}
-            onPress={() => {
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST);
-            }}>
-            {clipboardIcon()}
-          </TouchableOpacity>
-        </View>
-
-        {showSubLabel && (
-          <>
-            <Spacer size={14} />
-            <Text style={style.helpText}>
-              Share this with other co-hosts you want to invite.
-            </Text>
-          </>
-        )}
-        <Spacer size={25} />
-      </>
+          {showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                Share this with other co-hosts you want to invite.
+              </Text>
+            </>
+          )}
+          <Spacer size={25} />
+        </>
+      ) : (
+        <></>
+      )}
       {pstn ? (
         <>
           <Text style={style.urlTitle}>{pstnLabel}</Text>
