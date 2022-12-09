@@ -15,6 +15,7 @@ export const useRtc = createHook(RtcContext);
  * The Render app state governs the information necessary to render each user content view displayed in the videocall screen.
  */
 export const useRender = createHook(RenderContext);
+
 export {useLocalUserInfo} from '../src/app-state/useLocalUserInfo';
 
 // commented for v1 release

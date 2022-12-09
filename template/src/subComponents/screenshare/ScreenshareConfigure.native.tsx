@@ -13,6 +13,8 @@ import React, {useEffect, useRef} from 'react';
 import KeepAwake from 'react-native-keep-awake';
 import {UidType} from '../../../agora-rn-uikit';
 import {
+  getGridLayoutName,
+  getPinnedLayoutName,
   useChangeDefaultLayout,
   useSetPinnedLayout,
 } from '../../pages/video-call/DefaultLayouts';
@@ -20,11 +22,13 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useRender, useRtc} from 'customization-api';
+import {useLayout, useRender, useRtc} from 'customization-api';
+import {filterObject} from '../../utils';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
-  const {renderList, activeUids} = useRender();
+  const {renderList, activeUids, lastJoinedUid} = useRender();
+  const isPinned = useRef(0);
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
@@ -33,24 +37,52 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const userText = 'User';
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
-
+  const {currentLayout} = useLayout();
   const renderListRef = useRef({renderList: renderList});
+  const currentLayoutRef = useRef({currentLayout: currentLayout});
 
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
 
+  useEffect(() => {
+    currentLayoutRef.current.currentLayout = currentLayout;
+  }, [currentLayout]);
+
+  useEffect(() => {
+    const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
+    if (data) {
+      const recentScreenshare = Object.keys(data)
+        .map((i) => parseInt(i))
+        .sort((a, b) => {
+          return data[a].ts - data[b].ts;
+        });
+      if (recentScreenshare?.length) {
+        recentScreenshare.reverse();
+        if (
+          isPinned.current !== recentScreenshare[0] &&
+          activeUids.indexOf(recentScreenshare[0]) !== -1
+        ) {
+          triggerChangeLayout(true, recentScreenshare[0]);
+        }
+      }
+    }
+  }, [activeUids, screenShareData]);
+
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
+    let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
+      isPinned.current = screenShareUid;
       dispatch({
         type: 'SwapVideo',
         value: [screenShareUid],
       });
-      setPinnedLayout();
+      layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
+      isPinned.current = 0;
       //screenshare is stopped set the layout Grid View
-      changeLayout();
+      layout !== getGridLayoutName() && changeLayout();
     }
   };
 
@@ -74,8 +106,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
               },
             };
           });
-          //if remote user started/stopped the screenshare then change the layout to pinned/grid
-          triggerChangeLayout(true, screenUidOfUser);
           break;
         case EventActions.SCREENSHARE_STOPPED:
           setScreenShareData((prevState) => {

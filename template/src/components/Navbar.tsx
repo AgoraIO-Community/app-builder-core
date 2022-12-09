@@ -31,7 +31,12 @@ import {numFormatter} from '../utils/index';
 import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
-import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isValidReactComponent,
+  isWebInternal,
+} from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
@@ -357,6 +362,8 @@ const Navbar = () => {
   const {isRecordingActive} = useRecording();
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
+  const layoutsData = useLayoutsData();
+  const isNative = isIOS() || isAndroid();
 
   return (
     <View
@@ -440,7 +447,11 @@ const Navbar = () => {
           </View>
         ) : (
           <View>
-            <Text style={style.roomNameText}>{meetingTitle}</Text>
+            <Text style={style.roomNameText}>
+              {meetingTitle.length > 13
+                ? meetingTitle.slice(0, 13) + '..'
+                : meetingTitle}
+            </Text>
           </View>
         )}
       </View>
@@ -453,7 +464,10 @@ const Navbar = () => {
                 isWebInternal() && isDesktop
                   ? 300
                   : isMobileOrTablet()
-                  ? 160
+                  ? //In native - if only one layout is provided then we are hiding the layout icon. so we need less space. otherwise there will empty space around the icon
+                    layoutsData && layoutsData.length === 1 && isNative
+                    ? 130
+                    : 160
                   : 200,
             },
           ]}>
@@ -471,17 +485,24 @@ const Navbar = () => {
           ) : (
             <></>
           )}
-          <RenderSeparator />
-          <View
-            style={[style.navItem, style.navSmItem]}
-            /**
-             * .measure returns undefined on Android unless collapsable=false or onLayout are specified
-             * so added collapsable property
-             * https://github.com/facebook/react-native/issues/29712
-             * */
-            collapsable={false}>
-            <LayoutIconButton />
-          </View>
+          {/**
+           * In custom-layout - show the layout icon if more than 1 layout provided otherwise hide it from the ui
+           */}
+          {layoutsData && layoutsData.length > 1 && (
+            <>
+              <RenderSeparator />
+              <View
+                style={[style.navItem, style.navSmItem]}
+                /**
+                 * .measure returns undefined on Android unless collapsable=false or onLayout are specified
+                 * so added collapsable property
+                 * https://github.com/facebook/react-native/issues/29712
+                 * */
+                collapsable={false}>
+                <LayoutIconButton />
+              </View>
+            </>
+          )}
           <RenderSeparator />
           <SettingsIconButtonWithWrapper />
         </View>
@@ -530,7 +551,7 @@ const style = StyleSheet.create({
     height: 35,
     maxHeight: 30,
     position: 'absolute',
-    left: isMobileOrTablet() ? '50%' : 10,
+    left: isMobileOrTablet() ? '48%' : 10,
     paddingHorizontal: 5,
     flexDirection: 'row',
     alignItems: 'center',
@@ -590,7 +611,8 @@ const style = StyleSheet.create({
     backgroundColor: $config.PRIMARY_COLOR,
     borderRadius: 2.5,
     paddingHorizontal: 5,
-    marginHorizontal: 5,
+    marginLeft: 5,
+    marginRight: 0,
     paddingVertical: 1,
     display: 'flex',
     alignItems: 'center',
