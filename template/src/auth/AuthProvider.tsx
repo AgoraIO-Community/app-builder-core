@@ -122,9 +122,32 @@ const AuthProvider = (props: AuthProviderProps) => {
       })
         .then((response) => response.json())
         .then((response) => {
-          if (response && response.Code == 0) {
-            setIsAuthenticated(true);
-            history.push('/create');
+          if (isSDK()) {
+            console.log('supriya enable UNAUTH in SDK');
+            if (!response.token) {
+              throw new Error('Token not received');
+            } else {
+              enableTokenAuth(response.token)
+                .then((res) => {
+                  setIsAuthenticated(true);
+                  history.push('/create');
+                })
+                .catch((error) => {
+                  if (error instanceof Error) {
+                    setAuthError(error.message);
+                  } else {
+                    setAuthError(error);
+                  }
+                  setIsAuthenticated(false);
+                  history.push('/login');
+                });
+            }
+          } else {
+            console.log('supriya enable UNAUTH in IDP');
+            if (response && response.Code == 0) {
+              setIsAuthenticated(true);
+              history.push('/create');
+            }
           }
         })
         .catch((error) => {
@@ -140,37 +163,35 @@ const AuthProvider = (props: AuthProviderProps) => {
   };
 
   const authLogout = () => {
-    if (enableAuth) {
-      if ($config.ENABLE_IDP_AUTH) {
-        idpLogout()
-          .then((res) => {
-            console.log('user successfully logged out');
-          })
-          .catch(() => {
-            console.error('user logout failed');
-            setAuthError('user logout failed');
-          })
-          .finally(() => {
-            setIsAuthenticated(false);
-            history.push('/login');
-          });
-      } else if ($config.ENABLE_TOKEN_AUTH) {
-        tokenLogout()
-          .then((res) => {
-            console.log('user successfully logged out');
-          })
-          .catch(() => {
-            console.error('user logout failed');
-            setAuthError('user logout failed');
-          })
-          .finally(() => {
-            setIsAuthenticated(false);
-            history.push('/login');
-          });
-      }
+    console.log('supriya logout user');
+    if (enableAuth && $config.ENABLE_IDP_AUTH && !isSDK()) {
+      console.log('supriya logout AUTH IDP');
+      idpLogout()
+        .then((res) => {
+          console.log('user successfully logged out');
+        })
+        .catch(() => {
+          console.error('user logout failed');
+          setAuthError('user logout failed');
+        })
+        .finally(() => {
+          setIsAuthenticated(false);
+          history.push('/login');
+        });
     } else {
-      setIsAuthenticated(false);
-      history.push('/login');
+      console.log('supriya logout AUTH/UNAUTH');
+      tokenLogout()
+        .then((res) => {
+          console.log('user successfully logged out');
+        })
+        .catch(() => {
+          console.error('user logout failed');
+          setAuthError('user logout failed');
+        })
+        .finally(() => {
+          setIsAuthenticated(false);
+          history.push('/login');
+        });
     }
   };
 

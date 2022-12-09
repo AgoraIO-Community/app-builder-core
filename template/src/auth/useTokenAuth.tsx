@@ -40,8 +40,9 @@ const useTokenAuth = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        storeToken(data.token);
-        setServerToken(data.token || null);
+        if (data.token) {
+          storeToken(data.token);
+        }
       });
   };
 
@@ -87,10 +88,15 @@ const useTokenAuth = () => {
     syncToken();
   }, [serverToken]);
 
-  const enableTokenAuth = async () => {
+  const enableTokenAuth = async (tokenparam?: string) => {
     return new Promise(async (resolve, reject) => {
+      let token = '';
       try {
-        const token = await AsyncStorage.getItem('SDK_TOKEN');
+        if (tokenparam) {
+          token = tokenparam;
+        } else {
+          token = await AsyncStorage.getItem('SDK_TOKEN');
+        }
         if (token) {
           if (validateToken(token)) {
             storeToken(token);
