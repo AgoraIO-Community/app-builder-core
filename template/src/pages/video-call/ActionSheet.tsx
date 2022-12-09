@@ -102,7 +102,7 @@ const ActionSheet = () => {
         //onSpringStart={handleSpringStart}
         blocking={true}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
         <Chat handleClose={onChatDismiss} />
       </BottomSheet>
@@ -113,7 +113,7 @@ const ActionSheet = () => {
         onDismiss={onParticipantsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
         <ParticipantView
@@ -129,7 +129,8 @@ const ActionSheet = () => {
         onDismiss={onSettingsDismiss}
         //onSpringStart={handleSpringStart}
         expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        // snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+        snapPoints={({maxHeight}) => [1 * maxHeight]}
         defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
         blocking={false}>
         <SettingsView handleClose={onSettingsDismiss} />

@@ -7,13 +7,11 @@ import {
   Modal,
   Dimensions,
   TouchableWithoutFeedback,
-  Touchable,
-  TouchableOpacity,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import ImageIcon from './ImageIcon';
 import ThemeConfig from '../theme';
-import {isWebInternal} from '../utils/common';
+import {isWeb} from '../utils/common';
 
 interface InfoBubbleProps {
   text: string;
@@ -45,7 +43,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
           setPosition({
             top: py - 80,
             left: 40,
-            //left: px - (width ? width / 2 : 0), //TODO: need to dynamically adjust
+            // left: px - (width ? width / 2 : 0), //TODO: need to dynamically adjust
           });
           setArrowPosition({
             top: py - 6,
@@ -56,31 +54,19 @@ const InfoBubble = (props: InfoBubbleProps) => {
     });
   };
 
-  return isWebInternal() && !isSmall ? (
-    <div
-      style={{
-        position: 'relative',
-        marginTop: -3,
-        marginLeft: -3,
-        background: toolTipVisible
-          ? $config.CARD_LAYER_5_COLOR + '20'
-          : 'transparent',
-        width: 28,
-        height: 28,
-        borderRadius: '50%',
-      }}
-      onMouseEnter={() => {
-        setToolTipVisible(true);
-      }}
-      onMouseLeave={() => {
-        setToolTipVisible(false);
-      }}
-      ref={iconRef}>
-      {toolTipVisible ? (
+  return (
+    <PlatformWrapper
+      onPress={() => setToolTipVisible(true)}
+      setToolTipVisible={setToolTipVisible}
+      isSmall={isSmall}
+      toolTipVisible={toolTipVisible}>
+      {/* toolTipBox for desktop  */}
+      {isWeb() && !isSmall && toolTipVisible ? (
         <>
           <View
             style={[
               styles.textContainer,
+              position,
               {left: left - 20},
               {opacity: !left ? 0 : 1},
             ]}
@@ -111,74 +97,116 @@ const InfoBubble = (props: InfoBubbleProps) => {
       ) : (
         <></>
       )}
-      <View style={styles.iconStyleView}>
+      {/* toolTip modal for mobile  */}
+      {(!isWeb() || isSmall) && (
+        <>
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={toolTipVisible}
+            onRequestClose={() => {
+              setToolTipVisible(!toolTipVisible);
+            }}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setToolTipVisible(false);
+              }}>
+              <View style={styles.backDrop} />
+            </TouchableWithoutFeedback>
+            <View
+              style={[styles.textContainer, position, {maxWidth: width - 100}]}
+              onLayout={({
+                nativeEvent: {
+                  layout: {x, y, width, height},
+                },
+              }) => {
+                //To center align the tooltip above the icons
+                setModalPosition(width);
+              }}
+              ref={tooltipRef}>
+              <Text style={[styles.textStyle, {padding: 12}]}>
+                {props.text}
+              </Text>
+            </View>
+          </Modal>
+          {toolTipVisible ? (
+            <View style={styles.downsideTriangleIconContainer}>
+              <ImageIcon
+                customSize={{
+                  width: styles.downsideTriangleIcon.width,
+                  height: styles.downsideTriangleIcon.height,
+                }}
+                name={'downside-triangle'}
+                tintColor={$config.CARD_LAYER_3_COLOR}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
+        </>
+      )}
+      {/* info icon */}
+      <View style={styles.iconStyleView} ref={pressableRef}>
         <ImageIcon
           iconSize="medium"
           name={'info'}
-          tintColor={$config.SEMANTIC_NETRUAL}
+          tintColor={
+            toolTipVisible
+              ? $config.SECONDARY_ACTION_COLOR
+              : $config.SEMANTIC_NETRUAL
+          }
         />
       </View>
+    </PlatformWrapper>
+  );
+};
+
+const PlatformWrapper = ({
+  children,
+  onPress,
+  setToolTipVisible,
+  toolTipVisible,
+  isSmall,
+}) => {
+  return isWeb() && !isSmall ? (
+    <div
+      style={{
+        position: 'relative',
+        marginTop: -3,
+        marginLeft: -3,
+        background: toolTipVisible
+          ? $config.CARD_LAYER_5_COLOR + '20'
+          : 'transparent',
+        width: 28,
+        height: 28,
+        borderRadius: '50%',
+      }}
+      onMouseEnter={() => {
+        setToolTipVisible(true);
+      }}
+      onMouseLeave={() => {
+        setToolTipVisible(false);
+      }}>
+      {children}
     </div>
   ) : (
-    <>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={toolTipVisible}
-        onRequestClose={() => {
-          setToolTipVisible(!toolTipVisible);
-        }}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setToolTipVisible(false);
-          }}>
-          <View style={styles.backDrop} />
-        </TouchableWithoutFeedback>
+    <View
+      style={{
+        position: 'relative',
+        marginTop: -3,
+        marginLeft: -3,
+        backgroundColor: toolTipVisible
+          ? $config.CARD_LAYER_5_COLOR + '20'
+          : 'transparent',
 
-        <View
-          style={[styles.textContainer, position, {maxWidth: width - 100}]}
-          onLayout={({
-            nativeEvent: {
-              layout: {x, y, width, height},
-            },
-          }) => {
-            //To center align the tooltip above the icons
-            setModalPosition(width);
-          }}
-          ref={tooltipRef}>
-          <Text style={[styles.textStyle, {padding: 12}]}>{props.text}</Text>
-        </View>
-      </Modal>
-      <View>
-        <Pressable
-          hitSlop={5}
-          ref={pressableRef}
-          style={[styles.iconStyleView]}
-          onPress={() => setToolTipVisible(true)}>
-          <>
-            {toolTipVisible ? (
-              <View style={[styles.downsideTriangleIconContainer1]}>
-                <ImageIcon
-                  customSize={{
-                    width: 15,
-                    height: 15,
-                  }}
-                  name={'downside-triangle'}
-                  tintColor={$config.CARD_LAYER_3_COLOR}
-                />
-              </View>
-            ) : (
-              <></>
-            )}
-            <ImageIcon
-              iconSize="medium"
-              name={'info'}
-              tintColor={$config.SEMANTIC_NETRUAL}
-            />
-          </>
-        </Pressable>
-      </View>
-    </>
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+      }}>
+      <Pressable hitSlop={2} onPress={onPress}>
+        {children}
+      </Pressable>
+    </View>
   );
 };
 
@@ -195,12 +223,7 @@ const styles = StyleSheet.create({
     left: -2,
     zIndex: 999,
   },
-  downsideTriangleIconContainer1: {
-    position: 'absolute',
-    top: -15,
-    left: -2,
-    zIndex: 999,
-  },
+
   downsideTriangleIcon: {
     width: 27,
     height: 36,

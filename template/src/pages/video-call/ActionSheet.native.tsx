@@ -84,7 +84,7 @@ const ActionSheet = () => {
       </BottomSheetModal>
       {/* Chat  */}
       <BottomSheetModal
-        snapPoints={['50%', '100%']}
+        snapPoints={['100%']}
         name="ChatSheet"
         ref={chatSheetRef}
         style={styles.container}
@@ -98,7 +98,7 @@ const ActionSheet = () => {
 
       {/* Participants  */}
       <BottomSheetModal
-        snapPoints={['50%', '100%']}
+        snapPoints={['100%']}
         ref={participantsSheetRef}
         name="ParticipantsSheet"
         style={styles.container}
@@ -115,7 +115,7 @@ const ActionSheet = () => {
 
       {/* Settings  */}
       <BottomSheetModal
-        snapPoints={['50%', '100%']}
+        snapPoints={['100%']}
         ref={settingsSheetRef}
         name="SettingsSheet"
         style={styles.container}
