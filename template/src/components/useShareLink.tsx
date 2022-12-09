@@ -123,31 +123,31 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (isHost) {
         if (isSeparateHostLink) {
           //seperate link for host and attendee
-          inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nURL for Attendee:\n${url?.attendee}\nURL for Host:\n${url?.host}`;
         } else {
           //single link for everyone
-          inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nMeeting URL:\n${url?.host}`;
         }
       }
       //for attendee
       else {
-        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}`;
+        inviteContent += `Meeting: ${meetingName}\n\nURL for Attendee:\n${url?.attendee}`;
       }
     } else {
       if (isHost) {
         if (isSeparateHostLink) {
-          inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}\nHost Meeting ID:\n${id?.host}`;
         } else {
-          inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nMeeting ID:\n${id?.host}`;
         }
       } else {
         //copy this label on videocall screen
-        inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}`;
+        inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}`;
       }
     }
     // Adding pstn data into meeting data if present
     if (pstn?.number && pstn?.pin) {
-      inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
+      inviteContent += `\nPSTN Number:\n${pstn.number}\nPSTN Pin:\n${pstn.pin}`;
     }
     return inviteContent;
   };
