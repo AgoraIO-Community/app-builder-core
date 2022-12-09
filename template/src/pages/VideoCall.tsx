@@ -184,6 +184,7 @@ const VideoCall: React.FC = () => {
   };
   const [isCameraAvailable, setCameraAvailable] = useState(false);
   const [isMicAvailable, setMicAvailable] = useState(false);
+  const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
   const [isPermissionRequested, setIsPermissionRequested] = useState(false);
   return (
     <>
@@ -259,6 +260,8 @@ const VideoCall: React.FC = () => {
                                                           setMicAvailable,
                                                           isPermissionRequested,
                                                           setIsPermissionRequested,
+                                                          isSpeakerAvailable,
+                                                          setSpeakerAvailable,
                                                         }}>
                                                         <Precall />
                                                       </PreCallProvider>

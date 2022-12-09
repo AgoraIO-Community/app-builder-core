@@ -685,6 +685,15 @@ export default class RtcEngine {
     }
   }
 
+  async changeSpeaker(speakerId, callback, error) {
+    try {
+      await this.localStream.audio?.setPlaybackDevice(speakerId);
+      callback(speakerId);
+    } catch (e) {
+      error(e);
+    }
+  }
+
   async enableDualStreamMode(enable: boolean) {
     return this.client[enable ? 'enableDualStream' : 'disableDualStream']();
     // enable

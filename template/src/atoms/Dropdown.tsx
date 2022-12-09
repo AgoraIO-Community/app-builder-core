@@ -143,7 +143,8 @@ const Dropdown: FC<Props> = ({
       ]}
       onPress={toggleDropdown}>
       {enabled && !noData ? renderDropdown() : <></>}
-      <View style={{justifyContent: 'flex-start', flexDirection: 'row'}}>
+      <View
+        style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'row'}}>
         {icon ? (
           <View style={styles.dropdownIconContainer}>
             <ImageIcon
@@ -212,6 +213,7 @@ const styles = StyleSheet.create({
   },
   dropdownOptionTextContainer: {
     alignSelf: 'center',
+    flex: 1,
   },
   dropdownOptionText: {
     textAlign: 'left',
@@ -245,6 +247,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 20,
     elevation: 5,
+    overflow: 'hidden',
   },
   overlay: {
     width: '100%',

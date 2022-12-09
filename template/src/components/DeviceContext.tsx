@@ -16,6 +16,8 @@ interface DeviceContext {
   setSelectedCam: (cam: string) => void;
   selectedMic: string;
   setSelectedMic: (mic: string) => void;
+  selectedSpeaker: string;
+  setSelectedSpeaker: (speaker: string) => void;
   deviceList: MediaDeviceInfo[];
   setDeviceList: (devices: MediaDeviceInfo[]) => void;
 }
@@ -23,9 +25,11 @@ interface DeviceContext {
 const DeviceContext = createContext<DeviceContext>({
   selectedCam: '',
   selectedMic: '',
+  selectedSpeaker: '',
   deviceList: [],
   setSelectedCam: () => {},
   setSelectedMic: () => {},
+  setSelectedSpeaker: () => {},
   setDeviceList: () => {},
 });
 export default DeviceContext;

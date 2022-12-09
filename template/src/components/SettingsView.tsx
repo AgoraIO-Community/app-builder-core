@@ -11,7 +11,7 @@
 */
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
-import SelectDeviceSettings from '../subComponents/SelectDeviceSettings';
+import SelectDevice from '../subComponents/SelectDevice';
 import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
 import {isWebInternal} from '../utils/common';
@@ -71,7 +71,7 @@ const SettingsView = (props) => {
       <ScrollView style={style.contentContainer}>
         <Text style={style.heading}>{selectInputDeviceLabel}</Text>
         <View style={{paddingTop: 20}}>
-          <SelectDeviceSettings />
+          <SelectDevice isIconDropdown />
         </View>
         {/* <View style={style.hrLine}></View> */}
         {/* {isHost ? (

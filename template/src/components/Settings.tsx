@@ -78,7 +78,6 @@ export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
 
 const style = StyleSheet.create({
   navItem: {
-    paddingHorizontal: 20,
     paddingVertical: 8,
   },
   localButton: {

@@ -48,6 +48,7 @@ interface SelectVideoDeviceProps {
     deviceList: MediaDeviceInfo[],
     isDisabled: boolean,
   ) => JSX.Element;
+  isIconDropdown?: boolean;
 }
 
 const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
@@ -66,13 +67,13 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         value: device.deviceId,
       };
     });
-
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
     <>
       <Text style={style.label}>Select Camera</Text>
       <Dropdown
+        icon={props?.isIconDropdown ? 'video-on' : undefined}
         enabled={!isPickerDisabled}
         label={!data || !data.length ? 'No Camera Detected' : ''}
         data={data}
@@ -93,6 +94,7 @@ interface SelectAudioDeviceProps {
     deviceList: MediaDeviceInfo[],
     isDisabled: boolean,
   ) => JSX.Element;
+  isIconDropdown?: boolean;
 }
 
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
@@ -120,6 +122,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     <View>
       <Text style={style.label}>Select Microphone</Text>
       <Dropdown
+        icon={props?.isIconDropdown ? 'mic-on' : undefined}
         enabled={!isPickerDisabled}
         selectedValue={selectedMic}
         label={!data || !data.length ? 'No Microphone Detected' : ''}
@@ -133,10 +136,70 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   );
 };
 
-const SelectDevice = () => {
+interface SelectSpeakerDeviceProps {
+  render?: (
+    selectedSpeaker: string,
+    setSelectedSpeaker: (speaker: string) => void,
+    deviceList: MediaDeviceInfo[],
+    isDisabled: boolean,
+  ) => JSX.Element;
+  isIconDropdown?: boolean;
+}
+
+const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
+  const {selectedSpeaker, setSelectedSpeaker, deviceList} =
+    useContext(DeviceContext);
+  const [isPickerDisabled, btnTheme] = useSelectDevice();
+  const [isFocussed, setIsFocussed] = React.useState(false);
+
+  const data = deviceList
+    .filter((device) => {
+      if (device.kind === 'audiooutput') {
+        return true;
+      }
+    })
+    ?.map((device: any) => {
+      if (device.kind === 'audiooutput') {
+        return {
+          label: device.label,
+          value: device.deviceId,
+        };
+      }
+    });
+  return props?.render ? (
+    props.render(
+      selectedSpeaker,
+      setSelectedSpeaker,
+      deviceList,
+      isPickerDisabled,
+    )
+  ) : (
+    <View>
+      <Text style={style.label}>Select Speaker</Text>
+      <Dropdown
+        icon={props?.isIconDropdown ? 'mic-on' : undefined}
+        enabled={!isPickerDisabled}
+        selectedValue={selectedSpeaker}
+        label={!data || !data.length ? 'No Speaker Detected' : ''}
+        data={data}
+        onSelect={({label, value}) => {
+          setIsFocussed(true);
+          setSelectedSpeaker(value);
+        }}
+      />
+    </View>
+  );
+};
+
+interface SelectDeviceProps {
+  isIconDropdown?: boolean;
+}
+
+const SelectDevice = (props: SelectDeviceProps) => {
   const [isPickerDisabled] = useSelectDevice();
   const {deviceList} = useContext(DeviceContext);
-  const {setCameraAvailable, setMicAvailable} = usePreCall();
+  const {setCameraAvailable, setMicAvailable, setSpeakerAvailable} =
+    usePreCall();
 
   const audioDevices = deviceList.filter((device) => {
     if (device.kind === 'audioinput') {
@@ -145,6 +208,11 @@ const SelectDevice = () => {
   });
   const videoDevices = deviceList.filter((device) => {
     if (device.kind === 'videoinput') {
+      return true;
+    }
+  });
+  const speakerDevices = deviceList.filter((device) => {
+    if (device.kind === 'audiooutput') {
       return true;
     }
   });
@@ -161,6 +229,12 @@ const SelectDevice = () => {
     }
   }, [videoDevices]);
 
+  useEffect(() => {
+    if (speakerDevices && speakerDevices.length) {
+      setSpeakerAvailable(true);
+    }
+  }, [speakerDevices]);
+
   //commented for v1 release
   // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
   const settingScreenInfoMessage = $config.AUDIO_ROOM
@@ -169,9 +243,11 @@ const SelectDevice = () => {
   return (
     <View>
       <View>
-        {!$config.AUDIO_ROOM && <SelectVideoDevice />}
+        {!$config.AUDIO_ROOM && <SelectVideoDevice {...props} />}
         <Spacer size={40} />
-        <SelectAudioDevice />
+        <SelectAudioDevice {...props} />
+        <Spacer size={40} />
+        <SelectSpeakerDevice {...props} />
       </View>
       {$config.EVENT_MODE && isPickerDisabled && (
         <View>
@@ -184,7 +260,8 @@ const SelectDevice = () => {
 export const SelectDeviceComponentsArray: [
   (props: SelectVideoDeviceProps) => JSX.Element,
   (props: SelectAudioDeviceProps) => JSX.Element,
-] = [SelectVideoDevice, SelectAudioDevice];
+  (props: SelectSpeakerDeviceProps) => JSX.Element,
+] = [SelectVideoDevice, SelectAudioDevice, SelectSpeakerDevice];
 
 const style = StyleSheet.create({
   popupPicker: {
