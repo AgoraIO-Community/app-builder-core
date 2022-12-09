@@ -19,14 +19,29 @@ import IconButton from '../../atoms/IconButton';
 import {useLayout} from '../../utils/useLayout';
 import useLayoutsData from '../../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../../pages/video-call/DefaultLayouts';
+import {PropsContext} from '../../../agora-rn-uikit';
+import {ClientRole} from '../../../agora-rn-uikit';
+import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
+import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, updateActionSheet, isExpanded} = props;
-  const {onlineUsersCount} = useContext(ChatContext);
+  const {onlineUsersCount, localUid} = useContext(ChatContext);
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();
   const changeLayout = useChangeDefaultLayout();
+  const {rtcProps} = useContext(PropsContext);
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+  const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
+    useContext(LiveStreamContext);
   const layout = layouts.findIndex((item) => item.name === currentLayout);
+  const isLiveStream = $config.EVENT_MODE;
+  const isAudience = rtcProps?.role == ClientRole.Audience;
+  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+  const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
 
   const handleLayoutChange = () => {
     changeLayout();
@@ -35,11 +50,18 @@ const ActionSheetContent = (props) => {
     <View>
       <View style={[styles.row, {borderBottomWidth: 1}]}>
         <View style={styles.iconContainer}>
-          <LocalVideoMute showLabel={false} />
+          <LocalVideoMute
+            showLabel={false}
+            disabled={isLiveStream && isAudience && !isBroadCasting}
+          />
         </View>
         <View style={[styles.iconContainer]}>
-          <LocalAudioMute showLabel={false} />
+          <LocalAudioMute
+            showLabel={false}
+            disabled={isLiveStream && isAudience && !isBroadCasting}
+          />
         </View>
+
         <View
           style={[
             styles.iconContainer,
@@ -58,6 +80,22 @@ const ActionSheetContent = (props) => {
         </View>
       </View>
       <View style={styles.row}>
+        {/**
+         * In event mode when raise hand feature is active
+         * and audience is promoted to host, the audience can also
+         * demote himself
+         */}
+        {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <LiveStreamControls showControls={true} isDesktop={false} />
+            </View>
+            <Text style={styles.iconText}>
+              {isHandRasied ? 'Lower\nHand' : 'Raise\nHand'}
+            </Text>
+          </View>
+        ) : null}
+
         {/* chat */}
         <View style={styles.iconWithText}>
           <TouchableOpacity
@@ -83,12 +121,14 @@ const ActionSheetContent = (props) => {
           </Text>
         </View>
         {/* record */}
-        <View style={styles.iconWithText}>
-          <View style={styles.iconContainer}>
-            <Recording showLabel={false} />
+        {isHost && $config.CLOUD_RECORDING && (
+          <View style={styles.iconWithText}>
+            <View style={styles.iconContainer}>
+              <Recording showLabel={false} />
+            </View>
+            <Text style={styles.iconText}>Record</Text>
           </View>
-          <Text style={styles.iconText}>Record</Text>
-        </View>
+        )}
 
         {/* switch camera */}
         <View style={styles.iconWithText}>

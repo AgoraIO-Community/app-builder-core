@@ -24,12 +24,13 @@ export interface LocalVideoMuteProps {
   showLabel?: boolean;
   iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
+  disabled?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
-  const {showLabel = true} = props;
+  const {showLabel = true, disabled = false} = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
@@ -59,6 +60,8 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   if (!permissionDenied) {
     iconProps.tintColor = isVideoEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : disabled
+      ? $config.SEMANTIC_NETRUAL
       : $config.SEMANTIC_ERROR;
   } else {
     iconProps.tintColor = '#8F8F8F';
@@ -66,7 +69,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   let iconButtonProps: IconButtonProps = {
     onPress,
     iconProps,
-    disabled: permissionDenied ? true : false,
+    disabled: permissionDenied || disabled ? true : false,
   };
 
   iconButtonProps.styleText = {

@@ -19,10 +19,14 @@ import ChatContext from '../../../components/ChatContext';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
 
-const LocalRaiseHand = () => {
+interface LocalRaiseHandProps {
+  showLabel?: boolean;
+}
+const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
   const {localUid} = useContext(ChatContext);
+  const {showLabel = true} = props;
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
@@ -36,7 +40,7 @@ const LocalRaiseHand = () => {
           ? $config.SEMANTIC_ERROR
           : $config.PRIMARY_ACTION_BRAND_COLOR,
       }}
-      btnText={handStatusText(isHandRasied)}
+      btnText={showLabel ? handStatusText(isHandRasied) : ''}
       style={Styles.localButton as Object}
       styleText={{
         fontFamily: ThemeConfig.FontFamily.sansPro,
