@@ -69,7 +69,7 @@ const PlatformWrapper = ({children, ...props}) => {
       onMouseLeave={() => {
         setIsHovered(false);
       }}
-      onClick={props.onPress}>
+      onClick={props?.disabled ? () => {} : props.onPress}>
       {children}
     </div>
   ) : (
