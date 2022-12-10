@@ -30,13 +30,16 @@ const ActionSheet = () => {
   }, []);
 
   function onChatDismiss() {
+    handleSheetChanges(0);
     chatSheetRef?.current.close();
   }
 
   function onParticipantsDismiss() {
+    handleSheetChanges(0);
     participantsSheetRef?.current.close();
   }
   function onSettingsDismiss() {
+    handleSheetChanges(0);
     settingsSheetRef?.current.close();
   }
 

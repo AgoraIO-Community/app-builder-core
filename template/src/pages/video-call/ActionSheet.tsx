@@ -37,12 +37,15 @@ const ActionSheet = () => {
     setIsOpen(false);
   }
   function onChatDismiss() {
+    handleSheetChanges(0);
     setIsChatOpen(false);
   }
   function onParticipantsDismiss() {
+    handleSheetChanges(0);
     setIsParticipantsOpen(false);
   }
   function onSettingsDismiss() {
+    handleSheetChanges(0);
     setIsSettingsOpen(false);
   }
 
@@ -57,21 +60,16 @@ const ActionSheet = () => {
   ) => {
     switch (screenName) {
       case 'chat':
-        // setIsOpen(false);
         setIsChatOpen(true);
-        //chatSheetRef?.current?.snapTo(({snapPoints}) => snapPoints[0]);
         break;
       case 'participants':
         setIsParticipantsOpen(true);
-        //  participantsSheetRef?.current.present();
         break;
       case 'settings':
         console.warn('settings selected');
         setIsSettingsOpen(true);
-        // settingsSheetRef?.current.present();
         break;
       default:
-      //bottomSheetRef?.current.present();
     }
   };
   return (
