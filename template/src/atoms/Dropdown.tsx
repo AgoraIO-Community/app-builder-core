@@ -8,7 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
-import {isWeb} from '../utils/common';
+import {isWeb, isWebInternal} from '../utils/common';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 import {IconsInterface} from './CustomIcon';
@@ -36,6 +36,14 @@ const Dropdown: FC<Props> = ({
   const [selected, setSelected] = useState(undefined);
   const [dropdownPos, setDropdownPos] = useState({top: 0, left: 0, width: 0});
   const [isHovered, setIsHovered] = React.useState(false);
+
+  useEffect(() => {
+    if (isWebInternal()) {
+      window.addEventListener('resize', () => {
+        setVisible(false);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedValue && data && data.length) {
@@ -163,7 +171,7 @@ const Dropdown: FC<Props> = ({
           <></>
         )}
         <View
-          onLayout={() => updateDropdownPosition()}
+          // onLayout={() => updateDropdownPosition()}
           style={[styles.dropdownOptionTextContainer]}>
           <Text numberOfLines={1} style={styles.dropdownOptionText}>
             {(selected && selected.label) || label}

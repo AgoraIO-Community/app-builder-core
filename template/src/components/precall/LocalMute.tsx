@@ -70,7 +70,7 @@ const PreCallLocalMute: React.FC = (props: any) => {
       ]}
       testID="precall-controls">
       {!$config.AUDIO_ROOM && (
-        <View style={{alignSelf: 'center', marginRight: 30}}>
+        <View style={{alignSelf: 'center'}}>
           <VideoMute />
         </View>
       )}

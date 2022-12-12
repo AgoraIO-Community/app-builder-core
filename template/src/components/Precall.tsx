@@ -355,30 +355,31 @@ const Precall = (props: any) => {
             <View style={!isDesktop && {alignSelf: 'center'}}>
               <MeetingName textStyle={style.meetingTitleStyle2} />
             </View>
-            <Spacer size={20} />
-
             {isDesktop ? (
-              <View style={[style.container]}>
-                <View
-                  testID="precall-preview"
-                  style={[style.leftContent, style.boxStyle]}>
-                  <VideoPreview />
-                </View>
-                <Card style={style.rightContent}>
-                  <View>
-                    <MeetingName />
-                    <View style={style.rightInputContent}>
-                      <JoinRoomName isDesktop={isDesktop} />
-                      <Spacer size={32} />
-                      <DeviceSelect />
-                      <Spacer size={60} />
-                      <View style={{width: '100%'}}>
-                        <JoinRoomButton />
+              <>
+                <View style={[style.container]}>
+                  <View
+                    testID="precall-preview"
+                    style={[style.leftContent, style.boxStyle]}>
+                    <VideoPreview />
+                  </View>
+                  <Card style={style.rightContent}>
+                    <View>
+                      <MeetingName />
+                      <View style={style.rightInputContent}>
+                        <JoinRoomName isDesktop={isDesktop} />
+                        <Spacer size={32} />
+                        <DeviceSelect />
+                        <Spacer size={60} />
+                        <View style={{width: '100%'}}>
+                          <JoinRoomButton />
+                        </View>
                       </View>
                     </View>
-                  </View>
-                </Card>
-              </View>
+                  </Card>
+                </View>
+                <Spacer size={90} />
+              </>
             ) : (
               <View style={{flex: 1}}>
                 <View
