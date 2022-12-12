@@ -85,7 +85,7 @@ const Create = () => {
   // const createMeetingButton = useString('createMeetingButton')();
   // const haveMeetingID = useString('haveMeetingID')();
 
-  const createdText = 'has been created';
+  const createdText = ' has been created';
   // const meetingNameInputPlaceholder = useString(
   //   'meetingNameInputPlaceholder',
   // )();
@@ -153,9 +153,9 @@ const Create = () => {
         setLoading(false);
         Toast.show({
           type: 'success',
-          text1: roomTitle,
-          text2: createdText,
-          visibilityTime: 1000,
+          text1: roomTitle + createdText,
+          text2: 'Your New meeting is now live',
+          visibilityTime: 3000,
         });
         showShareScreen();
       } catch (error) {

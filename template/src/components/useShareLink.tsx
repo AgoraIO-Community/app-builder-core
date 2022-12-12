@@ -123,20 +123,20 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (isHost) {
         if (isSeparateHostLink) {
           //seperate link for host and attendee
-          inviteContent += `Meeting: ${meetingName}\n\nURL for Attendee:\n${url?.attendee}\nURL for Host:\n${url?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
         } else {
           //single link for everyone
-          inviteContent += `Meeting: ${meetingName}\n\nMeeting URL:\n${url?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
         }
       }
       //for attendee
       else {
-        inviteContent += `Meeting: ${meetingName}\n\nURL for Attendee:\n${url?.attendee}`;
+        inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
       }
     } else {
       if (isHost) {
         if (isSeparateHostLink) {
-          inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}\nHost Meeting ID:\n${id?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}\n\nHost Meeting ID:\n${id?.host}`;
         } else {
           inviteContent += `Meeting: ${meetingName}\n\nMeeting ID:\n${id?.host}`;
         }
