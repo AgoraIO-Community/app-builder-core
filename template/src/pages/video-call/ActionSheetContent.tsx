@@ -140,7 +140,10 @@ const ActionSheetContent = (props) => {
         {/* switch camera */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <LocalSwitchCamera showLabel={false} />
+            <LocalSwitchCamera
+              showLabel={false}
+              disabled={isLiveStream && isAudience && !isBroadCasting}
+            />
           </View>
           <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
         </View>
