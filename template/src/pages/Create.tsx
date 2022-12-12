@@ -72,8 +72,8 @@ const Create = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [roomTitle, onChangeRoomTitle] = useState('');
-  const [pstnCheckbox, setPstnCheckbox] = useState(false);
-  const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
+  const [pstnToggle, setPstnToggle] = useState(false);
+  const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
@@ -192,8 +192,8 @@ const Create = () => {
                   onSubmitEditing={() =>
                     createRoomAndNavigateToShare(
                       roomTitle,
-                      pstnCheckbox,
-                      hostControlCheckbox,
+                      pstnToggle,
+                      !coHostToggle,
                     )
                   }
                 />
@@ -219,17 +219,15 @@ const Create = () => {
                           activeTintColor: $config.SECONDARY_ACTION_COLOR,
                         }}
                         text={
-                          hostControlCheckbox
-                            ? 'Creates two unique links in order to seperate co-hosts from attendees'
-                            : 'Everyone is a Host'
+                          'Turning on will give everyone the control of this meeting'
                         }
                       />
                     </View>
                     <View style={style.infoToggleContainer}>
                       <Toggle
                         disabled={$config.EVENT_MODE}
-                        isEnabled={hostControlCheckbox}
-                        toggleSwitch={setHostControlCheckbox}
+                        isEnabled={coHostToggle}
+                        toggleSwitch={setCoHostToggle}
                       />
                     </View>
                   </View>
@@ -259,8 +257,8 @@ const Create = () => {
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle
-                          isEnabled={pstnCheckbox}
-                          toggleSwitch={setPstnCheckbox}
+                          isEnabled={pstnToggle}
+                          toggleSwitch={setPstnToggle}
                         />
                       </View>
                     </View>
@@ -278,8 +276,8 @@ const Create = () => {
                   onPress={() =>
                     createRoomAndNavigateToShare(
                       roomTitle,
-                      pstnCheckbox,
-                      hostControlCheckbox,
+                      pstnToggle,
+                      !coHostToggle,
                     )
                   }
                   text={loading ? loadingWithDots : createMeetingButton}
