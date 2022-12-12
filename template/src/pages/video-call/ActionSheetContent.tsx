@@ -107,7 +107,7 @@ const ActionSheetContent = (props) => {
             <ChatIconButton
               badgeContainerPosition={{
                 top: -8,
-                left: 15,
+                left: 35,
               }}
               isMobileView={true}
               openSheet={() => updateActionSheet('chat')}

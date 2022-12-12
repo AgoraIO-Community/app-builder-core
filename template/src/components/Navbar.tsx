@@ -238,7 +238,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'chat',
-      tintColor: isPanelActive
+      tintColor: isMobileView
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
