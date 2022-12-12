@@ -353,7 +353,7 @@ const Precall = (props: any) => {
         ) : (
           <>
             <View style={!isDesktop && {alignSelf: 'center'}}>
-              <Logo />
+              <MeetingName textStyle={style.meetingTitleStyle2} />
             </View>
             <Spacer size={20} />
 
@@ -493,6 +493,13 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     fontSize: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    paddingLeft: 0,
+  },
+  meetingTitleStyle2: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     paddingLeft: 0,
   },

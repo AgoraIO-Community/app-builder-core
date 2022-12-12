@@ -139,7 +139,13 @@ const Dropdown: FC<Props> = ({
         !enabled || !data || !data.length
           ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
           : {},
-        visible ? {borderBottomLeftRadius: 0, borderBottomRightRadius: 0} : {},
+        visible
+          ? {
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+              borderBottomWidth: 0,
+            }
+          : {},
       ]}
       onPress={toggleDropdown}>
       {enabled && !noData ? renderDropdown() : <></>}
@@ -204,7 +210,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     minHeight: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderRightWidth: 1,
+    borderLeftWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: 12,
     paddingLeft: 12,
