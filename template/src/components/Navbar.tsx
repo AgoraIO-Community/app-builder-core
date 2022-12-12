@@ -60,10 +60,17 @@ const RenderSeparator = () => {
   );
 };
 
-const ParticipantsCountView = () => {
+export const ParticipantsCountView = ({
+  isMobileView = false,
+}: {
+  isMobileView?: boolean;
+}) => {
   const {onlineUsersCount} = useContext(ChatContext);
-
-  return (
+  return isMobileView ? (
+    <Text>
+      Participants {'\n'} ({numFormatter(onlineUsersCount)})
+    </Text>
+  ) : (
     <>
       {onlineUsersCount !== 0 && (
         <View style={[style.navItem, {justifyContent: 'center'}]}>
@@ -87,6 +94,8 @@ interface ParticipantsIconButtonProps {
     left?: number;
     bottom?: number;
   };
+  isMobileView?: boolean;
+  openSheet?: () => {};
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
@@ -97,10 +106,12 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       right: undefined,
       bottom: undefined,
     },
+    isMobileView = false,
+    openSheet,
   } = props;
   const {sidePanel, setSidePanel} = useSidePanel();
-  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
-    useContext(LiveStreamContext);
+  // const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
+  //   useContext(LiveStreamContext);
   //commented for v1 release
   //const participantsLabel = useString('participantsLabel')();
   const {onlineUsersCount} = useContext(ChatContext);
@@ -108,24 +119,28 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
-    isPanelActive
+    isMobileView
+      ? openSheet()
+      : isPanelActive
       ? setSidePanel(SidePanelType.None)
       : setSidePanel(SidePanelType.Participants);
     $config.EVENT_MODE && $config.RAISE_HAND;
-    setLastCheckedRequestTimestamp(new Date().getTime());
+    //setLastCheckedRequestTimestamp(new Date().getTime());
   };
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
       name: 'participants',
-      tintColor: isPanelActive
+      tintColor: isMobileView
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = participantsLabel;
+  iconButtonProps.btnText = isMobileView ? '' : participantsLabel;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
@@ -141,14 +156,16 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   ) : (
     <>
       <View
-        style={[
-          style.navItem,
-          {
-            backgroundColor: isPanelActive
-              ? $config.PRIMARY_COLOR
-              : 'transparent',
-          },
-        ]}>
+        style={
+          !isMobileView && [
+            style.navItem,
+            {
+              backgroundColor: isPanelActive
+                ? $config.PRIMARY_COLOR
+                : 'transparent',
+            },
+          ]
+        }>
         <IconButton {...iconButtonProps} />
       </View>
       {/* {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
@@ -185,11 +202,14 @@ interface ChatIconButtonProps {
     isPanelActive: boolean,
     totalUnreadCount: number,
   ) => JSX.Element;
+  isMobileView?: boolean;
+  openSheet?: () => {};
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {
+    isMobileView = false,
     badgeContainerPosition = {
       top: 2,
       left: 35,
@@ -197,11 +217,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       bottom: undefined,
       zIndex: 999,
     },
+    openSheet,
     badgeTextStyle = {
-      color:
-        sidePanel === SidePanelType.Chat
-          ? $config.PRIMARY_ACTION_BRAND_COLOR
-          : $config.PRIMARY_ACTION_TEXT_COLOR,
+      color: $config.PRIMARY_ACTION_TEXT_COLOR,
       fontSize: 12,
       textAlign: 'center',
     },
@@ -215,16 +233,17 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const chatLabel = 'Chat';
   const isPanelActive = sidePanel === SidePanelType.Chat;
   const onPress = () => {
-    if (isPanelActive) {
-      setSidePanel(SidePanelType.None);
+    if (isPanelActive || isMobileView) {
+      !isMobileView && setSidePanel(SidePanelType.None);
       setGroupActive(false);
       setPrivateActive(false);
       setSelectedChatUserId(0);
     } else {
       setUnreadGroupMessageCount(0);
       setGroupActive(true);
-      setSidePanel(SidePanelType.Chat);
+      !isMobileView && setSidePanel(SidePanelType.Chat);
     }
+    isMobileView && openSheet();
   };
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
@@ -237,7 +256,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = chatLabel;
+  iconButtonProps.btnText = isMobileView ? '' : chatLabel;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
@@ -260,10 +279,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           borderRadius: 10,
           width: 20,
           height: 20,
-          backgroundColor:
-            sidePanel === SidePanelType.Chat
-              ? $config.PRIMARY_ACTION_TEXT_COLOR
-              : $config.PRIMARY_ACTION_BRAND_COLOR,
+          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
           justifyContent: 'center',
         }}>
         <Text
@@ -280,14 +296,16 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   ) : (
     <>
       <View
-        style={[
-          style.navItem,
-          {
-            backgroundColor: isPanelActive
-              ? $config.PRIMARY_COLOR
-              : 'transparent',
-          },
-        ]}>
+        style={
+          !isMobileView && [
+            style.navItem,
+            {
+              backgroundColor: isPanelActive
+                ? $config.PRIMARY_COLOR
+                : 'transparent',
+            },
+          ]
+        }>
         <IconButton {...iconButtonProps} />
         {totalUnreadCount !== 0 && renderBadge(totalUnreadCount)}
       </View>

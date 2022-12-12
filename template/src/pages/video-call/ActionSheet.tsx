@@ -1,4 +1,10 @@
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import React, {useRef, useCallback, useLayoutEffect, useEffect} from 'react';
 import {BottomSheet, BottomSheetRef} from 'react-spring-bottom-sheet';
 import './ActionSheetStyles.css';
@@ -37,12 +43,15 @@ const ActionSheet = () => {
     setIsOpen(false);
   }
   function onChatDismiss() {
+    handleSheetChanges(0);
     setIsChatOpen(false);
   }
   function onParticipantsDismiss() {
+    handleSheetChanges(0);
     setIsParticipantsOpen(false);
   }
   function onSettingsDismiss() {
+    handleSheetChanges(0);
     setIsSettingsOpen(false);
   }
 
@@ -57,84 +66,88 @@ const ActionSheet = () => {
   ) => {
     switch (screenName) {
       case 'chat':
-        // setIsOpen(false);
         setIsChatOpen(true);
-        //chatSheetRef?.current?.snapTo(({snapPoints}) => snapPoints[0]);
         break;
       case 'participants':
         setIsParticipantsOpen(true);
-        //  participantsSheetRef?.current.present();
         break;
       case 'settings':
         console.warn('settings selected');
         setIsSettingsOpen(true);
-        // settingsSheetRef?.current.present();
         break;
       default:
-      //bottomSheetRef?.current.present();
     }
   };
   return (
-    <View>
-      {/* Controls Action Sheet */}
-      <BottomSheet
-        ref={bottomSheetRef}
-        open={true}
-        //  onDismiss={onDismiss}
-        onSpringStart={handleSpringStart}
-        expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.15 * maxHeight, 0.5 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) =>
-          lastSnap ?? Math.min(...snapPoints)
-        }
-        blocking={false}>
-        <ActionSheetContent
-          updateActionSheet={updateActionSheet}
-          handleSheetChanges={handleSheetChanges}
-          isExpanded={isExpanded}
-        />
-      </BottomSheet>
-      {/* Chat  Action Sheet */}
-      <BottomSheet
-        ref={chatSheetRef}
-        open={isChatOpen}
-        onDismiss={onChatDismiss}
-        //onSpringStart={handleSpringStart}
-        blocking={true}
-        expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
-        <Chat handleClose={onChatDismiss} />
-      </BottomSheet>
-      {/* Participants Action Sheet */}
-      <BottomSheet
-        ref={participantsSheetRef}
-        open={isParticipantsOpen}
-        onDismiss={onParticipantsDismiss}
-        //onSpringStart={handleSpringStart}
-        expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-        blocking={false}>
-        <ParticipantView
-          handleClose={onParticipantsDismiss}
-          updateActionSheet={updateActionSheet}
-        />
-      </BottomSheet>
-      {/* Settings Screen */}
+    <>
+      {isExpanded && (
+        <TouchableWithoutFeedback onPress={() => handleSheetChanges(0)}>
+          <View style={[styles.backDrop]} />
+        </TouchableWithoutFeedback>
+      )}
+      <View>
+        {/* Controls Action Sheet */}
 
-      <BottomSheet
-        ref={settingsSheetRef}
-        open={isSettingsOpen}
-        onDismiss={onSettingsDismiss}
-        //onSpringStart={handleSpringStart}
-        expandOnContentDrag={true}
-        snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
-        defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-        blocking={false}>
-        <SettingsView handleClose={onSettingsDismiss} />
-      </BottomSheet>
-    </View>
+        <BottomSheet
+          ref={bottomSheetRef}
+          open={true}
+          //  onDismiss={onDismiss}
+          onSpringStart={handleSpringStart}
+          expandOnContentDrag={true}
+          snapPoints={({maxHeight}) => [0.15 * maxHeight, 0.5 * maxHeight]}
+          defaultSnap={({lastSnap, snapPoints}) =>
+            lastSnap ?? Math.min(...snapPoints)
+          }
+          blocking={false}>
+          <ActionSheetContent
+            updateActionSheet={updateActionSheet}
+            handleSheetChanges={handleSheetChanges}
+            isExpanded={isExpanded}
+          />
+        </BottomSheet>
+        {/* Chat  Action Sheet */}
+        <BottomSheet
+          ref={chatSheetRef}
+          open={isChatOpen}
+          onDismiss={onChatDismiss}
+          //onSpringStart={handleSpringStart}
+          blocking={true}
+          expandOnContentDrag={true}
+          snapPoints={({maxHeight}) => [1 * maxHeight]}
+          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
+          <Chat handleClose={onChatDismiss} />
+        </BottomSheet>
+        {/* Participants Action Sheet */}
+        <BottomSheet
+          ref={participantsSheetRef}
+          open={isParticipantsOpen}
+          onDismiss={onParticipantsDismiss}
+          //onSpringStart={handleSpringStart}
+          expandOnContentDrag={true}
+          snapPoints={({maxHeight}) => [1 * maxHeight]}
+          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+          blocking={false}>
+          <ParticipantView
+            handleClose={onParticipantsDismiss}
+            updateActionSheet={updateActionSheet}
+          />
+        </BottomSheet>
+        {/* Settings Screen */}
+
+        <BottomSheet
+          ref={settingsSheetRef}
+          open={isSettingsOpen}
+          onDismiss={onSettingsDismiss}
+          //onSpringStart={handleSpringStart}
+          expandOnContentDrag={true}
+          // snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
+          snapPoints={({maxHeight}) => [1 * maxHeight]}
+          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+          blocking={false}>
+          <SettingsView handleClose={onSettingsDismiss} />
+        </BottomSheet>
+      </View>
+    </>
   );
 };
 
@@ -149,5 +162,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'yellow',
     flex: 1,
+  },
+  backDrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    opacity: 0.2,
   },
 });

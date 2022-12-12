@@ -1,5 +1,12 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, {useCallback, useRef} from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Modal,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import React, {useCallback, useRef, useState} from 'react';
 import BottomSheet, {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -24,19 +31,21 @@ const ActionSheet = () => {
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
     bottomSheetRef.current?.snapToIndex(index);
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
   }, []);
 
   function onChatDismiss() {
+    handleSheetChanges(0);
     chatSheetRef?.current.close();
   }
 
   function onParticipantsDismiss() {
+    handleSheetChanges(0);
     participantsSheetRef?.current.close();
   }
   function onSettingsDismiss() {
+    handleSheetChanges(0);
     settingsSheetRef?.current.close();
   }
 
@@ -65,6 +74,11 @@ const ActionSheet = () => {
   return (
     <BottomSheetModalProvider>
       {/* Controls */}
+      {isExpanded && (
+        <TouchableWithoutFeedback onPress={() => handleSheetChanges(0)}>
+          <View style={[styles.backDrop]} />
+        </TouchableWithoutFeedback>
+      )}
       <BottomSheetModal
         snapPoints={['15%', '50%']}
         ref={bottomSheetRef}
@@ -82,9 +96,10 @@ const ActionSheet = () => {
           />
         </BottomSheetView>
       </BottomSheetModal>
+
       {/* Chat  */}
       <BottomSheetModal
-        snapPoints={['50%', '100%']}
+        snapPoints={['100%']}
         name="ChatSheet"
         ref={chatSheetRef}
         style={styles.container}
@@ -98,7 +113,7 @@ const ActionSheet = () => {
 
       {/* Participants  */}
       <BottomSheetModal
-        snapPoints={['50%', '100%']}
+        snapPoints={['100%']}
         ref={participantsSheetRef}
         name="ParticipantsSheet"
         style={styles.container}
@@ -115,7 +130,7 @@ const ActionSheet = () => {
 
       {/* Settings  */}
       <BottomSheetModal
-        snapPoints={['50%', '100%']}
+        snapPoints={['100%']}
         ref={settingsSheetRef}
         name="SettingsSheet"
         style={styles.container}
@@ -144,18 +159,7 @@ const styles = StyleSheet.create({
     borderColor: '#EDF0F1',
     flexWrap: 'wrap',
   },
-  iconContainer: {
-    backgroundColor: '#F0F4F6', //TODO : adjust color as theme
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    width: 50,
-    height: 50,
-  },
+
   container: {
     shadowColor: '#000000',
     shadowOffset: {width: 0, height: -4},
@@ -170,5 +174,14 @@ const styles = StyleSheet.create({
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     width: 40,
     height: 4,
+  },
+  backDrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    opacity: 0.2,
   },
 });
