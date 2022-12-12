@@ -12,7 +12,7 @@
 import React, {createContext, useState} from 'react';
 import {UidType, useLocalUid} from '../../agora-rn-uikit';
 import useMount from './useMount';
-import {Icons} from '../../agora-rn-uikit';
+import {IconsInterface} from '../atoms/CustomIcon';
 import {NetworkQualities} from '../language/default-labels/videoCallScreenLabels';
 import {useRtc} from 'customization-api';
 
@@ -30,54 +30,54 @@ import {useRtc} from 'customization-api';
  */
 export const networkIconsObject: {
   [key: number]: {
-    icon: string;
+    icon: keyof IconsInterface;
     tint: string;
     text: NetworkQualities;
   };
 } = {
   0: {
-    icon: Icons.networkIcons['Unsupported'],
-    tint: '#848484',
+    icon: 'connection-unsupported',
+    tint: $config.SEMANTIC_NETRUAL,
     text: 'unknown',
   },
   1: {
-    icon: Icons.networkIcons['Excellent'],
-    tint: '#29C157',
+    icon: 'connection-good',
+    tint: $config.SEMANTIC_SUCCESS,
     text: 'excellent',
   },
   2: {
-    icon: Icons.networkIcons['Good'],
-    tint: '#FFEE00',
+    icon: 'connection-good',
+    tint: $config.SEMANTIC_SUCCESS,
     text: 'good',
   },
   3: {
-    icon: Icons.networkIcons['Bad'],
-    tint: '#F8AA00',
+    icon: 'connection-bad',
+    tint: $config.SEMANTIC_WARNING,
     text: 'bad',
   },
   4: {
-    icon: Icons.networkIcons['Bad'],
-    tint: '#F8AA00',
+    icon: 'connection-bad',
+    tint: $config.SEMANTIC_WARNING,
     text: 'bad',
   },
   5: {
-    icon: Icons.networkIcons['VeryBad'],
-    tint: 'red',
+    icon: 'connection-very-bad',
+    tint: $config.SEMANTIC_ERROR,
     text: 'veryBad',
   },
   6: {
-    icon: Icons.networkIcons['VeryBad'],
-    tint: 'red',
+    icon: 'connection-very-bad',
+    tint: $config.SEMANTIC_ERROR,
     text: 'veryBad',
   },
   7: {
-    icon: Icons.networkIcons['Unsupported'],
-    tint: '#848484',
+    icon: 'connection-unpublished',
+    tint: $config.SEMANTIC_NETRUAL,
     text: 'unpublished',
   },
   8: {
-    icon: Icons.networkIcons['Loading'],
-    tint: '#848484',
+    icon: 'connection-loading',
+    tint: $config.SEMANTIC_NETRUAL,
     text: 'loading',
   },
 };

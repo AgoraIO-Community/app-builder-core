@@ -204,7 +204,10 @@ const PlatformWrapper = ({children, onPress}) => {
       onMouseLeave={() => {
         setIsHovered(false);
       }}
-      onClick={onPress}>
+      onClick={(e) => {
+        e.preventDefault();
+        onPress && onPress();
+      }}>
       {children}
     </div>
   ) : (
