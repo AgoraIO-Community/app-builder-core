@@ -20,13 +20,18 @@ export interface IconButtonProps {
   btnText?: string;
   disabled?: boolean;
   iconProps?: ImageIconProps;
+  customIconComponent?: any;
 }
 
 const IconButton = (props: IconButtonProps) => {
   return (
     <PlatformWrapper onPress={props.onPress} disabled={props.disabled}>
       <View style={props.style}>
-        <ImageIcon {...props.iconProps} />
+        {props?.customIconComponent ? (
+          props.customIconComponent
+        ) : (
+          <ImageIcon {...props.iconProps} />
+        )}
         {props?.btnText ? (
           <Text
             style={[
