@@ -24,6 +24,11 @@ import {ClientRole} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
+import {
+  ChatIconButton,
+  ParticipantsCountView,
+  ParticipantsIconButton,
+} from '../../../src/components/Navbar';
 
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, updateActionSheet, isExpanded} = props;
@@ -98,26 +103,24 @@ const ActionSheetContent = (props) => {
 
         {/* chat */}
         <View style={styles.iconWithText}>
-          <TouchableOpacity
-            style={styles.iconContainer}
-            onPress={() => updateActionSheet('chat')}>
-            <ImageIcon name={'chat'} tintColor={$config.PRIMARY_COLOR} />
-          </TouchableOpacity>
+          <View style={styles.iconContainer}>
+            <ChatIconButton
+              isMobileView={true}
+              openSheet={() => updateActionSheet('chat')}
+            />
+          </View>
           <Text style={styles.iconText}>Chat</Text>
         </View>
         {/* participants */}
         <View style={styles.iconWithText}>
-          <TouchableOpacity
-            style={styles.iconContainer}
-            onPress={() => updateActionSheet('participants')}>
-            <ImageIcon
-              name={'participants'}
-              tintColor={$config.PRIMARY_COLOR}
+          <View style={styles.iconContainer}>
+            <ParticipantsIconButton
+              isMobileView={true}
+              openSheet={() => updateActionSheet('participants')}
             />
-            {/* <ParticipantsIconButton /> */}
-          </TouchableOpacity>
+          </View>
           <Text style={styles.iconText}>
-            Participants {'\n'} ({numFormatter(onlineUsersCount)})
+            <ParticipantsCountView isMobileView={true} />
           </Text>
         </View>
         {/* record */}
