@@ -85,7 +85,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     if (selectedMic.length !== 0) {
-      console.log('WEBAPI: setting camera: ', selectedMic);
+      console.log('WEBAPI: setting microphone: ', selectedMic);
       rtc.RtcEngine.changeMic(
         selectedMic,
         () => {},
