@@ -62,12 +62,11 @@ const style = StyleSheet.create({
     borderRadius: 20,
     flexDirection: 'row',
     zIndex: 5,
-    maxWidth: '100%',
+    maxWidth: 200,
   },
   name: {
     color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexShrink: 1,

@@ -165,8 +165,10 @@ const Participant = (props: ParticipantInterface) => {
                 textStyle={styles.textStyle}
               />
             </View>
-            <View style={{alignSelf: 'center'}}>
-              <Text style={styles.participantNameText}>{name}</Text>
+            <View style={{alignSelf: 'center', flex: 1}}>
+              <Text style={styles.participantNameText} numberOfLines={1}>
+                {name}
+              </Text>
               {isHostUser && (
                 <Text style={styles.subText}>Host{isLocal ? ', Me' : ''}</Text>
               )}
