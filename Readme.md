@@ -7,12 +7,18 @@ This repository is a part of [RTE app builder](https://appbuilder.agora.io).
 1. Clone the repo
 
 2. Navigate into project directory and run:
+
    ```
    npm run dev-setup -- meeting
    npm run dev-setup -- live-streaming
    npm run dev-setup -- voice-chat
    npm run dev-setup -- audio-livecast
    ```
+
+   By default, the setup will pick the dark theme. for light theme setup, add light keyword at the end of command
+
+   `npm run dev-setup -- meeting light`
+
    This command will automatically set everything up for development
 
 To build react sdk using esbuild,
