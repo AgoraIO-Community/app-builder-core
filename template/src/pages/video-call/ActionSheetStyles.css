@@ -9,7 +9,8 @@
     --rsbs-overlay-rounded: 16px;
     --handleColor: $config.PRIMARY_ACTION_BRAND_COLOR;
   }
-  
+
+ 
   [data-rsbs-overlay] {
     border-top-left-radius: var(--rsbs-overlay-rounded);
     border-top-right-radius: var(--rsbs-overlay-rounded);
@@ -106,7 +107,7 @@
     padding-top: calc(12px + env(safe-area-inset-top));
   }
   
-  /* [data-rsbs-scroll] {
+  [data-rsbs-scroll] {
     flex-shrink: 1;
     flex-grow: 1;
     -webkit-tap-highlight-color: revert;
@@ -117,5 +118,20 @@
     overflow: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-  } */
-  
+  }
+
+  [data-rsbs-state="opening"] [data-rsbs-content="true"] {
+    height:100%;
+  }
+
+  [data-rsbs-state="open"] [data-rsbs-content="true"] {
+    height:100%;
+  }
+  [data-rsbs-state="dragging"] [data-rsbs-content="true"] {
+    height:100%;
+  }
+  [data-rsbs-state="snapping"] [data-rsbs-content="true"] {
+    height:100%;
+  }
+
+

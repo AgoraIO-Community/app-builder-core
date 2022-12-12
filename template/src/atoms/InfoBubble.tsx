@@ -7,14 +7,13 @@ import {
   Modal,
   Dimensions,
   TouchableWithoutFeedback,
-  Touchable,
-  TouchableOpacity,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {isWeb} from '../utils/common';
 
 interface iconProps extends ImageIconProps {
   activeTintColor: string;
@@ -65,32 +64,20 @@ const InfoBubble = (props: InfoBubbleProps) => {
     });
   };
 
-  return hoverMode && isWebInternal() && !isSmall ? (
-    <div
-      style={{
-        position: 'relative',
-        marginTop: -3,
-        marginLeft: -3,
-        background: toolTipVisible
-          ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%']
-          : 'transparent',
-        width: 28,
-        height: 28,
-        borderRadius: '50%',
-        cursor: toolTipVisible ? 'pointer' : 'auto',
-      }}
-      onMouseEnter={() => {
-        setToolTipVisible(true);
-      }}
-      onMouseLeave={() => {
-        setToolTipVisible(false);
-      }}
-      ref={iconRef}>
-      {toolTipVisible ? (
+  return (
+    <PlatformWrapper
+      onPress={() => setToolTipVisible(true)}
+      setToolTipVisible={setToolTipVisible}
+      isSmall={isSmall}
+      toolTipVisible={toolTipVisible}
+      hoverMode={hoverMode}>
+      {/* toolTipBox for desktop  */}
+      {hoverMode && isWeb() && !isSmall && toolTipVisible ? (
         <>
           <View
             style={[
               styles.textContainer,
+              position,
               {left: left - 20},
               {opacity: !left ? 0 : 1},
             ]}
@@ -121,7 +108,68 @@ const InfoBubble = (props: InfoBubbleProps) => {
       ) : (
         <></>
       )}
-      <View style={styles.iconStyleView}>
+      {/* toolTip modal for mobile  */}
+      {(!isWeb() || isSmall || !hoverMode) && (
+        <>
+          <Modal
+            animationType="none"
+            transparent={true}
+            visible={toolTipVisible}
+            onRequestClose={() => {
+              setToolTipVisible(!toolTipVisible);
+            }}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setToolTipVisible(false);
+              }}>
+              <View style={styles.backDrop} />
+            </TouchableWithoutFeedback>
+            <View
+              style={[styles.textContainer, position, {maxWidth: width - 100}]}
+              onLayout={({
+                nativeEvent: {
+                  layout: {x, y, width, height},
+                },
+              }) => {
+                //To center align the tooltip above the icons
+                setModalPosition(width);
+              }}
+              ref={tooltipRef}>
+              {props?.bubbleIconProps ? (
+                <View
+                  style={{
+                    paddingLeft: 12,
+                    marginRight: -4,
+                    alignSelf: 'center',
+                  }}>
+                  <ImageIcon {...props.bubbleIconProps} />
+                </View>
+              ) : (
+                <></>
+              )}
+              <Text style={[styles.textStyle, {padding: 12}]}>
+                {props.text}
+              </Text>
+            </View>
+          </Modal>
+          {toolTipVisible ? (
+            <View style={styles.downsideTriangleIconContainer}>
+              <ImageIcon
+                customSize={{
+                  width: styles.downsideTriangleIcon.width,
+                  height: styles.downsideTriangleIcon.height,
+                }}
+                name={'downside-triangle'}
+                tintColor={$config.CARD_LAYER_3_COLOR}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
+        </>
+      )}
+      {/* info icon */}
+      <View style={styles.iconStyleView} ref={pressableRef}>
         <ImageIcon
           iconSize={props.iconProps.iconSize}
           name={props.iconProps.name}
@@ -132,83 +180,59 @@ const InfoBubble = (props: InfoBubbleProps) => {
           }
         />
       </View>
+    </PlatformWrapper>
+  );
+};
+
+const PlatformWrapper = ({
+  children,
+  onPress,
+  setToolTipVisible,
+  toolTipVisible,
+  isSmall,
+  hoverMode,
+}) => {
+  return hoverMode && isWeb() && !isSmall ? (
+    <div
+      style={{
+        position: 'relative',
+        marginTop: -3,
+        marginLeft: -3,
+        background:
+          hoverMode && toolTipVisible
+            ? $config.CARD_LAYER_5_COLOR + '20'
+            : 'transparent',
+        width: 28,
+        height: 28,
+        borderRadius: '50%',
+      }}
+      onMouseEnter={() => {
+        setToolTipVisible(true);
+      }}
+      onMouseLeave={() => {
+        setToolTipVisible(false);
+      }}>
+      {children}
     </div>
   ) : (
-    <>
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={toolTipVisible}
-        onRequestClose={() => {
-          setToolTipVisible(!toolTipVisible);
-        }}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setToolTipVisible(false);
-          }}>
-          <View style={styles.backDrop} />
-        </TouchableWithoutFeedback>
+    <View
+      style={{
+        position: 'relative',
+        marginTop: -3,
+        marginLeft: -3,
+        backgroundColor:
+          hoverMode && toolTipVisible
+            ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%']
+            : 'transparent',
 
-        <View
-          style={[styles.textContainer, position, {maxWidth: width - 100}]}
-          onLayout={({
-            nativeEvent: {
-              layout: {x, y, width, height},
-            },
-          }) => {
-            //To center align the tooltip above the icons
-            setModalPosition(width);
-          }}
-          ref={tooltipRef}>
-          {props?.bubbleIconProps ? (
-            <View
-              style={{paddingLeft: 12, marginRight: -4, alignSelf: 'center'}}>
-              <ImageIcon {...props.bubbleIconProps} />
-            </View>
-          ) : (
-            <></>
-          )}
-          <Text style={[styles.textStyle, {padding: 12}]}>{props.text}</Text>
-        </View>
-      </Modal>
-      <View>
-        <Pressable
-          hitSlop={5}
-          ref={pressableRef}
-          //style={[styles.iconStyleView]}
-          onPress={() => {
-            setToolTipVisible(true);
-            props?.onPress && props.onPress();
-          }}>
-          <>
-            {toolTipVisible ? (
-              <View style={[styles.downsideTriangleIconContainer1]}>
-                <ImageIcon
-                  customSize={{
-                    width: styles.downsideTriangleIcon.width,
-                    height: styles.downsideTriangleIcon.height,
-                  }}
-                  name={'downside-triangle'}
-                  tintColor={$config.CARD_LAYER_3_COLOR}
-                />
-              </View>
-            ) : (
-              <></>
-            )}
-            <ImageIcon
-              iconSize={props.iconProps.iconSize}
-              name={props.iconProps.name}
-              tintColor={
-                toolTipVisible
-                  ? props?.iconProps.activeTintColor ||
-                    props?.iconProps.tintColor
-                  : props?.iconProps.tintColor
-              }
-            />
-          </>
-        </Pressable>
-      </View>
-    </>
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+      }}>
+      <Pressable hitSlop={2} onPress={onPress}>
+        {children}
+      </Pressable>
+    </View>
   );
 };
 
@@ -222,12 +246,6 @@ const styles = StyleSheet.create({
   downsideTriangleIconContainer: {
     position: 'absolute',
     top: -24,
-    left: -2,
-    zIndex: 999,
-  },
-  downsideTriangleIconContainer1: {
-    position: 'absolute',
-    top: -30,
     left: -2,
     zIndex: 999,
   },

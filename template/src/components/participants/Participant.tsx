@@ -41,13 +41,26 @@ interface ParticipantInterface {
   showControls: boolean;
   isHostUser: boolean;
   isAudienceUser: boolean;
+  isMobile?: boolean;
+  handleClose: () => {};
+  updateActionSheet: (screenName: 'chat' | 'participants' | 'settings') => {};
 }
 
 const Participant = (props: ParticipantInterface) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const usercontainerRef = useRef(null);
-  const {user, name, showControls, isHostUser, isLocal, isAudienceUser} = props;
+  const {
+    user,
+    name,
+    showControls,
+    isHostUser,
+    isLocal,
+    isAudienceUser,
+    isMobile = false,
+    handleClose,
+    updateActionSheet,
+  } = props;
   const [pos, setPos] = useState({top: 0, left: 0});
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
@@ -66,8 +79,14 @@ const Participant = (props: ParticipantInterface) => {
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
         callback: () => {
-          setActionMenuVisible(false);
-          openPrivateChat(user.uid);
+          if (isMobile) {
+            handleClose();
+            openPrivateChat(user.uid);
+            updateActionSheet('chat');
+          } else {
+            setActionMenuVisible(false);
+            openPrivateChat(user.uid);
+          }
         },
       },
     ];
@@ -188,7 +207,8 @@ const Participant = (props: ParticipantInterface) => {
                   opacity:
                     ((isHovered || actionMenuVisible || !isWebInternal()) &&
                       !isLocal) ||
-                    (isHovered && isAudienceUser)
+                    (isHovered && isAudienceUser) ||
+                    (isMobile && !isLocal)
                       ? 1
                       : 0,
                   alignSelf: 'center',

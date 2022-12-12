@@ -8,13 +8,14 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 export interface LocalSwitchCameraProps {
   showLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
+  disabled?: boolean;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
   const {RtcEngine} = useRtc();
   const local = useLocalUserInfo();
-  const {showLabel = true} = props;
+  const {showLabel = true, disabled = false} = props;
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
   const switchCameraButtonText = 'Switch';
@@ -27,9 +28,12 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: 'switch-camera',
-      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      tintColor:
+        isVideoEnabled || !disabled
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : $config.SEMANTIC_NETRUAL,
     },
-    disabled: isVideoEnabled ? false : true,
+    disabled: !isVideoEnabled || disabled ? true : false,
     onPress: onPress,
   };
 

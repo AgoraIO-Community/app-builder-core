@@ -88,10 +88,19 @@ const JoinRoomInputView = ({isDesktop}) => {
       ) : (
         <></>
       )}
-      <View style={{height: 20}} />
       <View
-        style={$config.EVENT_MODE ? style.btnContainerStyle : {width: '100%'}}>
-        <JoinButton />
+        style={
+          $config.EVENT_MODE && {justifyContent: 'space-between', flex: 1}
+        }>
+        <View style={{height: 20}} />
+        <View
+          style={
+            $config.EVENT_MODE && isDesktop
+              ? style.btnContainerStyle
+              : {width: '100%'}
+          }>
+          <JoinButton />
+        </View>
       </View>
     </View>
   );
@@ -318,15 +327,29 @@ const Precall = (props: any) => {
         testID="precall-screen">
         {/* Precall screen only changes for audience in Live Stream event */}
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <View>
-            <Card>
-              <Logo />
+          isDesktop ? (
+            <View>
+              <Card>
+                <Logo />
+                <View style={style.meetingTitleContainer}>
+                  <MeetingName textStyle={style.meetingTitleStyle} />
+                </View>
+                <JoinRoomInputView isDesktop={isDesktop} />
+              </Card>
+            </View>
+          ) : (
+            <View style={{flex: 1}}>
+              <View style={{alignSelf: 'center'}}>
+                <Logo />
+              </View>
               <View style={style.meetingTitleContainer}>
                 <MeetingName textStyle={style.meetingTitleStyle} />
               </View>
-              <JoinRoomInputView isDesktop={isDesktop} />
-            </Card>
-          </View>
+              <View testID="precall-mobile-join" style={{flex: 1}}>
+                <JoinRoomInputView isDesktop={isDesktop} />
+              </View>
+            </View>
+          )
         ) : (
           <>
             <View style={!isDesktop && {alignSelf: 'center'}}>
@@ -363,7 +386,9 @@ const Precall = (props: any) => {
                   testID="precall-mobile-preview">
                   <VideoPreview />
                 </View>
-                <View testID="precall-mobile-join" style={{flex: 1}}>
+                <View
+                  testID="precall-mobile-join"
+                  style={{flex: $config.EVENT_MODE ? 2 : 1}}>
                   <JoinRoomInputView isDesktop={isDesktop} />
                 </View>
               </View>
