@@ -209,6 +209,7 @@ interface ChatIconButtonProps {
 export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {
+    isMobileView = false,
     badgeContainerPosition = {
       top: 2,
       left: 35,
@@ -216,14 +217,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       bottom: undefined,
       zIndex: 999,
     },
-    isMobileView = false,
     openSheet,
     badgeTextStyle = {
-      color: isMobileView
-        ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : sidePanel === SidePanelType.Chat
-        ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : $config.PRIMARY_ACTION_TEXT_COLOR,
+      color: $config.PRIMARY_ACTION_TEXT_COLOR,
       fontSize: 12,
       textAlign: 'center',
     },
@@ -283,10 +279,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           borderRadius: 10,
           width: 20,
           height: 20,
-          backgroundColor:
-            sidePanel === SidePanelType.Chat
-              ? $config.PRIMARY_ACTION_TEXT_COLOR
-              : $config.PRIMARY_ACTION_BRAND_COLOR,
+          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
           justifyContent: 'center',
         }}>
         <Text
