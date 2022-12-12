@@ -34,7 +34,6 @@ const ToastConfig = {
         fontSize: 20,
         fontFamily: 'Source Sans Pro',
         fontWeight: '700',
-        color: $config.FONT_COLOR,
       }}
       text2Style={{
         fontSize: 20,
