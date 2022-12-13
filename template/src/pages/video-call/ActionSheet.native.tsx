@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
 
   handleIndicatorStyle: {
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    backgroundColor: $config.SEMANTIC_NETRUAL,
     width: 40,
     height: 4,
   },

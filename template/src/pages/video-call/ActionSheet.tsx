@@ -33,10 +33,7 @@ const ActionSheet = () => {
 
   useEffect(() => {
     root.style.setProperty('--sheet-background', $config.CARD_LAYER_1_COLOR);
-    root.style.setProperty(
-      '--handle-background',
-      $config.PRIMARY_ACTION_BRAND_COLOR,
-    );
+    root.style.setProperty('--handle-background', $config.SEMANTIC_NETRUAL);
   }, []);
 
   function onDismiss() {
