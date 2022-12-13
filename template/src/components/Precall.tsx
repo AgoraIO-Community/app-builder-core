@@ -351,9 +351,17 @@ const Precall = (props: any) => {
             </View>
           )
         ) : (
+          /* Meeting Precall*/
           <>
             <View style={!isDesktop && {alignSelf: 'center'}}>
-              <MeetingName textStyle={style.meetingTitleStyle2} />
+              <MeetingName
+                textStyle={
+                  [
+                    style.meetingTitleStyle2,
+                    {padding: isDesktop ? 32 : 25},
+                  ] as object
+                }
+              />
             </View>
             {isDesktop ? (
               <>
@@ -382,14 +390,14 @@ const Precall = (props: any) => {
               </>
             ) : (
               <View style={{flex: 1}}>
-                <View
-                  style={[style.mobileBoxStyle]}
-                  testID="precall-mobile-preview">
+                <View style={{flex: 3}} testID="precall-mobile-preview">
                   <VideoPreview />
                 </View>
                 <View
                   testID="precall-mobile-join"
-                  style={{flex: $config.EVENT_MODE ? 2 : 1}}>
+                  style={{
+                    flex: $config.EVENT_MODE ? 2 : 1,
+                  }}>
                   <JoinRoomInputView isDesktop={isDesktop} />
                 </View>
               </View>
@@ -425,9 +433,8 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   mainMobile: {
-    flex: 1,
+    flex: 2,
     paddingHorizontal: 16,
-    paddingVertical: 32,
   },
   nav: {
     flex: 1,

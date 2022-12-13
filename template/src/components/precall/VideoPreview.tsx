@@ -110,14 +110,14 @@ const VideoPreview: React.FC = () => {
   const isMobileView = dim[0] < dim[1] + 150;
 
   return (
-    <View
-      style={[styles.container, {flex: isMobileView ? 0.8 : 1}]}
-      onLayout={onLayout}>
-      <MaxVideoView
-        user={renderList[maxUid]}
-        key={maxUid}
-        fallback={Fallback}
-      />
+    <View style={[styles.container]} onLayout={onLayout}>
+      <View style={{flex: 1}}>
+        <MaxVideoView
+          user={renderList[maxUid]}
+          key={maxUid}
+          fallback={Fallback}
+        />
+      </View>
 
       <PreCallLocalMute isMobileView={isMobileView} />
     </View>
@@ -174,18 +174,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   container: {
-    justifyContent: 'space-between',
+    flex: 1,
     position: 'relative',
+    justifyContent: 'space-between',
   },
   avatar: {
-    // position: 'absolute',
-    // top: 0,
-    // left: 0,
-    // right: 0,
-    // bottom: 0,
-    // margin: 'auto',
     width: 100,
     height: 100,
-    // zIndex: 99,
   },
 });

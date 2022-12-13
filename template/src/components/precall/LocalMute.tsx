@@ -20,8 +20,9 @@ import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import Spacer from 'src/atoms/Spacer';
 
-const PreCallLocalMute: React.FC = (props: any) => {
+const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
@@ -70,7 +71,11 @@ const PreCallLocalMute: React.FC = (props: any) => {
       ]}
       testID="precall-controls">
       {!$config.AUDIO_ROOM && (
-        <View style={{alignSelf: 'center'}}>
+        <View
+          style={{
+            alignSelf: 'center',
+            marginRight: props.isMobileView ? 20 : 0,
+          }}>
           <VideoMute />
         </View>
       )}

@@ -15,6 +15,7 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import PreCallLocalMute from './LocalMute';
+import {ImageIcon as UiKitImageIcon} from '../../../agora-rn-uikit';
 
 const VideoPreview: React.FC = () => {
   const rtc = useRtc();
@@ -29,38 +30,45 @@ const VideoPreview: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <MaxVideoView user={renderList[maxUid]} key={maxUid} />
-      <PreCallLocalMute />
+      <View style={{flex: 1}}>
+        <MaxVideoView
+          user={renderList[maxUid]}
+          key={maxUid}
+          fallback={Fallback}
+        />
+      </View>
+      <PreCallLocalMute isMobileView={true} />
     </View>
   );
 };
 export default VideoPreview;
 
 const Fallback = () => {
-  return;
+  return (
+    <View style={styles.fallbackRootContainer}>
+      <View style={styles.avatar}>
+        {/*TODO fix ttf file <ImageIcon name="profile" customSize={{width: 100, height: 100}} /> */}
+        <UiKitImageIcon name={'profile'} />
+      </View>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
     position: 'relative',
+    justifyContent: 'space-between',
   },
   avatar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    margin: 'auto',
-    width: 100,
     height: 100,
-    zIndex: 99,
+    width: 100,
   },
   fallbackRootContainer: {
     flex: 1,
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
   },
 });
