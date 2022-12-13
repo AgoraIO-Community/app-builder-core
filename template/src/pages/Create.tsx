@@ -17,6 +17,7 @@ import {
   ScrollView,
   Dimensions,
   Image,
+  Pressable,
 } from 'react-native';
 import {useHistory} from '../components/Router';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -37,14 +38,15 @@ import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import styles from 'react-native-toast-message/src/components/icon/styles';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import InfoBubble from '../atoms/InfoBubble';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
-
+import Tooltip from '../atoms/Tooltip';
+import ImageIcon from '../atoms/ImageIcon';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;
 const Create = () => {
@@ -165,6 +167,22 @@ const Create = () => {
     }
   };
 
+  const renderInfoIcon = (isToolTipVisible, setToolTipVisible) => {
+    return (
+      <Pressable onPress={() => setToolTipVisible(true)}>
+        <ImageIcon
+          name="info"
+          iconSize="medium"
+          tintColor={
+            isToolTipVisible
+              ? $config.SECONDARY_ACTION_COLOR
+              : $config.SEMANTIC_NETRUAL
+          }
+        />
+      </Pressable>
+    );
+  };
+
   return (
     <CreateProvider
       value={{
@@ -211,17 +229,13 @@ const Create = () => {
                       <Text style={style.toggleLabel}>
                         Make everyone a Co-Host
                       </Text>
-                      <InfoBubble
-                        iconProps={{
-                          name: 'info',
-                          iconSize: 'medium',
-                          tintColor: $config.SEMANTIC_NETRUAL,
-                          activeTintColor: $config.SECONDARY_ACTION_COLOR,
-                        }}
-                        text={
-                          'Turning on will give everyone the control of this meeting'
-                        }
-                      />
+                      <Tooltip
+                        activeBgStyle={style.tooltipActiveBgStyle}
+                        defaultBgStyle={style.tooltipDefaultBgStyle}
+                        toolTipMessage="Turning on will give everyone the control of this meeting"
+                        renderContent={(isToolTipVisible, setToolTipVisible) =>
+                          renderInfoIcon(isToolTipVisible, setToolTipVisible)
+                        }></Tooltip>
                     </View>
                     <View style={style.infoToggleContainer}>
                       <Toggle
@@ -245,15 +259,16 @@ const Create = () => {
                         <Text style={style.toggleLabel}>
                           Allow joining via a phone number
                         </Text>
-                        <InfoBubble
-                          iconProps={{
-                            iconSize: 'medium',
-                            name: 'info',
-                            tintColor: $config.SEMANTIC_NETRUAL,
-                            activeTintColor: $config.SECONDARY_ACTION_COLOR,
-                          }}
-                          text="Attendees can dial a number and join via PSTN"
-                        />
+                        <Tooltip
+                          activeBgStyle={style.tooltipActiveBgStyle}
+                          defaultBgStyle={style.tooltipDefaultBgStyle}
+                          toolTipMessage="Attendees can dial a number and join via PSTN"
+                          renderContent={(
+                            isToolTipVisible,
+                            setToolTipVisible,
+                          ) =>
+                            renderInfoIcon(isToolTipVisible, setToolTipVisible)
+                          }></Tooltip>
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle
@@ -347,6 +362,7 @@ const style = StyleSheet.create({
     marginRight: 8,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
+    alignSelf: 'center',
   },
   separator: {
     height: 1,
@@ -358,6 +374,15 @@ const style = StyleSheet.create({
   infoToggleContainer: {
     flex: 0.2,
     alignItems: 'flex-end',
+  },
+  tooltipActiveBgStyle: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    borderRadius: 14,
+    padding: 5,
+  },
+  tooltipDefaultBgStyle: {
+    padding: 5,
   },
 });
 

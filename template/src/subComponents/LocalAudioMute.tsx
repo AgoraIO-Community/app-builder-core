@@ -93,8 +93,12 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       : $config.SEMANTIC_ERROR,
   };
 
-  iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = showLabel ? audioLabel : '';
+  iconButtonProps.toolTipMessage = permissionDenied
+    ? 'Give Permissions'
+    : isAudioEnabled
+    ? 'Mic On'
+    : 'Mic Off';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

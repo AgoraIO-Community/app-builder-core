@@ -94,8 +94,12 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? $config.PRIMARY_ACTION_BRAND_COLOR
       : $config.SEMANTIC_ERROR,
   };
-  iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = showLabel ? videoLabel : '';
+  iconButtonProps.toolTipMessage = permissionDenied
+    ? 'Give Permissions'
+    : isVideoEnabled
+    ? 'Video On'
+    : 'Video Off';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
