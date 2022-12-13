@@ -487,7 +487,7 @@ const style = StyleSheet.create({
     flex: 1,
     width: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   lsBtnContainer: {
     flex: 1,

@@ -23,7 +23,6 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import PreCallSettings from './PreCallSettings';
 
 const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
-  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;

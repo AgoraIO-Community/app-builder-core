@@ -36,7 +36,7 @@ const Input = (props: InputProps) => {
           $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
         }
         autoCorrect={false}
-        autoFocus
+        // autoFocus
         {...otherProps}
         // onFocus={() => setIsFocussed(true)}
         // onBlur={() => setIsFocussed(false)}
