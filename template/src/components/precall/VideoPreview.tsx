@@ -18,6 +18,7 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
+  Linking,
 } from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import PreCallLocalMute from './LocalMute';
@@ -31,13 +32,25 @@ import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
-import {isWebInternal} from '../../utils/common';
+import {isWeb, isWebInternal} from '../../utils/common';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const Fallback = () => {
   const {isCameraAvailable} = usePreCall();
   const local = useContext(LocalContext);
-  const requestCameraAndAudioPermission = () => {};
+  const requestCameraAndAudioPermission = () => {
+    try {
+      const URL =
+        'https://support.google.com/chrome/answer/2693767?hl=en&co=GENIE.Platform%3DDesktop';
+      if (isWeb()) {
+        window.open(URL, '_blank');
+      } else {
+        Linking.openURL(URL);
+      }
+    } catch (error) {
+      console.error(`Couldn't open the support url`);
+    }
+  };
   return (
     <View style={styles.fallbackRootContainer}>
       {isCameraAvailable ||
@@ -56,7 +69,6 @@ const Fallback = () => {
           <Spacer size={33} />
           <TouchableOpacity
             style={{
-              flex: 1,
               flexDirection: 'row',
               alignSelf: 'center',
             }}

@@ -10,7 +10,11 @@
 *********************************************
 */
 import React from 'react';
-import {ToggleState, PermissionState} from '../../agora-rn-uikit';
+import {
+  ToggleState,
+  PermissionState,
+  ImageIcon as UIKitImageIcon,
+} from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
@@ -70,6 +74,13 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     iconProps,
     disabled: permissionDenied || disabled ? true : false,
   };
+  if (permissionDenied) {
+    iconButtonProps.customIconComponent = (
+      <UIKitImageIcon name="noMic" style={{width: 24, height: 24}} />
+    );
+  } else {
+    iconButtonProps.customIconComponent = null;
+  }
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,

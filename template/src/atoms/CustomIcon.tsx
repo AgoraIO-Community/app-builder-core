@@ -56,6 +56,12 @@ export interface IconsInterface {
   collapse: string;
   cancel: string;
   'active-speaker': string;
+  'connection-unsupported': string;
+  'connection-bad': string;
+  'connection-good': string;
+  'connection-loading': string;
+  'connection-very-bad': string;
+  'connection-unpublished': string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

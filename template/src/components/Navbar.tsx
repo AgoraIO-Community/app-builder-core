@@ -11,7 +11,6 @@
 */
 import React, {useContext, useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, TextStyle} from 'react-native';
-import {Icons} from '../../agora-rn-uikit';
 import Settings, {
   SettingsWithViewWrapper,
   SettingsIconButtonProps,

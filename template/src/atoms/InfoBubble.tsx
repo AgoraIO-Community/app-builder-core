@@ -192,6 +192,11 @@ const PlatformWrapper = ({
   isSmall,
   hoverMode,
 }) => {
+  if (isWebInternal()) {
+    window.addEventListener('resize', () => {
+      setToolTipVisible(false);
+    });
+  }
   return hoverMode && isWeb() && !isSmall ? (
     <div
       style={{
@@ -200,7 +205,7 @@ const PlatformWrapper = ({
         marginLeft: -3,
         background:
           hoverMode && toolTipVisible
-            ? $config.CARD_LAYER_5_COLOR + '20'
+            ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%']
             : 'transparent',
         width: 28,
         height: 28,

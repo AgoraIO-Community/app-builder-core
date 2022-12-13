@@ -12,10 +12,12 @@ import {
 } from 'react-native';
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
-import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
+//import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 import {isWebInternal} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
 import {RenderInterface, UidType} from '../../agora-rn-uikit';
+import ThemeConfig from '../theme';
+import ImageIcon from '../atoms/ImageIcon';
 
 /**
  *
@@ -29,12 +31,9 @@ import {RenderInterface, UidType} from '../../agora-rn-uikit';
  */
 interface NetworkQualityPillProps {
   user: RenderInterface;
-  primaryColor: any;
-  small?: boolean;
-  rootStyle?: StyleProp<ViewStyle>;
 }
 const NetworkQualityPill = (props: NetworkQualityPillProps) => {
-  const {user, primaryColor, small, rootStyle} = props;
+  const {user} = props;
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   //commented for v1 release
   //const getLabel = useString<NetworkQualities>('networkQualityLabel');
@@ -70,39 +69,27 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
       testID="videocall-networkpill"
       style={[
         style.networkPill,
+        style.rootStyle,
         {
           backgroundColor: networkTextVisible
             ? networkIconsObject[networkStat].tint
-            : 'transparent',
+            : $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
         },
-        rootStyle,
       ]}>
       <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
-        <View style={[style.networkIndicatorBackdrop]}>
-          <Image
-            source={{
-              uri: networkIconsObject[networkStat].icon,
-            }}
-            style={[
-              style.networkIcon,
-              {
-                tintColor: networkTextVisible
-                  ? '#fff'
-                  : networkIconsObject[networkStat].tint === 'primary'
-                  ? primaryColor
-                  : networkIconsObject[networkStat].tint,
-              },
-            ]}
-            resizeMode={'contain'}
+        <View>
+          <ImageIcon
+            tintColor={
+              networkTextVisible
+                ? $config.PRIMARY_ACTION_TEXT_COLOR
+                : networkIconsObject[networkStat].tint
+            }
+            name={networkIconsObject[networkStat].icon}
+            iconSize="small"
           />
         </View>
         {networkTextVisible && (
-          <Text
-            textBreakStrategy={'simple'}
-            style={[
-              style.networkPillText,
-              {fontSize: small ? 14 : 15, userSelect: 'none'},
-            ]}>
+          <Text textBreakStrategy={'simple'} style={style.networkPillText}>
             {getLabel(networkIconsObject[networkStat].text)}
           </Text>
         )}
@@ -159,32 +146,22 @@ const style = StyleSheet.create({
     zIndex: 2,
     borderRadius: 50,
   },
+  rootStyle: {
+    marginLeft: 25,
+    top: 12,
+    right: 12,
+  },
   networkPillContent: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   },
   networkPillText: {
-    color: '#fff',
-    fontSize: 14,
-    lineHeight: 14,
-    fontFamily: 'Source Sans Pro',
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     marginLeft: 8,
-  },
-  networkIcon: {
-    width: 20,
-    height: 20,
-    alignSelf: 'center',
-  },
-  networkIndicatorBackdrop: {
-    // width: 20,
-    // height: 20,
-    // borderRadius: 10,
-    // alignSelf: 'center',
-    //marginLeft: 8,
-    // backgroundColor: $config.SECONDARY_ACTION_COLOR,
-    // justifyContent: 'center',
   },
 });
 

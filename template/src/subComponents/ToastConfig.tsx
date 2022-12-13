@@ -12,6 +12,7 @@
 // @ts-nocheck
 import React from 'react';
 import {Platform} from 'react-native';
+import ThemeConfig from '../theme';
 import Toast, {BaseToast} from '../../react-native-toast-message';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 
@@ -25,20 +26,33 @@ const ToastConfig = {
       {...rest}
       //BaseToast is modified to have zIndex: 100
       style={{
-        borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        backgroundColor: $config.SECONDARY_ACTION_COLOR,
+        borderRadius: 4,
+        borderTopWidth: 6,
+        borderTopColor: $config.SEMANTIC_SUCCESS,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
         width: !isMobileOrTablet() ? '40%' : '95%',
       }}
-      contentContainerStyle={{paddingHorizontal: 15, overflow: 'hidden'}}
+      contentContainerStyle={{
+        paddingHorizontal: 15,
+        paddingTop: 20,
+        paddingBottom: 25,
+        overflow: 'hidden',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+      }}
       text1Style={{
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: 'Source Sans Pro',
-        fontWeight: '700',
+        fontWeight: '600',
+        color: $config.FONT_COLOR,
       }}
       text2Style={{
-        fontSize: 20,
+        fontSize: 16,
         fontFamily: 'Source Sans Pro',
         fontWeight: '400',
+        color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+        paddingTop: 11,
       }}
       text1={text1}
       text2={text2}

@@ -32,17 +32,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
           : maxStyle.nonActiveContainerStyle,
       ]}>
       <ScreenShareNotice uid={user.uid} />
-      <NetworkQualityPill
-        user={user}
-        primaryColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-        rootStyle={{
-          marginLeft: 25,
-          top: 12,
-          right: 12,
-          backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
-        }}
-        small
-      />
+      <NetworkQualityPill user={user} />
       <MaxVideoView
         fallback={() => {
           return FallbackLogo(user?.name, activeSpeaker);

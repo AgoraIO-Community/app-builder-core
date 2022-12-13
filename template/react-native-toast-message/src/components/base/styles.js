@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import colors from '../../colors';
 
-export const HEIGHT = 60;
+export const HEIGHT = 105;
 
 export default StyleSheet.create({
   base: {
@@ -30,8 +30,7 @@ export default StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center', // in case of rtl the text will start from the right
-
+    alignItems: 'center' // in case of rtl the text will start from the right
   },
   trailingIconContainer: {
     width: 40,
@@ -50,13 +49,13 @@ export default StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Source Sans Pro',
     width: '100%',
-    fontWeight: "600",
-    marginRight: 2,
+    fontWeight: '600',
+    marginRight: 2
   },
   text2: {
     fontSize: 15,
     fontFamily: 'Source Sans Pro',
     width: '100%',
-    fontWeight: "400"
+    fontWeight: '400'
   }
 });
