@@ -58,39 +58,24 @@ const IconButton = (props: IconButtonProps) => {
   );
 };
 
-// const PlatformWrapper = ({children, ...props}) => {
-//   const [isHovered, setIsHovered] = React.useState(false);
-//   return isWeb() ? (
-//     <div
-//       style={{
-//         backgroundColor: isHovered
-//           ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%']
-//           : 'transparent',
-//         cursor: isHovered ? 'pointer' : 'auto',
-//         paddingLeft: 20,
-//         paddingRight: 20,
-//         paddingTop: 8,
-//         paddingBottom: 8,
-//         borderRadius: 8,
-//       }}
-//       onMouseEnter={() => {
-//         setIsHovered(true);
-//       }}
-//       onMouseLeave={() => {
-//         setIsHovered(false);
-//       }}
-//       onClick={(e) => {
-//         e.preventDefault();
-//         props?.disabled ? () => {} : props?.onPress && props.onPress();
-//       }}>
-//       {children}
-//     </div>
-//   ) : (
-//     <TouchableOpacity {...props}>{children}</TouchableOpacity>
-//   );
-// };
+const PlatformWrapper = ({children, ...props}) => {
+  return isWeb() ? (
+    <div
+      onMouseEnter={() => {
+        props?.setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        props?.setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+};
 
 const IconButtonWithToolTip = (props: IconButtonProps) => {
+  const [isHovered, setIsHovered] = React.useState(false);
   if (props?.toolTipMessage) {
     return (
       <ToolTip
@@ -108,7 +93,17 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
         }}></ToolTip>
     );
   }
-  return <IconButton {...props} />;
+  return (
+    <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
+      <IconButton
+        activeStyle={styles.activeBgStyle}
+        style={styles.defaultBgStyle}
+        {...props}
+        isToolTipVisible={isHovered}
+        setToolTipVisible={setIsHovered}
+      />
+    </PlatformWrapper>
+  );
 };
 
 export default IconButtonWithToolTip;
