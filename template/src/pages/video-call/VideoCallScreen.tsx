@@ -167,12 +167,7 @@ const VideoCallScreen = () => {
           <TopbarComponent />
         </ButtonTemplateProvider>
         <View
-          style={[
-            style.videoView,
-            {backgroundColor: '#ffffff00'},
-            {paddingHorizontal: isDesktop ? 20 : 10},
-          ]}>
-          {/* ffffff00 */}
+          style={[style.videoView, {paddingHorizontal: isDesktop ? 32 : 10}]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />
@@ -211,6 +206,8 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     overflow: 'hidden',
   },
-  //@ts-ignore
-  videoView: videoView,
+  videoView: {
+    flex: 12,
+    flexDirection: 'row',
+  },
 });

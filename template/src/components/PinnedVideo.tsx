@@ -47,7 +47,6 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       style={{
         flexDirection: isSidePinnedlayout ? 'row' : 'column',
         flex: 1,
-        padding: 4,
       }}
       onLayout={onLayout}>
       {isSidePinnedlayout && (
@@ -77,9 +76,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           horizontal={!isSidePinnedlayout}
           decelerationRate={0}
           style={
-            isSidePinnedlayout
-              ? {width: '20%', paddingHorizontal: 8}
-              : {flex: 1}
+            isSidePinnedlayout ? {width: '20%', paddingRight: 24} : {flex: 1}
           }>
           {minUids.map((minUid, i) => (
             <Pressable
@@ -89,7 +86,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                       width: '100%',
                       height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                       zIndex: 40,
-                      paddingBottom: 8,
+                      paddingBottom: 24,
                     }
                   : {
                       width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3

@@ -29,6 +29,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
         maxStyle.container,
         activeSpeaker
           ? maxStyle.activeContainerStyle
+          : user.video
+          ? maxStyle.noVideoStyle
           : maxStyle.nonActiveContainerStyle,
       ]}>
       <ScreenShareNotice uid={user.uid} />
@@ -38,7 +40,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
           return FallbackLogo(user?.name, activeSpeaker);
         }}
         user={user}
-        containerStyle={{borderRadius: 12}}
+        containerStyle={{
+          width: '100%',
+          height: '100%',
+          borderRadius: 8,
+        }}
         key={user.uid}
       />
       <NameWithMicIcon user={user} />
@@ -59,6 +65,9 @@ const maxStyle = StyleSheet.create({
   },
   nonActiveContainerStyle: {
     borderColor: $config.VIDEO_AUDIO_TILE_COLOR,
+  },
+  noVideoStyle: {
+    borderColor: 'transparent',
   },
 });
 
