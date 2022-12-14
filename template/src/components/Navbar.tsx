@@ -84,6 +84,7 @@ interface ParticipantsIconButtonProps {
   };
   isMobileView?: boolean;
   openSheet?: () => {};
+  isOnActionSheet?: boolean;
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
@@ -96,6 +97,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     },
     isMobileView = false,
     openSheet,
+    isOnActionSheet = false,
   } = props;
   const {sidePanel, setSidePanel} = useSidePanel();
   // const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
@@ -126,7 +128,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.btnText = isMobileView ? '' : participantsLabel;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -191,6 +193,7 @@ interface ChatIconButtonProps {
   ) => JSX.Element;
   isMobileView?: boolean;
   openSheet?: () => {};
+  isOnActionSheet?: boolean;
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
@@ -210,6 +213,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       fontSize: 12,
       textAlign: 'center',
     },
+    isOnActionSheet = false,
   } = props;
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
   const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
@@ -245,6 +249,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   };
 
   iconButtonProps.btnText = isMobileView ? '' : chatLabel;
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,

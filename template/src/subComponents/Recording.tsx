@@ -20,6 +20,7 @@ import ThemeConfig from '../theme';
 export interface RecordingButtonProps {
   showLabel?: boolean;
   render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
+  isOnActionSheet?: boolean;
 }
 
 const Recording = (props: RecordingButtonProps) => {
@@ -29,7 +30,7 @@ const Recording = (props: RecordingButtonProps) => {
   const recordingButton = (recording: boolean) =>
     recording ? 'Stop Recording' : 'Record';
   const [modalVisible, setModalVisible] = useState(false);
-  const {showLabel = true} = props;
+  const {showLabel = true, isOnActionSheet = false} = props;
 
   const doStopRecording = () => {
     if (isRecordingActive) {
@@ -56,7 +57,7 @@ const Recording = (props: RecordingButtonProps) => {
   };
 
   iconButtonProps.btnText = showLabel ? recordingButton(isRecordingActive) : '';
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,

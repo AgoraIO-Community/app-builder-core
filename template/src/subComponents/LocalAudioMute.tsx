@@ -29,12 +29,13 @@ export interface LocalAudioMuteProps {
   iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
   disabled?: boolean;
+  isOnActionSheet?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
-  const {showLabel = true, disabled = false} = props;
+  const {showLabel = true, disabled = false, isOnActionSheet = false} = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
 
@@ -92,7 +93,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       ? $config.PRIMARY_ACTION_BRAND_COLOR
       : $config.SEMANTIC_ERROR,
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.btnText = showLabel ? audioLabel : '';
   iconButtonProps.toolTipMessage = showLabel
     ? permissionDenied
