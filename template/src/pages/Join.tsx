@@ -93,7 +93,7 @@ const Join = () => {
           text2: isInvalidUrl
             ? 'Please enter a valid Meeting ID'
             : 'Please try again',
-          visibilityTime: 1000,
+          visibilityTime: 3000,
         });
       });
   };
