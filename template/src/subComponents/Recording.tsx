@@ -56,7 +56,7 @@ const Recording = (props: RecordingButtonProps) => {
   };
 
   iconButtonProps.btnText = showLabel ? recordingButton(isRecordingActive) : '';
-  iconButtonProps.style = Styles.localButton as Object;
+
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
@@ -66,6 +66,9 @@ const Recording = (props: RecordingButtonProps) => {
       ? $config.SEMANTIC_ERROR
       : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
+  iconButtonProps.toolTipMessage = !isRecordingActive
+    ? 'Record'
+    : 'Stop Recording';
 
   return props?.render ? (
     props.render(onPress, isRecordingActive)

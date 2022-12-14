@@ -127,7 +127,6 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     },
   };
 
-  iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = isMobileView ? '' : participantsLabel;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -243,7 +242,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     },
   };
 
-  iconButtonProps.style = Styles.localButton as Object;
   iconButtonProps.btnText = isMobileView ? '' : chatLabel;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,

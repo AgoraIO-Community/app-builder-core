@@ -70,17 +70,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
   };
 
-  // iconButtonProps.style = style.shareIcon;
-  // iconButtonProps.btnText = props.showText ? copyMeetingInviteButton : '';
-  // iconButtonProps.styleIcon = {
-  //   width: 20,
-  //   height: 20,
-  // };
-
   iconButtonProps.btnText = showLabel ? copyMeetingInviteButton : '';
-  iconButtonProps.style = Styles.localButton as Object;
-
-  //}
 
   return props?.render ? (
     props.render(onPress)
