@@ -18,6 +18,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Pressable,
 } from 'react-native';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
@@ -36,7 +37,7 @@ import LinkButton from '../atoms/LinkButton';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
-import InfoBubble from '../atoms/InfoBubble';
+import Tooltip from '../atoms/Tooltip';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -117,20 +118,29 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const clipboardIconButton = (type: SHARE_LINK_CONTENT_TYPE) => {
     return (
       <View style={style.iconContainer}>
-        <InfoBubble
-          bubbleIconProps={{
-            name: 'tick-fill',
-            tintColor: $config.SEMANTIC_SUCCESS,
-            activeTintColor: $config.SEMANTIC_SUCCESS,
+        <Tooltip
+          isClickable
+          onPress={() => {
+            copyShareLinkToClipboard(type);
           }}
-          hoverMode={false}
-          iconProps={{
-            name: 'clipboard',
-            tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-            activeTintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+          toolTipIcon={
+            <>
+              <ImageIcon
+                name="tick-fill"
+                tintColor={$config.SEMANTIC_SUCCESS}
+              />
+              <Spacer size={8} horizontal={true} />
+            </>
+          }
+          toolTipMessage="Copied to clipboard"
+          renderContent={(isToolTipVisible, setToolTipVisible) => {
+            return (
+              <ImageIcon
+                name="clipboard"
+                tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+              />
+            );
           }}
-          text="Copied to clipboard"
-          onPress={() => copyShareLinkToClipboard(type)}
         />
       </View>
     );
