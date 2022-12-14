@@ -39,10 +39,14 @@ export default PreCallSettings;
 
 const styles = StyleSheet.create({
   contentContainer: {
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    borderRadius: 8,
     padding: 0,
-    margin: 16,
   },
   containerStyle: {
-    paddingHorizontal: 0,
+    marginVertical: 40,
+    paddingHorizontal: 16,
   },
 });
