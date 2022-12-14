@@ -38,7 +38,6 @@ import useJoinMeeting from '../utils/useJoinMeeting';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
-import RNCallKeep from 'react-native-callkeep';
 
 const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
@@ -82,33 +81,6 @@ const Join = () => {
     useJoin(phrase)
       .then(() => {
         setMeetingInfo(MeetingInfoDefaultValue);
-        const options = {
-          ios: {
-            appName: $config.APP_NAME,
-          },
-          android: {
-            alertTitle: 'Permissions required',
-            alertDescription:
-              'This application needs to access your phone accounts',
-            cancelButton: 'Cancel',
-            okButton: 'ok',
-            imageName: 'phone_account_icon',
-            additionalPermissions: [],
-            // Required to get audio in background when using Android 11
-            foregroundService: {
-              channelId: 'com.company.my',
-              channelName: 'Foreground service for my app',
-              notificationTitle: 'My app is running on background',
-              notificationIcon: 'Path to the resource icon of the notification',
-            },
-          },
-        };
-
-        // RNCallKeep.setup(options).then((accepted) => {
-        //   RNCallKeep.setAvailable(true);
-        //   console.warn('accepted', accepted);
-        // });
-
         history.push(phrase);
       })
 
