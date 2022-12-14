@@ -20,6 +20,7 @@ interface PopupProps extends ModalProps {
   showCloseIcon?: boolean;
   children: React.ReactNode;
   contentContainerStyle?: ViewStyle;
+  containerStyle?: ViewStyle;
 }
 const Popup = (props: PopupProps) => {
   const {
@@ -41,7 +42,12 @@ const Popup = (props: PopupProps) => {
         setModalVisible(false);
       }}
       {...otherProps}>
-      <View style={[styles.centeredView, isDesktop && {alignItems: 'center'}]}>
+      <View
+        style={[
+          styles.centeredView,
+          isDesktop && {alignItems: 'center'},
+          props?.containerStyle,
+        ]}>
         <TouchableWithoutFeedback
           onPress={() => {
             setModalVisible(false);

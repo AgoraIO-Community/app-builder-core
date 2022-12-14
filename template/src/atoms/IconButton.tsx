@@ -31,7 +31,10 @@ export interface IconButtonProps {
 const IconButton = (props: IconButtonProps) => {
   return (
     <TouchableOpacity
-      style={props?.isToolTipVisible ? props?.activeStyle : props?.style}
+      style={
+        props.toolTipMessage &&
+        (props?.isToolTipVisible ? props?.activeStyle : props?.style)
+      }
       onPress={props.onPress}
       disabled={props.disabled}>
       {props?.customIconComponent ? (

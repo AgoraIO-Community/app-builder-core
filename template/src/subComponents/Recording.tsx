@@ -66,9 +66,11 @@ const Recording = (props: RecordingButtonProps) => {
       ? $config.SEMANTIC_ERROR
       : $config.PRIMARY_ACTION_BRAND_COLOR,
   };
-  iconButtonProps.toolTipMessage = !isRecordingActive
-    ? 'Record'
-    : 'Stop Recording';
+  iconButtonProps.toolTipMessage = showLabel
+    ? !isRecordingActive
+      ? 'Record'
+      : 'Stop Recording'
+    : '';
 
   return props?.render ? (
     props.render(onPress, isRecordingActive)

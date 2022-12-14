@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState} from 'react';
-import {View, StyleSheet, Dimensions, Text} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../../utils/common';
 import LocalVideoMute, {
@@ -20,8 +20,9 @@ import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import PreCallSettings from './PreCallSettings';
 
-const PreCallLocalMute: React.FC = (props: any) => {
+const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
@@ -61,22 +62,26 @@ const PreCallLocalMute: React.FC = (props: any) => {
     // }
     return components;
   });
+  const {isMobileView = false} = props;
 
   return (
     <View
-      style={[
-        style.precallControls,
-        {paddingVertical: props.isMobileView ? 20 : 30},
-      ]}
+      style={[style.precallControls, isMobileView && {paddingVertical: 20}]}
       testID="precall-controls">
       {!$config.AUDIO_ROOM && (
-        <View style={{alignSelf: 'center'}}>
-          <VideoMute />
+        <View
+          style={{
+            alignSelf: 'center',
+            marginRight: isMobileView ? 60 : 0,
+          }}>
+          <VideoMute showLabel={!isMobileView} />
         </View>
       )}
       <View style={{alignSelf: 'center'}}>
-        <AudioMute />
+        <AudioMute showLabel={!isMobileView} />
       </View>
+      {/* Settings View in Mobile */}
+      {isMobileView ? <PreCallSettings /> : <></>}
     </View>
   );
 };
@@ -90,7 +95,9 @@ export default PreCallLocalMute;
 const style = StyleSheet.create({
   precallControls: {
     flexDirection: 'row',
+    paddingVertical: 32,
     justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     shadowColor:
       $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],

@@ -215,10 +215,8 @@ const Chat = (props?: ChatProps) => {
         {groupActive ? (
           <>
             <ChatContainer {...props} />
-            <View>
-              <View style={style.chatInputContainer}>
-                <ChatInput {...props} />
-              </View>
+            <View style={style.chatInputContainer}>
+              <ChatInput {...props} />
             </View>
           </>
         ) : (
@@ -299,7 +297,12 @@ const style = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
   },
-  chatInputContainer: {},
+  chatInputContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   groupActive: {
     margin: 2,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
