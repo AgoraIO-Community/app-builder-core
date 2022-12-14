@@ -97,8 +97,8 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   iconButtonProps.toolTipMessage = permissionDenied
     ? 'Give Permissions'
     : isAudioEnabled
-    ? 'Mic On'
-    : 'Mic Off';
+    ? 'Disable Mic'
+    : 'Enable Mic';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

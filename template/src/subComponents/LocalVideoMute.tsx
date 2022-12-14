@@ -98,8 +98,8 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   iconButtonProps.toolTipMessage = permissionDenied
     ? 'Give Permissions'
     : isVideoEnabled
-    ? 'Video On'
-    : 'Video Off';
+    ? 'Disable Camera'
+    : 'Enable Camera';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
