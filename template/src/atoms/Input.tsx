@@ -50,7 +50,7 @@ export default Input;
 
 const styles = StyleSheet.create({
   input: {
-    height: 60,
+    // height: 60, //causes text cut off in android
     width: '100%',
     borderWidth: 1,
     paddingVertical: 21,

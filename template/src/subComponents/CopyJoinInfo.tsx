@@ -42,7 +42,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const {copyShareLinkToClipboard} = useShareLink();
   const [modalVisible, setModalVisible] = React.useState(false);
   const {
-    showLabel = $config.ICON_TEXT,
+    showLabel = $config.ICON_TEXT || false,
     showTeritaryButton = false,
     isOnActionSheet = false,
   } = props;

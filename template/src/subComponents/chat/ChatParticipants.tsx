@@ -148,7 +148,7 @@ const style = StyleSheet.create({
   },
   userAvatarText: {
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 10,
+    lineHeight: 12,
     fontWeight: '400',
     color: $config.FONT_COLOR,
   },
@@ -167,7 +167,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 14,
-    lineHeight: 12,
+    lineHeight: 14,
     color: $config.FONT_COLOR,
     textAlign: 'left',
     flexShrink: 1,
