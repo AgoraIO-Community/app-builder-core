@@ -29,7 +29,7 @@ const Recording = (props: RecordingButtonProps) => {
   const recordingButton = (recording: boolean) =>
     recording ? 'Stop Recording' : 'Record';
   const [modalVisible, setModalVisible] = useState(false);
-  const {showLabel = true} = props;
+  const {showLabel = $config.ICON_TEXT} = props;
 
   const doStopRecording = () => {
     if (isRecordingActive) {

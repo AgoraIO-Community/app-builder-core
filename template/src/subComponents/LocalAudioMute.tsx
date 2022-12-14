@@ -34,7 +34,7 @@ export interface LocalAudioMuteProps {
 function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
-  const {showLabel = true, disabled = false} = props;
+  const {showLabel = $config.ICON_TEXT, disabled = false} = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
 

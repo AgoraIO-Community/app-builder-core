@@ -40,7 +40,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const getMeeting = useGetMeetingPhrase();
   const {copyShareLinkToClipboard} = useShareLink();
   const [modalVisible, setModalVisible] = React.useState(false);
-  const {showLabel = true, showTeritaryButton = false} = props;
+  const {showLabel = $config.ICON_TEXT, showTeritaryButton = false} = props;
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';

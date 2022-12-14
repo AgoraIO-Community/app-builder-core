@@ -54,7 +54,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       color: $config.PRIMARY_ACTION_BRAND_COLOR,
     };
 
-    iconButtonProps.btnText = layoutLabel;
+    iconButtonProps.btnText = $config.ICON_TEXT ? layoutLabel : '';
 
     renderContent.push(
       props?.render ? (
