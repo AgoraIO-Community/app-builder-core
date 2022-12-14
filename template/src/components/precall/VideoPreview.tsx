@@ -54,7 +54,8 @@ const Fallback = () => {
   return (
     <View style={styles.fallbackRootContainer}>
       {isCameraAvailable ||
-      local.permissionStatus === PermissionState.NOT_REQUESTED ? (
+      local.permissionStatus === PermissionState.NOT_REQUESTED ||
+      local.permissionStatus === PermissionState.REQUESTED ? (
         <View style={styles.avatar}>
           {/*TODO fix ttf file <ImageIcon name="profile" customSize={{width: 100, height: 100}} /> */}
           <UiKitImageIcon name={'profile'} />
@@ -111,7 +112,10 @@ const VideoPreview: React.FC = () => {
 
   return (
     <View style={[styles.container]} onLayout={onLayout}>
-      <View style={{flex: 1}}>
+      <View
+        style={{
+          flex: 1,
+        }}>
         <MaxVideoView
           user={renderList[maxUid]}
           key={maxUid}
@@ -157,12 +161,6 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: 20,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },

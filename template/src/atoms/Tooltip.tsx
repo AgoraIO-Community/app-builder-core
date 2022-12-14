@@ -20,7 +20,7 @@ const Tooltip = (props: TooltipProps) => {
   const css = `
   .custom-tool-tip{
     padding:24px;
-    border-radius: 8px;  
+    border-radius: 8px;
   }
   .custom-tool-tip div{
     font-family: "Source Sans Pro";
@@ -35,7 +35,7 @@ const Tooltip = (props: TooltipProps) => {
     height: 20px !important;
     border-top-right-radius: 5px !important;
     bottom: -10px !important;
-    margin-left: -10px !important;    
+    margin-left: -10px !important;
   }`;
   const randomString = (
     length = 5,

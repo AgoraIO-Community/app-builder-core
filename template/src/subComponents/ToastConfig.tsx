@@ -22,7 +22,10 @@ const trailingIcon = (
   <TouchableOpacity
     onPress={() => Toast.hide()}
     style={{alignSelf: 'flex-end'}}>
-    <ImageIcon tintColor={$config.SEMANTIC_NETRUAL} name="close-rounded" />
+    <ImageIcon
+      tintColor={$config.SECONDARY_ACTION_COLOR}
+      name="close-rounded"
+    />
   </TouchableOpacity>
 );
 

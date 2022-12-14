@@ -43,12 +43,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 60,
     paddingVertical: 60,
-    borderRadius: 20,
+    borderRadius: 16,
     borderColor: $config.CARD_LAYER_3_COLOR,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
-    shadowOffset: {width: 0, height: 3},
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowRadius: 20,
   },
 });

@@ -371,17 +371,15 @@ const Precall = (props: any) => {
                     style={[style.leftContent, style.boxStyle]}>
                     <VideoPreview />
                   </View>
+                  <Spacer size={24} horizontal={true} />
                   <Card style={style.rightContent}>
-                    <View>
-                      <MeetingName />
-                      <View style={style.rightInputContent}>
-                        <JoinRoomName isDesktop={isDesktop} />
-                        <Spacer size={32} />
-                        <DeviceSelect />
-                        <Spacer size={60} />
-                        <View style={{width: '100%'}}>
-                          <JoinRoomButton />
-                        </View>
+                    <View style={style.rightInputContent}>
+                      <JoinRoomName isDesktop={isDesktop} />
+                      <Spacer size={32} />
+                      <DeviceSelect />
+                      <Spacer size={60} />
+                      <View style={{width: '100%'}}>
+                        <JoinRoomButton />
                       </View>
                     </View>
                   </Card>
@@ -428,8 +426,7 @@ const style = StyleSheet.create({
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
   main: {
     flex: 2,
-    paddingHorizontal: '10%',
-    minHeight: 500,
+    padding: 32,
     justifyContent: 'center',
   },
   mainMobile: {
@@ -453,13 +450,11 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   boxStyle: {
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
-    shadowOffset: {width: 0, height: 3},
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
-    marginRight: 24,
     height: '100%',
   },
   mobileBoxStyle: {
@@ -475,8 +470,6 @@ const style = StyleSheet.create({
   },
   rightInputContent: {
     padding: 32,
-    borderTopWidth: 1,
-    borderTopColor: $config.CARD_LAYER_3_COLOR,
   },
   titleFont: {
     textAlign: 'center',

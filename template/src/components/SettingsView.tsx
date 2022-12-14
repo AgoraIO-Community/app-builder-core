@@ -154,11 +154,10 @@ const style = StyleSheet.create({
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
     flex: 1,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
+    shadowRadius: 20,
     overflow: 'hidden',
   },
   settingsViewNative: {
