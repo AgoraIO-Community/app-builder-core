@@ -18,6 +18,7 @@ import {useString} from '../utils/useString';
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import Spacer from '../atoms/Spacer';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
@@ -51,23 +52,39 @@ const Settings = (props: SettingsIconButtonProps) => {
     marginTop: 4,
     fontWeight: isPanelActive ? '700' : '400',
     color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.PRIMARY_ACTION_TEXT_COLOR,
   };
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: isPanelActive
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
+  };
+
   return props?.render ? (
     props.render(onPress, isPanelActive)
   ) : (
-    <View
-      style={[
-        style.navItem,
-        {
-          backgroundColor: isPanelActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : 'transparent',
-        },
-      ]}>
-      <IconButton {...iconButtonProps} />
-    </View>
+    <>
+      <View
+        style={[
+          style.navItem,
+          // {
+          //   backgroundColor: isPanelActive
+          //     ? $config.PRIMARY_ACTION_BRAND_COLOR
+          //     : 'transparent',
+          // },
+        ]}>
+        <Spacer size={11} horizontal={true} />
+        <IconButton {...iconButtonProps} />
+      </View>
+    </>
   );
 };
 

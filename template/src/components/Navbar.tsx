@@ -47,6 +47,7 @@ import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Spacer from '../atoms/Spacer';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -135,8 +136,21 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     marginTop: 4,
     fontWeight: isPanelActive ? '700' : '400',
     color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.PRIMARY_ACTION_TEXT_COLOR,
+  };
+
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: isPanelActive
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
   };
 
   return props?.render ? (
@@ -147,11 +161,11 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         style={
           !isMobileView && [
             style.navItem,
-            {
-              backgroundColor: isPanelActive
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : 'transparent',
-            },
+            // {
+            //   backgroundColor: isPanelActive
+            //     ? $config.PRIMARY_ACTION_BRAND_COLOR
+            //     : 'transparent',
+            // },
           ]
         }>
         <IconButton {...iconButtonProps} />
@@ -250,8 +264,20 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     marginTop: 4,
     fontWeight: isPanelActive ? '700' : '400',
     color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.PRIMARY_ACTION_TEXT_COLOR,
+  };
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: isPanelActive
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
   };
 
   const renderBadge = (badgeCount: any) => {
@@ -287,9 +313,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           !isMobileView && [
             style.navItem,
             {
-              backgroundColor: isPanelActive
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : 'transparent',
+              // backgroundColor: isPanelActive
+              //   ? $config.PRIMARY_ACTION_BRAND_COLOR
+              //   : 'transparent',
             },
           ]
         }>
@@ -364,10 +390,14 @@ const Navbar = () => {
           <ParticipantsIconButton />
         </View>
         {$config.CHAT && (
-          <View testID="videocall-chaticon">
-            <ChatIconButton />
-          </View>
+          <>
+            <Spacer size={11} horizontal={true} />
+            <View testID="videocall-chaticon">
+              <ChatIconButton />
+            </View>
+          </>
         )}
+        <Spacer size={11} horizontal={true} />
         <View testID="videocall-settingsicon">
           <SettingsIconButtonWithWrapper />
         </View>

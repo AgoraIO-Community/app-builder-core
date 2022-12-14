@@ -50,7 +50,7 @@ const Recording = (props: RecordingButtonProps) => {
       name: isRecordingActive ? 'stop-recording' : 'recording',
       tintColor: isRecordingActive
         ? $config.SEMANTIC_ERROR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.FONT_COLOR,
     },
     onPress,
   };
@@ -62,9 +62,17 @@ const Recording = (props: RecordingButtonProps) => {
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
-    color: isRecordingActive
-      ? $config.SEMANTIC_ERROR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
+    color: isRecordingActive ? $config.SEMANTIC_ERROR : $config.FONT_COLOR,
+  };
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
   };
   iconButtonProps.toolTipMessage = !isRecordingActive
     ? 'Record'

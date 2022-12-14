@@ -63,7 +63,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
   if (!permissionDenied) {
     iconProps.tintColor = isVideoEnabled
-      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
       ? $config.SEMANTIC_NETRUAL
       : $config.SEMANTIC_ERROR;
@@ -83,6 +83,19 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     iconButtonProps.customIconComponent = null;
   }
 
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: isVideoEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
+  };
+
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
@@ -91,7 +104,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     color: permissionDenied
       ? '#8F8F8F'
       : isVideoEnabled
-      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
       : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.btnText = showLabel ? videoLabel : '';

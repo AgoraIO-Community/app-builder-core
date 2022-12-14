@@ -61,7 +61,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   }
   if (!permissionDenied) {
     iconProps.tintColor = isAudioEnabled
-      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
       ? $config.SEMANTIC_NETRUAL
       : $config.SEMANTIC_ERROR;
@@ -81,6 +81,18 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   } else {
     iconButtonProps.customIconComponent = null;
   }
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: isAudioEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
+  };
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,
@@ -89,7 +101,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     color: permissionDenied
       ? '#8F8F8F'
       : isAudioEnabled
-      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
       : $config.SEMANTIC_ERROR,
   };
 

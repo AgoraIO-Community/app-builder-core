@@ -51,7 +51,20 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       fontSize: 12,
       marginTop: 4,
       fontWeight: '400',
-      color: $config.PRIMARY_ACTION_BRAND_COLOR,
+      color: $config.FONT_COLOR,
+    };
+
+    iconButtonProps.style = {
+      width: 48,
+      height: 48,
+      backgroundColor: false
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : $config.CARD_LAYER_1_COLOR,
+      display: 'flex',
+      alignSelf: 'center',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 50,
     };
 
     iconButtonProps.btnText = $config.ICON_TEXT ? layoutLabel : '';
@@ -64,7 +77,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
           key={'defaultLayoutIconWithName'}
           iconProps={{
             name: layouts[layout]?.iconName,
-            tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+            tintColor: $config.FONT_COLOR,
           }}
           {...iconButtonProps}
         />

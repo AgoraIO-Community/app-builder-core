@@ -59,7 +59,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     onPress: onPress,
     iconProps: {
       name: 'share',
-      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      tintColor: $config.FONT_COLOR,
     },
   };
   iconButtonProps.styleText = {
@@ -67,7 +67,19 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     fontSize: 12,
     marginTop: 4,
     fontWeight: '400',
-    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    color: $config.FONT_COLOR,
+  };
+  iconButtonProps.style = {
+    width: 48,
+    height: 48,
+    backgroundColor: false
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : $config.CARD_LAYER_1_COLOR,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
   };
 
   iconButtonProps.btnText = showLabel ? copyMeetingInviteButton : '';

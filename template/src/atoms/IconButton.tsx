@@ -16,7 +16,7 @@ import ToolTip from './Tooltip';
 export interface IconButtonProps {
   onPress?: TouchableOpacityProps['onPress'];
   style?: ViewStyle;
-  activeStyle?: ViewStyle;
+  //activeStyle?: ViewStyle;
   styleText?: TextStyle;
   btnTextColor?: string;
   btnText?: string;
@@ -31,7 +31,8 @@ export interface IconButtonProps {
 const IconButton = (props: IconButtonProps) => {
   return (
     <TouchableOpacity
-      style={props?.isToolTipVisible ? props?.activeStyle : props?.style}
+      //style={props?.isToolTipVisible ? props?.activeStyle : props?.style}
+      style={props?.style}
       onPress={props.onPress}
       disabled={props.disabled}>
       {props?.customIconComponent ? (
@@ -83,7 +84,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <IconButton
-              activeStyle={styles.activeBgStyle}
+              //activeStyle={styles.activeBgStyle}
               style={styles.defaultBgStyle}
               {...props}
               isToolTipVisible={isToolTipVisible}
@@ -96,7 +97,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <IconButton
-        activeStyle={styles.activeBgStyle}
+        //activeStyle={styles.activeBgStyle}
         style={styles.defaultBgStyle}
         {...props}
         isToolTipVisible={isHovered}
@@ -109,7 +110,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
 export default IconButtonWithToolTip;
 
 const styles = StyleSheet.create({
-  activeBgStyle: {
+  activeBgStyleOld: {
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
     paddingLeft: 20,
@@ -122,11 +123,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  defaultBgStyle: {
+  defaultBgStyleOld: {
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 8,
     paddingBottom: 8,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeBgStyle: {
+    width: 48,
+    height: 48,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  defaultBgStyle: {
+    width: 48,
+    height: 48,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',
