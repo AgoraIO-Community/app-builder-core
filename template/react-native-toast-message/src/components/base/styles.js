@@ -20,30 +20,12 @@ export default StyleSheet.create({
     borderTopWidth: 5,
     borderTopColor: colors.alto
   },
-  leadingIconContainer: {
-    width: 50,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
+
   contentContainer: {
     paddingLeft: 20,
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center' // in case of rtl the text will start from the right
-  },
-  trailingIconContainer: {
-    width: 40,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  leadingIcon: {
-    width: 20,
-    height: 20
-  },
-  trailingIcon: {
-    width: 9,
-    height: 9
+    justifyContent: 'flex-start'
   },
   text1: {
     fontSize: 15,

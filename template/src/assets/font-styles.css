@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?2jz7tv') format('truetype');
+  src: url('fonts/icomoon.ttf?s9co07') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -22,6 +22,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-alert:before {
+  content: '\e924';
+  color: #ff414d;
+}
 .icon-active-speaker:before {
   content: '\e903';
   color: #099dfd;
