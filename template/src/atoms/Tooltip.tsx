@@ -75,7 +75,6 @@ const Tooltip = (props: TooltipProps) => {
         globalEventOff="click"
         id={toolTipId}
         backgroundColor={$config.CARD_LAYER_3_COLOR}
-        textColor={$config.FONT_COLOR}
         className="custom-tool-tip"
         place="top"
         type="dark"
@@ -83,7 +82,9 @@ const Tooltip = (props: TooltipProps) => {
         <style type="text/css">{css}</style>
         <View style={{flex: 1, flexDirection: 'row'}}>
           {props?.toolTipIcon ? props.toolTipIcon : null}
-          <Text>{props.toolTipMessage}</Text>
+          <Text style={{color: $config.FONT_COLOR}}>
+            {props.toolTipMessage}
+          </Text>
         </View>
       </ReactTooltip>
     </>
