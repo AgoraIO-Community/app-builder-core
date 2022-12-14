@@ -62,6 +62,7 @@ export interface IconsInterface {
   'connection-loading': string;
   'connection-very-bad': string;
   'connection-unpublished': string;
+  alert: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

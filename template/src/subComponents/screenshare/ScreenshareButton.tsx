@@ -46,7 +46,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const screenShareButton = isScreenshareActive
     ? 'Stop Sharing'
     : 'Share Screen';
-  iconButtonProps.btnText = screenShareButton;
+  iconButtonProps.btnText = $config.ICON_TEXT ? screenShareButton : '';
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,

@@ -35,7 +35,11 @@ export interface LocalAudioMuteProps {
 function LocalAudioMute(props: LocalAudioMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
-  const {showLabel = true, disabled = false, isOnActionSheet = false} = props;
+  const {
+    showLabel = $config.ICON_TEXT,
+    disabled = false,
+    isOnActionSheet = false,
+  } = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
 
@@ -95,13 +99,11 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.btnText = showLabel ? audioLabel : '';
-  iconButtonProps.toolTipMessage = showLabel
-    ? permissionDenied
-      ? 'Give Permissions'
-      : isAudioEnabled
-      ? 'Mic On'
-      : 'Mic Off'
-    : '';
+  iconButtonProps.toolTipMessage = permissionDenied
+    ? 'Give Permissions'
+    : isAudioEnabled
+    ? 'Disable Mic'
+    : 'Enable Mic';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

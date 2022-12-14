@@ -13,13 +13,7 @@ function BaseToast({
   text1,
   text2,
   onPress,
-  onLeadingIconPress,
-  onTrailingIconPress,
   style,
-  leadingIconContainerStyle,
-  trailingIconContainerStyle,
-  leadingIconStyle,
-  trailingIconStyle,
   contentContainerStyle,
   text1Style,
   text2Style,
@@ -33,30 +27,31 @@ function BaseToast({
       style={[styles.base, styles.borderTop, style]}
       onPress={onPress}
       activeOpacity={onPress ? activeOpacity : 1}>
-      {leadingIcon && (
-        <TouchableOpacity
-          testID='leadingIcon'
-          style={[styles.leadingIconContainer, leadingIconContainerStyle]}
-          onPress={onLeadingIconPress}
-          activeOpacity={onLeadingIconPress ? activeOpacity : 1}>
-          <Icon
-            style={{ ...styles.leadingIcon, ...leadingIconStyle }}
-            source={leadingIcon}
-          />
-        </TouchableOpacity>
-      )}
-
       <View
         testID='contentContainer'
         style={[styles.contentContainer, contentContainerStyle]}>
         {text1?.length > 0 && (
-          <View>
-            <Text
-              testID='text1'
-              style={[styles.text1, text1Style]}
-              numberOfLines={text1NumberOfLines}>
-              {text1}
-            </Text>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'space-between'
+            }}>
+            <View
+              style={{
+                flexDirection: 'row'
+              }}>
+              {leadingIcon ? leadingIcon : <></>}
+              <Text
+                testID='text1'
+                style={[styles.text1, text1Style]}
+                numberOfLines={text1NumberOfLines}>
+                {text1}
+              </Text>
+            </View>
+            <View style={{ justifyContent: 'flex-end' }}>
+              {trailingIcon ? trailingIcon : <></>}
+            </View>
           </View>
         )}
         {text2?.length > 0 && (
@@ -70,19 +65,6 @@ function BaseToast({
           </View>
         )}
       </View>
-
-      {trailingIcon && (
-        <TouchableOpacity
-          testID='trailingIcon'
-          style={[styles.trailingIconContainer, trailingIconContainerStyle]}
-          onPress={onTrailingIconPress}
-          activeOpacity={onTrailingIconPress ? activeOpacity : 1}>
-          <Icon
-            style={{ ...styles.trailingIcon, ...trailingIconStyle }}
-            source={trailingIcon}
-          />
-        </TouchableOpacity>
-      )}
     </TouchableOpacity>
   );
 }
@@ -90,18 +72,12 @@ function BaseToast({
 BaseToast.HEIGHT = HEIGHT;
 
 BaseToast.propTypes = {
-  leadingIcon: Icon.propTypes.source,
-  trailingIcon: Icon.propTypes.source,
+  leadingIcon: PropTypes.node,
+  trailingIcon: PropTypes.node,
   text1: PropTypes.string,
   text2: PropTypes.string,
   onPress: PropTypes.func,
-  onTrailingIconPress: PropTypes.func,
-  onLeadingIconPress: PropTypes.func,
   style: stylePropType,
-  leadingIconContainerStyle: stylePropType,
-  trailingIconContainerStyle: stylePropType,
-  leadingIconStyle: stylePropType,
-  trailingIconStyle: stylePropType,
   contentContainerStyle: stylePropType,
   text1Style: stylePropType,
   text2Style: stylePropType,
@@ -111,18 +87,12 @@ BaseToast.propTypes = {
 };
 
 BaseToast.defaultProps = {
-  leadingIcon: undefined,
-  trailingIcon: icons.close,
+  leadingIcon: null,
+  trailingIcon: null,
   text1: undefined,
   text2: undefined,
   onPress: undefined,
-  onLeadingIconPress: undefined,
-  onTrailingIconPress: undefined,
   style: undefined,
-  leadingIconContainerStyle: undefined,
-  trailingIconContainerStyle: undefined,
-  leadingIconStyle: undefined,
-  trailingIconStyle: undefined,
   contentContainerStyle: undefined,
   text1Style: undefined,
   text2Style: undefined,

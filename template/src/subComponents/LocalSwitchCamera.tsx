@@ -15,7 +15,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
   const {RtcEngine} = useRtc();
   const local = useLocalUserInfo();
-  const {showLabel = true, disabled = false} = props;
+  const {showLabel = $config.ICON_TEXT, disabled = false} = props;
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
   const switchCameraButtonText = 'Switch';

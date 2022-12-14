@@ -44,7 +44,7 @@ const Settings = (props: SettingsIconButtonProps) => {
         : $config.PRIMARY_ACTION_BRAND_COLOR,
     },
   };
-  iconButtonProps.btnText = settingsLabel;
+  iconButtonProps.btnText = $config.ICON_TEXT ? settingsLabel : '';
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,

@@ -14,7 +14,7 @@ export interface LocalEndcallProps {
 
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useRtc();
-  const {showLabel = true} = props;
+  const {showLabel = $config.ICON_TEXT} = props;
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
   const endCallLabel = 'Leave';
@@ -55,7 +55,11 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         onPress={onPress}>
         <ImageIcon
           name={'end-call'}
-          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          tintColor={
+            showLabel
+              ? $config.PRIMARY_ACTION_TEXT_COLOR
+              : $config.SEMANTIC_ERROR
+          }
         />
         {showLabel && (
           <Text style={Styles.endCallText as object}>{endCallLabel}</Text>

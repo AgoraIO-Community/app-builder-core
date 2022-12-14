@@ -35,7 +35,11 @@ export interface LocalVideoMuteProps {
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
-  const {showLabel = true, disabled = false, isOnActionSheet = false} = props;
+  const {
+    showLabel = $config.ICON_TEXT,
+    disabled = false,
+    isOnActionSheet = false,
+  } = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
@@ -97,13 +101,11 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.btnText = showLabel ? videoLabel : '';
-  iconButtonProps.toolTipMessage = showLabel
-    ? permissionDenied
-      ? 'Give Permissions'
-      : isVideoEnabled
-      ? 'Video On'
-      : 'Video Off'
-    : '';
+  iconButtonProps.toolTipMessage = permissionDenied
+    ? 'Give Permissions'
+    : isVideoEnabled
+    ? 'Disable Camera'
+    : 'Enable Camera';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)

@@ -26,7 +26,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
   const {localUid} = useContext(ChatContext);
-  const {showLabel = true} = props;
+  const {showLabel = $config.ICON_TEXT} = props;
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>

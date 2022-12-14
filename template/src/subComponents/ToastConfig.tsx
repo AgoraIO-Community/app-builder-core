@@ -11,10 +11,28 @@
 */
 // @ts-nocheck
 import React from 'react';
-import {Platform} from 'react-native';
+import {Platform, TouchableOpacity, View, StyleSheet} from 'react-native';
 import ThemeConfig from '../theme';
 import Toast, {BaseToast} from '../../react-native-toast-message';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import ImageIcon from '../atoms/ImageIcon';
+import {IconsInterface} from 'src/atoms/CustomIcon';
+
+const trailingIcon = (
+  <TouchableOpacity
+    onPress={() => Toast.hide()}
+    style={{alignSelf: 'flex-end'}}>
+    <ImageIcon tintColor={$config.SEMANTIC_NETRUAL} name="close-rounded" />
+  </TouchableOpacity>
+);
+
+const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
+  return (
+    <View style={{paddingRight: 4}}>
+      <ImageIcon tintColor={color} name={iconName} />
+    </View>
+  );
+};
 
 const ToastConfig = {
   /* 
@@ -25,40 +43,68 @@ const ToastConfig = {
     <BaseToast
       {...rest}
       //BaseToast is modified to have zIndex: 100
+      leadingIcon={leadingIcon('tick-fill', $config.SEMANTIC_SUCCESS)}
+      trailingIcon={trailingIcon}
       style={{
-        borderRadius: 4,
-        borderTopWidth: 6,
+        ...styles.containerStyle,
         borderTopColor: $config.SEMANTIC_SUCCESS,
-        backgroundColor: $config.CARD_LAYER_4_COLOR,
-        width: !isMobileOrTablet() ? '40%' : '95%',
       }}
-      contentContainerStyle={{
-        paddingHorizontal: 15,
-        paddingTop: 20,
-        paddingBottom: 25,
-        overflow: 'hidden',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-      }}
-      text1Style={{
-        fontSize: 16,
-        fontFamily: 'Source Sans Pro',
-        fontWeight: '600',
-        color: $config.FONT_COLOR,
-      }}
-      text2Style={{
-        fontSize: 16,
-        fontFamily: 'Source Sans Pro',
-        fontWeight: '400',
-        color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-        paddingTop: 11,
-      }}
+      contentContainerStyle={styles.contentContainerStyle}
+      text1Style={styles.text1Style}
+      text2Style={styles.text2Style}
       text1={text1}
       text2={text2}
-      // text2={props.uuid}
+    />
+  ),
+  error: ({text1, text2, props, ...rest}) => (
+    <BaseToast
+      {...rest}
+      //BaseToast is modified to have zIndex: 100
+      leadingIcon={leadingIcon('alert', $config.SEMANTIC_ERROR)}
+      trailingIcon={trailingIcon}
+      style={{
+        ...styles.containerStyle,
+        borderTopColor: $config.SEMANTIC_ERROR,
+      }}
+      contentContainerStyle={styles.contentContainerStyle}
+      text1Style={styles.text1Style}
+      text2Style={styles.text2Style}
+      text1={text1}
+      text2={text2}
     />
   ),
 };
 
 export default ToastConfig;
+
+const styles = StyleSheet.create({
+  text1Style: {
+    fontSize: ThemeConfig.FontSize.normal,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    color: $config.FONT_COLOR,
+    alignSelf: 'center',
+  },
+  text2Style: {
+    fontSize: ThemeConfig.FontSize.normal,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    paddingTop: 11,
+    alignSelf: 'center',
+  },
+  contentContainerStyle: {
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    paddingBottom: 25,
+    overflow: 'hidden',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
+  containerStyle: {
+    borderRadius: 4,
+    borderTopWidth: 6,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    width: !isMobileOrTablet() ? '40%' : '95%',
+  },
+});
