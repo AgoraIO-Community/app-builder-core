@@ -94,11 +94,13 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
 
   iconButtonProps.btnText = showLabel ? audioLabel : '';
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isAudioEnabled
-    ? 'Mic On'
-    : 'Mic Off';
+  iconButtonProps.toolTipMessage = showLabel
+    ? permissionDenied
+      ? 'Give Permissions'
+      : isAudioEnabled
+      ? 'Mic On'
+      : 'Mic Off'
+    : '';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)
