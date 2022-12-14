@@ -29,12 +29,13 @@ export interface LocalVideoMuteProps {
   iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   disabled?: boolean;
+  isOnActionSheet?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useLocalUserInfo();
   const localMute = useMuteToggleLocal();
-  const {showLabel = true, disabled = false} = props;
+  const {showLabel = true, disabled = false, isOnActionSheet = false} = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
@@ -83,6 +84,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     iconButtonProps.customIconComponent = null;
   }
 
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: 12,

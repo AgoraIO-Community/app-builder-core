@@ -56,6 +56,7 @@ const ActionSheetContent = (props) => {
       <View style={[styles.row, {borderBottomWidth: 1}]}>
         <View style={styles.iconContainer}>
           <LocalVideoMute
+            isOnActionSheet={true}
             showLabel={false}
             disabled={isLiveStream && isAudience && !isBroadCasting}
           />
@@ -63,6 +64,7 @@ const ActionSheetContent = (props) => {
         <View style={[styles.iconContainer]}>
           <LocalAudioMute
             showLabel={false}
+            isOnActionSheet={true}
             disabled={isLiveStream && isAudience && !isBroadCasting}
           />
         </View>
@@ -110,6 +112,7 @@ const ActionSheetContent = (props) => {
                 left: 35,
               }}
               isMobileView={true}
+              isOnActionSheet={true}
               openSheet={() => updateActionSheet('chat')}
             />
           </View>
@@ -120,6 +123,7 @@ const ActionSheetContent = (props) => {
           <View style={styles.iconContainer}>
             <ParticipantsIconButton
               isMobileView={true}
+              isOnActionSheet={true}
               openSheet={() => updateActionSheet('participants')}
             />
           </View>
@@ -131,7 +135,7 @@ const ActionSheetContent = (props) => {
         {isHost && $config.CLOUD_RECORDING && (
           <View style={styles.iconWithText}>
             <View style={styles.iconContainer}>
-              <Recording showLabel={false} />
+              <Recording showLabel={false} isOnActionSheet={true} />
             </View>
             <Text style={styles.iconText}>Record</Text>
           </View>
@@ -154,6 +158,7 @@ const ActionSheetContent = (props) => {
           <View style={styles.iconContainer}>
             <IconButton
               onPress={handleLayoutChange}
+              isOnActionSheet={true}
               iconProps={{
                 name:
                   layouts[layout]?.iconName === 'grid-layout'
@@ -181,7 +186,7 @@ const ActionSheetContent = (props) => {
         {/* invite */}
         <View style={styles.iconWithText}>
           <View style={styles.iconContainer}>
-            <CopyJoinInfo showLabel={false} />
+            <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
           </View>
           <Text style={styles.iconText}>Invite</Text>
         </View>

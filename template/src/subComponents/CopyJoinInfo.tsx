@@ -33,6 +33,7 @@ export interface CopyJoinInfoProps {
   showLabel?: boolean;
   showTeritaryButton?: boolean;
   render?: (onPress: () => void) => JSX.Element;
+  isOnActionSheet?: boolean;
 }
 //todo hari update CopyJoinInfo to show text
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
@@ -40,7 +41,11 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   const getMeeting = useGetMeetingPhrase();
   const {copyShareLinkToClipboard} = useShareLink();
   const [modalVisible, setModalVisible] = React.useState(false);
-  const {showLabel = true, showTeritaryButton = false} = props;
+  const {
+    showLabel = true,
+    showTeritaryButton = false,
+    isOnActionSheet = false,
+  } = props;
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
@@ -69,7 +74,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     fontWeight: '400',
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.btnText = showLabel ? copyMeetingInviteButton : '';
 
   return props?.render ? (

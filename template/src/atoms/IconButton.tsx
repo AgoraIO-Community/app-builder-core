@@ -26,13 +26,14 @@ export interface IconButtonProps {
   toolTipMessage?: string;
   isToolTipVisible?: boolean;
   setToolTipVisible?: React.Dispatch<React.SetStateAction<boolean>>;
+  isOnActionSheet?: boolean;
 }
 
 const IconButton = (props: IconButtonProps) => {
   return (
     <TouchableOpacity
       style={
-        props.toolTipMessage &&
+        !props.isOnActionSheet &&
         (props?.isToolTipVisible ? props?.activeStyle : props?.style)
       }
       onPress={props.onPress}
