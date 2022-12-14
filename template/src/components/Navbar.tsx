@@ -225,17 +225,22 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const chatLabel = 'Chat';
   const isPanelActive = sidePanel === SidePanelType.Chat;
   const onPress = () => {
-    if (isPanelActive || isMobileView) {
-      !isMobileView && setSidePanel(SidePanelType.None);
-      setGroupActive(false);
-      setPrivateActive(false);
-      setSelectedChatUserId(0);
-    } else {
-      setUnreadGroupMessageCount(0);
+    if (isMobileView) {
       setGroupActive(true);
-      !isMobileView && setSidePanel(SidePanelType.Chat);
+      openSheet();
+      setUnreadGroupMessageCount(0);
+    } else {
+      if (isPanelActive) {
+        setSidePanel(SidePanelType.None);
+        setGroupActive(false);
+        setPrivateActive(false);
+        setSelectedChatUserId(0);
+      } else {
+        setUnreadGroupMessageCount(0);
+        setGroupActive(true);
+        setSidePanel(SidePanelType.Chat);
+      }
     }
-    isMobileView && openSheet();
   };
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
