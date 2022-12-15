@@ -35,12 +35,14 @@ const IconButton = (props: IconButtonProps) => {
   const {hoverEffect = true} = props;
   return (
     <TouchableOpacity
-      style={[
-        !props.isOnActionSheet && hoverEffect && props?.isToolTipVisible
-          ? props?.activeStyle
-          : props?.style,
-        !hoverEffect ? props?.noHoverEffectStyle : {},
-      ]}
+      style={
+        !props.isOnActionSheet && [
+          hoverEffect && props?.isToolTipVisible
+            ? props?.activeStyle
+            : props?.style,
+          !hoverEffect ? props?.noHoverEffectStyle : {},
+        ]
+      }
       onPress={props.onPress}
       disabled={props.disabled}>
       {props?.customIconComponent ? (

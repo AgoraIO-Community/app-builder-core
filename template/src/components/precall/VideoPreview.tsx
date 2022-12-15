@@ -120,6 +120,11 @@ const VideoPreview: React.FC = () => {
           user={renderList[maxUid]}
           key={maxUid}
           fallback={Fallback}
+          containerStyle={{
+            width: '100%',
+            height: '100%',
+            borderRadius: 8,
+          }}
         />
       </View>
 
