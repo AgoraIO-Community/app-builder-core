@@ -36,7 +36,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [deviceList, setDeviceList] = useState([]);
   const rtc = useRtc();
 
-  const updateDeviceList = () => {
+  // const updateDeviceList = () => {
+  //   navigator.mediaDevices.enumerateDevices().then((devices) => {
+  //     console.log('WEBAPI: enumarated devices: ', devices);
+  //     // Decvice ids are empty until when permissions are not taken
+  //     const filteredDevices = devices.filter(
+  //       (device) => device.deviceId !== '',
+  //     );
+  //     setDeviceList(filteredDevices);
+  //   });
+  // };
+
+  const updateDeviceList = useCallback(() => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       console.log('WEBAPI: enumarated devices: ', devices);
       // Decvice ids are empty until when permissions are not taken
@@ -45,7 +56,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       );
       setDeviceList(filteredDevices);
     });
-  };
+  }, []);
 
   useEffect(() => {
     navigator.mediaDevices.ondevicechange = (event) => {
@@ -64,8 +75,40 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }
     for (const i in deviceList) {
       if (deviceList[i].kind === 'audioinput') {
-        console.log('WEBAPI: setting microphone ', deviceList[i]);
-        setSelectedMic(deviceList[i].deviceId);
+        console.log(
+          'WEBAPI: *********************** MICROPHONE STARTS ***********************',
+        );
+        if (deviceList[i].deviceId === 'default') {
+          console.log(
+            'WEBAPI: Case: 1. selected microphone has deviceId default finding equivalent',
+            deviceList[i],
+          );
+          const foundDeviceId = deviceList.find(
+            (el: MediaDeviceInfo) =>
+              el.kind === 'audioinput' &&
+              el.deviceId !== 'default' &&
+              el.groupId == deviceList[i].groupId,
+          );
+          if (foundDeviceId) {
+            console.log(
+              'WEBAPI found equivalent deviceID for default: ',
+              foundDeviceId,
+            );
+            console.log('WEBAPI: setting microphone', foundDeviceId.deviceId);
+            setSelectedMic(foundDeviceId.deviceId);
+          }
+        } else {
+          console.log(
+            'WEBAPI:  Case: 2. selected microphone does not default deviceId',
+            deviceList[i],
+          );
+          console.log('WEBAPI: setting microphone', deviceList[i].deviceId);
+          setSelectedMic(deviceList[i].deviceId);
+        }
+        console.log(
+          'WEBAPI: *********************** MICROPHONE ENDS ***********************',
+        );
+
         break;
       }
     }
@@ -73,7 +116,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     if (selectedCam.length !== 0) {
-      console.log('WEBAPI: setting camera: ', selectedCam);
+      console.log('WEBAPI: calling API changeCamera: ', selectedCam);
       rtc.RtcEngine.changeCamera(
         selectedCam,
         () => {},
@@ -85,7 +128,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     if (selectedMic.length !== 0) {
-      console.log('WEBAPI: setting microphone: ', selectedMic);
+      console.log('WEBAPI: calling API changeMic: ', selectedMic);
       rtc.RtcEngine.changeMic(
         selectedMic,
         () => {},

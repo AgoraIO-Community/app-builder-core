@@ -62,7 +62,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
           return (
             <Picker.Item
               label={
-                device.deviceId === 'default'
+                device.deviceId === selectedCam
                   ? `${device.label} (connected)`
                   : device.label
               }
@@ -100,7 +100,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
           return (
             <Picker.Item
               label={
-                device.deviceId === 'default'
+                device.deviceId === selectedMic
                   ? `${device.label} (connected)`
                   : device.label
               }
