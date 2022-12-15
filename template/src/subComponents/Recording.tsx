@@ -10,6 +10,7 @@
 *********************************************
 */
 import React, {useEffect, useState} from 'react';
+import {ImageIcon as UIKitImageIcon} from '../../agora-rn-uikit';
 import {useRecording} from './recording/useRecording';
 import {useString} from '../utils/useString';
 import Styles from '../components/styles';
@@ -55,6 +56,14 @@ const Recording = (props: RecordingButtonProps) => {
     },
     onPress,
   };
+
+  if (isRecordingActive) {
+    iconButtonProps.customIconComponent = (
+      <UIKitImageIcon name="stopRecording" style={{width: 24, height: 24}} />
+    );
+  } else {
+    iconButtonProps.customIconComponent = null;
+  }
 
   iconButtonProps.btnText = showLabel ? recordingButton(isRecordingActive) : '';
   iconButtonProps.isOnActionSheet = isOnActionSheet;
