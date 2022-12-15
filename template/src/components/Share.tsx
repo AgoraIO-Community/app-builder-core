@@ -135,10 +135,12 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           toolTipMessage="Copied to clipboard"
           renderContent={(isToolTipVisible, setToolTipVisible) => {
             return (
-              <ImageIcon
-                name="clipboard"
-                tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-              />
+              <TouchableOpacity onPress={() => setToolTipVisible(true)}>
+                <ImageIcon
+                  name="clipboard"
+                  tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+                />
+              </TouchableOpacity>
             );
           }}
         />

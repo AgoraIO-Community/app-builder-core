@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 10,
+    lineHeight: 12,
     fontWeight: '400',
     color: $config.FONT_COLOR,
   },

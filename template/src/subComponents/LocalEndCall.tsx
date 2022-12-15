@@ -55,11 +55,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         onPress={onPress}>
         <ImageIcon
           name={'end-call'}
-          tintColor={
-            showLabel
-              ? $config.PRIMARY_ACTION_TEXT_COLOR
-              : $config.SEMANTIC_ERROR
-          }
+          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
         />
         {showLabel && (
           <Text style={Styles.endCallText as object}>{endCallLabel}</Text>

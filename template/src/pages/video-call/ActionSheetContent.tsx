@@ -109,7 +109,7 @@ const ActionSheetContent = (props) => {
             <ChatIconButton
               badgeContainerPosition={{
                 top: -8,
-                left: 35,
+                left: 15,
               }}
               isMobileView={true}
               isOnActionSheet={true}

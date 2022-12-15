@@ -49,7 +49,10 @@ const ToastConfig = {
       leadingIcon={leadingIcon('tick-fill', $config.SEMANTIC_SUCCESS)}
       trailingIcon={trailingIcon}
       style={{
-        ...styles.containerStyle,
+        borderRadius: 4,
+        borderTopWidth: 6,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
+        width: !isMobileOrTablet() ? '40%' : '95%',
         borderTopColor: $config.SEMANTIC_SUCCESS,
       }}
       contentContainerStyle={styles.contentContainerStyle}
@@ -66,7 +69,10 @@ const ToastConfig = {
       leadingIcon={leadingIcon('alert', $config.SEMANTIC_ERROR)}
       trailingIcon={trailingIcon}
       style={{
-        ...styles.containerStyle,
+        borderRadius: 4,
+        borderTopWidth: 6,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
+        width: !isMobileOrTablet() ? '40%' : '95%',
         borderTopColor: $config.SEMANTIC_ERROR,
       }}
       contentContainerStyle={styles.contentContainerStyle}
@@ -104,10 +110,5 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
   },
-  containerStyle: {
-    borderRadius: 4,
-    borderTopWidth: 6,
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
-    width: !isMobileOrTablet() ? '40%' : '95%',
-  },
+  containerStyle: {},
 });

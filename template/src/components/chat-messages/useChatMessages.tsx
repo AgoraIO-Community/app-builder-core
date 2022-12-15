@@ -138,7 +138,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         text2: renderListRef.current.renderList[uidAsNumber]?.name
           ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
           : '',
-        visibilityTime: 1000,
+        visibilityTime: 3000,
         onPress: () => {
           if (isPrivateMessage) {
             openPrivateChat(uidAsNumber);

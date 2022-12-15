@@ -130,7 +130,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       Toast.show({
         type: 'success',
         text1: recordingStartedText(isRecordingActive),
-        visibilityTime: 1000,
+        visibilityTime: 3000,
       });
     }
   }, [isRecordingActive]);
