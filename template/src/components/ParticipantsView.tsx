@@ -54,6 +54,9 @@ const ParticipantView = (props) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
+  const [showHostSection, setShowHostSection] = useState(true);
+  const [showParticipantSection, setShowParticipantSection] = useState(true);
+
   return (
     <View
       testID="videocall-participants"
@@ -101,12 +104,18 @@ const ParticipantView = (props) => {
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
+                      isOpen={showHostSection}
+                      onPress={() => setShowHostSection(!showHostSection)}
                     />
-                    <AllHostParticipants
-                      isMobile={isSmall}
-                      updateActionSheet={props.updateActionSheet}
-                      handleClose={props.handleClose}
-                    />
+                    {showHostSection ? (
+                      <AllHostParticipants
+                        isMobile={isSmall}
+                        updateActionSheet={props.updateActionSheet}
+                        handleClose={props.handleClose}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </>
                 ) : (
                   /** New Host ( earlier was 'audience' and now is host )
@@ -116,13 +125,21 @@ const ParticipantView = (props) => {
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
+                      isOpen={showParticipantSection}
+                      onPress={() =>
+                        setShowParticipantSection(!showParticipantSection)
+                      }
                     />
-                    <AllAudienceParticipants
-                      uids={hostUids}
-                      isMobile={isSmall}
-                      updateActionSheet={props.updateActionSheet}
-                      handleClose={props.handleClose}
-                    />
+                    {showParticipantSection ? (
+                      <AllAudienceParticipants
+                        uids={hostUids}
+                        isMobile={isSmall}
+                        updateActionSheet={props.updateActionSheet}
+                        handleClose={props.handleClose}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </>
                 ))
             }
@@ -135,13 +152,19 @@ const ParticipantView = (props) => {
                   <ParticipantSectionTitle
                     title={hostLabel}
                     count={hostUids.length}
+                    isOpen={showHostSection}
+                    onPress={() => setShowHostSection(!showHostSection)}
                   />
-                  <AllAudienceParticipants
-                    uids={hostUids}
-                    isMobile={isSmall}
-                    updateActionSheet={props.updateActionSheet}
-                    handleClose={props.handleClose}
-                  />
+                  {showHostSection ? (
+                    <AllAudienceParticipants
+                      uids={hostUids}
+                      isMobile={isSmall}
+                      updateActionSheet={props.updateActionSheet}
+                      handleClose={props.handleClose}
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </>
               )
             }
@@ -151,13 +174,21 @@ const ParticipantView = (props) => {
                 <ParticipantSectionTitle
                   title={audienceLabel}
                   count={audienceUids.length}
+                  isOpen={showParticipantSection}
+                  onPress={() =>
+                    setShowParticipantSection(!showParticipantSection)
+                  }
                 />
-                <AllAudienceParticipants
-                  uids={audienceUids}
-                  isMobile={isSmall}
-                  updateActionSheet={props.updateActionSheet}
-                  handleClose={props.handleClose}
-                />
+                {showParticipantSection ? (
+                  <AllAudienceParticipants
+                    uids={audienceUids}
+                    isMobile={isSmall}
+                    updateActionSheet={props.updateActionSheet}
+                    handleClose={props.handleClose}
+                  />
+                ) : (
+                  <></>
+                )}
               </>
             }
           </>

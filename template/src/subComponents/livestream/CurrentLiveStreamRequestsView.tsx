@@ -9,6 +9,7 @@ import {useString} from '../../utils/useString';
 import {ClientRole} from '../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
+import Spacer from '../../atoms/Spacer';
 
 const CurrentLiveStreamRequestsView = (props: any) => {
   //commented for v1 release
@@ -57,7 +58,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     fontWeight: '400',
     color: '#fff',
   };
-
+  const [showRequestSection, setShowRequestSection] = useState(true);
   return (
     <>
       {Object.keys(raiseHandList).length == 0 ||
@@ -68,33 +69,42 @@ const CurrentLiveStreamRequestsView = (props: any) => {
           <ParticipantSectionTitle
             title={raisedHandsListTitleLabel + ' '}
             count={Object.keys(activeLiveStreamRequests).length}
+            isOpen={showRequestSection}
+            onPress={() => setShowRequestSection(!showRequestSection)}
           />
-          {Object.keys(activeLiveStreamRequests).map(
-            (userUID: any, index: number) =>
-              renderList[userUID] ? (
-                <View style={styles.container}>
-                  <View style={styles.userInfoContainer}>
-                    <UserAvatar
-                      name={renderList[userUID].name}
-                      containerStyle={containerStyle}
-                      textStyle={textStyle}
-                    />
-                    <View style={{alignSelf: 'center'}}>
-                      <Text style={styles.participantNameText}>
-                        {renderList[userUID].name}
-                      </Text>
+          {showRequestSection ? (
+            Object.keys(activeLiveStreamRequests).map(
+              (userUID: any, index: number) =>
+                renderList[userUID] ? (
+                  <View style={styles.container}>
+                    <View style={styles.userInfoContainer}>
+                      <UserAvatar
+                        name={renderList[userUID].name}
+                        containerStyle={containerStyle}
+                        textStyle={textStyle}
+                      />
+                      <View style={{alignSelf: 'center', flex: 1}}>
+                        <Text
+                          style={styles.participantNameText}
+                          numberOfLines={1}>
+                          {renderList[userUID].name}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.btnContainer}>
+                      <RemoteLiveStreamRequestReject uid={userUID} />
+                      <Spacer size={8} horizontal={true} />
+                      <RemoteLiveStreamRequestApprove uid={userUID} />
                     </View>
                   </View>
-                  <View style={styles.btnContainer}>
-                    <RemoteLiveStreamRequestReject uid={userUID} />
-                    <RemoteLiveStreamRequestApprove uid={userUID} />
+                ) : (
+                  <View style={{alignSelf: 'center'}} key={index}>
+                    <Text>{noUserFoundLabel}</Text>
                   </View>
-                </View>
-              ) : (
-                <View style={{alignSelf: 'center'}} key={index}>
-                  <Text>{noUserFoundLabel}</Text>
-                </View>
-              ),
+                ),
+            )
+          ) : (
+            <></>
           )}
         </>
       )}
@@ -103,19 +113,19 @@ const CurrentLiveStreamRequestsView = (props: any) => {
 };
 const styles = StyleSheet.create({
   btnContainer: {
-    flex: 0.5,
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
   },
   container: {
     flex: 1,
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 16,
+    justifyContent: 'space-between',
   },
   userInfoContainer: {
+    flex: 0.7,
     flexDirection: 'row',
-    flex: 0.5,
   },
   participantNameText: {
     fontWeight: '400',

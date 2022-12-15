@@ -1,28 +1,32 @@
 import ImageIcon from '../../atoms/ImageIcon';
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import ThemeConfig from '../../theme';
 
 interface PropsInterface {
   title: string;
   count?: number;
+  isOpen?: boolean;
+  onPress?: () => void;
 }
 
 export default function ParticipantSectionTitle(props: PropsInterface) {
   const {title, count = 0} = props;
   return (
-    <View style={style.container}>
+    <TouchableOpacity
+      style={style.container}
+      onPress={() => props?.onPress && props?.onPress()}>
       <Text style={style.subheading}>
         {title} {count > 0 ? '(' + count + ')' : ''}
       </Text>
       <View style={style.iconView}>
         <ImageIcon
-          name="arrow-down"
+          name={props?.isOpen ? 'arrow-up' : 'arrow-down'}
           iconSize="medium"
           tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
