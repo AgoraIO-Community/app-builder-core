@@ -93,9 +93,8 @@ const Participant = (props: ParticipantInterface) => {
 
     if (isHost) {
       items.push({
-        icon: 'cancel',
+        icon: 'remove',
         iconColor: $config.SEMANTIC_ERROR,
-
         textColor: $config.SEMANTIC_ERROR,
         title: 'Remove from meeting',
         callback: () => {
@@ -111,7 +110,7 @@ const Participant = (props: ParticipantInterface) => {
         raiseHandList[user.uid]?.role == ClientRole.Broadcaster
       ) {
         items.push({
-          icon: 'cancel',
+          icon: 'remove',
           iconColor: $config.SEMANTIC_ERROR,
           textColor: $config.SEMANTIC_ERROR,
           title: 'demote to audience',
@@ -202,8 +201,8 @@ const Participant = (props: ParticipantInterface) => {
                 style={{
                   width: 24,
                   height: 24,
-                  backgroundColor:
-                    $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+                  // backgroundColor:
+                  //   $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
                   opacity:
                     ((isHovered || actionMenuVisible || !isWebInternal()) &&
                       !isLocal) ||
@@ -217,6 +216,7 @@ const Participant = (props: ParticipantInterface) => {
                   borderRadius: 20,
                 }}>
                 <IconButton
+                  hoverEffect={false}
                   iconProps={{
                     name: 'more-menu',
                     iconSize: 'medium',
@@ -231,7 +231,11 @@ const Participant = (props: ParticipantInterface) => {
               {!$config.AUDIO_ROOM &&
                 (isLocal
                   ? !isAudienceUser && (
-                      <LocalVideoMute iconSize="medium" showLabel={false} />
+                      <LocalVideoMute
+                        iconSize="medium"
+                        showLabel={false}
+                        hoverEffect={false}
+                      />
                     )
                   : !isAudienceUser && (
                       <RemoteVideoMute
@@ -240,10 +244,13 @@ const Participant = (props: ParticipantInterface) => {
                         isHost={isHost}
                       />
                     ))}
-              <Spacer horizontal={true} size={16} />
               {isLocal
                 ? !isAudienceUser && (
-                    <LocalAudioMute iconSize="medium" showLabel={false} />
+                    <LocalAudioMute
+                      iconSize="medium"
+                      showLabel={false}
+                      hoverEffect={false}
+                    />
                   )
                 : !isAudienceUser && (
                     <RemoteAudioMute

@@ -37,7 +37,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   return (
     <IconButton
       disabled={!isHost || !props.audio}
-      style={Styles.localButtonSmall as Object}
+      hoverEffect={false}
       onPress={() => {
         if (isPSTN(props.uid)) {
           try {

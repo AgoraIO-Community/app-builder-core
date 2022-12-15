@@ -67,6 +67,7 @@ const ParticipantView = (props) => {
       <View style={style.header}>
         <Text style={style.mainHeading}>{participantsLabel}</Text>
         <IconButton
+          hoverEffect={false}
           iconProps={{
             name: 'close-rounded',
             tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -187,8 +188,8 @@ const style = StyleSheet.create({
     maxWidth: '20%',
     minWidth: 338,
     borderRadius: 12,
-    marginLeft: 20,
-    marginTop: 10,
+    marginLeft: 24,
+    marginVertical: 12,
     flex: 1,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -231,7 +232,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 22,
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
   },

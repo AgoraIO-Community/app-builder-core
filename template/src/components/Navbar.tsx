@@ -148,11 +148,12 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       <View
         style={
           !isMobileView && [
-            {
-              backgroundColor: isPanelActive
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : 'transparent',
-            },
+            isPanelActive
+              ? {
+                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                  borderRadius: 8,
+                }
+              : {},
           ]
         }>
         <IconButton {...iconButtonProps} />
@@ -291,11 +292,13 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       <View
         style={
           !isMobileView && [
-            {
-              backgroundColor: isPanelActive
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : 'transparent',
-            },
+            {marginLeft: 8},
+            isPanelActive
+              ? {
+                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                  borderRadius: 8,
+                }
+              : {},
           ]
         }>
         <IconButton {...iconButtonProps} />

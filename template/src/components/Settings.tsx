@@ -59,11 +59,13 @@ const Settings = (props: SettingsIconButtonProps) => {
   ) : (
     <View
       style={[
-        {
-          backgroundColor: isPanelActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : 'transparent',
-        },
+        {marginLeft: 8},
+        isPanelActive
+          ? {
+              backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+              borderRadius: 8,
+            }
+          : {},
       ]}>
       <IconButton {...iconButtonProps} />
     </View>
