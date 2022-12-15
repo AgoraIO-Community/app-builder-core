@@ -177,7 +177,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     <View>
       <Text style={style.label}>Select Speaker</Text>
       <Dropdown
-        icon={props?.isIconDropdown ? 'mic-on' : undefined}
+        icon={props?.isIconDropdown ? 'speaker' : undefined}
         enabled={!isPickerDisabled}
         selectedValue={selectedSpeaker}
         label={!data || !data.length ? 'No Speaker Detected' : ''}

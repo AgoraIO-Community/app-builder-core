@@ -67,6 +67,9 @@ const Chat = (props?: ChatProps) => {
     setPrivateActive,
     setSelectedChatUserId: setSelectedUser,
   } = useChatUIControl();
+
+  console.log('debugging ');
+
   const {
     unreadGroupMessageCount,
     setUnreadGroupMessageCount,
@@ -162,6 +165,7 @@ const Chat = (props?: ChatProps) => {
         <ChatBeforeView />
         <View style={style.header}>
           <IconButton
+            hoverEffect={false}
             iconProps={{
               name: 'back-btn',
               tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -198,6 +202,7 @@ const Chat = (props?: ChatProps) => {
             </TouchableOpacity>
           </View>
           <IconButton
+            hoverEffect={false}
             iconProps={{
               name: 'close-square',
               tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -267,17 +272,16 @@ const style = StyleSheet.create({
     maxWidth: '20%',
     minWidth: 338,
     borderRadius: 12,
-    marginLeft: 20,
-    marginTop: 10,
+    marginLeft: 24,
+    marginVertical: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
     flex: 1,
     borderWidth: 1,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
+    shadowRadius: 20,
     overflow: 'hidden',
   },
   chatViewNative: {

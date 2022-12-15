@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   text: {
     paddingVertical: 14,
     color: $config.SECONDARY_ACTION_COLOR,
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },

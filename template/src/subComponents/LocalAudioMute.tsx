@@ -30,6 +30,7 @@ export interface LocalAudioMuteProps {
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
   disabled?: boolean;
   isOnActionSheet?: boolean;
+  hoverEffect?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -98,12 +99,15 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
+  iconButtonProps.hoverEffect = props?.hoverEffect;
   iconButtonProps.btnText = showLabel ? audioLabel : '';
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isAudioEnabled
-    ? 'Disable Mic'
-    : 'Enable Mic';
+  iconButtonProps.toolTipMessage = showLabel
+    ? permissionDenied
+      ? 'Give Permissions'
+      : isAudioEnabled
+      ? 'Disable Mic'
+      : 'Enable Mic'
+    : '';
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)

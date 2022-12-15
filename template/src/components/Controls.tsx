@@ -60,8 +60,12 @@ const Controls = () => {
       style={[
         style.container,
         {
-          paddingHorizontal: isDesktop ? '60px' : '10px',
-          //backgroundColor: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'] ,
+          paddingHorizontal: isDesktop ? 32 : 16,
+          paddingVertical: 20,
+          /**
+           * we should 28px padding top and bottom in total,
+           * iconbutton has 8px padding in top and bottom. so 20px added here
+           */
         },
       ]}
       onLayout={onLayout}>
@@ -173,8 +177,8 @@ const style = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
-    minHeight: 72,
-    maxHeight: '8%',
+    flex: 1,
+    justifyContent: 'space-between',
   },
   leftContent: {
     flex: 1,
@@ -183,7 +187,9 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   centerContent: {
+    flex: 1,
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   rightContent: {

@@ -54,7 +54,6 @@ export interface IconsInterface {
   'list-view': string;
   expand: string;
   collapse: string;
-  cancel: string;
   'active-speaker': string;
   'connection-unsupported': string;
   'connection-bad': string;
@@ -63,6 +62,7 @@ export interface IconsInterface {
   'connection-very-bad': string;
   'connection-unpublished': string;
   alert: string;
+  speaker: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

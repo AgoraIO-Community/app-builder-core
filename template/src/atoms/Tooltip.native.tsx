@@ -25,8 +25,7 @@ const Tooltip = (props: TooltipProps) => {
         backgroundColor: $config.CARD_LAYER_3_COLOR,
       }}
       tooltipStyle={{
-        shadowColor:
-          $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+        shadowColor: $config.HARD_CODED_BLACK_COLOR,
         shadowOffset: {
           height: 4,
           width: 0,

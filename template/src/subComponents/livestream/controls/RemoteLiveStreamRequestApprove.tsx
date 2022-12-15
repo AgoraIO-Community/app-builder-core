@@ -19,15 +19,11 @@ const RemoteLiveStreamRequestApprove = (
       containerStyle={{
         minWidth: 59,
         maxWidth: 59,
-        height: 28,
         borderRadius: 4,
       }}
       textStyle={{
-        color: '#ffffff',
         paddingHorizontal: 12,
         paddingVertical: 8,
-        fontFamily: 'Source Sans Pro',
-        fontStyle: 'normal',
         fontWeight: '600',
         fontSize: 12,
       }}

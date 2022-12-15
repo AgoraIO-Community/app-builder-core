@@ -75,7 +75,11 @@ const GridVideo: layoutComponent = ({renderData}) => {
                 marginHorizontal: 'auto',
               }}
               key={cidx}>
-              <View style={style.gridVideoContainerInner}>
+              <View
+                style={[
+                  style.gridVideoContainerInner,
+                  r?.length - 1 === cidx ? {} : {marginRight: 25},
+                ]}>
                 <RenderComponent uid={renderData[ridx * dims.c + cidx]} />
               </View>
             </Pressable>
@@ -89,23 +93,17 @@ const GridVideo: layoutComponent = ({renderData}) => {
 const style = StyleSheet.create({
   full: {
     flex: 1,
-    // padding: 20,
   },
   gridRow: {
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   gridVideoContainerInner: {
-    // borderColor: '#fff',
-    // borderWidth:2,
-    // width: '100%',
-    borderRadius: 15,
+    //borderRadius: 12,
     flex: 1,
     overflow: 'hidden',
-    // margin: 1,
-    marginHorizontal: 10,
   },
 });
 export default GridVideo;

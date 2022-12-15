@@ -59,12 +59,13 @@ const Settings = (props: SettingsIconButtonProps) => {
   ) : (
     <View
       style={[
-        style.navItem,
-        {
-          backgroundColor: isPanelActive
-            ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : 'transparent',
-        },
+        {marginLeft: 8},
+        isPanelActive
+          ? {
+              backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+              borderRadius: 8,
+            }
+          : {},
       ]}>
       <IconButton {...iconButtonProps} />
     </View>
@@ -76,9 +77,6 @@ export const SettingsWithViewWrapper = (props: SettingsIconButtonProps) => {
 };
 
 const style = StyleSheet.create({
-  navItem: {
-    paddingVertical: 8,
-  },
   localButton: {
     borderRadius: 2,
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,

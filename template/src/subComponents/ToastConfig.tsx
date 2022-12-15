@@ -22,13 +22,16 @@ const trailingIcon = (
   <TouchableOpacity
     onPress={() => Toast.hide()}
     style={{alignSelf: 'flex-end'}}>
-    <ImageIcon tintColor={$config.SEMANTIC_NETRUAL} name="close-rounded" />
+    <ImageIcon
+      tintColor={$config.SECONDARY_ACTION_COLOR}
+      name="close-rounded"
+    />
   </TouchableOpacity>
 );
 
 const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
   return (
-    <View style={{paddingRight: 4}}>
+    <View style={{paddingRight: 4, alignSelf: 'center'}}>
       <ImageIcon tintColor={color} name={iconName} />
     </View>
   );

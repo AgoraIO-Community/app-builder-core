@@ -30,6 +30,7 @@ export interface LocalVideoMuteProps {
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   disabled?: boolean;
   isOnActionSheet?: boolean;
+  hoverEffect?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -87,7 +88,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   } else {
     iconButtonProps.customIconComponent = null;
   }
-
+  iconButtonProps.hoverEffect = props?.hoverEffect;
   iconButtonProps.isOnActionSheet = isOnActionSheet;
   iconButtonProps.styleText = {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -101,11 +102,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       : $config.SEMANTIC_ERROR,
   };
   iconButtonProps.btnText = showLabel ? videoLabel : '';
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isVideoEnabled
-    ? 'Disable Camera'
-    : 'Enable Camera';
+  iconButtonProps.toolTipMessage = showLabel
+    ? permissionDenied
+      ? 'Give Permissions'
+      : isVideoEnabled
+      ? 'Disable Camera'
+      : 'Enable Camera'
+    : '';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)

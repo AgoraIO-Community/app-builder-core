@@ -61,7 +61,7 @@ export const ParticipantsCountView = ({
   ) : (
     <>
       {onlineUsersCount !== 0 && (
-        <View style={[style.navItem, {justifyContent: 'center'}]}>
+        <View style={[{justifyContent: 'center'}]}>
           <View style={style.chip}>
             {onlineUsersCount > 0 && (
               <Text style={style.chipText}>
@@ -148,12 +148,12 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       <View
         style={
           !isMobileView && [
-            style.navItem,
-            {
-              backgroundColor: isPanelActive
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : 'transparent',
-            },
+            isPanelActive
+              ? {
+                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                  borderRadius: 8,
+                }
+              : {},
           ]
         }>
         <IconButton {...iconButtonProps} />
@@ -297,12 +297,13 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       <View
         style={
           !isMobileView && [
-            style.navItem,
-            {
-              backgroundColor: isPanelActive
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : 'transparent',
-            },
+            {marginLeft: 8},
+            isPanelActive
+              ? {
+                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                  borderRadius: 8,
+                }
+              : {},
           ]
         }>
         <IconButton {...iconButtonProps} />
@@ -356,7 +357,7 @@ const Navbar = () => {
       onLayout={onLayout}
       style={[
         isWebInternal() ? style.navHolder : style.navHolderNative,
-        {paddingHorizontal: isDesktop ? 30 : 10},
+        {paddingHorizontal: isDesktop ? 32 : 10},
       ]}>
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
         <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
@@ -407,7 +408,7 @@ export const NavBarComponentsArray: NavBarComponentsArrayProps = [
 const style = StyleSheet.create({
   navHolder: {
     width: '100%',
-    minHeight: 56,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -498,9 +499,6 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     zIndex: 9,
-  },
-  navItem: {
-    paddingVertical: 8,
   },
   navSmItem: {
     flexGrow: 0,

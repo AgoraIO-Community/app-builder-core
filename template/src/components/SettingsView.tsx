@@ -55,6 +55,7 @@ const SettingsView = (props) => {
       <View style={style.header}>
         <Text style={style.mainHeading}>{settingsLabel}</Text>
         <IconButton
+          hoverEffect={false}
           iconProps={{
             name: 'close-rounded',
             tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -148,17 +149,16 @@ const style = StyleSheet.create({
     maxWidth: '20%',
     minWidth: 338,
     borderRadius: 12,
-    marginLeft: 20,
-    marginTop: 10,
+    marginLeft: 24,
+    marginVertical: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
     flex: 1,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
+    shadowRadius: 20,
     overflow: 'hidden',
   },
   settingsViewNative: {

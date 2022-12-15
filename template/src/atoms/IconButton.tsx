@@ -17,6 +17,7 @@ export interface IconButtonProps {
   onPress?: TouchableOpacityProps['onPress'];
   style?: ViewStyle;
   activeStyle?: ViewStyle;
+  noHoverEffectStyle?: ViewStyle;
   styleText?: TextStyle;
   btnTextColor?: string;
   btnText?: string;
@@ -27,15 +28,19 @@ export interface IconButtonProps {
   isToolTipVisible?: boolean;
   setToolTipVisible?: React.Dispatch<React.SetStateAction<boolean>>;
   isOnActionSheet?: boolean;
+  hoverEffect?: boolean;
 }
 
 const IconButton = (props: IconButtonProps) => {
+  const {hoverEffect = true} = props;
   return (
     <TouchableOpacity
-      style={
-        !props.isOnActionSheet &&
-        (props?.isToolTipVisible ? props?.activeStyle : props?.style)
-      }
+      style={[
+        !props.isOnActionSheet && hoverEffect && props?.isToolTipVisible
+          ? props?.activeStyle
+          : props?.style,
+        !hoverEffect ? props?.noHoverEffectStyle : {},
+      ]}
       onPress={props.onPress}
       disabled={props.disabled}>
       {props?.customIconComponent ? (
@@ -89,6 +94,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
             <IconButton
               activeStyle={styles.activeBgStyle}
               style={styles.defaultBgStyle}
+              noHoverEffectStyle={styles.noHoverEffectStyle}
               {...props}
               isToolTipVisible={isToolTipVisible}
               setToolTipVisible={setToolTipVisible}
@@ -102,6 +108,7 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
       <IconButton
         activeStyle={styles.activeBgStyle}
         style={styles.defaultBgStyle}
+        noHoverEffectStyle={styles.noHoverEffectStyle}
         {...props}
         isToolTipVisible={isHovered}
         setToolTipVisible={setIsHovered}
@@ -129,6 +136,16 @@ const styles = StyleSheet.create({
   defaultBgStyle: {
     paddingLeft: 20,
     paddingRight: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noHoverEffectStyle: {
+    paddingLeft: 8,
+    paddingRight: 8,
     paddingTop: 8,
     paddingBottom: 8,
     display: 'flex',

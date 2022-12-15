@@ -36,7 +36,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
       onPress={() => {
         muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
       }}
-      style={Styles.localButtonSmall as Object}
+      hoverEffect={false}
       iconProps={{
         name: 'video-on',
         iconSize: 'medium',

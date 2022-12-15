@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {View} from 'react-native';
 import {PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
-import PrimaryButton from '../../../atoms/PrimaryButton';
+import TertiaryButton from '../../../atoms/TertiaryButton';
 
 interface RemoteLiveStreamControlProps {
   uid: UidType;
@@ -13,28 +13,13 @@ const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
   const {hostRejectsRequestOfUID} = useContext(LiveStreamContext);
 
   return (
-    <PrimaryButton
+    <TertiaryButton
       containerStyle={{
-        maxWidth: 59,
-        minWidth: 59,
-        height: 28,
-        borderColor: '#000000',
-        borderWidth: 1,
-        backgroundColor: 'white',
-        borderRadius: 4,
-      }}
-      textStyle={{
-        color: '#000000',
         paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontFamily: 'Source Sans Pro',
-        fontStyle: 'normal',
-        fontWeight: '600',
-        fontSize: 12,
       }}
+      disabled={!uid}
       onPress={() => hostRejectsRequestOfUID(uid)}
       text={'Deny'}
-      disabled={!uid}
     />
   );
 };

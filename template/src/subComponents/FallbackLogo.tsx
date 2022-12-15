@@ -16,7 +16,7 @@ import UserAvatar from '../atoms/UserAvatar';
 
 export default function FallbackLogo(name: string, isActiveSpeaker?: boolean) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       <View
         style={[
           styles.activeSpeakerBg,
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 8,
   },
   activeSpeakerBg: {
     width: 140,

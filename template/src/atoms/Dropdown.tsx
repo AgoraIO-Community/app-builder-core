@@ -239,8 +239,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     paddingLeft: 8,
     paddingVertical: 20,
@@ -261,8 +260,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderTopWidth: 2,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {width: 5, height: 5},
     shadowOpacity: 0.07,
     shadowRadius: 20,
@@ -287,13 +285,11 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     color: $config.SECONDARY_ACTION_COLOR,
     paddingVertical: 12,
     paddingHorizontal: 15,
   },
   itemTextSelected: {
-    fontWeight: '400',
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   itemTextSelectedContainer: {

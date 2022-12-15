@@ -3,8 +3,10 @@ import React from 'react';
 import ThemeConfig from '../theme';
 
 function getInitials(name: string) {
-  const names = name.split(' ').map((v) => v.charAt(0));
-  return names.join('');
+  if (name && name?.length) {
+    return name[0].toUpperCase();
+  }
+  return 'U';
 }
 
 const UserAvatar = ({name, containerStyle, textStyle}) => {
@@ -27,7 +29,7 @@ const UserAvatar = ({name, containerStyle, textStyle}) => {
             textAlign: 'center',
           },
         ]}>
-        {name ? getInitials(name).toUpperCase() : 'U'}
+        {getInitials(name)}
       </Text>
     </View>
   );

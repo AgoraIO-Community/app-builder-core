@@ -54,6 +54,9 @@ const ParticipantView = (props) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
+  const [showHostSection, setShowHostSection] = useState(true);
+  const [showParticipantSection, setShowParticipantSection] = useState(true);
+
   return (
     <View
       testID="videocall-participants"
@@ -67,6 +70,7 @@ const ParticipantView = (props) => {
       <View style={style.header}>
         <Text style={style.mainHeading}>{participantsLabel}</Text>
         <IconButton
+          hoverEffect={false}
           iconProps={{
             name: 'close-rounded',
             tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -100,12 +104,18 @@ const ParticipantView = (props) => {
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
+                      isOpen={showHostSection}
+                      onPress={() => setShowHostSection(!showHostSection)}
                     />
-                    <AllHostParticipants
-                      isMobile={isSmall}
-                      updateActionSheet={props.updateActionSheet}
-                      handleClose={props.handleClose}
-                    />
+                    {showHostSection ? (
+                      <AllHostParticipants
+                        isMobile={isSmall}
+                        updateActionSheet={props.updateActionSheet}
+                        handleClose={props.handleClose}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </>
                 ) : (
                   /** New Host ( earlier was 'audience' and now is host )
@@ -115,13 +125,21 @@ const ParticipantView = (props) => {
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
+                      isOpen={showParticipantSection}
+                      onPress={() =>
+                        setShowParticipantSection(!showParticipantSection)
+                      }
                     />
-                    <AllAudienceParticipants
-                      uids={hostUids}
-                      isMobile={isSmall}
-                      updateActionSheet={props.updateActionSheet}
-                      handleClose={props.handleClose}
-                    />
+                    {showParticipantSection ? (
+                      <AllAudienceParticipants
+                        uids={hostUids}
+                        isMobile={isSmall}
+                        updateActionSheet={props.updateActionSheet}
+                        handleClose={props.handleClose}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </>
                 ))
             }
@@ -134,13 +152,19 @@ const ParticipantView = (props) => {
                   <ParticipantSectionTitle
                     title={hostLabel}
                     count={hostUids.length}
+                    isOpen={showHostSection}
+                    onPress={() => setShowHostSection(!showHostSection)}
                   />
-                  <AllAudienceParticipants
-                    uids={hostUids}
-                    isMobile={isSmall}
-                    updateActionSheet={props.updateActionSheet}
-                    handleClose={props.handleClose}
-                  />
+                  {showHostSection ? (
+                    <AllAudienceParticipants
+                      uids={hostUids}
+                      isMobile={isSmall}
+                      updateActionSheet={props.updateActionSheet}
+                      handleClose={props.handleClose}
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </>
               )
             }
@@ -150,13 +174,21 @@ const ParticipantView = (props) => {
                 <ParticipantSectionTitle
                   title={audienceLabel}
                   count={audienceUids.length}
+                  isOpen={showParticipantSection}
+                  onPress={() =>
+                    setShowParticipantSection(!showParticipantSection)
+                  }
                 />
-                <AllAudienceParticipants
-                  uids={audienceUids}
-                  isMobile={isSmall}
-                  updateActionSheet={props.updateActionSheet}
-                  handleClose={props.handleClose}
-                />
+                {showParticipantSection ? (
+                  <AllAudienceParticipants
+                    uids={audienceUids}
+                    isMobile={isSmall}
+                    updateActionSheet={props.updateActionSheet}
+                    handleClose={props.handleClose}
+                  />
+                ) : (
+                  <></>
+                )}
               </>
             }
           </>
@@ -187,17 +219,16 @@ const style = StyleSheet.create({
     maxWidth: '20%',
     minWidth: 338,
     borderRadius: 12,
-    marginLeft: 20,
-    marginTop: 10,
+    marginLeft: 24,
+    marginVertical: 12,
     flex: 1,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOpacity: 0.2,
     shadowOffset: {width: 0, height: 0},
-    shadowRadius: 12,
+    shadowRadius: 20,
     overflow: 'hidden',
   },
 
@@ -232,7 +263,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 22,
     borderBottomWidth: 1,
     borderBottomColor: $config.CARD_LAYER_3_COLOR,
   },
