@@ -24,7 +24,7 @@ export interface ImageIconProps {
   iconType?: 'round' | 'plain';
 }
 
-const ImageIcon2 = (props: ImageIconProps) => {
+const ImageIcon = (props: ImageIconProps) => {
   const {
     name,
     iconSize = 24,
@@ -57,7 +57,7 @@ const ImageIcon2 = (props: ImageIconProps) => {
   );
 };
 
-export default ImageIcon2;
+export default ImageIcon;
 
 const styles = StyleSheet.create({
   iconContainerStyle: {

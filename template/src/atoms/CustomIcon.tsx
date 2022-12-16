@@ -63,6 +63,7 @@ export interface IconsInterface {
   'connection-unpublished': string;
   alert: string;
   speaker: string;
+  person: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;
