@@ -24,8 +24,8 @@ const PreCallSettings = (props: PreCallSettingsProps) => {
       </Popup>
 
       <TouchableOpacity
-        style={{marginLeft: isMobileView ? 60 : 0}}
-        onPress={() => setIsSettingsVisible(true)}>
+        onPress={() => setIsSettingsVisible(true)}
+        style={{paddingLeft: 20, paddingRight: 20}}>
         <ImageIcon
           name={'settings'}
           tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   containerStyle: {
-    marginVertical: 40,
+    marginVertical: 20,
     paddingHorizontal: 16,
   },
 });

@@ -24,8 +24,15 @@ const Input = (props: InputProps) => {
   );
   return (
     <>
-      {label ? <Text style={[styles.label, labelStyle]}>{label}</Text> : <></>}
-      <Spacer size={8} />
+      {label ? (
+        <>
+          <Text style={[styles.label, labelStyle]}>{label}</Text>
+          <Spacer size={8} />
+        </>
+      ) : (
+        <></>
+      )}
+
       <TextInput
         style={[
           styles.input,

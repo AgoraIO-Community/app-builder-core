@@ -34,7 +34,8 @@ const styles = StyleSheet.create({
   },
   mobile: {
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingTop: 20,
+    paddingBottom: 40,
     justifyContent: 'space-between',
   },
   desktop: {
