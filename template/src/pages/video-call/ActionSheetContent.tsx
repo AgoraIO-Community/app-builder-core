@@ -160,7 +160,18 @@ const ActionSheetContent = (props) => {
               disabled={isLiveStream && isAudience && !isBroadCasting}
             />
           </View>
-          <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color:
+                  isLiveStream && isAudience && !isBroadCasting
+                    ? $config.SEMANTIC_NETRUAL
+                    : $config.PRIMARY_ACTION_BRAND_COLOR,
+              },
+            ]}>
+            Switch {'\n'} Camera
+          </Text>
         </View>
       </View>
       <View style={[styles.row, {paddingVertical: 0}]}>
