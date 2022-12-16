@@ -10,57 +10,46 @@ import {
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import {isWeb} from '../utils/common';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ToolTip from './Tooltip';
+import ThemeConfig from '../theme';
+
+export interface BtnTextProps {
+  textStyle?: TextStyle;
+  textColor?: string;
+  text?: string;
+}
 
 export interface IconButtonProps {
   onPress?: TouchableOpacityProps['onPress'];
-  style?: ViewStyle;
-  activeStyle?: ViewStyle;
-  noHoverEffectStyle?: ViewStyle;
-  styleText?: TextStyle;
-  btnTextColor?: string;
-  btnText?: string;
   disabled?: boolean;
-  iconProps?: ImageIconProps;
-  customIconComponent?: any;
+  containerStyle?: ViewStyle;
+  btnTextProps?: BtnTextProps;
+  iconProps: ImageIconProps;
   toolTipMessage?: string;
   isToolTipVisible?: boolean;
   setToolTipVisible?: React.Dispatch<React.SetStateAction<boolean>>;
   isOnActionSheet?: boolean;
-  hoverEffect?: boolean;
 }
 
 const IconButton = (props: IconButtonProps) => {
-  const {hoverEffect = true} = props;
   return (
     <TouchableOpacity
       style={
-        !props.isOnActionSheet && [
-          hoverEffect && props?.isToolTipVisible
-            ? props?.activeStyle
-            : props?.style,
-          !hoverEffect ? props?.noHoverEffectStyle : {},
-        ]
+        !props.isOnActionSheet && [styles.containerStyle, props?.containerStyle]
       }
       onPress={props.onPress}
       disabled={props.disabled}>
-      {props?.customIconComponent ? (
-        props.customIconComponent
-      ) : (
-        <ImageIcon {...props.iconProps} />
-      )}
-      {props?.btnText ? (
+      <ImageIcon {...props.iconProps} />
+      {props?.btnTextProps?.text ? (
         <Text
           style={[
-            {
-              textAlign: 'center',
-              marginTop: 5,
-            },
-            props?.btnTextColor ? {color: props.btnTextColor} : {},
-            props?.styleText,
+            styles.btnTextStyle,
+            props?.btnTextProps?.textColor
+              ? {color: props.btnTextProps.textColor}
+              : {},
+            props?.btnTextProps.textStyle,
           ]}>
-          {props.btnText}
+          {props.btnTextProps.text}
         </Text>
       ) : (
         <></>
@@ -94,9 +83,6 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <IconButton
-              activeStyle={styles.activeBgStyle}
-              style={styles.defaultBgStyle}
-              noHoverEffectStyle={styles.noHoverEffectStyle}
               {...props}
               isToolTipVisible={isToolTipVisible}
               setToolTipVisible={setToolTipVisible}
@@ -108,9 +94,6 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <IconButton
-        activeStyle={styles.activeBgStyle}
-        style={styles.defaultBgStyle}
-        noHoverEffectStyle={styles.noHoverEffectStyle}
         {...props}
         isToolTipVisible={isHovered}
         setToolTipVisible={setIsHovered}
@@ -122,37 +105,15 @@ const IconButtonWithToolTip = (props: IconButtonProps) => {
 export default IconButtonWithToolTip;
 
 const styles = StyleSheet.create({
-  activeBgStyle: {
-    backgroundColor:
-      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    borderRadius: 8,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
+  containerStyle: {
+    flex: 1,
+    flexDirection: 'column',
   },
-  defaultBgStyle: {
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noHoverEffectStyle: {
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingTop: 8,
-    paddingBottom: 8,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
+  btnTextStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.tiny,
+    fontWeight: '400',
+    textAlign: 'center',
+    marginTop: 5,
   },
 });

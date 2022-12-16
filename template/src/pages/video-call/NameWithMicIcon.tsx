@@ -25,6 +25,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
     <View style={style.container}>
       <View>
         <ImageIcon
+          iconType="plain"
           name={
             isActiveSpeaker(user.uid)
               ? 'active-speaker'
@@ -39,7 +40,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
               ? $config.PRIMARY_ACTION_BRAND_COLOR
               : $config.SEMANTIC_ERROR
           }
-          iconSize={'small'}
+          iconSize={16}
         />
       </View>
 

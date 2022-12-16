@@ -47,6 +47,7 @@ import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Spacer from '../atoms/Spacer';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -126,36 +127,22 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.PRIMARY_ACTION_BRAND_COLOR,
+      iconBackgroundColor: isPanelActive
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : '',
+    },
+    btnTextProps: {
+      text: isMobileView || !$config.ICON_TEXT ? '' : participantsLabel,
+      textColor: $config.FONT_COLOR,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.btnText =
-    isMobileView || !$config.ICON_TEXT ? '' : participantsLabel;
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
 
   return props?.render ? (
     props.render(onPress, isPanelActive)
   ) : (
     <>
-      <View
-        style={
-          !isMobileView && [
-            isPanelActive
-              ? {
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                  borderRadius: 8,
-                }
-              : {},
-          ]
-        }>
+      <View>
         <IconButton {...iconButtonProps} />
       </View>
       {/* {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
@@ -251,20 +238,17 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         : isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.PRIMARY_ACTION_BRAND_COLOR,
+      iconBackgroundColor: isPanelActive
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : '',
+    },
+    btnTextProps: {
+      text: isMobileView || !$config.ICON_TEXT ? '' : chatLabel,
+      textColor: $config.FONT_COLOR,
     },
   };
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.btnText = isMobileView || !$config.ICON_TEXT ? '' : chatLabel;
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
 
   const renderBadge = (badgeCount: any) => {
     return (
@@ -294,18 +278,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     props.render(onPress, isPanelActive, totalUnreadCount)
   ) : (
     <>
-      <View
-        style={
-          !isMobileView && [
-            {marginLeft: 8},
-            isPanelActive
-              ? {
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                  borderRadius: 8,
-                }
-              : {},
-          ]
-        }>
+      <View>
         <IconButton {...iconButtonProps} />
         {totalUnreadCount !== 0 && renderBadge(totalUnreadCount)}
       </View>
@@ -377,10 +350,14 @@ const Navbar = () => {
           <ParticipantsIconButton />
         </View>
         {$config.CHAT && (
-          <View testID="videocall-chaticon">
-            <ChatIconButton />
-          </View>
+          <>
+            <Spacer size={11} horizontal={true} />
+            <View testID="videocall-chaticon">
+              <ChatIconButton />
+            </View>
+          </>
         )}
+        <Spacer size={11} horizontal={true} />
         <View testID="videocall-settingsicon">
           <SettingsIconButtonWithWrapper />
         </View>

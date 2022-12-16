@@ -38,7 +38,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   };
 
   iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnText = showLabel ? switchCameraButtonText : '';
+  iconButtonProps.btnTextProps = showLabel ? switchCameraButtonText : '';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)

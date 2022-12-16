@@ -21,16 +21,19 @@ import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import {ImageIconProps} from '../atoms/ImageIcon';
 /**
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
   showLabel?: boolean;
-  iconSize?: IconButtonProps['iconProps']['iconSize'];
+  iconProps?: (
+    isAudioEnabled: boolean,
+    isPermissionDenied: boolean,
+  ) => Partial<ImageIconProps>;
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
   disabled?: boolean;
   isOnActionSheet?: boolean;
-  hoverEffect?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -61,46 +64,32 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   let iconProps: IconButtonProps['iconProps'] = {
     name: permissionDenied ? 'no-mic' : isAudioEnabled ? 'mic-on' : 'mic-off',
-  };
-  if (props?.iconSize) {
-    iconProps.iconSize = props.iconSize;
-  }
-  if (!permissionDenied) {
-    iconProps.tintColor = isAudioEnabled
+    base64: permissionDenied ? true : false,
+    iconBackgroundColor: isAudioEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : '',
+    tintColor: isAudioEnabled
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
       ? $config.SEMANTIC_NETRUAL
-      : $config.SEMANTIC_ERROR;
-  } else {
-    iconProps.tintColor = '#8F8F8F';
-  }
+      : $config.SEMANTIC_ERROR,
+    ...(props?.iconProps
+      ? props.iconProps(isAudioEnabled, permissionDenied)
+      : {}),
+  };
 
   let iconButtonProps: IconButtonProps = {
     onPress,
     iconProps,
+    btnTextProps: {
+      text: showLabel ? audioLabel : '',
+      textColor: $config.FONT_COLOR,
+    },
     disabled: permissionDenied || disabled ? true : false,
   };
-  if (permissionDenied) {
-    iconButtonProps.customIconComponent = (
-      <UIKitImageIcon name="noMic" style={{width: 24, height: 24}} />
-    );
-  } else {
-    iconButtonProps.customIconComponent = null;
-  }
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: permissionDenied
-      ? '#8F8F8F'
-      : isAudioEnabled
-      ? $config.PRIMARY_ACTION_BRAND_COLOR
-      : $config.SEMANTIC_ERROR,
-  };
+
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.hoverEffect = props?.hoverEffect;
-  iconButtonProps.btnText = showLabel ? audioLabel : '';
+
   iconButtonProps.toolTipMessage = showLabel
     ? permissionDenied
       ? 'Give Permissions'

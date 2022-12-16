@@ -40,7 +40,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
           ? $config.SEMANTIC_ERROR
           : $config.PRIMARY_ACTION_BRAND_COLOR,
       }}
-      btnText={showLabel ? handStatusText(isHandRasied) : ''}
+      btnTextProps={showLabel ? handStatusText(isHandRasied) : ''}
       style={Styles.localButton as Object}
       styleText={{
         fontFamily: ThemeConfig.FontFamily.sansPro,

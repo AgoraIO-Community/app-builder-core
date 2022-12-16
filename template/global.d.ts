@@ -94,6 +94,8 @@ interface ConfigInterface {
   CARD_LAYER_5_COLOR: string;
   HARD_CODED_BLACK_COLOR: string;
   ICON_TEXT: boolean;
+  AVATAR_COLOR: boolean;
+  ICON_BG_COLOR: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

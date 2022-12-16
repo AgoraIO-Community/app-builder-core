@@ -216,10 +216,9 @@ const Participant = (props: ParticipantInterface) => {
                   borderRadius: 20,
                 }}>
                 <IconButton
-                  hoverEffect={false}
                   iconProps={{
                     name: 'more-menu',
-                    iconSize: 'medium',
+                    iconSize: 20,
                     tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
                   onPress={() => {
@@ -232,9 +231,19 @@ const Participant = (props: ParticipantInterface) => {
                 (isLocal
                   ? !isAudienceUser && (
                       <LocalVideoMute
-                        iconSize="medium"
+                        iconProps={(isVideoEnabled, isPermissionDenied) => {
+                          return {
+                            iconSize: 20,
+                            iconType: 'plain',
+                            iconContainerStyle: {paddingHorizontal: 5},
+                            tintColor: isPermissionDenied
+                              ? ''
+                              : isVideoEnabled
+                              ? $config.PRIMARY_ACTION_BRAND_COLOR
+                              : $config.SEMANTIC_ERROR,
+                          };
+                        }}
                         showLabel={false}
-                        hoverEffect={false}
                       />
                     )
                   : !isAudienceUser && (
@@ -247,9 +256,19 @@ const Participant = (props: ParticipantInterface) => {
               {isLocal
                 ? !isAudienceUser && (
                     <LocalAudioMute
-                      iconSize="medium"
+                      iconProps={(isAudioEnabled, isPermissionDenied) => {
+                        return {
+                          iconSize: 20,
+                          iconType: 'plain',
+                          iconContainerStyle: {paddingHorizontal: 5},
+                          tintColor: isPermissionDenied
+                            ? ''
+                            : isAudioEnabled
+                            ? $config.PRIMARY_ACTION_BRAND_COLOR
+                            : $config.SEMANTIC_ERROR,
+                        };
+                      }}
                       showLabel={false}
-                      hoverEffect={false}
                     />
                   )
                 : !isAudienceUser && (

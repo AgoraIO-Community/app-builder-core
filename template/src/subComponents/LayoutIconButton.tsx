@@ -43,18 +43,13 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         setShowDropdown(true);
       };
     }
-    let iconButtonProps: IconButtonProps = {
+    let iconButtonProps: Partial<IconButtonProps> = {
       onPress: onPress,
+      btnTextProps: {
+        text: $config.ICON_TEXT ? layoutLabel : '',
+        textColor: $config.FONT_COLOR,
+      },
     };
-    iconButtonProps.styleText = {
-      fontFamily: ThemeConfig.FontFamily.sansPro,
-      fontSize: 12,
-      marginTop: 4,
-      fontWeight: '400',
-      color: $config.PRIMARY_ACTION_BRAND_COLOR,
-    };
-
-    iconButtonProps.btnText = $config.ICON_TEXT ? layoutLabel : '';
 
     renderContent.push(
       props?.render ? (

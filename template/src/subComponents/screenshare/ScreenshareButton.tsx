@@ -33,32 +33,22 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
 
   const onPress = () =>
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
+  const screenShareButton = isScreenshareActive
+    ? 'Stop Sharing'
+    : 'Share Screen';
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
       tintColor: isScreenshareActive
         ? $config.SEMANTIC_ERROR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
     },
     onPress,
+    btnTextProps: {
+      text: $config.ICON_TEXT ? screenShareButton : '',
+      textColor: $config.FONT_COLOR,
+    },
   };
-
-  const screenShareButton = isScreenshareActive
-    ? 'Stop Sharing'
-    : 'Share Screen';
-  iconButtonProps.btnText = $config.ICON_TEXT ? screenShareButton : '';
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: isScreenshareActive
-      ? $config.SEMANTIC_ERROR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
-  iconButtonProps.toolTipMessage = !isScreenshareActive
-    ? 'Share Screen'
-    : 'Stop Sharing';
 
   return props?.render ? (
     props.render(onPress, isScreenshareActive)

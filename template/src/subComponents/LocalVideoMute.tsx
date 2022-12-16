@@ -21,16 +21,19 @@ import {useString} from '../utils/useString';
 import {useLocalUserInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import {ImageIconProps} from '../atoms/ImageIcon';
 /**
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
   showLabel?: boolean;
-  iconSize?: IconButtonProps['iconProps']['iconSize'];
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   disabled?: boolean;
   isOnActionSheet?: boolean;
-  hoverEffect?: boolean;
+  iconProps?: (
+    isVideoEnabled: boolean,
+    isPermissionDenied: boolean,
+  ) => Partial<ImageIconProps>;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -52,56 +55,45 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
+
   const videoLabel = permissionDenied
     ? 'Video'
     : isVideoEnabled
     ? 'Video On'
     : 'Video Off';
+
   let iconProps: IconButtonProps['iconProps'] = {
     name: permissionDenied
       ? 'no-cam'
       : isVideoEnabled
       ? 'video-on'
       : 'video-off',
-  };
-  if (props?.iconSize) {
-    iconProps.iconSize = props.iconSize;
-  }
-  if (!permissionDenied) {
-    iconProps.tintColor = isVideoEnabled
+    base64: permissionDenied ? true : false,
+    iconBackgroundColor: isVideoEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : '',
+    tintColor: isVideoEnabled
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
       ? $config.SEMANTIC_NETRUAL
-      : $config.SEMANTIC_ERROR;
-  } else {
-    iconProps.tintColor = '#8F8F8F';
-  }
+      : $config.SEMANTIC_ERROR,
+    ...(props?.iconProps
+      ? props.iconProps(isVideoEnabled, permissionDenied)
+      : {}),
+  };
+
   let iconButtonProps: IconButtonProps = {
     onPress,
     iconProps,
+    btnTextProps: {
+      text: showLabel ? videoLabel : '',
+      textColor: $config.FONT_COLOR,
+    },
     disabled: permissionDenied || disabled ? true : false,
   };
-  if (permissionDenied) {
-    iconButtonProps.customIconComponent = (
-      <UIKitImageIcon name="noCam" style={{width: 24, height: 24}} />
-    );
-  } else {
-    iconButtonProps.customIconComponent = null;
-  }
-  iconButtonProps.hoverEffect = props?.hoverEffect;
+
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: permissionDenied
-      ? '#8F8F8F'
-      : isVideoEnabled
-      ? $config.PRIMARY_ACTION_BRAND_COLOR
-      : $config.SEMANTIC_ERROR,
-  };
-  iconButtonProps.btnText = showLabel ? videoLabel : '';
+
   iconButtonProps.toolTipMessage = showLabel
     ? permissionDenied
       ? 'Give Permissions'

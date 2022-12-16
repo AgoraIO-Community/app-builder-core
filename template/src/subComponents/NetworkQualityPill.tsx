@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, {useContext, useState} from 'react';
 import {
   View,
@@ -79,13 +78,14 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
       <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
         <View>
           <ImageIcon
+            iconType="plain"
             tintColor={
               networkTextVisible
                 ? $config.PRIMARY_ACTION_TEXT_COLOR
                 : networkIconsObject[networkStat].tint
             }
             name={networkIconsObject[networkStat].icon}
-            iconSize="small"
+            iconSize={16}
           />
         </View>
         {networkTextVisible && (

@@ -105,34 +105,34 @@ const Controls = () => {
             )}
             <View
               testID="localAudio-btn"
-              style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
+              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
               <LocalAudioMute />
             </View>
             {!$config.AUDIO_ROOM && (
               <View
                 testID="localVideo-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
                 <LocalVideoMute />
               </View>
             )}
             {!$config.AUDIO_ROOM && isMobileOrTablet() && (
               <View
                 testID="switchCamera-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
                 <LocalSwitchCamera />
               </View>
             )}
             {$config.SCREEN_SHARING && !isMobileOrTablet() && (
               <View
                 testID="screenShare-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
                 <ScreenshareButton />
               </View>
             )}
             {isHost && $config.CLOUD_RECORDING && (
               <View
                 testID="recording-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
+                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
                 <Recording />
               </View>
             )}

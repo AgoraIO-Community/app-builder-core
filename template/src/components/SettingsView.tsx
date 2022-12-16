@@ -23,6 +23,9 @@ import OutlineButton from '../atoms/OutlineButton';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import SidePanelHeader, {
+  SidePanelStyles,
+} from '../subComponents/SidePanelHeader';
 
 const SettingsView = (props) => {
   const {
@@ -52,23 +55,19 @@ const SettingsView = (props) => {
             : style.settingsView
           : style.settingsViewNative
       }>
-      <View style={style.header}>
-        <Text style={style.mainHeading}>{settingsLabel}</Text>
-        <IconButton
-          hoverEffect={false}
-          iconProps={{
-            name: 'close-rounded',
-            tintColor: $config.SECONDARY_ACTION_COLOR,
-          }}
-          onPress={() => {
-            if (!isSmall) {
-              setSidePanel(SidePanelType.None);
-            } else {
-              props.handleClose && props.handleClose();
-            }
-          }}
-        />
-      </View>
+      <SidePanelHeader
+        centerComponent={
+          <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>
+        }
+        trailingIconName="close-rounded"
+        trailingIconOnPress={() => {
+          if (!isSmall) {
+            setSidePanel(SidePanelType.None);
+          } else {
+            props.handleClose && props.handleClose();
+          }
+        }}
+      />
       <ScrollView style={style.contentContainer}>
         <Text style={style.heading}>{selectInputDeviceLabel}</Text>
         <View style={{paddingTop: 20}}>

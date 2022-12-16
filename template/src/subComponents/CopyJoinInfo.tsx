@@ -58,7 +58,6 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
 
   const onPress = () => {
     setModalVisible(true);
-    //copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
   };
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
@@ -66,16 +65,13 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
       name: 'share',
       tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     },
+    btnTextProps: {
+      textColor: $config.FONT_COLOR,
+      text: showLabel ? copyMeetingInviteButton : '',
+    },
   };
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
+
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.btnText = showLabel ? copyMeetingInviteButton : '';
 
   return props?.render ? (
     props.render(onPress)

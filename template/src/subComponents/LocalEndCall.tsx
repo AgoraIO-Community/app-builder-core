@@ -6,7 +6,7 @@ import {useRtc} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
 import {useParams} from '../components/Router';
-import ImageIcon from '../atoms/ImageIcon';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 export interface LocalEndcallProps {
   showLabel?: boolean;
   render?: (onPress: () => void) => JSX.Element;
@@ -40,6 +40,19 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     });
   };
 
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: 'end-call',
+      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      iconBackgroundColor: $config.SEMANTIC_ERROR,
+    },
+    onPress,
+    btnTextProps: {
+      text: showLabel ? endCallLabel : '',
+      textColor: $config.FONT_COLOR,
+    },
+  };
+
   return props?.render ? (
     props.render(onPress)
   ) : (
@@ -49,18 +62,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         setModalVisible={setEndcallVisible}
         modalVisible={endcallVisible}
       />
-      <TouchableOpacity
-        style={showLabel ? (Styles.endCallContainer as object) : {}}
-        {...props}
-        onPress={onPress}>
-        <ImageIcon
-          name={'end-call'}
-          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
-        />
-        {showLabel && (
-          <Text style={Styles.endCallText as object}>{endCallLabel}</Text>
-        )}
-      </TouchableOpacity>
+      <IconButton {...iconButtonProps} />
     </>
   );
 };

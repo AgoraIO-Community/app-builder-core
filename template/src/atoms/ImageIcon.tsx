@@ -10,40 +10,62 @@
 *********************************************
 */
 import React from 'react';
+import {ViewStyle, View, StyleSheet} from 'react-native';
 import CustomIcon, {IconsInterface} from '../atoms/CustomIcon';
-
+import {ImageIcon as UIKitImageIcon} from '../../agora-rn-uikit';
 export interface ImageIconProps {
   tintColor?: string;
-  customSize?: {
-    width: number | string;
-    height: number | string;
-  };
   name: keyof IconsInterface;
-  iconSize?: 'normal' | 'medium' | 'small';
+  iconSize?: number;
+  iconContainerStyle?: ViewStyle;
+  iconBackgroundColor?: string;
+  base64?: boolean;
+  base64TintColor?: string;
+  iconType?: 'round' | 'plain';
 }
 
-const ImageIcon = (props: ImageIconProps) => {
-  const {name, iconSize = 'normal', customSize, tintColor} = props;
-  let iconSizeLocal = {width: 24, height: 24};
-  if (iconSize === 'medium') {
-    iconSizeLocal = {
-      width: 20,
-      height: 20,
-    };
-  } else if (iconSize === 'small') {
-    iconSizeLocal = {
-      width: 16,
-      height: 16,
-    };
-  } else {
-  }
+const ImageIcon2 = (props: ImageIconProps) => {
+  const {
+    name,
+    iconSize = 24,
+    tintColor,
+    base64 = false,
+    base64TintColor = '',
+    iconType = 'round',
+  } = props;
   return (
-    <CustomIcon
-      name={name}
-      color={tintColor}
-      size={customSize?.width ? customSize.width : iconSizeLocal.width}
-    />
+    <View
+      style={[
+        styles.iconContainerStyle,
+        iconType === 'round'
+          ? props?.iconBackgroundColor
+            ? {backgroundColor: props.iconBackgroundColor}
+            : {}
+          : {backgroundColor: 'transparent', borderRadius: 0, padding: 0},
+        props?.iconContainerStyle,
+      ]}>
+      {base64 ? (
+        <UIKitImageIcon
+          tintColor={base64TintColor}
+          name={name}
+          style={{width: iconSize, height: iconSize}}
+        />
+      ) : (
+        <CustomIcon name={name} color={tintColor} size={iconSize} />
+      )}
+    </View>
   );
 };
 
-export default ImageIcon;
+export default ImageIcon2;
+
+const styles = StyleSheet.create({
+  iconContainerStyle: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    padding: 12,
+    borderRadius: 50,
+    backgroundColor: $config.ICON_BG_COLOR,
+  },
+});
