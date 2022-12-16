@@ -29,6 +29,7 @@ import {
   ParticipantsCountView,
   ParticipantsIconButton,
 } from '../../../src/components/Navbar';
+import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, updateActionSheet, isExpanded} = props;
@@ -40,8 +41,9 @@ const ActionSheetContent = (props) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
-  const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
+  const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
+  const {totalUnreadCount} = useChatNotification();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
@@ -84,6 +86,12 @@ const ActionSheetContent = (props) => {
               tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
             />
           </TouchableOpacity>
+          {/* TODO:  show when chat,hand raises*/}
+          {!isExpanded &&
+            (totalUnreadCount !== 0 ||
+              ($config.EVENT_MODE && isPendingRequestToReview)) && (
+              <View style={styles.notification} />
+            )}
         </View>
       </View>
       <View style={styles.row}>
@@ -130,6 +138,9 @@ const ActionSheetContent = (props) => {
           <Text style={styles.iconText}>
             <ParticipantsCountView isMobileView={true} />
           </Text>
+          {$config.EVENT_MODE && isPendingRequestToReview && (
+            <View style={styles.notification} />
+          )}
         </View>
         {/* record */}
         {isHost && $config.CLOUD_RECORDING && (
@@ -149,7 +160,18 @@ const ActionSheetContent = (props) => {
               disabled={isLiveStream && isAudience && !isBroadCasting}
             />
           </View>
-          <Text style={styles.iconText}>Switch {'\n'} Camera</Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color:
+                  isLiveStream && isAudience && !isBroadCasting
+                    ? $config.SEMANTIC_NETRUAL
+                    : $config.PRIMARY_ACTION_BRAND_COLOR,
+              },
+            ]}>
+            Switch {'\n'} Camera
+          </Text>
         </View>
       </View>
       <View style={[styles.row, {paddingVertical: 0}]}>
@@ -232,5 +254,14 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontFamily: 'Source Sans Pro',
     textAlign: 'center',
+  },
+  notification: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    backgroundColor: $config.SEMANTIC_ERROR,
+    borderRadius: 6,
+    top: -1,
+    right: 5,
   },
 });

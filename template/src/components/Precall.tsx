@@ -41,6 +41,7 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const JoinRoomInputView = ({isDesktop}) => {
+  const {rtcProps} = useContext(PropsContext);
   const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
       JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
@@ -82,17 +83,24 @@ const JoinRoomInputView = ({isDesktop}) => {
         labelStyle={$config.EVENT_MODE ? style.labelStyle : {}}
       />
       {$config.EVENT_MODE ? (
-        <Text style={style.subTextStyle}>
-          Enter the name you would like to join the room as
-        </Text>
+        <>
+          <Text style={style.subTextStyle}>
+            Enter the name you would like to join the room as
+          </Text>
+          {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
+        </>
       ) : (
         <></>
       )}
       <View
         style={
-          $config.EVENT_MODE && {justifyContent: 'space-between', flex: 1}
+          $config.EVENT_MODE &&
+          rtcProps.role == ClientRole.Audience && {
+            justifyContent: 'space-between',
+            flex: 1,
+          }
         }>
-        <View style={{height: 20}} />
+        <Spacer size={10} />
         <View
           style={
             $config.EVENT_MODE && isDesktop
@@ -327,43 +335,36 @@ const Precall = (props: any) => {
         testID="precall-screen">
         {/* Precall screen only changes for audience in Live Stream event */}
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+          // Live (Audience) - Desktop
           isDesktop ? (
             <View>
               <Card>
-                <Logo />
-                <View style={style.meetingTitleContainer}>
+                <View>
                   <MeetingName textStyle={style.meetingTitleStyle} />
                 </View>
+                <Spacer size={32} />
                 <JoinRoomInputView isDesktop={isDesktop} />
               </Card>
             </View>
           ) : (
+            //  Live (Audience) - Mobile
             <View style={{flex: 1}}>
-              <View style={{alignSelf: 'center'}}>
-                <Logo />
-              </View>
-              <View style={style.meetingTitleContainer}>
-                <MeetingName textStyle={style.meetingTitleStyle} />
-              </View>
+              <MeetingName textStyle={style.meetingTitleStyle} />
+              <Spacer size={24} />
               <View testID="precall-mobile-join" style={{flex: 1}}>
                 <JoinRoomInputView isDesktop={isDesktop} />
               </View>
             </View>
           )
         ) : (
-          /* Meeting Precall*/
+          // Conferncing / Live (Host)
           <>
-            <View style={!isDesktop && {alignSelf: 'center'}}>
-              <MeetingName
-                textStyle={
-                  [
-                    style.meetingTitleStyle2,
-                    {padding: isDesktop ? 32 : 25},
-                  ] as object
-                }
-              />
-            </View>
+            <MeetingName
+              textStyle={{textAlign: isDesktop ? 'left' : 'center'}}
+            />
+            <Spacer size={isDesktop ? 32 : 24} />
             {isDesktop ? (
+              // Conferncing / Live(Host) - Desktop
               <>
                 <View style={[style.container]}>
                   <View
@@ -384,17 +385,27 @@ const Precall = (props: any) => {
                     </View>
                   </Card>
                 </View>
-                <Spacer size={90} />
+                {/* <Spacer size={90} /> */}
               </>
             ) : (
+              // Conferncing / Live(Host) - Mobile
               <View style={{flex: 1}}>
-                <View style={{flex: 3}} testID="precall-mobile-preview">
+                <View
+                  style={{
+                    flex: 1,
+                  }}
+                  testID="precall-mobile-preview">
                   <VideoPreview />
                 </View>
+                <Spacer size={40} />
                 <View
                   testID="precall-mobile-join"
                   style={{
-                    flex: $config.EVENT_MODE ? 2 : 1,
+                    // flex: $config.EVENT_MODE ? 2 : 1,
+                    //width: '100%',
+                    flexDirection: 'row',
+                    //alignItems: 'center',
+                    //justifyContent: 'center',
                   }}>
                   <JoinRoomInputView isDesktop={isDesktop} />
                 </View>
@@ -420,7 +431,7 @@ const style = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 18,
-    color: $config.FONT_COLOR,
+    color: $config.SEMANTIC_NETRUAL,
     textAlign: 'left',
   },
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
@@ -432,6 +443,8 @@ const style = StyleSheet.create({
   mainMobile: {
     flex: 2,
     paddingHorizontal: 16,
+    paddingTop: 25,
+    paddingBottom: 32,
   },
   nav: {
     flex: 1,
@@ -480,12 +493,12 @@ const style = StyleSheet.create({
     flex: 1,
     width: '100%',
     justifyContent: 'center',
-    // alignItems: 'center',
+    //alignItems: 'center',
   },
   lsBtnContainer: {
     flex: 1,
     width: '100%',
-    // justifyContent: 'center',
+    justifyContent: 'center',
   },
   meetingTitleContainer: {
     marginVertical: 10,
@@ -494,13 +507,6 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     fontSize: ThemeConfig.FontSize.extraLarge,
-    color: $config.FONT_COLOR,
-    paddingLeft: 0,
-  },
-  meetingTitleStyle2: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     paddingLeft: 0,
   },

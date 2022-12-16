@@ -68,18 +68,8 @@ const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
     <View
       style={[style.precallControls, isMobileView && {paddingVertical: 20}]}
       testID="precall-controls">
-      {!$config.AUDIO_ROOM && (
-        <View
-          style={{
-            alignSelf: 'center',
-            marginRight: isMobileView ? 60 : 0,
-          }}>
-          <VideoMute showLabel={!isMobileView} />
-        </View>
-      )}
-      <View style={{alignSelf: 'center'}}>
-        <AudioMute showLabel={!isMobileView} />
-      </View>
+      {!$config.AUDIO_ROOM && <VideoMute showLabel={!isMobileView} />}
+      <AudioMute showLabel={!isMobileView} />
       {/* Settings View in Mobile */}
       {isMobileView ? <PreCallSettings /> : <></>}
     </View>
@@ -99,5 +89,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
 });

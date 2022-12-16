@@ -123,7 +123,8 @@ const VideoPreview: React.FC = () => {
           containerStyle={{
             width: '100%',
             height: '100%',
-            borderRadius: 8,
+            borderTopLeftRadius: 8,
+            borderTopRightRadius: 8,
           }}
         />
       </View>

@@ -21,10 +21,11 @@ export default MeetingTitle;
 
 const style = StyleSheet.create({
   titleHeading: {
-    padding: 32,
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: ThemeConfig.FontSize.normal,
+    lineHeight: ThemeConfig.FontSize.normal,
+    fontWeight: '600',
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    textTransform: 'capitalize',
   },
 });
