@@ -48,6 +48,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
       {iconName && (
         <View>
           <ImageIcon
+            iconType="plain"
             name={iconName}
             tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
           />

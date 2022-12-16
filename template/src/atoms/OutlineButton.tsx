@@ -27,7 +27,7 @@ const OutlineButton = (props: OutlineButtonProps) => {
       style={[styles.containerStyle, props?.containerStyle]}>
       {props?.iconName ? (
         <View style={styles.iconStyleView}>
-          <ImageIcon iconSize="medium" name={props.iconName} />
+          <ImageIcon iconSize={20} iconType="plain" name={props.iconName} />
         </View>
       ) : (
         <></>

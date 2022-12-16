@@ -43,7 +43,8 @@ function ScreenShareNotice({uid}: {uid: UidType}) {
         onPress={() => stopUserScreenShare()}>
         <View style={styles.iconContainer}>
           <ImageIcon
-            customSize={{width: 20, height: 16}}
+            iconType="plain"
+            iconSize={20}
             name={'close-rounded'}
             tintColor={$config.SEMANTIC_ERROR}
           />

@@ -81,6 +81,7 @@ const ChatParticipants = (props: any) => {
                 ) : (
                   <View style={{alignSelf: 'center', marginRight: 20}}>
                     <ImageIcon
+                      iconType="plain"
                       name="chat"
                       tintColor={$config.SECONDARY_ACTION_COLOR}
                     />
@@ -137,7 +138,7 @@ const style = StyleSheet.create({
     borderRadius: 18,
     marginRight: 8,
     marginLeft: 20,
-    marginVertical: 16,
+    marginVertical: 8,
   },
   userAvatarContainer: {
     backgroundColor:
@@ -160,7 +161,7 @@ const style = StyleSheet.create({
   },
   participantTextContainer: {
     flex: 1,
-    marginVertical: 28,
+    alignSelf: 'center',
   },
   participantText: {
     flex: 1,
@@ -176,10 +177,9 @@ const style = StyleSheet.create({
     backgroundColor: $config.SEMANTIC_NETRUAL,
     borderRadius: 8,
     marginRight: 22,
-    marginTop: 24,
-    marginBottom: 28,
     width: 24,
     height: 16,
+    alignSelf: 'center',
   },
   chatNotificationCountText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

@@ -80,6 +80,7 @@ const Fallback = () => {
             <Spacer horizontal={true} size={4} />
             <View style={{alignSelf: 'center'}}>
               <ImageIcon
+                iconType="plain"
                 name={'link-share'}
                 tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
               />

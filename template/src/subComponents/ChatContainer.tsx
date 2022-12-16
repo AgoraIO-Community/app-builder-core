@@ -31,6 +31,9 @@ import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useRender} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import ThemeConfig from '../theme';
+import UserAvatar from '../atoms/UserAvatar';
+import Spacer from '../atoms/Spacer';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -90,6 +93,27 @@ const ChatContainer = (props?: {
   const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
+      {privateActive && selectedUserID ? (
+        <>
+          <View style={style.participantContainer}>
+            <View style={style.bgContainerStyle}>
+              <UserAvatar
+                name={renderList[selectedUserID].name}
+                containerStyle={style.userAvatarContainer}
+                textStyle={style.userAvatarText}
+              />
+            </View>
+            <View style={style.participantTextContainer}>
+              <Text style={[style.participantText]}>
+                {renderList[selectedUserID].name}
+              </Text>
+            </View>
+          </View>
+          <Spacer size={10} />
+        </>
+      ) : (
+        <></>
+      )}
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={() => {
@@ -116,25 +140,27 @@ const ChatContainer = (props?: {
             </>
           ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any, index) => (
-            <ChatBubbleComponent
-              isLocal={localUid === message.uid}
-              isSameUser={
-                index !== 0 &&
-                privateMessageStore[selectedUserID][index - 1].uid ===
-                  message.uid
-                  ? true
-                  : false
-              }
-              message={message.msg}
-              createdTimestamp={message.createdTimestamp}
-              updatedTimestamp={message.updatedTimestamp}
-              uid={message.uid}
-              key={message.ts}
-              msgId={message.msgId}
-              isDeleted={message.isDeleted}
-            />
-          ))
+          <>
+            {privateMessageStore[selectedUserID].map((message: any, index) => (
+              <ChatBubbleComponent
+                isLocal={localUid === message.uid}
+                isSameUser={
+                  index !== 0 &&
+                  privateMessageStore[selectedUserID][index - 1].uid ===
+                    message.uid
+                    ? true
+                    : false
+                }
+                message={message.msg}
+                createdTimestamp={message.createdTimestamp}
+                updatedTimestamp={message.updatedTimestamp}
+                uid={message.uid}
+                key={message.ts}
+                msgId={message.msgId}
+                isDeleted={message.isDeleted}
+              />
+            ))}
+          </>
         ) : (
           <></>
         )}
@@ -149,13 +175,51 @@ const ChatContainer = (props?: {
 };
 
 const style = StyleSheet.create({
-  containerView: {flex: 8},
-  name: {
-    fontWeight: isWebInternal() ? '500' : '700',
+  bgContainerStyle: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 8,
+    marginLeft: 20,
+    marginVertical: 8,
+  },
+  userAvatarContainer: {
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  userAvatarText: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 12,
+    fontWeight: '400',
+    color: $config.FONT_COLOR,
+  },
+  participantContainer: {
+    flexDirection: 'row',
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+  },
+  participantTextContainer: {
+    flex: 1,
+    alignSelf: 'center',
+  },
+  participantText: {
+    flex: 1,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 14,
     color: $config.FONT_COLOR,
     textAlign: 'left',
-    marginRight: 10,
+    flexShrink: 1,
   },
+  containerView: {flex: 8},
   infoTextView: {
     marginVertical: 2,
     flexDirection: 'row',

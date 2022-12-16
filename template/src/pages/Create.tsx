@@ -171,8 +171,9 @@ const Create = () => {
     return (
       <Pressable onPress={() => setToolTipVisible(true)}>
         <ImageIcon
+          iconType="plain"
           name="info"
-          iconSize="medium"
+          iconSize={20}
           tintColor={
             isToolTipVisible
               ? $config.SECONDARY_ACTION_COLOR

@@ -23,6 +23,7 @@ const trailingIcon = (
     onPress={() => Toast.hide()}
     style={{alignSelf: 'flex-end'}}>
     <ImageIcon
+      iconType="plain"
       tintColor={$config.SECONDARY_ACTION_COLOR}
       name="close-rounded"
     />
@@ -32,7 +33,7 @@ const trailingIcon = (
 const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
   return (
     <View style={{paddingRight: 4, alignSelf: 'center'}}>
-      <ImageIcon tintColor={color} name={iconName} />
+      <ImageIcon iconType="plain" tintColor={color} name={iconName} />
     </View>
   );
 };

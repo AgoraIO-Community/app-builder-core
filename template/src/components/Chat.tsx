@@ -179,25 +179,29 @@ const Chat = (props?: ChatProps) => {
             <View style={style.buttonHolder}>
               <TouchableOpacity
                 onPress={selectGroup}
-                style={groupActive ? [style.groupActive] : [style.group]}>
+                style={
+                  groupActive ? style.activeContainer : style.nonActiveContainer
+                }>
                 {unreadGroupMessageCount !== 0 ? (
                   <View style={style.chatNotification} />
                 ) : null}
                 <Text
-                  style={groupActive ? style.groupTextActive : style.groupText}>
+                  style={groupActive ? style.activeText : style.nonActiveText}>
                   {groupChatLabel}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={selectPrivate}
-                style={!groupActive ? [style.privateActive] : [style.private]}>
+                style={
+                  !groupActive
+                    ? [style.activeContainer]
+                    : [style.nonActiveContainer]
+                }>
                 {unreadPrivateMessageCount !== 0 ? (
                   <View style={style.chatNotification} />
                 ) : null}
                 <Text
-                  style={
-                    !groupActive ? style.groupTextActive : style.groupText
-                  }>
+                  style={!groupActive ? style.activeText : style.nonActiveText}>
                   {privateChatLabel}
                 </Text>
               </TouchableOpacity>
@@ -244,7 +248,7 @@ const Chat = (props?: ChatProps) => {
 const style = StyleSheet.create({
   buttonHolder: {
     backgroundColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['20%'],
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['30%'],
     borderRadius: 12,
     flexDirection: 'row',
   },
@@ -261,32 +265,25 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  groupActive: {
+  activeContainer: {
     margin: 2,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
+    alignSelf: 'center',
   },
-  group: {
-    padding: 2,
+  nonActiveContainer: {
+    alignSelf: 'center',
   },
-  privateActive: {
-    margin: 2,
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    borderRadius: 11,
-  },
-  private: {
-    padding: 2,
-  },
-  groupTextActive: {
-    paddingHorizontal: 23,
+  activeText: {
+    paddingHorizontal: 24,
     paddingVertical: 10,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
     color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
-  groupText: {
-    paddingHorizontal: 23,
+  nonActiveText: {
+    paddingHorizontal: 24,
     paddingVertical: 10,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
@@ -299,7 +296,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.SEMANTIC_ERROR,
     borderRadius: 30,
     position: 'absolute',
-    right: 5,
+    right: 8,
     top: 4,
   },
 });
