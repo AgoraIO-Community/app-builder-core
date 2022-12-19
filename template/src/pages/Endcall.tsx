@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, View, Text, Dimensions} from 'react-native';
+import {StyleSheet, View, Text, Dimensions, Platform} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
@@ -7,6 +7,7 @@ import {Logo} from '../components/common';
 import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 
 const Timer = () => {
   const [seconds, setSeconds] = useState(60);
@@ -24,6 +25,7 @@ const Timer = () => {
   useEffect(() => {
     if (seconds <= 0) {
       history.push('/');
+      StopForegroundService();
     }
   }, [seconds]);
 
@@ -56,6 +58,14 @@ const Timer = () => {
   );
 };
 
+/* For android only, bg audio */
+const StopForegroundService = () => {
+  if (Platform.OS === 'android') {
+    ReactNativeForegroundService.stop();
+    console.log('stopping foreground service');
+  }
+};
+
 const Endcall = () => {
   const leftMeetingLabel = 'You have left the meeting.';
   const rejoinBtnLabel = 'REJOIN';
@@ -75,9 +85,11 @@ const Endcall = () => {
 
   const reJoin = () => {
     history.push(store.lastMeetingPhrase);
+    StopForegroundService();
   };
   const goToCreate = () => {
     history.push('/');
+    StopForegroundService();
   };
   return (
     <View style={styles.main} onLayout={onLayout}>
