@@ -62,6 +62,7 @@ const Timer = () => {
 const StopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
+    console.log('stopping foreground service');
   }
 };
 

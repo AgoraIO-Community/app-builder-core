@@ -33,26 +33,6 @@ import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInf
 import {ShareLinkProvider} from './components/useShareLink';
 import Endcall from './pages/Endcall';
 
-import ReactNativeForegroundService from '@supersami/rn-foreground-service';
-import {AppRegistry} from 'react-native';
-
-// Register the foreground service
-if (Platform.OS === 'android') {
-  ReactNativeForegroundService.register();
-  AppRegistry.registerComponent($config.APP_NAME, () => App);
-  ReactNativeForegroundService.add_task(() => console.log('App is active !'), {
-    delay: 1000,
-    onLoop: true,
-    taskId: 'taskid',
-    onError: (e) => console.log(`Error logging:`, e),
-  });
-  ReactNativeForegroundService.start({
-    id: 145,
-    title: $config.APP_NAME,
-    message: 'Active Call',
-  });
-}
-
 //hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
   KeyboardManager.setEnable(true);
