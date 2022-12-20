@@ -8,55 +8,7 @@ import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
-
-const Timer = () => {
-  const [seconds, setSeconds] = useState(60);
-  const history = useHistory();
-
-  useEffect(() => {
-    const timerInterval = setInterval(() => {
-      setSeconds((seconds) => seconds - 1);
-    }, 1000);
-    return () => {
-      clearInterval(timerInterval); //when user exits, clear this interval.
-    };
-  }, []);
-
-  useEffect(() => {
-    if (seconds <= 0) {
-      history.push('/');
-      StopForegroundService();
-    }
-  }, [seconds]);
-
-  return (
-    <View
-      style={{
-        justifyContent: 'center',
-        alignSelf: 'center',
-        borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        borderWidth: 3,
-        borderRadius: 30,
-        minHeight: 40,
-        minWidth: 40,
-      }}>
-      <Text
-        style={{
-          padding: 12,
-          minHeight: 40,
-          minWidth: 40,
-          fontFamily: ThemeConfig.FontFamily.sansPro,
-          fontWeight: '700',
-          fontSize: 14,
-          lineHeight: 18,
-          textAlign: 'center',
-          color: $config.FONT_COLOR,
-        }}>
-        {seconds}
-      </Text>
-    </View>
-  );
-};
+import CircularProgress from '../atoms/CircularProgress';
 
 /* For android only, bg audio */
 const StopForegroundService = () => {
@@ -73,6 +25,11 @@ const Endcall = () => {
   const returnToHomeLabel = 'Returning to the home screen';
   const {store} = useContext(StorageContext);
   const history = useHistory();
+
+  const onComplete = React.useCallback(() => {
+    history.push('/');
+    StopForegroundService();
+  }, []);
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -137,7 +94,7 @@ const Endcall = () => {
         </View>
       </View>
       <View style={styles.bottomContainer}>
-        <Timer />
+        <CircularProgress onComplete={onComplete} timer={60} />
         <Spacer size={10} />
         <Text style={styles.returnHomeText}>{returnToHomeLabel}</Text>
       </View>
