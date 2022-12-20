@@ -1,5 +1,5 @@
-import React, {useContext} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import {RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -17,14 +17,24 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
   const isActiveSpeaker = useIsActiveSpeaker();
   const {currentLayout} = useLayout();
   const {activeUids} = useRender();
+  const [dim, setDim] = useState<[number, number]>([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+  ]);
+  const isMobileView = dim[0] < dim[1] + 150;
   // const showShareNotice =
   //   currentLayout === getPinnedLayoutName() &&
   //   activeUids &&
   //   activeUids?.length &&
   //   activeUids[0] === user.uid;
   const activeSpeaker = isActiveSpeaker(user.uid);
+  const onLayout = (e: any) => {
+    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  };
+
   return (
     <View
+      onLayout={onLayout}
       style={[
         maxStyle.container,
         activeSpeaker
@@ -37,7 +47,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
       <NetworkQualityPill user={user} />
       <MaxVideoView
         fallback={() => {
-          return FallbackLogo(user?.name, activeSpeaker);
+          return FallbackLogo(user?.name, activeSpeaker, isMobileView);
         }}
         user={user}
         containerStyle={{
