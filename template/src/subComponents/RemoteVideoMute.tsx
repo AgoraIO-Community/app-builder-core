@@ -36,11 +36,14 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
       onPress={() => {
         muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
       }}
-      hoverEffect={false}
       iconProps={{
-        name: 'video-on',
-        iconSize: 'medium',
-        tintColor: props.video ? $config.PRIMARY_ACTION_BRAND_COLOR : '#999999',
+        iconContainerStyle: {padding: 8},
+        name: props?.video ? 'video-on' : 'video-off',
+        iconSize: 20,
+        iconType: 'plain',
+        tintColor: props.video
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : $config.SEMANTIC_NETRUAL,
       }}
     />
   ) : (

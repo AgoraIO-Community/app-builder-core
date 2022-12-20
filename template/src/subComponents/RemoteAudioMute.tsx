@@ -37,7 +37,6 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   return (
     <IconButton
       disabled={!isHost || !props.audio}
-      hoverEffect={false}
       onPress={() => {
         if (isPSTN(props.uid)) {
           try {
@@ -50,9 +49,13 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
         }
       }}
       iconProps={{
-        iconSize: 'medium',
+        iconContainerStyle: {padding: 8},
+        iconSize: 20,
+        iconType: 'plain',
         name: props.audio ? 'mic-on' : 'mic-off',
-        tintColor: props.audio ? $config.PRIMARY_ACTION_BRAND_COLOR : '#999999',
+        tintColor: props.audio
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : $config.SEMANTIC_NETRUAL,
       }}
     />
   );

@@ -216,7 +216,16 @@ const Participant = (props: ParticipantInterface) => {
                   borderRadius: 20,
                 }}>
                 <IconButton
+                  hoverEffect={true}
+                  hoverEffectStyle={{
+                    backgroundColor:
+                      $config.CARD_LAYER_5_COLOR +
+                      hexadecimalTransparency['20%'],
+                    borderRadius: 20,
+                    padding: 5,
+                  }}
                   iconProps={{
+                    iconType: 'plain',
                     name: 'more-menu',
                     iconSize: 20,
                     tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -226,7 +235,7 @@ const Participant = (props: ParticipantInterface) => {
                   }}
                 />
               </View>
-              <Spacer horizontal={true} size={16} />
+              <Spacer horizontal={true} size={8} />
               {!$config.AUDIO_ROOM &&
                 (isLocal
                   ? !isAudienceUser && (

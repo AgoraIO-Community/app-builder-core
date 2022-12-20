@@ -137,28 +137,40 @@ const ChatContainer = (props?: {
                 msgId={message.msgId}
                 isDeleted={message.isDeleted}
               />
+              {messageStore?.length - 1 === index ? (
+                <Spacer size={10} />
+              ) : (
+                <></>
+              )}
             </>
           ))
         ) : privateMessageStore[selectedUserID] ? (
           <>
             {privateMessageStore[selectedUserID].map((message: any, index) => (
-              <ChatBubbleComponent
-                isLocal={localUid === message.uid}
-                isSameUser={
-                  index !== 0 &&
-                  privateMessageStore[selectedUserID][index - 1].uid ===
-                    message.uid
-                    ? true
-                    : false
-                }
-                message={message.msg}
-                createdTimestamp={message.createdTimestamp}
-                updatedTimestamp={message.updatedTimestamp}
-                uid={message.uid}
-                key={message.ts}
-                msgId={message.msgId}
-                isDeleted={message.isDeleted}
-              />
+              <>
+                <ChatBubbleComponent
+                  isLocal={localUid === message.uid}
+                  isSameUser={
+                    index !== 0 &&
+                    privateMessageStore[selectedUserID][index - 1].uid ===
+                      message.uid
+                      ? true
+                      : false
+                  }
+                  message={message.msg}
+                  createdTimestamp={message.createdTimestamp}
+                  updatedTimestamp={message.updatedTimestamp}
+                  uid={message.uid}
+                  key={message.ts}
+                  msgId={message.msgId}
+                  isDeleted={message.isDeleted}
+                />
+                {privateMessageStore[selectedUserID]?.length - 1 === index ? (
+                  <Spacer size={10} />
+                ) : (
+                  <></>
+                )}
+              </>
             ))}
           </>
         ) : (
@@ -212,9 +224,8 @@ const style = StyleSheet.create({
   participantText: {
     flex: 1,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
+    fontWeight: '600',
     fontSize: 14,
-    lineHeight: 14,
     color: $config.FONT_COLOR,
     textAlign: 'left',
     flexShrink: 1,

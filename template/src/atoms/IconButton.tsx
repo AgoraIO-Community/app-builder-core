@@ -29,13 +29,21 @@ export interface IconButtonProps {
   isToolTipVisible?: boolean;
   setToolTipVisible?: React.Dispatch<React.SetStateAction<boolean>>;
   isOnActionSheet?: boolean;
+  hoverEffect?: boolean;
+  hoverEffectStyle?: ViewStyle;
 }
 
 const IconButton = (props: IconButtonProps) => {
   return (
     <TouchableOpacity
       style={
-        !props.isOnActionSheet && [styles.containerStyle, props?.containerStyle]
+        !props.isOnActionSheet && [
+          styles.containerStyle,
+          props?.containerStyle,
+          props?.hoverEffect && props?.isToolTipVisible
+            ? props?.hoverEffectStyle
+            : {},
+        ]
       }
       onPress={props.onPress}
       disabled={props.disabled}>

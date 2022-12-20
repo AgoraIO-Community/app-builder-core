@@ -19,6 +19,8 @@ import {isWebInternal} from '../utils/common';
 import {useChatUIControl, useRender} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Spacer from '../atoms/Spacer';
+import {formatAMPM} from '../utils';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {renderList} = useRender();
@@ -34,10 +36,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
     msgId,
     updatedTimestamp,
   } = props;
-  let time =
-    new Date(parseInt(createdTimestamp)).getHours() +
-    ':' +
-    new Date(parseInt(createdTimestamp)).getMinutes();
+  let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+
   const handleUrl = (url: string) => {
     if (isWebInternal()) {
       window.open(url, '_blank');
@@ -95,7 +95,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
               {message}
             </Text>
           </Hyperlink>
-          <Text style={style.timestampStyle}>{time + ' '}</Text>
+          {/* <Spacer size={5} /> */}
+          <Text style={style.timestampStyle}>{time}</Text>
         </View>
       </View>
     </>
@@ -126,20 +127,22 @@ const style = StyleSheet.create({
     marginHorizontal: 20,
   },
   timestampStyle: {
+    // position: 'absolute',
+    // bottom: 0,
+    // right: 12,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.tiny,
     textAlign: 'right',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
     marginTop: 4,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   chatBubbleRemoteView: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-start',
-    flex: 1,
     marginVertical: 2,
     marginHorizontal: 20,
     borderBottomLeftRadius: 12,
@@ -176,7 +179,6 @@ const style = StyleSheet.create({
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-end',
-    flex: 1,
     marginVertical: 2,
     marginHorizontal: 20,
     borderBottomLeftRadius: 12,

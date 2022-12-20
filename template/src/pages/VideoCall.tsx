@@ -99,9 +99,7 @@ const VideoCall: React.FC = () => {
 
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
-  const [sidePanel, setSidePanel] = useState<SidePanelType>(
-    SidePanelType.Settings,
-  );
+  const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
   const {phrase} = useParams<{phrase: string}>();
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
