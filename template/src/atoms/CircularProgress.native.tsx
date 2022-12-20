@@ -79,7 +79,6 @@ export default function CircularProgress(props: CircleProgressProps) {
         viewBox={`0 0 ${halfCircle * 2} ${halfCircle * 2}`}>
         <G rotation="-90" origin={`${halfCircle}, ${halfCircle} `}>
           <AnimatedCircle
-            ref={circleRef}
             cx="50%"
             cy="50%"
             r={radius}
