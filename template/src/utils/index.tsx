@@ -59,7 +59,7 @@ export function isEmptyObject(obj: object) {
 export const randomNameGenerator = (num: number) => {
   let res = '';
   for (let i = 0; i < num; i++) {
-    const random = Math.floor(Math.random() * 27);
+    const random = Math.floor(Math.random() * 10);
     res += String.fromCharCode(97 + random);
   }
   return res;
