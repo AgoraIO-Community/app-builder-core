@@ -19,9 +19,9 @@ const Ring = ({isMobileView}) => {
 }
 
 @-webkit-keyframes ani {
-    0% {-webkit-transform: scale(0.01); opacity: 0} 
-    1% {-webkit-transform: scale(0.01); opacity: 1} 
-    95% {-webkit-transform: scale(1.5); opacity: 1;}
+    0% {-webkit-transform: scale(0.5); opacity: 0} 
+    1% {-webkit-transform: scale(0.5); opacity: 1} 
+    95% {-webkit-transform: scale(1.5); opacity: .5;}
     100% {-webkit-transform: scale(1.5); opacity: 0;}
 }
 #r2 { -webkit-animation-delay: -1s;}
