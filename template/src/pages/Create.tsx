@@ -47,8 +47,11 @@ import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {randomNameGenerator} from '../utils';
+
 const mobileOrTablet = isMobileOrTablet();
 const isLiveStream = $config.EVENT_MODE;
+
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
     let components: {
@@ -286,11 +289,14 @@ const Create = () => {
               <View style={[style.btnContainer]}>
                 <PrimaryButton
                   iconName={'video-plus'}
-                  disabled={roomTitle === '' || loading}
+                  disabled={loading}
                   containerStyle={!isDesktop && {width: '100%'}}
                   onPress={() =>
                     createRoomAndNavigateToShare(
-                      roomTitle,
+                      roomTitle ||
+                        `${randomNameGenerator(3)}-${randomNameGenerator(
+                          3,
+                        )}-${randomNameGenerator(3)}`,
                       pstnToggle,
                       !coHostToggle,
                     )
