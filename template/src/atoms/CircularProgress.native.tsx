@@ -16,7 +16,7 @@ export default function CircularProgress(props: CircleProgressProps) {
   const percentage = 100, // progress completion percentage
     radius = 30,
     strokeWidth = 5,
-    color = $config.PRIMARY_ACTION_BRAND_COLOR,
+    color = $config.FONT_COLOR,
     delay = 0,
     max = 100;
   const duration = timer * 1000;

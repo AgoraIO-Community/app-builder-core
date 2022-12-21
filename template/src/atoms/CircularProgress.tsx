@@ -38,7 +38,7 @@ const CircularProgress = (props: CircleProgressProps) => {
   //configs
   const radius = 30,
     strokeWidth = 5,
-    color = $config.PRIMARY_ACTION_BRAND_COLOR;
+    color = $config.FONT_COLOR;
   const halfCircle = radius + strokeWidth;
   const circleCircumference = 2 * Math.PI * radius;
 
@@ -91,33 +91,6 @@ const CircularProgress = (props: CircleProgressProps) => {
             position: 'absolute',
           },
         ]}>
-        {seconds}
-      </Text>
-    </View>
-  );
-  return (
-    <View
-      style={{
-        justifyContent: 'center',
-        alignSelf: 'center',
-        borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        borderWidth: 3,
-        borderRadius: 30,
-        minHeight: 40,
-        minWidth: 40,
-      }}>
-      <Text
-        style={{
-          padding: 12,
-          minHeight: 40,
-          minWidth: 40,
-          fontFamily: ThemeConfig.FontFamily.sansPro,
-          fontWeight: '700',
-          fontSize: 14,
-          lineHeight: 18,
-          textAlign: 'center',
-          color: $config.FONT_COLOR,
-        }}>
         {seconds}
       </Text>
     </View>

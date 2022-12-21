@@ -22,9 +22,16 @@ export default function FallbackLogo(
 ) {
   return (
     <View style={[styles.container]}>
-      <AnimatedRings
-        isActiveSpeaker={isActiveSpeaker}
-        isMobileView={isMobileView}>
+      <View
+        style={[
+          styles.activeSpeakerBg,
+          {
+            backgroundColor: isActiveSpeaker
+              ? $config.PRIMARY_ACTION_BRAND_COLOR +
+                hexadecimalTransparency['15%']
+              : 'transparent',
+          },
+        ]}>
         <UserAvatar
           name={name}
           containerStyle={[
@@ -34,16 +41,10 @@ export default function FallbackLogo(
                 ? $config.PRIMARY_ACTION_BRAND_COLOR
                 : $config.SEMANTIC_NETRUAL,
             },
-
-            {
-              width: isMobileView ? 60 : 100,
-              height: isMobileView ? 60 : 100,
-              borderRadius: isMobileView ? 30 : 50,
-            },
           ]}
           textStyle={styles.textStyle}
         />
-      </AnimatedRings>
+      </View>
     </View>
   );
 }
@@ -54,6 +55,13 @@ const styles = StyleSheet.create({
     //backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
     borderRadius: 8,
+  },
+  activeSpeakerBg: {
+    width: 140,
+    height: 140,
+    borderRadius: 80,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   avatarBg: {
     width: 100,
