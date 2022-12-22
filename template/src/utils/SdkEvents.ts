@@ -19,6 +19,7 @@ import {createNanoEvents} from 'nanoevents';
 interface eventsMapInterface extends userEventsMapInterface {
   addFpe?: callBackType;
   addFpeInit?: () => void;
+  joinInit?: () => void;
   joinMeetingWithPhrase?: (
     phrase: string,
     resolve: () => void,
