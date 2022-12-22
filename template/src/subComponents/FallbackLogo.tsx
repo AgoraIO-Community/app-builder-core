@@ -23,15 +23,16 @@ export default function FallbackLogo(
   return (
     <View style={[styles.container]}>
       <View
-        style={[
-          styles.activeSpeakerBg,
-          {
-            backgroundColor: isActiveSpeaker
-              ? $config.PRIMARY_ACTION_BRAND_COLOR +
-                hexadecimalTransparency['15%']
-              : 'transparent',
-          },
-        ]}>
+      // style={[
+      //   styles.activeSpeakerBg,
+      //   {
+      //     backgroundColor: isActiveSpeaker
+      //       ? $config.PRIMARY_ACTION_BRAND_COLOR +
+      //         hexadecimalTransparency['15%']
+      //       : 'transparent',
+      //   },
+      // ]}
+      >
         <UserAvatar
           name={name}
           containerStyle={[

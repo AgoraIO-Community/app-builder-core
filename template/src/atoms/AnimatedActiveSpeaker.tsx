@@ -17,38 +17,41 @@ const AnimatedActiveSpeaker = ({isSpeaking}: AnimatedActiveSpeakerProps) => {
         background-color: ${$config.PRIMARY_ACTION_BRAND_COLOR};
         border-radius: 25px;
         height:6px;
-        animation: wave 1.5s ease-in-out  infinite;
+        animation: wave 1s ease-in-out  infinite normal;
         animation-play-state: ${isSpeaking ? 'running' : 'paused'}
 
     }
     @keyframes wave{
 
         0%{
-            -webkit-transform: scale(0.75)
+         
+            height:6px
         }
       
         50%{
-            -webkit-transform: scale(1.2)
+         
+            height:12px
         }
       
         100%{
-            -webkit-transform: scale(.75)
+    
+            height:6px
         }
       
       }
       .line:nth-child(2){
-        animation-delay: .3s;
+        animation-delay: .2s;
       }
       
       .line:nth-child(3){
-        animation-delay: .6s;
+        animation-delay: .5s;
       }
     #line1 {
         margin-right:2.5px
     }
     #line2 {
-        height:12px;
-        margin-right:2.5px
+        margin-right:2.5px;
+        height:12px
     }
 
     `;

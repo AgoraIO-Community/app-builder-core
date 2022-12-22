@@ -14,20 +14,22 @@ interface AnimatedActiveSpeakerProps {
 }
 
 const Line = ({delay, styleProp, isSpeaking}) => {
-  const ring = useSharedValue(0);
+  const bar = useSharedValue(0);
   const style = useAnimatedStyle(() => {
     return {
-      transform: [
-        {
-          scale: interpolate(ring.value, [0, 1], [0.7, 1.2]),
-        },
-      ],
+      height: interpolate(bar.value, [0, 1], [6, 12]),
+      //   transform: [
+      //     {
+      //       scale: interpolate(bar.value, [0, 1], [0.7, 1.2]),
+
+      //     },
+      //   ],
     };
   });
   React.useEffect(() => {
-    ring.value = withDelay(
+    bar.value = withDelay(
       delay,
-      withRepeat(withTiming(1, {duration: 1500}), -1),
+      withRepeat(withTiming(1, {duration: 1200}), -1),
     );
   }, []);
   return (
