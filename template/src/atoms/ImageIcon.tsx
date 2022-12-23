@@ -48,7 +48,6 @@ const ImageIcon = (props: ImageIconProps) => {
             ? {backgroundColor: props.iconBackgroundColor}
             : {}
           : {backgroundColor: 'transparent', borderRadius: 0},
-        props?.iconContainerStyle,
       ]}>
       <View
         style={[
@@ -62,6 +61,7 @@ const ImageIcon = (props: ImageIconProps) => {
                   $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
               }
             : {},
+          props?.iconContainerStyle,
         ]}>
         {props?.showWarningIcon ? (
           <View style={{position: 'absolute', top: -8, right: -5}}>

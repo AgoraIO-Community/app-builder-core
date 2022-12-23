@@ -23,7 +23,9 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
       {props?.leadingIconName ? (
         <IconButton
           iconProps={{
-            iconType: 'plain',
+            iconContainerStyle: {
+              padding: 5,
+            },
             iconSize: 20,
             name: props.leadingIconName,
             tintColor: $config.SECONDARY_ACTION_COLOR,
@@ -41,7 +43,9 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
       {props?.trailingIconName ? (
         <IconButton
           iconProps={{
-            iconType: 'plain',
+            iconContainerStyle: {
+              padding: 5,
+            },
             iconSize: 20,
             name: props?.trailingIconName,
             tintColor: $config.SECONDARY_ACTION_COLOR,

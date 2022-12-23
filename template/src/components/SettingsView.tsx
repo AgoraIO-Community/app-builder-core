@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -38,34 +38,66 @@ import CommonStyles from './CommonStyles';
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
   const [newName, setNewName] = useState('');
+  const [editable, setEditable] = useState(false);
   const username = useGetName();
   const setUsername = useSetName();
   const disabled = !newName || newName.length === 0 || newName === username;
+  const inputRef = useRef(null);
+  const onPress = () => {
+    if (editable) {
+      setUsername(newName);
+      setEditable(false);
+    } else {
+      inputRef.current.focus();
+      setEditable(true);
+    }
+  };
+
   return (
     <>
       <Text style={editNameStyle.yournameText}>Your name</Text>
       <Spacer size={12} />
       <View style={editNameStyle.container}>
-        <ImageIcon name="person" iconSize={20} iconType="plain" />
+        <ImageIcon
+          name="person"
+          iconSize={20}
+          iconType="plain"
+          tintColor={$config.SEMANTIC_NETRUAL}
+        />
         <TextInput
-          style={editNameStyle.inputStyle}
+          ref={inputRef}
+          style={[
+            editNameStyle.inputStyle,
+            !editable
+              ? {color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled}
+              : {},
+          ]}
           placeholder={username}
           value={newName}
-          autoFocus
+          editable={editable}
           onChangeText={(text) => setNewName(text)}
-          onSubmitEditing={() => setUsername(newName)}
+          onSubmitEditing={() => {
+            setUsername(newName);
+            setEditable(false);
+          }}
           placeholderTextColor={
             $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
           }
         />
         <TouchableOpacity
-          disabled={disabled}
+          disabled={editable ? disabled : false}
           style={[
             editNameStyle.editBtn,
-            disabled ? {opacity: ThemeConfig.EmphasisOpacity.disabled} : {},
+            editable
+              ? disabled
+                ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
+                : {}
+              : {},
           ]}
-          onPress={() => setUsername(newName)}>
-          <Text style={editNameStyle.editBtnText}>Edit</Text>
+          onPress={onPress}>
+          <Text style={editNameStyle.editBtnText}>
+            {editable ? 'Save' : 'Edit'}
+          </Text>
         </TouchableOpacity>
       </View>
     </>
@@ -76,6 +108,7 @@ const editNameStyle = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
@@ -106,6 +139,7 @@ const editNameStyle = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.normal,
     fontWeight: '600',
+    color: $config.SECONDARY_ACTION_COLOR,
   },
   yournameText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
