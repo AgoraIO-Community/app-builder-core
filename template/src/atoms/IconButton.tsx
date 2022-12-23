@@ -47,7 +47,7 @@ const IconButton = (props: IconButtonProps) => {
       }
       onPress={props.onPress}
       disabled={props.disabled}>
-      <ImageIcon {...props.iconProps} />
+      <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
           style={[

@@ -28,6 +28,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {CopyMeetingInfo} from '../components/Share';
 import DimensionContext from '../components/dimension/DimensionContext';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface CopyJoinInfoProps {
   showLabel?: boolean;
@@ -63,7 +64,14 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     onPress: onPress,
     iconProps: {
       name: 'share',
-      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      tintColor: $config.SECONDARY_ACTION_COLOR,
+      hoverEffect: true,
+      hoverEffectStyle: {
+        borderRadius: 50,
+        padding: 12,
+        backgroundColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+      },
     },
     btnTextProps: {
       textColor: $config.FONT_COLOR,

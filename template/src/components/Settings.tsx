@@ -18,6 +18,7 @@ import {useString} from '../utils/useString';
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
@@ -41,10 +42,17 @@ const Settings = (props: SettingsIconButtonProps) => {
       name: 'settings',
       tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
+      hoverEffect: isPanelActive ? false : true,
+      hoverEffectStyle: {
+        borderRadius: 50,
+        padding: 12,
+        backgroundColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+      },
     },
     btnTextProps: {
       text: $config.ICON_TEXT ? settingsLabel : '',

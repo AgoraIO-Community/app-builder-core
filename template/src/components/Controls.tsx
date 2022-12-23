@@ -81,7 +81,7 @@ const Controls = () => {
            * */}
           <LayoutIconButton modalPosition={{bottom: 80, left: 60}} />
         </View>
-        <View testID="invite-btn" style={{marginVertical: 16}}>
+        <View testID="invite-btn" style={{marginVertical: 16, marginLeft: 12}}>
           <CopyJoinInfo />
         </View>
       </View>

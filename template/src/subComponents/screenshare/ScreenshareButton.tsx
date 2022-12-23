@@ -15,6 +15,7 @@ import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -42,6 +43,13 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
       tintColor: isScreenshareActive
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
+      hoverEffect: isScreenshareActive ? false : true,
+      hoverEffectStyle: {
+        borderRadius: 50,
+        padding: 12,
+        backgroundColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+      },
     },
     onPress,
     btnTextProps: {

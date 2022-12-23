@@ -9,6 +9,7 @@ import isMobileOrTablet from '../utils/isMobileOrTablet';
 import Styles from '../components/styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface LayoutIconButtonInterface {
   modalPosition?: {
@@ -59,7 +60,14 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
           key={'defaultLayoutIconWithName'}
           iconProps={{
             name: layouts[layout]?.iconName,
-            tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+            tintColor: $config.SECONDARY_ACTION_COLOR,
+            hoverEffect: true,
+            hoverEffectStyle: {
+              borderRadius: 50,
+              padding: 12,
+              backgroundColor:
+                $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+            },
           }}
           {...iconButtonProps}
         />

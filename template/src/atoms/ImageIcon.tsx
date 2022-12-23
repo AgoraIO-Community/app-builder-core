@@ -22,6 +22,9 @@ export interface ImageIconProps {
   base64?: boolean;
   base64TintColor?: string;
   iconType?: 'round' | 'plain';
+  isHovered?: boolean;
+  hoverEffect?: boolean;
+  hoverEffectStyle?: ViewStyle;
 }
 
 const ImageIcon = (props: ImageIconProps) => {
@@ -43,6 +46,7 @@ const ImageIcon = (props: ImageIconProps) => {
             : {}
           : {backgroundColor: 'transparent', borderRadius: 0, padding: 0},
         props?.iconContainerStyle,
+        props?.isHovered && props?.hoverEffect ? props?.hoverEffectStyle : {},
       ]}>
       {base64 ? (
         <UIKitImageIcon

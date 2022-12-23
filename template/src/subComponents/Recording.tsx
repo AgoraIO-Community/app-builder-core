@@ -17,6 +17,7 @@ import Styles from '../components/styles';
 import RecordingPopup from './RecordingPopup';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface RecordingButtonProps {
   showLabel?: boolean;
@@ -54,6 +55,13 @@ const Recording = (props: RecordingButtonProps) => {
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
       base64: isRecordingActive ? true : false,
+      hoverEffect: isRecordingActive ? false : true,
+      hoverEffectStyle: {
+        borderRadius: 50,
+        padding: 12,
+        backgroundColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+      },
     },
     btnTextProps: {
       text: showLabel ? recordingButton(isRecordingActive) : '',

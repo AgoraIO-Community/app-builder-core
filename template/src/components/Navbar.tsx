@@ -123,13 +123,20 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     iconProps: {
       name: 'participants',
       tintColor: isMobileView
-        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        ? $config.SECONDARY_ACTION_COLOR
         : isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
+      hoverEffect: isPanelActive ? false : true,
+      hoverEffectStyle: {
+        borderRadius: 50,
+        padding: 12,
+        backgroundColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+      },
     },
     btnTextProps: {
       text: isMobileView || !$config.ICON_TEXT ? '' : participantsLabel,
@@ -234,13 +241,20 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     iconProps: {
       name: 'chat',
       tintColor: isMobileView
-        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        ? $config.SECONDARY_ACTION_COLOR
         : isPanelActive
         ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
+      hoverEffect: isPanelActive ? false : true,
+      hoverEffectStyle: {
+        borderRadius: 50,
+        padding: 12,
+        backgroundColor:
+          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+      },
     },
     btnTextProps: {
       text: isMobileView || !$config.ICON_TEXT ? '' : chatLabel,
