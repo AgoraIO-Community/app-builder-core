@@ -65,13 +65,6 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     iconProps: {
       name: 'share',
       tintColor: $config.SECONDARY_ACTION_COLOR,
-      hoverEffect: true,
-      hoverEffectStyle: {
-        borderRadius: 50,
-        padding: 12,
-        backgroundColor:
-          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-      },
     },
     btnTextProps: {
       textColor: $config.FONT_COLOR,

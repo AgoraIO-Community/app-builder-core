@@ -46,13 +46,6 @@ const Settings = (props: SettingsIconButtonProps) => {
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      hoverEffect: isPanelActive ? false : true,
-      hoverEffectStyle: {
-        borderRadius: 50,
-        padding: 12,
-        backgroundColor:
-          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-      },
     },
     btnTextProps: {
       text: $config.ICON_TEXT ? settingsLabel : '',

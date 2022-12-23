@@ -13,6 +13,8 @@ import React from 'react';
 import {ViewStyle, View, StyleSheet} from 'react-native';
 import CustomIcon, {IconsInterface} from '../atoms/CustomIcon';
 import {ImageIcon as UIKitImageIcon} from '../../agora-rn-uikit';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+
 export interface ImageIconProps {
   tintColor?: string;
   name: keyof IconsInterface;
@@ -23,8 +25,8 @@ export interface ImageIconProps {
   base64TintColor?: string;
   iconType?: 'round' | 'plain';
   isHovered?: boolean;
-  hoverEffect?: boolean;
-  hoverEffectStyle?: ViewStyle;
+  // hoverEffect?: boolean;
+  // hoverEffectStyle?: ViewStyle;
   showWarningIcon?: boolean;
 }
 
@@ -45,26 +47,43 @@ const ImageIcon = (props: ImageIconProps) => {
           ? props?.iconBackgroundColor
             ? {backgroundColor: props.iconBackgroundColor}
             : {}
-          : {backgroundColor: 'transparent', borderRadius: 0, padding: 0},
+          : {backgroundColor: 'transparent', borderRadius: 0},
         props?.iconContainerStyle,
-        props?.isHovered && props?.hoverEffect ? props?.hoverEffectStyle : {},
       ]}>
-      {props?.showWarningIcon ? (
-        <View style={{position: 'absolute', top: -8, right: -5}}>
-          <CustomIcon name="alert" color={$config.SEMANTIC_WARNING} size={24} />
-        </View>
-      ) : (
-        <></>
-      )}
-      {base64 ? (
-        <UIKitImageIcon
-          tintColor={base64TintColor}
-          name={name}
-          style={{width: iconSize, height: iconSize}}
-        />
-      ) : (
-        <CustomIcon name={name} color={tintColor} size={iconSize} />
-      )}
+      <View
+        style={[
+          {alignItems: 'center'},
+          iconType === 'round'
+            ? {padding: 12, borderRadius: 50}
+            : {padding: 0, borderRadius: 0},
+          iconType === 'round' && props?.isHovered
+            ? {
+                backgroundColor:
+                  $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+              }
+            : {},
+        ]}>
+        {props?.showWarningIcon ? (
+          <View style={{position: 'absolute', top: -8, right: -5}}>
+            <CustomIcon
+              name="alert"
+              color={$config.SEMANTIC_WARNING}
+              size={24}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
+        {base64 ? (
+          <UIKitImageIcon
+            tintColor={base64TintColor}
+            name={name}
+            style={{width: iconSize, height: iconSize}}
+          />
+        ) : (
+          <CustomIcon name={name} color={tintColor} size={iconSize} />
+        )}
+      </View>
     </View>
   );
 };
@@ -73,10 +92,6 @@ export default ImageIcon;
 
 const styles = StyleSheet.create({
   iconContainerStyle: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    padding: 12,
     borderRadius: 50,
     backgroundColor: $config.ICON_BG_COLOR,
   },

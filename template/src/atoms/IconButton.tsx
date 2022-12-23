@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
   containerStyle: {
     flex: 1,
     flexDirection: 'column',
+    alignItems: 'center',
   },
   btnTextStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

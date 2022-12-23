@@ -61,13 +61,6 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
           iconProps={{
             name: layouts[layout]?.iconName,
             tintColor: $config.SECONDARY_ACTION_COLOR,
-            hoverEffect: true,
-            hoverEffectStyle: {
-              borderRadius: 50,
-              padding: 12,
-              backgroundColor:
-                $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-            },
           }}
           {...iconButtonProps}
         />

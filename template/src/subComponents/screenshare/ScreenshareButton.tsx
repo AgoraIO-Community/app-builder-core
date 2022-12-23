@@ -43,13 +43,6 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
       tintColor: isScreenshareActive
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
-      hoverEffect: isScreenshareActive ? false : true,
-      hoverEffectStyle: {
-        borderRadius: 50,
-        padding: 12,
-        backgroundColor:
-          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-      },
     },
     onPress,
     btnTextProps: {

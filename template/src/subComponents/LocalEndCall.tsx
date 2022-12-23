@@ -47,7 +47,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       iconBackgroundColor: $config.SEMANTIC_ERROR,
       iconContainerStyle: {
         width: 69,
-        alignItems: 'center',
+        height: 48,
       },
     },
     onPress,

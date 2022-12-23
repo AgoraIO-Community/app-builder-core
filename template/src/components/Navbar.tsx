@@ -130,13 +130,6 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      hoverEffect: isPanelActive ? false : true,
-      hoverEffectStyle: {
-        borderRadius: 50,
-        padding: 12,
-        backgroundColor:
-          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-      },
     },
     btnTextProps: {
       text: isMobileView || !$config.ICON_TEXT ? '' : participantsLabel,
@@ -248,13 +241,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      hoverEffect: isPanelActive ? false : true,
-      hoverEffectStyle: {
-        borderRadius: 50,
-        padding: 12,
-        backgroundColor:
-          $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-      },
     },
     btnTextProps: {
       text: isMobileView || !$config.ICON_TEXT ? '' : chatLabel,
