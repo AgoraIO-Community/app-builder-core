@@ -245,10 +245,11 @@ const Participant = (props: ParticipantInterface) => {
                             iconSize: 20,
                             iconType: 'plain',
                             iconContainerStyle: {padding: 8},
-                            tintColor: isPermissionDenied
-                              ? ''
-                              : isVideoEnabled
+                            showWarningIcon: false,
+                            tintColor: isVideoEnabled
                               ? $config.PRIMARY_ACTION_BRAND_COLOR
+                              : isPermissionDenied
+                              ? $config.SEMANTIC_NETRUAL
                               : $config.SEMANTIC_ERROR,
                           };
                         }}
@@ -270,10 +271,11 @@ const Participant = (props: ParticipantInterface) => {
                           iconSize: 20,
                           iconType: 'plain',
                           iconContainerStyle: {padding: 8},
-                          tintColor: isPermissionDenied
-                            ? ''
-                            : isAudioEnabled
+                          showWarningIcon: false,
+                          tintColor: isAudioEnabled
                             ? $config.PRIMARY_ACTION_BRAND_COLOR
+                            : isPermissionDenied
+                            ? $config.SEMANTIC_NETRUAL
                             : $config.SEMANTIC_ERROR,
                         };
                       }}

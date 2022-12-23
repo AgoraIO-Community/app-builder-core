@@ -34,6 +34,7 @@ export interface LocalVideoMuteProps {
     isVideoEnabled: boolean,
     isPermissionDenied: boolean,
   ) => Partial<ImageIconProps>;
+  showWarningIcon?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -43,6 +44,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
+    showWarningIcon = true,
   } = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
@@ -63,18 +65,16 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     : 'Video Off';
 
   let iconProps: IconButtonProps['iconProps'] = {
-    name: permissionDenied
-      ? 'no-cam'
-      : isVideoEnabled
-      ? 'video-on'
-      : 'video-off',
-    base64: permissionDenied ? true : false,
+    showWarningIcon: permissionDenied && showWarningIcon ? true : false,
+    name: isVideoEnabled ? 'video-on' : 'video-off',
     iconBackgroundColor: isVideoEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
       : '',
     tintColor: isVideoEnabled
       ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
+      ? $config.SEMANTIC_NETRUAL
+      : permissionDenied
       ? $config.SEMANTIC_NETRUAL
       : $config.SEMANTIC_ERROR,
     ...(props?.iconProps

@@ -34,6 +34,7 @@ export interface LocalAudioMuteProps {
   render?: (onPress: () => void, isAudioEnabled: boolean) => JSX.Element;
   disabled?: boolean;
   isOnActionSheet?: boolean;
+  showWarningIcon?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -43,6 +44,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
+    showWarningIcon = true,
   } = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
@@ -63,14 +65,17 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     : 'Mic Off';
 
   let iconProps: IconButtonProps['iconProps'] = {
-    name: permissionDenied ? 'no-mic' : isAudioEnabled ? 'mic-on' : 'mic-off',
-    base64: permissionDenied ? true : false,
+    showWarningIcon: permissionDenied && showWarningIcon ? true : false,
+    name: isAudioEnabled ? 'mic-on' : 'mic-off',
+
     iconBackgroundColor: isAudioEnabled
       ? $config.PRIMARY_ACTION_BRAND_COLOR
       : '',
     tintColor: isAudioEnabled
       ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
+      ? $config.SEMANTIC_NETRUAL
+      : permissionDenied
       ? $config.SEMANTIC_NETRUAL
       : $config.SEMANTIC_ERROR,
     ...(props?.iconProps

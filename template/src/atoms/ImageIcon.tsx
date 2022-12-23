@@ -25,6 +25,7 @@ export interface ImageIconProps {
   isHovered?: boolean;
   hoverEffect?: boolean;
   hoverEffectStyle?: ViewStyle;
+  showWarningIcon?: boolean;
 }
 
 const ImageIcon = (props: ImageIconProps) => {
@@ -48,6 +49,13 @@ const ImageIcon = (props: ImageIconProps) => {
         props?.iconContainerStyle,
         props?.isHovered && props?.hoverEffect ? props?.hoverEffectStyle : {},
       ]}>
+      {props?.showWarningIcon ? (
+        <View style={{position: 'absolute', top: -8, right: -5}}>
+          <CustomIcon name="alert" color={$config.SEMANTIC_WARNING} size={24} />
+        </View>
+      ) : (
+        <></>
+      )}
       {base64 ? (
         <UIKitImageIcon
           tintColor={base64TintColor}
