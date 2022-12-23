@@ -19,7 +19,9 @@ function BaseToast({
   text2Style,
   activeOpacity,
   text1NumberOfLines,
-  text2NumberOfLines
+  text2NumberOfLines,
+  primaryBtn,
+  secondaryBtn
 }) {
   return (
     <TouchableOpacity
@@ -63,6 +65,20 @@ function BaseToast({
               {text2}
             </Text>
           </View>
+        )}
+        {primaryBtn || secondaryBtn ? (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              paddingTop: 32,
+              paddingBottom: 24
+            }}>
+            {primaryBtn ? primaryBtn : <></>}
+            {secondaryBtn ? secondaryBtn : <></>}
+          </View>
+        ) : (
+          <></>
         )}
       </View>
     </TouchableOpacity>

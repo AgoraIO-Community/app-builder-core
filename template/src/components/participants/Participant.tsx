@@ -34,6 +34,10 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import IconButton from '../../atoms/IconButton';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import useRemoteRequest, {
+  REQUEST_REMOTE_TYPE,
+} from '../../utils/useRemoteRequest';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -70,6 +74,8 @@ const Participant = (props: ParticipantInterface) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const remoteRequest = useRemoteRequest();
+  const remoteMute = useRemoteMute();
 
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [
@@ -87,6 +93,30 @@ const Participant = (props: ParticipantInterface) => {
             setActionMenuVisible(false);
             openPrivateChat(user.uid);
           }
+        },
+      },
+      {
+        icon: user.video ? 'video-off' : 'video-on',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: user.video ? 'Mute Video' : 'Request Video',
+        callback: () => {
+          setActionMenuVisible(false);
+          user.video
+            ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+            : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+        },
+      },
+      {
+        icon: user.audio ? 'mic-off' : 'mic-on',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: user.audio ? 'Mute Audio' : 'Request Audio',
+        callback: () => {
+          setActionMenuVisible(false);
+          user.audio
+            ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+            : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
         },
       },
     ];

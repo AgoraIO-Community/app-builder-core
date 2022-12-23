@@ -10,9 +10,13 @@
 *********************************************
 */
 import React, {useContext, useEffect} from 'react';
+import {StyleSheet} from 'react-native';
+import PrimaryButton from '../atoms/PrimaryButton';
 import {RtcContext} from '../../agora-rn-uikit';
 import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
+import Toast from '../../react-native-toast-message';
+import TertiaryButton from '../atoms/TertiaryButton';
 
 interface Props {
   children: React.ReactNode;
@@ -41,7 +45,59 @@ const EventsConfigure: React.FC<Props> = (props) => {
         value: [],
       });
     });
+    events.on(controlMessageEnum.requestAudio, () => {
+      Toast.show({
+        type: 'info',
+        text1: 'The host has requested you to speak',
+        visibilityTime: 3000,
+        primaryBtn: (
+          <PrimaryButton
+            containerStyle={{
+              maxWidth: 109,
+              minWidth: 109,
+              height: 40,
+              borderRadius: 4,
+            }}
+            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
+            text="UNMUTE"
+            onPress={() => {
+              RtcEngine.muteLocalAudioStream(false);
+              dispatch({
+                type: 'LocalMuteAudio',
+                value: [1],
+              });
+            }}
+          />
+        ),
+        secondaryBtn: SecondaryBtn,
+      });
+    });
+    events.on(controlMessageEnum.requestVideo, () => {
+      Toast.show({
+        type: 'info',
+        text1: 'The host has asked you to start your video.',
+        visibilityTime: 3000,
+        primaryBtn: (
+          <PrimaryButton
+            containerStyle={style.primaryBtn}
+            textStyle={style.primaryBtnText}
+            text="UNMUTE"
+            onPress={() => {
+              RtcEngine.muteLocalVideoStream(false);
+              dispatch({
+                type: 'LocalMuteVideo',
+                value: [1],
+              });
+            }}
+          />
+        ),
+        secondaryBtn: SecondaryBtn,
+      });
+    });
+
     return () => {
+      events.off(controlMessageEnum.requestAudio);
+      events.off(controlMessageEnum.requestVideo);
       events.off(controlMessageEnum.muteVideo);
       events.off(controlMessageEnum.muteAudio);
       events.off(controlMessageEnum.kickUser);
@@ -52,3 +108,27 @@ const EventsConfigure: React.FC<Props> = (props) => {
 };
 
 export default EventsConfigure;
+
+const style = StyleSheet.create({
+  secondaryBtn: {marginLeft: 16, height: 40},
+  primaryBtn: {
+    maxWidth: 109,
+    minWidth: 109,
+    height: 40,
+    borderRadius: 4,
+  },
+  primaryBtnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    paddingLeft: 0,
+  },
+});
+const SecondaryBtn = (
+  <TertiaryButton
+    containerStyle={style.secondaryBtn}
+    text="LATER"
+    onPress={() => {
+      Toast.hide();
+    }}
+  />
+);

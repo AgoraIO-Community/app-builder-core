@@ -53,7 +53,8 @@ const ToastConfig = {
         borderRadius: 4,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
-        width: !isMobileOrTablet() ? '40%' : '95%',
+        //width: !isMobileOrTablet() ? '40%' : '95%',
+        width: '100%',
         borderTopColor: $config.SEMANTIC_SUCCESS,
       }}
       contentContainerStyle={styles.contentContainerStyle}
@@ -61,6 +62,8 @@ const ToastConfig = {
       text2Style={styles.text2Style}
       text1={text1}
       text2={text2}
+      primaryBtn={null}
+      secondaryBtn={null}
     />
   ),
   error: ({text1, text2, props, ...rest}) => (
@@ -73,7 +76,8 @@ const ToastConfig = {
         borderRadius: 4,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
-        width: !isMobileOrTablet() ? '40%' : '95%',
+        //width: !isMobileOrTablet() ? '40%' : '95%',
+        width: '100%',
         borderTopColor: $config.SEMANTIC_ERROR,
       }}
       contentContainerStyle={styles.contentContainerStyle}
@@ -81,6 +85,30 @@ const ToastConfig = {
       text2Style={styles.text2Style}
       text1={text1}
       text2={text2}
+      primaryBtn={null}
+      secondaryBtn={null}
+    />
+  ),
+  info: ({text1, text2, props, primaryBtn, secondaryBtn, ...rest}) => (
+    <BaseToast
+      {...rest}
+      //BaseToast is modified to have zIndex: 100
+      trailingIcon={trailingIcon}
+      style={{
+        height: 140,
+        borderRadius: 4,
+        borderTopWidth: 6,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
+        width: '100%',
+        borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      }}
+      contentContainerStyle={styles.contentContainerStyle}
+      text1Style={styles.text1Style}
+      text2Style={styles.text2Style}
+      text1={text1}
+      text2={text2}
+      primaryBtn={primaryBtn}
+      secondaryBtn={secondaryBtn}
     />
   ),
 };
