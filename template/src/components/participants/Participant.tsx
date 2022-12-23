@@ -244,7 +244,7 @@ const Participant = (props: ParticipantInterface) => {
                           return {
                             iconSize: 20,
                             iconType: 'plain',
-                            iconContainerStyle: {paddingHorizontal: 5},
+                            iconContainerStyle: {padding: 8},
                             tintColor: isPermissionDenied
                               ? ''
                               : isVideoEnabled
@@ -269,7 +269,7 @@ const Participant = (props: ParticipantInterface) => {
                         return {
                           iconSize: 20,
                           iconType: 'plain',
-                          iconContainerStyle: {paddingHorizontal: 5},
+                          iconContainerStyle: {padding: 8},
                           tintColor: isPermissionDenied
                             ? ''
                             : isAudioEnabled

@@ -56,7 +56,8 @@ const ActionMenu = (props: ActionMenuProps) => {
               key={icon + index}>
               <View style={styles.iconContainer}>
                 <ImageIcon
-                  iconSize="medium"
+                  iconType="plain"
+                  iconSize={20}
                   name={icon}
                   tintColor={iconColor}
                 />
@@ -83,10 +84,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 0,
+      height: 4,
     },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     zIndex: 1,
     elevation: 1,
   },
@@ -102,10 +103,6 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginLeft: 12,
   },
-  icon: {
-    width: 20,
-    height: 20,
-  },
   text: {
     paddingVertical: 14,
     color: $config.SECONDARY_ACTION_COLOR,
@@ -113,7 +110,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
-
   backDrop: {
     position: 'absolute',
     top: 0,

@@ -31,8 +31,8 @@ export default TertiaryButton;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
     borderWidth: 1,
     borderColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 4,
@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
   text: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    lineHeight: 12,
+    fontSize: ThemeConfig.FontSize.small,
     fontWeight: '600',
     textAlign: 'center',
   },

@@ -217,25 +217,14 @@ const ParticipantView = (props) => {
 const style = StyleSheet.create({
   footer: {
     width: '100%',
-    height: 50,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
-  participantViewNative: {},
   bodyContainer: {
     flex: 1,
-  },
-  header: {},
-  mainHeading: {
-    fontSize: ThemeConfig.FontSize.normal,
-    letterSpacing: 0.8,
-    lineHeight: ThemeConfig.FontSize.normal,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    color: $config.FONT_COLOR,
-    alignSelf: 'center',
   },
 });
 
