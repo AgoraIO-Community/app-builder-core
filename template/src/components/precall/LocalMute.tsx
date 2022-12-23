@@ -72,7 +72,7 @@ const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
         <View
           style={{
             alignSelf: 'center',
-            marginRight: isMobileView ? 60 : 0,
+            marginRight: isMobileView ? 60 : 16,
           }}>
           <VideoMute showLabel={!isMobileView} />
         </View>
