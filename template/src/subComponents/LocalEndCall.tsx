@@ -45,6 +45,10 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       name: 'end-call',
       tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
       iconBackgroundColor: $config.SEMANTIC_ERROR,
+      iconContainerStyle: {
+        width: 69,
+        alignItems: 'center',
+      },
     },
     onPress,
     btnTextProps: {

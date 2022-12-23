@@ -138,9 +138,7 @@ const Controls = () => {
             )}
           </>
         )}
-        <View
-          testID="endCall-btn"
-          style={{marginVertical: 16, marginHorizontal: 20}}>
+        <View testID="endCall-btn" style={{marginVertical: 16}}>
           <LocalEndcall />
         </View>
       </View>
