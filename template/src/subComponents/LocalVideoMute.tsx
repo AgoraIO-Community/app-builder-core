@@ -9,19 +9,22 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   ToggleState,
   PermissionState,
   ImageIcon as UIKitImageIcon,
+  ClientRole,
+  PropsContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
-import {useLocalUserInfo} from 'customization-api';
+import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
+import useIsHandRaised from '../utils/useIsHandRaised';
 /**
  * A component to mute / unmute the local video
  */
@@ -38,7 +41,12 @@ export interface LocalVideoMuteProps {
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
+  const {rtcProps} = useContext(PropsContext);
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const local = useLocalUserInfo();
+  const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {
     showLabel = $config.ICON_TEXT,
@@ -101,7 +109,30 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       ? 'Disable Camera'
       : 'Enable Camera'
     : '';
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    !$config.RAISE_HAND
+  ) {
+    return null;
+  }
 
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    $config.RAISE_HAND &&
+    !isHost
+  ) {
+    iconButtonProps.iconProps = {
+      ...iconButtonProps.iconProps,
+      name: 'video-off',
+      tintColor: $config.SEMANTIC_NETRUAL,
+    };
+    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
+      ? 'Waiting for host to appove the request'
+      : 'Raise Hand in order to turn video on';
+    iconButtonProps.disabled = true;
+  }
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
   ) : (

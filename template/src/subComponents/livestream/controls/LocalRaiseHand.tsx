@@ -40,16 +40,9 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
           ? $config.SEMANTIC_ERROR
           : $config.PRIMARY_ACTION_BRAND_COLOR,
       }}
-      btnTextProps={showLabel ? handStatusText(isHandRasied) : ''}
-      style={Styles.localButton as Object}
-      styleText={{
-        fontFamily: ThemeConfig.FontFamily.sansPro,
-        fontSize: 12,
-        marginTop: 4,
-        fontWeight: '400',
-        color: isHandRasied
-          ? $config.SEMANTIC_ERROR
-          : $config.PRIMARY_ACTION_BRAND_COLOR,
+      btnTextProps={{
+        text: showLabel ? handStatusText(isHandRasied) : '',
+        textColor: $config.FONT_COLOR,
       }}
       onPress={() => {
         if (isHandRasied) {

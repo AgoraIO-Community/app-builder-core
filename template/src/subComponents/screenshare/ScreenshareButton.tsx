@@ -9,13 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useContext} from 'react';
 import ThemeConfig from '../../theme';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
+import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
+import useIsHandRaised from '../../utils/useIsHandRaised';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -27,6 +30,12 @@ export interface ScreenshareButtonProps {
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
+  const {rtcProps} = useContext(PropsContext);
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+  const local = useLocalUserInfo();
+  const isHandRaised = useIsHandRaised();
   const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
     useScreenshare();
   //commented for v1 release
@@ -50,6 +59,30 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
       textColor: $config.FONT_COLOR,
     },
   };
+
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    !$config.RAISE_HAND
+  ) {
+    return null;
+  }
+
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    $config.RAISE_HAND &&
+    !isHost
+  ) {
+    iconButtonProps.iconProps = {
+      ...iconButtonProps.iconProps,
+      tintColor: $config.SEMANTIC_NETRUAL,
+    };
+    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
+      ? 'Waiting for host to appove the request'
+      : 'Raise Hand in order to turn video on';
+    iconButtonProps.disabled = true;
+  }
 
   return props?.render ? (
     props.render(onPress, isScreenshareActive)

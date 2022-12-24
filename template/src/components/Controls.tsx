@@ -89,55 +89,56 @@ const Controls = () => {
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
           <LiveStreamControls showControls={true} isDesktop />
         ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                isDesktop
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
-            <View
-              testID="localAudio-btn"
-              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
-              <LocalAudioMute />
-            </View>
-            {!$config.AUDIO_ROOM && (
-              <View
-                testID="localVideo-btn"
-                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
-                <LocalVideoMute />
-              </View>
-            )}
-            {!$config.AUDIO_ROOM && isMobileOrTablet() && (
-              <View
-                testID="switchCamera-btn"
-                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
-                <LocalSwitchCamera />
-              </View>
-            )}
-            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-              <View
-                testID="screenShare-btn"
-                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
-                <ScreenshareButton />
-              </View>
-            )}
-            {isHost && $config.CLOUD_RECORDING && (
-              <View
-                testID="recording-btn"
-                style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
-                <Recording />
-              </View>
-            )}
-          </>
+          <></>
         )}
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE ? (
+            <LiveStreamControls
+              isDesktop
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          ) : (
+            <></>
+          )}
+          <View
+            testID="localAudio-btn"
+            style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+            <LocalAudioMute />
+          </View>
+          {!$config.AUDIO_ROOM && (
+            <View
+              testID="localVideo-btn"
+              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              <LocalVideoMute />
+            </View>
+          )}
+          {!$config.AUDIO_ROOM && isMobileOrTablet() && (
+            <View
+              testID="switchCamera-btn"
+              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              <LocalSwitchCamera />
+            </View>
+          )}
+          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
+            <View
+              testID="screenShare-btn"
+              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              <ScreenshareButton />
+            </View>
+          )}
+          {isHost && $config.CLOUD_RECORDING && (
+            <View
+              testID="recording-btn"
+              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              <Recording />
+            </View>
+          )}
+        </>
         <View testID="endCall-btn" style={{marginVertical: 16}}>
           <LocalEndcall />
         </View>
