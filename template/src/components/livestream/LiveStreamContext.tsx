@@ -384,6 +384,17 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
       UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
     });
+    // 4. Host promote audience as co-host
+    events.on(LiveStreamControlMessageEnum.promoteAsCoHost, (data) => {
+      showToast(
+        LSNotificationObject.PROMOTE_AS_CO_HOST.text1,
+        LSNotificationObject.PROMOTE_AS_CO_HOST.text2,
+      );
+      // Promote user's privileges to host
+      changeClientRoleTo(ClientRole.Broadcaster);
+      // Audience updates its local attributes and notfies all host when request is approved
+      UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+    });
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
   }, []);
 
@@ -419,6 +430,21 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       EventPersistLevel.LEVEL1,
       uid,
     );
+  };
+
+  // promote audience as co-host
+  const promoteAudienceAsCoHost = async (uid: UidType): Promise<void> => {
+    events.send(
+      LiveStreamControlMessageEnum.promoteAsCoHost,
+      '',
+      EventPersistLevel.LEVEL2,
+      uid,
+    );
+    // Update local state
+    addOrUpdateLiveStreamRequest(uid, {
+      raised: RaiseHandValue.TRUE,
+      ts: new Date().getTime(),
+    });
   };
 
   /** ******* HOST CONTROLS SECTION ENDS ******* */
@@ -488,6 +514,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         hostRejectsRequestOfUID,
         audienceSendsRequest,
         audienceRecallsRequest,
+        promoteAudienceAsCoHost,
       }}>
       {props.children}
     </LiveStreamContext.Provider>

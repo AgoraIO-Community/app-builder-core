@@ -42,6 +42,7 @@ export enum LiveStreamControlMessageEnum {
   notifyAllRequestApproved = 'NOTIFY_REQUEST_APPROVED',
   notifyAllRequestRejected = 'NOTIFY_REQUEST_REJECTED',
   notifyHostsInChannel = 'NOTIFY_HOSTS_IN_CHANNEL',
+  promoteAsCoHost = 'PROMOTE_AS_CO_HOST',
 }
 
 export const LSNotificationObject = {
@@ -74,6 +75,10 @@ export const LSNotificationObject = {
     text1: 'Host has revoked streaming permissions.',
     text2: null,
   },
+  [LiveStreamControlMessageEnum.promoteAsCoHost]: {
+    text1: 'Host promoted you as Co-Host',
+    text2: null,
+  },
 };
 
 export interface liveStreamPropsInterface {
@@ -89,6 +94,7 @@ export interface liveStreamContext {
   hostRejectsRequestOfUID: (uid: number) => void;
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
+  promoteAudienceAsCoHost: (uid: UidType) => void;
 }
 
 export interface requestInterface {

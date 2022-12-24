@@ -38,6 +38,7 @@ import useRemoteRequest, {
   REQUEST_REMOTE_TYPE,
 } from '../../utils/useRemoteRequest';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
+import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -51,6 +52,8 @@ interface ParticipantInterface {
 }
 
 const Participant = (props: ParticipantInterface) => {
+  const {hostUids} = useLiveStreamDataContext();
+  const {promoteAudienceAsCoHost} = useContext(LiveStreamContext);
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const usercontainerRef = useRef(null);
@@ -95,7 +98,32 @@ const Participant = (props: ParticipantInterface) => {
           }
         },
       },
-      {
+    ];
+
+    if (
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      hostUids.indexOf(user.uid) === -1
+    ) {
+      items.push({
+        icon: 'profile',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: 'Promote to Co-host',
+        callback: () => {
+          setActionMenuVisible(false);
+          promoteAudienceAsCoHost(user.uid);
+        },
+      });
+    }
+
+    if (
+      !$config.EVENT_MODE ||
+      ($config.EVENT_MODE &&
+        $config.RAISE_HAND &&
+        hostUids.indexOf(user.uid) !== -1)
+    ) {
+      items.push({
         icon: user.video ? 'video-off' : 'video-on',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
@@ -106,8 +134,8 @@ const Participant = (props: ParticipantInterface) => {
             ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
             : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
         },
-      },
-      {
+      });
+      items.push({
         icon: user.audio ? 'mic-off' : 'mic-on',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
@@ -118,8 +146,8 @@ const Participant = (props: ParticipantInterface) => {
             ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
             : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
         },
-      },
-    ];
+      });
+    }
 
     if (isHost) {
       items.push({
