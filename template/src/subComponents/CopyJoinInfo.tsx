@@ -87,29 +87,39 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
         <CopyMeetingInfo showSubLabel={false} />
         <View style={isDesktop ? style.btnContainer : style.btnContainerMobile}>
           {isDesktop ? (
-            <>
+            <View style={{flex: 1}}>
               <TertiaryButton
                 text={'CANCEL'}
                 textStyle={style.btnText}
                 containerStyle={{
-                  flex: 1,
+                  width: '100%',
+                  height: 48,
                   paddingVertical: 12,
+                  paddingHorizontal: 12,
+                  borderRadius: 8,
                 }}
                 onPress={() => setModalVisible(false)}
               />
-              <Spacer size={20} horizontal={true} />
-            </>
+            </View>
           ) : null}
-          <PrimaryButton
-            textStyle={style.btnText}
-            containerStyle={{
-              paddingVertical: 12,
-            }}
-            onPress={() =>
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-            }
-            text={'COPY INVITATION'}
-          />
+          {isDesktop ? <Spacer size={10} horizontal={true} /> : <></>}
+          <View style={{flex: 1}}>
+            <PrimaryButton
+              textStyle={style.btnText}
+              containerStyle={{
+                minWidth: 'auto',
+                width: '100%',
+                borderRadius: 8,
+                height: 48,
+                paddingVertical: 12,
+                paddingHorizontal: 12,
+              }}
+              onPress={() =>
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+              }
+              text={'COPY INVITATION'}
+            />
+          </View>
         </View>
       </Popup>
       {showTeritaryButton ? (
@@ -131,8 +141,10 @@ const style = StyleSheet.create({
     height: 20,
   },
   btnContainer: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 48,
   },
   btnContainerMobile: {

@@ -32,26 +32,38 @@ const EndcallPopup = (props: EndcallPopupProps) => {
       <Text style={styles.subHeading}>{leaveMeetingLabelSubHeading}</Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
-        <TertiaryButton
-          containerStyle={{
-            paddingVertical: 12,
-          }}
-          text={stayBtnLabel}
-          textStyle={styles.btnText}
-          onPress={() => props.setModalVisible(false)}
-        />
-
-        <PrimaryButton
-          containerStyle={{
-            backgroundColor: $config.SEMANTIC_ERROR,
-            paddingVertical: 12,
-            minWidth: 210,
-            marginBottom: isDesktop ? 0 : 20,
-          }}
-          text={leaveBtnLabel}
-          textStyle={styles.btnText}
-          onPress={props.endCall}
-        />
+        <View style={{flex: 1}}>
+          <TertiaryButton
+            containerStyle={{
+              width: '100%',
+              height: 48,
+              paddingVertical: 12,
+              paddingHorizontal: 12,
+              borderRadius: 8,
+            }}
+            text={stayBtnLabel}
+            textStyle={styles.btnText}
+            onPress={() => props.setModalVisible(false)}
+          />
+        </View>
+        {isDesktop ? <Spacer size={10} horizontal={true} /> : <></>}
+        <View style={{flex: 1}}>
+          <PrimaryButton
+            containerStyle={{
+              minWidth: 'auto',
+              width: '100%',
+              borderRadius: 8,
+              height: 48,
+              backgroundColor: $config.SEMANTIC_ERROR,
+              paddingVertical: 12,
+              paddingHorizontal: 12,
+              marginBottom: isDesktop ? 0 : 20,
+            }}
+            text={leaveBtnLabel}
+            textStyle={styles.btnText}
+            onPress={props.endCall}
+          />
+        </View>
       </View>
     </Popup>
   );
@@ -61,8 +73,10 @@ export default EndcallPopup;
 
 const styles = StyleSheet.create({
   btnContainer: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   btnText: {
     fontWeight: '600',
@@ -81,16 +95,12 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 22,
-    lineHeight: 24,
-    letterSpacing: 0.15,
     color: $config.SEMANTIC_ERROR,
   },
   subHeading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 20,
-    letterSpacing: 0.25,
     color: $config.FONT_COLOR,
   },
 });

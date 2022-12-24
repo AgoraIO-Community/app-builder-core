@@ -6,8 +6,10 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import ThemeConfig from '../theme';
+import {isWeb} from 'customization-api';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface ButtonProps extends TouchableOpacityProps {
   text?: string;
@@ -18,15 +20,41 @@ interface ButtonProps extends TouchableOpacityProps {
 
 const TertiaryButton = (props: ButtonProps) => {
   const {text, ...rest} = props;
+  const [isHovered, setIsHovered] = useState();
   return (
-    <TouchableOpacity
-      style={[styles.container, props?.containerStyle]}
-      {...rest}>
-      <Text style={[styles.text, props?.textStyle]}>{text}</Text>
-    </TouchableOpacity>
+    <PlatformWrapper setIsHovered={setIsHovered}>
+      <TouchableOpacity
+        style={[
+          styles.container,
+          isHovered
+            ? {
+                backgroundColor:
+                  $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+              }
+            : {},
+          props?.containerStyle,
+        ]}
+        {...rest}>
+        <Text style={[styles.text, props?.textStyle]}>{text}</Text>
+      </TouchableOpacity>
+    </PlatformWrapper>
   );
 };
-
+const PlatformWrapper = ({children, setIsHovered}) => {
+  return isWeb() ? (
+    <div
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+};
 export default TertiaryButton;
 
 const styles = StyleSheet.create({

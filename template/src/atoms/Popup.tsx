@@ -62,6 +62,7 @@ const Popup = (props: PopupProps) => {
               {showCloseIcon ? (
                 <IconButton
                   iconProps={{
+                    iconContainerStyle: {padding: 4},
                     name: 'close-rounded',
                     tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
