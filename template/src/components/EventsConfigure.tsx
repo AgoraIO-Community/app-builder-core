@@ -25,6 +25,17 @@ interface Props {
 const EventsConfigure: React.FC<Props> = (props) => {
   const {RtcEngine, dispatch} = useContext(RtcContext);
   useEffect(() => {
+    //user joined event listener
+    events.on('NEW_USER_JOINED', ({payload}) => {
+      const data = JSON.parse(payload);
+      if (data?.name) {
+        Toast.show({
+          text1: `${data.name} has joined the call`,
+          visibilityTime: 3000,
+          type: 'info',
+        });
+      }
+    });
     events.on(controlMessageEnum.muteVideo, () => {
       RtcEngine.muteLocalVideoStream(true);
       dispatch({
@@ -96,6 +107,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     });
 
     return () => {
+      events.off('NEW_USER_JOINED');
       events.off(controlMessageEnum.requestAudio);
       events.off(controlMessageEnum.requestVideo);
       events.off(controlMessageEnum.muteVideo);

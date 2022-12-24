@@ -95,7 +95,7 @@ const ToastConfig = {
       //BaseToast is modified to have zIndex: 100
       trailingIcon={trailingIcon}
       style={{
-        height: 140,
+        height: primaryBtn || secondaryBtn ? 140 : 105,
         borderRadius: 4,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
