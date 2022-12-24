@@ -68,7 +68,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   const showToast = (text: string) => {
     Toast.show({
-      type: 'success',
+      type: 'info',
       text1: text,
       visibilityTime: 3000,
     });

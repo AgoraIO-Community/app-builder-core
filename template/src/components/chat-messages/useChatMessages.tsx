@@ -90,7 +90,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string) => `From : ${name}`;
+  const fromText = (name: string) => `${name} commented in the public chat`;
   const privateMessageLabel = 'You’ve recieved a direct message';
   useEffect(() => {
     renderListRef.current.renderList = renderList;
@@ -129,15 +129,17 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     ) => {
       const uidAsNumber = parseInt(uid);
       Toast.show({
-        type: 'success',
+        type: 'info',
         text1: isPrivateMessage
           ? privateMessageLabel
+          : renderListRef.current.renderList[uidAsNumber]?.name
+          ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
+          : '',
+        text2: isPrivateMessage
+          ? ''
           : msg.length > 30
           ? msg.slice(0, 30) + '...'
           : msg,
-        text2: renderListRef.current.renderList[uidAsNumber]?.name
-          ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
-          : '',
         visibilityTime: 3000,
         onPress: () => {
           if (isPrivateMessage) {
