@@ -291,6 +291,7 @@ const Participant = (props: ParticipantInterface) => {
                         uid={user.uid}
                         video={user.video}
                         isHost={isHost}
+                        userContainerRef={usercontainerRef}
                       />
                     ))}
               {isLocal
@@ -317,6 +318,7 @@ const Participant = (props: ParticipantInterface) => {
                       uid={user.uid}
                       audio={user.audio}
                       isHost={isHost}
+                      userContainerRef={usercontainerRef}
                     />
                   )}
             </View>

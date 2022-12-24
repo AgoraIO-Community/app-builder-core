@@ -9,13 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useState} from 'react';
 import {UidType} from '../../agora-rn-uikit';
-import Styles from '../components/styles';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
-
+import RemoteMutePopup from './RemoteMutePopup';
+import {useRender} from 'customization-api';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
@@ -25,27 +24,49 @@ export interface RemoteVideoMuteProps {
   uid: UidType;
   video: boolean;
   isHost: boolean;
+  userContainerRef: any;
 }
 const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
-  const {isHost = false} = props;
+  const {isHost = false, userContainerRef} = props;
   const muteRemoteVideo = useRemoteMute();
-
+  const [showModal, setShowModal] = useState(false);
+  const [pos, setPos] = useState({top: 0, left: 0});
+  const {renderList} = useRender();
+  const onPress = () => {
+    muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
+    setShowModal(false);
+  };
   return String(props.uid)[0] !== '1' ? (
-    <IconButton
-      disabled={!isHost || !props.video}
-      onPress={() => {
-        muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
-      }}
-      iconProps={{
-        iconContainerStyle: {padding: 8},
-        name: props?.video ? 'video-on' : 'video-off',
-        iconSize: 20,
-        iconType: 'plain',
-        tintColor: props.video
-          ? $config.PRIMARY_ACTION_BRAND_COLOR
-          : $config.SEMANTIC_NETRUAL,
-      }}
-    />
+    <>
+      <RemoteMutePopup
+        actionMenuVisible={showModal}
+        setActionMenuVisible={setShowModal}
+        name={renderList[props.uid]?.name}
+        modalPosition={{top: pos.top - 15, left: pos.left + 23}}
+        onMutePress={onPress}
+      />
+      <IconButton
+        disabled={!isHost || !props.video}
+        onPress={() => {
+          userContainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
+            setPos({
+              top: py + h,
+              left: _px,
+            });
+          });
+          setShowModal(true);
+        }}
+        iconProps={{
+          iconContainerStyle: {padding: 8},
+          name: props?.video ? 'video-on' : 'video-off',
+          iconSize: 20,
+          iconType: 'plain',
+          tintColor: props.video
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
+            : $config.SEMANTIC_NETRUAL,
+        }}
+      />
+    </>
   ) : (
     <></>
   );
