@@ -83,7 +83,7 @@ const Participant = (props: ParticipantInterface) => {
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [
       {
-        icon: 'chat',
+        icon: 'chat-outlined',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
@@ -124,7 +124,7 @@ const Participant = (props: ParticipantInterface) => {
         hostUids.indexOf(user.uid) !== -1)
     ) {
       items.push({
-        icon: user.video ? 'video-off' : 'video-on',
+        icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: user.video ? 'Mute Video' : 'Request Video',
@@ -136,7 +136,7 @@ const Participant = (props: ParticipantInterface) => {
         },
       });
       items.push({
-        icon: user.audio ? 'mic-off' : 'mic-on',
+        icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: user.audio ? 'Mute Audio' : 'Request Audio',
@@ -151,7 +151,7 @@ const Participant = (props: ParticipantInterface) => {
 
     if (isHost) {
       items.push({
-        icon: 'remove',
+        icon: 'remove-meeting',
         iconColor: $config.SEMANTIC_ERROR,
         textColor: $config.SEMANTIC_ERROR,
         title: 'Remove from meeting',

@@ -64,6 +64,16 @@ export interface IconsInterface {
   alert: string;
   speaker: string;
   person: string;
+  'video-off-outlined': string;
+  'video-on-outlined': string;
+  'mic-on-outlined': string;
+  'mic-off-outlined': string;
+  pin: string;
+  pinned: string;
+  grid: string;
+  'remove-meeting': string;
+  'pencil-outlined': string;
+  'chat-outlined': string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

@@ -8,13 +8,13 @@ export const DefaultLayouts: layoutObjectType[] = [
   {
     name: 'grid',
     label: 'Grid',
-    iconName: 'grid-layout',
+    iconName: 'grid',
     component: GridVideo,
   },
   {
     name: 'pinned',
     label: 'Pinned',
-    iconName: 'pinned-layout',
+    iconName: 'pinned',
     component: PinnedVideo,
   },
 ];

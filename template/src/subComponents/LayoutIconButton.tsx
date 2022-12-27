@@ -16,14 +16,9 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
   const layoutLabel = 'Layout';
-  const [showDropdown, setShowDropdown] = useState(false);
   const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout, setLayout} = useLayout();
-
-  useEffect(() => {
-    setShowDropdown(isHovered);
-  }, [isHovered]);
 
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
@@ -35,7 +30,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       };
     } else {
       onPress = () => {
-        setShowDropdown(true);
+        setIsHovered(true);
       };
     }
     let iconButtonProps: Partial<IconButtonProps> = {
@@ -50,9 +45,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       props?.render ? (
         props.render(onPress)
       ) : (
-        <PlatformWrapper
-          showDropdown={showDropdown}
-          setIsHovered={setIsHovered}>
+        <PlatformWrapper showDropdown={isHovered} setIsHovered={setIsHovered}>
           <IconButton
             key={'defaultLayoutIconWithName'}
             iconProps={{
@@ -73,8 +66,8 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
        */}
       <PlatformWrapperPopup setIsHovered={setIsHovered}>
         <LayoutIconDropdown
-          showDropdown={showDropdown}
-          setShowDropdown={setShowDropdown}
+          showDropdown={isHovered}
+          setShowDropdown={setIsHovered}
         />
       </PlatformWrapperPopup>
       {/**
