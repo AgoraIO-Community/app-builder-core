@@ -1,7 +1,4 @@
 import React, {useContext, useState} from 'react';
-import Styles from '../components/styles';
-import {useString} from '../utils/useString';
-import {View, Text, TouchableOpacity} from 'react-native';
 import {useRtc} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';

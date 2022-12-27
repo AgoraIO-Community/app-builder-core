@@ -34,7 +34,7 @@ export default function FallbackLogo(name: string, isActiveSpeaker?: boolean) {
             {
               backgroundColor: isActiveSpeaker
                 ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : $config.SEMANTIC_NETRUAL,
+                : $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
             },
           ]}
           textStyle={styles.textStyle}

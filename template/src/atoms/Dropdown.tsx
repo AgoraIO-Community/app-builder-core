@@ -249,6 +249,7 @@ const styles = StyleSheet.create({
   },
   dropdownIconContainer: {
     alignSelf: 'center',
+    paddingLeft: 12,
   },
   dropdown: {
     position: 'absolute',
@@ -264,9 +265,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderTopWidth: 2,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOffset: {width: 5, height: 5},
-    shadowOpacity: 0.07,
-    shadowRadius: 20,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 5,
     overflow: 'hidden',
   },

@@ -360,7 +360,7 @@ const style = StyleSheet.create({
   toggleLabel: {
     color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
-    marginRight: 8,
+    marginRight: 4,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     alignSelf: 'center',

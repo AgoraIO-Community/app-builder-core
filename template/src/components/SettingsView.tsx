@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWebInternal} from '../utils/common';
+import {isWeb, isWebInternal} from '../utils/common';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ThemeConfig from '../theme';
@@ -34,6 +34,7 @@ import useSetName from '../utils/useSetName';
 import ImageIcon from '../atoms/ImageIcon';
 import Spacer from '../atoms/Spacer';
 import CommonStyles from './CommonStyles';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -84,23 +85,50 @@ const EditName: React.FC = (props?: EditNameProps) => {
             $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
           }
         />
-        <TouchableOpacity
-          disabled={editable ? disabled : false}
-          style={[
-            editNameStyle.editBtn,
-            editable
-              ? disabled
-                ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
-                : {}
-              : {},
-          ]}
-          onPress={onPress}>
-          <Text style={editNameStyle.editBtnText}>
-            {editable ? 'Save' : 'Edit'}
-          </Text>
-        </TouchableOpacity>
+        <PlatformWrapper>
+          <TouchableOpacity
+            disabled={editable ? disabled : false}
+            style={[
+              editNameStyle.editBtn,
+              editable
+                ? disabled
+                  ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
+                  : {}
+                : {},
+            ]}
+            onPress={onPress}>
+            <Text style={editNameStyle.editBtnText}>
+              {editable ? 'Save' : 'Edit'}
+            </Text>
+          </TouchableOpacity>
+        </PlatformWrapper>
       </View>
     </>
+  );
+};
+
+const PlatformWrapper = ({children}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  return isWeb() ? (
+    <div
+      style={
+        isHovered
+          ? {
+              background:
+                $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+            }
+          : {}
+      }
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    children
   );
 };
 
@@ -114,6 +142,7 @@ const editNameStyle = StyleSheet.create({
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderRadius: 8,
     paddingLeft: 12,
+    overflow: 'hidden',
   },
   editBtn: {
     paddingHorizontal: 24,

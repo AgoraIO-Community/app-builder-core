@@ -22,6 +22,7 @@ import {layoutProps} from '../../theme.json';
 import {layoutComponent, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import ImageIcon from '../atoms/ImageIcon';
+import IconButton from '../atoms/IconButton';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
@@ -49,28 +50,6 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
         flex: 1,
       }}
       onLayout={onLayout}>
-      {isSidePinnedlayout && (
-        <Pressable
-          onPress={() => setCollapse(!collapse)}
-          style={{
-            position: 'absolute',
-            zIndex: 50,
-            marginTop: 12,
-            width: 32,
-            height: 32,
-            marginLeft: collapse ? 12 : '20.5%',
-            backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
-            borderRadius: 16,
-            justifyContent: 'center',
-          }}>
-          <View style={{alignSelf: 'center', justifyContent: 'center'}}>
-            <ImageIcon
-              name={collapse ? 'collapse' : 'expand'}
-              tintColor={'#FFFFFF'}
-            />
-          </View>
-        </Pressable>
-      )}
       {!collapse && (
         <ScrollView
           horizontal={!isSidePinnedlayout}
@@ -114,6 +93,25 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             : style.flex4
         }>
         <View style={style.flex1} key={'maxVideo' + maxUid}>
+          {isSidePinnedlayout && (
+            <IconButton
+              containerStyle={{
+                position: 'absolute',
+                top: 12,
+                left: 12,
+                zIndex: 999,
+              }}
+              onPress={() => setCollapse(!collapse)}
+              iconProps={{
+                iconContainerStyle: {
+                  padding: 8,
+                },
+                name: collapse ? 'collapse' : 'expand',
+                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                iconSize: 24,
+              }}
+            />
+          )}
           <RenderComponent uid={maxUid} />
         </View>
       </View>
