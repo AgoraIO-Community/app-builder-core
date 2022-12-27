@@ -7,13 +7,13 @@ import {useLayout} from '../../utils/useLayout';
 export const DefaultLayouts: layoutObjectType[] = [
   {
     name: 'grid',
-    label: 'Grid Layout',
+    label: 'Grid',
     iconName: 'grid-layout',
     component: GridVideo,
   },
   {
     name: 'pinned',
-    label: 'Pinned Layout',
+    label: 'Pinned',
     iconName: 'pinned-layout',
     component: PinnedVideo,
   },

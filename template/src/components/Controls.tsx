@@ -79,7 +79,7 @@ const Controls = () => {
            * so added collapsable property
            * https://github.com/facebook/react-native/issues/29712
            * */}
-          <LayoutIconButton modalPosition={{bottom: 80, left: 60}} />
+          <LayoutIconButton />
         </View>
         <View testID="invite-btn" style={{marginVertical: 16, marginLeft: 12}}>
           <CopyJoinInfo />

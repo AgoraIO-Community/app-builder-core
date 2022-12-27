@@ -20,6 +20,7 @@ export interface BtnTextProps {
 }
 
 export interface IconButtonProps {
+  setRef?: (ref: any) => void;
   onPress?: TouchableOpacityProps['onPress'];
   disabled?: boolean;
   containerStyle?: ViewStyle;
@@ -36,6 +37,7 @@ export interface IconButtonProps {
 const IconButton = (props: IconButtonProps) => {
   return (
     <TouchableOpacity
+      ref={(ref) => props?.setRef && props.setRef(ref)}
       style={
         !props.isOnActionSheet && [
           styles.containerStyle,
