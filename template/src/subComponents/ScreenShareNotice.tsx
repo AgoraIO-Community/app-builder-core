@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 2,
     backgroundColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['90%'],
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['80%'],
     borderRadius: 15,
   },
   screensharingMessage: {
