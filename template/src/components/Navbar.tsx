@@ -91,9 +91,9 @@ interface ParticipantsIconButtonProps {
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
-      top: isWebInternal() ? -10 : 2,
+      top: 0,
       left: undefined,
-      right: undefined,
+      right: 15,
       bottom: undefined,
     },
     isMobileView = false,
@@ -101,12 +101,13 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     isOnActionSheet = false,
   } = props;
   const {sidePanel, setSidePanel} = useSidePanel();
-  // const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
-  //   useContext(LiveStreamContext);
+  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
+    useContext(LiveStreamContext);
   //commented for v1 release
   //const participantsLabel = useString('participantsLabel')();
   const {onlineUsersCount} = useContext(ChatContext);
-  const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
+  //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
+  const participantsLabel = `Participants`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
@@ -145,7 +146,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       <View>
         <IconButton {...iconButtonProps} />
       </View>
-      {/* {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
+      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
         <View
           style={{
             position: 'absolute',
@@ -153,15 +154,12 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
             bottom: liveStreamingRequestAlertIconPosition.bottom,
             right: liveStreamingRequestAlertIconPosition.right,
             left: liveStreamingRequestAlertIconPosition.left,
-          }}>
-          <View style={[style.badge, {paddingHorizontal: 3}]}>
-            <ImageIcon
-              icon={Icons['exclamationIcon']}
-              color={$config.SECONDARY_ACTION_COLOR}
-            />
-          </View>
-        </View>
-      )} */}
+            backgroundColor: $config.SEMANTIC_ERROR,
+            width: 12,
+            height: 12,
+            borderRadius: 10,
+          }}></View>
+      )}
     </>
   );
 };
@@ -189,9 +187,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {
     isMobileView = false,
     badgeContainerPosition = {
-      top: 2,
-      left: 35,
-      right: undefined,
+      top: 0,
+      right: 0,
+      left: undefined,
       bottom: undefined,
       zIndex: 999,
     },
@@ -250,7 +248,31 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  const renderBadge = (badgeCount: any) => {
+  // const renderBadgeOld = (badgeCount: any) => {
+  //   return (
+  //     <View
+  //       style={{
+  //         position: 'absolute',
+  //         top: badgeContainerPosition?.top,
+  //         bottom: badgeContainerPosition?.bottom,
+  //         left: badgeContainerPosition?.left,
+  //         right: badgeContainerPosition?.right,
+  //         borderRadius: 10,
+  //         width: 20,
+  //         height: 20,
+  //         backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  //         justifyContent: 'center',
+  //       }}>
+  //       <Text
+  //         style={{
+  //           ...badgeTextStyle,
+  //         }}>
+  //         {numFormatter(badgeCount)}
+  //       </Text>
+  //     </View>
+  //   );
+  // };
+  const renderUnreadMessageIndicator = () => {
     return (
       <View
         style={{
@@ -260,18 +282,10 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           left: badgeContainerPosition?.left,
           right: badgeContainerPosition?.right,
           borderRadius: 10,
-          width: 20,
-          height: 20,
-          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-          justifyContent: 'center',
-        }}>
-        <Text
-          style={{
-            ...badgeTextStyle,
-          }}>
-          {numFormatter(badgeCount)}
-        </Text>
-      </View>
+          width: 12,
+          height: 12,
+          backgroundColor: $config.SEMANTIC_ERROR,
+        }}></View>
     );
   };
   return props?.render ? (
@@ -280,7 +294,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     <>
       <View>
         <IconButton {...iconButtonProps} />
-        {totalUnreadCount !== 0 && renderBadge(totalUnreadCount)}
+        {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
       </View>
     </>
   );
