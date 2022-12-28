@@ -48,6 +48,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
+import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -322,6 +323,7 @@ const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
+  const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     data: {meetingTitle},
   } = useMeetingInfo();
@@ -337,6 +339,7 @@ const Navbar = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
+  const {onlineUsersCount} = useContext(ChatContext);
 
   return (
     <View
@@ -344,12 +347,41 @@ const Navbar = () => {
       onLayout={onLayout}
       style={[
         isWebInternal() ? style.navHolder : style.navHolderNative,
-        {paddingHorizontal: isDesktop ? 32 : 10},
+        {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
         <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
           {meetingTitle}
         </Text>
+        <IconButton
+          toolTipMessage={
+            $config.EVENT_MODE
+              ? `${'Host: ' + hostUids?.length || 0} \n` +
+                `${'Audience: ' + audienceUids?.length || 0}`
+              : ''
+          }
+          containerStyle={style.participantCountView}
+          disabled={true}
+          iconProps={{
+            name: 'people',
+            iconType: 'plain',
+            iconSize: 20,
+            tintColor:
+              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+          }}
+          btnTextProps={{
+            text: numFormatter(onlineUsersCount),
+            textColor:
+              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+            textStyle: {
+              fontWeight: '600',
+              fontSize: 16,
+              marginTop: 0,
+              marginLeft: 6,
+            },
+          }}
+        />
+
         {isRecordingActive && !isMobileOrTablet() ? (
           <View style={[style.recordingView]}>
             <View style={[style.recordingStatus]} />
@@ -397,6 +429,19 @@ export const NavBarComponentsArray: NavBarComponentsArrayProps = [
 ];
 
 const style = StyleSheet.create({
+  participantCountView: {
+    flexDirection: 'row',
+    padding: 12,
+    backgroundColor: $config.ICON_BG_COLOR,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    marginLeft: 20,
+  },
   navHolder: {
     width: '100%',
     paddingVertical: 12,
@@ -416,27 +461,33 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   recordingView: {
-    padding: 8,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    backgroundColor: '#FF414D' + hexadecimalTransparency['10%'],
+    borderRadius: 24,
+    backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
     marginLeft: 20,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
   },
   recordingText: {
     fontSize: 12,
     lineHeight: 12,
     fontWeight: '400',
     fontFamily: 'Source Sans Pro',
-    color: '#ff414D',
+    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
   },
   recordingStatus: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#FF414D',
+    backgroundColor: $config.SEMANTIC_ERROR,
     marginRight: 8,
   },
   recordingIcon: {

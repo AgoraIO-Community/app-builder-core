@@ -74,6 +74,7 @@ export interface IconsInterface {
   'remove-meeting': string;
   'pencil-outlined': string;
   'chat-outlined': string;
+  people: string;
   // screenshareStart: string;
   // screenshareStop: string;
   // recordingStart: string;

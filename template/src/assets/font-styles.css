@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?cjjon7') format('truetype');
+  src: url('fonts/icomoon.ttf?3pmzc4') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -22,6 +22,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-people:before {
+  content: '\e946';
+  color: #777;
+}
 .icon-chat-outlined:before {
   content: '\e93c';
   color: #c5c5c5;
