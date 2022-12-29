@@ -1,6 +1,6 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {RenderInterface, UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
@@ -25,21 +25,15 @@ import useRemoteRequest, {
 } from '../../utils/useRemoteRequest';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
-import StorageContext from '../../components/StorageContext';
-import Events, {EventPersistLevel} from '../../rtm-events-api/index';
 
 interface VideoRendererProps {
   user: RenderInterface;
+  isMax?: boolean;
 }
-const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
+const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
+  const {dispatch} = useRtc();
   const isActiveSpeaker = useIsActiveSpeaker();
-  const {currentLayout} = useLayout();
-  const {activeUids} = useRender();
-  // const showShareNotice =
-  //   currentLayout === getPinnedLayoutName() &&
-  //   activeUids &&
-  //   activeUids?.length &&
-  //   activeUids[0] === user.uid;
+  const {pinnedUid} = useRender();
   const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   return (
@@ -57,7 +51,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
         <NetworkQualityPill user={user} />
         <MaxVideoView
           fallback={() => {
-            return FallbackLogo(user?.name, activeSpeaker);
+            return FallbackLogo(
+              user?.name,
+              activeSpeaker,
+              isHovered && !isMax && pinnedUid ? true : false,
+            );
           }}
           user={user}
           containerStyle={{
@@ -68,7 +66,36 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
           key={user.uid}
         />
         <NameWithMicIcon user={user} />
-        {isHovered ? <MoreMenu user={user} /> : <></>}
+        {isHovered ? (
+          <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
+        ) : (
+          <></>
+        )}
+        {pinnedUid && !isMax && isHovered ? (
+          <IconButton
+            onPress={() => {
+              dispatch({type: 'UserPin', value: [user.uid]});
+            }}
+            containerStyle={maxStyle.replacePinContainer}
+            btnTextProps={{
+              text: 'Replace Pin',
+              textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+              textStyle: {
+                marginTop: 0,
+                fontWeight: '700',
+                marginLeft: 6,
+              },
+            }}
+            iconProps={{
+              name: 'pin',
+              iconSize: 20,
+              iconType: 'plain',
+              tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+            }}
+          />
+        ) : (
+          <></>
+        )}
       </View>
     </PlatformWrapper>
   );
@@ -76,12 +103,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user}) => {
 
 interface MoreMenuProps {
   user: RenderInterface;
+  isMax: boolean;
+  pinnedUid: UidType;
 }
-const MoreMenu = ({user}: MoreMenuProps) => {
+const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const {dispatch} = useRtc();
-  const {setStore} = useContext(StorageContext);
-  const localUid = useLocalUid();
-  const {currentLayout, setLayout} = useLayout();
+  const {setLayout} = useLayout();
   const videoMoreMenuRef = useRef(null);
   const {hostUids} = useLiveStreamDataContext();
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
@@ -105,17 +132,19 @@ const MoreMenu = ({user}: MoreMenuProps) => {
   };
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [];
-    items.push({
-      icon: 'pin',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.SECONDARY_ACTION_COLOR,
-      title: 'Pin for me',
-      callback: () => {
-        setActionMenuVisible(false);
-        dispatch({type: 'UserPin', value: [user.uid]});
-        setLayout(getPinnedLayoutName());
-      },
-    });
+    if (!(pinnedUid && isMax)) {
+      items.push({
+        icon: 'pin',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: pinnedUid ? 'Replace pin' : 'Pin for me',
+        callback: () => {
+          setActionMenuVisible(false);
+          dispatch({type: 'UserPin', value: [user.uid]});
+          setLayout(getPinnedLayoutName());
+        },
+      });
+    }
     if (
       (isHost && !$config.EVENT_MODE) ||
       ($config.EVENT_MODE &&
@@ -227,6 +256,22 @@ const PlatformWrapper = ({children, setIsHovered}) => {
 };
 
 const maxStyle = StyleSheet.create({
+  replacePinContainer: {
+    zIndex: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+    borderRadius: 8,
+    flexDirection: 'row',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    margin: 'auto',
+    maxWidth: 120,
+    maxHeight: 32,
+  },
   container: {
     width: '100%',
     height: '100%',

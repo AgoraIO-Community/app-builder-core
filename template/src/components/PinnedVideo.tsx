@@ -175,9 +175,9 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             <></>
           )}
           {pinnedUid ? (
-            <RenderComponent uid={pinnedUid} />
+            <RenderComponent uid={pinnedUid} isMax={true} />
           ) : (
-            <RenderComponent uid={maxUid} />
+            <RenderComponent uid={maxUid} isMax={true} />
           )}
         </View>
       </View>

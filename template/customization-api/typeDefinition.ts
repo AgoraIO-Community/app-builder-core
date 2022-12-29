@@ -56,6 +56,7 @@ export interface ChatCmpInterface {
 
 export interface renderComponentInterface {
   user: RenderInterface;
+  isMax?: boolean;
 }
 
 export interface renderComponentObjectInterface {
