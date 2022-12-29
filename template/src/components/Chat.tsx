@@ -70,8 +70,6 @@ const Chat = (props?: ChatProps) => {
     setSelectedChatUserId: setSelectedUser,
   } = useChatUIControl();
 
-  console.log('debugging ');
-
   const {
     unreadGroupMessageCount,
     setUnreadGroupMessageCount,

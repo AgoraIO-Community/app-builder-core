@@ -96,7 +96,6 @@ const MoreMenu = ({user}: MoreMenuProps) => {
   const [pos, setPos] = useState({top: 0, left: 0});
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
-      console.log('debugging value', _px, _py);
       setPos({
         top: _py,
         left: _px,
