@@ -120,6 +120,7 @@ const Create = () => {
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
+    console.log('[SDKEvents] Join listener registered');
     const unbind = SDKEvents.on(
       'joinMeetingWithPhrase',
       (phrase, resolve, reject) => {
@@ -133,6 +134,7 @@ const Create = () => {
         }
       },
     );
+    SDKEvents.emit('joinInit');
     return () => {
       unbind();
     };

@@ -38,13 +38,25 @@ export interface AppBuilderSdkApiInterface {
   ) => Unsubscribe;
 }
 
+let joinInit = false;
+
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   customize: (customization: CustomizationApiInterface) => {
     SDKEvents.emit('addFpe', customization);
   },
   join: (roomid: string) =>
     new Promise((resolve, reject) => {
-      SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
+      if (joinInit) {
+        console.log('[SDKEvents] Join listener emitted preemptive');
+        SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
+      }
+      SDKEvents.on('joinInit', () => {
+        if (!joinInit) {
+          console.log('[SDKEvents] Join listener emitted');
+          SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
+          joinInit = true;
+        }
+      });
     }),
   createCustomization: customize,
   on: (userEventName, cb) => {

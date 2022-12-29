@@ -26,12 +26,8 @@ import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
-import {
-  useLastJoinedUser,
-  useLayout,
-  useRender,
-  useRtc,
-} from 'customization-api';
+import {useLayout, useRender, useRtc} from 'customization-api';
+import {filterObject} from '../../utils';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -39,9 +35,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
   const rtc = useRtc();
   const {dispatch} = rtc;
-  const {renderList, activeUids} = useRender();
-  const {lastUserJoined: lastJoinedUser} = useLastJoinedUser();
-
+  const {renderList, activeUids, lastJoinedUid} = useRender();
+  const isPinned = useRef(0);
   const {isRecordingActive} = useRecording();
   const {executeNormalQuery, executePresenterQuery} = useRecordingLayoutQuery();
   const {setScreenShareData, screenShareData} = useScreenContext();
@@ -71,31 +66,43 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   /**
    * Event api callback trigger even before screenshare data available in the RTC layer.
    * so instead of calling triggerChangeLayout from the event api call back
-   * listening for rtc layout lastJoinedUser data and if its screenshare then call triggerChangeLayout
+   * listening for rtc layout lastJoinedUid data and if its screenshare then call triggerChangeLayout
+   * lastJoinedUid will be coming from the user joined event
+   * cross check lastJoinedUid data with renderlist
    */
+
   useEffect(() => {
-    if (
-      lastJoinedUser &&
-      lastJoinedUser?.uid &&
-      lastJoinedUser?.type === 'screenshare' &&
-      activeUids &&
-      activeUids.indexOf(lastJoinedUser.uid) !== -1
-    ) {
-      //set to pinned layout
-      triggerChangeLayout(true, lastJoinedUser.uid);
+    const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
+    if (data) {
+      const recentScreenshare = Object.keys(data)
+        .map((i) => parseInt(i))
+        .sort((a, b) => {
+          return data[a].ts - data[b].ts;
+        });
+      if (recentScreenshare?.length) {
+        recentScreenshare.reverse();
+        if (
+          isPinned.current !== recentScreenshare[0] &&
+          activeUids.indexOf(recentScreenshare[0]) !== -1
+        ) {
+          triggerChangeLayout(true, recentScreenshare[0]);
+        }
+      }
     }
-  }, [lastJoinedUser, activeUids]);
+  }, [activeUids, screenShareData]);
 
   const triggerChangeLayout = (pinned: boolean, screenShareUid?: UidType) => {
     let layout = currentLayoutRef.current.currentLayout;
     //screenshare is started set the layout to Pinned View
     if (pinned && screenShareUid) {
+      isPinned.current = screenShareUid;
       dispatch({
         type: 'SwapVideo',
         value: [screenShareUid],
       });
       layout !== getPinnedLayoutName() && setPinnedLayout();
     } else {
+      isPinned.current = 0;
       //screenshare is stopped set the layout Grid View
       layout !== getGridLayoutName() && changeLayout();
     }
