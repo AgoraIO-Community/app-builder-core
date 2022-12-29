@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -34,6 +34,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
 import UserAvatar from '../atoms/UserAvatar';
 import Spacer from '../atoms/Spacer';
+import {useChatNotification} from '../components/chat-notification/useChatNotification';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -43,19 +44,49 @@ import Spacer from '../atoms/Spacer';
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const [grpUnreadCount, setGrpUnreadCount] = useState(0);
+  const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {renderList} = useRender();
   const {messageStore, privateMessageStore} = useChatMessages();
+  const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
   const {
+    groupActive,
     privateActive,
     selectedChatUserId: selectedUserID,
     setPrivateActive,
+    inputActive,
   } = useChatUIControl();
+  const privateMessageStoreRef = useRef(
+    privateMessageStore[selectedUserID]?.length,
+  );
+  const {
+    setUnreadGroupMessageCount,
+    unreadGroupMessageCount,
+    unreadIndividualMessageCount,
+    setUnreadIndividualMessageCount,
+  } = useChatNotification();
   const localUid = useLocalUid();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (groupActive) {
+      setGrpUnreadCount(unreadGroupMessageCount);
+      setUnreadGroupMessageCount(0);
+    }
+    if (selectedUserID) {
+      setPrivateUnreadCount(unreadIndividualMessageCount[selectedUserID]);
+      setUnreadIndividualMessageCount((prevState) => {
+        return {
+          ...prevState,
+          [selectedUserID]: 0,
+        };
+      });
+    }
+  }, []);
 
   const {ChatBubbleComponent} = useCustomization((data) => {
     let components: {
@@ -128,6 +159,17 @@ const ChatContainer = (props?: {
             </View>
             {messageStore.map((message: any, index) => (
               <>
+                {messageStoreLengthRef.current === messageStore.length &&
+                grpUnreadCount &&
+                messageStore.length - grpUnreadCount === index ? (
+                  <View style={style.unreadMessageContainer}>
+                    <Text style={style.unreadMessageText}>
+                      {grpUnreadCount} Unread Message
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
                 <ChatBubbleComponent
                   isLocal={localUid === message.uid}
                   isSameUser={
@@ -155,6 +197,20 @@ const ChatContainer = (props?: {
           <>
             {privateMessageStore[selectedUserID].map((message: any, index) => (
               <>
+                {privateMessageStoreRef.current ===
+                  privateMessageStore[selectedUserID]?.length &&
+                privateUnreadCount &&
+                privateMessageStore[selectedUserID]?.length -
+                  privateUnreadCount ===
+                  index ? (
+                  <View style={style.unreadMessageContainer}>
+                    <Text style={style.unreadMessageText}>
+                      {privateUnreadCount} Unread Message
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
                 <ChatBubbleComponent
                   isLocal={localUid === message.uid}
                   isSameUser={
@@ -194,6 +250,18 @@ const ChatContainer = (props?: {
 };
 
 const style = StyleSheet.create({
+  unreadMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    padding: 8,
+    marginVertical: 20,
+  },
+  unreadMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
+    textAlign: 'center',
+  },
   defaultMessageContainer: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 8,

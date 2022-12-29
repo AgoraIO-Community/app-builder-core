@@ -105,16 +105,17 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }, [selectedChatUserId]);
 
   const openPrivateChat = (uidAsNumber) => {
-    setUnreadPrivateMessageCount(
-      unreadPrivateMessageCount -
-        (unreadIndividualMessageCount[uidAsNumber] || 0),
-    );
-    setUnreadIndividualMessageCount((prevState) => {
-      return {
-        ...prevState,
-        [uidAsNumber]: 0,
-      };
-    });
+    //move this logic into ChatContainer
+    // setUnreadPrivateMessageCount(
+    //   unreadPrivateMessageCount -
+    //     (unreadIndividualMessageCount[uidAsNumber] || 0),
+    // );
+    // setUnreadIndividualMessageCount((prevState) => {
+    //   return {
+    //     ...prevState,
+    //     [uidAsNumber]: 0,
+    //   };
+    // });
     setGroupActive(false);
     setSelectedChatUserId(uidAsNumber);
     setPrivateActive(true);
@@ -127,7 +128,15 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       uid: string,
       isPrivateMessage: boolean = false,
     ) => {
+      //don't show group message notification if group chat is open
+      if (!isPrivateMessage && groupActiveRef.current) {
+        return;
+      }
       const uidAsNumber = parseInt(uid);
+      //don't show private message notification if private chat is open
+      if (isPrivateMessage && uidAsNumber === individualActiveRef.current) {
+        return;
+      }
       Toast.show({
         type: 'info',
         text1: isPrivateMessage
@@ -145,7 +154,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           if (isPrivateMessage) {
             openPrivateChat(uidAsNumber);
           } else {
-            setUnreadGroupMessageCount(0);
+            //move this logic into ChatContainer
+            // setUnreadGroupMessageCount(0);
             setPrivateActive(false);
             setSelectedChatUserId(0);
             setGroupActive(true);

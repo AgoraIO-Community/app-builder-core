@@ -214,7 +214,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     if (isMobileView) {
       setGroupActive(true);
       openSheet();
-      setUnreadGroupMessageCount(0);
+      //move this logic into ChatContainer
+      //setUnreadGroupMessageCount(0);
     } else {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
@@ -222,7 +223,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         setPrivateActive(false);
         setSelectedChatUserId(0);
       } else {
-        setUnreadGroupMessageCount(0);
+        //move this logic into ChatContainer
+        //setUnreadGroupMessageCount(0);
         setGroupActive(true);
         setSidePanel(SidePanelType.Chat);
       }

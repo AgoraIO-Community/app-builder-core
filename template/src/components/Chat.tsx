@@ -93,7 +93,8 @@ const Chat = (props?: ChatProps) => {
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
-    setUnreadGroupMessageCount(0);
+    //move this logic into ChatContainer
+    //setUnreadGroupMessageCount(0);
     setSelectedUser(0);
   };
   const selectPrivate = () => {
@@ -104,15 +105,16 @@ const Chat = (props?: ChatProps) => {
   const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
-    setUnreadIndividualMessageCount((prevState) => {
-      return {
-        ...prevState,
-        [userUID]: 0,
-      };
-    });
-    setUnreadPrivateMessageCount(
-      unreadPrivateMessageCount - (unreadIndividualMessageCount[userUID] || 0),
-    );
+    //move this logic into ChatContainer
+    // setUnreadIndividualMessageCount((prevState) => {
+    //   return {
+    //     ...prevState,
+    //     [userUID]: 0,
+    //   };
+    // });
+    // setUnreadPrivateMessageCount(
+    //   unreadPrivateMessageCount - (unreadIndividualMessageCount[userUID] || 0),
+    // );
   };
 
   const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
@@ -169,6 +171,7 @@ const Chat = (props?: ChatProps) => {
           leadingIconOnPress={
             privateActive
               ? () => {
+                  setSelectedUser(0);
                   setPrivateActive(false);
                 }
               : () => {}
