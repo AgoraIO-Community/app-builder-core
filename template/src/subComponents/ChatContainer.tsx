@@ -120,30 +120,37 @@ const ChatContainer = (props?: {
           scrollViewRef.current?.scrollToEnd({animated: false});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any, index) => (
-            <>
-              <ChatBubbleComponent
-                isLocal={localUid === message.uid}
-                isSameUser={
-                  index !== 0 && messageStore[index - 1].uid === message.uid
-                    ? true
-                    : false
-                }
-                message={message.msg}
-                createdTimestamp={message.createdTimestamp}
-                updatedTimestamp={message.updatedTimestamp}
-                uid={message.uid}
-                key={message.ts}
-                msgId={message.msgId}
-                isDeleted={message.isDeleted}
-              />
-              {messageStore?.length - 1 === index ? (
-                <Spacer size={10} />
-              ) : (
-                <></>
-              )}
-            </>
-          ))
+          <>
+            <View style={style.defaultMessageContainer}>
+              <Text style={style.defaultMessageText}>
+                Welcome to Chat! {'\n'}All messages are deleted when call ends.
+              </Text>
+            </View>
+            {messageStore.map((message: any, index) => (
+              <>
+                <ChatBubbleComponent
+                  isLocal={localUid === message.uid}
+                  isSameUser={
+                    index !== 0 && messageStore[index - 1].uid === message.uid
+                      ? true
+                      : false
+                  }
+                  message={message.msg}
+                  createdTimestamp={message.createdTimestamp}
+                  updatedTimestamp={message.updatedTimestamp}
+                  uid={message.uid}
+                  key={message.ts}
+                  msgId={message.msgId}
+                  isDeleted={message.isDeleted}
+                />
+                {messageStore?.length - 1 === index ? (
+                  <Spacer size={10} />
+                ) : (
+                  <></>
+                )}
+              </>
+            ))}
+          </>
         ) : privateMessageStore[selectedUserID] ? (
           <>
             {privateMessageStore[selectedUserID].map((message: any, index) => (
@@ -187,6 +194,18 @@ const ChatContainer = (props?: {
 };
 
 const style = StyleSheet.create({
+  defaultMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 8,
+    padding: 20,
+    margin: 20,
+  },
+  defaultMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
+  },
   bgContainerStyle: {
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],

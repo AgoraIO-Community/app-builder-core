@@ -25,7 +25,7 @@ const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
-  const {renderList} = useRender();
+  const {renderList, activeUids} = useRender();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isChatUser = (userId: UidType, userInfo: any) => {
@@ -40,6 +40,15 @@ const ChatParticipants = (props: any) => {
   const [isHoveredUid, setIsHoveredUid] = React.useState(0);
   return (
     <ScrollView>
+      {activeUids && activeUids.length === 1 ? (
+        <View style={style.defaultMessageContainer}>
+          <Text style={style.defaultMessageText}>
+            No one else has joined yet.
+          </Text>
+        </View>
+      ) : (
+        <></>
+      )}
       {Object.entries(renderList).map(([uid, value]) => {
         const uidAsNumber = parseInt(uid);
 
@@ -130,6 +139,18 @@ const PlatformWrapper = ({
 };
 
 const style = StyleSheet.create({
+  defaultMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 8,
+    padding: 20,
+    margin: 20,
+  },
+  defaultMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
+  },
   bgContainerStyle: {
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
