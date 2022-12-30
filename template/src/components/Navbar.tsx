@@ -124,14 +124,9 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'participants',
-      tintColor: isMobileView
-        ? $config.SECONDARY_ACTION_COLOR
-        : isPanelActive
-        ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.SECONDARY_ACTION_COLOR,
-      iconBackgroundColor: isPanelActive
+      tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : '',
+        : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
       text: isMobileView || !$config.ICON_TEXT ? '' : participantsLabel,
@@ -234,14 +229,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'chat',
-      tintColor: isMobileView
-        ? $config.SECONDARY_ACTION_COLOR
-        : isPanelActive
-        ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.SECONDARY_ACTION_COLOR,
-      iconBackgroundColor: isPanelActive
+      tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : '',
+        : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
       text: isMobileView || !$config.ICON_TEXT ? '' : chatLabel,

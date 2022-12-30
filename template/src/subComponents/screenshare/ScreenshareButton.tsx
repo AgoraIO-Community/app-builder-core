@@ -80,7 +80,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     };
     iconButtonProps.toolTipMessage = isHandRaised(local.uid)
       ? 'Waiting for host to appove the request'
-      : 'Raise Hand in order to turn video on';
+      : 'Raise Hand in order to present';
     iconButtonProps.disabled = true;
   }
 
