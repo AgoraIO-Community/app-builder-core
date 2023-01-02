@@ -24,7 +24,12 @@ const LiveStreamControls = (props: LiveStreamControlsProps) => {
   if (!showControls) return <></>;
   return (
     <>
-      <View style={{alignSelf: 'center', marginRight: isDesktop ? 11 : 0}}>
+      <View
+        style={{
+          alignSelf: 'center',
+          marginRight: isDesktop ? 16 : 10,
+          marginVertical: 16,
+        }}>
         <LocalRaiseHand showLabel={isDesktop} />
       </View>
     </>

@@ -389,13 +389,13 @@ const Navbar = () => {
         </View>
         {$config.CHAT && (
           <>
-            <Spacer size={11} horizontal={true} />
+            <Spacer size={16} horizontal={true} />
             <View testID="videocall-chaticon">
               <ChatIconButton />
             </View>
           </>
         )}
-        <Spacer size={11} horizontal={true} />
+        <Spacer size={16} horizontal={true} />
         <View testID="videocall-settingsicon">
           <SettingsIconButtonWithWrapper />
         </View>

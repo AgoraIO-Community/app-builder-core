@@ -72,7 +72,7 @@ const Controls = () => {
       <View style={style.leftContent}>
         <View
           testID="layout-btn"
-          style={{marginRight: isDesktop ? 0 : 10}}
+          style={{marginRight: isDesktop ? 16 : 10}}
           collapsable={false}>
           {/**
            * .measure returns undefined on Android unless collapsable=false or onLayout are specified
@@ -81,7 +81,7 @@ const Controls = () => {
            * */}
           <LayoutIconButton />
         </View>
-        <View testID="invite-btn" style={{marginVertical: 16, marginLeft: 12}}>
+        <View testID="invite-btn" style={{marginVertical: 16}}>
           <CopyJoinInfo />
         </View>
       </View>
@@ -107,20 +107,20 @@ const Controls = () => {
           )}
           <View
             testID="localAudio-btn"
-            style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+            style={{marginRight: isDesktop ? 16 : 10, marginVertical: 16}}>
             <LocalAudioMute />
           </View>
           {!$config.AUDIO_ROOM && (
             <View
               testID="localVideo-btn"
-              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              style={{marginRight: isDesktop ? 16 : 10, marginVertical: 16}}>
               <LocalVideoMute />
             </View>
           )}
           {!$config.AUDIO_ROOM && isMobileOrTablet() && (
             <View
               testID="switchCamera-btn"
-              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              style={{marginRight: isDesktop ? 16 : 10, marginVertical: 16}}>
               <LocalSwitchCamera />
             </View>
           )}
@@ -134,7 +134,7 @@ const Controls = () => {
           {isHost && $config.CLOUD_RECORDING && (
             <View
               testID="recording-btn"
-              style={{marginRight: isDesktop ? 11 : 10, marginVertical: 16}}>
+              style={{marginRight: isDesktop ? 16 : 10, marginVertical: 16}}>
               <Recording />
             </View>
           )}
