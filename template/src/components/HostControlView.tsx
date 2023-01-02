@@ -60,7 +60,7 @@ const HostControlView = () => {
   return (
     <View style={style.container}>
       {!$config.AUDIO_ROOM && <MuteAllVideoButton />}
-      <Spacer horizontal size={8} />
+      <Spacer horizontal size={16} />
       <MuteAllAudioButton />
     </View>
   );

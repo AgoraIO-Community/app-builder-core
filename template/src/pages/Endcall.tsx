@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, View, Text, Dimensions} from 'react-native';
+import {StyleSheet, View, Text, Dimensions, Platform} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
@@ -7,53 +7,15 @@ import {Logo} from '../components/common';
 import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
+import CircularProgress from '../atoms/CircularProgress';
 
-const Timer = () => {
-  const [seconds, setSeconds] = useState(60);
-  const history = useHistory();
-
-  useEffect(() => {
-    const timerInterval = setInterval(() => {
-      setSeconds((seconds) => seconds - 1);
-    }, 1000);
-    return () => {
-      clearInterval(timerInterval); //when user exits, clear this interval.
-    };
-  }, []);
-
-  useEffect(() => {
-    if (seconds <= 0) {
-      history.push('/');
-    }
-  }, [seconds]);
-
-  return (
-    <View
-      style={{
-        justifyContent: 'center',
-        alignSelf: 'center',
-        borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-        borderWidth: 3,
-        borderRadius: 30,
-        minHeight: 40,
-        minWidth: 40,
-      }}>
-      <Text
-        style={{
-          padding: 12,
-          minHeight: 40,
-          minWidth: 40,
-          fontFamily: ThemeConfig.FontFamily.sansPro,
-          fontWeight: '700',
-          fontSize: 14,
-          lineHeight: 18,
-          textAlign: 'center',
-          color: $config.FONT_COLOR,
-        }}>
-        {seconds}
-      </Text>
-    </View>
-  );
+/* For android only, bg audio */
+const StopForegroundService = () => {
+  if (Platform.OS === 'android') {
+    ReactNativeForegroundService.stop();
+    console.log('stopping foreground service');
+  }
 };
 
 const Endcall = () => {
@@ -63,6 +25,11 @@ const Endcall = () => {
   const returnToHomeLabel = 'Returning to the home screen';
   const {store} = useContext(StorageContext);
   const history = useHistory();
+
+  const onComplete = React.useCallback(() => {
+    history.push('/');
+    StopForegroundService();
+  }, []);
 
   const [dim, setDim] = useState<[number, number]>([
     Dimensions.get('window').width,
@@ -75,9 +42,11 @@ const Endcall = () => {
 
   const reJoin = () => {
     history.push(store.lastMeetingPhrase);
+    StopForegroundService();
   };
   const goToCreate = () => {
     history.push('/');
+    StopForegroundService();
   };
   return (
     <View style={styles.main} onLayout={onLayout}>
@@ -99,7 +68,10 @@ const Endcall = () => {
           style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
           <TertiaryButton
             containerStyle={{
-              paddingVertical: 17,
+              height: 60,
+              paddingHorizontal: 34,
+              paddingVertical: 20,
+              borderRadius: 8,
               minWidth: isDesktop ? 'auto' : '100%',
               marginRight: isDesktop ? 12 : 0,
             }}
@@ -112,9 +84,11 @@ const Endcall = () => {
 
           <PrimaryButton
             containerStyle={{
-              paddingVertical: 17,
+              height: 60,
               minWidth: isDesktop ? 'auto' : '100%',
               marginBottom: isDesktop ? 0 : 20,
+              paddingHorizontal: 30,
+              paddingVertical: 20,
             }}
             text={createMeetingLabel}
             textStyle={styles.btnText}
@@ -125,7 +99,7 @@ const Endcall = () => {
         </View>
       </View>
       <View style={styles.bottomContainer}>
-        <Timer />
+        <CircularProgress onComplete={onComplete} timer={60} />
         <Spacer size={10} />
         <Text style={styles.returnHomeText}>{returnToHomeLabel}</Text>
       </View>

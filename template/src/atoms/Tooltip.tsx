@@ -19,7 +19,7 @@ const Tooltip = (props: TooltipProps) => {
   const {isClickable = false} = props;
   const css = `
   .custom-tool-tip{
-    padding:24px;
+    padding:12px;
     border-radius: 8px;
   }
   .custom-tool-tip div{

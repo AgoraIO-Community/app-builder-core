@@ -47,6 +47,8 @@ import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Spacer from '../atoms/Spacer';
+import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -90,9 +92,9 @@ interface ParticipantsIconButtonProps {
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
-      top: isWebInternal() ? -10 : 2,
+      top: 0,
       left: undefined,
-      right: undefined,
+      right: 15,
       bottom: undefined,
     },
     isMobileView = false,
@@ -100,12 +102,13 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     isOnActionSheet = false,
   } = props;
   const {sidePanel, setSidePanel} = useSidePanel();
-  // const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
-  //   useContext(LiveStreamContext);
+  const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
+    useContext(LiveStreamContext);
   //commented for v1 release
   //const participantsLabel = useString('participantsLabel')();
   const {onlineUsersCount} = useContext(ChatContext);
-  const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
+  //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
+  const participantsLabel = `Participants`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
@@ -121,44 +124,25 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'participants',
-      tintColor: isMobileView
+      tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : isPanelActive
-        ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
+    },
+    btnTextProps: {
+      text: isMobileView || !$config.ICON_TEXT ? '' : participantsLabel,
+      textColor: $config.FONT_COLOR,
     },
   };
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.btnText =
-    isMobileView || !$config.ICON_TEXT ? '' : participantsLabel;
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
 
   return props?.render ? (
     props.render(onPress, isPanelActive)
   ) : (
     <>
-      <View
-        style={
-          !isMobileView && [
-            isPanelActive
-              ? {
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                  borderRadius: 8,
-                }
-              : {},
-          ]
-        }>
+      <View>
         <IconButton {...iconButtonProps} />
       </View>
-      {/* {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
+      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
         <View
           style={{
             position: 'absolute',
@@ -166,15 +150,12 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
             bottom: liveStreamingRequestAlertIconPosition.bottom,
             right: liveStreamingRequestAlertIconPosition.right,
             left: liveStreamingRequestAlertIconPosition.left,
-          }}>
-          <View style={[style.badge, {paddingHorizontal: 3}]}>
-            <ImageIcon
-              icon={Icons['exclamationIcon']}
-              color={$config.SECONDARY_ACTION_COLOR}
-            />
-          </View>
-        </View>
-      )} */}
+            backgroundColor: $config.SEMANTIC_ERROR,
+            width: 12,
+            height: 12,
+            borderRadius: 10,
+          }}></View>
+      )}
     </>
   );
 };
@@ -202,9 +183,9 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {
     isMobileView = false,
     badgeContainerPosition = {
-      top: 2,
-      left: 35,
-      right: undefined,
+      top: 0,
+      right: 0,
+      left: undefined,
       bottom: undefined,
       zIndex: 999,
     },
@@ -228,7 +209,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     if (isMobileView) {
       setGroupActive(true);
       openSheet();
-      setUnreadGroupMessageCount(0);
+      //move this logic into ChatContainer
+      //setUnreadGroupMessageCount(0);
     } else {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
@@ -236,7 +218,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         setPrivateActive(false);
         setSelectedChatUserId(0);
       } else {
-        setUnreadGroupMessageCount(0);
+        //move this logic into ChatContainer
+        //setUnreadGroupMessageCount(0);
         setGroupActive(true);
         setSidePanel(SidePanelType.Chat);
       }
@@ -246,27 +229,43 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'chat',
-      tintColor: isMobileView
+      tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : isPanelActive
-        ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
+    },
+    btnTextProps: {
+      text: isMobileView || !$config.ICON_TEXT ? '' : chatLabel,
+      textColor: $config.FONT_COLOR,
     },
   };
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.btnText = isMobileView || !$config.ICON_TEXT ? '' : chatLabel;
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
 
-  const renderBadge = (badgeCount: any) => {
+  // const renderBadgeOld = (badgeCount: any) => {
+  //   return (
+  //     <View
+  //       style={{
+  //         position: 'absolute',
+  //         top: badgeContainerPosition?.top,
+  //         bottom: badgeContainerPosition?.bottom,
+  //         left: badgeContainerPosition?.left,
+  //         right: badgeContainerPosition?.right,
+  //         borderRadius: 10,
+  //         width: 20,
+  //         height: 20,
+  //         backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+  //         justifyContent: 'center',
+  //       }}>
+  //       <Text
+  //         style={{
+  //           ...badgeTextStyle,
+  //         }}>
+  //         {numFormatter(badgeCount)}
+  //       </Text>
+  //     </View>
+  //   );
+  // };
+  const renderUnreadMessageIndicator = () => {
     return (
       <View
         style={{
@@ -276,38 +275,19 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
           left: badgeContainerPosition?.left,
           right: badgeContainerPosition?.right,
           borderRadius: 10,
-          width: 20,
-          height: 20,
-          backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-          justifyContent: 'center',
-        }}>
-        <Text
-          style={{
-            ...badgeTextStyle,
-          }}>
-          {numFormatter(badgeCount)}
-        </Text>
-      </View>
+          width: 12,
+          height: 12,
+          backgroundColor: $config.SEMANTIC_ERROR,
+        }}></View>
     );
   };
   return props?.render ? (
     props.render(onPress, isPanelActive, totalUnreadCount)
   ) : (
     <>
-      <View
-        style={
-          !isMobileView && [
-            {marginLeft: 8},
-            isPanelActive
-              ? {
-                  backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-                  borderRadius: 8,
-                }
-              : {},
-          ]
-        }>
+      <View>
         <IconButton {...iconButtonProps} />
-        {totalUnreadCount !== 0 && renderBadge(totalUnreadCount)}
+        {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
       </View>
     </>
   );
@@ -335,6 +315,7 @@ const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
+  const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     data: {meetingTitle},
   } = useMeetingInfo();
@@ -350,6 +331,7 @@ const Navbar = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isDesktop = dim[0] > 1224;
+  const {onlineUsersCount} = useContext(ChatContext);
 
   return (
     <View
@@ -357,12 +339,41 @@ const Navbar = () => {
       onLayout={onLayout}
       style={[
         isWebInternal() ? style.navHolder : style.navHolderNative,
-        {paddingHorizontal: isDesktop ? 32 : 10},
+        {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
         <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
           {meetingTitle}
         </Text>
+        <IconButton
+          toolTipMessage={
+            $config.EVENT_MODE
+              ? `${'Host: ' + hostUids?.length || 0} \n` +
+                `${'Audience: ' + audienceUids?.length || 0}`
+              : ''
+          }
+          containerStyle={style.participantCountView}
+          disabled={true}
+          iconProps={{
+            name: 'people',
+            iconType: 'plain',
+            iconSize: 20,
+            tintColor:
+              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+          }}
+          btnTextProps={{
+            text: numFormatter(onlineUsersCount),
+            textColor:
+              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+            textStyle: {
+              fontWeight: '600',
+              fontSize: 16,
+              marginTop: 0,
+              marginLeft: 6,
+            },
+          }}
+        />
+
         {isRecordingActive && !isMobileOrTablet() ? (
           <View style={[style.recordingView]}>
             <View style={[style.recordingStatus]} />
@@ -373,15 +384,17 @@ const Navbar = () => {
         )}
       </View>
       <View style={style.navControlBar} testID="videocall-navcontrols">
-        <View testID="videocall-participantsicon">
+        <View testID="videocall-participantsicon" style={{marginRight: 10}}>
           <ParticipantsIconButton />
         </View>
         {$config.CHAT && (
-          <View testID="videocall-chaticon">
-            <ChatIconButton />
-          </View>
+          <>
+            <View testID="videocall-chaticon" style={{marginHorizontal: 10}}>
+              <ChatIconButton />
+            </View>
+          </>
         )}
-        <View testID="videocall-settingsicon">
+        <View testID="videocall-settingsicon" style={{marginLeft: 10}}>
           <SettingsIconButtonWithWrapper />
         </View>
       </View>
@@ -406,6 +419,19 @@ export const NavBarComponentsArray: NavBarComponentsArrayProps = [
 ];
 
 const style = StyleSheet.create({
+  participantCountView: {
+    flexDirection: 'row',
+    padding: 12,
+    backgroundColor: $config.ICON_BG_COLOR,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    marginLeft: 20,
+  },
   navHolder: {
     width: '100%',
     paddingVertical: 12,
@@ -425,27 +451,33 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
   },
   recordingView: {
-    padding: 8,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    backgroundColor: '#FF414D' + hexadecimalTransparency['10%'],
+    borderRadius: 24,
+    backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
     marginLeft: 20,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
   },
   recordingText: {
     fontSize: 12,
     lineHeight: 12,
     fontWeight: '400',
     fontFamily: 'Source Sans Pro',
-    color: '#ff414D',
+    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
   },
   recordingStatus: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#FF414D',
+    backgroundColor: $config.SEMANTIC_ERROR,
     marginRight: 8,
   },
   recordingIcon: {

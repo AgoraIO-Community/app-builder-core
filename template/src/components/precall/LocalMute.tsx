@@ -21,6 +21,7 @@ import LocalAudioMute, {
 } from '../../subComponents/LocalAudioMute';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import PreCallSettings from './PreCallSettings';
+import Spacer from '../../atoms/Spacer';
 
 const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
@@ -69,17 +70,12 @@ const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
       style={[style.precallControls, isMobileView && {paddingVertical: 20}]}
       testID="precall-controls">
       {!$config.AUDIO_ROOM && (
-        <View
-          style={{
-            alignSelf: 'center',
-            marginRight: isMobileView ? 60 : 0,
-          }}>
-          <VideoMute showLabel={!isMobileView} />
-        </View>
+        <>
+          <VideoMute />
+          <Spacer size={16} horizontal={true} />
+        </>
       )}
-      <View style={{alignSelf: 'center'}}>
-        <AudioMute showLabel={!isMobileView} />
-      </View>
+      <AudioMute />
       {/* Settings View in Mobile */}
       {isMobileView ? <PreCallSettings /> : <></>}
     </View>
@@ -99,5 +95,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
 });

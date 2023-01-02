@@ -147,7 +147,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     }
     // Adding pstn data into meeting data if present
     if (pstn?.number && pstn?.pin) {
-      inviteContent += `\nPSTN Number:\n${pstn.number}\nPSTN Pin:\n${pstn.pin}`;
+      inviteContent += `\n\nPSTN Number:\n${pstn.number}\n\nPSTN Pin:\n${pstn.pin}`;
     }
     return inviteContent;
   };

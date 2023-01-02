@@ -81,6 +81,7 @@ interface ConfigInterface {
   VIDEO_AUDIO_TILE_COLOR: string;
   VIDEO_AUDIO_TILE_OVERLAY_COLOR: string;
   VIDEO_AUDIO_TILE_TEXT_COLOR: string;
+  VIDEO_AUDIO_TILE_AVATAR_COLOR: string;
   SEMANTIC_ERROR: string;
   SEMANTIC_SUCCESS: string;
   SEMANTIC_WARNING: string;
@@ -94,6 +95,7 @@ interface ConfigInterface {
   CARD_LAYER_5_COLOR: string;
   HARD_CODED_BLACK_COLOR: string;
   ICON_TEXT: boolean;
+  ICON_BG_COLOR: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

@@ -90,7 +90,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
-  const fromText = (name: string) => `From : ${name}`;
+  const fromText = (name: string) => `${name} commented in the public chat`;
   const privateMessageLabel = 'You’ve recieved a direct message';
   useEffect(() => {
     renderListRef.current.renderList = renderList;
@@ -105,16 +105,17 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }, [selectedChatUserId]);
 
   const openPrivateChat = (uidAsNumber) => {
-    setUnreadPrivateMessageCount(
-      unreadPrivateMessageCount -
-        (unreadIndividualMessageCount[uidAsNumber] || 0),
-    );
-    setUnreadIndividualMessageCount((prevState) => {
-      return {
-        ...prevState,
-        [uidAsNumber]: 0,
-      };
-    });
+    //move this logic into ChatContainer
+    // setUnreadPrivateMessageCount(
+    //   unreadPrivateMessageCount -
+    //     (unreadIndividualMessageCount[uidAsNumber] || 0),
+    // );
+    // setUnreadIndividualMessageCount((prevState) => {
+    //   return {
+    //     ...prevState,
+    //     [uidAsNumber]: 0,
+    //   };
+    // });
     setGroupActive(false);
     setSelectedChatUserId(uidAsNumber);
     setPrivateActive(true);
@@ -127,23 +128,36 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       uid: string,
       isPrivateMessage: boolean = false,
     ) => {
+      //don't show group message notification if group chat is open
+      if (!isPrivateMessage && groupActiveRef.current) {
+        return;
+      }
       const uidAsNumber = parseInt(uid);
+      //don't show private message notification if private chat is open
+      if (isPrivateMessage && uidAsNumber === individualActiveRef.current) {
+        return;
+      }
       Toast.show({
-        type: 'success',
+        primaryBtn: null,
+        secondaryBtn: null,
+        type: 'info',
         text1: isPrivateMessage
           ? privateMessageLabel
+          : renderListRef.current.renderList[uidAsNumber]?.name
+          ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
+          : '',
+        text2: isPrivateMessage
+          ? ''
           : msg.length > 30
           ? msg.slice(0, 30) + '...'
           : msg,
-        text2: renderListRef.current.renderList[uidAsNumber]?.name
-          ? fromText(renderListRef.current.renderList[uidAsNumber]?.name)
-          : '',
         visibilityTime: 3000,
         onPress: () => {
           if (isPrivateMessage) {
             openPrivateChat(uidAsNumber);
           } else {
-            setUnreadGroupMessageCount(0);
+            //move this logic into ChatContainer
+            // setUnreadGroupMessageCount(0);
             setPrivateActive(false);
             setSelectedChatUserId(0);
             setGroupActive(true);

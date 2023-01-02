@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, {useContext, useState} from 'react';
 import {
   View,
@@ -79,13 +78,14 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
       <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
         <View>
           <ImageIcon
+            iconType="plain"
             tintColor={
               networkTextVisible
                 ? $config.PRIMARY_ACTION_TEXT_COLOR
                 : networkIconsObject[networkStat].tint
             }
             name={networkIconsObject[networkStat].icon}
-            iconSize="small"
+            iconSize={16}
           />
         </View>
         {networkTextVisible && (
@@ -110,6 +110,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        padding: 8,
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
@@ -123,6 +124,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        padding: 8,
       }}
       onClick={(e) => {
         e.preventDefault();
@@ -141,13 +143,11 @@ const PlatformSpecificWrapper = ({
 
 const style = StyleSheet.create({
   networkPill: {
-    padding: 8,
     position: 'absolute',
     zIndex: 2,
     borderRadius: 50,
   },
   rootStyle: {
-    marginLeft: 25,
     top: 12,
     right: 12,
   },

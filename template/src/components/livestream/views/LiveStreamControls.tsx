@@ -23,9 +23,16 @@ const LiveStreamControls = (props: LiveStreamControlsProps) => {
   if (!$config.RAISE_HAND) return <></>;
   if (!showControls) return <></>;
   return (
-    <View style={{alignSelf: 'center', marginRight: isDesktop ? 40 : 0}}>
-      <LocalRaiseHand showLabel={isDesktop} />
-    </View>
+    <>
+      <View
+        style={{
+          alignSelf: 'center',
+          marginHorizontal: 10,
+          marginVertical: 16,
+        }}>
+        <LocalRaiseHand />
+      </View>
+    </>
   );
 };
 

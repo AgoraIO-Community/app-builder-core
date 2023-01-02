@@ -35,6 +35,12 @@ const VideoPreview: React.FC = () => {
           user={renderList[maxUid]}
           key={maxUid}
           fallback={Fallback}
+          containerStyle={{
+            width: '100%',
+            height: '100%',
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
+          }}
         />
       </View>
       <PreCallLocalMute isMobileView={true} />

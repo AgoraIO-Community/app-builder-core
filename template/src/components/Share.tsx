@@ -126,6 +126,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           toolTipIcon={
             <>
               <ImageIcon
+                iconType="plain"
                 name="tick-fill"
                 tintColor={$config.SEMANTIC_SUCCESS}
               />
@@ -137,6 +138,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
             return (
               <TouchableOpacity onPress={() => setToolTipVisible(true)}>
                 <ImageIcon
+                  iconType="plain"
                   name="clipboard"
                   tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
                 />

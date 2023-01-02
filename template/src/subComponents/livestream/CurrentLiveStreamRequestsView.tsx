@@ -104,7 +104,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                 ),
             )
           ) : (
-            <></>
+            <Spacer size={1} />
           )}
         </>
       )}
@@ -113,8 +113,10 @@ const CurrentLiveStreamRequestsView = (props: any) => {
 };
 const styles = StyleSheet.create({
   btnContainer: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flex: 1,

@@ -1,34 +1,37 @@
-import React, {useContext, useState} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useState, useRef} from 'react';
 
 import LayoutIconDropdown from './LayoutIconDropdown';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useLayout} from '../utils/useLayout';
-import isMobileOrTablet from '../utils/isMobileOrTablet';
-import Styles from '../components/styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import ThemeConfig from '../theme';
+import {isWeb} from 'customization-api';
 
 interface LayoutIconButtonInterface {
-  modalPosition?: {
-    top?: number;
-    right?: number;
-    left?: number;
-    bottom?: number;
-  };
   render?: (onPress: () => void) => JSX.Element;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const {modalPosition} = props;
+  const [modalPosition, setModalPosition] = useState(null);
+  const layoutBtnRef = useRef();
+  const [isHovered, setIsHoveredLocal] = useState(false);
+  const setIsHovered = (hovered: boolean) => {
+    if (layoutBtnRef && layoutBtnRef.current) {
+      layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
+        setModalPosition({
+          top: _py - 88,
+          left: _px - 12,
+        });
+      });
+    }
+    setIsHoveredLocal(hovered);
+  };
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
   const layoutLabel = 'Layout';
-  const [showDropdown, setShowDropdown] = useState(false);
   const layouts = useLayoutsData();
   const changeLayout = useChangeDefaultLayout();
-  const {currentLayout} = useLayout();
+  const {currentLayout, setLayout} = useLayout();
 
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const renderLayoutIcon = (showDropdown?: boolean) => {
@@ -40,43 +43,34 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       };
     } else {
       onPress = () => {
-        setShowDropdown(true);
+        setIsHovered(!isHovered);
       };
     }
-    let iconButtonProps: IconButtonProps = {
+    let iconButtonProps: Partial<IconButtonProps> = {
       onPress: onPress,
+      btnTextProps: {
+        text: $config.ICON_TEXT ? layoutLabel : '',
+        textColor: $config.FONT_COLOR,
+      },
     };
-    iconButtonProps.styleText = {
-      fontFamily: ThemeConfig.FontFamily.sansPro,
-      fontSize: 12,
-      marginTop: 4,
-      fontWeight: '400',
-      color: $config.PRIMARY_ACTION_BRAND_COLOR,
-    };
-
-    iconButtonProps.btnText = $config.ICON_TEXT ? layoutLabel : '';
 
     renderContent.push(
       props?.render ? (
         props.render(onPress)
-      ) : layouts[layout]?.iconName ? (
-        <IconButton
-          key={'defaultLayoutIconWithName'}
-          iconProps={{
-            name: layouts[layout]?.iconName,
-            tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-          }}
-          {...iconButtonProps}
-        />
       ) : (
-        <IconButton
-          key={'defaultLayoutIconWithIcon'}
-          iconProps={{
-            icon: layouts[layout]?.icon,
-            tintColor: '#099DFD',
-          }}
-          {...iconButtonProps}
-        />
+        <PlatformWrapper showDropdown={isHovered} setIsHovered={setIsHovered}>
+          <IconButton
+            setRef={(ref) => {
+              layoutBtnRef.current = ref;
+            }}
+            key={'defaultLayoutIconWithName'}
+            iconProps={{
+              name: layouts[layout]?.iconName,
+              tintColor: $config.SECONDARY_ACTION_COLOR,
+            }}
+            {...iconButtonProps}
+          />
+        </PlatformWrapper>
       ),
     );
     return renderContent;
@@ -86,11 +80,13 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       {/**
        * Based on the flag. it will render the dropdown
        */}
-      <LayoutIconDropdown
-        showDropdown={showDropdown}
-        setShowDropdown={setShowDropdown}
-        modalPosition={modalPosition}
-      />
+      <PlatformWrapperPopup setIsHovered={setIsHovered}>
+        <LayoutIconDropdown
+          modalPosition={modalPosition}
+          showDropdown={isHovered}
+          setShowDropdown={setIsHovered}
+        />
+      </PlatformWrapperPopup>
       {/**
        * If layout contains more than 2 data. it will render the dropdown.
        */}
@@ -100,14 +96,35 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
     </>
   );
 };
-
-const style = StyleSheet.create({
-  btnHolder: {
-    marginHorizontal: isMobileOrTablet() ? 2 : 0,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-});
+const PlatformWrapper = ({children, ...props}) => {
+  return false ? (
+    <div
+      onMouseEnter={() => {
+        props?.setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        props?.setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+};
+const PlatformWrapperPopup = ({children, ...props}) => {
+  return false ? (
+    <div
+      onMouseEnter={() => {
+        props?.setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        props?.setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+};
 
 export default LayoutIconButton;

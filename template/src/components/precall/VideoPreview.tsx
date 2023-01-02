@@ -80,6 +80,7 @@ const Fallback = () => {
             <Spacer horizontal={true} size={4} />
             <View style={{alignSelf: 'center'}}>
               <ImageIcon
+                iconType="plain"
                 name={'link-share'}
                 tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
               />
@@ -120,6 +121,12 @@ const VideoPreview: React.FC = () => {
           user={renderList[maxUid]}
           key={maxUid}
           fallback={Fallback}
+          containerStyle={{
+            width: '100%',
+            height: '100%',
+            borderTopLeftRadius: 8,
+            borderTopRightRadius: 8,
+          }}
         />
       </View>
 

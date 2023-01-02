@@ -47,8 +47,8 @@ import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-const mobileOrTablet = isMobileOrTablet();
-const isLiveStream = $config.EVENT_MODE;
+import {randomNameGenerator} from '../utils';
+
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
     let components: {
@@ -93,9 +93,24 @@ const Create = () => {
   // )();
   const meetingNameInputPlaceholder = 'The Annual Galactic Meet';
   const loadingWithDots = 'Loading...';
-  const createMeetingButton = isLiveStream
-    ? 'CREATE A STREAM'
-    : 'CREATE A MEETING';
+
+  const btnLabel = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'CREATE A AUDIO LIVECAST';
+      } else {
+        return 'CREATE A VOICE CHAT';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'CREATE A STREAM';
+      } else {
+        return 'CREATE A MEETING';
+      }
+    }
+  };
+
+  const createMeetingButton = btnLabel();
   const haveMeetingID = 'Join with a meeting ID';
 
   let onLayout = (e: any) => {
@@ -120,6 +135,7 @@ const Create = () => {
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
+    console.log('[SDKEvents] Join listener registered');
     const unbind = SDKEvents.on(
       'joinMeetingWithPhrase',
       (phrase, resolve, reject) => {
@@ -133,6 +149,7 @@ const Create = () => {
         }
       },
     );
+    SDKEvents.emit('joinInit');
     return () => {
       unbind();
     };
@@ -158,6 +175,8 @@ const Create = () => {
           text1: roomTitle + createdText,
           text2: 'Your New meeting is now live',
           visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
         showShareScreen();
       } catch (error) {
@@ -171,8 +190,9 @@ const Create = () => {
     return (
       <Pressable onPress={() => setToolTipVisible(true)}>
         <ImageIcon
+          iconType="plain"
           name="info"
-          iconSize="medium"
+          iconSize={20}
           tintColor={
             isToolTipVisible
               ? $config.SECONDARY_ACTION_COLOR
@@ -181,6 +201,38 @@ const Create = () => {
         />
       </Pressable>
     );
+  };
+
+  const getHeading = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'Create a Audio Livecast';
+      } else {
+        return 'Create a Voice Chat';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'Create a Livestream';
+      } else {
+        return 'Create a Meeting';
+      }
+    }
+  };
+
+  const getInputLabel = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'Audio Livecast Name';
+      } else {
+        return 'Voice Chat Name';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'Stream Name';
+      } else {
+        return 'Meeting Name';
+      }
+    }
   };
 
   return (
@@ -197,13 +249,11 @@ const Create = () => {
               <View>
                 <Logo />
                 <Spacer size={isDesktop ? 20 : 16} />
-                <Text style={style.heading}>
-                  {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
-                </Text>
+                <Text style={style.heading}>{getHeading()}</Text>
                 <Spacer size={40} />
                 <Input
                   labelStyle={style.inputLabelStyle}
-                  label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
+                  label={getInputLabel()}
                   value={roomTitle}
                   placeholder={meetingNameInputPlaceholder}
                   onChangeText={(text) => onChangeRoomTitle(text)}
@@ -286,11 +336,14 @@ const Create = () => {
               <View style={[style.btnContainer]}>
                 <PrimaryButton
                   iconName={'video-plus'}
-                  disabled={roomTitle === '' || loading}
+                  disabled={loading}
                   containerStyle={!isDesktop && {width: '100%'}}
                   onPress={() =>
                     createRoomAndNavigateToShare(
-                      roomTitle,
+                      roomTitle ||
+                        `${randomNameGenerator(3)}-${randomNameGenerator(
+                          3,
+                        )}-${randomNameGenerator(3)}`,
                       pstnToggle,
                       !coHostToggle,
                     )
@@ -359,7 +412,7 @@ const style = StyleSheet.create({
   toggleLabel: {
     color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
-    marginRight: 8,
+    marginRight: 4,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     alignSelf: 'center',

@@ -24,8 +24,15 @@ const Input = (props: InputProps) => {
   );
   return (
     <>
-      {label ? <Text style={[styles.label, labelStyle]}>{label}</Text> : <></>}
-      <Spacer size={8} />
+      {label ? (
+        <>
+          <Text style={[styles.label, labelStyle]}>{label}</Text>
+          <Spacer size={8} />
+        </>
+      ) : (
+        <></>
+      )}
+
       <TextInput
         style={[
           styles.input,
@@ -58,7 +65,6 @@ const styles = StyleSheet.create({
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     color: $config.FONT_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.medium,
     borderRadius: 8,

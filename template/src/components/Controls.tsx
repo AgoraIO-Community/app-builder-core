@@ -72,16 +72,18 @@ const Controls = () => {
       <View style={style.leftContent}>
         <View
           testID="layout-btn"
-          style={{marginRight: isDesktop ? 0 : 10}}
+          style={{marginRight: 10, marginVertical: 0}}
           collapsable={false}>
           {/**
            * .measure returns undefined on Android unless collapsable=false or onLayout are specified
            * so added collapsable property
            * https://github.com/facebook/react-native/issues/29712
            * */}
-          <LayoutIconButton modalPosition={{bottom: 80, left: 60}} />
+          <LayoutIconButton />
         </View>
-        <View testID="invite-btn" style={{marginVertical: 16}}>
+        <View
+          testID="invite-btn"
+          style={{marginHorizontal: 10, marginVertical: 16}}>
           <CopyJoinInfo />
         </View>
       </View>
@@ -89,58 +91,71 @@ const Controls = () => {
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
           <LiveStreamControls showControls={true} isDesktop />
         ) : (
-          <>
-            {/**
-             * In event mode when raise hand feature is active
-             * and audience is promoted to host, the audience can also
-             * demote himself
-             */}
-            {$config.EVENT_MODE && (
-              <LiveStreamControls
-                isDesktop
-                showControls={
-                  rtcProps?.role == ClientRole.Broadcaster && !isHost
-                }
-              />
-            )}
-            <View
-              testID="localAudio-btn"
-              style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
-              <LocalAudioMute />
-            </View>
-            {!$config.AUDIO_ROOM && (
-              <View
-                testID="localVideo-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
-                <LocalVideoMute />
-              </View>
-            )}
-            {!$config.AUDIO_ROOM && isMobileOrTablet() && (
-              <View
-                testID="switchCamera-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
-                <LocalSwitchCamera />
-              </View>
-            )}
-            {$config.SCREEN_SHARING && !isMobileOrTablet() && (
-              <View
-                testID="screenShare-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
-                <ScreenshareButton />
-              </View>
-            )}
-            {isHost && $config.CLOUD_RECORDING && (
-              <View
-                testID="recording-btn"
-                style={{marginRight: isDesktop ? 0 : 10, marginVertical: 16}}>
-                <Recording />
-              </View>
-            )}
-          </>
+          <></>
         )}
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {$config.EVENT_MODE ? (
+            <LiveStreamControls
+              isDesktop
+              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+            />
+          ) : (
+            <></>
+          )}
+          <View
+            testID="localAudio-btn"
+            style={{marginHorizontal: 10, marginVertical: 16}}>
+            <LocalAudioMute />
+          </View>
+          {!$config.AUDIO_ROOM && (
+            <View
+              testID="localVideo-btn"
+              style={{
+                marginHorizontal: 10,
+                marginVertical: 16,
+              }}>
+              <LocalVideoMute />
+            </View>
+          )}
+          {!$config.AUDIO_ROOM && isMobileOrTablet() && (
+            <View
+              testID="switchCamera-btn"
+              style={{
+                marginHorizontal: 10,
+                marginVertical: 16,
+              }}>
+              <LocalSwitchCamera />
+            </View>
+          )}
+          {$config.SCREEN_SHARING && !isMobileOrTablet() && (
+            <View
+              testID="screenShare-btn"
+              style={{
+                marginHorizontal: 10,
+                marginVertical: 16,
+              }}>
+              <ScreenshareButton />
+            </View>
+          )}
+          {isHost && $config.CLOUD_RECORDING && (
+            <View
+              testID="recording-btn"
+              style={{
+                marginHorizontal: 10,
+                marginVertical: 16,
+              }}>
+              <Recording />
+            </View>
+          )}
+        </>
         <View
           testID="endCall-btn"
-          style={{marginVertical: 16, marginHorizontal: 20}}>
+          style={{marginHorizontal: 10, marginVertical: 16}}>
           <LocalEndcall />
         </View>
       </View>

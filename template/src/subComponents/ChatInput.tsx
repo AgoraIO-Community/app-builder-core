@@ -18,7 +18,7 @@ import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
-import {useUserName} from 'customization-api';
+import {useRender, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 
@@ -48,6 +48,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
   ) : (
     <TouchableOpacity style={[style.chatInputButton]} onPress={onPress}>
       <ImageIcon
+        iconType="plain"
         tintColor={
           inputActive
             ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -75,13 +76,14 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     privateActive,
   } = useChatUIControl();
   const {sendChatMessage} = useChatMessages();
+  const {renderList} = useRender();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
   const chatMessageInputPlaceholder = privateActive
-    ? `Chat privately as ${name}...`
+    ? `Private Message to ${renderList[selectedUserId].name}`
     : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
@@ -205,17 +207,19 @@ const ChatInput = (props: {
 
 const style = StyleSheet.create({
   inputActiveView: {
-    borderTopWidth: 2,
-    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderTopWidth: 1,
+    borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   inputView: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
   chatInputButton: {
     flex: 0.1,
     borderBottomRightRadius: 12,
     alignSelf: 'center',
+    marginRight: 16,
   },
 });
 export default ChatInput;

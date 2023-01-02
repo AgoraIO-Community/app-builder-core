@@ -241,20 +241,26 @@ const SelectDevice = (props: SelectDeviceProps) => {
     ? 'Audio sharing is disabled for attendees. Raise hand to request permission to share.'
     : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
   return (
-    <View>
-      <View>
-        {!$config.AUDIO_ROOM && <SelectVideoDevice {...props} />}
-        <Spacer size={40} />
+    <>
+      <>
+        {!$config.AUDIO_ROOM && (
+          <>
+            <SelectVideoDevice {...props} />
+            <Spacer size={24} />
+          </>
+        )}
         <SelectAudioDevice {...props} />
-        <Spacer size={40} />
+        <Spacer size={24} />
         <SelectSpeakerDevice {...props} />
-      </View>
+        <Spacer size={24} />
+      </>
       {$config.EVENT_MODE && isPickerDisabled && (
         <View>
           <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
         </View>
       )}
-    </View>
+      <Spacer size={24} />
+    </>
   );
 };
 export const SelectDeviceComponentsArray: [

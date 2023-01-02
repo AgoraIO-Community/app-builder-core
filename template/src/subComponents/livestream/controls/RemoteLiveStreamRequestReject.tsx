@@ -13,14 +13,18 @@ const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
   const {hostRejectsRequestOfUID} = useContext(LiveStreamContext);
 
   return (
-    <TertiaryButton
-      containerStyle={{
-        paddingHorizontal: 12,
-      }}
-      disabled={!uid}
-      onPress={() => hostRejectsRequestOfUID(uid)}
-      text={'Deny'}
-    />
+    <View style={{flex: 1}}>
+      <TertiaryButton
+        containerStyle={{
+          paddingHorizontal: 8,
+          paddingVertical: 8,
+          height: 38,
+        }}
+        disabled={!uid}
+        onPress={() => hostRejectsRequestOfUID(uid)}
+        text={'DENY'}
+      />
+    </View>
   );
 };
 

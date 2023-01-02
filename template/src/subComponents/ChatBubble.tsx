@@ -16,12 +16,16 @@ import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWebInternal} from '../utils/common';
-import {useRender} from 'customization-api';
+import {useChatUIControl, useRender} from 'customization-api';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Spacer from '../atoms/Spacer';
+import {formatAMPM} from '../utils';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {renderList} = useRender();
   const {primaryColor} = useContext(ColorContext);
+  const {privateActive, selectedChatUserId} = useChatUIControl();
   let {
     isLocal,
     isSameUser,
@@ -32,10 +36,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
     msgId,
     updatedTimestamp,
   } = props;
-  let time =
-    new Date(parseInt(createdTimestamp)).getHours() +
-    ':' +
-    new Date(parseInt(createdTimestamp)).getMinutes();
+  let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+
   const handleUrl = (url: string) => {
     if (isWebInternal()) {
       window.open(url, '_blank');
@@ -59,7 +61,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
     )
   ) : (
     <>
-      {!isSameUser ? (
+      {!isSameUser && !(privateActive && selectedChatUserId) ? (
         <Text
           style={
             isLocal ? style.localUsernameStyle : style.remoteUsernameStyle
@@ -77,17 +79,25 @@ const ChatBubble = (props: ChatBubbleProps) => {
         style={
           isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView
         }>
-        <Hyperlink
-          onPress={handleUrl}
-          linkStyle={{
-            color: '#0038FF',
-            textDecorationLine: 'underline',
-          }}>
-          <Text style={style.messageStyle} selectable={true}>
-            {message}
-          </Text>
-        </Hyperlink>
-        <Text style={style.timestampStyle}>{time + ' '}</Text>
+        <View
+          style={
+            isLocal
+              ? style.chatBubbleLocalViewLayer2
+              : style.chatBubbleRemoteViewLayer2
+          }>
+          <Hyperlink
+            onPress={handleUrl}
+            linkStyle={{
+              color: '#0038FF',
+              textDecorationLine: 'underline',
+            }}>
+            <Text style={style.messageStyle} selectable={true}>
+              {message}
+            </Text>
+          </Hyperlink>
+          {/* <Spacer size={5} /> */}
+          <Text style={style.timestampStyle}>{time}</Text>
+        </View>
       </View>
     </>
   );
@@ -99,7 +109,7 @@ const style = StyleSheet.create({
     fontWeight: '600',
     fontSize: ThemeConfig.FontSize.small,
     textAlign: 'left',
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
     alignSelf: 'flex-start',
     marginTop: 20,
     marginBottom: 8,
@@ -110,46 +120,67 @@ const style = StyleSheet.create({
     fontWeight: '600',
     fontSize: ThemeConfig.FontSize.small,
     textAlign: 'left',
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
     alignSelf: 'flex-end',
     marginTop: 20,
     marginBottom: 8,
     marginHorizontal: 20,
   },
   timestampStyle: {
+    // position: 'absolute',
+    // bottom: 0,
+    // right: 12,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.tiny,
     textAlign: 'right',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
     marginTop: 4,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   chatBubbleRemoteView: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-start',
-    flex: 1,
     marginVertical: 2,
     marginHorizontal: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     borderTopLeftRadius: 0,
     borderTopRightRadius: 12,
   },
+  chatBubbleRemoteViewLayer2: {
+    backgroundColor: 'transparent',
+    width: '100%',
+    height: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 0,
+  },
+  chatBubbleLocalViewLayer2: {
+    width: '100%',
+    height: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 0,
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
+  },
   chatBubbleLocalView: {
-    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     minWidth: '30%',
     maxWidth: '100%',
     alignSelf: 'flex-end',
-    flex: 1,
     marginVertical: 2,
     marginHorizontal: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
     borderTopLeftRadius: 12,
@@ -159,8 +190,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 18,
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    color: $config.FONT_COLOR,
   },
 });
 

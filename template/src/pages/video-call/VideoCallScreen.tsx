@@ -1,5 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, StyleSheet, useWindowDimensions, Text} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  useWindowDimensions,
+  Text,
+  Platform,
+} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import Navbar from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
@@ -18,11 +24,15 @@ import {
 import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
-import {useRtc} from 'customization-api';
+import {useRtc, useUserName} from 'customization-api';
 import VideoCallMobileScreen from './VideoCallMobileScreen';
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
+import {AppRegistry} from 'react-native';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
+  const [name] = useUserName();
   const rtc = useRtc();
   const {
     data: {meetingTitle, isHost},
@@ -131,6 +141,36 @@ const VideoCallScreen = () => {
   });
 
   useEffect(() => {
+    // Register the foreground service
+    if (Platform.OS === 'android') {
+      ReactNativeForegroundService.register();
+      AppRegistry.registerComponent(
+        $config.APP_NAME,
+        () => VideoCallMobileScreen,
+      );
+      ReactNativeForegroundService.add_task(
+        () => console.log('App is active!'),
+        {
+          delay: 1000,
+          onLoop: true,
+          taskId: 'taskid',
+          onError: (e) => console.log(`Error logging:`, e),
+        },
+      );
+      ReactNativeForegroundService.start({
+        id: 145,
+        title: $config.APP_NAME,
+        message: 'Call is active',
+      });
+    }
+    setTimeout(() => {
+      events.send(
+        'NEW_USER_JOINED',
+        JSON.stringify({name}),
+        EventPersistLevel.LEVEL1,
+      );
+    }, 1000);
+
     /**
      * OLD: Commenting this code as getDevices API is web only
      * The below code fails on native app

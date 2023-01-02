@@ -59,6 +59,8 @@ export enum controlMessageEnum {
   muteSingleVideo = '3',
   muteSingleAudio = '4',
   kickUser = '5',
+  requestVideo = '6',
+  requestAudio = '7',
 }
 
 const ChatContext = createContext(null as unknown as chatContext);
