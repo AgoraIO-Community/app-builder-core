@@ -30,6 +30,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           <AnimatedActiveSpeaker isSpeaking={isSpeaking} />
         ) : (
           <ImageIcon
+            iconType="plain"
             name={user.audio ? 'mic-on' : 'mic-off'}
             tintColor={
               user.audio
