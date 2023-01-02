@@ -61,7 +61,10 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
             }}
             textStyle={styles.btnText}
             text={removeBtnLabel}
-            onPress={props.removeUserFromMeeting}
+            onPress={() => {
+              props.removeUserFromMeeting();
+              props.setModalVisible(false);
+            }}
           />
         </View>
       </View>

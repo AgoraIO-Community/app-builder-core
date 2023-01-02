@@ -68,7 +68,10 @@ const Endcall = () => {
           style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
           <TertiaryButton
             containerStyle={{
-              paddingVertical: 17,
+              height: 60,
+              paddingHorizontal: 34,
+              paddingVertical: 20,
+              borderRadius: 8,
               minWidth: isDesktop ? 'auto' : '100%',
               marginRight: isDesktop ? 12 : 0,
             }}
@@ -81,9 +84,11 @@ const Endcall = () => {
 
           <PrimaryButton
             containerStyle={{
-              paddingVertical: 17,
+              height: 60,
               minWidth: isDesktop ? 'auto' : '100%',
               marginBottom: isDesktop ? 0 : 20,
+              paddingHorizontal: 30,
+              paddingVertical: 20,
             }}
             text={createMeetingLabel}
             textStyle={styles.btnText}

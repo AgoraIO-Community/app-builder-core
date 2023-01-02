@@ -52,6 +52,8 @@ const EventsConfigure: React.FC<Props> = (props) => {
         // } muted you.`,
         text1: 'The host has muted your video.',
         visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       RtcEngine.muteLocalVideoStream(true);
       dispatch({
@@ -67,6 +69,8 @@ const EventsConfigure: React.FC<Props> = (props) => {
         // } muted you.`,
         text1: 'The host has muted your audio.',
         visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       RtcEngine.muteLocalAudioStream(true);
       dispatch({
@@ -75,10 +79,19 @@ const EventsConfigure: React.FC<Props> = (props) => {
       });
     });
     events.on(controlMessageEnum.kickUser, () => {
-      dispatch({
-        type: 'EndCall',
-        value: [],
+      Toast.show({
+        type: 'info',
+        text1: 'The host has removed you from the meeting.',
+        visibilityTime: 5000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
+      setTimeout(() => {
+        dispatch({
+          type: 'EndCall',
+          value: [],
+        });
+      }, 5000);
     });
     events.on(controlMessageEnum.requestAudio, () => {
       Toast.show({
