@@ -10,40 +10,89 @@
 *********************************************
 */
 import React from 'react';
+import {ViewStyle, View, StyleSheet} from 'react-native';
 import CustomIcon, {IconsInterface} from '../atoms/CustomIcon';
+import {ImageIcon as UIKitImageIcon} from '../../agora-rn-uikit';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ImageIconProps {
   tintColor?: string;
-  customSize?: {
-    width: number | string;
-    height: number | string;
-  };
   name: keyof IconsInterface;
-  iconSize?: 'normal' | 'medium' | 'small';
+  iconSize?: number;
+  iconContainerStyle?: ViewStyle;
+  iconBackgroundColor?: string;
+  base64?: boolean;
+  base64TintColor?: string;
+  iconType?: 'round' | 'plain';
+  isHovered?: boolean;
+  // hoverEffect?: boolean;
+  // hoverEffectStyle?: ViewStyle;
+  showWarningIcon?: boolean;
 }
 
 const ImageIcon = (props: ImageIconProps) => {
-  const {name, iconSize = 'normal', customSize, tintColor} = props;
-  let iconSizeLocal = {width: 24, height: 24};
-  if (iconSize === 'medium') {
-    iconSizeLocal = {
-      width: 20,
-      height: 20,
-    };
-  } else if (iconSize === 'small') {
-    iconSizeLocal = {
-      width: 16,
-      height: 16,
-    };
-  } else {
-  }
+  const {
+    name,
+    iconSize = 24,
+    tintColor,
+    base64 = false,
+    base64TintColor = '',
+    iconType = 'round',
+  } = props;
   return (
-    <CustomIcon
-      name={name}
-      color={tintColor}
-      size={customSize?.width ? customSize.width : iconSizeLocal.width}
-    />
+    <View
+      style={[
+        styles.iconContainerStyle,
+        iconType === 'round'
+          ? props?.iconBackgroundColor
+            ? {backgroundColor: props.iconBackgroundColor}
+            : {}
+          : {backgroundColor: 'transparent', borderRadius: 0},
+      ]}>
+      <View
+        style={[
+          {alignItems: 'center'},
+          iconType === 'round'
+            ? {padding: 12, borderRadius: 50}
+            : {padding: 0, borderRadius: 0},
+          iconType === 'round' && props?.isHovered
+            ? {
+                backgroundColor:
+                  $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+              }
+            : {},
+          props?.iconContainerStyle,
+        ]}>
+        {props?.showWarningIcon ? (
+          <View style={{position: 'absolute', top: -8, right: -5}}>
+            <CustomIcon
+              name="alert"
+              color={$config.SEMANTIC_WARNING}
+              size={24}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
+        {base64 ? (
+          <UIKitImageIcon
+            tintColor={base64TintColor}
+            name={name}
+            style={{width: iconSize, height: iconSize}}
+          />
+        ) : (
+          <CustomIcon name={name} color={tintColor} size={iconSize} />
+        )}
+      </View>
+    </View>
   );
 };
 
 export default ImageIcon;
+
+const styles = StyleSheet.create({
+  iconContainerStyle: {
+    borderRadius: 50,
+    backgroundColor: $config.ICON_BG_COLOR,
+  },
+});

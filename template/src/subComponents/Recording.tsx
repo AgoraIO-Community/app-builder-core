@@ -17,6 +17,7 @@ import Styles from '../components/styles';
 import RecordingPopup from './RecordingPopup';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface RecordingButtonProps {
   showLabel?: boolean;
@@ -52,35 +53,17 @@ const Recording = (props: RecordingButtonProps) => {
       name: isRecordingActive ? 'stop-recording' : 'recording',
       tintColor: isRecordingActive
         ? $config.SEMANTIC_ERROR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        : $config.SECONDARY_ACTION_COLOR,
+      base64: isRecordingActive ? true : false,
+    },
+    btnTextProps: {
+      text: showLabel ? recordingButton(isRecordingActive) : '',
+      textColor: $config.FONT_COLOR,
     },
     onPress,
   };
 
-  if (isRecordingActive) {
-    iconButtonProps.customIconComponent = (
-      <UIKitImageIcon name="stopRecording" style={{width: 24, height: 24}} />
-    );
-  } else {
-    iconButtonProps.customIconComponent = null;
-  }
-
-  iconButtonProps.btnText = showLabel ? recordingButton(isRecordingActive) : '';
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: isRecordingActive
-      ? $config.SEMANTIC_ERROR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
-  iconButtonProps.toolTipMessage = showLabel
-    ? !isRecordingActive
-      ? 'Record'
-      : 'Stop Recording'
-    : '';
 
   return props?.render ? (
     props.render(onPress, isRecordingActive)

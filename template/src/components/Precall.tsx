@@ -463,6 +463,8 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   boxStyle: {
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,

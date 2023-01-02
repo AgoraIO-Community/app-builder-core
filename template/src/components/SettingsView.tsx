@@ -9,94 +9,210 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+} from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
-import {useString} from '../utils/useString';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWebInternal} from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {isWeb, isWebInternal} from '../utils/common';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
-import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
-import OutlineButton from '../atoms/OutlineButton';
-import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
+import SidePanelHeader, {
+  SidePanelStyles,
+} from '../subComponents/SidePanelHeader';
+import useGetName from '../utils/useGetName';
+import useSetName from '../utils/useSetName';
+import ImageIcon from '../atoms/ImageIcon';
+import Spacer from '../atoms/Spacer';
+import CommonStyles from './CommonStyles';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
+interface EditNameProps {}
+const EditName: React.FC = (props?: EditNameProps) => {
+  const [newName, setNewName] = useState('');
+  const [editable, setEditable] = useState(false);
+  const username = useGetName();
+  const setUsername = useSetName();
+  const disabled = !newName || newName.length === 0 || newName === username;
+  const inputRef = useRef(null);
+  const onPress = () => {
+    if (editable) {
+      setUsername(newName);
+      setEditable(false);
+    } else {
+      inputRef.current.focus();
+      setEditable(true);
+    }
+  };
+
+  return (
+    <>
+      <Text style={editNameStyle.yournameText}>Your name</Text>
+      <Spacer size={12} />
+      <View style={editNameStyle.container}>
+        <ImageIcon
+          name="person"
+          iconSize={20}
+          iconType="plain"
+          tintColor={$config.SEMANTIC_NETRUAL}
+        />
+        <TextInput
+          ref={inputRef}
+          style={[
+            editNameStyle.inputStyle,
+            !editable
+              ? {color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled}
+              : {},
+          ]}
+          placeholder={username}
+          value={newName}
+          editable={editable}
+          onChangeText={(text) => setNewName(text)}
+          onSubmitEditing={() => {
+            setUsername(newName);
+            setEditable(false);
+          }}
+          placeholderTextColor={
+            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+          }
+        />
+        <PlatformWrapper>
+          <TouchableOpacity
+            disabled={editable ? disabled : false}
+            style={[
+              editNameStyle.editBtn,
+              editable
+                ? disabled
+                  ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
+                  : {}
+                : {},
+            ]}
+            onPress={onPress}>
+            <Text style={editNameStyle.editBtnText}>
+              {editable ? 'Save' : 'Edit'}
+            </Text>
+          </TouchableOpacity>
+        </PlatformWrapper>
+      </View>
+    </>
+  );
+};
+
+const PlatformWrapper = ({children}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  return isWeb() ? (
+    <div
+      style={
+        isHovered
+          ? {
+              background:
+                $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+            }
+          : {}
+      }
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+};
+
+const editNameStyle = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    borderRadius: 8,
+    paddingLeft: 12,
+    overflow: 'hidden',
+  },
+  editBtn: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderLeftWidth: 1,
+    borderLeftColor: $config.INPUT_FIELD_BORDER_COLOR,
+  },
+  inputStyle: {
+    color: $config.FONT_COLOR,
+    fontWeight: '600',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.medium,
+    width: '100%',
+    paddingHorizontal: 8,
+    borderWidth: 0,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  },
+  editBtnText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.normal,
+    fontWeight: '600',
+    color: $config.SECONDARY_ACTION_COLOR,
+  },
+  yournameText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    color: $config.FONT_COLOR,
+  },
+});
 const SettingsView = (props) => {
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
-  //commented for v1 release
-  //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
-  const selectInputDeviceLabel = 'Input Device Settings';
   const settingsLabel = 'Settings';
-  const hostControlsLabel = 'Host Controls';
-  const {sidePanel, setSidePanel} = useSidePanel();
-  const muteRemote = useRemoteMute();
-  const onPressMuteVideo = () => muteRemote(MUTE_REMOTE_TYPE.video);
-  const onPressMuteAudio = () => muteRemote(MUTE_REMOTE_TYPE.audio);
+  const {setSidePanel} = useSidePanel();
+
   return (
     <View
       style={
         isWebInternal()
           ? isSmall
-            ? style.settingsViewNative
-            : style.settingsView
-          : style.settingsViewNative
+            ? CommonStyles.sidePanelContainerNative
+            : CommonStyles.sidePanelContainerWeb
+          : CommonStyles.sidePanelContainerNative
       }>
-      <View style={style.header}>
-        <Text style={style.mainHeading}>{settingsLabel}</Text>
-        <IconButton
-          hoverEffect={false}
-          iconProps={{
-            name: 'close-rounded',
-            tintColor: $config.SECONDARY_ACTION_COLOR,
-          }}
-          onPress={() => {
-            if (!isSmall) {
-              setSidePanel(SidePanelType.None);
-            } else {
-              props.handleClose && props.handleClose();
-            }
-          }}
-        />
-      </View>
+      <SidePanelHeader
+        centerComponent={
+          <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>
+        }
+        trailingIconName="close-rounded"
+        trailingIconOnPress={() => {
+          if (!isSmall) {
+            setSidePanel(SidePanelType.None);
+          } else {
+            props.handleClose && props.handleClose();
+          }
+        }}
+      />
       <ScrollView style={style.contentContainer}>
-        <Text style={style.heading}>{selectInputDeviceLabel}</Text>
-        <View style={{paddingTop: 20}}>
-          <SelectDevice isIconDropdown />
-        </View>
-        {/* <View style={style.hrLine}></View> */}
-        {/* {isHost ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-            }}>
-            <Text style={style.heading2}>{hostControlsLabel}</Text>
-            <OutlineButton
-              onPress={onPressMuteVideo}
-              iconName="video-on"
-              text="Mute everyone’s camera"
-            />
-            <OutlineButton
-              onPress={onPressMuteAudio}
-              iconName="mic-on"
-              text="Mute everyone’s mic"
-            />
-          </View>
-        ) : (
-          <></>
-        )} */}
+        <EditName />
+        <Spacer size={24} />
+        <SelectDevice isIconDropdown />
         <LanguageSelector />
       </ScrollView>
     </View>
@@ -104,71 +220,8 @@ const SettingsView = (props) => {
 };
 
 const style = StyleSheet.create({
-  heading2: {
-    paddingTop: 20,
-    fontFamily: 'Source Sans Pro',
-    fontWeight: '600',
-    fontSize: 14,
-    lineHeight: 14,
-    color: '#000000',
-  },
-  hrLine: {
-    width: '100%',
-    height: 1,
-    color: '#EDEDED',
-  },
   contentContainer: {
     padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: $config.CARD_LAYER_3_COLOR,
-  },
-  mainHeading: {
-    fontSize: ThemeConfig.FontSize.normal,
-    letterSpacing: 0.8,
-    lineHeight: ThemeConfig.FontSize.normal,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    color: $config.FONT_COLOR,
-    alignSelf: 'center',
-  },
-  heading: {
-    color: $config.FONT_COLOR,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: ThemeConfig.FontSize.small,
-    fontWeight: '600',
-    textAlign: 'left',
-  },
-  settingsView: {
-    maxWidth: '20%',
-    minWidth: 338,
-    borderRadius: 12,
-    marginLeft: 24,
-    marginVertical: 12,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    borderWidth: 1,
-    flex: 1,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 0},
-    shadowRadius: 20,
-    overflow: 'hidden',
-  },
-  settingsViewNative: {
-    // position: 'absolute',
-    zIndex: 5,
-    width: '100%',
-    height: '100%',
-    // right: 0,
-    // top: 0,
-    // backgroundColor: $config.SECONDARY_ACTION_COLOR,
   },
 });
 

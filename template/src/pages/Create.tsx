@@ -123,6 +123,7 @@ const Create = () => {
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
+    console.log('[SDKEvents] Join listener registered');
     const unbind = SDKEvents.on(
       'joinMeetingWithPhrase',
       (phrase, resolve, reject) => {
@@ -136,6 +137,7 @@ const Create = () => {
         }
       },
     );
+    SDKEvents.emit('joinInit');
     return () => {
       unbind();
     };
@@ -174,8 +176,9 @@ const Create = () => {
     return (
       <Pressable onPress={() => setToolTipVisible(true)}>
         <ImageIcon
+          iconType="plain"
           name="info"
-          iconSize="medium"
+          iconSize={20}
           tintColor={
             isToolTipVisible
               ? $config.SECONDARY_ACTION_COLOR
@@ -365,7 +368,7 @@ const style = StyleSheet.create({
   toggleLabel: {
     color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.normal,
-    marginRight: 8,
+    marginRight: 4,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     alignSelf: 'center',

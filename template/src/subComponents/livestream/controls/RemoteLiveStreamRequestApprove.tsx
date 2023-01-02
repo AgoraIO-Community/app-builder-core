@@ -15,24 +15,26 @@ const RemoteLiveStreamRequestApprove = (
   const {hostApprovesRequestOfUID} = useContext(LiveStreamContext);
 
   return (
-    <PrimaryButton
-      containerStyle={{
-        minWidth: 59,
-        maxWidth: 59,
-        borderRadius: 4,
-      }}
-      textStyle={{
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        fontWeight: '600',
-        fontSize: 12,
-      }}
-      disabled={!uid}
-      text={'Accept'}
-      onPress={() => {
-        hostApprovesRequestOfUID(uid);
-      }}
-    />
+    <View style={{flex: 1}}>
+      <PrimaryButton
+        containerStyle={{
+          minWidth: 'auto',
+          borderRadius: 4,
+          height: 38,
+          paddingHorizontal: 8,
+          paddingVertical: 8,
+        }}
+        textStyle={{
+          fontWeight: '600',
+          fontSize: 12,
+        }}
+        disabled={!uid}
+        text={'Accept'}
+        onPress={() => {
+          hostApprovesRequestOfUID(uid);
+        }}
+      />
+    </View>
   );
 };
 

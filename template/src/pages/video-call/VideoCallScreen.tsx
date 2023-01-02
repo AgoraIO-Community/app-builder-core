@@ -24,13 +24,15 @@ import {
 import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
-import {useRtc} from 'customization-api';
+import {useRtc, useUserName} from 'customization-api';
 import VideoCallMobileScreen from './VideoCallMobileScreen';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {AppRegistry} from 'react-native';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
+  const [name] = useUserName();
   const rtc = useRtc();
   const {
     data: {meetingTitle, isHost},
@@ -161,6 +163,14 @@ const VideoCallScreen = () => {
         message: 'Call is active',
       });
     }
+    setTimeout(() => {
+      events.send(
+        'NEW_USER_JOINED',
+        JSON.stringify({name}),
+        EventPersistLevel.LEVEL1,
+      );
+    }, 1000);
+
     /**
      * OLD: Commenting this code as getDevices API is web only
      * The below code fails on native app

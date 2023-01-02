@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/useIsPSTN';
@@ -17,11 +17,14 @@ import useMutePSTN from '../utils/useMutePSTN';
 import Styles from '../components/styles';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
+import RemoteMutePopup from './RemoteMutePopup';
+import {useRender} from 'customization-api';
 
 export interface RemoteAudioMuteProps {
   uid: UidType;
   audio: boolean;
   isHost: boolean;
+  userContainerRef: any;
 }
 /**
  * Component to mute / unmute remote audio.
@@ -29,32 +32,56 @@ export interface RemoteAudioMuteProps {
  * If the local user is not a host, it simply renders an image
  */
 const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
-  const {isHost = false} = props;
+  const {isHost = false, userContainerRef} = props;
   const muteRemoteAudio = useRemoteMute();
-
+  const [showModal, setShowModal] = useState(false);
+  const [pos, setPos] = useState({top: 0, left: 0});
+  const {renderList} = useRender();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
+  const onPress = () => {
+    if (isPSTN(props.uid)) {
+      try {
+        mutePSTN(props.uid);
+      } catch (error) {
+        console.error('An error occurred while muting the PSTN user.');
+      }
+    } else {
+      muteRemoteAudio(MUTE_REMOTE_TYPE.audio, props.uid);
+    }
+    setShowModal(false);
+  };
   return (
-    <IconButton
-      disabled={!isHost || !props.audio}
-      hoverEffect={false}
-      onPress={() => {
-        if (isPSTN(props.uid)) {
-          try {
-            mutePSTN(props.uid);
-          } catch (error) {
-            console.error('An error occurred while muting the PSTN user.');
-          }
-        } else {
-          muteRemoteAudio(MUTE_REMOTE_TYPE.audio, props.uid);
-        }
-      }}
-      iconProps={{
-        iconSize: 'medium',
-        name: props.audio ? 'mic-on' : 'mic-off',
-        tintColor: props.audio ? $config.PRIMARY_ACTION_BRAND_COLOR : '#999999',
-      }}
-    />
+    <>
+      <RemoteMutePopup
+        actionMenuVisible={showModal}
+        setActionMenuVisible={setShowModal}
+        name={renderList[props.uid]?.name}
+        modalPosition={{top: pos.top - 15, left: pos.left + 23}}
+        onMutePress={onPress}
+      />
+      <IconButton
+        disabled={!isHost || !props.audio}
+        onPress={() => {
+          userContainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
+            setPos({
+              top: py + h,
+              left: _px,
+            });
+          });
+          setShowModal(true);
+        }}
+        iconProps={{
+          iconContainerStyle: {padding: 8},
+          iconSize: 20,
+          iconType: 'plain',
+          name: props.audio ? 'mic-on' : 'mic-off',
+          tintColor: props.audio
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
+            : $config.SEMANTIC_NETRUAL,
+        }}
+      />
+    </>
   );
 };
 

@@ -25,7 +25,7 @@ const ChatParticipants = (props: any) => {
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
   const {height, width} = useWindowDimensions();
-  const {renderList} = useRender();
+  const {renderList, activeUids} = useRender();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isChatUser = (userId: UidType, userInfo: any) => {
@@ -40,6 +40,15 @@ const ChatParticipants = (props: any) => {
   const [isHoveredUid, setIsHoveredUid] = React.useState(0);
   return (
     <ScrollView>
+      {activeUids && activeUids.length === 1 ? (
+        <View style={style.defaultMessageContainer}>
+          <Text style={style.defaultMessageText}>
+            No one else has joined yet.
+          </Text>
+        </View>
+      ) : (
+        <></>
+      )}
       {Object.entries(renderList).map(([uid, value]) => {
         const uidAsNumber = parseInt(uid);
 
@@ -81,6 +90,7 @@ const ChatParticipants = (props: any) => {
                 ) : (
                   <View style={{alignSelf: 'center', marginRight: 20}}>
                     <ImageIcon
+                      iconType="plain"
                       name="chat"
                       tintColor={$config.SECONDARY_ACTION_COLOR}
                     />
@@ -129,6 +139,18 @@ const PlatformWrapper = ({
 };
 
 const style = StyleSheet.create({
+  defaultMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 8,
+    padding: 20,
+    margin: 20,
+  },
+  defaultMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
+  },
   bgContainerStyle: {
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
@@ -137,7 +159,7 @@ const style = StyleSheet.create({
     borderRadius: 18,
     marginRight: 8,
     marginLeft: 20,
-    marginVertical: 16,
+    marginVertical: 8,
   },
   userAvatarContainer: {
     backgroundColor:
@@ -160,7 +182,7 @@ const style = StyleSheet.create({
   },
   participantTextContainer: {
     flex: 1,
-    marginVertical: 28,
+    alignSelf: 'center',
   },
   participantText: {
     flex: 1,
@@ -176,10 +198,9 @@ const style = StyleSheet.create({
     backgroundColor: $config.SEMANTIC_NETRUAL,
     borderRadius: 8,
     marginRight: 22,
-    marginTop: 24,
-    marginBottom: 28,
     width: 24,
     height: 16,
+    alignSelf: 'center',
   },
   chatNotificationCountText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

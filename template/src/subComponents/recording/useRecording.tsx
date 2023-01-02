@@ -15,6 +15,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
@@ -27,6 +28,7 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import {useRender} from 'customization-api';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -82,6 +84,8 @@ interface RecordingProviderProps {
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setRecordingActive, isRecordingActive} = props?.value;
+  const [uidWhoStarted, setUidWhoStarted] = useState(0);
+  const {renderList} = useRender();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -101,7 +105,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
-
+      setUidWhoStarted(parseInt(value));
       switch (action) {
         case EventActions.RECORDING_STARTED:
           setRecordingActive(true);
@@ -128,8 +132,13 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (prevRecordingState) {
       if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
       Toast.show({
-        type: 'success',
+        type: 'info',
         text1: recordingStartedText(isRecordingActive),
+        text2: isRecordingActive
+          ? `This meeting is being recorded by ${
+              renderList[uidWhoStarted]?.name || 'user'
+            }`
+          : '',
         visibilityTime: 3000,
       });
     }
@@ -162,6 +171,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             EventPersistLevel.LEVEL3,
           );
           // 2. set the local recording state to true to update the UI
+          setUidWhoStarted(localUid);
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
           // 3.a Get the most recent screenshare uid

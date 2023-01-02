@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -31,6 +31,10 @@ import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useRender} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import ThemeConfig from '../theme';
+import UserAvatar from '../atoms/UserAvatar';
+import Spacer from '../atoms/Spacer';
+import {useChatNotification} from '../components/chat-notification/useChatNotification';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -40,19 +44,49 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const [grpUnreadCount, setGrpUnreadCount] = useState(0);
+  const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {renderList} = useRender();
   const {messageStore, privateMessageStore} = useChatMessages();
+  const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
   const {
+    groupActive,
     privateActive,
     selectedChatUserId: selectedUserID,
     setPrivateActive,
+    inputActive,
   } = useChatUIControl();
+  const privateMessageStoreRef = useRef(
+    privateMessageStore[selectedUserID]?.length,
+  );
+  const {
+    setUnreadGroupMessageCount,
+    unreadGroupMessageCount,
+    unreadIndividualMessageCount,
+    setUnreadIndividualMessageCount,
+  } = useChatNotification();
   const localUid = useLocalUid();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (groupActive) {
+      setGrpUnreadCount(unreadGroupMessageCount);
+      setUnreadGroupMessageCount(0);
+    }
+    if (selectedUserID) {
+      setPrivateUnreadCount(unreadIndividualMessageCount[selectedUserID]);
+      setUnreadIndividualMessageCount((prevState) => {
+        return {
+          ...prevState,
+          [selectedUserID]: 0,
+        };
+      });
+    }
+  }, []);
 
   const {ChatBubbleComponent} = useCustomization((data) => {
     let components: {
@@ -90,51 +124,118 @@ const ChatContainer = (props?: {
   const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
+      {privateActive && selectedUserID ? (
+        <>
+          <View style={style.participantContainer}>
+            <View style={style.bgContainerStyle}>
+              <UserAvatar
+                name={renderList[selectedUserID].name}
+                containerStyle={style.userAvatarContainer}
+                textStyle={style.userAvatarText}
+              />
+            </View>
+            <View style={style.participantTextContainer}>
+              <Text style={[style.participantText]}>
+                {renderList[selectedUserID].name}
+              </Text>
+            </View>
+          </View>
+          <Spacer size={10} />
+        </>
+      ) : (
+        <></>
+      )}
       <ScrollView
         ref={scrollViewRef}
         onContentSizeChange={() => {
           scrollViewRef.current?.scrollToEnd({animated: false});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any, index) => (
-            <>
-              <ChatBubbleComponent
-                isLocal={localUid === message.uid}
-                isSameUser={
-                  index !== 0 && messageStore[index - 1].uid === message.uid
-                    ? true
-                    : false
-                }
-                message={message.msg}
-                createdTimestamp={message.createdTimestamp}
-                updatedTimestamp={message.updatedTimestamp}
-                uid={message.uid}
-                key={message.ts}
-                msgId={message.msgId}
-                isDeleted={message.isDeleted}
-              />
-            </>
-          ))
+          <>
+            <View style={style.defaultMessageContainer}>
+              <Text style={style.defaultMessageText}>
+                Welcome to Chat! {'\n'}All messages are deleted when call ends.
+              </Text>
+            </View>
+            {messageStore.map((message: any, index) => (
+              <>
+                {messageStoreLengthRef.current === messageStore.length &&
+                grpUnreadCount &&
+                messageStore.length - grpUnreadCount === index ? (
+                  <View style={style.unreadMessageContainer}>
+                    <Text style={style.unreadMessageText}>
+                      {grpUnreadCount} Unread Message
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
+                <ChatBubbleComponent
+                  isLocal={localUid === message.uid}
+                  isSameUser={
+                    index !== 0 && messageStore[index - 1].uid === message.uid
+                      ? true
+                      : false
+                  }
+                  message={message.msg}
+                  createdTimestamp={message.createdTimestamp}
+                  updatedTimestamp={message.updatedTimestamp}
+                  uid={message.uid}
+                  key={message.ts}
+                  msgId={message.msgId}
+                  isDeleted={message.isDeleted}
+                />
+                {messageStore?.length - 1 === index ? (
+                  <Spacer size={10} />
+                ) : (
+                  <></>
+                )}
+              </>
+            ))}
+          </>
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any, index) => (
-            <ChatBubbleComponent
-              isLocal={localUid === message.uid}
-              isSameUser={
-                index !== 0 &&
-                privateMessageStore[selectedUserID][index - 1].uid ===
-                  message.uid
-                  ? true
-                  : false
-              }
-              message={message.msg}
-              createdTimestamp={message.createdTimestamp}
-              updatedTimestamp={message.updatedTimestamp}
-              uid={message.uid}
-              key={message.ts}
-              msgId={message.msgId}
-              isDeleted={message.isDeleted}
-            />
-          ))
+          <>
+            {privateMessageStore[selectedUserID].map((message: any, index) => (
+              <>
+                {privateMessageStoreRef.current ===
+                  privateMessageStore[selectedUserID]?.length &&
+                privateUnreadCount &&
+                privateMessageStore[selectedUserID]?.length -
+                  privateUnreadCount ===
+                  index ? (
+                  <View style={style.unreadMessageContainer}>
+                    <Text style={style.unreadMessageText}>
+                      {privateUnreadCount} Unread Message
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
+                <ChatBubbleComponent
+                  isLocal={localUid === message.uid}
+                  isSameUser={
+                    index !== 0 &&
+                    privateMessageStore[selectedUserID][index - 1].uid ===
+                      message.uid
+                      ? true
+                      : false
+                  }
+                  message={message.msg}
+                  createdTimestamp={message.createdTimestamp}
+                  updatedTimestamp={message.updatedTimestamp}
+                  uid={message.uid}
+                  key={message.ts}
+                  msgId={message.msgId}
+                  isDeleted={message.isDeleted}
+                />
+                {privateMessageStore[selectedUserID]?.length - 1 === index ? (
+                  <Spacer size={10} />
+                ) : (
+                  <></>
+                )}
+              </>
+            ))}
+          </>
         ) : (
           <></>
         )}
@@ -149,13 +250,74 @@ const ChatContainer = (props?: {
 };
 
 const style = StyleSheet.create({
-  containerView: {flex: 8},
-  name: {
-    fontWeight: isWebInternal() ? '500' : '700',
+  unreadMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    padding: 8,
+    marginVertical: 20,
+  },
+  unreadMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
+    textAlign: 'center',
+  },
+  defaultMessageContainer: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderRadius: 8,
+    padding: 20,
+    margin: 20,
+  },
+  defaultMessageText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    color: $config.FONT_COLOR,
+  },
+  bgContainerStyle: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 8,
+    marginLeft: 20,
+    marginVertical: 8,
+  },
+  userAvatarContainer: {
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+  userAvatarText: {
+    fontSize: ThemeConfig.FontSize.tiny,
+    lineHeight: 12,
+    fontWeight: '400',
+    color: $config.FONT_COLOR,
+  },
+  participantContainer: {
+    flexDirection: 'row',
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+  },
+  participantTextContainer: {
+    flex: 1,
+    alignSelf: 'center',
+  },
+  participantText: {
+    flex: 1,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 14,
     color: $config.FONT_COLOR,
     textAlign: 'left',
-    marginRight: 10,
+    flexShrink: 1,
   },
+  containerView: {flex: 8},
   infoTextView: {
     marginVertical: 2,
     flexDirection: 'row',

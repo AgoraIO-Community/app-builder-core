@@ -15,16 +15,13 @@ import ColorContext from './ColorContext';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useString} from '../utils/useString';
-import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import ThemeConfig from '../theme';
 
 export interface SettingsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 
 const Settings = (props: SettingsIconButtonProps) => {
-  const {primaryColor} = useContext(ColorContext);
   const {sidePanel, setSidePanel} = useSidePanel();
   //commented for v1 release
   //const settingsLabel = useString('settingsLabel')();
@@ -40,35 +37,23 @@ const Settings = (props: SettingsIconButtonProps) => {
     iconProps: {
       name: 'settings',
       tintColor: isPanelActive
-        ? $config.PRIMARY_ACTION_TEXT_COLOR
-        : $config.PRIMARY_ACTION_BRAND_COLOR,
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : $config.SECONDARY_ACTION_COLOR,
+    },
+    btnTextProps: {
+      text: $config.ICON_TEXT ? settingsLabel : '',
+      textColor: $config.FONT_COLOR,
     },
   };
-  iconButtonProps.btnText = $config.ICON_TEXT ? settingsLabel : '';
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: isPanelActive ? '700' : '400',
-    color: isPanelActive
-      ? $config.PRIMARY_ACTION_TEXT_COLOR
-      : $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
+
   return props?.render ? (
     props.render(onPress, isPanelActive)
   ) : (
-    <View
-      style={[
-        {marginLeft: 8},
-        isPanelActive
-          ? {
-              backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-              borderRadius: 8,
-            }
-          : {},
-      ]}>
-      <IconButton {...iconButtonProps} />
-    </View>
+    <>
+      <View>
+        <IconButton {...iconButtonProps} />
+      </View>
+    </>
   );
 };
 

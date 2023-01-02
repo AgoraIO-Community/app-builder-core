@@ -36,7 +36,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
                 ? $config.PRIMARY_ACTION_BRAND_COLOR
                 : $config.SEMANTIC_ERROR
             }
-            iconSize={'small'}
+            iconSize={20}
           />
         )}
         {/* <ImageIcon

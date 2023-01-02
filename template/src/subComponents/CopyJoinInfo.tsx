@@ -28,6 +28,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {CopyMeetingInfo} from '../components/Share';
 import DimensionContext from '../components/dimension/DimensionContext';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface CopyJoinInfoProps {
   showLabel?: boolean;
@@ -58,24 +59,20 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
 
   const onPress = () => {
     setModalVisible(true);
-    //copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE);
   };
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
       name: 'share',
-      tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      tintColor: $config.SECONDARY_ACTION_COLOR,
+    },
+    btnTextProps: {
+      textColor: $config.FONT_COLOR,
+      text: showLabel ? copyMeetingInviteButton : '',
     },
   };
-  iconButtonProps.styleText = {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '400',
-    color: $config.PRIMARY_ACTION_BRAND_COLOR,
-  };
+
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  iconButtonProps.btnText = showLabel ? copyMeetingInviteButton : '';
 
   return props?.render ? (
     props.render(onPress)
@@ -90,29 +87,39 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
         <CopyMeetingInfo showSubLabel={false} />
         <View style={isDesktop ? style.btnContainer : style.btnContainerMobile}>
           {isDesktop ? (
-            <>
+            <View style={{flex: 1}}>
               <TertiaryButton
                 text={'CANCEL'}
                 textStyle={style.btnText}
                 containerStyle={{
-                  flex: 1,
+                  width: '100%',
+                  height: 48,
                   paddingVertical: 12,
+                  paddingHorizontal: 12,
+                  borderRadius: 8,
                 }}
                 onPress={() => setModalVisible(false)}
               />
-              <Spacer size={20} horizontal={true} />
-            </>
+            </View>
           ) : null}
-          <PrimaryButton
-            textStyle={style.btnText}
-            containerStyle={{
-              paddingVertical: 12,
-            }}
-            onPress={() =>
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-            }
-            text={'COPY INVITATION'}
-          />
+          {isDesktop ? <Spacer size={10} horizontal={true} /> : <></>}
+          <View style={{flex: 1}}>
+            <PrimaryButton
+              textStyle={style.btnText}
+              containerStyle={{
+                minWidth: 'auto',
+                width: '100%',
+                borderRadius: 8,
+                height: 48,
+                paddingVertical: 12,
+                paddingHorizontal: 12,
+              }}
+              onPress={() =>
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+              }
+              text={'COPY INVITATION'}
+            />
+          </View>
         </View>
       </Popup>
       {showTeritaryButton ? (
@@ -134,8 +141,10 @@ const style = StyleSheet.create({
     height: 20,
   },
   btnContainer: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 48,
   },
   btnContainerMobile: {

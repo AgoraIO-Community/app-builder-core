@@ -32,6 +32,10 @@ import Spacer from '../atoms/Spacer';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import CommonStyles from './CommonStyles';
+import SidePanelHeader, {
+  SidePanelStyles,
+} from '../subComponents/SidePanelHeader';
 
 const ParticipantView = (props) => {
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
@@ -63,27 +67,23 @@ const ParticipantView = (props) => {
       style={
         isWebInternal()
           ? isSmall
-            ? style.participantViewNative
-            : style.participantView
-          : style.participantViewNative
+            ? CommonStyles.sidePanelContainerNative
+            : CommonStyles.sidePanelContainerWeb
+          : CommonStyles.sidePanelContainerNative
       }>
-      <View style={style.header}>
-        <Text style={style.mainHeading}>{participantsLabel}</Text>
-        <IconButton
-          hoverEffect={false}
-          iconProps={{
-            name: 'close-rounded',
-            tintColor: $config.SECONDARY_ACTION_COLOR,
-          }}
-          onPress={() => {
-            if (!isSmall) {
-              setSidePanel(SidePanelType.None);
-            } else {
-              props?.handleClose();
-            }
-          }}
-        />
-      </View>
+      <SidePanelHeader
+        centerComponent={
+          <Text style={SidePanelStyles.heading}>{participantsLabel}</Text>
+        }
+        trailingIconName="close-rounded"
+        trailingIconOnPress={() => {
+          if (!isSmall) {
+            setSidePanel(SidePanelType.None);
+          } else {
+            props?.handleClose();
+          }
+        }}
+      />
       <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
           <>
@@ -215,66 +215,16 @@ const ParticipantView = (props) => {
 };
 
 const style = StyleSheet.create({
-  participantView: {
-    maxWidth: '20%',
-    minWidth: 338,
-    borderRadius: 12,
-    marginLeft: 24,
-    marginVertical: 12,
-    flex: 1,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    borderWidth: 1,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 0},
-    shadowRadius: 20,
-    overflow: 'hidden',
-  },
-
   footer: {
     width: '100%',
-    height: 50,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
-  participantViewNative: {
-    //  position: 'absolute',
-    // zIndex: 5,
-    // width: '100%',
-    // height: '100%',
-    // right: 0,
-    // top: 0,
-    //borderBottomWidth: 1,
-    // backgroundColor: $config.SECONDARY_ACTION_COLOR,
-    zIndex: 5,
-    width: '100%',
-    height: '100%',
-    //right: 0,
-    // top: 0,
-    //flex: 1,
-  },
   bodyContainer: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 22,
-    borderBottomWidth: 1,
-    borderBottomColor: $config.CARD_LAYER_3_COLOR,
-  },
-  mainHeading: {
-    fontSize: ThemeConfig.FontSize.normal,
-    letterSpacing: 0.8,
-    lineHeight: ThemeConfig.FontSize.normal,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    color: $config.FONT_COLOR,
-    alignSelf: 'center',
   },
 });
 

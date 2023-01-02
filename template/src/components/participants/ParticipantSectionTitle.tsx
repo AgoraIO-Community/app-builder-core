@@ -21,8 +21,9 @@ export default function ParticipantSectionTitle(props: PropsInterface) {
       </Text>
       <View style={style.iconView}>
         <ImageIcon
+          iconType="plain"
           name={props?.isOpen ? 'arrow-up' : 'arrow-down'}
-          iconSize="medium"
+          iconSize={20}
           tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </View>

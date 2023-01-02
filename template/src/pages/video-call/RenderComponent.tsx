@@ -13,8 +13,9 @@ const DefaultRenderComponent: RenderComponentType = {
 };
 interface RenderComponentProps {
   uid: UidType;
+  isMax?: boolean;
 }
-const RenderComponent = ({uid}: RenderComponentProps) => {
+const RenderComponent = ({uid, isMax = false}: RenderComponentProps) => {
   const {renderList} = useRender();
   const FpeRenderComponent = useCustomization((config) =>
     typeof config?.components?.videoCall === 'object' &&
@@ -43,7 +44,7 @@ const RenderComponent = ({uid}: RenderComponentProps) => {
 
   const RenderComp = getRenderComponent(renderList[uid]?.type);
 
-  return <RenderComp user={renderList[uid]} />;
+  return <RenderComp user={renderList[uid]} isMax={isMax} />;
 };
 
 export default RenderComponent;

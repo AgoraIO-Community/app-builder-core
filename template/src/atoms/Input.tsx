@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     color: $config.FONT_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
-    fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.medium,
     borderRadius: 8,

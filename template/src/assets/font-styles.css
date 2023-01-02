@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?o52k2i') format('truetype');
+  src: url('fonts/icomoon.ttf?3pmzc4') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -22,6 +22,58 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-people:before {
+  content: '\e946';
+  color: #777;
+}
+.icon-chat-outlined:before {
+  content: '\e93c';
+  color: #c5c5c5;
+}
+.icon-grid:before {
+  content: '\e93d';
+  color: #fff;
+}
+.icon-mic-off-outlined:before {
+  content: '\e93e';
+  color: #fff;
+}
+.icon-mic-on-outlined:before {
+  content: '\e93f';
+  color: #c5c5c5;
+}
+.icon-pencil-outlined:before {
+  content: '\e940';
+  color: #fff;
+}
+.icon-pin:before {
+  content: '\e941';
+  color: #c5c5c5;
+}
+.icon-pinned:before {
+  content: '\e942';
+  color: #fff;
+}
+.icon-remove-meeting:before {
+  content: '\e943';
+  color: #e7414c;
+}
+.icon-video-off-outlined:before {
+  content: '\e944';
+  color: #fff;
+}
+.icon-video-on-outlined:before {
+  content: '\e945';
+  color: #c5c5c5;
+}
+.icon-person:before {
+  content: '\e921';
+  color: #808080;
+}
+.icon-participants:before {
+  content: '\e926';
+  color: #fff;
+}
 .icon-collapse:before {
   content: '\e913';
   color: #fff;
@@ -164,9 +216,6 @@
   content: '\e920';
   margin-left: -1em;
   color: rgb(255, 255, 255);
-}
-.icon-participants:before {
-  content: '\e921';
 }
 .icon-pinned-layout:before {
   content: '\e922';

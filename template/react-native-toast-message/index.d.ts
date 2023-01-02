@@ -21,6 +21,8 @@ declare module 'react-native-toast-message' {
     activeOpacity?: number;
     text1NumberOfLines: number;
     text2NumberOfLines: number;
+    primaryBtn?: React.ReactNode;
+    secondaryBtn?: React.ReactNode;
   }
   export const BaseToast: React.FC<BaseToastProps>;
 
@@ -44,6 +46,8 @@ declare module 'react-native-toast-message' {
       position?: ToastPosition;
       text1?: string;
       text2?: string;
+      primaryBtn?: React.ReactNode;
+      secondaryBtn?: React.ReactNode;
       visibilityTime?: number;
       autoHide?: boolean;
       topOffset?: number;

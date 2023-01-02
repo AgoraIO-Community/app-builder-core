@@ -98,8 +98,9 @@ const Dropdown: FC<Props> = ({
         {selected && item?.value === selected?.value ? (
           <View style={styles.itemTextSelectedContainer}>
             <ImageIcon
+              iconType="plain"
               name={'tick'}
-              customSize={{width: 12, height: 9}}
+              iconSize={12}
               tintColor={'#099DFD'}
             />
           </View>
@@ -162,8 +163,9 @@ const Dropdown: FC<Props> = ({
         {icon ? (
           <View style={styles.dropdownIconContainer}>
             <ImageIcon
+              iconType="plain"
               name={icon}
-              iconSize="medium"
+              iconSize={20}
               tintColor={$config.SEMANTIC_NETRUAL}
             />
           </View>
@@ -180,6 +182,7 @@ const Dropdown: FC<Props> = ({
       </View>
       <View style={styles.dropdownIconContainer}>
         <ImageIcon
+          iconType="plain"
           name={visible ? 'arrow-up' : 'arrow-down'}
           tintColor={$config.SECONDARY_ACTION_COLOR}
         />
@@ -228,7 +231,7 @@ const styles = StyleSheet.create({
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: 12,
     paddingLeft: 12,
-    paddingRight: 20,
+    paddingRight: 12,
     justifyContent: 'space-between',
   },
   dropdownOptionTextContainer: {
@@ -246,6 +249,7 @@ const styles = StyleSheet.create({
   },
   dropdownIconContainer: {
     alignSelf: 'center',
+    paddingLeft: 12,
   },
   dropdown: {
     position: 'absolute',
@@ -261,9 +265,9 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderTopWidth: 2,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOffset: {width: 5, height: 5},
-    shadowOpacity: 0.07,
-    shadowRadius: 20,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 5,
     overflow: 'hidden',
   },

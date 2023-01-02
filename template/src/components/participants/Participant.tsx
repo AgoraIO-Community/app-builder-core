@@ -34,6 +34,11 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import IconButton from '../../atoms/IconButton';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import useRemoteRequest, {
+  REQUEST_REMOTE_TYPE,
+} from '../../utils/useRemoteRequest';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
+import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -47,6 +52,8 @@ interface ParticipantInterface {
 }
 
 const Participant = (props: ParticipantInterface) => {
+  const {hostUids} = useLiveStreamDataContext();
+  const {promoteAudienceAsCoHost} = useContext(LiveStreamContext);
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const usercontainerRef = useRef(null);
@@ -70,11 +77,13 @@ const Participant = (props: ParticipantInterface) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const remoteRequest = useRemoteRequest();
+  const remoteMute = useRemoteMute();
 
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [
       {
-        icon: 'chat',
+        icon: 'chat-outlined',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
@@ -91,9 +100,58 @@ const Participant = (props: ParticipantInterface) => {
       },
     ];
 
+    if (
+      $config.EVENT_MODE &&
+      $config.RAISE_HAND &&
+      hostUids.indexOf(user.uid) === -1
+    ) {
+      items.push({
+        icon: 'profile',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: 'Promote to Co-host',
+        callback: () => {
+          setActionMenuVisible(false);
+          promoteAudienceAsCoHost(user.uid);
+        },
+      });
+    }
+
+    if (
+      !$config.EVENT_MODE ||
+      ($config.EVENT_MODE &&
+        $config.RAISE_HAND &&
+        hostUids.indexOf(user.uid) !== -1)
+    ) {
+      items.push({
+        icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: user.video ? 'Mute Video' : 'Request Video',
+        callback: () => {
+          setActionMenuVisible(false);
+          user.video
+            ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+            : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+        },
+      });
+      items.push({
+        icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: user.audio ? 'Mute Audio' : 'Request Audio',
+        callback: () => {
+          setActionMenuVisible(false);
+          user.audio
+            ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+            : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+        },
+      });
+    }
+
     if (isHost) {
       items.push({
-        icon: 'remove',
+        icon: 'remove-meeting',
         iconColor: $config.SEMANTIC_ERROR,
         textColor: $config.SEMANTIC_ERROR,
         title: 'Remove from meeting',
@@ -216,10 +274,18 @@ const Participant = (props: ParticipantInterface) => {
                   borderRadius: 20,
                 }}>
                 <IconButton
-                  hoverEffect={false}
+                  hoverEffect={true}
+                  hoverEffectStyle={{
+                    backgroundColor:
+                      $config.CARD_LAYER_5_COLOR +
+                      hexadecimalTransparency['20%'],
+                    borderRadius: 20,
+                    padding: 5,
+                  }}
                   iconProps={{
+                    iconType: 'plain',
                     name: 'more-menu',
-                    iconSize: 'medium',
+                    iconSize: 20,
                     tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
                   onPress={() => {
@@ -227,14 +293,25 @@ const Participant = (props: ParticipantInterface) => {
                   }}
                 />
               </View>
-              <Spacer horizontal={true} size={16} />
+              <Spacer horizontal={true} size={8} />
               {!$config.AUDIO_ROOM &&
                 (isLocal
                   ? !isAudienceUser && (
                       <LocalVideoMute
-                        iconSize="medium"
+                        iconProps={(isVideoEnabled, isPermissionDenied) => {
+                          return {
+                            iconSize: 20,
+                            iconType: 'plain',
+                            iconContainerStyle: {padding: 8},
+                            showWarningIcon: false,
+                            tintColor: isVideoEnabled
+                              ? $config.PRIMARY_ACTION_BRAND_COLOR
+                              : isPermissionDenied
+                              ? $config.SEMANTIC_NETRUAL
+                              : $config.SEMANTIC_ERROR,
+                          };
+                        }}
                         showLabel={false}
-                        hoverEffect={false}
                       />
                     )
                   : !isAudienceUser && (
@@ -242,14 +319,26 @@ const Participant = (props: ParticipantInterface) => {
                         uid={user.uid}
                         video={user.video}
                         isHost={isHost}
+                        userContainerRef={usercontainerRef}
                       />
                     ))}
               {isLocal
                 ? !isAudienceUser && (
                     <LocalAudioMute
-                      iconSize="medium"
+                      iconProps={(isAudioEnabled, isPermissionDenied) => {
+                        return {
+                          iconSize: 20,
+                          iconType: 'plain',
+                          iconContainerStyle: {padding: 8},
+                          showWarningIcon: false,
+                          tintColor: isAudioEnabled
+                            ? $config.PRIMARY_ACTION_BRAND_COLOR
+                            : isPermissionDenied
+                            ? $config.SEMANTIC_NETRUAL
+                            : $config.SEMANTIC_ERROR,
+                        };
+                      }}
                       showLabel={false}
-                      hoverEffect={false}
                     />
                   )
                 : !isAudienceUser && (
@@ -257,6 +346,7 @@ const Participant = (props: ParticipantInterface) => {
                       uid={user.uid}
                       audio={user.audio}
                       isHost={isHost}
+                      userContainerRef={usercontainerRef}
                     />
                   )}
             </View>
@@ -336,7 +426,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 8,
   },
   userInfoContainer: {
     flexDirection: 'row',

@@ -37,6 +37,8 @@ import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import SidePanelHeader from '../subComponents/SidePanelHeader';
+import CommonStyles from './CommonStyles';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -68,8 +70,6 @@ const Chat = (props?: ChatProps) => {
     setSelectedChatUserId: setSelectedUser,
   } = useChatUIControl();
 
-  console.log('debugging ');
-
   const {
     unreadGroupMessageCount,
     setUnreadGroupMessageCount,
@@ -93,7 +93,8 @@ const Chat = (props?: ChatProps) => {
   const selectGroup = () => {
     setPrivateActive(false);
     setGroupActive(true);
-    setUnreadGroupMessageCount(0);
+    //move this logic into ChatContainer
+    //setUnreadGroupMessageCount(0);
     setSelectedUser(0);
   };
   const selectPrivate = () => {
@@ -104,15 +105,16 @@ const Chat = (props?: ChatProps) => {
   const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
-    setUnreadIndividualMessageCount((prevState) => {
-      return {
-        ...prevState,
-        [userUID]: 0,
-      };
-    });
-    setUnreadPrivateMessageCount(
-      unreadPrivateMessageCount - (unreadIndividualMessageCount[userUID] || 0),
-    );
+    //move this logic into ChatContainer
+    // setUnreadIndividualMessageCount((prevState) => {
+    //   return {
+    //     ...prevState,
+    //     [userUID]: 0,
+    //   };
+    // });
+    // setUnreadPrivateMessageCount(
+    //   unreadPrivateMessageCount - (unreadIndividualMessageCount[userUID] || 0),
+    // );
   };
 
   const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
@@ -155,7 +157,7 @@ const Chat = (props?: ChatProps) => {
         style={
           isWebInternal()
             ? !isSmall
-              ? style.chatView
+              ? CommonStyles.sidePanelContainerWeb
               : style.chatViewNative
             : style.chatViewNative
         }>
@@ -163,60 +165,58 @@ const Chat = (props?: ChatProps) => {
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
          */}
         <ChatBeforeView />
-        <View style={style.header}>
-          <IconButton
-            hoverEffect={false}
-            iconProps={{
-              name: 'back-btn',
-              tintColor: $config.SECONDARY_ACTION_COLOR,
-            }}
-            style={{
-              opacity: privateActive ? 1 : 0,
-            }}
-            onPress={() => {
-              setPrivateActive(false);
-            }}
-          />
-          <View style={style.buttonHolder}>
-            <TouchableOpacity
-              onPress={selectGroup}
-              style={groupActive ? [style.groupActive] : [style.group]}>
-              {unreadGroupMessageCount !== 0 ? (
-                <View style={style.chatNotification} />
-              ) : null}
-              <Text
-                style={groupActive ? style.groupTextActive : style.groupText}>
-                {groupChatLabel}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={selectPrivate}
-              style={!groupActive ? [style.privateActive] : [style.private]}>
-              {unreadPrivateMessageCount !== 0 ? (
-                <View style={style.chatNotification} />
-              ) : null}
-              <Text
-                style={!groupActive ? style.groupTextActive : style.groupText}>
-                {privateChatLabel}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <IconButton
-            hoverEffect={false}
-            iconProps={{
-              name: 'close-square',
-              tintColor: $config.SECONDARY_ACTION_COLOR,
-            }}
-            onPress={() => {
-              if (!isSmall) {
-                setSidePanel(SidePanelType.None);
-              } else {
-                props?.handleClose();
-              }
-            }}
-          />
-        </View>
-
+        <SidePanelHeader
+          isChat={true}
+          leadingIconName={privateActive ? 'back-btn' : null}
+          leadingIconOnPress={
+            privateActive
+              ? () => {
+                  setSelectedUser(0);
+                  setPrivateActive(false);
+                }
+              : () => {}
+          }
+          centerComponent={
+            <View style={style.buttonHolder}>
+              <TouchableOpacity
+                onPress={selectGroup}
+                style={
+                  groupActive ? style.activeContainer : style.nonActiveContainer
+                }>
+                {unreadGroupMessageCount !== 0 ? (
+                  <View style={style.chatNotification} />
+                ) : null}
+                <Text
+                  style={groupActive ? style.activeText : style.nonActiveText}>
+                  {groupChatLabel}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={selectPrivate}
+                style={
+                  !groupActive
+                    ? [style.activeContainer]
+                    : [style.nonActiveContainer]
+                }>
+                {unreadPrivateMessageCount !== 0 ? (
+                  <View style={style.chatNotification} />
+                ) : null}
+                <Text
+                  style={!groupActive ? style.activeText : style.nonActiveText}>
+                  {privateChatLabel}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          }
+          trailingIconName="close-rounded"
+          trailingIconOnPress={() => {
+            if (!isSmall) {
+              setSidePanel(SidePanelType.None);
+            } else {
+              props?.handleClose();
+            }
+          }}
+        />
         {groupActive ? (
           <>
             <ChatContainer {...props} />
@@ -249,40 +249,9 @@ const Chat = (props?: ChatProps) => {
 const style = StyleSheet.create({
   buttonHolder: {
     backgroundColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['20%'],
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['30%'],
     borderRadius: 12,
-    minWidth: 160,
     flexDirection: 'row',
-  },
-  closeIcon: {
-    width: 24,
-    height: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: $config.CARD_LAYER_3_COLOR,
-    alignItems: 'center',
-    minHeight: 60,
-  },
-  chatView: {
-    maxWidth: '20%',
-    minWidth: 338,
-    borderRadius: 12,
-    marginLeft: 24,
-    marginVertical: 12,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    flex: 1,
-    borderWidth: 1,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 0},
-    shadowRadius: 20,
-    overflow: 'hidden',
   },
   chatViewNative: {
     zIndex: 5,
@@ -291,48 +260,31 @@ const style = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  headingText: {
-    flex: 1,
-    paddingLeft: 5,
-    marginVertical: 'auto',
-    fontWeight: '700',
-    color: $config.FONT_COLOR,
-    fontSize: 25,
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
   chatInputContainer: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  groupActive: {
+  activeContainer: {
     margin: 2,
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 11,
+    alignSelf: 'center',
   },
-  group: {
-    padding: 2,
+  nonActiveContainer: {
+    alignSelf: 'center',
   },
-  privateActive: {
-    margin: 2,
-    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    borderRadius: 11,
-  },
-  private: {
-    padding: 2,
-  },
-  groupTextActive: {
-    paddingHorizontal: 23,
+  activeText: {
+    paddingHorizontal: 24,
     paddingVertical: 10,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 12,
     color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
-  groupText: {
-    paddingHorizontal: 23,
+  nonActiveText: {
+    paddingHorizontal: 24,
     paddingVertical: 10,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
@@ -345,7 +297,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.SEMANTIC_ERROR,
     borderRadius: 30,
     position: 'absolute',
-    right: 5,
+    right: 8,
     top: 4,
   },
 });

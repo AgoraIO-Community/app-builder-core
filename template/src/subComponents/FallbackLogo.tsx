@@ -18,34 +18,37 @@ import AnimatedRings from '../atoms/AnimatedRings';
 export default function FallbackLogo(
   name: string,
   isActiveSpeaker?: boolean,
-  isMobileView?: boolean,
+  hideAvatar?: boolean,
 ) {
   return (
     <View style={[styles.container]}>
-      <View
-      // style={[
-      //   styles.activeSpeakerBg,
-      //   {
-      //     backgroundColor: isActiveSpeaker
-      //       ? $config.PRIMARY_ACTION_BRAND_COLOR +
-      //         hexadecimalTransparency['15%']
-      //       : 'transparent',
-      //   },
-      // ]}
-      >
-        <UserAvatar
-          name={name}
-          containerStyle={[
-            styles.avatarBg,
+      {!hideAvatar ? (
+        <View
+          style={[
+            styles.activeSpeakerBg,
             {
               backgroundColor: isActiveSpeaker
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : $config.SEMANTIC_NETRUAL,
+                ? $config.PRIMARY_ACTION_BRAND_COLOR +
+                  hexadecimalTransparency['15%']
+                : 'transparent',
             },
-          ]}
-          textStyle={styles.textStyle}
-        />
-      </View>
+          ]}>
+          <UserAvatar
+            name={name}
+            containerStyle={[
+              styles.avatarBg,
+              {
+                backgroundColor: isActiveSpeaker
+                  ? $config.PRIMARY_ACTION_BRAND_COLOR
+                  : $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+              },
+            ]}
+            textStyle={styles.textStyle}
+          />
+        </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 }
