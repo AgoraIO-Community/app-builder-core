@@ -249,7 +249,7 @@ const ParticipantView = (props) => {
         <CopyJoinInfo showTeritaryButton />
         {isHost && (
           <>
-            <Spacer horizontal size={8} />
+            <Spacer horizontal size={16} />
             <HostControlView />
           </>
         )}
@@ -261,7 +261,8 @@ const ParticipantView = (props) => {
 const style = StyleSheet.create({
   footer: {
     width: '100%',
-    height: 60,
+    padding: 12,
+    height: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
