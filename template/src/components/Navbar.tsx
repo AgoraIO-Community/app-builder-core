@@ -94,7 +94,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     liveStreamingRequestAlertIconPosition = {
       top: 0,
       left: undefined,
-      right: 15,
+      right: 0,
       bottom: undefined,
     },
     isMobileView = false,
