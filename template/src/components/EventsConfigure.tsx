@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import {RtcContext} from '../../agora-rn-uikit';
@@ -17,6 +17,7 @@ import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
+import {useRender} from 'customization-api';
 
 interface Props {
   children: React.ReactNode;
@@ -24,6 +25,11 @@ interface Props {
 
 const EventsConfigure: React.FC<Props> = (props) => {
   const {RtcEngine, dispatch} = useContext(RtcContext);
+  const {renderList} = useRender();
+  const renderListRef = useRef({renderList});
+  useEffect(() => {
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
   useEffect(() => {
     //user joined event listener
     events.on('NEW_USER_JOINED', ({payload}) => {
@@ -33,17 +39,35 @@ const EventsConfigure: React.FC<Props> = (props) => {
           text1: `${data.name} has joined the call`,
           visibilityTime: 3000,
           type: 'info',
+          primaryBtn: null,
+          secondaryBtn: null,
         });
       }
     });
-    events.on(controlMessageEnum.muteVideo, () => {
+    events.on(controlMessageEnum.muteVideo, ({payload, sender}) => {
+      Toast.show({
+        type: 'info',
+        // text1: `${
+        //   renderListRef.current.renderList[sender].name || 'The host'
+        // } muted you.`,
+        text1: 'The host has muted your video.',
+        visibilityTime: 3000,
+      });
       RtcEngine.muteLocalVideoStream(true);
       dispatch({
         type: 'LocalMuteVideo',
         value: [0],
       });
     });
-    events.on(controlMessageEnum.muteAudio, () => {
+    events.on(controlMessageEnum.muteAudio, ({sender}) => {
+      Toast.show({
+        type: 'info',
+        // text1: `${
+        //   renderListRef.current.renderList[sender].name || 'The host'
+        // } muted you.`,
+        text1: 'The host has muted your audio.',
+        visibilityTime: 3000,
+      });
       RtcEngine.muteLocalAudioStream(true);
       dispatch({
         type: 'LocalMuteAudio',

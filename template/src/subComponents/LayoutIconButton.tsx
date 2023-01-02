@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useState, useRef} from 'react';
 
 import LayoutIconDropdown from './LayoutIconDropdown';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
@@ -12,7 +12,20 @@ interface LayoutIconButtonInterface {
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [modalPosition, setModalPosition] = useState(null);
+  const layoutBtnRef = useRef();
+  const [isHovered, setIsHoveredLocal] = useState(false);
+  const setIsHovered = (hovered: boolean) => {
+    if (layoutBtnRef && layoutBtnRef.current) {
+      layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
+        setModalPosition({
+          top: _py - 88,
+          left: _px - 12,
+        });
+      });
+    }
+    setIsHoveredLocal(hovered);
+  };
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
   const layoutLabel = 'Layout';
@@ -30,7 +43,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       };
     } else {
       onPress = () => {
-        setIsHovered(true);
+        setIsHovered(!isHovered);
       };
     }
     let iconButtonProps: Partial<IconButtonProps> = {
@@ -47,6 +60,9 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       ) : (
         <PlatformWrapper showDropdown={isHovered} setIsHovered={setIsHovered}>
           <IconButton
+            setRef={(ref) => {
+              layoutBtnRef.current = ref;
+            }}
             key={'defaultLayoutIconWithName'}
             iconProps={{
               name: layouts[layout]?.iconName,
@@ -66,6 +82,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
        */}
       <PlatformWrapperPopup setIsHovered={setIsHovered}>
         <LayoutIconDropdown
+          modalPosition={modalPosition}
           showDropdown={isHovered}
           setShowDropdown={setIsHovered}
         />
@@ -80,7 +97,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   );
 };
 const PlatformWrapper = ({children, ...props}) => {
-  return isWeb() ? (
+  return false ? (
     <div
       onMouseEnter={() => {
         props?.setIsHovered(true);
@@ -95,7 +112,7 @@ const PlatformWrapper = ({children, ...props}) => {
   );
 };
 const PlatformWrapperPopup = ({children, ...props}) => {
-  return isWeb() ? (
+  return false ? (
     <div
       onMouseEnter={() => {
         props?.setIsHovered(true);

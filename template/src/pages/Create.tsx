@@ -175,6 +175,8 @@ const Create = () => {
           text1: roomTitle + createdText,
           text2: 'Your New meeting is now live',
           visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
         showShareScreen();
       } catch (error) {

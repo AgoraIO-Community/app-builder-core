@@ -22,7 +22,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {
     showDropdown,
     setShowDropdown,
-    modalPosition = {top: -105, left: -10},
+    modalPosition = {top: 0, left: 0},
   } = props;
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop, dim} = getDimensionData();
@@ -80,7 +80,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       </View>
     );
 
-    return isWeb() ? (
+    return false ? (
       showDropdown ? (
         viewContent
       ) : (
@@ -88,7 +88,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       )
     ) : (
       <Modal
-        animationType="fade"
+        animationType="none"
         transparent={true}
         visible={showDropdown}
         onRequestClose={() => {
@@ -112,7 +112,7 @@ const style = StyleSheet.create({
     position: 'absolute',
     backgroundColor: $config.CARD_LAYER_3_COLOR,
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     paddingBottom: 20,
     zIndex: 999,
   },

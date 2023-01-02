@@ -384,19 +384,17 @@ const Navbar = () => {
         )}
       </View>
       <View style={style.navControlBar} testID="videocall-navcontrols">
-        <View testID="videocall-participantsicon">
+        <View testID="videocall-participantsicon" style={{marginRight: 10}}>
           <ParticipantsIconButton />
         </View>
         {$config.CHAT && (
           <>
-            <Spacer size={16} horizontal={true} />
-            <View testID="videocall-chaticon">
+            <View testID="videocall-chaticon" style={{marginHorizontal: 10}}>
               <ChatIconButton />
             </View>
           </>
         )}
-        <Spacer size={16} horizontal={true} />
-        <View testID="videocall-settingsicon">
+        <View testID="videocall-settingsicon" style={{marginLeft: 10}}>
           <SettingsIconButtonWithWrapper />
         </View>
       </View>

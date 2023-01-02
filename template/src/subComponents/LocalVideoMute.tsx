@@ -102,13 +102,12 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  iconButtonProps.toolTipMessage = showLabel
-    ? permissionDenied
-      ? 'Give Permissions'
-      : isVideoEnabled
-      ? 'Disable Camera'
-      : 'Enable Camera'
-    : '';
+  iconButtonProps.toolTipMessage = permissionDenied
+    ? 'Give Permissions'
+    : isVideoEnabled
+    ? 'Disable Camera'
+    : 'Enable Camera';
+
   if (
     rtcProps.role == ClientRole.Audience &&
     $config.EVENT_MODE &&

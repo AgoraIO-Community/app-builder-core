@@ -104,7 +104,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                 ),
             )
           ) : (
-            <></>
+            <Spacer size={1} />
           )}
         </>
       )}

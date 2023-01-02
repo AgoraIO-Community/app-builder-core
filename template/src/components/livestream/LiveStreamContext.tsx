@@ -93,6 +93,9 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           }}
         />
       );
+    } else {
+      btns.primaryBtn = null;
+      btns.secondaryBtn = null;
     }
 
     Toast.show({

@@ -104,13 +104,11 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  iconButtonProps.toolTipMessage = showLabel
-    ? permissionDenied
-      ? 'Give Permissions'
-      : isAudioEnabled
-      ? 'Disable Mic'
-      : 'Enable Mic'
-    : '';
+  iconButtonProps.toolTipMessage = permissionDenied
+    ? 'Give Permissions'
+    : isAudioEnabled
+    ? 'Disable Mic'
+    : 'Enable Mic';
 
   if (
     rtcProps.role == ClientRole.Audience &&

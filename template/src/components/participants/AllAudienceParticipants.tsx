@@ -6,12 +6,17 @@ import {UidType, useMeetingInfo, useRender} from 'customization-api';
 import Participant from './Participant';
 
 const AllAudienceParticipants = (props: any) => {
-  const {uids, isMobile = false, handleClose, updateActionSheet} = props;
+  const {
+    uids,
+    isMobile = false,
+    handleClose,
+    updateActionSheet,
+    emptyMessage,
+  } = props;
   const {renderList} = useRender();
   const {localUid} = useContext(chatContext);
   //commented for v1 release
   //const participantListPlaceholder = useString('participantListPlaceholder')();
-  const participantListPlaceholder = 'No one has joined yet';
   const remoteUserDefaultLabel = 'User';
   const getParticipantName = (uid: UidType) => {
     return renderList[uid]?.name || remoteUserDefaultLabel;
@@ -23,18 +28,23 @@ const AllAudienceParticipants = (props: any) => {
   return (
     <>
       {uids.length == 0 ? (
-        <Text
-          style={{
-            alignSelf: 'center',
-            paddingVertical: 20,
-            fontFamily: 'Source Sans Pro',
-            fontWeight: '400',
-            fontSize: 14,
-            lineHeight: 12,
-            color: $config.FONT_COLOR,
-          }}>
-          {participantListPlaceholder}
-        </Text>
+        emptyMessage ? (
+          <Text
+            style={{
+              alignSelf: 'center',
+              paddingVertical: 20,
+              fontFamily: 'Source Sans Pro',
+              fontWeight: '400',
+              fontSize: 14,
+              lineHeight: 12,
+              color: $config.FONT_COLOR,
+            }}>
+            {' '}
+            {emptyMessage}
+          </Text>
+        ) : (
+          <></>
+        )
       ) : (
         <>
           {/**Audience should see his name first */}

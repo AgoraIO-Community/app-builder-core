@@ -22,7 +22,7 @@ const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
         }}
         disabled={!uid}
         onPress={() => hostRejectsRequestOfUID(uid)}
-        text={'Deny'}
+        text={'DENY'}
       />
     </View>
   );

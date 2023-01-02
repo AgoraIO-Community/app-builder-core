@@ -94,6 +94,8 @@ const Join = () => {
             ? 'Please enter a valid Meeting ID'
             : 'Please try again',
           visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
       });
   };

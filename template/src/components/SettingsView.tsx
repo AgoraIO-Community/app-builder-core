@@ -38,6 +38,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const [saved, setSaved] = useState(false);
   const [newName, setNewName] = useState('');
   const [editable, setEditable] = useState(false);
   const username = useGetName();
@@ -47,6 +48,10 @@ const EditName: React.FC = (props?: EditNameProps) => {
   const onPress = () => {
     if (editable) {
       setUsername(newName);
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+      }, 2000);
       setEditable(false);
     } else {
       inputRef.current.focus();
@@ -87,7 +92,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         />
         <PlatformWrapper>
           <TouchableOpacity
-            disabled={editable ? disabled : false}
+            disabled={saved ? true : editable ? disabled : false}
             style={[
               editNameStyle.editBtn,
               editable
@@ -98,7 +103,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             ]}
             onPress={onPress}>
             <Text style={editNameStyle.editBtnText}>
-              {editable ? 'Save' : 'Edit'}
+              {saved ? 'Saved' : editable ? 'Save' : 'Edit'}
             </Text>
           </TouchableOpacity>
         </PlatformWrapper>

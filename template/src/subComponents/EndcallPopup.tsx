@@ -19,7 +19,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
   const leaveMeetingLabelSubHeading =
     'Are you sure you want to leave this meeting?';
 
-  const stayBtnLabel = 'STAY';
+  const stayBtnLabel = 'CANCEL';
   const leaveBtnLabel = 'LEAVE';
   return (
     <Popup

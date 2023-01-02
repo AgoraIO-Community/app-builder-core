@@ -98,7 +98,9 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
                   paddingHorizontal: 12,
                   borderRadius: 8,
                 }}
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  setModalVisible(false);
+                }}
               />
             </View>
           ) : null}
@@ -114,9 +116,11 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
                 paddingVertical: 12,
                 paddingHorizontal: 12,
               }}
-              onPress={() =>
-                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-              }
+              onPress={() => {
+                copyShareLinkToClipboard(
+                  SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
+                );
+              }}
               text={'COPY INVITATION'}
             />
           </View>
@@ -155,7 +159,6 @@ const style = StyleSheet.create({
   btnText: {
     fontWeight: '600',
     fontSize: 16,
-    lineHeight: 24,
   },
   contentContainer: {
     padding: 24,

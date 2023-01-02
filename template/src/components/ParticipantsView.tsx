@@ -36,9 +36,16 @@ import CommonStyles from './CommonStyles';
 import SidePanelHeader, {
   SidePanelStyles,
 } from '../subComponents/SidePanelHeader';
+import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
+import {useRender} from 'customization-api';
 
 const ParticipantView = (props) => {
+  const {activeUids} = useRender();
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
+  const {
+    attendeeUids: attendeeUidsVideoMeeting,
+    hostUids: hostUidsVideoMeeting,
+  } = useVideoMeetingData();
   const {onlineUsersCount} = useContext(ChatContext);
   const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
@@ -48,6 +55,7 @@ const ParticipantView = (props) => {
   // const participantsLabel = useString('participantsLabel')();
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
+  const attendeeLabel = 'Attendee';
   const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
   const {
     data: {isHost},
@@ -109,12 +117,14 @@ const ParticipantView = (props) => {
                     />
                     {showHostSection ? (
                       <AllHostParticipants
+                        emptyMessage={'No Host has joined yet.'}
+                        uids={activeUids}
                         isMobile={isSmall}
                         updateActionSheet={props.updateActionSheet}
                         handleClose={props.handleClose}
                       />
                     ) : (
-                      <></>
+                      <Spacer size={1} />
                     )}
                   </>
                 ) : (
@@ -132,13 +142,14 @@ const ParticipantView = (props) => {
                     />
                     {showParticipantSection ? (
                       <AllAudienceParticipants
+                        emptyMessage={'No Host has joined yet.'}
                         uids={hostUids}
                         isMobile={isSmall}
                         updateActionSheet={props.updateActionSheet}
                         handleClose={props.handleClose}
                       />
                     ) : (
-                      <></>
+                      <Spacer size={1} />
                     )}
                   </>
                 ))
@@ -157,13 +168,14 @@ const ParticipantView = (props) => {
                   />
                   {showHostSection ? (
                     <AllAudienceParticipants
+                      emptyMessage={'No Host has joined yet.'}
                       uids={hostUids}
                       isMobile={isSmall}
                       updateActionSheet={props.updateActionSheet}
                       handleClose={props.handleClose}
                     />
                   ) : (
-                    <></>
+                    <Spacer size={1} />
                   )}
                 </>
               )
@@ -181,6 +193,7 @@ const ParticipantView = (props) => {
                 />
                 {showParticipantSection ? (
                   <AllAudienceParticipants
+                    emptyMessage={'No Audience has joined yet.'}
                     uids={audienceUids}
                     isMobile={isSmall}
                     updateActionSheet={props.updateActionSheet}
@@ -193,11 +206,42 @@ const ParticipantView = (props) => {
             }
           </>
         ) : (
-          <AllHostParticipants
-            isMobile={isSmall}
-            updateActionSheet={props.updateActionSheet}
-            handleClose={props.handleClose}
-          />
+          <>
+            <ParticipantSectionTitle
+              title={hostLabel}
+              count={hostUidsVideoMeeting.length}
+              isOpen={showHostSection}
+              onPress={() => setShowHostSection(!showHostSection)}
+            />
+            {showHostSection ? (
+              <AllHostParticipants
+                emptyMessage={'No Host has joined yet'}
+                uids={hostUidsVideoMeeting}
+                isMobile={isSmall}
+                updateActionSheet={props.updateActionSheet}
+                handleClose={props.handleClose}
+              />
+            ) : (
+              <Spacer size={1} />
+            )}
+            <ParticipantSectionTitle
+              title={attendeeLabel}
+              count={attendeeUidsVideoMeeting.length}
+              isOpen={showParticipantSection}
+              onPress={() => setShowParticipantSection(!showParticipantSection)}
+            />
+            {showParticipantSection ? (
+              <AllHostParticipants
+                emptyMessage={'No Attendee has joined yet'}
+                uids={attendeeUidsVideoMeeting}
+                isMobile={isSmall}
+                updateActionSheet={props.updateActionSheet}
+                handleClose={props.handleClose}
+              />
+            ) : (
+              <></>
+            )}
+          </>
         )}
       </ScrollView>
 

@@ -9,24 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {
-  Pressable,
-  PressableProps,
-  StyleProp,
+  TouchableOpacityProps,
   StyleSheet,
   Text,
   TextStyle,
-  Image,
   View,
   ViewStyle,
+  TouchableOpacity,
 } from 'react-native';
 import ThemeConfig from '../theme';
 import {primaryButton, primaryButtonText} from '../../theme.json';
 import {IconsInterface} from '../atoms/CustomIcon';
 import ImageIcon from '../atoms/ImageIcon';
 
-export interface PrimaryButtonProps extends PressableProps {
+export interface PrimaryButtonProps extends TouchableOpacityProps {
   text?: string;
   iconName?: keyof IconsInterface;
   containerStyle?: ViewStyle;
@@ -36,7 +34,7 @@ export interface PrimaryButtonProps extends PressableProps {
 export default function PrimaryButton(props: PrimaryButtonProps) {
   const {children, iconName, textStyle, containerStyle, ...otherProps} = props;
   return (
-    <Pressable
+    <TouchableOpacity
       style={[
         styles.container,
         props?.disabled
@@ -59,7 +57,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
           {props.text}
         </Text>
       )}
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
