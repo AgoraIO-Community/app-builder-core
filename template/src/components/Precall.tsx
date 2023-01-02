@@ -378,10 +378,14 @@ const Precall = (props: any) => {
                       <JoinRoomName isDesktop={isDesktop} />
                       <Spacer size={32} />
                       <DeviceSelect />
-                      <Spacer size={60} />
-                      <View style={{width: '100%'}}>
-                        <JoinRoomButton />
-                      </View>
+                    </View>
+                    <View
+                      style={{
+                        width: '100%',
+                        paddingHorizontal: 32,
+                        paddingVertical: 40,
+                      }}>
+                      <JoinRoomButton />
                     </View>
                   </Card>
                 </View>
@@ -456,6 +460,7 @@ const style = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: '80%',
   },
   leftContent: {
     flex: 2.5,
@@ -482,6 +487,8 @@ const style = StyleSheet.create({
     paddingHorizontal: 0,
     paddingVertical: 0,
     maxWidth: 450,
+    height: '100%',
+    justifyContent: 'space-between',
   },
   rightInputContent: {
     padding: 32,

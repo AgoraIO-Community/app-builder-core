@@ -49,9 +49,6 @@ import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
 
-const mobileOrTablet = isMobileOrTablet();
-const isLiveStream = $config.EVENT_MODE;
-
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
     let components: {
@@ -96,9 +93,24 @@ const Create = () => {
   // )();
   const meetingNameInputPlaceholder = 'The Annual Galactic Meet';
   const loadingWithDots = 'Loading...';
-  const createMeetingButton = isLiveStream
-    ? 'CREATE A STREAM'
-    : 'CREATE A MEETING';
+
+  const btnLabel = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'CREATE A AUDIO LIVECAST';
+      } else {
+        return 'CREATE A VOICE CHAT';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'CREATE A STREAM';
+      } else {
+        return 'CREATE A MEETING';
+      }
+    }
+  };
+
+  const createMeetingButton = btnLabel();
   const haveMeetingID = 'Join with a meeting ID';
 
   let onLayout = (e: any) => {
@@ -189,6 +201,38 @@ const Create = () => {
     );
   };
 
+  const getHeading = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'Create a Audio Livecast';
+      } else {
+        return 'Create a Voice Chat';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'Create a Livestream';
+      } else {
+        return 'Create a Meeting';
+      }
+    }
+  };
+
+  const getInputLabel = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'Audio Livecast Name';
+      } else {
+        return 'Voice Chat Name';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'Stream Name';
+      } else {
+        return 'Meeting Name';
+      }
+    }
+  };
+
   return (
     <CreateProvider
       value={{
@@ -203,13 +247,11 @@ const Create = () => {
               <View>
                 <Logo />
                 <Spacer size={isDesktop ? 20 : 16} />
-                <Text style={style.heading}>
-                  {isLiveStream ? 'Create a Livestream' : 'Create a Meeting'}
-                </Text>
+                <Text style={style.heading}>{getHeading()}</Text>
                 <Spacer size={40} />
                 <Input
                   labelStyle={style.inputLabelStyle}
-                  label={isLiveStream ? 'Stream Name' : 'Meeting Name'}
+                  label={getInputLabel()}
                   value={roomTitle}
                   placeholder={meetingNameInputPlaceholder}
                   onChangeText={(text) => onChangeRoomTitle(text)}
