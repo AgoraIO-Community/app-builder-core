@@ -61,42 +61,45 @@ const ChatParticipants = (props: any) => {
               isHoveredUid={isHoveredUid}
               setIsHoveredUid={setIsHoveredUid}
               key={uid}
-              uid={uidAsNumber}
-              onPress={() => {
-                selectUser(uidAsNumber);
-              }}>
-              <View style={style.participantContainer}>
-                <View style={style.bgContainerStyle}>
-                  <UserAvatar
-                    name={name}
-                    containerStyle={style.userAvatarContainer}
-                    textStyle={style.userAvatarText}
-                  />
-                </View>
-                <View style={style.participantTextContainer}>
-                  <Text style={[style.participantText]}>{name}</Text>
-                </View>
-                {isHoveredUid !== uidAsNumber ? (
-                  unreadIndividualMessageCount &&
-                  unreadIndividualMessageCount[uidAsNumber] ? (
-                    <View style={style.chatNotificationPrivate}>
-                      <Text style={style.chatNotificationCountText}>
-                        {unreadIndividualMessageCount[uidAsNumber]}
-                      </Text>
-                    </View>
-                  ) : (
-                    <></>
-                  )
-                ) : (
-                  <View style={{alignSelf: 'center', marginRight: 20}}>
-                    <ImageIcon
-                      iconType="plain"
-                      name="chat"
-                      tintColor={$config.SECONDARY_ACTION_COLOR}
+              uid={uidAsNumber}>
+              <TouchableOpacity
+                onPress={() => {
+                  selectUser(uidAsNumber);
+                }}
+                style={{width: '100%', height: '100%'}}>
+                <View style={style.participantContainer}>
+                  <View style={style.bgContainerStyle}>
+                    <UserAvatar
+                      name={name}
+                      containerStyle={style.userAvatarContainer}
+                      textStyle={style.userAvatarText}
                     />
                   </View>
-                )}
-              </View>
+                  <View style={style.participantTextContainer}>
+                    <Text style={[style.participantText]}>{name}</Text>
+                  </View>
+                  {isHoveredUid !== uidAsNumber ? (
+                    unreadIndividualMessageCount &&
+                    unreadIndividualMessageCount[uidAsNumber] ? (
+                      <View style={style.chatNotificationPrivate}>
+                        <Text style={style.chatNotificationCountText}>
+                          {unreadIndividualMessageCount[uidAsNumber]}
+                        </Text>
+                      </View>
+                    ) : (
+                      <></>
+                    )
+                  ) : (
+                    <View style={{alignSelf: 'center', marginRight: 20}}>
+                      <ImageIcon
+                        iconType="plain"
+                        name="chat"
+                        tintColor={$config.SECONDARY_ACTION_COLOR}
+                      />
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
             </PlatformWrapper>
           );
         }
@@ -105,13 +108,7 @@ const ChatParticipants = (props: any) => {
   );
 };
 
-const PlatformWrapper = ({
-  children,
-  isHoveredUid,
-  setIsHoveredUid,
-  uid,
-  onPress,
-}) => {
+const PlatformWrapper = ({children, isHoveredUid, setIsHoveredUid, uid}) => {
   return isWeb() ? (
     <div
       style={{
@@ -126,15 +123,11 @@ const PlatformWrapper = ({
       }}
       onMouseLeave={() => {
         setIsHoveredUid(0);
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        onPress && onPress();
       }}>
       {children}
     </div>
   ) : (
-    <TouchableOpacity onPress={onPress}>{children}</TouchableOpacity>
+    <>{children}</>
   );
 };
 
