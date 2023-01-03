@@ -8,14 +8,17 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React, {SetStateAction} from 'react';
+import React, {SetStateAction, useState} from 'react';
 
 import ImageIcon from '../atoms/ImageIcon';
 import {IconsInterface} from '../atoms/CustomIcon';
 import ThemeConfig from '../theme';
+import {isWeb} from '../utils/common';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ActionMenuItem {
   icon: keyof IconsInterface;
+  onHoverIcon?: keyof IconsInterface;
   iconColor: string;
   textColor: string;
   title: string;
@@ -49,27 +52,57 @@ const ActionMenu = (props: ActionMenuProps) => {
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>
         <View style={[styles.modalView, modalPosition]}>
-          {items.map(({icon, title, callback, iconColor, textColor}, index) => (
-            <TouchableOpacity
-              style={styles.row}
-              onPress={callback}
-              key={icon + index}>
-              <View style={styles.iconContainer}>
-                <ImageIcon
-                  iconType="plain"
-                  iconSize={20}
-                  name={icon}
-                  tintColor={iconColor}
-                />
-              </View>
-              <Text style={[styles.text, textColor ? {color: textColor} : {}]}>
-                {title}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {items.map(
+            (
+              {icon, onHoverIcon, title, callback, iconColor, textColor},
+              index,
+            ) => (
+              <PlatformWrapper>
+                {(isHovered: boolean) => (
+                  <TouchableOpacity
+                    style={[styles.row, isHovered ? styles.rowHovered : {}]}
+                    onPress={callback}
+                    key={icon + index}>
+                    <View style={styles.iconContainer}>
+                      <ImageIcon
+                        iconType="plain"
+                        iconSize={20}
+                        name={isHovered && onHoverIcon ? onHoverIcon : icon}
+                        tintColor={iconColor}
+                      />
+                    </View>
+                    <Text
+                      style={[
+                        styles.text,
+                        textColor ? {color: textColor} : {},
+                      ]}>
+                      {title}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </PlatformWrapper>
+            ),
+          )}
         </View>
       </Modal>
     </View>
+  );
+};
+
+const PlatformWrapper = ({children}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  return isWeb() ? (
+    <div
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children(isHovered)}
+    </div>
+  ) : (
+    <>{children(false)}</>
   );
 };
 
@@ -90,6 +123,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     zIndex: 1,
     elevation: 1,
+  },
+  rowHovered: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
   },
   row: {
     borderBottomWidth: 1,
