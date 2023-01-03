@@ -18,6 +18,8 @@ import {useScreenshare} from './screenshare/useScreenshare';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useLayout} from 'customization-api';
+import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
 /**
  *
  * @param uid - uid of the user
@@ -25,34 +27,44 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
  * why its needed : To prevent screensharing tunneling effect
  *
  */
-function ScreenShareNotice({uid}: {uid: UidType}) {
+function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
   //commented for v1 release
   // const screensharingActiveOverlayLabel = useString(
   //   'screensharingActiveOverlayLabel',
   // )();
+  const {currentLayout} = useLayout();
   const {stopUserScreenShare} = useScreenshare();
   const screensharingActiveOverlayLabel = 'You are sharing your screen';
   const {rtcProps} = useContext(PropsContext);
   return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>
-      <Text style={styles.screensharingMessage}>
+      <Text
+        style={
+          !isMax && currentLayout === getPinnedLayoutName()
+            ? styles.screensharingMessageMin
+            : styles.screensharingMessage
+        }>
         {screensharingActiveOverlayLabel}
       </Text>
-      <TouchableOpacity
-        style={styles.btnContainer}
-        onPress={() => stopUserScreenShare()}>
-        <View style={styles.iconContainer}>
-          <ImageIcon
-            iconType="plain"
-            iconSize={20}
-            name={'close-rounded'}
-            tintColor={$config.SEMANTIC_ERROR}
-          />
-        </View>
-        <View style={styles.btnTextContainer}>
-          <Text style={styles.btnText}>Stop Sharing</Text>
-        </View>
-      </TouchableOpacity>
+      {!isMax && currentLayout === getPinnedLayoutName() ? (
+        <></>
+      ) : (
+        <TouchableOpacity
+          style={styles.btnContainer}
+          onPress={() => stopUserScreenShare()}>
+          <View style={styles.iconContainer}>
+            <ImageIcon
+              iconType="plain"
+              iconSize={20}
+              name={'close-rounded'}
+              tintColor={$config.SEMANTIC_ERROR}
+            />
+          </View>
+          <View style={styles.btnTextContainer}>
+            <Text style={styles.btnText}>Stop Sharing</Text>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   ) : null;
 }
@@ -100,6 +112,14 @@ const styles = StyleSheet.create({
     backgroundColor:
       $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['80%'],
     borderRadius: 15,
+  },
+  screensharingMessageMin: {
+    alignSelf: 'center',
+    textAlign: 'center',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 20,
+    color: $config.FONT_COLOR,
   },
   screensharingMessage: {
     alignSelf: 'center',

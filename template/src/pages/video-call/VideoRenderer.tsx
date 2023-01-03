@@ -47,7 +47,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             ? maxStyle.noVideoStyle
             : maxStyle.nonActiveContainerStyle,
         ]}>
-        <ScreenShareNotice uid={user.uid} />
+        <ScreenShareNotice uid={user.uid} isMax={isMax} />
         <NetworkQualityPill user={user} />
         <MaxVideoView
           fallback={() => {
