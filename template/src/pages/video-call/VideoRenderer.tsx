@@ -1,5 +1,5 @@
 import React, {useState, useRef} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import {RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -25,7 +25,7 @@ import useRemoteRequest, {
 } from '../../utils/useRemoteRequest';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
-
+const windowHeight = Dimensions.get('window').height;
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -120,11 +120,11 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const endRemoteCall = useRemoteEndCall();
-  const [pos, setPos] = useState({top: 0, left: 0});
+  const [pos, setPos] = useState({bottom: 0, left: 0});
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
       setPos({
-        top: _py,
+        bottom: windowHeight - _py,
         left: _px,
       });
     });
@@ -145,49 +145,52 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         },
       });
     }
-    if (
-      (isHost && !$config.EVENT_MODE) ||
-      ($config.EVENT_MODE &&
-        $config.RAISE_HAND &&
-        hostUids.indexOf(user.uid) !== -1)
-    ) {
-      items.push({
-        icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: user.video ? 'Mute Video' : 'Request Video',
-        callback: () => {
-          setActionMenuVisible(false);
-          user.video
-            ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
-            : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
-        },
-      });
-      items.push({
-        icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: user.audio ? 'Mute Audio' : 'Request Audio',
-        callback: () => {
-          setActionMenuVisible(false);
-          user.audio
-            ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
-            : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
-        },
-      });
-    }
 
-    if (isHost) {
-      items.push({
-        icon: 'remove-meeting',
-        iconColor: $config.SEMANTIC_ERROR,
-        textColor: $config.SEMANTIC_ERROR,
-        title: 'Remove from meeting',
-        callback: () => {
-          setActionMenuVisible(false);
-          setRemoveMeetingPopupVisible(true);
-        },
-      });
+    if (user.type === 'rtc') {
+      if (
+        (isHost && !$config.EVENT_MODE) ||
+        ($config.EVENT_MODE &&
+          $config.RAISE_HAND &&
+          hostUids.indexOf(user.uid) !== -1)
+      ) {
+        items.push({
+          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.video ? 'Mute Video' : 'Request Video',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.video
+              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+          },
+        });
+        items.push({
+          icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.audio ? 'Mute Audio' : 'Request Audio',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.audio
+              ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+          },
+        });
+      }
+
+      if (isHost) {
+        items.push({
+          icon: 'remove-meeting',
+          iconColor: $config.SEMANTIC_ERROR,
+          textColor: $config.SEMANTIC_ERROR,
+          title: 'Remove from meeting',
+          callback: () => {
+            setActionMenuVisible(false);
+            setRemoveMeetingPopupVisible(true);
+          },
+        });
+      }
     }
 
     return (
@@ -205,7 +208,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         <ActionMenu
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
-          modalPosition={{top: pos.top - 160, left: pos.left - 200}}
+          modalPosition={{bottom: pos.bottom + 10, left: pos.left - 200}}
           items={items}
         />
       </>
