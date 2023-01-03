@@ -342,46 +342,59 @@ const Navbar = () => {
         {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
       <View testID="videocall-meetingName" style={style.roomNameContainer}>
-        <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
-          {meetingTitle}
-        </Text>
-        <IconButton
-          toolTipMessage={
-            $config.EVENT_MODE
-              ? `${'Host: ' + hostUids?.length || 0} \n` +
-                `${'Audience: ' + audienceUids?.length || 0}`
-              : ''
-          }
-          containerStyle={style.participantCountView}
-          disabled={true}
-          iconProps={{
-            name: 'people',
-            iconType: 'plain',
-            iconSize: 20,
-            tintColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-          }}
-          btnTextProps={{
-            text: numFormatter(onlineUsersCount),
-            textColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-            textStyle: {
-              fontWeight: '600',
-              fontSize: 16,
-              marginTop: 0,
-              marginLeft: 6,
-            },
-          }}
-        />
-
-        {isRecordingActive && !isMobileOrTablet() ? (
-          <View style={[style.recordingView]}>
-            <View style={[style.recordingStatus]} />
-            <Text style={style.recordingText}>{recordingLabel}</Text>
+        <View>
+          <Spacer size={16} />
+          <Text
+            style={style.roomNameText}
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {meetingTitle}
+          </Text>
+          <Spacer size={8} />
+          <View style={{flexDirection: 'row'}}>
+            <IconButton
+              toolTipMessage={
+                $config.EVENT_MODE
+                  ? `${hostUids?.length || 0} Host \n${
+                      audienceUids?.length || 0
+                    } Audience`
+                  : ''
+              }
+              containerStyle={style.participantCountView}
+              disabled={true}
+              iconProps={{
+                name: 'people',
+                iconType: 'plain',
+                iconSize: 20,
+                tintColor:
+                  $config.SECONDARY_ACTION_COLOR +
+                  hexadecimalTransparency['50%'],
+              }}
+              btnTextProps={{
+                text: numFormatter(onlineUsersCount),
+                textColor:
+                  $config.SECONDARY_ACTION_COLOR +
+                  hexadecimalTransparency['50%'],
+                textStyle: {
+                  fontWeight: '600',
+                  fontSize: 16,
+                  marginTop: 0,
+                  marginLeft: 6,
+                },
+              }}
+            />
+            <Spacer size={8} horizontal={true} />
+            {isRecordingActive && !isMobileOrTablet() ? (
+              <View style={[style.recordingView]}>
+                <View style={[style.recordingStatus]} />
+                <Spacer size={8} horizontal={true} />
+                <Text style={style.recordingText}>{recordingLabel}</Text>
+              </View>
+            ) : (
+              <></>
+            )}
           </View>
-        ) : (
-          <></>
-        )}
+        </View>
       </View>
       <View style={style.navControlBar} testID="videocall-navcontrols">
         <View testID="videocall-participantsicon" style={{marginRight: 10}}>
@@ -430,7 +443,6 @@ const style = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 20,
-    marginLeft: 20,
   },
   navHolder: {
     width: '100%',
@@ -458,7 +470,6 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 24,
     backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
-    marginLeft: 20,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
@@ -468,8 +479,7 @@ const style = StyleSheet.create({
   },
   recordingText: {
     fontSize: 12,
-    lineHeight: 12,
-    fontWeight: '400',
+    fontWeight: '600',
     fontFamily: 'Source Sans Pro',
     color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
   },
@@ -478,7 +488,6 @@ const style = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     backgroundColor: $config.SEMANTIC_ERROR,
-    marginRight: 8,
   },
   recordingIcon: {
     width: 20,
