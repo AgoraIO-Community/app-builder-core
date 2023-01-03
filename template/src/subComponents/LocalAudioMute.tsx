@@ -39,6 +39,7 @@ export interface LocalAudioMuteProps {
   disabled?: boolean;
   isOnActionSheet?: boolean;
   showWarningIcon?: boolean;
+  isMobileView?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -54,6 +55,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     disabled = false,
     isOnActionSheet = false,
     showWarningIcon = true,
+    isMobileView = false,
   } = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
@@ -104,11 +106,13 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isAudioEnabled
-    ? 'Disable Mic'
-    : 'Enable Mic';
+  if (!isMobileView) {
+    iconButtonProps.toolTipMessage = permissionDenied
+      ? 'Give Permissions'
+      : isAudioEnabled
+      ? 'Disable Mic'
+      : 'Enable Mic';
+  }
 
   if (
     rtcProps.role == ClientRole.Audience &&

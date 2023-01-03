@@ -59,14 +59,16 @@ const ActionSheetContent = (props) => {
         <View style={styles.iconContainer}>
           <LocalVideoMute
             isOnActionSheet={true}
+            isMobileView={true}
             showLabel={false}
             disabled={isLiveStream && isAudience && !isBroadCasting}
           />
         </View>
         <View style={[styles.iconContainer]}>
           <LocalAudioMute
-            showLabel={false}
+            isMobileView={true}
             isOnActionSheet={true}
+            showLabel={false}
             disabled={isLiveStream && isAudience && !isBroadCasting}
           />
         </View>
@@ -76,7 +78,7 @@ const ActionSheetContent = (props) => {
             styles.iconContainer,
             {backgroundColor: $config.SEMANTIC_ERROR},
           ]}>
-          <LocalEndcall showLabel={false} />
+          <LocalEndcall showLabel={false} isOnActionSheet={true} />
         </View>
         <View style={styles.iconContainer}>
           <TouchableOpacity
@@ -135,9 +137,7 @@ const ActionSheetContent = (props) => {
               openSheet={() => updateActionSheet('participants')}
             />
           </View>
-          <Text style={styles.iconText}>
-            <ParticipantsCountView isMobileView={true} />
-          </Text>
+          <Text style={styles.iconText}>Participants</Text>
           {$config.EVENT_MODE && isPendingRequestToReview && (
             <View style={styles.notification} />
           )}
@@ -167,7 +167,7 @@ const ActionSheetContent = (props) => {
                 color:
                   isLiveStream && isAudience && !isBroadCasting
                     ? $config.SEMANTIC_NETRUAL
-                    : $config.PRIMARY_ACTION_BRAND_COLOR,
+                    : $config.FONT_COLOR,
               },
             ]}>
             Switch {'\n'} Camera
@@ -186,7 +186,7 @@ const ActionSheetContent = (props) => {
                   layouts[layout]?.iconName === 'grid-layout'
                     ? 'grid-layout'
                     : 'list-view',
-                tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+                tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
               }}
             />
             {/* layout */}
@@ -200,7 +200,7 @@ const ActionSheetContent = (props) => {
             onPress={() => updateActionSheet('settings')}>
             <ImageIcon
               name={'settings'}
-              tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+              tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
             />
           </TouchableOpacity>
           <Text style={styles.iconText}>Settings</Text>
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconText: {
-    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    color: $config.FONT_COLOR,
     marginTop: 8,
     fontSize: 12,
     fontWeight: '400',

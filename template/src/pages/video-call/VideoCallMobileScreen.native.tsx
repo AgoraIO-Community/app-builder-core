@@ -7,6 +7,8 @@ import Spacer from '../../atoms/Spacer';
 import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import ParticipantsCount from '../../atoms/ParticipantsCount';
+import RecordingInfo from '../../atoms/RecordingInfo';
 
 interface VideoCallMobileScreenProps {
   title: string;
@@ -20,12 +22,16 @@ const VideoCallMobileScreen = (props: VideoCallMobileScreenProps) => {
       <View style={styles.container}>
         <View style={styles.titleBar}>
           <Text style={styles.title}>{title}</Text>
-          {isRecordingActive ? (
-            <View style={[styles.recordingView]}>
-              <View style={[styles.recordingStatus]} />
-              <Text style={styles.recordingText}>{recordingLabel}</Text>
+          <Spacer size={8} horizontal={false} />
+          <View style={styles.countView}>
+            <View style={{width: 60, height: 42}}>
+              <ParticipantsCount />
             </View>
-          ) : null}
+            {isRecordingActive ? (
+              <RecordingInfo recordingLabel={recordingLabel} />
+            ) : null}
+          </View>
+          <View></View>
         </View>
         <Spacer size={40} />
         <View style={styles.videoView}>
@@ -56,32 +62,10 @@ const styles = StyleSheet.create({
     flex: 0.8,
   },
   titleBar: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  countView: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  recordingView: {
-    padding: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    backgroundColor: '#FF414D' + hexadecimalTransparency['10%'],
-    marginLeft: 20,
-  },
-  recordingText: {
-    fontSize: 16,
-    lineHeight: 16,
-    fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
-    color: '#ff414D',
-  },
-  recordingStatus: {
-    width: 10,
-    height: 10,
-    borderRadius: 6,
-    backgroundColor: '#FF414D',
-    marginRight: 8,
   },
 });

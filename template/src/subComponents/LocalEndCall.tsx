@@ -6,12 +6,13 @@ import {useParams} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 export interface LocalEndcallProps {
   showLabel?: boolean;
+  isOnActionSheet?: boolean;
   render?: (onPress: () => void) => JSX.Element;
 }
 
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useRtc();
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
   const endCallLabel = 'Leave';
@@ -42,7 +43,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       name: 'end-call',
       tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
       iconBackgroundColor: $config.SEMANTIC_ERROR,
-      iconContainerStyle: {
+      iconContainerStyle: !isOnActionSheet && {
         width: 69,
         height: 48,
       },
