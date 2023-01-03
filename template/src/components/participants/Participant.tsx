@@ -312,6 +312,7 @@ const Participant = (props: ParticipantInterface) => {
                           };
                         }}
                         showLabel={false}
+                        isMobileView={isMobile}
                       />
                     )
                   : !isAudienceUser && (
@@ -339,6 +340,7 @@ const Participant = (props: ParticipantInterface) => {
                         };
                       }}
                       showLabel={false}
+                      isMobileView={isMobile}
                     />
                   )
                 : !isAudienceUser && (

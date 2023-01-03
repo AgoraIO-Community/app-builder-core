@@ -7,6 +7,7 @@ import Spacer from '../../atoms/Spacer';
 import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import ParticipantsCount from '../../atoms/ParticipantsCount';
 
 interface VideoCallMobileScreenProps {
   title: string;
@@ -20,12 +21,17 @@ const VideoCallMobileScreen = (props: VideoCallMobileScreenProps) => {
       <View style={styles.container}>
         <View style={styles.titleBar}>
           <Text style={styles.title}>{title}</Text>
-          {isRecordingActive ? (
-            <View style={[styles.recordingView]}>
-              <View style={[styles.recordingStatus]} />
-              <Text style={styles.recordingText}>{recordingLabel}</Text>
-            </View>
-          ) : null}
+          <Spacer size={8} horizontal={false} />
+          <View style={styles.countView}>
+            <ParticipantsCount />
+            {isRecordingActive ? (
+              <View style={[styles.recordingView]}>
+                <View style={[styles.recordingStatus]} />
+                <Text style={styles.recordingText}>{recordingLabel}</Text>
+              </View>
+            ) : null}
+          </View>
+          <View></View>
         </View>
         <Spacer size={40} />
         <View style={styles.videoView}>
@@ -56,10 +62,12 @@ const styles = StyleSheet.create({
     flex: 0.8,
   },
   titleBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
-
+  countView: {
+    flexDirection: 'row',
+  },
   recordingView: {
     padding: 5,
     flexDirection: 'row',

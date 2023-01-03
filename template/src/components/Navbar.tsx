@@ -49,6 +49,8 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
+import ParticipantsCount from '../atoms/ParticipantsCount';
+import styles from 'react-native-toast-message/src/styles';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -341,47 +343,27 @@ const Navbar = () => {
         isWebInternal() ? style.navHolder : style.navHolderNative,
         {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
-      <View testID="videocall-meetingName" style={style.roomNameContainer}>
-        <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
+      <View style={style.titleContainer}>
+        <Text
+          style={style.roomNameText}
+          testID="videocall-meetingName"
+          numberOfLines={1}
+          ellipsizeMode="tail">
           {meetingTitle}
         </Text>
-        <IconButton
-          toolTipMessage={
-            $config.EVENT_MODE
-              ? `${'Host: ' + hostUids?.length || 0} \n` +
-                `${'Audience: ' + audienceUids?.length || 0}`
-              : ''
-          }
-          containerStyle={style.participantCountView}
-          disabled={true}
-          iconProps={{
-            name: 'people',
-            iconType: 'plain',
-            iconSize: 20,
-            tintColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-          }}
-          btnTextProps={{
-            text: numFormatter(onlineUsersCount),
-            textColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-            textStyle: {
-              fontWeight: '600',
-              fontSize: 16,
-              marginTop: 0,
-              marginLeft: 6,
-            },
-          }}
-        />
 
-        {isRecordingActive && !isMobileOrTablet() ? (
-          <View style={[style.recordingView]}>
-            <View style={[style.recordingStatus]} />
-            <Text style={style.recordingText}>{recordingLabel}</Text>
-          </View>
-        ) : (
-          <></>
-        )}
+        <Spacer size={8} horizontal={false} />
+        <View style={style.countContainer}>
+          <ParticipantsCount />
+          {isRecordingActive ? (
+            <View style={[style.recordingView]}>
+              <View style={[style.recordingStatus]} />
+              <Text style={style.recordingText}>{recordingLabel}</Text>
+            </View>
+          ) : (
+            <></>
+          )}
+        </View>
       </View>
       <View style={style.navControlBar} testID="videocall-navcontrols">
         <View testID="videocall-participantsicon" style={{marginRight: 10}}>
@@ -431,6 +413,9 @@ const style = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 20,
     marginLeft: 20,
+  },
+  countContainer: {
+    flexDirection: 'row',
   },
   navHolder: {
     width: '100%',
@@ -502,6 +487,9 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'column',
   },
   roomNameText: {
     fontSize: ThemeConfig.FontSize.normal,

@@ -59,14 +59,16 @@ const ActionSheetContent = (props) => {
         <View style={styles.iconContainer}>
           <LocalVideoMute
             isOnActionSheet={true}
+            isMobileView={true}
             showLabel={false}
             disabled={isLiveStream && isAudience && !isBroadCasting}
           />
         </View>
         <View style={[styles.iconContainer]}>
           <LocalAudioMute
-            showLabel={false}
+            isMobileView={true}
             isOnActionSheet={true}
+            showLabel={false}
             disabled={isLiveStream && isAudience && !isBroadCasting}
           />
         </View>
@@ -135,9 +137,7 @@ const ActionSheetContent = (props) => {
               openSheet={() => updateActionSheet('participants')}
             />
           </View>
-          <Text style={styles.iconText}>
-            <ParticipantsCountView isMobileView={true} />
-          </Text>
+          <Text style={styles.iconText}>Participants</Text>
           {$config.EVENT_MODE && isPendingRequestToReview && (
             <View style={styles.notification} />
           )}
