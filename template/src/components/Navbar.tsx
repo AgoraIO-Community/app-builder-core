@@ -51,6 +51,7 @@ import Spacer from '../atoms/Spacer';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import ParticipantsCount from '../atoms/ParticipantsCount';
 import styles from 'react-native-toast-message/src/styles';
+import RecordingInfo from '../atoms/RecordingInfo';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -356,10 +357,7 @@ const Navbar = () => {
         <View style={style.countContainer}>
           <ParticipantsCount />
           {isRecordingActive ? (
-            <View style={[style.recordingView]}>
-              <View style={[style.recordingStatus]} />
-              <Text style={style.recordingText}>{recordingLabel}</Text>
-            </View>
+            <RecordingInfo recordingLabel={recordingLabel} />
           ) : (
             <></>
           )}
@@ -435,42 +433,7 @@ const style = StyleSheet.create({
     paddingHorizontal: 10,
     justifyContent: 'space-between',
   },
-  recordingView: {
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'center',
-    borderRadius: 24,
-    backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
-    marginLeft: 20,
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-  },
-  recordingText: {
-    fontSize: 12,
-    lineHeight: 12,
-    fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
-    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-  },
-  recordingStatus: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: $config.SEMANTIC_ERROR,
-    marginRight: 8,
-  },
-  recordingIcon: {
-    width: 20,
-    height: 20,
-    margin: 1,
-    resizeMode: 'contain',
-  },
+
   btnHolder: {
     marginHorizontal: isMobileOrTablet() ? 2 : 0,
     width: '100%',

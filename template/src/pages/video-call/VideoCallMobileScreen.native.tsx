@@ -8,6 +8,7 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
+import RecordingInfo from '../../atoms/RecordingInfo';
 
 interface VideoCallMobileScreenProps {
   title: string;
@@ -23,12 +24,11 @@ const VideoCallMobileScreen = (props: VideoCallMobileScreenProps) => {
           <Text style={styles.title}>{title}</Text>
           <Spacer size={8} horizontal={false} />
           <View style={styles.countView}>
-            <ParticipantsCount />
+            <View style={{width: 60, height: 42}}>
+              <ParticipantsCount />
+            </View>
             {isRecordingActive ? (
-              <View style={[styles.recordingView]}>
-                <View style={[styles.recordingStatus]} />
-                <Text style={styles.recordingText}>{recordingLabel}</Text>
-              </View>
+              <RecordingInfo recordingLabel={recordingLabel} />
             ) : null}
           </View>
           <View></View>
@@ -67,29 +67,5 @@ const styles = StyleSheet.create({
   },
   countView: {
     flexDirection: 'row',
-  },
-  recordingView: {
-    padding: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    backgroundColor: '#FF414D' + hexadecimalTransparency['10%'],
-    marginLeft: 20,
-  },
-  recordingText: {
-    fontSize: 16,
-    lineHeight: 16,
-    fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
-    color: '#ff414D',
-  },
-  recordingStatus: {
-    width: 10,
-    height: 10,
-    borderRadius: 6,
-    backgroundColor: '#FF414D',
-    marginRight: 8,
   },
 });
