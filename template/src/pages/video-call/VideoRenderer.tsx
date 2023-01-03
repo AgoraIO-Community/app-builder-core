@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
-import {RenderInterface, UidType} from '../../../agora-rn-uikit';
+import {RenderInterface, UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
@@ -108,6 +108,7 @@ interface MoreMenuProps {
   pinnedUid: UidType;
 }
 const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
+  const localUid = useLocalUid();
   const {dispatch} = useRtc();
   const {setLayout} = useLayout();
   const videoMoreMenuRef = useRef(null);
@@ -146,7 +147,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
       },
     });
 
-    if (user.type === 'rtc') {
+    if (user.type === 'rtc' && user.uid !== localUid) {
       if (
         (isHost && !$config.EVENT_MODE) ||
         ($config.EVENT_MODE &&
