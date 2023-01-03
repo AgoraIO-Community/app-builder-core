@@ -183,9 +183,7 @@ const ActionSheetContent = (props) => {
               isOnActionSheet={true}
               iconProps={{
                 name:
-                  layouts[layout]?.iconName === 'grid-layout'
-                    ? 'grid-layout'
-                    : 'list-view',
+                  layouts[layout]?.iconName === 'grid' ? 'grid' : 'list-view',
                 tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
               }}
             />

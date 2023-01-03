@@ -231,7 +231,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
-      name: 'chat',
+      name: 'chat-filled',
       tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : $config.SECONDARY_ACTION_COLOR,
@@ -356,7 +356,7 @@ const Navbar = () => {
         <Spacer size={8} horizontal={false} />
         <View style={style.countContainer}>
           <ParticipantsCount />
-          {!isRecordingActive ? (
+          {isRecordingActive ? (
             <RecordingInfo recordingLabel={recordingLabel} />
           ) : (
             <></>

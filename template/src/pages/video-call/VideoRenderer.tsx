@@ -87,7 +87,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               },
             }}
             iconProps={{
-              name: 'pin',
+              name: 'pin-filled',
               iconSize: 20,
               iconType: 'plain',
               tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
@@ -132,19 +132,18 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   };
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [];
-    if (!(pinnedUid && isMax)) {
-      items.push({
-        icon: 'pin',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: pinnedUid ? 'Replace pin' : 'Pin for me',
-        callback: () => {
-          setActionMenuVisible(false);
-          dispatch({type: 'UserPin', value: [user.uid]});
-          setLayout(getPinnedLayoutName());
-        },
-      });
-    }
+    items.push({
+      icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+      onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.SECONDARY_ACTION_COLOR,
+      title: pinnedUid ? (isMax ? 'Unpin' : 'Replace Pin') : 'Pin for me',
+      callback: () => {
+        setActionMenuVisible(false);
+        dispatch({type: 'UserPin', value: [pinnedUid && isMax ? 0 : user.uid]});
+        setLayout(getPinnedLayoutName());
+      },
+    });
 
     if (user.type === 'rtc') {
       if (
@@ -155,6 +154,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
       ) {
         items.push({
           icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
           title: user.video ? 'Mute Video' : 'Request Video',
@@ -167,6 +167,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         });
         items.push({
           icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
           title: user.audio ? 'Mute Audio' : 'Request Audio',

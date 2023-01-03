@@ -89,6 +89,7 @@ const Participant = (props: ParticipantInterface) => {
       //remove user menu
       items.push({
         icon: 'chat-outlined',
+        onHoverIcon: 'chat-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
@@ -110,7 +111,8 @@ const Participant = (props: ParticipantInterface) => {
         hostUids.indexOf(user.uid) === -1
       ) {
         items.push({
-          icon: 'profile',
+          icon: 'promote-outlined',
+          onHoverIcon: 'promote-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
           title: 'Promote to Co-host',
@@ -129,6 +131,7 @@ const Participant = (props: ParticipantInterface) => {
       ) {
         items.push({
           icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
           title: user.video ? 'Mute Video' : 'Request Video',
@@ -141,6 +144,7 @@ const Participant = (props: ParticipantInterface) => {
         });
         items.push({
           icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
           iconColor: $config.SECONDARY_ACTION_COLOR,
           textColor: $config.SECONDARY_ACTION_COLOR,
           title: user.audio ? 'Mute Audio' : 'Request Audio',
@@ -153,29 +157,17 @@ const Participant = (props: ParticipantInterface) => {
         });
       }
 
-      if (isHost) {
-        items.push({
-          icon: 'remove-meeting',
-          iconColor: $config.SEMANTIC_ERROR,
-          textColor: $config.SEMANTIC_ERROR,
-          title: 'Remove from meeting',
-          callback: () => {
-            setActionMenuVisible(false);
-            setRemoveMeetingPopupVisible(true);
-          },
-        });
-      }
-
       if (isHost && $config.EVENT_MODE) {
         if (
           raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
           raiseHandList[user.uid]?.role == ClientRole.Broadcaster
         ) {
           items.push({
-            icon: 'remove',
-            iconColor: $config.SEMANTIC_ERROR,
-            textColor: $config.SEMANTIC_ERROR,
-            title: 'demote to audience',
+            icon: 'demote-outlined',
+            onHoverIcon: 'demote-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: 'Demote to audience',
             callback: () => {
               setActionMenuVisible(false);
               events.send(
@@ -187,6 +179,18 @@ const Participant = (props: ParticipantInterface) => {
             },
           });
         }
+      }
+      if (isHost) {
+        items.push({
+          icon: 'remove-meeting',
+          iconColor: $config.SEMANTIC_ERROR,
+          textColor: $config.SEMANTIC_ERROR,
+          title: 'Remove From Meeting',
+          callback: () => {
+            setActionMenuVisible(false);
+            setRemoveMeetingPopupVisible(true);
+          },
+        });
       }
     } else {
       //local user menu
