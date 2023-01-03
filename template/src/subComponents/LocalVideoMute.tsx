@@ -38,6 +38,7 @@ export interface LocalVideoMuteProps {
     isPermissionDenied: boolean,
   ) => Partial<ImageIconProps>;
   showWarningIcon?: boolean;
+  isMobileView?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -53,6 +54,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     disabled = false,
     isOnActionSheet = false,
     showWarningIcon = true,
+    isMobileView = false,
   } = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
@@ -101,12 +103,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isVideoEnabled
-    ? 'Disable Camera'
-    : 'Enable Camera';
+  if (!isMobileView) {
+    iconButtonProps.toolTipMessage = permissionDenied
+      ? 'Give Permissions'
+      : isVideoEnabled
+      ? 'Disable Camera'
+      : 'Enable Camera';
+  }
 
   if (
     rtcProps.role == ClientRole.Audience &&
