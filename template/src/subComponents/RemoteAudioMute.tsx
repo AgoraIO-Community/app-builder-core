@@ -54,6 +54,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   return (
     <>
       <RemoteMutePopup
+        type="audio"
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
         name={renderList[props.uid]?.name}

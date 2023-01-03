@@ -39,6 +39,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   return String(props.uid)[0] !== '1' ? (
     <>
       <RemoteMutePopup
+        type="video"
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
         name={renderList[props.uid]?.name}
