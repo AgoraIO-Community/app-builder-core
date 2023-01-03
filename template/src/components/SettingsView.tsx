@@ -35,7 +35,8 @@ import ImageIcon from '../atoms/ImageIcon';
 import Spacer from '../atoms/Spacer';
 import CommonStyles from './CommonStyles';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-
+import {useLayout} from '../utils/useLayout';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
   const [saved, setSaved] = useState(false);
@@ -191,16 +192,19 @@ const SettingsView = (props) => {
   const isSmall = dim[0] < 700;
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
-
+  const {currentLayout} = useLayout();
   return (
     <View
-      style={
+      style={[
         isWebInternal()
           ? isSmall
             ? CommonStyles.sidePanelContainerNative
             : CommonStyles.sidePanelContainerWeb
-          : CommonStyles.sidePanelContainerNative
-      }>
+          : CommonStyles.sidePanelContainerNative,
+        isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+          ? {marginVertical: 12}
+          : {},
+      ]}>
       <SidePanelHeader
         centerComponent={
           <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>

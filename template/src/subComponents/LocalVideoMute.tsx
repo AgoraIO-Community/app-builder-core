@@ -29,6 +29,7 @@ import useIsHandRaised from '../utils/useIsHandRaised';
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
+  showToolTip?: boolean;
   showLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   disabled?: boolean;
@@ -38,6 +39,7 @@ export interface LocalVideoMuteProps {
     isPermissionDenied: boolean,
   ) => Partial<ImageIconProps>;
   showWarningIcon?: boolean;
+  isMobileView?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -49,10 +51,12 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {
+    showToolTip = false,
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
     showWarningIcon = true,
+    isMobileView = false,
   } = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
@@ -101,12 +105,15 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isVideoEnabled
-    ? 'Disable Camera'
-    : 'Enable Camera';
+  if (!isMobileView) {
+    iconButtonProps.toolTipMessage = showToolTip
+      ? permissionDenied
+        ? 'Give Permissions'
+        : isVideoEnabled
+        ? 'Disable Camera'
+        : 'Enable Camera'
+      : '';
+  }
 
   if (
     rtcProps.role == ClientRole.Audience &&
@@ -127,9 +134,11 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       name: 'video-off',
       tintColor: $config.SEMANTIC_NETRUAL,
     };
-    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
-      ? 'Waiting for host to appove the request'
-      : 'Raise Hand in order to turn video on';
+    iconButtonProps.toolTipMessage = showToolTip
+      ? isHandRaised(local.uid)
+        ? 'Waiting for host to appove the request'
+        : 'Raise Hand in order to turn video on'
+      : '';
     iconButtonProps.disabled = true;
   }
   return props?.render ? (

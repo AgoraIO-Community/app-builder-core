@@ -14,18 +14,31 @@ import {Image, Text, View, StyleSheet, Dimensions} from 'react-native';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import UserAvatar from '../atoms/UserAvatar';
 import AnimatedRings from '../atoms/AnimatedRings';
+import {useLayout, useRender} from 'customization-api';
+import {
+  getGridLayoutName,
+  getPinnedLayoutName,
+} from '../pages/video-call/DefaultLayouts';
 
 export default function FallbackLogo(
   name: string,
   isActiveSpeaker?: boolean,
   hideAvatar?: boolean,
+  isMax?: boolean,
 ) {
+  const {activeUids} = useRender();
+  const {currentLayout} = useLayout();
+
   return (
     <View style={[styles.container]}>
       {!hideAvatar ? (
         <View
           style={[
             styles.activeSpeakerBg,
+            (currentLayout === getGridLayoutName() && activeUids.length > 9) ||
+            (currentLayout === getPinnedLayoutName() && !isMax)
+              ? styles.activeSpeakerBgSmall
+              : {},
             {
               backgroundColor: isActiveSpeaker
                 ? $config.PRIMARY_ACTION_BRAND_COLOR +
@@ -37,6 +50,11 @@ export default function FallbackLogo(
             name={name}
             containerStyle={[
               styles.avatarBg,
+              (currentLayout === getGridLayoutName() &&
+                activeUids.length > 9) ||
+              (currentLayout === getPinnedLayoutName() && !isMax)
+                ? styles.avatarBgSmall
+                : {},
               {
                 backgroundColor: isActiveSpeaker
                   ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -67,10 +85,18 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
   },
+  activeSpeakerBgSmall: {
+    width: 80,
+    height: 80,
+  },
   avatarBg: {
     width: 100,
     height: 100,
     borderRadius: 50,
+  },
+  avatarBgSmall: {
+    width: 60,
+    height: 60,
   },
   textStyle: {
     fontSize: 32,

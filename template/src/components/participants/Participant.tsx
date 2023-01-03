@@ -39,6 +39,7 @@ import useRemoteRequest, {
 } from '../../utils/useRemoteRequest';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
+import {SidePanelType, useSidePanel} from 'customization-api';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -52,6 +53,7 @@ interface ParticipantInterface {
 }
 
 const Participant = (props: ParticipantInterface) => {
+  const {setSidePanel} = useSidePanel();
   const {hostUids} = useLiveStreamDataContext();
   const {promoteAudienceAsCoHost} = useContext(LiveStreamContext);
   const [isHovered, setIsHovered] = React.useState(false);
@@ -81,9 +83,13 @@ const Participant = (props: ParticipantInterface) => {
   const remoteMute = useRemoteMute();
 
   const renderActionMenu = () => {
-    const items: ActionMenuItem[] = [
-      {
+    const items: ActionMenuItem[] = [];
+
+    if (!isLocal) {
+      //remove user menu
+      items.push({
         icon: 'chat-outlined',
+        onHoverIcon: 'chat-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
@@ -97,105 +103,115 @@ const Participant = (props: ParticipantInterface) => {
             openPrivateChat(user.uid);
           }
         },
-      },
-    ];
-
-    if (
-      $config.EVENT_MODE &&
-      $config.RAISE_HAND &&
-      hostUids.indexOf(user.uid) === -1
-    ) {
-      items.push({
-        icon: 'profile',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Promote to Co-host',
-        callback: () => {
-          setActionMenuVisible(false);
-          promoteAudienceAsCoHost(user.uid);
-        },
       });
-    }
 
-    if (
-      !$config.EVENT_MODE ||
-      ($config.EVENT_MODE &&
-        $config.RAISE_HAND &&
-        hostUids.indexOf(user.uid) !== -1)
-    ) {
-      items.push({
-        icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: user.video ? 'Mute Video' : 'Request Video',
-        callback: () => {
-          setActionMenuVisible(false);
-          user.video
-            ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
-            : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
-        },
-      });
-      items.push({
-        icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: user.audio ? 'Mute Audio' : 'Request Audio',
-        callback: () => {
-          setActionMenuVisible(false);
-          user.audio
-            ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
-            : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
-        },
-      });
-    }
-
-    if (isHost) {
-      items.push({
-        icon: 'remove-meeting',
-        iconColor: $config.SEMANTIC_ERROR,
-        textColor: $config.SEMANTIC_ERROR,
-        title: 'Remove from meeting',
-        callback: () => {
-          setActionMenuVisible(false);
-          setRemoveMeetingPopupVisible(true);
-        },
-      });
-    }
-
-    if (isHost && $config.EVENT_MODE) {
       if (
-        raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
-        raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+        $config.EVENT_MODE &&
+        $config.RAISE_HAND &&
+        hostUids.indexOf(user.uid) === -1
       ) {
         items.push({
-          icon: 'remove',
-          iconColor: $config.SEMANTIC_ERROR,
-          textColor: $config.SEMANTIC_ERROR,
-          title: 'demote to audience',
+          icon: 'promote-outlined',
+          onHoverIcon: 'promote-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: 'Promote to Co-host',
           callback: () => {
             setActionMenuVisible(false);
-            events.send(
-              LiveStreamControlMessageEnum.raiseHandRequestRejected,
-              '',
-              EventPersistLevel.LEVEL1,
-              user.uid,
-            );
+            promoteAudienceAsCoHost(user.uid);
           },
         });
       }
+
+      if (
+        !$config.EVENT_MODE ||
+        ($config.EVENT_MODE &&
+          $config.RAISE_HAND &&
+          hostUids.indexOf(user.uid) !== -1)
+      ) {
+        items.push({
+          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.video ? 'Mute Video' : 'Request Video',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.video
+              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+          },
+        });
+        items.push({
+          icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.audio ? 'Mute Audio' : 'Request Audio',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.audio
+              ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+          },
+        });
+      }
+
+      if (isHost && $config.EVENT_MODE) {
+        if (
+          raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
+          raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+        ) {
+          items.push({
+            isBase64Icon: true,
+            icon: 'demote-outlined',
+            onHoverIcon: 'demote-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: 'Demote to audience',
+            callback: () => {
+              setActionMenuVisible(false);
+              events.send(
+                LiveStreamControlMessageEnum.raiseHandRequestRejected,
+                '',
+                EventPersistLevel.LEVEL1,
+                user.uid,
+              );
+            },
+          });
+        }
+      }
+      if (isHost) {
+        items.push({
+          icon: 'remove-meeting',
+          iconColor: $config.SEMANTIC_ERROR,
+          textColor: $config.SEMANTIC_ERROR,
+          title: 'Remove From Meeting',
+          callback: () => {
+            setActionMenuVisible(false);
+            setRemoveMeetingPopupVisible(true);
+          },
+        });
+      }
+    } else {
+      //local user menu
+      items.push({
+        icon: 'pencil-outlined',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.SECONDARY_ACTION_COLOR,
+        title: 'Change Name',
+        callback: () => {
+          if (isMobile) {
+            handleClose();
+            setSidePanel(SidePanelType.Settings);
+            updateActionSheet('settings');
+          } else {
+            setActionMenuVisible(false);
+            setSidePanel(SidePanelType.Settings);
+          }
+        },
+      });
     }
-
-    // {
-    //   icon: 'videocam',
-    //   title: 'Request Video',
-    //   callback: () => console.warn('Request Video'),
-    // },
-    // {
-    //   icon: 'mic',
-    //   title: 'Request Mic',
-    //   callback: () => console.warn('Request Mic'),
-    // },
-
     return (
       <>
         {isHost ? (
@@ -230,7 +246,7 @@ const Participant = (props: ParticipantInterface) => {
   };
   return (
     <>
-      {!isLocal || isAudienceUser ? renderActionMenu() : <></>}
+      {true ? renderActionMenu() : <></>}
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>
           <View style={styles.userInfoContainer}>
@@ -245,54 +261,47 @@ const Participant = (props: ParticipantInterface) => {
               <Text style={styles.participantNameText} numberOfLines={1}>
                 {name}
               </Text>
-              {isHostUser && (
-                <Text style={styles.subText}>Host{isLocal ? ', Me' : ''}</Text>
-              )}
-              {!isHostUser && isLocal && (
-                <Text style={styles.subText}>{'Me'}</Text>
-              )}
+              {isLocal && <Text style={styles.subText}>{'Me'}</Text>}
             </View>
           </View>
           {showControls ? (
             <View style={styles.iconContainer}>
-              <View
-                style={{
-                  width: 24,
-                  height: 24,
-                  // backgroundColor:
-                  //   $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
-                  opacity:
-                    ((isHovered || actionMenuVisible || !isWebInternal()) &&
-                      !isLocal) ||
-                    (isHovered && isAudienceUser) ||
-                    (isMobile && !isLocal)
-                      ? 1
-                      : 0,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 20,
-                }}>
-                <IconButton
-                  hoverEffect={true}
-                  hoverEffectStyle={{
-                    backgroundColor:
-                      $config.CARD_LAYER_5_COLOR +
-                      hexadecimalTransparency['20%'],
+              {isHovered ||
+              actionMenuVisible ||
+              !isWebInternal() ||
+              isMobile ? (
+                <View
+                  style={{
+                    width: 24,
+                    height: 24,
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     borderRadius: 20,
-                    padding: 5,
-                  }}
-                  iconProps={{
-                    iconType: 'plain',
-                    name: 'more-menu',
-                    iconSize: 20,
-                    tintColor: $config.SECONDARY_ACTION_COLOR,
-                  }}
-                  onPress={() => {
-                    showModal();
-                  }}
-                />
-              </View>
+                  }}>
+                  <IconButton
+                    hoverEffect={true}
+                    hoverEffectStyle={{
+                      backgroundColor:
+                        $config.CARD_LAYER_5_COLOR +
+                        hexadecimalTransparency['20%'],
+                      borderRadius: 20,
+                      padding: 5,
+                    }}
+                    iconProps={{
+                      iconType: 'plain',
+                      name: 'more-menu',
+                      iconSize: 20,
+                      tintColor: $config.SECONDARY_ACTION_COLOR,
+                    }}
+                    onPress={() => {
+                      showModal();
+                    }}
+                  />
+                </View>
+              ) : (
+                <Spacer size={24} horizontal={true} />
+              )}
               <Spacer horizontal={true} size={8} />
               {!$config.AUDIO_ROOM &&
                 (isLocal
@@ -312,6 +321,7 @@ const Participant = (props: ParticipantInterface) => {
                           };
                         }}
                         showLabel={false}
+                        isMobileView={isMobile}
                       />
                     )
                   : !isAudienceUser && (
@@ -339,6 +349,7 @@ const Participant = (props: ParticipantInterface) => {
                         };
                       }}
                       showLabel={false}
+                      isMobileView={isMobile}
                     />
                   )
                 : !isAudienceUser && (

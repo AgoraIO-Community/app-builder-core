@@ -30,6 +30,7 @@ import useIsHandRaised from '../utils/useIsHandRaised';
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
+  showToolTip?: boolean;
   showLabel?: boolean;
   iconProps?: (
     isAudioEnabled: boolean,
@@ -39,6 +40,7 @@ export interface LocalAudioMuteProps {
   disabled?: boolean;
   isOnActionSheet?: boolean;
   showWarningIcon?: boolean;
+  isMobileView?: boolean;
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
@@ -50,10 +52,12 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {
+    showToolTip = false,
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
     showWarningIcon = true,
+    isMobileView = false,
   } = props;
   //commented for v1 release
   //const audioLabel = useString('toggleAudioButton')();
@@ -104,11 +108,15 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
-  iconButtonProps.toolTipMessage = permissionDenied
-    ? 'Give Permissions'
-    : isAudioEnabled
-    ? 'Disable Mic'
-    : 'Enable Mic';
+  if (!isMobileView) {
+    iconButtonProps.toolTipMessage = showToolTip
+      ? permissionDenied
+        ? 'Give Permissions'
+        : isAudioEnabled
+        ? 'Disable Mic'
+        : 'Enable Mic'
+      : '';
+  }
 
   if (
     rtcProps.role == ClientRole.Audience &&
@@ -129,9 +137,11 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       name: 'mic-off',
       tintColor: $config.SEMANTIC_NETRUAL,
     };
-    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
-      ? 'Waiting for host to appove the request'
-      : 'Raise Hand in order to turn mic on';
+    iconButtonProps.toolTipMessage = showToolTip
+      ? isHandRaised(local.uid)
+        ? 'Waiting for host to appove the request'
+        : 'Raise Hand in order to turn mic on'
+      : '';
     iconButtonProps.disabled = true;
   }
 

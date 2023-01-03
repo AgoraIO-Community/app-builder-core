@@ -1,6 +1,6 @@
 import React, {useState, useRef} from 'react';
-import {View, StyleSheet} from 'react-native';
-import {RenderInterface, UidType} from '../../../agora-rn-uikit';
+import {View, StyleSheet, Dimensions} from 'react-native';
+import {RenderInterface, UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
@@ -25,7 +25,7 @@ import useRemoteRequest, {
 } from '../../utils/useRemoteRequest';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
-
+const windowHeight = Dimensions.get('window').height;
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -47,7 +47,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             ? maxStyle.noVideoStyle
             : maxStyle.nonActiveContainerStyle,
         ]}>
-        <ScreenShareNotice uid={user.uid} />
+        <ScreenShareNotice uid={user.uid} isMax={isMax} />
         <NetworkQualityPill user={user} />
         <MaxVideoView
           fallback={() => {
@@ -55,6 +55,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               user?.name,
               activeSpeaker,
               isHovered && !isMax && pinnedUid ? true : false,
+              isMax,
             );
           }}
           user={user}
@@ -87,7 +88,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               },
             }}
             iconProps={{
-              name: 'pin',
+              name: 'pin-filled',
               iconSize: 20,
               iconType: 'plain',
               tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
@@ -107,6 +108,7 @@ interface MoreMenuProps {
   pinnedUid: UidType;
 }
 const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
+  const localUid = useLocalUid();
   const {dispatch} = useRtc();
   const {setLayout} = useLayout();
   const videoMoreMenuRef = useRef(null);
@@ -120,11 +122,11 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const endRemoteCall = useRemoteEndCall();
-  const [pos, setPos] = useState({top: 0, left: 0});
+  const [pos, setPos] = useState({bottom: 0, left: 0});
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
       setPos({
-        top: _py,
+        bottom: windowHeight - _py,
         left: _px,
       });
     });
@@ -132,62 +134,66 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   };
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [];
-    if (!(pinnedUid && isMax)) {
-      items.push({
-        icon: 'pin',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: pinnedUid ? 'Replace pin' : 'Pin for me',
-        callback: () => {
-          setActionMenuVisible(false);
-          dispatch({type: 'UserPin', value: [user.uid]});
-          setLayout(getPinnedLayoutName());
-        },
-      });
-    }
-    if (
-      (isHost && !$config.EVENT_MODE) ||
-      ($config.EVENT_MODE &&
-        $config.RAISE_HAND &&
-        hostUids.indexOf(user.uid) !== -1)
-    ) {
-      items.push({
-        icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: user.video ? 'Mute Video' : 'Request Video',
-        callback: () => {
-          setActionMenuVisible(false);
-          user.video
-            ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
-            : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
-        },
-      });
-      items.push({
-        icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: user.audio ? 'Mute Audio' : 'Request Audio',
-        callback: () => {
-          setActionMenuVisible(false);
-          user.audio
-            ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
-            : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
-        },
-      });
-    }
+    items.push({
+      icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+      onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.SECONDARY_ACTION_COLOR,
+      title: pinnedUid ? (isMax ? 'Unpin' : 'Replace Pin') : 'Pin for me',
+      callback: () => {
+        setActionMenuVisible(false);
+        dispatch({type: 'UserPin', value: [pinnedUid && isMax ? 0 : user.uid]});
+        setLayout(getPinnedLayoutName());
+      },
+    });
 
-    if (isHost) {
-      items.push({
-        icon: 'remove-meeting',
-        iconColor: $config.SEMANTIC_ERROR,
-        textColor: $config.SEMANTIC_ERROR,
-        title: 'Remove from meeting',
-        callback: () => {
-          setActionMenuVisible(false);
-          setRemoveMeetingPopupVisible(true);
-        },
-      });
+    if (user.type === 'rtc' && user.uid !== localUid) {
+      if (
+        (isHost && !$config.EVENT_MODE) ||
+        ($config.EVENT_MODE &&
+          $config.RAISE_HAND &&
+          hostUids.indexOf(user.uid) !== -1)
+      ) {
+        items.push({
+          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.video ? 'Mute Video' : 'Request Video',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.video
+              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+          },
+        });
+        items.push({
+          icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.audio ? 'Mute Audio' : 'Request Audio',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.audio
+              ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+          },
+        });
+      }
+
+      if (isHost) {
+        items.push({
+          icon: 'remove-meeting',
+          iconColor: $config.SEMANTIC_ERROR,
+          textColor: $config.SEMANTIC_ERROR,
+          title: 'Remove from meeting',
+          callback: () => {
+            setActionMenuVisible(false);
+            setRemoveMeetingPopupVisible(true);
+          },
+        });
+      }
     }
 
     return (
@@ -205,7 +211,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         <ActionMenu
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
-          modalPosition={{top: pos.top - 160, left: pos.left - 200}}
+          modalPosition={{bottom: pos.bottom + 10, left: pos.left - 200}}
           items={items}
         />
       </>
@@ -251,7 +257,7 @@ const PlatformWrapper = ({children, setIsHovered}) => {
       {children}
     </div>
   ) : (
-    {children}
+    <>{children}</>
   );
 };
 

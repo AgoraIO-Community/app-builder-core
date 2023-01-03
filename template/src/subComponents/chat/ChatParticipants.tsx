@@ -135,7 +135,7 @@ const style = StyleSheet.create({
   defaultMessageContainer: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 8,
-    padding: 20,
+    padding: 12,
     margin: 20,
   },
   defaultMessageText: {

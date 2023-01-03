@@ -232,18 +232,8 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
                     //@ts-ignore
                     isWebCheck ? urlWeb : {opacity: 1},
                   ]}>
-                  {pstnNumberLabel} - {pstn?.number}
-                </Text>
-              </View>
-              <Spacer size={11} />
-              <View>
-                <Text
-                  style={[
-                    style.url,
-                    //@ts-ignore
-                    isWebCheck ? urlWeb : {opacity: 1},
-                  ]}>
-                  {pinLabel} - {pstn?.pin}
+                  {pstnNumberLabel} - {pstn?.number} {' | '} {pinLabel} -{' '}
+                  {pstn?.pin}
                 </Text>
               </View>
             </View>

@@ -43,9 +43,6 @@ export interface IconsInterface {
   share: string;
   'switch-camera': string;
   remove: string;
-  layout: string;
-  'pinned-layout': string;
-  'grid-layout': string;
   info: string;
   send: string;
   'downside-triangle': string;
@@ -61,72 +58,30 @@ export interface IconsInterface {
   'connection-loading': string;
   'connection-very-bad': string;
   'connection-unpublished': string;
+  'remove-meeting': string;
+  'pencil-outlined': string;
   alert: string;
   speaker: string;
   person: string;
-  'video-off-outlined': string;
-  'video-on-outlined': string;
-  'mic-on-outlined': string;
-  'mic-off-outlined': string;
-  pin: string;
   pinned: string;
   grid: string;
-  'remove-meeting': string;
-  'pencil-outlined': string;
-  'chat-outlined': string;
   people: string;
-  // screenshareStart: string;
-  // screenshareStop: string;
-  // recordingStart: string;
-  // recordingStop: string;
-  // raiseHand: string;
-  // lowerHand: string;
-  // endCall: string;
-
-  // share: string;
-  // gridLayoutIcon: string;
-  // pinnedLayoutIcon: string;
-
-  // participant: string;
-  // participantActive: string;
-
-  // chat: string;
-  // chatActive: string;
-
-  // settings: string;
-  // settingsActive: string;
-
-  // videocamWhite: string;
-  // info: string;
-  // downsideTriangle: string;
-
-  // switchCamera: string;
-
-  // backBtn: string;
-
-  // send: string;
-  // sendActive: string;
-
-  // closeSquare: string;
-  // closeRounded: string;
-
-  // networkIcons: {
-  //   Excellent: string;
-  //   Good: string;
-  //   Bad: string;
-  //   VeryBad: string;
-  //   Loading: string;
-  //   Unpublished: string;
-  //   Unsupported: string;
-  // };
-
-  // downArrow: string;
-  // upArrow: string;
-  // downArrowDisabled: string;
-  // downArrowTriangle: string;
-  // tick: string;
-  // remoteEndCall: string;
-  // more: string;
-  // more2: string;
-  // listView: string;
+  'chat-filled': string;
+  'chat-outlined': string;
+  'demote-filled': string;
+  'demote-outlined': string;
+  'promote-filled': string;
+  'promote-outlined': string;
+  'pin-filled': string;
+  'pin-outlined': string;
+  'unpin-filled': string;
+  'unpin-outlined': string;
+  'mic-on-filled': string;
+  'mic-on-outlined': string;
+  'mic-off-filled': string;
+  'mic-off-outlined': string;
+  'video-on-filled': string;
+  'video-on-outlined': string;
+  'video-off-filled': string;
+  'video-off-outlined': string;
 }

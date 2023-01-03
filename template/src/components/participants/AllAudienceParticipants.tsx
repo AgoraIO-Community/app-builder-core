@@ -4,6 +4,7 @@ import chatContext from '../ChatContext';
 import {useString} from '../../utils/useString';
 import {UidType, useMeetingInfo, useRender} from 'customization-api';
 import Participant from './Participant';
+import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 
 const AllAudienceParticipants = (props: any) => {
   const {
@@ -24,7 +25,7 @@ const AllAudienceParticipants = (props: any) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
-
+  const {hostUids} = useLiveStreamDataContext();
   return (
     <>
       {uids.length == 0 ? (
@@ -53,8 +54,19 @@ const AllAudienceParticipants = (props: any) => {
               isLocal={true}
               name={getParticipantName(localUid)}
               user={renderList[localUid]}
-              isAudienceUser={true}
-              showControls={renderList[localUid]?.type === 'rtc' && isHost}
+              isAudienceUser={
+                $config.EVENT_MODE && hostUids.indexOf(localUid) !== -1
+                  ? false
+                  : true
+              }
+              showControls={
+                (renderList[localUid]?.type === 'rtc' && isHost) ||
+                (renderList[localUid]?.type === 'rtc' &&
+                  $config.EVENT_MODE &&
+                  hostUids.indexOf(localUid) !== -1)
+                  ? true
+                  : false
+              }
               isHostUser={false}
               key={localUid}
               isMobile={isMobile}

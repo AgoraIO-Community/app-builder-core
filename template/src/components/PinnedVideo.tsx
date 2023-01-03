@@ -158,7 +158,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 iconContainerStyle: {
                   padding: 0,
                 },
-                name: 'pin',
+                name: 'unpin-filled',
                 iconSize: 20,
                 tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
               }}

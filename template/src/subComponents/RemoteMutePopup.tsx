@@ -21,11 +21,12 @@ export interface ActionMenuProps {
   };
   name: string;
   onMutePress: () => void;
+  type: 'video' | 'audio';
 }
 
 const RemoteMutePopup = (props: ActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, modalPosition} = props;
-  let message = `Mute ${props.name} for everyone on the call? Only ${props.name} can unmute themselves.`;
+  let message = `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`;
   return (
     <View>
       <Modal

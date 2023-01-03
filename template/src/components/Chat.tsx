@@ -39,6 +39,8 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import SidePanelHeader from '../subComponents/SidePanelHeader';
 import CommonStyles from './CommonStyles';
+import {useLayout} from '../utils/useLayout';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
@@ -150,17 +152,20 @@ const Chat = (props?: ChatProps) => {
     }
     return components;
   });
-
+  const {currentLayout} = useLayout();
   return (
     <>
       <View
-        style={
+        style={[
           isWebInternal()
             ? !isSmall
               ? CommonStyles.sidePanelContainerWeb
               : style.chatViewNative
-            : style.chatViewNative
-        }>
+            : style.chatViewNative,
+          isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+            ? {marginVertical: 12}
+            : {},
+        ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
          */}

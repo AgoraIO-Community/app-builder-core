@@ -49,6 +49,9 @@ import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import Spacer from '../atoms/Spacer';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
+import ParticipantsCount from '../atoms/ParticipantsCount';
+import styles from 'react-native-toast-message/src/styles';
+import RecordingInfo from '../atoms/RecordingInfo';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -228,7 +231,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
-      name: 'chat',
+      name: 'chat-filled',
       tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : $config.SECONDARY_ACTION_COLOR,
@@ -341,47 +344,24 @@ const Navbar = () => {
         isWebInternal() ? style.navHolder : style.navHolderNative,
         {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
-      <View testID="videocall-meetingName" style={style.roomNameContainer}>
-        <Text style={style.roomNameText} numberOfLines={1} ellipsizeMode="tail">
+      <View style={style.titleContainer}>
+        <Spacer size={16} />
+        <Text
+          style={style.roomNameText}
+          testID="videocall-meetingName"
+          numberOfLines={1}
+          ellipsizeMode="tail">
           {meetingTitle}
         </Text>
-        <IconButton
-          toolTipMessage={
-            $config.EVENT_MODE
-              ? `${'Host: ' + hostUids?.length || 0} \n` +
-                `${'Audience: ' + audienceUids?.length || 0}`
-              : ''
-          }
-          containerStyle={style.participantCountView}
-          disabled={true}
-          iconProps={{
-            name: 'people',
-            iconType: 'plain',
-            iconSize: 20,
-            tintColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-          }}
-          btnTextProps={{
-            text: numFormatter(onlineUsersCount),
-            textColor:
-              $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-            textStyle: {
-              fontWeight: '600',
-              fontSize: 16,
-              marginTop: 0,
-              marginLeft: 6,
-            },
-          }}
-        />
-
-        {isRecordingActive && !isMobileOrTablet() ? (
-          <View style={[style.recordingView]}>
-            <View style={[style.recordingStatus]} />
-            <Text style={style.recordingText}>{recordingLabel}</Text>
-          </View>
-        ) : (
-          <></>
-        )}
+        <Spacer size={8} horizontal={false} />
+        <View style={style.countContainer}>
+          <ParticipantsCount />
+          {isRecordingActive ? (
+            <RecordingInfo recordingLabel={recordingLabel} />
+          ) : (
+            <></>
+          )}
+        </View>
       </View>
       <View style={style.navControlBar} testID="videocall-navcontrols">
         <View testID="videocall-participantsicon" style={{marginRight: 10}}>
@@ -430,7 +410,9 @@ const style = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 20,
-    marginLeft: 20,
+  },
+  countContainer: {
+    flexDirection: 'row',
   },
   navHolder: {
     width: '100%',
@@ -450,42 +432,6 @@ const style = StyleSheet.create({
     paddingHorizontal: 10,
     justifyContent: 'space-between',
   },
-  recordingView: {
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignContent: 'center',
-    justifyContent: 'center',
-    borderRadius: 24,
-    backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
-    marginLeft: 20,
-    borderWidth: 1,
-    borderColor: $config.CARD_LAYER_3_COLOR,
-    shadowColor: $config.HARD_CODED_BLACK_COLOR,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-  },
-  recordingText: {
-    fontSize: 12,
-    lineHeight: 12,
-    fontWeight: '400',
-    fontFamily: 'Source Sans Pro',
-    color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
-  },
-  recordingStatus: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: $config.SEMANTIC_ERROR,
-    marginRight: 8,
-  },
-  recordingIcon: {
-    width: 20,
-    height: 20,
-    margin: 1,
-    resizeMode: 'contain',
-  },
   btnHolder: {
     marginHorizontal: isMobileOrTablet() ? 2 : 0,
     width: '100%',
@@ -502,6 +448,9 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'column',
   },
   roomNameText: {
     fontSize: ThemeConfig.FontSize.normal,
