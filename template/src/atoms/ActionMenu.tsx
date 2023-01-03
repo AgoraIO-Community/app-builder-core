@@ -17,6 +17,7 @@ import {isWeb} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ActionMenuItem {
+  isBase64Icon?: boolean;
   icon: keyof IconsInterface;
   onHoverIcon?: keyof IconsInterface;
   iconColor: string;
@@ -54,7 +55,15 @@ const ActionMenu = (props: ActionMenuProps) => {
         <View style={[styles.modalView, modalPosition]}>
           {items.map(
             (
-              {icon, onHoverIcon, title, callback, iconColor, textColor},
+              {
+                icon,
+                onHoverIcon,
+                isBase64Icon = false,
+                title,
+                callback,
+                iconColor,
+                textColor,
+              },
               index,
             ) => (
               <PlatformWrapper>
@@ -65,6 +74,7 @@ const ActionMenu = (props: ActionMenuProps) => {
                     key={icon + index}>
                     <View style={styles.iconContainer}>
                       <ImageIcon
+                        base64={isBase64Icon}
                         iconType="plain"
                         iconSize={20}
                         name={isHovered && onHoverIcon ? onHoverIcon : icon}

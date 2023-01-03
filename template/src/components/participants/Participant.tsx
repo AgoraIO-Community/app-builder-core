@@ -163,6 +163,7 @@ const Participant = (props: ParticipantInterface) => {
           raiseHandList[user.uid]?.role == ClientRole.Broadcaster
         ) {
           items.push({
+            isBase64Icon: true,
             icon: 'demote-outlined',
             onHoverIcon: 'demote-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
