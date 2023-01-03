@@ -110,7 +110,7 @@ const Controls = () => {
           <View
             testID="localAudio-btn"
             style={{marginHorizontal: 10, marginVertical: 16}}>
-            <LocalAudioMute />
+            <LocalAudioMute showToolTip={true} />
           </View>
           {!$config.AUDIO_ROOM && (
             <View
@@ -119,7 +119,7 @@ const Controls = () => {
                 marginHorizontal: 10,
                 marginVertical: 16,
               }}>
-              <LocalVideoMute />
+              <LocalVideoMute showToolTip={true} />
             </View>
           )}
           {!$config.AUDIO_ROOM && isMobileOrTablet() && (

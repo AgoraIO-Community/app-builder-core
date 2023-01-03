@@ -29,6 +29,7 @@ import useIsHandRaised from '../utils/useIsHandRaised';
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
+  showToolTip?: boolean;
   showLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   disabled?: boolean;
@@ -50,6 +51,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {
+    showToolTip = false,
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
@@ -104,11 +106,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (!isMobileView) {
-    iconButtonProps.toolTipMessage = permissionDenied
-      ? 'Give Permissions'
-      : isVideoEnabled
-      ? 'Disable Camera'
-      : 'Enable Camera';
+    iconButtonProps.toolTipMessage = showToolTip
+      ? permissionDenied
+        ? 'Give Permissions'
+        : isVideoEnabled
+        ? 'Disable Camera'
+        : 'Enable Camera'
+      : '';
   }
 
   if (
@@ -130,9 +134,11 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
       name: 'video-off',
       tintColor: $config.SEMANTIC_NETRUAL,
     };
-    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
-      ? 'Waiting for host to appove the request'
-      : 'Raise Hand in order to turn video on';
+    iconButtonProps.toolTipMessage = showToolTip
+      ? isHandRaised(local.uid)
+        ? 'Waiting for host to appove the request'
+        : 'Raise Hand in order to turn video on'
+      : '';
     iconButtonProps.disabled = true;
   }
   return props?.render ? (

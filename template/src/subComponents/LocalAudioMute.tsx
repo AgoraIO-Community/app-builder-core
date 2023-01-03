@@ -30,6 +30,7 @@ import useIsHandRaised from '../utils/useIsHandRaised';
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
+  showToolTip?: boolean;
   showLabel?: boolean;
   iconProps?: (
     isAudioEnabled: boolean,
@@ -51,6 +52,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
   const {
+    showToolTip = false,
     showLabel = $config.ICON_TEXT,
     disabled = false,
     isOnActionSheet = false,
@@ -107,11 +109,13 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   if (!isMobileView) {
-    iconButtonProps.toolTipMessage = permissionDenied
-      ? 'Give Permissions'
-      : isAudioEnabled
-      ? 'Disable Mic'
-      : 'Enable Mic';
+    iconButtonProps.toolTipMessage = showToolTip
+      ? permissionDenied
+        ? 'Give Permissions'
+        : isAudioEnabled
+        ? 'Disable Mic'
+        : 'Enable Mic'
+      : '';
   }
 
   if (
@@ -133,9 +137,11 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
       name: 'mic-off',
       tintColor: $config.SEMANTIC_NETRUAL,
     };
-    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
-      ? 'Waiting for host to appove the request'
-      : 'Raise Hand in order to turn mic on';
+    iconButtonProps.toolTipMessage = showToolTip
+      ? isHandRaised(local.uid)
+        ? 'Waiting for host to appove the request'
+        : 'Raise Hand in order to turn mic on'
+      : '';
     iconButtonProps.disabled = true;
   }
 
