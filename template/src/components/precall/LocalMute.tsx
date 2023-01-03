@@ -71,11 +71,11 @@ const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
       testID="precall-controls">
       {!$config.AUDIO_ROOM && (
         <>
-          <VideoMute />
+          <VideoMute showLabel={!isMobileView} />
           <Spacer size={16} horizontal={true} />
         </>
       )}
-      <AudioMute />
+      <AudioMute showLabel={!isMobileView} />
       {/* Settings View in Mobile */}
       {isMobileView ? <PreCallSettings /> : <></>}
     </View>

@@ -251,7 +251,7 @@ const PlatformWrapper = ({children, setIsHovered}) => {
       {children}
     </div>
   ) : (
-    {children}
+    <>{children}</>
   );
 };
 
