@@ -55,6 +55,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               user?.name,
               activeSpeaker,
               isHovered && !isMax && pinnedUid ? true : false,
+              isMax,
             );
           }}
           user={user}
