@@ -37,7 +37,8 @@ import SidePanelHeader, {
   SidePanelStyles,
 } from '../subComponents/SidePanelHeader';
 import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
-import {useRender} from 'customization-api';
+import {useLayout, useRender} from 'customization-api';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 
 const ParticipantView = (props) => {
   const {activeUids} = useRender();
@@ -68,17 +69,20 @@ const ParticipantView = (props) => {
   const isSmall = dim[0] < 700;
   const [showHostSection, setShowHostSection] = useState(true);
   const [showParticipantSection, setShowParticipantSection] = useState(true);
-
+  const {currentLayout} = useLayout();
   return (
     <View
       testID="videocall-participants"
-      style={
+      style={[
         isWebInternal()
           ? isSmall
             ? CommonStyles.sidePanelContainerNative
             : CommonStyles.sidePanelContainerWeb
-          : CommonStyles.sidePanelContainerNative
-      }>
+          : CommonStyles.sidePanelContainerNative,
+        isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+          ? {marginVertical: 12}
+          : {},
+      ]}>
       <SidePanelHeader
         centerComponent={
           <Text style={SidePanelStyles.heading}>{participantsLabel}</Text>

@@ -6,8 +6,6 @@ const CommonStyles = StyleSheet.create({
     minWidth: 338,
     borderRadius: 12,
     marginLeft: 24,
-    //margin vertical added to match video tile top/bottom padding
-    marginVertical: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
