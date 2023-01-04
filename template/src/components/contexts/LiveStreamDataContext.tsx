@@ -1,5 +1,11 @@
 import {UidType} from '../../../agora-rn-uikit';
-import React, {createContext, useState, useContext} from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useReducer,
+  useEffect,
+} from 'react';
 import {createHook} from 'customization-implementation';
 import LiveStreamContext, {
   raiseHandListInterface,
@@ -30,10 +36,11 @@ interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const {renderList} = useRender();
+  const {renderList, activeUids} = useRender();
   const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [audienceUids, setAudienceUids] = useState<UidType[]>([]);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   React.useEffect(() => {
     if (Object.keys(renderList).length !== 0) {
@@ -62,11 +69,15 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
     }
   }, [renderList, raiseHandList]);
 
+  useEffect(() => {
+    forceUpdate();
+  }, [activeUids]);
+
   return (
     <LiveStreamDataContext.Provider
       value={{
         liveStreamData: raiseHandList,
-        hostUids,
+        hostUids: hostUids.filter((i) => activeUids.indexOf(i) !== -1),
         audienceUids,
       }}>
       {props.children}

@@ -47,7 +47,7 @@ import {
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
-
+import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -92,192 +92,200 @@ const Participant = (props: ParticipantInterface) => {
   const {pinnedUid} = useRender();
   const {dispatch} = useRtc();
   const {setLayout} = useLayout();
-  const renderActionMenu = () => {
-    const items: ActionMenuItem[] = [];
+  //don't remove the commented code
+  // const renderActionMenu = () => {
+  //   const items: ActionMenuItem[] = [];
 
-    items.push({
-      icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
-      onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.SECONDARY_ACTION_COLOR,
-      title: pinnedUid
-        ? props.user.uid === pinnedUid
-          ? 'Unpin'
-          : 'Replace Pin'
-        : 'Pin for me',
-      callback: () => {
-        setActionMenuVisible(false);
-        dispatch({
-          type: 'UserPin',
-          value: [pinnedUid && props.user.uid === pinnedUid ? 0 : user.uid],
-        });
-        setLayout(getPinnedLayoutName());
-      },
-    });
+  //   items.push({
+  //     icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+  //     onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+  //     iconColor: $config.SECONDARY_ACTION_COLOR,
+  //     textColor: $config.SECONDARY_ACTION_COLOR,
+  //     title: pinnedUid
+  //       ? props.user.uid === pinnedUid
+  //         ? 'Unpin'
+  //         : 'Replace Pin'
+  //       : 'Pin for me',
+  //     callback: () => {
+  //       setActionMenuVisible(false);
+  //       dispatch({
+  //         type: 'UserPin',
+  //         value: [pinnedUid && props.user.uid === pinnedUid ? 0 : user.uid],
+  //       });
+  //       setLayout(getPinnedLayoutName());
+  //     },
+  //   });
 
-    if (!isLocal) {
-      //remove user menu
-      items.push({
-        icon: 'chat-outlined',
-        onHoverIcon: 'chat-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Message Privately',
-        callback: () => {
-          if (isMobile) {
-            handleClose();
-            openPrivateChat(user.uid);
-            updateActionSheet('chat');
-          } else {
-            setActionMenuVisible(false);
-            openPrivateChat(user.uid);
-          }
-        },
-      });
+  //   if (!isLocal) {
+  //     //remove user menu
+  //     items.push({
+  //       icon: 'chat-outlined',
+  //       onHoverIcon: 'chat-filled',
+  //       iconColor: $config.SECONDARY_ACTION_COLOR,
+  //       textColor: $config.SECONDARY_ACTION_COLOR,
+  //       title: 'Message Privately',
+  //       callback: () => {
+  //         if (isMobile) {
+  //           handleClose();
+  //           openPrivateChat(user.uid);
+  //           updateActionSheet('chat');
+  //         } else {
+  //           setActionMenuVisible(false);
+  //           openPrivateChat(user.uid);
+  //         }
+  //       },
+  //     });
 
-      if (
-        !$config.EVENT_MODE ||
-        ($config.EVENT_MODE &&
-          $config.RAISE_HAND &&
-          hostUids.indexOf(user.uid) !== -1)
-      ) {
-        items.push({
-          icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
-          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: user.audio ? 'Mute Audio' : 'Request Audio',
-          callback: () => {
-            setActionMenuVisible(false);
-            user.audio
-              ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
-              : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
-          },
-        });
-        items.push({
-          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: user.video ? 'Mute Video' : 'Request Video',
-          callback: () => {
-            setActionMenuVisible(false);
-            user.video
-              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
-              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
-          },
-        });
-      }
+  //     if (
+  //       !$config.EVENT_MODE ||
+  //       ($config.EVENT_MODE &&
+  //         $config.RAISE_HAND &&
+  //         hostUids.indexOf(user.uid) !== -1)
+  //     ) {
+  //       items.push({
+  //         icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+  //         onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
+  //         iconColor: $config.SECONDARY_ACTION_COLOR,
+  //         textColor: $config.SECONDARY_ACTION_COLOR,
+  //         title: user.audio ? 'Mute Audio' : 'Request Audio',
+  //         callback: () => {
+  //           setActionMenuVisible(false);
+  //           user.audio
+  //             ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+  //             : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+  //         },
+  //       });
+  //       items.push({
+  //         icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+  //         onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
+  //         iconColor: $config.SECONDARY_ACTION_COLOR,
+  //         textColor: $config.SECONDARY_ACTION_COLOR,
+  //         title: user.video ? 'Mute Video' : 'Request Video',
+  //         callback: () => {
+  //           setActionMenuVisible(false);
+  //           user.video
+  //             ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+  //             : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+  //         },
+  //       });
+  //     }
 
-      if (
-        isHost &&
-        $config.EVENT_MODE &&
-        $config.RAISE_HAND &&
-        hostUids.indexOf(user.uid) === -1
-      ) {
-        items.push({
-          icon: 'promote-outlined',
-          onHoverIcon: 'promote-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: 'Promote to Co-host',
-          callback: () => {
-            setActionMenuVisible(false);
-            promoteAudienceAsCoHost(user.uid);
-          },
-        });
-      }
-      if (isHost && $config.EVENT_MODE) {
-        if (
-          raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
-          raiseHandList[user.uid]?.role == ClientRole.Broadcaster
-        ) {
-          items.push({
-            isBase64Icon: true,
-            icon: 'demote-outlined',
-            onHoverIcon: 'demote-filled',
-            iconColor: $config.SECONDARY_ACTION_COLOR,
-            textColor: $config.SECONDARY_ACTION_COLOR,
-            title: 'Demote to audience',
-            callback: () => {
-              setActionMenuVisible(false);
-              events.send(
-                LiveStreamControlMessageEnum.raiseHandRequestRejected,
-                '',
-                EventPersistLevel.LEVEL1,
-                user.uid,
-              );
-            },
-          });
-        }
-      }
-      if (isHost) {
-        items.push({
-          icon: 'remove-meeting',
-          iconColor: $config.SEMANTIC_ERROR,
-          textColor: $config.SEMANTIC_ERROR,
-          title: 'Remove From Meeting',
-          callback: () => {
-            setActionMenuVisible(false);
-            setRemoveMeetingPopupVisible(true);
-          },
-        });
-      }
-    } else {
-      //local user menu
-      items.push({
-        icon: 'pencil-outlined',
-        onHoverIcon: 'pencil-filled',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.SECONDARY_ACTION_COLOR,
-        title: 'Change Name',
-        callback: () => {
-          if (isMobile) {
-            handleClose();
-            setSidePanel(SidePanelType.Settings);
-            updateActionSheet('settings');
-          } else {
-            setActionMenuVisible(false);
-            setSidePanel(SidePanelType.Settings);
-          }
-        },
-      });
-    }
-    return (
-      <>
-        {isHost ? (
-          <RemoveMeetingPopup
-            modalVisible={removeMeetingPopupVisible}
-            setModalVisible={setRemoveMeetingPopupVisible}
-            username={user.name}
-            removeUserFromMeeting={() => endRemoteCall(user.uid)}
-          />
-        ) : (
-          <></>
-        )}
-        <ActionMenu
-          actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={setActionMenuVisible}
-          modalPosition={{top: pos.top - 20, left: pos.left + 50}}
-          items={items}
-        />
-      </>
-    );
-  };
+  //     if (
+  //       isHost &&
+  //       $config.EVENT_MODE &&
+  //       $config.RAISE_HAND &&
+  //       hostUids.indexOf(user.uid) === -1
+  //     ) {
+  //       items.push({
+  //         icon: 'promote-outlined',
+  //         onHoverIcon: 'promote-filled',
+  //         iconColor: $config.SECONDARY_ACTION_COLOR,
+  //         textColor: $config.SECONDARY_ACTION_COLOR,
+  //         title: 'Promote to Co-host',
+  //         callback: () => {
+  //           setActionMenuVisible(false);
+  //           promoteAudienceAsCoHost(user.uid);
+  //         },
+  //       });
+  //     }
+  //     if (isHost && $config.EVENT_MODE) {
+  //       if (
+  //         raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
+  //         raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+  //       ) {
+  //         items.push({
+  //           isBase64Icon: true,
+  //           icon: 'demote-outlined',
+  //           onHoverIcon: 'demote-filled',
+  //           iconColor: $config.SECONDARY_ACTION_COLOR,
+  //           textColor: $config.SECONDARY_ACTION_COLOR,
+  //           title: 'Demote to audience',
+  //           callback: () => {
+  //             setActionMenuVisible(false);
+  //             events.send(
+  //               LiveStreamControlMessageEnum.raiseHandRequestRejected,
+  //               '',
+  //               EventPersistLevel.LEVEL1,
+  //               user.uid,
+  //             );
+  //           },
+  //         });
+  //       }
+  //     }
+  //     if (isHost) {
+  //       items.push({
+  //         icon: 'remove-meeting',
+  //         iconColor: $config.SEMANTIC_ERROR,
+  //         textColor: $config.SEMANTIC_ERROR,
+  //         title: 'Remove From Meeting',
+  //         callback: () => {
+  //           setActionMenuVisible(false);
+  //           setRemoveMeetingPopupVisible(true);
+  //         },
+  //       });
+  //     }
+  //   } else {
+  //     //local user menu
+  //     items.push({
+  //       icon: 'pencil-outlined',
+  //       onHoverIcon: 'pencil-filled',
+  //       iconColor: $config.SECONDARY_ACTION_COLOR,
+  //       textColor: $config.SECONDARY_ACTION_COLOR,
+  //       title: 'Change Name',
+  //       callback: () => {
+  //         if (isMobile) {
+  //           handleClose();
+  //           setSidePanel(SidePanelType.Settings);
+  //           updateActionSheet('settings');
+  //         } else {
+  //           setActionMenuVisible(false);
+  //           setSidePanel(SidePanelType.Settings);
+  //         }
+  //       },
+  //     });
+  //   }
+  //   return (
+  //     <>
+  //       {isHost ? (
+  //         <RemoveMeetingPopup
+  //           modalVisible={removeMeetingPopupVisible}
+  //           setModalVisible={setRemoveMeetingPopupVisible}
+  //           username={user.name}
+  //           removeUserFromMeeting={() => endRemoteCall(user.uid)}
+  //         />
+  //       ) : (
+  //         <></>
+  //       )}
+  //       <ActionMenu
+  //         actionMenuVisible={actionMenuVisible}
+  //         setActionMenuVisible={setActionMenuVisible}
+  //         modalPosition={{top: pos.top - 20, left: pos.left + 50}}
+  //         items={items}
+  //       />
+  //     </>
+  //   );
+  // };
 
   const showModal = () => {
-    usercontainerRef.current.ge;
     usercontainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
       setPos({
-        top: py + h,
-        left: _px,
+        top: py + h - 20,
+        left: _px + 50,
       });
     });
     setActionMenuVisible((state) => !state);
   };
   return (
     <>
-      {true ? renderActionMenu() : <></>}
+      <UserActionMenuOptionsOptions
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        handleClose={handleClose}
+        isMobile={isMobile}
+        modalPosition={pos}
+        updateActionSheet={updateActionSheet}
+        user={props.user}
+      />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>
           <View style={styles.userInfoContainer}>

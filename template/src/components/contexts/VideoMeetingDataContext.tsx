@@ -1,10 +1,17 @@
-import React, {createContext, useState, useEffect, useContext} from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useReducer,
+} from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import ChatContext from '../ChatContext';
+import {useRender} from 'customization-api';
 
 export interface VideoMeetingDataInterface {
   hostUids: UidType[];
@@ -22,10 +29,12 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const {activeUids} = useRender();
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const localUid = useLocalUid();
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [attendeeUids, setAttendeeUids] = useState<UidType[]>([]);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   useEffect(() => {
     //set local uid
@@ -70,11 +79,15 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
     }
   }, [isHost, hasUserJoinedRTM]);
 
+  useEffect(() => {
+    forceUpdate();
+  }, [activeUids]);
+
   return (
     <VideoMeetingData.Provider
       value={{
-        hostUids,
-        attendeeUids,
+        hostUids: hostUids.filter((i) => activeUids.indexOf(i) !== -1),
+        attendeeUids: attendeeUids.filter((i) => activeUids.indexOf(i) !== -1),
       }}>
       {props.children}
     </VideoMeetingData.Provider>

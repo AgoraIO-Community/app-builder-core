@@ -440,14 +440,9 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     events.send(
       LiveStreamControlMessageEnum.promoteAsCoHost,
       '',
-      EventPersistLevel.LEVEL2,
+      EventPersistLevel.LEVEL1,
       uid,
     );
-    // Update local state
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.TRUE,
-      ts: new Date().getTime(),
-    });
   };
 
   /** ******* HOST CONTROLS SECTION ENDS ******* */

@@ -63,7 +63,6 @@ const AllAudienceParticipants = (props: any) => {
               fontSize: 14,
               color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
             }}>
-            {' '}
             {emptyMessage}
           </Text>
         ) : (
