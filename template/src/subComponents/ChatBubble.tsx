@@ -190,6 +190,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small * 1.4,
     color: $config.FONT_COLOR,
   },
 });
