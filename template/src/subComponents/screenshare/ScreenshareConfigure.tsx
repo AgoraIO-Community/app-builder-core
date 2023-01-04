@@ -26,7 +26,12 @@ import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
 import {useString} from '../../utils/useString';
 import {timeNow} from '../../rtm/utils';
-import {useLayout, useRender, useRtc} from 'customization-api';
+import {
+  controlMessageEnum,
+  useLayout,
+  useRender,
+  useRtc,
+} from 'customization-api';
 import {filterObject} from '../../utils';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
@@ -114,6 +119,12 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
+    events.on(controlMessageEnum.kickScreenshare, () => {
+      //if screenscreen already active. then below method will stop the screen share
+      // @ts-ignore
+      rtc.RtcEngine.startScreenshare();
+    });
+
     events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;

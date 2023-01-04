@@ -43,9 +43,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
 
   const onPress = () =>
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
-  const screenShareButton = isScreenshareActive
-    ? 'Stop Sharing'
-    : 'Share Screen';
+  const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Share';
   let iconButtonProps: IconButtonProps = {
     iconProps: {
       name: isScreenshareActive ? 'stop-screen-share' : 'screen-share',

@@ -25,7 +25,7 @@ const trailingIcon = (
     <ImageIcon
       iconType="plain"
       tintColor={$config.SECONDARY_ACTION_COLOR}
-      name="close-rounded"
+      name="close"
     />
   </TouchableOpacity>
 );

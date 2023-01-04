@@ -93,7 +93,7 @@ const ChatParticipants = (props: any) => {
                     <View style={{alignSelf: 'center', marginRight: 20}}>
                       <ImageIcon
                         iconType="plain"
-                        name="chat"
+                        name="chat-nav"
                         tintColor={$config.SECONDARY_ACTION_COLOR}
                       />
                     </View>
@@ -142,7 +142,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: 12,
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
   },
   bgContainerStyle: {
     backgroundColor:

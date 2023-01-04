@@ -87,7 +87,7 @@ const ParticipantView = (props) => {
         centerComponent={
           <Text style={SidePanelStyles.heading}>{participantsLabel}</Text>
         }
-        trailingIconName="close-rounded"
+        trailingIconName="close"
         trailingIconOnPress={() => {
           if (!isSmall) {
             setSidePanel(SidePanelType.None);
@@ -122,7 +122,7 @@ const ParticipantView = (props) => {
                     {showHostSection ? (
                       <AllHostParticipants
                         emptyMessage={'No Host has joined yet.'}
-                        uids={activeUids}
+                        uids={hostUids}
                         isMobile={isSmall}
                         updateActionSheet={props.updateActionSheet}
                         handleClose={props.handleClose}

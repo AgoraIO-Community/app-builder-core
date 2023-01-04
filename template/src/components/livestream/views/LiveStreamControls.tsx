@@ -28,7 +28,6 @@ const LiveStreamControls = (props: LiveStreamControlsProps) => {
         style={{
           alignSelf: 'center',
           marginHorizontal: 10,
-          marginVertical: 16,
         }}>
         <LocalRaiseHand />
       </View>

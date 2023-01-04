@@ -25,7 +25,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
   const remoteUserDefaultLabel = 'User';
   return (
     <View style={style.container}>
-      <View>
+      <View style={{width: 20, height: 20, alignSelf: 'center'}}>
         {user.audio ? (
           <AnimatedActiveSpeaker isSpeaking={isSpeaking} />
         ) : (
@@ -54,8 +54,11 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           iconSize={'small'}
         /> */}
       </View>
-
-      <Text numberOfLines={1} textBreakStrategy="simple" style={style.name}>
+      <Text
+        numberOfLines={1}
+        textBreakStrategy="simple"
+        ellipsizeMode="tail"
+        style={style.name}>
         {user.name || remoteUserDefaultLabel}
       </Text>
     </View>
@@ -68,22 +71,21 @@ const style = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     padding: 8,
-    // height: 30,
+    height: 32,
     left: 12,
     bottom: 12,
     borderRadius: 20,
     flexDirection: 'row',
     zIndex: 5,
-    maxWidth: 200,
+    maxWidth: 248,
   },
   name: {
     color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
     fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 14,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexShrink: 1,
-    marginLeft: 8,
+    marginLeft: 4,
   },
 });
 

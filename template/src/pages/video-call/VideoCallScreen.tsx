@@ -24,7 +24,7 @@ import {
 import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
-import {useRtc, useUserName} from 'customization-api';
+import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import VideoCallMobileScreen from './VideoCallMobileScreen';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {AppRegistry} from 'react-native';
@@ -165,7 +165,7 @@ const VideoCallScreen = () => {
     }
     setTimeout(() => {
       events.send(
-        'NEW_USER_JOINED',
+        controlMessageEnum.newUserJoined,
         JSON.stringify({name}),
         EventPersistLevel.LEVEL1,
       );

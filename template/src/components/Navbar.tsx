@@ -96,8 +96,8 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
       top: 0,
-      left: undefined,
       right: 0,
+      left: undefined,
       bottom: undefined,
     },
     isMobileView = false,
@@ -111,7 +111,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   //const participantsLabel = useString('participantsLabel')();
   const {onlineUsersCount} = useContext(ChatContext);
   //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
-  const participantsLabel = `Participants`;
+  const participantsLabel = `People`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
@@ -231,7 +231,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
-      name: 'chat-filled',
+      name: 'chat-nav',
       tintColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : $config.SECONDARY_ACTION_COLOR,
@@ -345,7 +345,6 @@ const Navbar = () => {
         {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
       <View style={style.titleContainer}>
-        <Spacer size={16} />
         <Text
           style={style.roomNameText}
           testID="videocall-meetingName"
@@ -416,7 +415,8 @@ const style = StyleSheet.create({
   },
   navHolder: {
     width: '100%',
-    paddingVertical: 12,
+    marginTop: 8,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

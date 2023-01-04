@@ -32,7 +32,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
   }, [renderList]);
   useEffect(() => {
     //user joined event listener
-    events.on('NEW_USER_JOINED', ({payload}) => {
+    events.on(controlMessageEnum.newUserJoined, ({payload}) => {
       const data = JSON.parse(payload);
       if (data?.name) {
         Toast.show({
@@ -144,7 +144,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     });
 
     return () => {
-      events.off('NEW_USER_JOINED');
+      events.off(controlMessageEnum.newUserJoined);
       events.off(controlMessageEnum.requestAudio);
       events.off(controlMessageEnum.requestVideo);
       events.off(controlMessageEnum.muteVideo);

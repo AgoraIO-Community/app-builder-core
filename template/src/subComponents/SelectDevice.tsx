@@ -71,7 +71,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
     <>
-      <Text style={style.label}>Select Camera</Text>
+      <Text style={style.label}>Camera</Text>
       <Dropdown
         icon={props?.isIconDropdown ? 'video-on' : undefined}
         enabled={!isPickerDisabled}
@@ -120,7 +120,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
     <View>
-      <Text style={style.label}>Select Microphone</Text>
+      <Text style={style.label}>Microphone</Text>
       <Dropdown
         icon={props?.isIconDropdown ? 'mic-on' : undefined}
         enabled={!isPickerDisabled}
@@ -175,7 +175,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     )
   ) : (
     <View>
-      <Text style={style.label}>Select Speaker</Text>
+      <Text style={style.label}>Speaker</Text>
       <Dropdown
         icon={props?.isIconDropdown ? 'speaker' : undefined}
         enabled={!isPickerDisabled}

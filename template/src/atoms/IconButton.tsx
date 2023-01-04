@@ -1,12 +1,11 @@
 import React from 'react';
 import {
-  TouchableOpacity,
-  TouchableOpacityProps,
   ViewStyle,
   TextStyle,
   Text,
-  View,
   StyleSheet,
+  Pressable,
+  PressableProps,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import {isWeb} from '../utils/common';
@@ -21,7 +20,7 @@ export interface BtnTextProps {
 
 export interface IconButtonProps {
   setRef?: (ref: any) => void;
-  onPress?: TouchableOpacityProps['onPress'];
+  onPress?: PressableProps['onPress'];
   disabled?: boolean;
   containerStyle?: ViewStyle;
   btnTextProps?: BtnTextProps;
@@ -36,7 +35,7 @@ export interface IconButtonProps {
 
 const IconButton = (props: IconButtonProps) => {
   return (
-    <TouchableOpacity
+    <Pressable
       ref={(ref) => props?.setRef && props.setRef(ref)}
       style={
         !props.isOnActionSheet && [
@@ -52,6 +51,8 @@ const IconButton = (props: IconButtonProps) => {
       <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
           style={[
             styles.btnTextStyle,
             props?.btnTextProps?.textColor
@@ -64,7 +65,7 @@ const IconButton = (props: IconButtonProps) => {
       ) : (
         <></>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -125,6 +126,6 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     fontWeight: '400',
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 8,
   },
 });

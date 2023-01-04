@@ -3,13 +3,16 @@ import {Text} from 'react-native';
 import ScreenshareParticipants from './ScreenshareParticipants';
 import Participant from './Participant';
 import {useString} from '../../utils/useString';
-import {UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {RenderInterface, UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useMeetingInfo, useRender} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {useVideoMeetingData} from '../contexts/VideoMeetingDataContext';
+import {useScreenContext} from '../contexts/ScreenShareContext';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export default function AllHostParticipants(props: any) {
   const localUid = useLocalUid();
+  const {screenShareData} = useScreenContext();
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
@@ -28,6 +31,21 @@ export default function AllHostParticipants(props: any) {
     uids,
     emptyMessage,
   } = props;
+
+  const renderScreenShare = (user: RenderInterface) => {
+    if (screenShareData[user.screenUid]?.isActive) {
+      return (
+        <ScreenshareParticipants
+          name={getParticipantName(user.screenUid)}
+          key={user.screenUid}
+          parentUid={user.uid}
+        />
+      );
+    } else {
+      <></>;
+    }
+  };
+
   return (
     <>
       {uids.length == 0 ? (
@@ -39,8 +57,7 @@ export default function AllHostParticipants(props: any) {
               fontFamily: 'Source Sans Pro',
               fontWeight: '400',
               fontSize: 14,
-              lineHeight: 12,
-              color: $config.FONT_COLOR,
+              color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
             }}>
             {emptyMessage}
           </Text>
@@ -52,44 +69,52 @@ export default function AllHostParticipants(props: any) {
           <Spacer size={4} />
           {/* User should see his name first */}
           {uids.filter((uid) => uid === localUid).length > 0 ? (
-            <Participant
-              isLocal={true}
-              isAudienceUser={false}
-              name={getParticipantName(localUid)}
-              user={renderList[localUid]}
-              showControls={true}
-              isHostUser={hostUids.indexOf(localUid) !== -1}
-              key={localUid}
-              isMobile={isMobile}
-              handleClose={handleClose}
-              updateActionSheet={updateActionSheet}
-            />
+            <>
+              <Participant
+                isLocal={true}
+                isAudienceUser={false}
+                name={getParticipantName(localUid)}
+                user={renderList[localUid]}
+                showControls={true}
+                isHostUser={hostUids.indexOf(localUid) !== -1}
+                key={localUid}
+                isMobile={isMobile}
+                handleClose={handleClose}
+                updateActionSheet={updateActionSheet}
+              />
+              {renderScreenShare(renderList[localUid])}
+            </>
           ) : (
             <></>
           )}
           {/* Others Users in the call */}
           {uids
             .filter((uid) => uid !== localUid)
-            .map((uid) =>
-              renderList[uid]?.type === 'screenshare' ? (
-                <ScreenshareParticipants
-                  name={getParticipantName(uid)}
-                  key={uid}
-                />
-              ) : (
-                <Participant
-                  isLocal={false}
-                  isAudienceUser={false}
-                  name={getParticipantName(uid)}
-                  user={renderList[uid]}
-                  showControls={renderList[uid]?.type === 'rtc' && isHost}
-                  isHostUser={hostUids.indexOf(uid) !== -1}
-                  key={uid}
-                  isMobile={isMobile}
-                  handleClose={handleClose}
-                  updateActionSheet={updateActionSheet}
-                />
+            .map(
+              (uid) => (
+                // renderList[uid]?.type === 'screenshare' ? (
+                //   <ScreenshareParticipants
+                //     name={getParticipantName(uid)}
+                //     key={uid}
+                //   />
+                // ) : (
+                <>
+                  <Participant
+                    isLocal={false}
+                    isAudienceUser={false}
+                    name={getParticipantName(uid)}
+                    user={renderList[uid]}
+                    showControls={renderList[uid]?.type === 'rtc' && isHost}
+                    isHostUser={hostUids.indexOf(uid) !== -1}
+                    key={uid}
+                    isMobile={isMobile}
+                    handleClose={handleClose}
+                    updateActionSheet={updateActionSheet}
+                  />
+                  {renderScreenShare(renderList[uid])}
+                </>
               ),
+              //),
             )}
         </>
       )}

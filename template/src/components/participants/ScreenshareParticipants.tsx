@@ -9,32 +9,163 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {isWeb, UidType, useLocalUid, useMeetingInfo} from 'customization-api';
+import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
+import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
+import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
+import {isWebInternal} from '../../utils/common';
+import IconButton from '../../atoms/IconButton';
 
-const ScreenshareParticipants = (props: {name: string}) => {
-  const {name} = props;
-  return (
-    <View style={styles.container}>
-      <View style={styles.userInfoContainer}>
-        <View style={styles.bgContainerStyle}>
-          <UserAvatar
-            name={name}
-            containerStyle={styles.containerStyle}
-            textStyle={styles.textStyle}
+const ScreenshareParticipants = (props: {name: string; parentUid: UidType}) => {
+  const screenshareRef = useRef();
+  const localUid = useLocalUid();
+  const [isHovered, setIsHovered] = useState(false);
+  const [actionMenuVisible, setActionMenuVisible] = useState(false);
+  const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
+    useState(false);
+  const [pos, setPos] = useState({top: 0, left: 0});
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+  const remoteEndScreenshare = useRemoteEndScreenshare();
+  const renderActionMenu = () => {
+    const items: ActionMenuItem[] = [];
+
+    if (isHost) {
+      items.push({
+        icon: 'remove-meeting',
+        iconColor: $config.SEMANTIC_ERROR,
+        textColor: $config.SEMANTIC_ERROR,
+        title: 'Remove Screenshare',
+        callback: () => {
+          setActionMenuVisible(false);
+          setRemoveScreensharePopupVisible(true);
+        },
+      });
+    }
+    return (
+      <>
+        {isHost ? (
+          <RemoveScreensharePopup
+            modalVisible={removeScreensharePopupVisible}
+            setModalVisible={setRemoveScreensharePopupVisible}
+            username={props.name}
+            removeScreenShareFromMeeting={() =>
+              remoteEndScreenshare(props.parentUid)
+            }
           />
+        ) : (
+          <></>
+        )}
+        <ActionMenu
+          actionMenuVisible={actionMenuVisible}
+          setActionMenuVisible={setActionMenuVisible}
+          modalPosition={{top: pos.top - 20, left: pos.left + 50}}
+          items={items}
+        />
+      </>
+    );
+  };
+  const showModal = () => {
+    screenshareRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
+      setPos({
+        top: py + h,
+        left: _px,
+      });
+    });
+    setActionMenuVisible((state) => !state);
+  };
+  return (
+    <>
+      {renderActionMenu()}
+      <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
+        <View style={styles.container} ref={screenshareRef}>
+          <View style={styles.userInfoContainer}>
+            <View style={styles.bgContainerStyle}>
+              <UserAvatar
+                name={props.name}
+                containerStyle={styles.containerStyle}
+                textStyle={styles.textStyle}
+              />
+            </View>
+            <View style={{alignSelf: 'center'}}>
+              <Text style={styles.participantNameText}>{props.name}</Text>
+            </View>
+          </View>
+          {isHost && localUid !== props?.parentUid ? (
+            <View style={styles.iconContainer}>
+              {isHovered || actionMenuVisible || !isWebInternal() ? (
+                //todo mobile by default it should show
+                <View
+                  style={{
+                    width: 24,
+                    height: 24,
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 20,
+                  }}>
+                  <IconButton
+                    hoverEffect={true}
+                    hoverEffectStyle={{
+                      backgroundColor:
+                        $config.CARD_LAYER_5_COLOR +
+                        hexadecimalTransparency['20%'],
+                      borderRadius: 20,
+                      padding: 5,
+                    }}
+                    iconProps={{
+                      iconType: 'plain',
+                      name: 'more-menu',
+                      iconSize: 20,
+                      tintColor: $config.SECONDARY_ACTION_COLOR,
+                    }}
+                    onPress={() => {
+                      showModal();
+                    }}
+                  />
+                </View>
+              ) : (
+                <></>
+              )}
+            </View>
+          ) : (
+            <></>
+          )}
         </View>
-        <View style={{alignSelf: 'center'}}>
-          <Text style={styles.participantNameText}>{name}</Text>
-        </View>
-      </View>
-    </View>
+      </PlatformWrapper>
+    </>
   );
 };
 export default ScreenshareParticipants;
+
+const PlatformWrapper = ({children, showModal, setIsHovered}) => {
+  return isWeb() ? (
+    <div
+      style={{}}
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    <TouchableOpacity
+      onPress={() => {
+        showModal();
+      }}>
+      {children}
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   bgContainerStyle: {
     backgroundColor:
