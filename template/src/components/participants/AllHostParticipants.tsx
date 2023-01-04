@@ -8,6 +8,7 @@ import {useMeetingInfo, useRender} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {useVideoMeetingData} from '../contexts/VideoMeetingDataContext';
 import {useScreenContext} from '../contexts/ScreenShareContext';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export default function AllHostParticipants(props: any) {
   const localUid = useLocalUid();
@@ -56,8 +57,7 @@ export default function AllHostParticipants(props: any) {
               fontFamily: 'Source Sans Pro',
               fontWeight: '400',
               fontSize: 14,
-              lineHeight: 12,
-              color: $config.FONT_COLOR,
+              color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
             }}>
             {emptyMessage}
           </Text>

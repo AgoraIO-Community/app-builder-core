@@ -12,6 +12,7 @@ import Participant from './Participant';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import {useScreenContext} from '../contexts/ScreenShareContext';
 import ScreenshareParticipants from './ScreenshareParticipants';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const AllAudienceParticipants = (props: any) => {
   const {screenShareData} = useScreenContext();
@@ -60,8 +61,7 @@ const AllAudienceParticipants = (props: any) => {
               fontFamily: 'Source Sans Pro',
               fontWeight: '400',
               fontSize: 14,
-              lineHeight: 12,
-              color: $config.FONT_COLOR,
+              color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
             }}>
             {' '}
             {emptyMessage}
