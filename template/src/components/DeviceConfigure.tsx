@@ -147,7 +147,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
   useEffect(() => {
     // If stream exists and deviceList are empty, check for devices again
-    if (deviceList.length === 0) {
+    // Labels are empty in firefox when permission is grante first time, refresh device list if labels are empty
+    if (
+      deviceList.length === 0 ||
+      deviceList.find((device: MediaDeviceInfo) => device.label === '')
+    ) {
       refreshDevices();
     }
   }, [rtc]);
