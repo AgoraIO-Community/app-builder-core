@@ -166,7 +166,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 dispatch({type: 'UserPin', value: [0]});
               }}
               btnTextProps={{
-                text: 'Remove Pin',
+                text: 'Unpin',
                 textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
                 textStyle: {marginTop: 0, marginLeft: 6, fontWeight: '700'},
               }}
