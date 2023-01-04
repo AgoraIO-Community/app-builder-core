@@ -40,9 +40,8 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
       const hostList = filterObject(
         renderList,
         ([k, v]) =>
-          (v?.type === 'rtc' ||
-            v?.type === 'live' ||
-            (v?.type === 'screenshare' && v?.video == 1)) &&
+          (v?.type === 'rtc' || v?.type === 'live') && //||
+          //(v?.type === 'screenshare' && v?.video == 1)
           (raiseHandList[k]
             ? raiseHandList[k]?.role == ClientRole.Broadcaster
             : true) &&

@@ -122,7 +122,7 @@ const ParticipantView = (props) => {
                     {showHostSection ? (
                       <AllHostParticipants
                         emptyMessage={'No Host has joined yet.'}
-                        uids={activeUids}
+                        uids={hostUids}
                         isMobile={isSmall}
                         updateActionSheet={props.updateActionSheet}
                         handleClose={props.handleClose}

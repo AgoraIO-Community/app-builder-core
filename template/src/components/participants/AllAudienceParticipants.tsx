@@ -2,11 +2,19 @@ import React, {useContext} from 'react';
 import {Text} from 'react-native';
 import chatContext from '../ChatContext';
 import {useString} from '../../utils/useString';
-import {UidType, useMeetingInfo, useRender} from 'customization-api';
+import {
+  RenderInterface,
+  UidType,
+  useMeetingInfo,
+  useRender,
+} from 'customization-api';
 import Participant from './Participant';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
+import {useScreenContext} from '../contexts/ScreenShareContext';
+import ScreenshareParticipants from './ScreenshareParticipants';
 
 const AllAudienceParticipants = (props: any) => {
+  const {screenShareData} = useScreenContext();
   const {
     uids,
     isMobile = false,
@@ -26,6 +34,20 @@ const AllAudienceParticipants = (props: any) => {
     data: {isHost},
   } = useMeetingInfo();
   const {hostUids} = useLiveStreamDataContext();
+
+  const renderScreenShare = (user: RenderInterface) => {
+    if (screenShareData[user.screenUid]?.isActive) {
+      return (
+        <ScreenshareParticipants
+          name={getParticipantName(user.screenUid)}
+          key={user.screenUid}
+        />
+      );
+    } else {
+      <></>;
+    }
+  };
+
   return (
     <>
       {uids.length == 0 ? (
@@ -50,29 +72,32 @@ const AllAudienceParticipants = (props: any) => {
         <>
           {/**Audience should see his name first */}
           {uids.filter((i) => i === localUid).length ? (
-            <Participant
-              isLocal={true}
-              name={getParticipantName(localUid)}
-              user={renderList[localUid]}
-              isAudienceUser={
-                $config.EVENT_MODE && hostUids.indexOf(localUid) !== -1
-                  ? false
-                  : true
-              }
-              showControls={
-                (renderList[localUid]?.type === 'rtc' && isHost) ||
-                (renderList[localUid]?.type === 'rtc' &&
-                  $config.EVENT_MODE &&
-                  hostUids.indexOf(localUid) !== -1)
-                  ? true
-                  : false
-              }
-              isHostUser={false}
-              key={localUid}
-              isMobile={isMobile}
-              handleClose={handleClose}
-              updateActionSheet={updateActionSheet}
-            />
+            <>
+              <Participant
+                isLocal={true}
+                name={getParticipantName(localUid)}
+                user={renderList[localUid]}
+                isAudienceUser={
+                  $config.EVENT_MODE && hostUids.indexOf(localUid) !== -1
+                    ? false
+                    : true
+                }
+                showControls={
+                  (renderList[localUid]?.type === 'rtc' && isHost) ||
+                  (renderList[localUid]?.type === 'rtc' &&
+                    $config.EVENT_MODE &&
+                    hostUids.indexOf(localUid) !== -1)
+                    ? true
+                    : false
+                }
+                isHostUser={false}
+                key={localUid}
+                isMobile={isMobile}
+                handleClose={handleClose}
+                updateActionSheet={updateActionSheet}
+              />
+              {renderScreenShare(renderList[localUid])}
+            </>
           ) : (
             <></>
           )}
@@ -80,18 +105,21 @@ const AllAudienceParticipants = (props: any) => {
           {uids
             .filter((i) => i !== localUid)
             .map((uid: any, index: number) => (
-              <Participant
-                isLocal={false}
-                name={getParticipantName(uid)}
-                user={renderList[uid]}
-                showControls={renderList[uid]?.type === 'rtc' && isHost}
-                isAudienceUser={true}
-                isHostUser={false}
-                key={uid}
-                isMobile={isMobile}
-                handleClose={handleClose}
-                updateActionSheet={updateActionSheet}
-              />
+              <>
+                <Participant
+                  isLocal={false}
+                  name={getParticipantName(uid)}
+                  user={renderList[uid]}
+                  showControls={renderList[uid]?.type === 'rtc' && isHost}
+                  isAudienceUser={true}
+                  isHostUser={false}
+                  key={uid}
+                  isMobile={isMobile}
+                  handleClose={handleClose}
+                  updateActionSheet={updateActionSheet}
+                />
+                {renderScreenShare(renderList[uid])}
+              </>
             ))}
         </>
       )}
