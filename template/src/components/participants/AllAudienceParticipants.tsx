@@ -41,6 +41,7 @@ const AllAudienceParticipants = (props: any) => {
         <ScreenshareParticipants
           name={getParticipantName(user.screenUid)}
           key={user.screenUid}
+          parentUid={user.uid}
         />
       );
     } else {

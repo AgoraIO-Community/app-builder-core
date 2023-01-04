@@ -61,6 +61,8 @@ export enum controlMessageEnum {
   kickUser = '5',
   requestVideo = '6',
   requestAudio = '7',
+  newUserJoined = '8',
+  kickScreenshare = '9',
 }
 
 const ChatContext = createContext(null as unknown as chatContext);
