@@ -5,18 +5,21 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {numFormatter} from '../utils/index';
 import ChatContext from '../components/ChatContext';
 import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
+import {useVideoMeetingData} from '../components/contexts/VideoMeetingDataContext';
 
 const ParticipantsCount = () => {
   const {onlineUsersCount} = useContext(ChatContext);
   const {audienceUids, hostUids} = useLiveStreamDataContext();
+  const {attendeeUids, hostUids: hostUidsVM} = useVideoMeetingData();
   return (
     <IconButton
-      toolTipMessage={
+      toolTipMessage={`Host: ${
+        $config.EVENT_MODE ? hostUids?.length || 0 : hostUidsVM.length || 0
+      }\n${$config.EVENT_MODE ? 'Audience: ' : 'Attendee: '}${
         $config.EVENT_MODE
-          ? `${'Host: ' + hostUids?.length || 0} \n` +
-            `${'Audience: ' + audienceUids?.length || 0}`
-          : ''
-      }
+          ? audienceUids.length || 0
+          : attendeeUids?.length || 0
+      }`}
       containerStyle={styles.participantCountView}
       disabled={true}
       iconProps={{
