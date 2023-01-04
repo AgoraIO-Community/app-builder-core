@@ -22,7 +22,13 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
       ]}>
       {props?.leadingIconName ? (
         <IconButton
+          hoverEffect={true}
+          hoverEffectStyle={{
+            backgroundColor: $config.ICON_BG_COLOR,
+            borderRadius: 20,
+          }}
           iconProps={{
+            iconType: 'plain',
             iconContainerStyle: {
               padding: 5,
             },
@@ -35,14 +41,20 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
           }}
         />
       ) : isChat ? (
-        <View style={{width: 20, height: 'auto'}}></View>
+        <View style={{width: 30, height: 'auto'}}></View>
       ) : (
         <></>
       )}
       {props?.centerComponent ? props.centerComponent : <></>}
       {props?.trailingIconName ? (
         <IconButton
+          hoverEffect={true}
+          hoverEffectStyle={{
+            backgroundColor: $config.ICON_BG_COLOR,
+            borderRadius: 20,
+          }}
           iconProps={{
+            iconType: 'plain',
             iconContainerStyle: {
               padding: 5,
             },
