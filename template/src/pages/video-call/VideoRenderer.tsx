@@ -271,6 +271,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
           //todo pass updateActionSheet
           updateActionSheet={() => {}}
           user={user}
+          parentUid={user.parentUid}
         />
         <IconButton
           setRef={(ref) => {

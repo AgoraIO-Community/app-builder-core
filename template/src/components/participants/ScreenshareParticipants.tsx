@@ -14,14 +14,24 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {isWeb, UidType, useLocalUid, useMeetingInfo} from 'customization-api';
+import {
+  isWeb,
+  RenderInterface,
+  UidType,
+  useLocalUid,
+  useMeetingInfo,
+} from 'customization-api';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
 import {isWebInternal} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
+import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
-const ScreenshareParticipants = (props: {name: string; parentUid: UidType}) => {
+const ScreenshareParticipants = (props: {
+  user: RenderInterface;
+  parentUid: UidType;
+}) => {
   const screenshareRef = useRef();
   const localUid = useLocalUid();
   const [isHovered, setIsHovered] = useState(false);
@@ -33,68 +43,78 @@ const ScreenshareParticipants = (props: {name: string; parentUid: UidType}) => {
     data: {isHost},
   } = useMeetingInfo();
   const remoteEndScreenshare = useRemoteEndScreenshare();
-  const renderActionMenu = () => {
-    const items: ActionMenuItem[] = [];
+  // const renderActionMenu = () => {
+  //   const items: ActionMenuItem[] = [];
 
-    if (isHost) {
-      items.push({
-        icon: 'remove-meeting',
-        iconColor: $config.SEMANTIC_ERROR,
-        textColor: $config.SEMANTIC_ERROR,
-        title: 'Remove Screenshare',
-        callback: () => {
-          setActionMenuVisible(false);
-          setRemoveScreensharePopupVisible(true);
-        },
-      });
-    }
-    return (
-      <>
-        {isHost ? (
-          <RemoveScreensharePopup
-            modalVisible={removeScreensharePopupVisible}
-            setModalVisible={setRemoveScreensharePopupVisible}
-            username={props.name}
-            removeScreenShareFromMeeting={() =>
-              remoteEndScreenshare(props.parentUid)
-            }
-          />
-        ) : (
-          <></>
-        )}
-        <ActionMenu
-          actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={setActionMenuVisible}
-          modalPosition={{top: pos.top - 20, left: pos.left + 50}}
-          items={items}
-        />
-      </>
-    );
-  };
+  //   if (isHost) {
+  //     items.push({
+  //       icon: 'remove-meeting',
+  //       iconColor: $config.SEMANTIC_ERROR,
+  //       textColor: $config.SEMANTIC_ERROR,
+  //       title: 'Remove Screenshare',
+  //       callback: () => {
+  //         setActionMenuVisible(false);
+  //         setRemoveScreensharePopupVisible(true);
+  //       },
+  //     });
+  //   }
+  //   return (
+  //     <>
+  //       {isHost ? (
+  //         <RemoveScreensharePopup
+  //           modalVisible={removeScreensharePopupVisible}
+  //           setModalVisible={setRemoveScreensharePopupVisible}
+  //           username={props.name}
+  //           removeScreenShareFromMeeting={() =>
+  //             remoteEndScreenshare(props.parentUid)
+  //           }
+  //         />
+  //       ) : (
+  //         <></>
+  //       )}
+  //       <ActionMenu
+  //         actionMenuVisible={actionMenuVisible}
+  //         setActionMenuVisible={setActionMenuVisible}
+  //         modalPosition={{top: pos.top - 20, left: pos.left + 50}}
+  //         items={items}
+  //       />
+  //     </>
+  //   );
+  // };
   const showModal = () => {
     screenshareRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
       setPos({
-        top: py + h,
-        left: _px,
+        top: py + h - 20,
+        left: _px + 50,
       });
     });
     setActionMenuVisible((state) => !state);
   };
   return (
     <>
-      {renderActionMenu()}
+      {/* {renderActionMenu()} */}
+      <UserActionMenuOptionsOptions
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        handleClose={() => {}}
+        isMobile={false}
+        modalPosition={pos}
+        updateActionSheet={() => {}}
+        user={props.user}
+        parentUid={props.parentUid}
+      />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={screenshareRef}>
           <View style={styles.userInfoContainer}>
             <View style={styles.bgContainerStyle}>
               <UserAvatar
-                name={props.name}
+                name={props.user.name}
                 containerStyle={styles.containerStyle}
                 textStyle={styles.textStyle}
               />
             </View>
             <View style={{alignSelf: 'center'}}>
-              <Text style={styles.participantNameText}>{props.name}</Text>
+              <Text style={styles.participantNameText}>{props.user.name}</Text>
             </View>
           </View>
           {isHost && localUid !== props?.parentUid ? (

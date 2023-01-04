@@ -204,6 +204,7 @@ const RtmConfigure = (props: any) => {
                 //start - updating screenshare data in rtc
                 const screenShareUser = {
                   type: UserType.ScreenShare,
+                  parentUid: uid,
                 };
                 updateRenderListState(screenUid, screenShareUser);
                 //end - updating screenshare data in rtc
@@ -295,6 +296,7 @@ const RtmConfigure = (props: any) => {
           //start - updating screenshare data in rtc
           const screenShareUser = {
             type: UserType.ScreenShare,
+            parentUid: uid,
           };
           updateRenderListState(screenUid, screenShareUser);
           //end - updating screenshare data in rtc
