@@ -51,6 +51,8 @@ const IconButton = (props: IconButtonProps) => {
       <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
           style={[
             styles.btnTextStyle,
             props?.btnTextProps?.textColor
@@ -124,6 +126,6 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     fontWeight: '400',
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 8,
   },
 });

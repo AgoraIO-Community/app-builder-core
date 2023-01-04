@@ -345,7 +345,6 @@ const Navbar = () => {
         {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
       ]}>
       <View style={style.titleContainer}>
-        <Spacer size={16} />
         <Text
           style={style.roomNameText}
           testID="videocall-meetingName"
@@ -416,7 +415,8 @@ const style = StyleSheet.create({
   },
   navHolder: {
     width: '100%',
-    paddingVertical: 12,
+    marginTop: 8,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

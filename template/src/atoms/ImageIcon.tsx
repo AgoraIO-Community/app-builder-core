@@ -33,7 +33,7 @@ export interface ImageIconProps {
 const ImageIcon = (props: ImageIconProps) => {
   const {
     name,
-    iconSize = 24,
+    iconSize = 26,
     tintColor,
     base64 = false,
     base64TintColor = '',
@@ -53,7 +53,7 @@ const ImageIcon = (props: ImageIconProps) => {
         style={[
           {alignItems: 'center'},
           iconType === 'round'
-            ? {padding: 12, borderRadius: 50}
+            ? {padding: 13, borderRadius: 50}
             : {padding: 0, borderRadius: 0},
           iconType === 'round' && props?.isHovered
             ? {

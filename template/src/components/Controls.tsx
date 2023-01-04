@@ -25,7 +25,6 @@ import LocalSwitchCamera, {
 import ScreenshareButton, {
   ScreenshareButtonProps,
 } from '../subComponents/screenshare/ScreenshareButton';
-import {controlsHolder} from '../../theme.json';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
@@ -61,19 +60,11 @@ const Controls = () => {
         style.container,
         {
           paddingHorizontal: isDesktop ? 32 : 16,
-          paddingVertical: 20,
-          /**
-           * we should 28px padding top and bottom in total,
-           * iconbutton has 8px padding in top and bottom. so 20px added here
-           */
         },
       ]}
       onLayout={onLayout}>
       <View style={style.leftContent}>
-        <View
-          testID="layout-btn"
-          style={{marginRight: 10, marginVertical: 0}}
-          collapsable={false}>
+        <View testID="layout-btn" style={{marginRight: 10}} collapsable={false}>
           {/**
            * .measure returns undefined on Android unless collapsable=false or onLayout are specified
            * so added collapsable property
@@ -81,9 +72,7 @@ const Controls = () => {
            * */}
           <LayoutIconButton />
         </View>
-        <View
-          testID="invite-btn"
-          style={{marginHorizontal: 10, marginVertical: 16}}>
+        <View testID="invite-btn" style={{marginHorizontal: 10}}>
           <CopyJoinInfo />
         </View>
       </View>
@@ -107,9 +96,7 @@ const Controls = () => {
           ) : (
             <></>
           )}
-          <View
-            testID="localAudio-btn"
-            style={{marginHorizontal: 10, marginVertical: 16}}>
+          <View testID="localAudio-btn" style={{marginHorizontal: 10}}>
             <LocalAudioMute showToolTip={true} />
           </View>
           {!$config.AUDIO_ROOM && (
@@ -117,7 +104,6 @@ const Controls = () => {
               testID="localVideo-btn"
               style={{
                 marginHorizontal: 10,
-                marginVertical: 16,
               }}>
               <LocalVideoMute showToolTip={true} />
             </View>
@@ -127,7 +113,6 @@ const Controls = () => {
               testID="switchCamera-btn"
               style={{
                 marginHorizontal: 10,
-                marginVertical: 16,
               }}>
               <LocalSwitchCamera />
             </View>
@@ -137,7 +122,6 @@ const Controls = () => {
               testID="screenShare-btn"
               style={{
                 marginHorizontal: 10,
-                marginVertical: 16,
               }}>
               <ScreenshareButton />
             </View>
@@ -147,15 +131,12 @@ const Controls = () => {
               testID="recording-btn"
               style={{
                 marginHorizontal: 10,
-                marginVertical: 16,
               }}>
               <Recording />
             </View>
           )}
         </>
-        <View
-          testID="endCall-btn"
-          style={{marginHorizontal: 10, marginVertical: 16}}>
+        <View testID="endCall-btn" style={{marginHorizontal: 10}}>
           <LocalEndcall />
         </View>
       </View>
@@ -185,15 +166,11 @@ export const ControlsComponentsArray: ControlsComponentsArrayProps = [
 ];
 
 const style = StyleSheet.create({
-  // @ts-ignore
-  controlsHolder: {
-    flex: isWebInternal() ? 1.3 : 1.6,
-    ...controlsHolder,
-  },
   container: {
     flexDirection: 'row',
-    flex: 1,
     justifyContent: 'space-between',
+    marginTop: 20,
+    marginBottom: 16,
   },
   leftContent: {
     flex: 1,

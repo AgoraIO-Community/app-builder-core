@@ -44,7 +44,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
       iconBackgroundColor: $config.SEMANTIC_ERROR,
       iconContainerStyle: !isOnActionSheet && {
-        width: 69,
+        width: 72,
         height: 48,
       },
     },

@@ -30,7 +30,7 @@ const Recording = (props: RecordingButtonProps) => {
   //commented for v1 release
   //const recordingButton = useString<boolean>('recordingButton');
   const recordingButton = (recording: boolean) =>
-    recording ? 'Stop Recording' : 'Record';
+    recording ? 'Stop Rec' : 'Record';
   const [modalVisible, setModalVisible] = useState(false);
   const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
 
