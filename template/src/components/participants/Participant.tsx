@@ -39,7 +39,15 @@ import useRemoteRequest, {
 } from '../../utils/useRemoteRequest';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
-import {SidePanelType, useSidePanel} from 'customization-api';
+import {
+  SidePanelType,
+  useLayout,
+  useRender,
+  useRtc,
+  useSidePanel,
+} from 'customization-api';
+import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
+
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
@@ -81,9 +89,31 @@ const Participant = (props: ParticipantInterface) => {
   } = useMeetingInfo();
   const remoteRequest = useRemoteRequest();
   const remoteMute = useRemoteMute();
-
+  const {pinnedUid} = useRender();
+  const {dispatch} = useRtc();
+  const {setLayout} = useLayout();
   const renderActionMenu = () => {
     const items: ActionMenuItem[] = [];
+
+    items.push({
+      icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
+      onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.SECONDARY_ACTION_COLOR,
+      title: pinnedUid
+        ? props.user.uid === pinnedUid
+          ? 'Unpin'
+          : 'Replace Pin'
+        : 'Pin for me',
+      callback: () => {
+        setActionMenuVisible(false);
+        dispatch({
+          type: 'UserPin',
+          value: [pinnedUid && props.user.uid === pinnedUid ? 0 : user.uid],
+        });
+        setLayout(getPinnedLayoutName());
+      },
+    });
 
     if (!isLocal) {
       //remove user menu
@@ -106,6 +136,41 @@ const Participant = (props: ParticipantInterface) => {
       });
 
       if (
+        !$config.EVENT_MODE ||
+        ($config.EVENT_MODE &&
+          $config.RAISE_HAND &&
+          hostUids.indexOf(user.uid) !== -1)
+      ) {
+        items.push({
+          icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
+          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.audio ? 'Mute Audio' : 'Request Audio',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.audio
+              ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
+          },
+        });
+        items.push({
+          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
+          iconColor: $config.SECONDARY_ACTION_COLOR,
+          textColor: $config.SECONDARY_ACTION_COLOR,
+          title: user.video ? 'Mute Video' : 'Request Video',
+          callback: () => {
+            setActionMenuVisible(false);
+            user.video
+              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
+          },
+        });
+      }
+
+      if (
+        isHost &&
         $config.EVENT_MODE &&
         $config.RAISE_HAND &&
         hostUids.indexOf(user.uid) === -1
@@ -122,41 +187,6 @@ const Participant = (props: ParticipantInterface) => {
           },
         });
       }
-
-      if (
-        !$config.EVENT_MODE ||
-        ($config.EVENT_MODE &&
-          $config.RAISE_HAND &&
-          hostUids.indexOf(user.uid) !== -1)
-      ) {
-        items.push({
-          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: user.video ? 'Mute Video' : 'Request Video',
-          callback: () => {
-            setActionMenuVisible(false);
-            user.video
-              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
-              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
-          },
-        });
-        items.push({
-          icon: user.audio ? 'mic-off-outlined' : 'mic-on-outlined',
-          onHoverIcon: user.audio ? 'mic-off-filled' : 'mic-on-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: user.audio ? 'Mute Audio' : 'Request Audio',
-          callback: () => {
-            setActionMenuVisible(false);
-            user.audio
-              ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
-              : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
-          },
-        });
-      }
-
       if (isHost && $config.EVENT_MODE) {
         if (
           raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
