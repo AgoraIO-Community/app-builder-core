@@ -91,7 +91,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   //commented for v1 release
   //const fromText = useString('messageSenderNotificationLabel');
   const fromText = (name: string) => `${name} commented in the public chat`;
-  const privateMessageLabel = 'You’ve recieved a direct message';
+  const privateMessageLabel = 'You’ve recieved a private message';
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);

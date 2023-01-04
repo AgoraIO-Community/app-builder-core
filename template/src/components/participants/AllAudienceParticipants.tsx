@@ -40,7 +40,7 @@ const AllAudienceParticipants = (props: any) => {
     if (screenShareData[user.screenUid]?.isActive) {
       return (
         <ScreenshareParticipants
-          name={getParticipantName(user.screenUid)}
+          user={renderList[user.screenUid]}
           key={user.screenUid}
           parentUid={user.uid}
         />

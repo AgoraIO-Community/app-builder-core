@@ -20,13 +20,15 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
-import {ClientRole} from '../../../agora-rn-uikit';
+import {ClientRole, UidType} from '../../../agora-rn-uikit';
 import {
   LiveStreamControlMessageEnum,
   RaiseHandValue,
 } from '../livestream/Types';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
+import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
+import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -36,10 +38,14 @@ interface UserActionMenuOptionsOptionsProps {
   isMobile: boolean;
   updateActionSheet: (screenName: 'chat' | 'participants' | 'settings') => {};
   modalPosition: {};
+  parentUid?: UidType;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
 ) {
+  const remoteEndScreenshare = useRemoteEndScreenshare();
+  const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
+    useState(false);
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
@@ -48,7 +54,7 @@ export default function UserActionMenuOptionsOptions(
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
   const {openPrivateChat} = useChatMessages();
-  const {hostUids} = useLiveStreamDataContext();
+  const {hostUids, audienceUids} = useLiveStreamDataContext();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -64,9 +70,11 @@ export default function UserActionMenuOptionsOptions(
     const items: ActionMenuItem[] = [];
     if (
       !$config.EVENT_MODE ||
-      ($config.EVENT_MODE &&
+      !(
+        $config.EVENT_MODE &&
         $config.RAISE_HAND &&
-        hostUids.indexOf(user.uid) !== -1)
+        audienceUids.indexOf(user.uid) !== -1
+      )
     ) {
       items.push({
         icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
@@ -89,8 +97,7 @@ export default function UserActionMenuOptionsOptions(
       });
     }
 
-    if (localuid !== user.uid) {
-      //remove user menu
+    if (localuid !== user.uid && user.type === 'rtc') {
       items.push({
         icon: 'chat-outlined',
         onHoverIcon: 'chat-filled',
@@ -197,7 +204,9 @@ export default function UserActionMenuOptionsOptions(
           },
         });
       }
-    } else {
+    }
+
+    if (localuid == user.uid && user.type === 'rtc') {
       //local user menu
       items.push({
         icon: 'pencil-outlined',
@@ -217,11 +226,35 @@ export default function UserActionMenuOptionsOptions(
         },
       });
     }
+    if (isHost && user.type === 'screenshare') {
+      items.push({
+        icon: 'remove-meeting',
+        iconColor: $config.SEMANTIC_ERROR,
+        textColor: $config.SEMANTIC_ERROR,
+        title: 'Remove Screenshare',
+        callback: () => {
+          setActionMenuVisible(false);
+          setRemoveScreensharePopupVisible(true);
+        },
+      });
+    }
     setActionMenuitems(items);
   }, [pinnedUid, isHost, raiseHandList, hostUids, user]);
 
   return (
     <>
+      {isHost ? (
+        <RemoveScreensharePopup
+          modalVisible={removeScreensharePopupVisible}
+          setModalVisible={setRemoveScreensharePopupVisible}
+          username={user.name}
+          removeScreenShareFromMeeting={() =>
+            remoteEndScreenshare(props.parentUid)
+          }
+        />
+      ) : (
+        <></>
+      )}
       {isHost ? (
         <RemoveMeetingPopup
           modalVisible={removeMeetingPopupVisible}
