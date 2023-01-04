@@ -96,8 +96,8 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const {
     liveStreamingRequestAlertIconPosition = {
       top: 0,
-      left: undefined,
       right: 0,
+      left: undefined,
       bottom: undefined,
     },
     isMobileView = false,
@@ -111,7 +111,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   //const participantsLabel = useString('participantsLabel')();
   const {onlineUsersCount} = useContext(ChatContext);
   //const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
-  const participantsLabel = `Participants`;
+  const participantsLabel = `People`;
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
