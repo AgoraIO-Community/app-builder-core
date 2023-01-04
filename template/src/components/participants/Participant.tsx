@@ -197,6 +197,7 @@ const Participant = (props: ParticipantInterface) => {
       //local user menu
       items.push({
         icon: 'pencil-outlined',
+        onHoverIcon: 'pencil-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Change Name',

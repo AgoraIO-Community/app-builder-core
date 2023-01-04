@@ -213,7 +213,7 @@ const Chat = (props?: ChatProps) => {
               </TouchableOpacity>
             </View>
           }
-          trailingIconName="close-rounded"
+          trailingIconName="close"
           trailingIconOnPress={() => {
             if (!isSmall) {
               setSidePanel(SidePanelType.None);

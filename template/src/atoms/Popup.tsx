@@ -63,7 +63,7 @@ const Popup = (props: PopupProps) => {
                 <IconButton
                   iconProps={{
                     iconContainerStyle: {padding: 4},
-                    name: 'close-rounded',
+                    name: 'close',
                     tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}
                   onPress={() => {

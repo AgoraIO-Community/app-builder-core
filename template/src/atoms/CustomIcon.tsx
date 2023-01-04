@@ -33,8 +33,7 @@ export interface IconsInterface {
   'end-call': string;
   'raise-hand': string;
   'lower-hand': string;
-  'close-rounded': string;
-  'close-square': string;
+  close: string;
   'back-btn': string;
   participants: string;
   chat: string;
@@ -60,12 +59,14 @@ export interface IconsInterface {
   'connection-unpublished': string;
   'remove-meeting': string;
   'pencil-outlined': string;
+  'pencil-filled': string;
   alert: string;
   speaker: string;
   person: string;
   pinned: string;
   grid: string;
   people: string;
+  'chat-nav': string;
   'chat-filled': string;
   'chat-outlined': string;
   'demote-filled': string;

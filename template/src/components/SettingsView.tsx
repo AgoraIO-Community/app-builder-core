@@ -209,7 +209,7 @@ const SettingsView = (props) => {
         centerComponent={
           <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>
         }
-        trailingIconName="close-rounded"
+        trailingIconName="close"
         trailingIconOnPress={() => {
           if (!isSmall) {
             setSidePanel(SidePanelType.None);

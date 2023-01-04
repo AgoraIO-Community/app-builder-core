@@ -87,7 +87,7 @@ const ParticipantView = (props) => {
         centerComponent={
           <Text style={SidePanelStyles.heading}>{participantsLabel}</Text>
         }
-        trailingIconName="close-rounded"
+        trailingIconName="close"
         trailingIconOnPress={() => {
           if (!isSmall) {
             setSidePanel(SidePanelType.None);

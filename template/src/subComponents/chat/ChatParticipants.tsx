@@ -93,7 +93,7 @@ const ChatParticipants = (props: any) => {
                     <View style={{alignSelf: 'center', marginRight: 20}}>
                       <ImageIcon
                         iconType="plain"
-                        name="chat"
+                        name="chat-nav"
                         tintColor={$config.SECONDARY_ACTION_COLOR}
                       />
                     </View>

@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?2t6uz1') format('truetype');
+  src: url('fonts/icomoon.ttf?e8uulq') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -43,6 +43,9 @@
   content: '\e904';
   color: #c5c5c5;
 }
+.icon-chat-nav:before {
+  content: '\e907';
+}
 .icon-chat-outlined:before {
   content: '\e910';
   color: #c5c5c5;
@@ -54,10 +57,7 @@
 .icon-clipboard:before {
   content: '\e906';
 }
-.icon-close-rounded:before {
-  content: '\e907';
-}
-.icon-close-square:before {
+.icon-close:before {
   content: '\e908';
 }
 .icon-collapse:before {
@@ -232,9 +232,11 @@
   content: '\e926';
   color: #fff;
 }
-.icon-pencil-outlined:before {
+.icon-pencil-filled:before {
   content: '\e940';
-  color: #fff;
+}
+.icon-pencil-outlined:before {
+  content: '\e957';
 }
 .icon-people:before {
   content: '\e946';

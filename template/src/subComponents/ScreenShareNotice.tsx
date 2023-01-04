@@ -56,7 +56,7 @@ function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
             <ImageIcon
               iconType="plain"
               iconSize={20}
-              name={'close-rounded'}
+              name={'close'}
               tintColor={$config.SEMANTIC_ERROR}
             />
           </View>
