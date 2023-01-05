@@ -303,56 +303,82 @@ const Participant = (props: ParticipantInterface) => {
               {isLocal && <Text style={styles.subText}>{'Me'}</Text>}
             </View>
           </View>
-          {showControls ? (
-            <View style={styles.iconContainer}>
-              {isHovered ||
-              actionMenuVisible ||
-              !isWebInternal() ||
-              isMobile ? (
-                <View
-                  style={{
-                    width: 24,
-                    height: 24,
-                    alignSelf: 'center',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+          <View style={styles.iconContainer}>
+            {isHovered || actionMenuVisible || !isWebInternal() || isMobile ? (
+              <View
+                style={{
+                  width: 24,
+                  height: 24,
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 20,
+                }}>
+                <IconButton
+                  hoverEffect={true}
+                  hoverEffectStyle={{
+                    backgroundColor:
+                      $config.CARD_LAYER_5_COLOR +
+                      hexadecimalTransparency['20%'],
                     borderRadius: 20,
-                  }}>
-                  <IconButton
-                    hoverEffect={true}
-                    hoverEffectStyle={{
-                      backgroundColor:
-                        $config.CARD_LAYER_5_COLOR +
-                        hexadecimalTransparency['20%'],
-                      borderRadius: 20,
-                      padding: 5,
-                    }}
-                    iconProps={{
-                      iconType: 'plain',
-                      name: 'more-menu',
-                      iconSize: 20,
-                      tintColor: $config.SECONDARY_ACTION_COLOR,
-                    }}
-                    onPress={() => {
-                      showModal();
-                    }}
-                  />
-                </View>
-              ) : (
-                <Spacer size={24} horizontal={true} />
-              )}
-              <Spacer horizontal={true} size={8} />
-              {!$config.AUDIO_ROOM &&
-                (isLocal
+                    padding: 5,
+                  }}
+                  iconProps={{
+                    iconType: 'plain',
+                    name: 'more-menu',
+                    iconSize: 20,
+                    tintColor: $config.SECONDARY_ACTION_COLOR,
+                  }}
+                  onPress={() => {
+                    showModal();
+                  }}
+                />
+              </View>
+            ) : (
+              <Spacer size={24} horizontal={true} />
+            )}
+            {showControls ? (
+              <>
+                <Spacer horizontal={true} size={8} />
+                {!$config.AUDIO_ROOM &&
+                  (isLocal
+                    ? !isAudienceUser && (
+                        <LocalVideoMute
+                          iconProps={(isVideoEnabled, isPermissionDenied) => {
+                            return {
+                              iconSize: 20,
+                              iconType: 'plain',
+                              iconContainerStyle: {padding: 8},
+                              showWarningIcon: false,
+                              tintColor: isVideoEnabled
+                                ? $config.PRIMARY_ACTION_BRAND_COLOR
+                                : isPermissionDenied
+                                ? $config.SEMANTIC_NETRUAL
+                                : $config.SEMANTIC_ERROR,
+                            };
+                          }}
+                          showLabel={false}
+                          isMobileView={isMobile}
+                        />
+                      )
+                    : !isAudienceUser && (
+                        <RemoteVideoMute
+                          uid={user.uid}
+                          video={user.video}
+                          isHost={isHost}
+                          userContainerRef={usercontainerRef}
+                        />
+                      ))}
+                {isLocal
                   ? !isAudienceUser && (
-                      <LocalVideoMute
-                        iconProps={(isVideoEnabled, isPermissionDenied) => {
+                      <LocalAudioMute
+                        iconProps={(isAudioEnabled, isPermissionDenied) => {
                           return {
                             iconSize: 20,
                             iconType: 'plain',
                             iconContainerStyle: {padding: 8},
                             showWarningIcon: false,
-                            tintColor: isVideoEnabled
+                            tintColor: isAudioEnabled
                               ? $config.PRIMARY_ACTION_BRAND_COLOR
                               : isPermissionDenied
                               ? $config.SEMANTIC_NETRUAL
@@ -364,45 +390,18 @@ const Participant = (props: ParticipantInterface) => {
                       />
                     )
                   : !isAudienceUser && (
-                      <RemoteVideoMute
+                      <RemoteAudioMute
                         uid={user.uid}
-                        video={user.video}
+                        audio={user.audio}
                         isHost={isHost}
                         userContainerRef={usercontainerRef}
                       />
-                    ))}
-              {isLocal
-                ? !isAudienceUser && (
-                    <LocalAudioMute
-                      iconProps={(isAudioEnabled, isPermissionDenied) => {
-                        return {
-                          iconSize: 20,
-                          iconType: 'plain',
-                          iconContainerStyle: {padding: 8},
-                          showWarningIcon: false,
-                          tintColor: isAudioEnabled
-                            ? $config.PRIMARY_ACTION_BRAND_COLOR
-                            : isPermissionDenied
-                            ? $config.SEMANTIC_NETRUAL
-                            : $config.SEMANTIC_ERROR,
-                        };
-                      }}
-                      showLabel={false}
-                      isMobileView={isMobile}
-                    />
-                  )
-                : !isAudienceUser && (
-                    <RemoteAudioMute
-                      uid={user.uid}
-                      audio={user.audio}
-                      isHost={isHost}
-                      userContainerRef={usercontainerRef}
-                    />
-                  )}
-            </View>
-          ) : (
-            <></>
-          )}
+                    )}
+              </>
+            ) : (
+              <></>
+            )}
+          </View>
         </View>
       </PlatformWrapper>
     </>

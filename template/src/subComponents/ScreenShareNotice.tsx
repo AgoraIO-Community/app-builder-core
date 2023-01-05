@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     backgroundColor:
       $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['80%'],
-    borderRadius: 15,
+    borderRadius: 8,
   },
   screensharingMessageMin: {
     alignSelf: 'center',

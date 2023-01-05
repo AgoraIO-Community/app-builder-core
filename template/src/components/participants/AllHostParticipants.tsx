@@ -38,7 +38,6 @@ export default function AllHostParticipants(props: any) {
         <ScreenshareParticipants
           user={renderList[user.screenUid]}
           key={user.screenUid}
-          parentUid={user.uid}
         />
       );
     } else {
