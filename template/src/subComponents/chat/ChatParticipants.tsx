@@ -136,7 +136,9 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 8,
     padding: 12,
-    margin: 20,
+    marginTop: 20,
+    marginHorizontal: 20,
+    marginBottom: 0,
   },
   defaultMessageText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
