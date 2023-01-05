@@ -54,7 +54,6 @@ const Recording = (props: RecordingButtonProps) => {
       tintColor: isRecordingActive
         ? $config.SEMANTIC_ERROR
         : $config.SECONDARY_ACTION_COLOR,
-      base64: isRecordingActive ? true : false,
     },
     btnTextProps: {
       text: showLabel ? recordingButton(isRecordingActive) : '',
