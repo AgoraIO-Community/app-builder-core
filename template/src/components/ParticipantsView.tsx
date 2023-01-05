@@ -67,8 +67,12 @@ const ParticipantView = (props) => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const isSmall = dim[0] < 700;
+  //video meeting
   const [showHostSection, setShowHostSection] = useState(true);
   const [showParticipantSection, setShowParticipantSection] = useState(true);
+  //live streaming
+  const [showTempHostSection, setShowTempHostSection] = useState(true);
+  const [showAudienceSection, setShowAudienceSection] = useState(true);
   const {currentLayout} = useLayout();
   return (
     <View
@@ -139,12 +143,12 @@ const ParticipantView = (props) => {
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
-                      isOpen={showParticipantSection}
+                      isOpen={showTempHostSection}
                       onPress={() =>
-                        setShowParticipantSection(!showParticipantSection)
+                        setShowTempHostSection(!showTempHostSection)
                       }
                     />
-                    {showParticipantSection ? (
+                    {showTempHostSection ? (
                       <AllAudienceParticipants
                         emptyMessage={'No Host has joined yet.'}
                         uids={hostUids}
@@ -190,12 +194,10 @@ const ParticipantView = (props) => {
                 <ParticipantSectionTitle
                   title={audienceLabel}
                   count={audienceUids.length}
-                  isOpen={showParticipantSection}
-                  onPress={() =>
-                    setShowParticipantSection(!showParticipantSection)
-                  }
+                  isOpen={showAudienceSection}
+                  onPress={() => setShowAudienceSection(!showAudienceSection)}
                 />
-                {showParticipantSection ? (
+                {showAudienceSection ? (
                   <AllAudienceParticipants
                     emptyMessage={'No Audience has joined yet.'}
                     uids={audienceUids}
