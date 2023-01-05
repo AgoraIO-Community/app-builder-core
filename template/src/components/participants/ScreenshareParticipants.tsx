@@ -101,7 +101,6 @@ const ScreenshareParticipants = (props: {
         modalPosition={pos}
         updateActionSheet={() => {}}
         user={props.user}
-        parentUid={props.parentUid}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={screenshareRef}>

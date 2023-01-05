@@ -38,7 +38,6 @@ interface UserActionMenuOptionsOptionsProps {
   isMobile: boolean;
   updateActionSheet: (screenName: 'chat' | 'participants' | 'settings') => {};
   modalPosition: {};
-  parentUid?: UidType;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
@@ -68,6 +67,11 @@ export default function UserActionMenuOptionsOptions(
 
   useEffect(() => {
     const items: ActionMenuItem[] = [];
+
+    /**
+     * In VideoMeeting/VoiceChat - Show pin menu for all users
+     * In Livestreaming/AudioLivecast - Show only for host -> i.e who is streaming video/audio. don't show it for audience
+     */
     if (
       !$config.EVENT_MODE ||
       !(
@@ -97,7 +101,13 @@ export default function UserActionMenuOptionsOptions(
       });
     }
 
+    /**
+     * Below menu items for remote user with type rtc(not for screenshare)
+     */
     if (localuid !== user.uid && user.type === 'rtc') {
+      /**
+       * Chat menu
+       */
       items.push({
         icon: 'chat-outlined',
         onHoverIcon: 'chat-filled',
@@ -116,6 +126,15 @@ export default function UserActionMenuOptionsOptions(
         },
       });
 
+      /**
+       * Request/Mute -> Audio/Video
+       * VideoMeeting/Voice chat - show this for all user
+       * Livestreaming/Audio livecast - show this for host user only(because audience not have permission to stream)
+       *
+       * note:
+       * Audio Menu applicable to all vertcials
+       * Video menu applicable to VideoMeeting and Livestreaming
+       */
       if (
         !$config.EVENT_MODE ||
         ($config.EVENT_MODE &&
@@ -135,64 +154,72 @@ export default function UserActionMenuOptionsOptions(
               : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
           },
         });
-        items.push({
-          icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
-          onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: user.video ? 'Mute Video' : 'Request Video',
-          callback: () => {
-            setActionMenuVisible(false);
-            user.video
-              ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
-              : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
-          },
-        });
-      }
-
-      if (
-        isHost &&
-        $config.EVENT_MODE &&
-        $config.RAISE_HAND &&
-        hostUids.indexOf(user.uid) === -1
-      ) {
-        items.push({
-          icon: 'promote-outlined',
-          onHoverIcon: 'promote-filled',
-          iconColor: $config.SECONDARY_ACTION_COLOR,
-          textColor: $config.SECONDARY_ACTION_COLOR,
-          title: 'Promote to Co-host',
-          callback: () => {
-            setActionMenuVisible(false);
-            promoteAudienceAsCoHost(user.uid);
-          },
-        });
-      }
-      if (isHost && $config.EVENT_MODE) {
-        if (
-          raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
-          raiseHandList[user.uid]?.role == ClientRole.Broadcaster
-        ) {
+        if (!$config.AUDIO_ROOM) {
           items.push({
-            isBase64Icon: true,
-            icon: 'demote-outlined',
-            onHoverIcon: 'demote-filled',
+            icon: user.video ? 'video-off-outlined' : 'video-on-outlined',
+            onHoverIcon: user.video ? 'video-off-filled' : 'video-on-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: 'Demote to audience',
+            title: user.video ? 'Mute Video' : 'Request Video',
             callback: () => {
               setActionMenuVisible(false);
-              events.send(
-                LiveStreamControlMessageEnum.raiseHandRequestRejected,
-                '',
-                EventPersistLevel.LEVEL1,
-                user.uid,
-              );
+              user.video
+                ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+                : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
             },
           });
         }
       }
+
+      /**
+       * Only host can see this menu item - promote to co host,demote to audience,remove form meeting
+       */
       if (isHost) {
+        /**
+         * Promote co host -> show only on Livestreaming and Audio livecast
+         */
+        if (
+          $config.EVENT_MODE &&
+          $config.RAISE_HAND &&
+          hostUids.indexOf(user.uid) === -1
+        ) {
+          items.push({
+            icon: 'promote-outlined',
+            onHoverIcon: 'promote-filled',
+            iconColor: $config.SECONDARY_ACTION_COLOR,
+            textColor: $config.SECONDARY_ACTION_COLOR,
+            title: 'Promote to Co-host',
+            callback: () => {
+              setActionMenuVisible(false);
+              promoteAudienceAsCoHost(user.uid);
+            },
+          });
+        }
+        if ($config.EVENT_MODE) {
+          if (
+            raiseHandList[user.uid]?.raised === RaiseHandValue.TRUE &&
+            raiseHandList[user.uid]?.role == ClientRole.Broadcaster
+          ) {
+            items.push({
+              isBase64Icon: true,
+              icon: 'demote-outlined',
+              onHoverIcon: 'demote-filled',
+              iconColor: $config.SECONDARY_ACTION_COLOR,
+              textColor: $config.SECONDARY_ACTION_COLOR,
+              title: 'Demote to audience',
+              callback: () => {
+                setActionMenuVisible(false);
+                events.send(
+                  LiveStreamControlMessageEnum.raiseHandRequestRejected,
+                  '',
+                  EventPersistLevel.LEVEL1,
+                  user.uid,
+                );
+              },
+            });
+          }
+        }
+
         items.push({
           icon: 'remove-meeting',
           iconColor: $config.SEMANTIC_ERROR,
@@ -206,8 +233,10 @@ export default function UserActionMenuOptionsOptions(
       }
     }
 
+    /**
+     * Local User menu item - change name
+     */
     if (localuid == user.uid && user.type === 'rtc') {
-      //local user menu
       items.push({
         icon: 'pencil-outlined',
         onHoverIcon: 'pencil-filled',
@@ -226,6 +255,7 @@ export default function UserActionMenuOptionsOptions(
         },
       });
     }
+    //Screenshare menu item
     if (isHost && user.type === 'screenshare') {
       items.push({
         icon: 'remove-meeting',
@@ -248,9 +278,11 @@ export default function UserActionMenuOptionsOptions(
           modalVisible={removeScreensharePopupVisible}
           setModalVisible={setRemoveScreensharePopupVisible}
           username={user.name}
-          removeScreenShareFromMeeting={() =>
-            remoteEndScreenshare(props.parentUid)
-          }
+          removeScreenShareFromMeeting={() => {
+            props.user.parentUid
+              ? remoteEndScreenshare(props.user.parentUid)
+              : console.log('Parent Uid is not available');
+          }}
         />
       ) : (
         <></>

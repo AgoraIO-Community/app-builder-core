@@ -1,6 +1,11 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useContext} from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
-import {RenderInterface, UidType, useLocalUid} from '../../../agora-rn-uikit';
+import {
+  PropsContext,
+  RenderInterface,
+  UidType,
+  useLocalUid,
+} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
@@ -40,6 +45,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {pinnedUid} = useRender();
   const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
+  const {rtcProps} = useContext(PropsContext);
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <View
@@ -71,7 +77,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           key={user.uid}
         />
         <NameWithMicIcon user={user} />
-        {isHovered ? (
+        {user.uid !== rtcProps?.screenShareUid && isHovered ? (
           <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
         ) : (
           <></>
@@ -271,7 +277,6 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
           //todo pass updateActionSheet
           updateActionSheet={() => {}}
           user={user}
-          parentUid={user.parentUid}
         />
         <IconButton
           setRef={(ref) => {
