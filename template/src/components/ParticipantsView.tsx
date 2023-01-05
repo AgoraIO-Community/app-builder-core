@@ -57,7 +57,7 @@ const ParticipantView = (props) => {
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
   const attendeeLabel = 'Attendee';
-  const participantsLabel = `Participants (${numFormatter(onlineUsersCount)})`;
+  const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
   const {
     data: {isHost},
   } = useMeetingInfo();

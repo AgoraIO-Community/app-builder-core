@@ -61,7 +61,7 @@ export const ParticipantsCountView = ({
   const {onlineUsersCount} = useContext(ChatContext);
   return isMobileView ? (
     <Text>
-      Participants {'\n'} ({numFormatter(onlineUsersCount)})
+      People {'\n'} ({numFormatter(onlineUsersCount)})
     </Text>
   ) : (
     <>
