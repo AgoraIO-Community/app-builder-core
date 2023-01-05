@@ -62,10 +62,13 @@ const Fallback = () => {
         </View>
       ) : (
         <View style={styles.fallbackContainer}>
-          <Text style={styles.infoText1}>Can’t Find Your Camera</Text>
+          <Text style={styles.infoText1}>
+            Can’t Find Your{$config.AUDIO_ROOM ? ' Microphone' : ' Camera'}
+          </Text>
           <Text style={styles.infoText2}>
-            Check your system settings to make sure that a camera is available.
-            If not, plug one in and restart your browser.
+            Check your system settings to make sure that a
+            {$config.AUDIO_ROOM ? ' microphone' : ' camera'} is available. If
+            not, plug one in and restart your browser.
           </Text>
           <Spacer size={33} />
           <TouchableOpacity
