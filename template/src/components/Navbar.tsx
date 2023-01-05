@@ -454,7 +454,6 @@ const style = StyleSheet.create({
   },
   roomNameText: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
