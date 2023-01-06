@@ -2,10 +2,10 @@ import React, {useContext} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   useWindowDimensions,
   StyleSheet,
+  Pressable,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import TextWithTooltip from '../TextWithTooltip';
@@ -62,7 +62,7 @@ const ChatParticipants = (props: any) => {
               setIsHoveredUid={setIsHoveredUid}
               key={uid}
               uid={uidAsNumber}>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => {
                   selectUser(uidAsNumber);
                 }}
@@ -99,7 +99,7 @@ const ChatParticipants = (props: any) => {
                     </View>
                   )}
                 </View>
-              </TouchableOpacity>
+              </Pressable>
             </PlatformWrapper>
           );
         }
@@ -136,7 +136,9 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     borderRadius: 8,
     padding: 12,
-    margin: 20,
+    marginTop: 20,
+    marginHorizontal: 20,
+    marginBottom: 0,
   },
   defaultMessageText: {
     fontFamily: ThemeConfig.FontFamily.sansPro,

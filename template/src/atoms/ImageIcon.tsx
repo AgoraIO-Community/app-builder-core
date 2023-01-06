@@ -64,7 +64,7 @@ const ImageIcon = (props: ImageIconProps) => {
           props?.iconContainerStyle,
         ]}>
         {props?.showWarningIcon ? (
-          <View style={{position: 'absolute', top: 0, right: 0}}>
+          <View style={{position: 'absolute', top: -2.5, right: -2}}>
             <CustomIcon
               name="alert"
               color={$config.SEMANTIC_WARNING}

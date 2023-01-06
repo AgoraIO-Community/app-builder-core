@@ -137,7 +137,7 @@ const ActionSheetContent = (props) => {
               openSheet={() => updateActionSheet('participants')}
             />
           </View>
-          <Text style={styles.iconText}>Participants</Text>
+          <Text style={styles.iconText}>People</Text>
           {$config.EVENT_MODE && isPendingRequestToReview && (
             <View style={styles.notification} />
           )}

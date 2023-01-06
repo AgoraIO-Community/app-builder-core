@@ -28,10 +28,7 @@ import {isWebInternal} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
-const ScreenshareParticipants = (props: {
-  user: RenderInterface;
-  parentUid: UidType;
-}) => {
+const ScreenshareParticipants = (props: {user: RenderInterface}) => {
   const screenshareRef = useRef();
   const localUid = useLocalUid();
   const [isHovered, setIsHovered] = useState(false);
@@ -101,7 +98,6 @@ const ScreenshareParticipants = (props: {
         modalPosition={pos}
         updateActionSheet={() => {}}
         user={props.user}
-        parentUid={props.parentUid}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={screenshareRef}>
@@ -117,7 +113,7 @@ const ScreenshareParticipants = (props: {
               <Text style={styles.participantNameText}>{props.user.name}</Text>
             </View>
           </View>
-          {isHost && localUid !== props?.parentUid ? (
+          {true ? (
             <View style={styles.iconContainer}>
               {isHovered || actionMenuVisible || !isWebInternal() ? (
                 //todo mobile by default it should show

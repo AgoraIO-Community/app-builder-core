@@ -61,7 +61,7 @@ export const ParticipantsCountView = ({
   const {onlineUsersCount} = useContext(ChatContext);
   return isMobileView ? (
     <Text>
-      Participants {'\n'} ({numFormatter(onlineUsersCount)})
+      People {'\n'} ({numFormatter(onlineUsersCount)})
     </Text>
   ) : (
     <>
@@ -454,7 +454,6 @@ const style = StyleSheet.create({
   },
   roomNameText: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
