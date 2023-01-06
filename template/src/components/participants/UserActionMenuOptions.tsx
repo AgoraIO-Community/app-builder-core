@@ -30,6 +30,7 @@ import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
+import {useFocus} from '../../utils/useFocus';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -43,6 +44,7 @@ interface UserActionMenuOptionsOptionsProps {
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
 ) {
+  const {setFocus} = useFocus();
   const {stopUserScreenShare} = useScreenshare();
   const remoteEndScreenshare = useRemoteEndScreenshare();
   const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
@@ -246,6 +248,12 @@ export default function UserActionMenuOptionsOptions(
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Change Name',
         callback: () => {
+          setFocus((prevState) => {
+            return {
+              ...prevState,
+              editName: true,
+            };
+          });
           if (props.isMobile) {
             props.handleClose();
             setSidePanel(SidePanelType.Settings);

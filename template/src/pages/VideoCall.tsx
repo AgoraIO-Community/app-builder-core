@@ -55,6 +55,7 @@ import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
+import {currentFocus, FocusProvider} from '../utils/useFocus';
 
 enum RnEncryptionEnum {
   /**
@@ -100,6 +101,9 @@ const VideoCall: React.FC = () => {
   const [isRecordingActive, setRecordingActive] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
   const [sidePanel, setSidePanel] = useState<SidePanelType>(SidePanelType.None);
+  const [currentFocus, setFocus] = useState<currentFocus>({
+    editName: false,
+  });
   const {phrase} = useParams<{phrase: string}>();
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
@@ -214,74 +218,76 @@ const VideoCall: React.FC = () => {
                           currentLayout,
                           setLayout,
                         }}>
-                        <SidePanelProvider
-                          value={{
-                            sidePanel,
-                            setSidePanel,
-                          }}>
-                          <ChatMessagesProvider>
-                            <ScreenShareProvider>
-                              <RtmConfigure
-                                setRecordingActive={setRecordingActive}
-                                callActive={callActive}>
-                                <UserPreferenceProvider>
-                                  <EventsConfigure>
-                                    <WhiteboardProvider>
-                                      <RecordingProvider
-                                        value={{
-                                          setRecordingActive,
-                                          isRecordingActive,
-                                        }}>
-                                        <ScreenshareConfigure>
-                                          <LiveStreamContextProvider
-                                            value={{
-                                              setRtcProps,
-                                              rtcProps,
-                                              callActive,
-                                            }}>
-                                            <LiveStreamDataProvider>
-                                              <LocalUserContext
-                                                localUid={rtcProps?.uid || 0}>
-                                                <CustomUserContextHolder>
-                                                  <NetworkQualityProvider>
-                                                    <PermissionHelper />
-                                                    {callActive ? (
-                                                      <VideoMeetingDataProvider>
-                                                        <VideoCallScreen />
-                                                      </VideoMeetingDataProvider>
-                                                    ) : $config.PRECALL ? (
-                                                      <PreCallProvider
-                                                        value={{
-                                                          callActive,
-                                                          setCallActive,
-                                                          isCameraAvailable,
-                                                          isMicAvailable,
-                                                          setCameraAvailable,
-                                                          setMicAvailable,
-                                                          isPermissionRequested,
-                                                          setIsPermissionRequested,
-                                                          isSpeakerAvailable,
-                                                          setSpeakerAvailable,
-                                                        }}>
-                                                        <Precall />
-                                                      </PreCallProvider>
-                                                    ) : (
-                                                      <></>
-                                                    )}
-                                                  </NetworkQualityProvider>
-                                                </CustomUserContextHolder>
-                                              </LocalUserContext>
-                                            </LiveStreamDataProvider>
-                                          </LiveStreamContextProvider>
-                                        </ScreenshareConfigure>
-                                      </RecordingProvider>
-                                    </WhiteboardProvider>
-                                  </EventsConfigure>
-                                </UserPreferenceProvider>
-                              </RtmConfigure>
-                            </ScreenShareProvider>
-                          </ChatMessagesProvider>
-                        </SidePanelProvider>
+                        <FocusProvider value={{currentFocus, setFocus}}>
+                          <SidePanelProvider
+                            value={{
+                              sidePanel,
+                              setSidePanel,
+                            }}>
+                            <ChatMessagesProvider>
+                              <ScreenShareProvider>
+                                <RtmConfigure
+                                  setRecordingActive={setRecordingActive}
+                                  callActive={callActive}>
+                                  <UserPreferenceProvider>
+                                    <EventsConfigure>
+                                      <WhiteboardProvider>
+                                        <RecordingProvider
+                                          value={{
+                                            setRecordingActive,
+                                            isRecordingActive,
+                                          }}>
+                                          <ScreenshareConfigure>
+                                            <LiveStreamContextProvider
+                                              value={{
+                                                setRtcProps,
+                                                rtcProps,
+                                                callActive,
+                                              }}>
+                                              <LiveStreamDataProvider>
+                                                <LocalUserContext
+                                                  localUid={rtcProps?.uid || 0}>
+                                                  <CustomUserContextHolder>
+                                                    <NetworkQualityProvider>
+                                                      <PermissionHelper />
+                                                      {callActive ? (
+                                                        <VideoMeetingDataProvider>
+                                                          <VideoCallScreen />
+                                                        </VideoMeetingDataProvider>
+                                                      ) : $config.PRECALL ? (
+                                                        <PreCallProvider
+                                                          value={{
+                                                            callActive,
+                                                            setCallActive,
+                                                            isCameraAvailable,
+                                                            isMicAvailable,
+                                                            setCameraAvailable,
+                                                            setMicAvailable,
+                                                            isPermissionRequested,
+                                                            setIsPermissionRequested,
+                                                            isSpeakerAvailable,
+                                                            setSpeakerAvailable,
+                                                          }}>
+                                                          <Precall />
+                                                        </PreCallProvider>
+                                                      ) : (
+                                                        <></>
+                                                      )}
+                                                    </NetworkQualityProvider>
+                                                  </CustomUserContextHolder>
+                                                </LocalUserContext>
+                                              </LiveStreamDataProvider>
+                                            </LiveStreamContextProvider>
+                                          </ScreenshareConfigure>
+                                        </RecordingProvider>
+                                      </WhiteboardProvider>
+                                    </EventsConfigure>
+                                  </UserPreferenceProvider>
+                                </RtmConfigure>
+                              </ScreenShareProvider>
+                            </ChatMessagesProvider>
+                          </SidePanelProvider>
+                        </FocusProvider>
                       </LayoutProvider>
                     </ChatNotificationProvider>
                   </ChatUIControlProvider>
