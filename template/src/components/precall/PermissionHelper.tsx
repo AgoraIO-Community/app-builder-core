@@ -48,12 +48,16 @@ const PermissionHelper = () => {
         </View>
         <View style={styles.modalContent}>
           <Text style={styles.infoMessage1}>
-            Allow access to camera and microphone
+            {$config.AUDIO_ROOM
+              ? 'Allow access to microphone'
+              : 'Allow access to camera and microphone'}
           </Text>
           <Text style={styles.infoMessage2}>
             Select
-            <Text style={styles.infoMessage2Highlight}> “Allow” </Text>for
-            others to see and hear you
+            <Text style={styles.infoMessage2Highlight}>{` “Allow” `}</Text>
+            {$config.AUDIO_ROOM
+              ? 'for others to hear you'
+              : 'for others to see and hear you'}
           </Text>
           <TouchableOpacity
             onPress={() => {
