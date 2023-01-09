@@ -36,7 +36,7 @@ import {isWeb, isWebInternal} from '../../utils/common';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const Fallback = () => {
-  const {isCameraAvailable} = usePreCall();
+  const {isCameraAvailable, isMicAvailable} = usePreCall();
   const local = useContext(LocalContext);
   const requestCameraAndAudioPermission = () => {
     try {
@@ -54,6 +54,7 @@ const Fallback = () => {
   return (
     <View style={styles.fallbackRootContainer}>
       {isCameraAvailable ||
+      ($config.AUDIO_ROOM && isMicAvailable) ||
       local.permissionStatus === PermissionState.NOT_REQUESTED ||
       local.permissionStatus === PermissionState.REQUESTED ? (
         <View style={styles.avatar}>
