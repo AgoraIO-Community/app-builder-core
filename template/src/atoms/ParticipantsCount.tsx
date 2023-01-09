@@ -13,13 +13,19 @@ const ParticipantsCount = () => {
   const {attendeeUids, hostUids: hostUidsVM} = useVideoMeetingData();
   return (
     <IconButton
-      toolTipMessage={`Host: ${
-        $config.EVENT_MODE ? hostUids?.length || 0 : hostUidsVM.length || 0
-      }\n${$config.EVENT_MODE ? 'Audience: ' : 'Attendee: '}${
+      toolTipMessage={
         $config.EVENT_MODE
-          ? audienceUids.length || 0
-          : attendeeUids?.length || 0
-      }`}
+          ? `Host: ${
+              $config.EVENT_MODE
+                ? hostUids?.length || 0
+                : hostUidsVM.length || 0
+            }\n${$config.EVENT_MODE ? 'Audience: ' : 'Attendee: '}${
+              $config.EVENT_MODE
+                ? audienceUids.length || 0
+                : attendeeUids?.length || 0
+            }`
+          : ''
+      }
       containerStyle={styles.participantCountView}
       disabled={true}
       iconProps={{
