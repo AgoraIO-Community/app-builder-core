@@ -9,6 +9,7 @@ import {
 import React, {SetStateAction} from 'react';
 import ThemeConfig from '../theme';
 import Spacer from '../atoms/Spacer';
+import PlatformWrapper from '../utils/PlatformWrapper';
 
 export interface ActionMenuProps {
   actionMenuVisible: boolean;
@@ -44,14 +45,29 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
           <View style={styles.container}>
             <Text style={styles.messageStyle}>{message}</Text>
             <View style={styles.btnContainer}>
-              <TouchableOpacity
-                onPress={() => props.setActionMenuVisible(false)}>
-                <Text style={styles.btnText}>Cancel</Text>
-              </TouchableOpacity>
-              <Spacer size={32} horizontal={true} />
-              <TouchableOpacity onPress={() => props.onMutePress()}>
-                <Text style={styles.btnText}>Mute</Text>
-              </TouchableOpacity>
+              <PlatformWrapper>
+                {(isHovered: boolean) => {
+                  return (
+                    <TouchableOpacity
+                      style={isHovered ? styles.onHoverBtnStyle : {}}
+                      onPress={() => props.setActionMenuVisible(false)}>
+                      <Text style={styles.btnText}>Cancel</Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              </PlatformWrapper>
+              <Spacer size={8} horizontal={true} />
+              <PlatformWrapper>
+                {(isHovered: boolean) => {
+                  return (
+                    <TouchableOpacity
+                      style={isHovered ? styles.onHoverBtnStyle : {}}
+                      onPress={() => props.onMutePress()}>
+                      <Text style={styles.btnText}>Mute</Text>
+                    </TouchableOpacity>
+                  );
+                }}
+              </PlatformWrapper>
             </View>
           </View>
         </View>
@@ -63,17 +79,25 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
 export default RemoteMutePopup;
 
 const styles = StyleSheet.create({
+  onHoverBtnStyle: {
+    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    borderRadius: 8,
+  },
   container: {
-    padding: 24,
+    paddingHorizontal: 12,
+    paddingTop: 24,
+    paddingBottom: 14,
   },
   messageStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
-    paddingBottom: 24,
+    paddingBottom: 18,
   },
   btnText: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,

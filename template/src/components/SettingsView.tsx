@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -37,12 +37,14 @@ import CommonStyles from './CommonStyles';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
+import {useFocus} from '../utils/useFocus';
+
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
   const [saved, setSaved] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [editable, setEditable] = useState(false);
   const username = useGetName();
+  const [newName, setNewName] = useState(username);
+  const [editable, setEditable] = useState(false);
   const setUsername = useSetName();
   const disabled = !newName || newName.length === 0 || newName === username;
   const inputRef = useRef(null);
@@ -55,10 +57,27 @@ const EditName: React.FC = (props?: EditNameProps) => {
       }, 2000);
       setEditable(false);
     } else {
-      inputRef.current.focus();
       setEditable(true);
+      inputRef.current.focus();
     }
   };
+
+  const {currentFocus, setFocus} = useFocus();
+
+  useEffect(() => {
+    if (currentFocus.editName) {
+      setEditable(true);
+      setTimeout(() => {
+        inputRef.current.focus();
+        setFocus((prevState) => {
+          return {
+            ...prevState,
+            editName: false,
+          };
+        });
+      }, 500);
+    }
+  }, [currentFocus?.editName]);
 
   return (
     <>

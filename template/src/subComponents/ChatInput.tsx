@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import {View, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
@@ -68,6 +68,7 @@ export interface ChatTextInputProps {
   ) => JSX.Element;
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
+  let chatInputRef = useRef(null);
   const {
     selectedChatUserId: selectedUserId,
     message,
@@ -97,6 +98,12 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   };
   const {setInputActive} = useChatUIControl();
 
+  useEffect(() => {
+    setTimeout(() => {
+      chatInputRef?.current?.focus();
+    });
+  }, []);
+
   return props?.render ? (
     props.render(
       message,
@@ -106,6 +113,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
     )
   ) : (
     <TextInput
+      setRef={(ref) => (chatInputRef.current = ref)}
       onFocus={() => setInputActive(true)}
       onBlur={() => setInputActive(false)}
       value={message}

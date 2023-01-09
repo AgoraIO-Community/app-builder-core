@@ -18,15 +18,27 @@ import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
 import {useRender} from 'customization-api';
+import {useParams} from '../components/Router';
+import StorageContext from './StorageContext';
 
 interface Props {
   children: React.ReactNode;
 }
 
 const EventsConfigure: React.FC<Props> = (props) => {
+  const {setStore} = useContext(StorageContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
+  const {phrase} = useParams<{phrase: string}>();
+  useEffect(() => {
+    setStore((prevState) => {
+      return {
+        ...prevState,
+        lastMeetingPhrase: phrase,
+      };
+    });
+  }, []);
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);

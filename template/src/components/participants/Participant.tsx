@@ -344,6 +344,7 @@ const Participant = (props: ParticipantInterface) => {
                   (isLocal
                     ? !isAudienceUser && (
                         <LocalVideoMute
+                          plainIconHoverEffect={true}
                           iconProps={(isVideoEnabled, isPermissionDenied) => {
                             return {
                               iconSize: 20,
@@ -372,6 +373,7 @@ const Participant = (props: ParticipantInterface) => {
                 {isLocal
                   ? !isAudienceUser && (
                       <LocalAudioMute
+                        plainIconHoverEffect={true}
                         iconProps={(isAudioEnabled, isPermissionDenied) => {
                           return {
                             iconSize: 20,

@@ -29,6 +29,7 @@ import useIsHandRaised from '../utils/useIsHandRaised';
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
+  plainIconHoverEffect?: boolean;
   showToolTip?: boolean;
   showLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
@@ -95,6 +96,14 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   };
 
   let iconButtonProps: IconButtonProps = {
+    hoverEffect: !permissionDenied
+      ? props?.plainIconHoverEffect
+        ? true
+        : false
+      : false,
+    hoverEffectStyle: props?.plainIconHoverEffect
+      ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
+      : {},
     onPress,
     iconProps,
     btnTextProps: {
