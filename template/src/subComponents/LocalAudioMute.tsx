@@ -30,6 +30,7 @@ import useIsHandRaised from '../utils/useIsHandRaised';
  * A component to mute / unmute the local audio
  */
 export interface LocalAudioMuteProps {
+  plainIconHoverEffect?: boolean;
   showToolTip?: boolean;
   showLabel?: boolean;
   iconProps?: (
@@ -97,6 +98,14 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
   };
 
   let iconButtonProps: IconButtonProps = {
+    hoverEffect: !permissionDenied
+      ? props?.plainIconHoverEffect
+        ? true
+        : false
+      : false,
+    hoverEffectStyle: props?.plainIconHoverEffect
+      ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
+      : {},
     onPress,
     iconProps,
     btnTextProps: {
