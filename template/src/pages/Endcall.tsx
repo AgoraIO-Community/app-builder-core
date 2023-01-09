@@ -41,7 +41,7 @@ const Endcall = () => {
   const isDesktop = dim[0] > dim[1] + 150;
 
   const reJoin = () => {
-    history.push(store.lastMeetingPhrase);
+    history.push(store?.lastMeetingPhrase || '/');
     StopForegroundService();
   };
   const goToCreate = () => {
