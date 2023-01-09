@@ -350,7 +350,8 @@ const Navbar = () => {
           testID="videocall-meetingName"
           numberOfLines={1}
           ellipsizeMode="tail">
-          {meetingTitle}
+          {meetingTitle?.substring(0, 25) +
+            (meetingTitle?.length > 25 ? '...' : '')}
         </Text>
         <Spacer size={8} horizontal={false} />
         <View style={style.countContainer}>

@@ -252,6 +252,7 @@ const Create = () => {
                 <Text style={style.heading}>{getHeading()}</Text>
                 <Spacer size={40} />
                 <Input
+                  maxLength={60}
                   labelStyle={style.inputLabelStyle}
                   label={getInputLabel()}
                   value={roomTitle}
