@@ -7,13 +7,13 @@ import {useLayout} from '../utils/useLayout';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isWeb} from 'customization-api';
 import {Dimensions} from 'react-native';
-const windowHeight = Dimensions.get('window').height;
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+  const windowHeight = Dimensions.get('window').height;
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
