@@ -230,11 +230,7 @@ const SettingsView = (props) => {
         }
         trailingIconName="close"
         trailingIconOnPress={() => {
-          if (!isSmall) {
-            setSidePanel(SidePanelType.None);
-          } else {
-            props.handleClose && props.handleClose();
-          }
+          setSidePanel(SidePanelType.None);
         }}
       />
       <ScrollView style={style.contentContainer}>

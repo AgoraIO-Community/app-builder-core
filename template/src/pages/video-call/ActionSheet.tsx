@@ -14,6 +14,9 @@ import Chat from '../../components/Chat';
 import ParticipantView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
 
+import {SidePanelType} from '../../subComponents/SidePanelEnum';
+import {useSidePanel} from '../../utils/useSidePanel';
+
 const ActionSheet = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -23,6 +26,8 @@ const ActionSheet = () => {
   const chatSheetRef = useRef<BottomSheetRef>(null);
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
+
+  const {sidePanel} = useSidePanel();
 
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
@@ -36,20 +41,45 @@ const ActionSheet = () => {
     root.style.setProperty('--handle-background', $config.SEMANTIC_NETRUAL);
   }, []);
 
+  // updating on sidepanel changes
+  useEffect(() => {
+    switch (sidePanel) {
+      case SidePanelType.Participants: {
+        setIsParticipantsOpen(true);
+        break;
+      }
+      case SidePanelType.Chat: {
+        setIsChatOpen(true);
+        break;
+      }
+      case SidePanelType.Settings: {
+        setIsSettingsOpen(true);
+        break;
+      }
+      case SidePanelType.None: {
+        setIsChatOpen(false);
+        setIsParticipantsOpen(false);
+        setIsSettingsOpen(false);
+        handleSheetChanges(0);
+      }
+      default:
+    }
+  }, [sidePanel]);
+
   function onDismiss() {
     setIsOpen(false);
   }
   function onChatDismiss() {
-    handleSheetChanges(0);
-    setIsChatOpen(false);
+    //handleSheetChanges(0);
+    //setIsChatOpen(false);
   }
   function onParticipantsDismiss() {
-    handleSheetChanges(0);
-    setIsParticipantsOpen(false);
+    // handleSheetChanges(0);
+    // setIsParticipantsOpen(false);
   }
   function onSettingsDismiss() {
-    handleSheetChanges(0);
-    setIsSettingsOpen(false);
+    // handleSheetChanges(0);
+    //setIsSettingsOpen(false);
   }
 
   const handleSpringStart = (event: SpringEvent) => {
@@ -97,7 +127,6 @@ const ActionSheet = () => {
           }
           blocking={false}>
           <ActionSheetContent
-            updateActionSheet={updateActionSheet}
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
           />
@@ -106,42 +135,31 @@ const ActionSheet = () => {
         <BottomSheet
           ref={chatSheetRef}
           open={isChatOpen}
-          onDismiss={onChatDismiss}
-          //onSpringStart={handleSpringStart}
-          blocking={true}
+          blocking={false}
           expandOnContentDrag={true}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
-          <Chat handleClose={onChatDismiss} />
+          <Chat />
         </BottomSheet>
         {/* Participants Action Sheet */}
         <BottomSheet
           ref={participantsSheetRef}
           open={isParticipantsOpen}
-          onDismiss={onParticipantsDismiss}
-          //onSpringStart={handleSpringStart}
           expandOnContentDrag={true}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           blocking={false}>
-          <ParticipantView
-            handleClose={onParticipantsDismiss}
-            updateActionSheet={updateActionSheet}
-          />
+          <ParticipantView />
         </BottomSheet>
-        {/* Settings Screen */}
-
+        {/* Settings  Action Sheet */}
         <BottomSheet
           ref={settingsSheetRef}
           open={isSettingsOpen}
-          onDismiss={onSettingsDismiss}
-          //onSpringStart={handleSpringStart}
           expandOnContentDrag={true}
-          // snapPoints={({maxHeight}) => [0.5 * maxHeight, 1 * maxHeight]}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           blocking={false}>
-          <SettingsView handleClose={onSettingsDismiss} />
+          <SettingsView />
         </BottomSheet>
       </View>
     </>

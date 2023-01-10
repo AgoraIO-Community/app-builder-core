@@ -30,14 +30,17 @@ import {
   ParticipantsIconButton,
 } from '../../../src/components/Navbar';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
+import {SidePanelType} from '../../subComponents/SidePanelEnum';
+import {useSidePanel} from '../../utils/useSidePanel';
 
 const ActionSheetContent = (props) => {
-  const {handleSheetChanges, updateActionSheet, isExpanded} = props;
+  const {handleSheetChanges, isExpanded} = props;
   const {onlineUsersCount, localUid} = useContext(ChatContext);
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();
   const changeLayout = useChangeDefaultLayout();
   const {rtcProps} = useContext(PropsContext);
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -123,7 +126,6 @@ const ActionSheetContent = (props) => {
               }}
               isMobileView={true}
               isOnActionSheet={true}
-              openSheet={() => updateActionSheet('chat')}
             />
           </View>
           <Text style={styles.iconText}>Chat</Text>
@@ -134,7 +136,6 @@ const ActionSheetContent = (props) => {
             <ParticipantsIconButton
               isMobileView={true}
               isOnActionSheet={true}
-              openSheet={() => updateActionSheet('participants')}
             />
           </View>
           <Text style={styles.iconText}>People</Text>
@@ -195,7 +196,10 @@ const ActionSheetContent = (props) => {
         <View style={styles.iconWithText}>
           <TouchableOpacity
             style={styles.iconContainer}
-            onPress={() => updateActionSheet('settings')}>
+            onPress={() => {
+              // updateActionSheet('settings')
+              setSidePanel(SidePanelType.Settings);
+            }}>
             <ImageIcon
               name={'settings'}
               tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}

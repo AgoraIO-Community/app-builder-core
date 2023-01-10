@@ -93,11 +93,7 @@ const ParticipantView = (props) => {
         }
         trailingIconName="close"
         trailingIconOnPress={() => {
-          if (!isSmall) {
-            setSidePanel(SidePanelType.None);
-          } else {
-            props?.handleClose();
-          }
+          setSidePanel(SidePanelType.None);
         }}
       />
       <ScrollView style={[style.bodyContainer]}>

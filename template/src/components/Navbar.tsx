@@ -116,7 +116,8 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
 
   const onPress = () => {
     isMobileView
-      ? openSheet()
+      ? // {openSheet()
+        setSidePanel(SidePanelType.Participants)
       : isPanelActive
       ? setSidePanel(SidePanelType.None)
       : setSidePanel(SidePanelType.Participants);
@@ -211,7 +212,8 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const onPress = () => {
     if (isMobileView) {
       setGroupActive(true);
-      openSheet();
+      setSidePanel(SidePanelType.Chat);
+      // openSheet();
       //move this logic into ChatContainer
       //setUnreadGroupMessageCount(0);
     } else {

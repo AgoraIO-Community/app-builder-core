@@ -19,11 +19,14 @@ import Chat from '../../components/Chat';
 import ParticipantView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
 import ActionSheetContent from './ActionSheetContent';
+import {SidePanelType} from '../../subComponents/SidePanelEnum';
+import {useSidePanel} from '../../utils/useSidePanel';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
 const ActionSheet = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const {sidePanel} = useSidePanel();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const chatSheetRef = useRef<BottomSheetModal>(null);
   const participantsSheetRef = useRef<BottomSheetModal>(null);
@@ -35,50 +38,44 @@ const ActionSheet = () => {
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
   }, []);
 
-  function onChatDismiss() {
-    handleSheetChanges(0);
-    chatSheetRef?.current.close();
-  }
+  React.useEffect(() => {
+    bottomSheetRef?.current.present();
+  }, []);
 
-  function onParticipantsDismiss() {
-    handleSheetChanges(0);
-    participantsSheetRef?.current.close();
-  }
-  function onSettingsDismiss() {
-    handleSheetChanges(0);
-    settingsSheetRef?.current.close();
-  }
-
-  const updateActionSheet = (
-    screenName: 'chat' | 'participants' | 'settings',
-  ) => {
-    switch (screenName) {
-      case 'chat':
-        chatSheetRef?.current.present();
-        break;
-      case 'participants':
+  // updating on sidepanel changes
+  React.useEffect(() => {
+    switch (sidePanel) {
+      case SidePanelType.Participants: {
         participantsSheetRef?.current.present();
         break;
-      case 'settings':
+      }
+      case SidePanelType.Chat: {
+        chatSheetRef?.current.present();
+        break;
+      }
+      case SidePanelType.Settings: {
         settingsSheetRef?.current.present();
         break;
+      }
+      case SidePanelType.None: {
+        chatSheetRef?.current.close();
+        participantsSheetRef?.current.close();
+        settingsSheetRef?.current.close();
+        handleSheetChanges(0);
+      }
       default:
         bottomSheetRef?.current.present();
     }
-  };
-  React.useEffect(() => {
-    bottomSheetRef?.current.present();
-    //bottomSheetRef.current?.snapToIndex(1);
-  }, []);
+  }, [sidePanel]);
 
   return (
     <BottomSheetModalProvider>
-      {/* Controls */}
       {isExpanded && (
         <TouchableWithoutFeedback onPress={() => handleSheetChanges(0)}>
           <View style={[styles.backDrop]} />
         </TouchableWithoutFeedback>
       )}
+      {/* Controls  Action Sheet*/}
       <BottomSheetModal
         snapPoints={['15%', '50%']}
         ref={bottomSheetRef}
@@ -90,14 +87,13 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}>
         <BottomSheetView>
           <ActionSheetContent
-            updateActionSheet={updateActionSheet}
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
           />
         </BottomSheetView>
       </BottomSheetModal>
 
-      {/* Chat  */}
+      {/* Chat Action Sheet */}
       <BottomSheetModal
         snapPoints={['100%']}
         name="ChatSheet"
@@ -107,11 +103,11 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <Chat handleClose={onChatDismiss} />
+          <Chat />
         </BottomSheetView>
       </BottomSheetModal>
 
-      {/* Participants  */}
+      {/* Participants Action Sheet */}
       <BottomSheetModal
         snapPoints={['100%']}
         ref={participantsSheetRef}
@@ -121,14 +117,11 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <ParticipantView
-            handleClose={onParticipantsDismiss}
-            updateActionSheet={updateActionSheet}
-          />
+          <ParticipantView />
         </BottomSheetView>
       </BottomSheetModal>
 
-      {/* Settings  */}
+      {/* Settings Action Sheet  */}
       <BottomSheetModal
         snapPoints={['100%']}
         ref={settingsSheetRef}
@@ -138,7 +131,7 @@ const ActionSheet = () => {
         handleIndicatorStyle={styles.handleIndicatorStyle}
         stackBehavior="push">
         <BottomSheetView>
-          <SettingsView handleClose={onSettingsDismiss} />
+          <SettingsView />
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>
