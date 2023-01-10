@@ -32,6 +32,7 @@ import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
+import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -45,6 +46,8 @@ interface UserActionMenuOptionsOptionsProps {
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
 ) {
+  const [showAudioMuteModal, setShowAudioMuteModal] = useState(false);
+  const [showVideoMuteModal, setShowVideoMuteModal] = useState(false);
   const {setFocus} = useFocus();
   const {stopUserScreenShare} = useScreenshare();
   const remoteEndScreenshare = useRemoteEndScreenshare();
@@ -159,7 +162,7 @@ export default function UserActionMenuOptionsOptions(
             callback: () => {
               setActionMenuVisible(false);
               user.audio
-                ? remoteMute(MUTE_REMOTE_TYPE.audio, user.uid)
+                ? setShowAudioMuteModal(true)
                 : remoteRequest(REQUEST_REMOTE_TYPE.audio, user.uid);
             },
           });
@@ -173,7 +176,7 @@ export default function UserActionMenuOptionsOptions(
               callback: () => {
                 setActionMenuVisible(false);
                 user.video
-                  ? remoteMute(MUTE_REMOTE_TYPE.video, user.uid)
+                  ? setShowVideoMuteModal(true)
                   : remoteRequest(REQUEST_REMOTE_TYPE.video, user.uid);
               },
             });
@@ -297,6 +300,36 @@ export default function UserActionMenuOptionsOptions(
 
   return (
     <>
+      {isHost ? (
+        <RemoteMutePopup
+          type="audio"
+          actionMenuVisible={showAudioMuteModal}
+          setActionMenuVisible={setShowAudioMuteModal}
+          name={props?.user.name}
+          modalPosition={props.modalPosition}
+          onMutePress={() => {
+            remoteMute(MUTE_REMOTE_TYPE.audio, user.uid);
+            setShowAudioMuteModal(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
+      {isHost ? (
+        <RemoteMutePopup
+          type="video"
+          actionMenuVisible={showVideoMuteModal}
+          setActionMenuVisible={setShowVideoMuteModal}
+          name={props?.user.name}
+          modalPosition={props.modalPosition}
+          onMutePress={() => {
+            remoteMute(MUTE_REMOTE_TYPE.video, user.uid);
+            setShowVideoMuteModal(false);
+          }}
+        />
+      ) : (
+        <></>
+      )}
       {isHost ? (
         <RemoveScreensharePopup
           modalVisible={removeScreensharePopupVisible}
