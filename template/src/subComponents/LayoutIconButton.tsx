@@ -21,8 +21,8 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
     if (layoutBtnRef && layoutBtnRef.current) {
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
         setModalPosition({
-          bottom: windowHeight - _py,
-          left: _px - 12,
+          bottom: windowHeight - _py + 10,
+          left: _px - 10,
         });
       });
     }

@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   containerStyle: {
     backgroundColor:
-      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['15%'],
     width: 36,
     height: 36,
     borderRadius: 18,

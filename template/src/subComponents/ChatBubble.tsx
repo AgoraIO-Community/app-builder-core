@@ -56,8 +56,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
       uid,
       msgId,
       isDeleted,
-      isSameUser,
       updatedTimestamp,
+      isSameUser,
     )
   ) : (
     <>
