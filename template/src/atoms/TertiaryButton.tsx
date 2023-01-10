@@ -12,6 +12,7 @@ import {isWeb} from 'customization-api';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface ButtonProps extends TouchableOpacityProps {
+  setRef?: (ref: any) => void;
   text?: string;
   children?: React.ReactNode;
   containerStyle?: ViewStyle;
@@ -24,6 +25,7 @@ const TertiaryButton = (props: ButtonProps) => {
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <TouchableOpacity
+        ref={(ref) => props?.setRef && props.setRef(ref)}
         style={[
           styles.container,
           isHovered

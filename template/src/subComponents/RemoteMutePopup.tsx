@@ -27,7 +27,9 @@ export interface ActionMenuProps {
 
 const RemoteMutePopup = (props: ActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, modalPosition} = props;
-  let message = `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`;
+  let message = props?.name
+    ? `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`
+    : `Are you sure want to mute everyone's ${props.type}`;
   return (
     <View>
       <Modal
