@@ -235,6 +235,17 @@ const Create = () => {
     }
   };
 
+  const showError = () => {
+    Toast.show({
+      type: 'error',
+      text1: 'Backend endpoint not configured',
+      text2: 'Please configure backend endpoint config.json',
+      visibilityTime: 1000 * 10,
+      primaryBtn: null,
+      secondaryBtn: null,
+    });
+  };
+
   return (
     <CreateProvider
       value={{
@@ -258,13 +269,17 @@ const Create = () => {
                   value={roomTitle}
                   placeholder={meetingNameInputPlaceholder}
                   onChangeText={(text) => onChangeRoomTitle(text)}
-                  onSubmitEditing={() =>
-                    createRoomAndNavigateToShare(
-                      roomTitle,
-                      pstnToggle,
-                      !coHostToggle,
-                    )
-                  }
+                  onSubmitEditing={() => {
+                    if (!$config.BACKEND_ENDPOINT) {
+                      showError();
+                    } else {
+                      createRoomAndNavigateToShare(
+                        roomTitle,
+                        pstnToggle,
+                        !coHostToggle,
+                      );
+                    }
+                  }}
                 />
                 <Spacer size={40} />
                 {$config.EVENT_MODE ? (
@@ -339,16 +354,20 @@ const Create = () => {
                   iconName={'video-plus'}
                   disabled={loading}
                   containerStyle={!isDesktop && {width: '100%'}}
-                  onPress={() =>
-                    createRoomAndNavigateToShare(
-                      roomTitle ||
-                        `${randomNameGenerator(3)}-${randomNameGenerator(
-                          3,
-                        )}-${randomNameGenerator(3)}`,
-                      pstnToggle,
-                      !coHostToggle,
-                    )
-                  }
+                  onPress={() => {
+                    if (!$config.BACKEND_ENDPOINT) {
+                      showError();
+                    } else {
+                      createRoomAndNavigateToShare(
+                        roomTitle ||
+                          `${randomNameGenerator(3)}-${randomNameGenerator(
+                            3,
+                          )}-${randomNameGenerator(3)}`,
+                        pstnToggle,
+                        !coHostToggle,
+                      );
+                    }
+                  }}
                   text={loading ? loadingWithDots : createMeetingButton}
                 />
                 <Spacer size={16} />

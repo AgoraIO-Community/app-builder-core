@@ -141,6 +141,7 @@ const VideoCall: React.FC = () => {
       .then(() => {})
       .catch((error) => {
         setGlobalErrorMessage(error);
+        history.push('/');
       });
   }, []);
 
