@@ -196,11 +196,8 @@ const VideoCallScreen = () => {
     <VideocallComponent />
   ) : !isDesktop ? (
     // Mobile View
-    <>
-      <VideoCallMobileView />
-    </>
+    <VideoCallMobileView />
   ) : (
-    // <VideoCallMobileScreen title={meetingTitle} />
     // Desktop View
     <>
       <VideocallBeforeView />
