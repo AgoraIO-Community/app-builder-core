@@ -67,19 +67,7 @@ const ActionSheet = () => {
   }, [sidePanel]);
 
   function onDismiss() {
-    setIsOpen(false);
-  }
-  function onChatDismiss() {
-    //handleSheetChanges(0);
-    //setIsChatOpen(false);
-  }
-  function onParticipantsDismiss() {
-    // handleSheetChanges(0);
-    // setIsParticipantsOpen(false);
-  }
-  function onSettingsDismiss() {
-    // handleSheetChanges(0);
-    //setIsSettingsOpen(false);
+    handleSheetChanges(0);
   }
 
   const handleSpringStart = (event: SpringEvent) => {
@@ -118,7 +106,6 @@ const ActionSheet = () => {
         <BottomSheet
           ref={bottomSheetRef}
           open={true}
-          //  onDismiss={onDismiss}
           onSpringStart={handleSpringStart}
           expandOnContentDrag={true}
           snapPoints={({maxHeight}) => [0.15 * maxHeight, 0.5 * maxHeight]}
@@ -134,6 +121,7 @@ const ActionSheet = () => {
         {/* Chat  Action Sheet */}
         <BottomSheet
           ref={chatSheetRef}
+          onDismiss={onDismiss}
           open={isChatOpen}
           blocking={false}
           expandOnContentDrag={true}
@@ -144,6 +132,7 @@ const ActionSheet = () => {
         {/* Participants Action Sheet */}
         <BottomSheet
           ref={participantsSheetRef}
+          onDismiss={onDismiss}
           open={isParticipantsOpen}
           expandOnContentDrag={true}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
@@ -154,6 +143,7 @@ const ActionSheet = () => {
         {/* Settings  Action Sheet */}
         <BottomSheet
           ref={settingsSheetRef}
+          onDismiss={onDismiss}
           open={isSettingsOpen}
           expandOnContentDrag={true}
           snapPoints={({maxHeight}) => [1 * maxHeight]}

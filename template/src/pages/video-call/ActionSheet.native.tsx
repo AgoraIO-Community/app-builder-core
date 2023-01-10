@@ -68,6 +68,10 @@ const ActionSheet = () => {
     }
   }, [sidePanel]);
 
+  function onDismiss() {
+    handleSheetChanges(0);
+  }
+
   return (
     <BottomSheetModalProvider>
       {isExpanded && (
@@ -97,6 +101,7 @@ const ActionSheet = () => {
       <BottomSheetModal
         snapPoints={['100%']}
         name="ChatSheet"
+        onDismiss={onDismiss}
         ref={chatSheetRef}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
@@ -111,6 +116,7 @@ const ActionSheet = () => {
       <BottomSheetModal
         snapPoints={['100%']}
         ref={participantsSheetRef}
+        onDismiss={onDismiss}
         name="ParticipantsSheet"
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
@@ -126,6 +132,7 @@ const ActionSheet = () => {
         snapPoints={['100%']}
         ref={settingsSheetRef}
         name="SettingsSheet"
+        onDismiss={onDismiss}
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
