@@ -84,32 +84,38 @@ const EditName: React.FC = (props?: EditNameProps) => {
       <Text style={editNameStyle.yournameText}>Your name</Text>
       <Spacer size={12} />
       <View style={editNameStyle.container}>
-        <ImageIcon
-          name="person"
-          iconSize={20}
-          iconType="plain"
-          tintColor={$config.SEMANTIC_NETRUAL}
-        />
-        <TextInput
-          ref={inputRef}
-          style={[
-            editNameStyle.inputStyle,
-            !editable
-              ? {color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled}
-              : {},
-          ]}
-          placeholder={username}
-          value={newName}
-          editable={editable}
-          onChangeText={(text) => setNewName(text)}
-          onSubmitEditing={() => {
-            setUsername(newName);
-            setEditable(false);
-          }}
-          placeholderTextColor={
-            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-          }
-        />
+        <View style={editNameStyle.nameContainer}>
+          <ImageIcon
+            name="person"
+            iconSize={20}
+            iconType="plain"
+            tintColor={$config.SEMANTIC_NETRUAL}
+          />
+          <TextInput
+            ref={inputRef}
+            style={[
+              editNameStyle.inputStyle,
+              !editable
+                ? {
+                    color:
+                      $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
+                  }
+                : {},
+            ]}
+            placeholder={username}
+            value={newName}
+            editable={editable}
+            onChangeText={(text) => setNewName(text)}
+            onSubmitEditing={() => {
+              setUsername(newName);
+              setEditable(false);
+            }}
+            placeholderTextColor={
+              $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+            }
+          />
+        </View>
+
         <PlatformWrapper>
           <TouchableOpacity
             disabled={saved ? true : editable ? disabled : false}
@@ -174,6 +180,10 @@ const editNameStyle = StyleSheet.create({
     paddingVertical: 20,
     borderLeftWidth: 1,
     borderLeftColor: $config.INPUT_FIELD_BORDER_COLOR,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    flex: 1,
   },
   inputStyle: {
     color: $config.FONT_COLOR,
