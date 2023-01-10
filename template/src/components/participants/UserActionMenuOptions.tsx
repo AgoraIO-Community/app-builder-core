@@ -31,6 +31,7 @@ import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
+import Toast from '../../../react-native-toast-message';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -315,7 +316,16 @@ export default function UserActionMenuOptionsOptions(
           modalVisible={removeMeetingPopupVisible}
           setModalVisible={setRemoveMeetingPopupVisible}
           username={user.name}
-          removeUserFromMeeting={() => endRemoteCall(user.uid)}
+          removeUserFromMeeting={() => {
+            Toast.show({
+              type: 'info',
+              text1: `The system will remove ${user.name} from this call after 5 secs.`,
+              visibilityTime: 5000,
+              primaryBtn: null,
+              secondaryBtn: null,
+            });
+            endRemoteCall(user.uid);
+          }}
         />
       ) : (
         <></>

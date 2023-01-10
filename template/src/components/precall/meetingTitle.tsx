@@ -6,13 +6,14 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 export interface MeetingTitleProps {
   textStyle?: TextStyle;
 }
-const MeetingTitle: React.FC = (props?: MeetingTitleProps) => {
+const MeetingTitle = (props?: MeetingTitleProps) => {
   const {
     data: {meetingTitle},
   } = useMeetingInfo();
   return (
     <Text style={[style.titleHeading, props?.textStyle ? props.textStyle : {}]}>
-      {meetingTitle}
+      {meetingTitle?.substring(0, 25) +
+        (meetingTitle?.length > 25 ? '...' : '')}
     </Text>
   );
 };

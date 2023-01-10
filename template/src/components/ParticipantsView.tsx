@@ -213,13 +213,20 @@ const ParticipantView = (props) => {
           </>
         ) : (
           <>
-            <ParticipantSectionTitle
+            <AllHostParticipants
+              emptyMessage={'No Users has joined yet'}
+              uids={activeUids}
+              isMobile={isSmall}
+              updateActionSheet={props.updateActionSheet}
+              handleClose={props.handleClose}
+            />
+            {/* <ParticipantSectionTitle
               title={hostLabel}
               count={hostUidsVideoMeeting.length}
               isOpen={showHostSection}
               onPress={() => setShowHostSection(!showHostSection)}
-            />
-            {showHostSection ? (
+            /> */}
+            {/* {showHostSection ? (
               <AllHostParticipants
                 emptyMessage={'No Host has joined yet'}
                 uids={hostUidsVideoMeeting}
@@ -229,14 +236,14 @@ const ParticipantView = (props) => {
               />
             ) : (
               <Spacer size={1} />
-            )}
-            <ParticipantSectionTitle
+            )} */}
+            {/* <ParticipantSectionTitle
               title={attendeeLabel}
               count={attendeeUidsVideoMeeting.length}
               isOpen={showParticipantSection}
               onPress={() => setShowParticipantSection(!showParticipantSection)}
-            />
-            {showParticipantSection ? (
+            /> */}
+            {/* {showParticipantSection ? (
               <AllHostParticipants
                 emptyMessage={'No Attendee has joined yet'}
                 uids={attendeeUidsVideoMeeting}
@@ -246,7 +253,7 @@ const ParticipantView = (props) => {
               />
             ) : (
               <></>
-            )}
+            )} */}
           </>
         )}
       </ScrollView>

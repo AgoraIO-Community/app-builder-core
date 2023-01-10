@@ -166,7 +166,7 @@ const editNameStyle = StyleSheet.create({
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderRadius: 8,
-    paddingLeft: 12,
+    paddingLeft: 20,
     overflow: 'hidden',
   },
   editBtn: {

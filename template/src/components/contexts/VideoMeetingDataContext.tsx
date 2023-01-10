@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useContext,
   useReducer,
+  useRef,
 } from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
@@ -35,6 +36,16 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [attendeeUids, setAttendeeUids] = useState<UidType[]>([]);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const hostUidsRef = useRef({hostUids});
+  const attendeeUidsRef = useRef({attendeeUids});
+
+  useEffect(() => {
+    hostUidsRef.current.hostUids = hostUids;
+  }, [hostUids]);
+
+  useEffect(() => {
+    attendeeUidsRef.current.attendeeUids = attendeeUids;
+  }, [attendeeUids]);
 
   useEffect(() => {
     //set local uid
@@ -45,8 +56,8 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
     events.on(EventNames.VIDEO_MEETING_HOST, (data) => {
       const payload = JSON.parse(data?.payload);
       const hostUid = payload?.uid;
-      if (hostUid && hostUids.indexOf(hostUid) === -1) {
-        setHostUids((prevState) => [...prevState, hostUid]);
+      if (hostUid && hostUidsRef?.current?.hostUids.indexOf(hostUid) === -1) {
+        setHostUids([...hostUidsRef?.current?.hostUids, hostUid]);
       }
     });
 
@@ -54,8 +65,14 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
     events.on(EventNames.VIDEO_MEETING_ATTENDEE, (data) => {
       const payload = JSON.parse(data?.payload);
       const attendeeUid = payload?.uid;
-      if (attendeeUid && attendeeUids.indexOf(attendeeUid) === -1) {
-        setAttendeeUids((prevState) => [...prevState, attendeeUid]);
+      if (
+        attendeeUid &&
+        attendeeUidsRef?.current?.attendeeUids?.indexOf(attendeeUid) === -1
+      ) {
+        setAttendeeUids([
+          ...attendeeUidsRef?.current?.attendeeUids,
+          attendeeUid,
+        ]);
       }
     });
 

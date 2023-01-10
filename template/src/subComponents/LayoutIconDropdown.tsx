@@ -6,6 +6,7 @@ import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import Spacer from '../atoms/Spacer';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -28,7 +29,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {isDesktop, dim} = getDimensionData();
 
   const layouts = useLayoutsData();
-  const {setLayout} = useLayout();
+  const {setLayout, currentLayout} = useLayout();
 
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
@@ -38,21 +39,38 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       };
       let content = [];
       let iconButtonProps: IconButtonProps = {
+        hoverEffect: currentLayout !== item.name ? true : false,
+        hoverEffectStyle: {
+          backgroundColor:
+            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+        },
+        containerStyle: {
+          flexDirection: 'row',
+          margin: 8,
+          borderRadius: 4,
+          backgroundColor:
+            currentLayout === item.name
+              ? $config.PRIMARY_ACTION_BRAND_COLOR
+              : 'transparent',
+        },
         onPress,
         iconProps: {
+          iconContainerStyle: {
+            padding: 10,
+          },
+          iconType: 'plain',
           name: item.iconName,
           tintColor: $config.SECONDARY_ACTION_COLOR,
         },
         btnTextProps: {
+          textStyle: {
+            marginTop: 0,
+          },
           text: $config.ICON_TEXT ? item.label : '',
           textColor: $config.FONT_COLOR,
         },
       };
       content.push(<IconButton {...iconButtonProps} />);
-      if (layouts.length - 1 !== index) {
-        content.push(<Spacer horizontal={true} size={20} />);
-      }
-
       return content;
     });
 
@@ -62,7 +80,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           style={{
             width: 20,
             height: 20,
-            backgroundColor: $config.CARD_LAYER_3_COLOR,
+            backgroundColor: $config.CARD_LAYER_4_COLOR,
             position: 'absolute',
             bottom: -8,
             left: 26,
@@ -72,7 +90,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
         <View
           style={{
             flex: 1,
-            flexDirection: 'row',
+            flexDirection: 'column',
             justifyContent: 'space-between',
           }}>
           {data}
@@ -109,12 +127,20 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
 
 const style = StyleSheet.create({
   dropdownContainer: {
+    width: 140,
     position: 'absolute',
-    backgroundColor: $config.CARD_LAYER_3_COLOR,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 8,
-    padding: 12,
-    paddingBottom: 20,
     zIndex: 999,
+    shadowColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 1,
   },
   backDrop: {
     position: 'absolute',

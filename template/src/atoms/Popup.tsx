@@ -61,8 +61,14 @@ const Popup = (props: PopupProps) => {
               <Text style={styles.title}>{title}</Text>
               {showCloseIcon ? (
                 <IconButton
+                  hoverEffect={true}
+                  hoverEffectStyle={{
+                    backgroundColor: $config.ICON_BG_COLOR,
+                    borderRadius: 20,
+                  }}
                   iconProps={{
-                    iconContainerStyle: {padding: 4},
+                    iconType: 'plain',
+                    iconContainerStyle: {padding: 5},
                     name: 'close',
                     tintColor: $config.SECONDARY_ACTION_COLOR,
                   }}

@@ -77,6 +77,9 @@ const ChatContainer = (props?: {
       setGrpUnreadCount(unreadGroupMessageCount);
       setUnreadGroupMessageCount(0);
     }
+  }, [groupActive]);
+
+  useEffect(() => {
     if (selectedUserID) {
       setPrivateUnreadCount(unreadIndividualMessageCount[selectedUserID]);
       setUnreadIndividualMessageCount((prevState) => {
@@ -86,7 +89,7 @@ const ChatContainer = (props?: {
         };
       });
     }
-  }, []);
+  }, [selectedUserID]);
 
   const {ChatBubbleComponent} = useCustomization((data) => {
     let components: {

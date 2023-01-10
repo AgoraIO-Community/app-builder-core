@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     marginLeft: 16,
     marginRight: 12,
-    backgroundColor: $config.FONT_COLOR,
+    backgroundColor: $config.PRIMARY_ACTION_TEXT_COLOR,
     alignSelf: 'center',
     width: 20,
     height: 20,
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     textAlign: 'center',
-    color: $config.FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
   screenSharingMessageContainer: {
     position: 'absolute',

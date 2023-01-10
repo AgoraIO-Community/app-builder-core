@@ -6,12 +6,14 @@ import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useLayout} from '../utils/useLayout';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isWeb} from 'customization-api';
+import {Dimensions} from 'react-native';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+  const windowHeight = Dimensions.get('window').height;
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
@@ -19,7 +21,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
     if (layoutBtnRef && layoutBtnRef.current) {
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
         setModalPosition({
-          top: _py - 88,
+          bottom: windowHeight - _py,
           left: _px - 12,
         });
       });

@@ -230,8 +230,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: 12,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 20,
+    paddingRight: 20,
     justifyContent: 'space-between',
   },
   dropdownOptionTextContainer: {
@@ -249,7 +249,6 @@ const styles = StyleSheet.create({
   },
   dropdownIconContainer: {
     alignSelf: 'center',
-    paddingLeft: 12,
   },
   dropdown: {
     position: 'absolute',
