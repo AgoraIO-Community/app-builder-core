@@ -7,6 +7,8 @@ import DimensionContext from '../components/dimension/DimensionContext';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import Spacer from '../atoms/Spacer';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
+import {useRender} from 'customization-api';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -27,7 +29,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   } = props;
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop, dim} = getDimensionData();
-
+  const {activeUids} = useRender();
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();
 
@@ -38,15 +40,27 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
         setShowDropdown(false);
       };
       let content = [];
+      const disabled =
+        item.name === getPinnedLayoutName() && activeUids?.length === 1
+          ? true
+          : false;
       let iconButtonProps: IconButtonProps = {
-        hoverEffect: currentLayout !== item.name ? true : false,
+        disabled,
+        hoverEffect: disabled
+          ? false
+          : currentLayout !== item.name
+          ? true
+          : false,
         hoverEffectStyle: {
           backgroundColor:
             $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
         },
         containerStyle: {
+          opacity: disabled ? 0.4 : 1,
           flexDirection: 'row',
-          margin: 8,
+          marginHorizontal: 8,
+          marginTop: 8,
+          marginBottom: layouts.length - 1 === index ? 8 : 0,
           borderRadius: 4,
           backgroundColor:
             currentLayout === item.name

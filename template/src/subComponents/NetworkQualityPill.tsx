@@ -17,6 +17,7 @@ import NetworkQualityContext from '../components/NetworkQualityContext';
 import {RenderInterface, UidType} from '../../agora-rn-uikit';
 import ThemeConfig from '../theme';
 import ImageIcon from '../atoms/ImageIcon';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 /**
  *
@@ -72,7 +73,7 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
         {
           backgroundColor: networkTextVisible
             ? networkIconsObject[networkStat].tint
-            : $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+            : $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
         },
       ]}>
       <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>

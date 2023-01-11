@@ -88,7 +88,7 @@ export default function AllHostParticipants(props: any) {
           )}
           {/* Others Users in the call */}
           {uids
-            .filter((uid) => uid !== localUid)
+            .filter((uid) => uid !== localUid && renderList[uid].type === 'rtc')
             .map(
               (uid) => (
                 // renderList[uid]?.type === 'screenshare' ? (

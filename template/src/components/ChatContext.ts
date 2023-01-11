@@ -29,8 +29,8 @@ export interface ChatBubbleProps {
     uid: UidType,
     msgId: string,
     isDeleted: boolean,
+    updatedTimestamp: string,
     isSameUser: boolean,
-    updatedTimestamp?: string,
   ) => JSX.Element;
 }
 
