@@ -46,7 +46,6 @@ export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
-  handleClose?: () => void;
 }
 
 const Chat = (props?: ChatProps) => {
@@ -215,11 +214,7 @@ const Chat = (props?: ChatProps) => {
           }
           trailingIconName="close"
           trailingIconOnPress={() => {
-            if (!isSmall) {
-              setSidePanel(SidePanelType.None);
-            } else {
-              props?.handleClose();
-            }
+            setSidePanel(SidePanelType.None);
           }}
         />
         {groupActive ? (

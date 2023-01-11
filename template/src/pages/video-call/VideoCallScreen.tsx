@@ -25,10 +25,10 @@ import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
-import VideoCallMobileScreen from './VideoCallMobileScreen';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {AppRegistry} from 'react-native';
 import events, {EventPersistLevel} from '../../rtm-events-api';
+import VideoCallMobileView from './VideoCallMobileView';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -146,7 +146,7 @@ const VideoCallScreen = () => {
       ReactNativeForegroundService.register();
       AppRegistry.registerComponent(
         $config.APP_NAME,
-        () => VideoCallMobileScreen,
+        () => VideoCallMobileView,
       );
       ReactNativeForegroundService.add_task(
         () => console.log('App is active!'),
@@ -196,7 +196,7 @@ const VideoCallScreen = () => {
     <VideocallComponent />
   ) : !isDesktop ? (
     // Mobile View
-    <VideoCallMobileScreen title={meetingTitle} />
+    <VideoCallMobileView />
   ) : (
     // Desktop View
     <>
