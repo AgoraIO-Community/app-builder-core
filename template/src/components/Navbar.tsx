@@ -87,8 +87,6 @@ interface ParticipantsIconButtonProps {
     left?: number;
     bottom?: number;
   };
-  isMobileView?: boolean;
-  openSheet?: () => {};
   isOnActionSheet?: boolean;
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
@@ -100,8 +98,6 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       left: undefined,
       bottom: undefined,
     },
-    isMobileView = false,
-    openSheet,
     isOnActionSheet = false,
   } = props;
   const {sidePanel, setSidePanel} = useSidePanel();
@@ -115,13 +111,10 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   const isPanelActive = sidePanel === SidePanelType.Participants;
 
   const onPress = () => {
-    isMobileView
-      ? // {openSheet()
-        setSidePanel(SidePanelType.Participants)
-      : isPanelActive
+    isPanelActive
       ? setSidePanel(SidePanelType.None)
       : setSidePanel(SidePanelType.Participants);
-    $config.EVENT_MODE && $config.RAISE_HAND;
+    // $config.EVENT_MODE && $config.RAISE_HAND;
     //setLastCheckedRequestTimestamp(new Date().getTime());
   };
   let iconButtonProps: IconButtonProps = {
@@ -133,7 +126,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
-      text: isMobileView || !$config.ICON_TEXT ? '' : participantsLabel,
+      text: isOnActionSheet || !$config.ICON_TEXT ? '' : participantsLabel,
       textColor: $config.FONT_COLOR,
     },
   };
@@ -178,14 +171,12 @@ interface ChatIconButtonProps {
     totalUnreadCount: number,
   ) => JSX.Element;
   isMobileView?: boolean;
-  openSheet?: () => {};
   isOnActionSheet?: boolean;
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {
-    isMobileView = false,
     badgeContainerPosition = {
       top: 0,
       right: 0,
@@ -193,7 +184,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       bottom: undefined,
       zIndex: 999,
     },
-    openSheet,
     badgeTextStyle = {
       color: $config.PRIMARY_ACTION_TEXT_COLOR,
       fontSize: 12,
@@ -210,13 +200,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   const chatLabel = 'Chat';
   const isPanelActive = sidePanel === SidePanelType.Chat;
   const onPress = () => {
-    if (isMobileView) {
-      setGroupActive(true);
-      setSidePanel(SidePanelType.Chat);
-      // openSheet();
-      //move this logic into ChatContainer
-      //setUnreadGroupMessageCount(0);
-    } else {
+    {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
         setGroupActive(false);
@@ -239,7 +223,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         : $config.SECONDARY_ACTION_COLOR,
     },
     btnTextProps: {
-      text: isMobileView || !$config.ICON_TEXT ? '' : chatLabel,
+      text: isOnActionSheet || !$config.ICON_TEXT ? '' : chatLabel,
       textColor: $config.FONT_COLOR,
     },
   };

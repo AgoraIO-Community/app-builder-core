@@ -32,6 +32,191 @@ import {
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
+import Settings from '../../components/Settings';
+
+//Icon for expanding Action Sheet
+interface ShowMoreIconProps {
+  isExpanded: boolean;
+  showNotification: boolean;
+  onPress: () => void;
+}
+const ShowMoreIcon = (props: ShowMoreIconProps) => {
+  const {isExpanded, onPress, showNotification} = props;
+  return (
+    <View style={styles.iconContainer}>
+      <TouchableOpacity onPress={onPress}>
+        <ImageIcon
+          name={isExpanded ? 'arrow-down' : 'more-menu'}
+          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+        />
+      </TouchableOpacity>
+      {showNotification && <View style={styles.notification} />}
+    </View>
+  );
+};
+
+//Icon for Live Streaming Controls
+interface LiveStreamIconProps {
+  isHandRaised: boolean;
+}
+const LiveStreamIcon = (props: LiveStreamIconProps) => {
+  const {isHandRaised} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <LiveStreamControls showControls={true} isDesktop={false} />
+      </View>
+      <Text style={styles.iconText}>
+        {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
+      </Text>
+    </View>
+  );
+};
+
+//Icon for Chat
+const ChatIcon = () => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <ChatIconButton isOnActionSheet={true} />
+      </View>
+      <Text style={styles.iconText}>Chat</Text>
+    </View>
+  );
+};
+
+//Icon for Participants
+interface ParticipantsIconProps {
+  showNotification: boolean;
+}
+const ParticipantsIcon = (props: ParticipantsIconProps) => {
+  const {showNotification} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <ParticipantsIconButton isOnActionSheet={true} />
+      </View>
+      <Text style={styles.iconText}>People</Text>
+      {showNotification && <View style={styles.notification} />}
+    </View>
+  );
+};
+
+//Icon for Recording
+const RecordingIcon = () => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <Recording showLabel={false} isOnActionSheet={true} />
+      </View>
+      <Text style={styles.iconText}>Record</Text>
+    </View>
+  );
+};
+
+interface SwitchCameraIconProps {
+  disabled: boolean;
+}
+const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
+  const {disabled} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <LocalSwitchCamera showLabel={false} disabled={disabled} />
+      </View>
+      <Text
+        style={[
+          styles.iconText,
+          {
+            color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+          },
+        ]}>
+        Switch {'\n'} Camera
+      </Text>
+    </View>
+  );
+};
+
+interface LayoutIconProps {
+  onPress: () => void;
+  currentLayout: string;
+}
+const LayoutIcon = (props: LayoutIconProps) => {
+  const {onPress, currentLayout} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <IconButton
+          onPress={onPress}
+          isOnActionSheet={true}
+          iconProps={{
+            name: currentLayout === 'grid' ? 'grid' : 'list-view',
+            tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+          }}
+        />
+        {/* layout */}
+      </View>
+      <Text style={styles.iconText}>Layout</Text>
+    </View>
+  );
+};
+
+interface SettingsIconProps {
+  onPress: () => void;
+}
+const SettingsIcon = (props: SettingsIconProps) => {
+  const {onPress} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
+        <ImageIcon
+          name={'settings'}
+          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+        />
+      </TouchableOpacity>
+      <Text style={styles.iconText}>Settings</Text>
+    </View>
+  );
+};
+
+const ShareIcon = () => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
+      </View>
+      <Text style={styles.iconText}>Invite</Text>
+    </View>
+  );
+};
+
+type ActionSheetComponentsProps = [
+  (props: LocalAudioMuteProps) => JSX.Element,
+  (props: LocalVideoMuteProps) => JSX.Element,
+  (props: LocalEndcallProps) => JSX.Element,
+  (props: ShowMoreIconProps) => JSX.Element,
+  () => JSX.Element,
+  (props: ParticipantsIconProps) => JSX.Element,
+  () => JSX.Element,
+  (props: SwitchCameraIconProps) => JSX.Element,
+  (props: LayoutIconProps) => JSX.Element,
+  (props: SettingsIconProps) => JSX.Element,
+  () => JSX.Element,
+];
+
+export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
+  LocalAudioMute,
+  LocalAudioMute,
+  LocalEndcall,
+  ShowMoreIcon,
+  ChatIcon,
+  ParticipantsIcon,
+  RecordingIcon,
+  SwitchCameraIcon,
+  LayoutIcon,
+  SettingsIcon,
+  ShareIcon,
+];
 
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, isExpanded} = props;
@@ -51,7 +236,7 @@ const ActionSheetContent = (props) => {
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
   const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
-  const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
+  const isHandRaised = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
 
   const handleLayoutChange = () => {
     changeLayout();
@@ -83,21 +268,15 @@ const ActionSheetContent = (props) => {
           ]}>
           <LocalEndcall showLabel={false} isOnActionSheet={true} />
         </View>
-        <View style={styles.iconContainer}>
-          <TouchableOpacity
-            onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}>
-            <ImageIcon
-              name={isExpanded ? 'arrow-down' : 'more-menu'}
-              tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-            />
-          </TouchableOpacity>
-          {/* TODO:  show when chat,hand raises*/}
-          {!isExpanded &&
-            (totalUnreadCount !== 0 ||
-              ($config.EVENT_MODE && isPendingRequestToReview)) && (
-              <View style={styles.notification} />
-            )}
-        </View>
+
+        <ShowMoreIcon
+          isExpanded={isExpanded}
+          showNotification={
+            (!isExpanded && totalUnreadCount !== 0) ||
+            ($config.EVENT_MODE && isPendingRequestToReview)
+          }
+          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+        />
       </View>
       <View style={styles.row}>
         {/**
@@ -106,115 +285,38 @@ const ActionSheetContent = (props) => {
          * demote himself
          */}
         {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          <View style={styles.iconWithText}>
-            <View style={styles.iconContainer}>
-              <LiveStreamControls showControls={true} isDesktop={false} />
-            </View>
-            <Text style={styles.iconText}>
-              {isHandRasied ? 'Lower\nHand' : 'Raise\nHand'}
-            </Text>
-          </View>
+          <LiveStreamIcon isHandRaised={isHandRaised} />
         ) : null}
 
         {/* chat */}
-        <View style={styles.iconWithText}>
-          <View style={styles.iconContainer}>
-            <ChatIconButton
-              badgeContainerPosition={{
-                top: -8,
-                left: 15,
-              }}
-              isMobileView={true}
-              isOnActionSheet={true}
-            />
-          </View>
-          <Text style={styles.iconText}>Chat</Text>
-        </View>
+        <ChatIcon />
         {/* participants */}
-        <View style={styles.iconWithText}>
-          <View style={styles.iconContainer}>
-            <ParticipantsIconButton
-              isMobileView={true}
-              isOnActionSheet={true}
-            />
-          </View>
-          <Text style={styles.iconText}>People</Text>
-          {$config.EVENT_MODE && isPendingRequestToReview && (
-            <View style={styles.notification} />
-          )}
-        </View>
+        <ParticipantsIcon
+          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
+        />
         {/* record */}
-        {isHost && $config.CLOUD_RECORDING && (
-          <View style={styles.iconWithText}>
-            <View style={styles.iconContainer}>
-              <Recording showLabel={false} isOnActionSheet={true} />
-            </View>
-            <Text style={styles.iconText}>Record</Text>
-          </View>
-        )}
+        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
 
         {/* switch camera */}
-        <View style={styles.iconWithText}>
-          <View style={styles.iconContainer}>
-            <LocalSwitchCamera
-              showLabel={false}
-              disabled={isLiveStream && isAudience && !isBroadCasting}
-            />
-          </View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color:
-                  isLiveStream && isAudience && !isBroadCasting
-                    ? $config.SEMANTIC_NETRUAL
-                    : $config.FONT_COLOR,
-              },
-            ]}>
-            Switch {'\n'} Camera
-          </Text>
-        </View>
+        <SwitchCameraIcon
+          disabled={isLiveStream && isAudience && !isBroadCasting}
+        />
       </View>
       <View style={[styles.row, {paddingVertical: 0}]}>
-        {/* List view */}
-        <View style={styles.iconWithText}>
-          <View style={styles.iconContainer}>
-            <IconButton
-              onPress={handleLayoutChange}
-              isOnActionSheet={true}
-              iconProps={{
-                name:
-                  layouts[layout]?.iconName === 'grid' ? 'grid' : 'list-view',
-                tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
-              }}
-            />
-            {/* layout */}
-          </View>
-          <Text style={styles.iconText}>Layout</Text>
-        </View>
-        {/* settings */}
-        <View style={styles.iconWithText}>
-          <TouchableOpacity
-            style={styles.iconContainer}
-            onPress={() => {
-              // updateActionSheet('settings')
-              setSidePanel(SidePanelType.Settings);
-            }}>
-            <ImageIcon
-              name={'settings'}
-              tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
-            />
-          </TouchableOpacity>
-          <Text style={styles.iconText}>Settings</Text>
-        </View>
-        {/* invite */}
-        <View style={styles.iconWithText}>
-          <View style={styles.iconContainer}>
-            <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
-          </View>
-          <Text style={styles.iconText}>Invite</Text>
-        </View>
+        {/* Layout view */}
+        <LayoutIcon
+          onPress={handleLayoutChange}
+          currentLayout={layouts[layout]?.iconName}
+        />
 
+        {/* settings */}
+        <SettingsIcon
+          onPress={() => {
+            setSidePanel(SidePanelType.Settings);
+          }}
+        />
+        {/* invite */}
+        <ShareIcon />
         <View style={styles.emptyContainer}></View>
       </View>
     </View>
