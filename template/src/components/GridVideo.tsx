@@ -78,7 +78,7 @@ const GridVideo: layoutComponent = ({renderData}) => {
               <View
                 style={[
                   style.gridVideoContainerInner,
-                  r?.length - 1 === cidx ? {} : {marginRight: 25},
+                  r?.length - 1 === cidx ? {} : {marginRight: 8},
                 ]}>
                 <RenderComponent uid={renderData[ridx * dims.c + cidx]} />
               </View>
@@ -98,7 +98,7 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-    paddingVertical: 12,
+    paddingVertical: 4,
   },
   gridVideoContainerInner: {
     //borderRadius: 12,

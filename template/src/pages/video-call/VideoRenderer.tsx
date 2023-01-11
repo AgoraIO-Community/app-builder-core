@@ -338,8 +338,8 @@ const maxStyle = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'relative',
-    borderRadius: 12,
-    borderWidth: 4,
+    borderRadius: 4,
+    borderWidth: 2,
   },
   activeContainerStyle: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
