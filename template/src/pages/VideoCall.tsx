@@ -184,7 +184,7 @@ const VideoCall: React.FC = () => {
     EndCall: () =>
       setTimeout(() => {
         SDKEvents.emit('leave');
-        history.push('/leave');
+        history.push('/');
       }, 0),
   };
   const [isCameraAvailable, setCameraAvailable] = useState(false);

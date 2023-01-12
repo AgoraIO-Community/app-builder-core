@@ -108,9 +108,10 @@ const App: React.FC = () => {
               <Route exact path={'/join'}>
                 <Join />
               </Route>
+              {/* Will be used in the future
               <Route exact path={'/leave'}>
                 <Endcall />
-              </Route>
+              </Route> */}
               {shouldAuthenticate ? (
                 <PrivateRoute
                   path={'/create'}
