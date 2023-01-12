@@ -195,7 +195,7 @@ export default class RtcEngine {
   private deviceId = '';
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
-
+  private speakerDeviceId = '';
   // Create channel profile and set it here
 
   // Create channel profile and set it here
@@ -367,6 +367,12 @@ export default class RtcEngine {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,
         });
+        if (this.speakerDeviceId) {
+          // setting sepeaker for all remote stream (newly joining user)
+          this.remoteStreams
+            .get(user.uid)
+            ?.audio?.setPlaybackDevice(this.speakerDeviceId);
+        }
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
           2,
@@ -687,7 +693,11 @@ export default class RtcEngine {
 
   async changeSpeaker(speakerId, callback, error) {
     try {
-      await this.remoteStreams.audio?.setPlaybackDevice(speakerId);
+      this.speakerDeviceId = speakerId;
+      // setting sepeaker for all remote stream (previously joined users)
+      this.remoteStreams?.forEach((stream, uid, map) => {
+        stream?.audio?.setPlaybackDevice(speakerId);
+      });
       callback(speakerId);
     } catch (e) {
       error(e);

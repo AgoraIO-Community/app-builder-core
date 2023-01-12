@@ -8,5 +8,6 @@ const isSafari = () => {
   ) {
     return true;
   }
+  return false;
 };
 export default isSafari;
