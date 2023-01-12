@@ -83,10 +83,8 @@ const RtmConfigure = (props: any) => {
 
   React.useEffect(() => {
     const handBrowserClose = (ev) => {
-      if (!__DEV__) {
-        ev.preventDefault();
-        return (ev.returnValue = 'Are you sure you want to exit?');
-      }
+      ev.preventDefault();
+      return (ev.returnValue = 'Are you sure you want to exit?');
     };
     const logoutRtm = () => {
       engine.current.leaveChannel(rtcProps.channel);
