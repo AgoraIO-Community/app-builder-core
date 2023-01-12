@@ -19,6 +19,8 @@ import Spacer from '../atoms/Spacer';
 import Dropdown from '../atoms/Dropdown';
 import {usePreCall} from '../components/precall/usePreCall';
 import ThemeConfig from '../theme';
+import isSafari from '../utils/isSafari';
+import {randomNameGenerator} from '../utils';
 // import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
@@ -151,8 +153,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-
-  const data = deviceList
+  let data = deviceList
     .filter((device) => {
       if (device.kind === 'audiooutput') {
         return true;
@@ -166,6 +167,18 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
         };
       }
     });
+
+  /**
+   * For safari browser agora web sdk havning limition to get audiooutput devices
+   * so added dummy speaker option
+   */
+  if (isSafari() && (!data || !data.length)) {
+    data.push({
+      value: randomNameGenerator(64).toUpperCase(),
+      label: 'System Default Speaker Device',
+    });
+  }
+
   return props?.render ? (
     props.render(
       selectedSpeaker,
@@ -179,12 +192,16 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
       <Dropdown
         icon={props?.isIconDropdown ? 'speaker' : undefined}
         enabled={!isPickerDisabled}
-        selectedValue={selectedSpeaker}
+        selectedValue={
+          selectedSpeaker || (isSafari() && data && data.length)
+            ? data[0].value
+            : ''
+        }
         label={!data || !data.length ? 'No Speaker Detected' : ''}
         data={data}
         onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedSpeaker(value);
+          isSafari() ? () => {} : setSelectedSpeaker(value);
         }}
       />
     </View>

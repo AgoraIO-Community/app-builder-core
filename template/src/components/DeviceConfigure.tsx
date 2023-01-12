@@ -146,7 +146,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     if (!selectedSpeaker || selectedSpeaker.trim().length == 0) {
       for (const i in deviceList) {
         if (deviceList[i].kind === 'audiooutput') {
-          console.log('DeviceTesting: set selected camera');
+          console.log('DeviceTesting: set selected speaker');
           setSelectedSpeaker(deviceList[i].deviceId);
           break;
         }
