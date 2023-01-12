@@ -126,6 +126,6 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     fontWeight: '400',
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
 });
