@@ -82,15 +82,23 @@ const RtmConfigure = (props: any) => {
   }, [renderList]);
 
   React.useEffect(() => {
-    const handBrowserClose = () => {
+    const handBrowserClose = (ev) => {
+      if (!__DEV__) {
+        ev.preventDefault();
+        return (ev.returnValue = 'Are you sure you want to exit?');
+      }
+    };
+    const logoutRtm = () => {
       engine.current.leaveChannel(rtcProps.channel);
     };
 
     if (!isWebInternal()) return;
     window.addEventListener('beforeunload', handBrowserClose);
+    window.addEventListener('unload', logoutRtm);
     // cleanup this component
     return () => {
       window.removeEventListener('beforeunload', handBrowserClose);
+      window.removeEventListener('unload', logoutRtm);
     };
   }, []);
 
