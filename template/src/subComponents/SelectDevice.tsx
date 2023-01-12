@@ -153,6 +153,8 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
+
   let data = deviceList
     .filter((device) => {
       if (device.kind === 'audiooutput') {
@@ -168,17 +170,6 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
       }
     });
 
-  /**
-   * For safari browser agora web sdk havning limition to get audiooutput devices
-   * so added dummy speaker option
-   */
-  if (isSafari() && (!data || !data.length)) {
-    data.push({
-      value: randomNameGenerator(64).toUpperCase(),
-      label: 'System Default Speaker Device',
-    });
-  }
-
   return props?.render ? (
     props.render(
       selectedSpeaker,
@@ -189,21 +180,35 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   ) : (
     <View>
       <Text style={style.label}>Speaker</Text>
-      <Dropdown
-        icon={props?.isIconDropdown ? 'speaker' : undefined}
-        enabled={!isPickerDisabled}
-        selectedValue={
-          selectedSpeaker || (isSafari() && data && data.length)
-            ? data[0].value
-            : ''
-        }
-        label={!data || !data.length ? 'No Speaker Detected' : ''}
-        data={data}
-        onSelect={({label, value}) => {
-          setIsFocussed(true);
-          isSafari() ? () => {} : setSelectedSpeaker(value);
-        }}
-      />
+      {isSafari() ? (
+        <Dropdown
+          icon={props?.isIconDropdown ? 'speaker' : undefined}
+          enabled={!isPickerDisabled}
+          selectedValue={newRandomDeviceId}
+          label={''}
+          data={[
+            {
+              value: newRandomDeviceId,
+              label: 'System Default Speaker Device',
+            },
+          ]}
+          onSelect={({label, value}) => {
+            setIsFocussed(true);
+          }}
+        />
+      ) : (
+        <Dropdown
+          icon={props?.isIconDropdown ? 'speaker' : undefined}
+          enabled={!isPickerDisabled}
+          selectedValue={selectedSpeaker}
+          label={!data || !data.length ? 'No Speaker Detected' : ''}
+          data={data}
+          onSelect={({label, value}) => {
+            setIsFocussed(true);
+            setSelectedSpeaker(value);
+          }}
+        />
+      )}
     </View>
   );
 };
