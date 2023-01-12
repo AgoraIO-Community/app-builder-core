@@ -687,7 +687,7 @@ export default class RtcEngine {
 
   async changeSpeaker(speakerId, callback, error) {
     try {
-      await this.localStream.audio?.setPlaybackDevice(speakerId);
+      await this.remoteStreams.audio?.setPlaybackDevice(speakerId);
       callback(speakerId);
     } catch (e) {
       error(e);
