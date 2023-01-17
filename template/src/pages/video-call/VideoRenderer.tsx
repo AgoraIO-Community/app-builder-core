@@ -266,7 +266,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
 
   return (
     <>
-      <View style={{position: 'absolute', right: 12, bottom: 12}}>
+      <View style={{position: 'absolute', right: 12, bottom: 12, zIndex: 999}}>
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
@@ -338,8 +338,8 @@ const maxStyle = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'relative',
-    borderRadius: 12,
-    borderWidth: 4,
+    borderRadius: 4,
+    borderWidth: 2,
   },
   activeContainerStyle: {
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,

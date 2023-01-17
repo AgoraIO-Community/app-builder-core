@@ -33,6 +33,7 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
+import {trimUserName} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -56,7 +57,7 @@ export default function UserActionMenuOptionsOptions(
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
-  const {pinnedUid} = useRender();
+  const {pinnedUid, activeUids} = useRender();
   const {dispatch} = useRtc();
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
@@ -89,6 +90,7 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       items.push({
+        disabled: activeUids.length === 1,
         icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
         onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -352,7 +354,9 @@ export default function UserActionMenuOptionsOptions(
           removeUserFromMeeting={() => {
             Toast.show({
               type: 'info',
-              text1: `The system will remove ${user.name} from this call after 5 secs.`,
+              text1: `The system will remove ${trimUserName(
+                user.name,
+              )} from this call after 5 secs.`,
               visibilityTime: 5000,
               primaryBtn: null,
               secondaryBtn: null,

@@ -58,6 +58,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           }>
           {pinnedUid && pinnedUid !== maxUid ? (
             <Pressable
+              disabled={renderData?.length === 1}
               style={
                 isSidePinnedlayout
                   ? {

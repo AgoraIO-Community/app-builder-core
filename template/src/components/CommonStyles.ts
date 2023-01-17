@@ -4,7 +4,7 @@ const CommonStyles = StyleSheet.create({
     flex: 1,
     maxWidth: '20%',
     minWidth: 338,
-    borderRadius: 12,
+    borderRadius: 4,
     marginLeft: 24,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,

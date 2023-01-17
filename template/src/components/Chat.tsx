@@ -162,7 +162,7 @@ const Chat = (props?: ChatProps) => {
               : style.chatViewNative
             : style.chatViewNative,
           isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
-            ? {marginVertical: 12}
+            ? {marginVertical: 4}
             : {},
         ]}>
         {/**

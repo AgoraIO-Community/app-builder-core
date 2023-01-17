@@ -19,6 +19,7 @@ import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
 import Input from '../../atoms/Input';
 import ThemeConfig from '../../theme';
+import {maxInputLimit} from '../../utils/common';
 
 export interface PreCallTextInputProps {
   labelStyle?: TextStyle;
@@ -38,6 +39,7 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
 
   return (
     <Input
+      maxLength={maxInputLimit}
       label={isDesktop ? ($config.EVENT_MODE ? 'Your Name' : 'Joining as') : ''}
       labelStyle={
         props?.labelStyle

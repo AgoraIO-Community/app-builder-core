@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 24,
     backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
-    marginLeft: 20,
+    marginLeft: 8,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,

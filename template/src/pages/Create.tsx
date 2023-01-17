@@ -25,7 +25,11 @@ import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {isWebInternal, isValidReactComponent} from '../utils/common';
+import {
+  isWebInternal,
+  isValidReactComponent,
+  maxInputLimit,
+} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
@@ -263,7 +267,7 @@ const Create = () => {
                 <Text style={style.heading}>{getHeading()}</Text>
                 <Spacer size={40} />
                 <Input
-                  maxLength={60}
+                  maxLength={maxInputLimit}
                   labelStyle={style.inputLabelStyle}
                   label={getInputLabel()}
                   value={roomTitle}

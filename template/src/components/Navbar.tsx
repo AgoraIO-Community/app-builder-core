@@ -339,7 +339,7 @@ const Navbar = () => {
           {meetingTitle?.substring(0, 25) +
             (meetingTitle?.length > 25 ? '...' : '')}
         </Text>
-        <Spacer size={8} horizontal={false} />
+        <Spacer size={8} horizontal={true} />
         <View style={style.countContainer}>
           <ParticipantsCount />
           {isRecordingActive ? (
@@ -437,9 +437,10 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   titleContainer: {
-    flexDirection: 'column',
+    flexDirection: 'row',
   },
   roomNameText: {
+    alignSelf: 'center',
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
     fontWeight: '600',

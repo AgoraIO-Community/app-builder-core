@@ -25,22 +25,27 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
   const remoteUserDefaultLabel = 'User';
   return (
     <View style={style.container}>
-      <View style={{width: 20, height: 20, alignSelf: 'center'}}>
-        {user.audio ? (
+      {/* {user.audio ? (
           <AnimatedActiveSpeaker isSpeaking={isSpeaking} />
-        ) : (
-          <ImageIcon
-            iconType="plain"
-            name={user.audio ? 'mic-on' : 'mic-off'}
-            tintColor={
-              user.audio
-                ? $config.PRIMARY_ACTION_BRAND_COLOR
-                : $config.SEMANTIC_ERROR
-            }
-            iconSize={20}
-          />
-        )}
-        {/* <ImageIcon
+        ) : ( */}
+      <ImageIcon
+        iconType="plain"
+        name={
+          user.audio && isSpeaking
+            ? 'active-speaker'
+            : user.audio
+            ? 'mic-on'
+            : 'mic-off'
+        }
+        tintColor={
+          user.audio
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
+            : $config.SEMANTIC_ERROR
+        }
+        iconSize={20}
+      />
+      {/* )} */}
+      {/* <ImageIcon
           name={
             isSpeaking ? 'active-speaker' : user.audio ? 'mic-on' : 'mic-off'
           }
@@ -53,14 +58,15 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
+      <View style={{flex: 1}}>
+        <Text
+          numberOfLines={1}
+          textBreakStrategy="simple"
+          ellipsizeMode="tail"
+          style={style.name}>
+          {user.name || remoteUserDefaultLabel}
+        </Text>
       </View>
-      <Text
-        numberOfLines={1}
-        textBreakStrategy="simple"
-        ellipsizeMode="tail"
-        style={style.name}>
-        {user.name || remoteUserDefaultLabel}
-      </Text>
     </View>
   );
 };
@@ -74,10 +80,10 @@ const style = StyleSheet.create({
     height: 32,
     left: 12,
     bottom: 12,
-    borderRadius: 20,
+    borderRadius: 4,
     flexDirection: 'row',
     zIndex: 5,
-    maxWidth: 248,
+    maxWidth: 180,
   },
   name: {
     color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,

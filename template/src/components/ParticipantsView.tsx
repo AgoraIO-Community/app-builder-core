@@ -84,7 +84,7 @@ const ParticipantView = (props) => {
             : CommonStyles.sidePanelContainerWeb
           : CommonStyles.sidePanelContainerNative,
         isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
-          ? {marginVertical: 12}
+          ? {marginVertical: 4}
           : {},
       ]}>
       <SidePanelHeader

@@ -288,20 +288,18 @@ const Participant = (props: ParticipantInterface) => {
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>
-          <View style={styles.userInfoContainer}>
-            <View style={styles.bgContainerStyle}>
-              <UserAvatar
-                name={name}
-                containerStyle={styles.containerStyle}
-                textStyle={styles.textStyle}
-              />
-            </View>
-            <View style={{alignSelf: 'center', flex: 1}}>
-              <Text style={styles.participantNameText} numberOfLines={1}>
-                {name}
-              </Text>
-              {isLocal && <Text style={styles.subText}>{'Me'}</Text>}
-            </View>
+          <View style={styles.bgContainerStyle}>
+            <UserAvatar
+              name={name}
+              containerStyle={styles.containerStyle}
+              textStyle={styles.textStyle}
+            />
+          </View>
+          <View style={{flex: 1, marginHorizontal: 8, alignSelf: 'center'}}>
+            <Text style={styles.participantNameText} numberOfLines={1}>
+              {name}
+            </Text>
+            {isLocal && <Text style={styles.subText}>{'Me'}</Text>}
           </View>
           <View style={styles.iconContainer}>
             {isHovered || actionMenuVisible || !isWebInternal() || isMobile ? (
@@ -435,16 +433,12 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 
 const styles = StyleSheet.create({
   bgContainerStyle: {
-    backgroundColor:
-      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 36,
     height: 36,
     borderRadius: 18,
-    marginRight: 8,
   },
   containerStyle: {
-    backgroundColor:
-      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['15%'],
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -453,12 +447,11 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 12,
     fontWeight: '400',
-    color: $config.FONT_COLOR,
+    color: $config.CARD_LAYER_1_COLOR,
   },
   participantNameText: {
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.tiny,
-    lineHeight: 15,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexDirection: 'row',
     color: $config.FONT_COLOR,
@@ -471,22 +464,17 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
     marginTop: 4,
-    flex: 1,
   },
   container: {
-    flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
   userInfoContainer: {
     flexDirection: 'row',
-    flex: 0.7,
   },
   iconContainer: {
-    flex: 0.3,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignSelf: 'center',
   },
 });

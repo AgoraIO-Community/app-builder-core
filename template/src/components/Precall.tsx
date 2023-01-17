@@ -338,7 +338,7 @@ const Precall = (props: any) => {
           // Live (Audience) - Desktop
           isDesktop ? (
             <View>
-              <Card>
+              <Card style={{borderRadius: 4}}>
                 <View>
                   <MeetingName textStyle={style.meetingTitleStyle} />
                 </View>
@@ -464,7 +464,7 @@ const style = StyleSheet.create({
   },
   leftContent: {
     flex: 2.5,
-    borderRadius: 16,
+    borderRadius: 4,
     overflow: 'hidden',
   },
   boxStyle: {
@@ -483,6 +483,7 @@ const style = StyleSheet.create({
     flex: 3,
   },
   rightContent: {
+    borderRadius: 4,
     flex: 1,
     paddingHorizontal: 0,
     paddingVertical: 0,

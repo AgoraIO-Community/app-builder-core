@@ -24,6 +24,7 @@ export interface ActionMenuItem {
   textColor: string;
   title: string;
   callback: () => void;
+  disabled?: boolean;
 }
 export interface ActionMenuProps {
   actionMenuVisible: boolean;
@@ -63,13 +64,19 @@ const ActionMenu = (props: ActionMenuProps) => {
                 callback,
                 iconColor,
                 textColor,
+                disabled = false,
               },
               index,
             ) => (
               <PlatformWrapper>
                 {(isHovered: boolean) => (
                   <TouchableOpacity
-                    style={[styles.row, isHovered ? styles.rowHovered : {}]}
+                    disabled={disabled}
+                    style={[
+                      styles.row,
+                      isHovered && !disabled ? styles.rowHovered : {},
+                      disabled ? {opacity: 0.4} : {},
+                    ]}
                     onPress={callback}
                     key={icon + index}>
                     <View style={styles.iconContainer}>
@@ -77,7 +84,11 @@ const ActionMenu = (props: ActionMenuProps) => {
                         base64={isBase64Icon}
                         iconType="plain"
                         iconSize={20}
-                        name={isHovered && onHoverIcon ? onHoverIcon : icon}
+                        name={
+                          isHovered && onHoverIcon && !disabled
+                            ? onHoverIcon
+                            : icon
+                        }
                         tintColor={iconColor}
                       />
                     </View>

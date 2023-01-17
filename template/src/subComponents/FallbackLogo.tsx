@@ -32,39 +32,38 @@ export default function FallbackLogo(
   return (
     <View style={[styles.container]}>
       {!hideAvatar ? (
-        <View
-          style={[
-            styles.activeSpeakerBg,
+        // <View
+        //   style={[
+        //     styles.activeSpeakerBg,
+        //     (currentLayout === getGridLayoutName() && activeUids.length > 9) ||
+        //     (currentLayout === getPinnedLayoutName() && !isMax)
+        //       ? styles.activeSpeakerBgSmall
+        //       : {},
+        //     {
+        //       backgroundColor: isActiveSpeaker
+        //         ? $config.PRIMARY_ACTION_BRAND_COLOR +
+        //           hexadecimalTransparency['15%']
+        //         : 'transparent',
+        //     },
+        //   ]}>
+        <UserAvatar
+          name={name}
+          containerStyle={[
+            styles.avatarBg,
             (currentLayout === getGridLayoutName() && activeUids.length > 9) ||
             (currentLayout === getPinnedLayoutName() && !isMax)
-              ? styles.activeSpeakerBgSmall
+              ? styles.avatarBgSmall
               : {},
             {
               backgroundColor: isActiveSpeaker
-                ? $config.PRIMARY_ACTION_BRAND_COLOR +
-                  hexadecimalTransparency['15%']
-                : 'transparent',
+                ? $config.PRIMARY_ACTION_BRAND_COLOR
+                : $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
             },
-          ]}>
-          <UserAvatar
-            name={name}
-            containerStyle={[
-              styles.avatarBg,
-              (currentLayout === getGridLayoutName() &&
-                activeUids.length > 9) ||
-              (currentLayout === getPinnedLayoutName() && !isMax)
-                ? styles.avatarBgSmall
-                : {},
-              {
-                backgroundColor: isActiveSpeaker
-                  ? $config.PRIMARY_ACTION_BRAND_COLOR
-                  : $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
-              },
-            ]}
-            textStyle={styles.textStyle}
-          />
-        </View>
+          ]}
+          textStyle={styles.textStyle}
+        />
       ) : (
+        //</View>
         <></>
       )}
     </View>
@@ -76,7 +75,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 0,
   },
   activeSpeakerBg: {
     width: 140,
@@ -84,6 +83,7 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     alignSelf: 'center',
     justifyContent: 'center',
+    color: $config.VIDEO_AUDIO_TILE_COLOR,
   },
   activeSpeakerBgSmall: {
     width: 80,
@@ -102,6 +102,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 32,
     fontWeight: '600',
-    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    color: $config.CARD_LAYER_1_COLOR,
   },
 });

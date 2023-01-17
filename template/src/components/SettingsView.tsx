@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWeb, isWebInternal} from '../utils/common';
+import {isWeb, isWebInternal, maxInputLimit} from '../utils/common';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ThemeConfig from '../theme';
@@ -92,6 +92,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             tintColor={$config.SEMANTIC_NETRUAL}
           />
           <TextInput
+            maxLength={maxInputLimit}
             ref={inputRef}
             style={[
               editNameStyle.inputStyle,
@@ -231,7 +232,7 @@ const SettingsView = (props) => {
             : CommonStyles.sidePanelContainerWeb
           : CommonStyles.sidePanelContainerNative,
         isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
-          ? {marginVertical: 12}
+          ? {marginVertical: 4}
           : {},
       ]}>
       <SidePanelHeader
