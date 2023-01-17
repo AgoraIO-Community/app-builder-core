@@ -46,6 +46,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
+  const {currentLayout} = useLayout();
+  const showReplacePin =
+    pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <View
@@ -64,7 +67,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             return FallbackLogo(
               user?.name,
               activeSpeaker,
-              isHovered && !isMax && pinnedUid ? true : false,
+              showReplacePin ? true : false,
               isMax,
             );
           }}
@@ -82,7 +85,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         ) : (
           <></>
         )}
-        {pinnedUid && !isMax && isHovered ? (
+        {showReplacePin ? (
           <IconButton
             onPress={() => {
               dispatch({type: 'UserPin', value: [user.uid]});
