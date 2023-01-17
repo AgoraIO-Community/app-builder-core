@@ -4,46 +4,41 @@ import VideoComponent from './VideoComponent';
 import ActionSheet from './ActionSheet';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
+import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+
 import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
 
-interface VideoCallMobileScreenProps {
-  title: string;
-}
-const VideoCallMobileScreen = (props: VideoCallMobileScreenProps) => {
-  const {title} = props;
+const VideoCallMobileView = () => {
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
   const {isRecordingActive} = useRecording();
   const recordingLabel = 'Recording';
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <View style={styles.container}>
-        <View style={styles.titleBar}>
-          <Text style={styles.title}>{title}</Text>
-          <Spacer size={8} horizontal={false} />
-          <View style={styles.countView}>
-            <View style={{width: 60, height: 42}}>
-              <ParticipantsCount />
-            </View>
-            {isRecordingActive ? (
-              <RecordingInfo recordingLabel={recordingLabel} />
-            ) : null}
-          </View>
-          <View></View>
+    <View style={styles.container}>
+      <View style={styles.titleBar}>
+        <Text style={styles.title}>{meetingTitle}</Text>
+        <Spacer size={8} horizontal={false} />
+        <View style={styles.countView}>
+          <ParticipantsCount />
+          {isRecordingActive ? (
+            <RecordingInfo recordingLabel={recordingLabel} />
+          ) : null}
         </View>
-        <Spacer size={40} />
-        <View style={styles.videoView}>
-          <VideoComponent />
-        </View>
-        <ActionSheet />
       </View>
-    </GestureHandlerRootView>
+      <Spacer size={40} />
+      <View style={styles.videoView}>
+        <VideoComponent />
+      </View>
+      <ActionSheet />
+    </View>
   );
 };
 
-export default VideoCallMobileScreen;
+export default VideoCallMobileView;
 
 const styles = StyleSheet.create({
   container: {

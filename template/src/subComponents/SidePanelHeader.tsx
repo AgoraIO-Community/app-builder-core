@@ -46,36 +46,38 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
         <></>
       )}
       {props?.centerComponent ? props.centerComponent : <></>}
-      {props?.trailingIconName ? (
-        <IconButton
-          hoverEffect={true}
-          hoverEffectStyle={{
-            backgroundColor: $config.ICON_BG_COLOR,
-            borderRadius: 20,
-          }}
-          iconProps={{
-            iconType: 'plain',
-            iconContainerStyle: {
-              padding: 5,
-            },
-            iconSize: 20,
-            name: props?.trailingIconName,
-            tintColor: $config.SECONDARY_ACTION_COLOR,
-          }}
-          onPress={() => {
-            props?.trailingIconOnPress && props.trailingIconOnPress();
-          }}
-        />
-      ) : (
-        <></>
-      )}
+      <View>
+        {props?.trailingIconName ? (
+          <IconButton
+            hoverEffect={true}
+            hoverEffectStyle={{
+              backgroundColor: $config.ICON_BG_COLOR,
+              borderRadius: 20,
+            }}
+            iconProps={{
+              iconType: 'plain',
+              iconContainerStyle: {
+                padding: 5,
+              },
+              iconSize: 20,
+              name: props?.trailingIconName,
+              tintColor: $config.SECONDARY_ACTION_COLOR,
+            }}
+            onPress={() => {
+              props?.trailingIconOnPress && props.trailingIconOnPress();
+            }}
+          />
+        ) : (
+          <></>
+        )}
+      </View>
     </View>
   );
 };
 
 export const SidePanelStyles = StyleSheet.create({
   sidePanelHeader: {
-    height: 60,
+    //height: 60,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -91,6 +93,7 @@ export const SidePanelStyles = StyleSheet.create({
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.normal,
+    lineHeight: 1.6 * ThemeConfig.FontSize.normal,
     fontWeight: '600',
     color: $config.FONT_COLOR,
     alignSelf: 'center',
