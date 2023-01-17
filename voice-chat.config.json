@@ -10,7 +10,7 @@
   "PRECALL": true,
   "CHAT": true,
   "CLOUD_RECORDING": true,
-  "SCREEN_SHARING": true,
+  "SCREEN_SHARING": false,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform",
   "ENCRYPTION_ENABLED": true,
   "SENTRY_DSN": "",
