@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
@@ -19,7 +19,6 @@ import Spacer from '../atoms/Spacer';
 import Dropdown from '../atoms/Dropdown';
 import {usePreCall} from '../components/precall/usePreCall';
 import ThemeConfig from '../theme';
-import isSafari from '../utils/isSafari';
 import {randomNameGenerator} from '../utils';
 // import {dropdown} from '../../theme.json';
 /**
@@ -57,18 +56,29 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const data = deviceList
-    .filter((device: any) => {
-      if (device.kind === 'videoinput') {
-        return true;
-      }
-    })
-    ?.map((device) => {
-      return {
-        label: device.label,
-        value: device.deviceId,
-      };
-    });
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    setDataValue();
+  }, []);
+  useEffect(() => {
+    setDataValue();
+  }, [deviceList]);
+
+  const setDataValue = () => {
+    const data = deviceList
+      .filter((device: any) => {
+        if (device.kind === 'videoinput') {
+          return true;
+        }
+      })
+      ?.map((device) => {
+        return {
+          label: device.label,
+          value: device.deviceId,
+        };
+      });
+    setData(data);
+  };
   return props?.render ? (
     props.render(selectedCam, setSelectedCam, deviceList, isPickerDisabled)
   ) : (
@@ -103,21 +113,33 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const [data, setData] = useState([]);
 
-  const data = deviceList
-    .filter((device) => {
-      if (device.kind === 'audioinput') {
-        return true;
-      }
-    })
-    ?.map((device: any) => {
-      if (device.kind === 'audioinput') {
-        return {
-          label: device.label,
-          value: device.deviceId,
-        };
-      }
-    });
+  useEffect(() => {
+    setDataValue();
+  }, []);
+  useEffect(() => {
+    setDataValue();
+  }, [deviceList]);
+
+  const setDataValue = () => {
+    const data = deviceList
+      .filter((device) => {
+        if (device.kind === 'audioinput') {
+          return true;
+        }
+      })
+      ?.map((device: any) => {
+        if (device.kind === 'audioinput') {
+          return {
+            label: device.label,
+            value: device.deviceId,
+          };
+        }
+      });
+    setData(data);
+  };
+
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
@@ -180,7 +202,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   ) : (
     <View>
       <Text style={style.label}>Speaker</Text>
-      {isSafari() ? (
+      {!data || data.length === 0 ? (
         <Dropdown
           icon={props?.isIconDropdown ? 'speaker' : undefined}
           enabled={!isPickerDisabled}

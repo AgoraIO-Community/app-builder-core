@@ -52,7 +52,7 @@ const Dropdown: FC<Props> = ({
         setSelected(selectedItem[0]);
       }
     }
-  }, [selectedValue]);
+  }, [selectedValue, data]);
 
   const toggleDropdown = (): void => {
     visible ? setVisible(false) : openDropdown();
