@@ -33,14 +33,6 @@ const EventsConfigure: React.FC<Props> = (props) => {
   const renderListRef = useRef({renderList});
   const {phrase} = useParams<{phrase: string}>();
   useEffect(() => {
-    setStore((prevState) => {
-      return {
-        ...prevState,
-        lastMeetingPhrase: phrase,
-      };
-    });
-  }, []);
-  useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
   useEffect(() => {

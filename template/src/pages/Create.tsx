@@ -129,13 +129,6 @@ const Create = () => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
   useEffect(() => {
-    setStore((prevState) => {
-      return {
-        ...prevState,
-        lastMeetingPhrase: '',
-      };
-    });
-
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }

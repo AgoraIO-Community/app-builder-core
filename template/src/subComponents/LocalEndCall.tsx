@@ -24,12 +24,6 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   };
 
   const endCall = async () => {
-    setStore((prevState) => {
-      return {
-        ...prevState,
-        lastMeetingPhrase: phrase,
-      };
-    });
     setTimeout(() => {
       dispatch({
         type: 'EndCall',
