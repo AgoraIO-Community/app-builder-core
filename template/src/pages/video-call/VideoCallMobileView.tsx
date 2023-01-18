@@ -23,13 +23,26 @@ const VideoCallMobileView = () => {
         <Text style={styles.title}>{meetingTitle}</Text>
         <Spacer size={8} horizontal={false} />
         <View style={styles.countView}>
-          <ParticipantsCount />
+          <View
+            style={{
+              width: 45,
+              height: 35,
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+
+              //flex: 1,
+            }}>
+            <ParticipantsCount />
+          </View>
           {isRecordingActive ? (
             <RecordingInfo recordingLabel={recordingLabel} />
-          ) : null}
+          ) : (
+            <></>
+          )}
         </View>
       </View>
-      <Spacer size={40} />
+      <Spacer size={16} />
       <View style={styles.videoView}>
         <VideoComponent />
       </View>
