@@ -69,26 +69,32 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
     <View
       style={[style.precallControls, isMobileView && {paddingVertical: 8}]}
       testID="precall-controls">
-      <AudioMute
-        isMobileView={isMobileView}
-        showLabel={!isMobileView}
-        showToolTip={true}
-      />
+      <View style={{alignSelf: 'center'}}>
+        <AudioMute
+          isMobileView={isMobileView}
+          showLabel={!isMobileView}
+          showToolTip={true}
+        />
+      </View>
       {!$config.AUDIO_ROOM && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <VideoMute
-            isMobileView={isMobileView}
-            showLabel={!isMobileView}
-            showToolTip={true}
-          />
+          <View style={{alignSelf: 'center'}}>
+            <VideoMute
+              isMobileView={isMobileView}
+              showLabel={!isMobileView}
+              showToolTip={true}
+            />
+          </View>
         </>
       )}
       {/* Settings View in Mobile */}
       {isMobileView ? (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <PreCallSettings />
+          <View style={{alignSelf: 'center'}}>
+            <PreCallSettings />
+          </View>
         </>
       ) : (
         <></>
