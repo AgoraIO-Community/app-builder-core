@@ -86,7 +86,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setRecordingActive, isRecordingActive} = props?.value;
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {renderList} = useRender();
+  const {renderList, activeUids} = useRender();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -106,13 +106,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
-      setUidWhoStarted(parseInt(value));
       switch (action) {
         case EventActions.RECORDING_STARTED:
+          setUidWhoStarted(parseInt(value));
           setRecordingActive(true);
           break;
         case EventActions.RECORDING_STOPPED:
           setRecordingActive(false);
+          break;
+        case EventActions.RECORDING_STOP_REQUEST:
+          stopRecording();
           break;
         default:
           break;
@@ -200,30 +203,56 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   };
 
   const stopRecording = () => {
-    // If recording is already going on, stop the recording by executing the graphql query.
-    stopRecordingQuery({variables: {passphrase: phrase}})
-      .then((res) => {
-        console.log(res.data);
-        if (res.data.stopRecordingSession === 'success') {
-          /**
-           * 1. Once the backend sucessfuly starts recording, send message
-           * in the channel indicating that cloud recording is now inactive.
-           */
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STOPPED,
-              value: '',
-            }),
-            EventPersistLevel.LEVEL3,
-          );
-          // 2. set the local recording state to false to update the UI
-          setRecordingActive(false);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    /**
+     * if condition added for below issue
+     *
+     * user 1 and user 2 in the call
+     * user 1 start the recording
+     * user 2 stops the recording
+     * user 2 join the call getting stop recording notification which is not needed
+     *
+     * solution
+     * case 1 - if recording is not started by the host then we will send level1 message to host who started the recording
+     * case 2 - if person who started the recording no longer available in the call then will stop the recording
+     */
+    if (
+      localUid === uidWhoStarted ||
+      activeUids.indexOf(uidWhoStarted) === -1
+    ) {
+      // If recording is already going on, stop the recording by executing the graphql query.
+      stopRecordingQuery({variables: {passphrase: phrase}})
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.stopRecordingSession === 'success') {
+            /**
+             * 1. Once the backend sucessfuly starts recording, send message
+             * in the channel indicating that cloud recording is now inactive.
+             */
+            events.send(
+              EventNames.RECORDING_ATTRIBUTE,
+              JSON.stringify({
+                action: EventActions.RECORDING_STOPPED,
+                value: '',
+              }),
+              EventPersistLevel.LEVEL3,
+            );
+            // 2. set the local recording state to false to update the UI
+            setRecordingActive(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      events.send(
+        EventNames.RECORDING_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.RECORDING_STOP_REQUEST,
+          value: '',
+        }),
+        EventPersistLevel.LEVEL1,
+      );
+    }
   };
 
   return (
