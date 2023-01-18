@@ -141,8 +141,8 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
       setPos({
-        bottom: windowHeight - _py + 10,
-        left: _px - 200,
+        bottom: windowHeight - _py - h,
+        left: _px - 200 - _w,
       });
     });
     setActionMenuVisible(true);
