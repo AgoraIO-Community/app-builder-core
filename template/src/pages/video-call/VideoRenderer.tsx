@@ -34,7 +34,7 @@ import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import {useChatMessages} from '../../components/chat-messages/useChatMessages';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-const windowHeight = Dimensions.get('window').height;
+
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -141,7 +141,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
       setPos({
-        bottom: windowHeight - _py - h,
+        bottom: Dimensions.get('window').height - _py - h,
         left: _px - 200 - _w,
       });
     });
