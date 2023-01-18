@@ -268,9 +268,10 @@ const Participant = (props: ParticipantInterface) => {
 
   const showModal = () => {
     usercontainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
+      const leftOffset = isMobile ? 110 : 50;
       setPos({
         top: py + h - 20,
-        left: _px + 50,
+        left: _px + leftOffset,
       });
     });
     setActionMenuVisible((state) => !state);
@@ -280,10 +281,8 @@ const Participant = (props: ParticipantInterface) => {
       <UserActionMenuOptionsOptions
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
-        handleClose={handleClose}
         isMobile={isMobile}
         modalPosition={pos}
-        updateActionSheet={updateActionSheet}
         user={props.user}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
