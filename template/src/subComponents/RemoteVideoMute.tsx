@@ -59,8 +59,8 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
               top: py + h,
               left: _px,
             });
+            setShowModal(true);
           });
-          setShowModal(true);
         }}
         iconProps={{
           iconContainerStyle: {padding: 8},

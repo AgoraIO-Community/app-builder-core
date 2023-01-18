@@ -10,6 +10,7 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
+import {trimText} from '../../utils/common';
 
 const VideoCallMobileView = () => {
   const {
@@ -20,7 +21,7 @@ const VideoCallMobileView = () => {
   return (
     <View style={styles.container}>
       <View style={styles.titleBar}>
-        <Text style={styles.title}>{meetingTitle}</Text>
+        <Text style={styles.title}>{trimText(meetingTitle)}</Text>
         <Spacer size={8} horizontal={false} />
         <View style={styles.countView}>
           <View

@@ -10,7 +10,13 @@
 *********************************************
 */
 import React, {useContext, useRef, useState} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ClientRole, RenderInterface} from '../../../agora-rn-uikit';
@@ -67,6 +73,7 @@ const Participant = (props: ParticipantInterface) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const usercontainerRef = useRef(null);
+  const moreIconRef = useRef(null);
   const {
     user,
     name,
@@ -78,7 +85,7 @@ const Participant = (props: ParticipantInterface) => {
     handleClose,
     updateActionSheet,
   } = props;
-  const [pos, setPos] = useState({top: 0, left: 0});
+  const [pos, setPos] = useState({});
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const endRemoteCall = useRemoteEndCall();
@@ -267,14 +274,21 @@ const Participant = (props: ParticipantInterface) => {
   // };
 
   const showModal = () => {
-    usercontainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      const leftOffset = isMobile ? 110 : 50;
-      setPos({
-        top: py + h - 20,
-        left: _px + leftOffset,
-      });
+    moreIconRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
+      const breakpoint = Dimensions.get('window').height / 2;
+      if (py < breakpoint) {
+        setPos({
+          top: py + h - 20,
+          right: Dimensions.get('window').width - _px,
+        });
+      } else {
+        setPos({
+          bottom: Dimensions.get('window').height - py - h,
+          right: Dimensions.get('window').width - _px,
+        });
+      }
+      setActionMenuVisible((state) => !state);
     });
-    setActionMenuVisible((state) => !state);
   };
   return (
     <>
@@ -303,6 +317,7 @@ const Participant = (props: ParticipantInterface) => {
           <View style={styles.iconContainer}>
             {isHovered || actionMenuVisible || !isWebInternal() || isMobile ? (
               <View
+                ref={moreIconRef}
                 style={{
                   width: 24,
                   height: 24,

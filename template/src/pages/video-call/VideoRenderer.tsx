@@ -34,7 +34,7 @@ import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import {useChatMessages} from '../../components/chat-messages/useChatMessages';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-const windowHeight = Dimensions.get('window').height;
+
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -46,6 +46,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
+  const {currentLayout} = useLayout();
+  const showReplacePin =
+    pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <View
@@ -64,7 +67,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             return FallbackLogo(
               user?.name,
               activeSpeaker,
-              isHovered && !isMax && pinnedUid ? true : false,
+              showReplacePin ? true : false,
               isMax,
             );
           }}
@@ -82,7 +85,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         ) : (
           <></>
         )}
-        {pinnedUid && !isMax && isHovered ? (
+        {showReplacePin ? (
           <IconButton
             onPress={() => {
               dispatch({type: 'UserPin', value: [user.uid]});
@@ -118,6 +121,8 @@ interface MoreMenuProps {
   pinnedUid: UidType;
 }
 const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
+  const {sidePanel} = useSidePanel();
+  const {currentLayout} = useLayout();
   const localUid = useLocalUid();
   const {dispatch} = useRtc();
   const {setLayout} = useLayout();
@@ -134,15 +139,30 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const endRemoteCall = useRemoteEndCall();
-  const [pos, setPos] = useState({bottom: 0, left: 0});
+  const [pos, setPos] = useState({});
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
-      setPos({
-        bottom: windowHeight - _py + 10,
-        left: _px - 200,
-      });
+      const breakpoint = Dimensions.get('window').height / 2;
+      let extraLeftSpace = 0;
+      if (
+        sidePanel !== SidePanelType.None &&
+        currentLayout === getPinnedLayoutName()
+      ) {
+        extraLeftSpace = 50;
+      }
+      if (_py > breakpoint) {
+        setPos({
+          bottom: Dimensions.get('window').height - _py - h,
+          left: _px - 200 - _w + extraLeftSpace,
+        });
+      } else {
+        setPos({
+          top: _py,
+          left: _px - 200 - _w + extraLeftSpace,
+        });
+      }
+      setActionMenuVisible(true);
     });
-    setActionMenuVisible(true);
   };
   const [dim, setDim] = useState([
     Dimensions.get('window').width,

@@ -33,7 +33,7 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
-import {trimUserName} from '../../utils/common';
+import {trimText} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -341,7 +341,7 @@ export default function UserActionMenuOptionsOptions(
           removeUserFromMeeting={() => {
             Toast.show({
               type: 'info',
-              text1: `The system will remove ${trimUserName(
+              text1: `The system will remove ${trimText(
                 user.name,
               )} from this call after 5 secs.`,
               visibilityTime: 5000,
