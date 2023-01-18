@@ -295,10 +295,8 @@ const Participant = (props: ParticipantInterface) => {
       <UserActionMenuOptionsOptions
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
-        handleClose={handleClose}
         isMobile={isMobile}
         modalPosition={pos}
-        updateActionSheet={updateActionSheet}
         user={props.user}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>

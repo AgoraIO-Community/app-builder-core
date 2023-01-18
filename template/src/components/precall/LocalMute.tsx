@@ -23,7 +23,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import PreCallSettings from './PreCallSettings';
 import Spacer from '../../atoms/Spacer';
 
-const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
+const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
@@ -67,25 +67,38 @@ const PreCallLocalMute: React.FC = (props: {isMobileView?: boolean}) => {
 
   return (
     <View
-      style={[style.precallControls, isMobileView && {paddingVertical: 20}]}
+      style={[style.precallControls, isMobileView && {paddingVertical: 8}]}
       testID="precall-controls">
-      <AudioMute
-        isMobileView={isMobileView}
-        showLabel={!isMobileView}
-        showToolTip={true}
-      />
+      <View style={{alignSelf: 'center'}}>
+        <AudioMute
+          isMobileView={isMobileView}
+          showLabel={!isMobileView}
+          showToolTip={true}
+        />
+      </View>
       {!$config.AUDIO_ROOM && (
         <>
-          <Spacer size={16} horizontal={true} />
-          <VideoMute
-            isMobileView={isMobileView}
-            showLabel={!isMobileView}
-            showToolTip={true}
-          />
+          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
+          <View style={{alignSelf: 'center'}}>
+            <VideoMute
+              isMobileView={isMobileView}
+              showLabel={!isMobileView}
+              showToolTip={true}
+            />
+          </View>
         </>
       )}
       {/* Settings View in Mobile */}
-      {isMobileView ? <PreCallSettings /> : <></>}
+      {isMobileView ? (
+        <>
+          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
+          <View style={{alignSelf: 'center'}}>
+            <PreCallSettings />
+          </View>
+        </>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };

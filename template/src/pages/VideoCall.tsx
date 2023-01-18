@@ -11,7 +11,7 @@
 */
 // @ts-nocheck
 import React, {useState, useContext, useEffect} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text, useWindowDimensions} from 'react-native';
 import {
   RtcConfigure,
   PropsProvider,
@@ -191,6 +191,8 @@ const VideoCall: React.FC = () => {
   const [isMicAvailable, setMicAvailable] = useState(false);
   const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
   const [isPermissionRequested, setIsPermissionRequested] = useState(false);
+  const {height, width} = useWindowDimensions();
+  const isDesktop = width > 700;
   return (
     <>
       {queryComplete ? (
@@ -250,7 +252,9 @@ const VideoCall: React.FC = () => {
                                                   localUid={rtcProps?.uid || 0}>
                                                   <CustomUserContextHolder>
                                                     <NetworkQualityProvider>
-                                                      <PermissionHelper />
+                                                      {isDesktop && (
+                                                        <PermissionHelper />
+                                                      )}
                                                       {callActive ? (
                                                         <VideoMeetingDataProvider>
                                                           <VideoCallScreen />
