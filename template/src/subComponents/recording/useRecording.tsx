@@ -29,7 +29,7 @@ import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useRender} from 'customization-api';
-import {trimUserName} from '../../utils/common';
+import {trimText} from '../../utils/common';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
@@ -137,7 +137,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
           ? `This meeting is being recorded by ${
-              trimUserName(renderList[uidWhoStarted]?.name) || 'user'
+              trimText(renderList[uidWhoStarted]?.name) || 'user'
             }`
           : '',
         visibilityTime: 3000,

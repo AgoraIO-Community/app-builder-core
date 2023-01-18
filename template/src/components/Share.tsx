@@ -30,7 +30,7 @@ import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useHistory} from '../components/Router';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent} from '../utils/common';
+import {isValidReactComponent, trimText} from '../utils/common';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
@@ -315,7 +315,9 @@ const Share = () => {
         <View>
           <Logo />
           <Spacer size={20} />
-          <Text style={style.heading}>{meetingTitle}</Text>
+          <Text style={style.heading} numberOfLines={1}>
+            {trimText(meetingTitle)}
+          </Text>
           <Spacer size={40} />
           <CopyMeetingInfo />
           <Spacer size={60} />

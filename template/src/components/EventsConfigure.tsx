@@ -20,7 +20,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import {useRender} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
-import {trimUserName} from '../utils/common';
+import {trimText} from '../utils/common';
 
 interface Props {
   children: React.ReactNode;
@@ -49,7 +49,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
       const data = JSON.parse(payload);
       if (data?.name) {
         Toast.show({
-          text1: `${trimUserName(data.name)} has joined the call`,
+          text1: `${trimText(data.name)} has joined the call`,
           visibilityTime: 3000,
           type: 'info',
           primaryBtn: null,
