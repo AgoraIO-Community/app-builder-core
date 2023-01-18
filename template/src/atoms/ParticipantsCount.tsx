@@ -41,7 +41,8 @@ const ParticipantsCount = () => {
           $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
         textStyle: {
           fontWeight: '600',
-          fontSize: 16,
+          fontSize: 12,
+          lineHeight: 12,
           marginTop: 0,
           marginLeft: 6,
         },
@@ -55,7 +56,7 @@ export default ParticipantsCount;
 const styles = StyleSheet.create({
   participantCountView: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 6,
     backgroundColor: $config.ICON_BG_COLOR,
     borderRadius: 25,
     borderWidth: 1,
