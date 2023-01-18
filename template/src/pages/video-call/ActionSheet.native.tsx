@@ -81,7 +81,7 @@ const ActionSheet = () => {
       )}
       {/* Controls  Action Sheet*/}
       <BottomSheetModal
-        snapPoints={['15%', '50%']}
+        snapPoints={[100, 350]}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         enablePanDownToClose={false}

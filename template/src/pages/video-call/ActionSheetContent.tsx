@@ -19,7 +19,7 @@ import IconButton from '../../atoms/IconButton';
 import {useLayout} from '../../utils/useLayout';
 import useLayoutsData from '../../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../../pages/video-call/DefaultLayouts';
-import {PropsContext} from '../../../agora-rn-uikit';
+import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {ClientRole} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
@@ -33,6 +33,7 @@ import {useChatNotification} from '../../components/chat-notification/useChatNot
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
+import {useLocalUserInfo} from 'customization-api';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -241,9 +242,11 @@ const ActionSheetContent = (props) => {
   const handleLayoutChange = () => {
     changeLayout();
   };
+
+  const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
   return (
     <View>
-      <View style={[styles.row, {borderBottomWidth: 1}]}>
+      <View style={[styles.row, {borderBottomWidth: 1, paddingTop: 4}]}>
         <View style={styles.iconContainer}>
           <LocalVideoMute
             isOnActionSheet={true}
@@ -299,7 +302,9 @@ const ActionSheetContent = (props) => {
 
         {/* switch camera */}
         <SwitchCameraIcon
-          disabled={isLiveStream && isAudience && !isBroadCasting}
+          disabled={
+            (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled
+          }
         />
       </View>
       <View style={[styles.row, {paddingVertical: 0}]}>

@@ -83,7 +83,8 @@
       rgba(46, 59, 66, calc(var(--rsbs-content-opacity) * 0.125));
     z-index: 1;
     padding-top: calc(20px + env(safe-area-inset-top));
-    padding-bottom: 8px;
+    padding-bottom: 16px;
+  
   }
   [data-rsbs-header]:before {
     position: absolute;
@@ -115,7 +116,7 @@
     -webkit-user-select: auto;
     -ms-user-select: auto;
     user-select: auto;
-    overflow: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
