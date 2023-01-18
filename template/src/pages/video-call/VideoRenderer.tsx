@@ -121,6 +121,8 @@ interface MoreMenuProps {
   pinnedUid: UidType;
 }
 const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
+  const {sidePanel} = useSidePanel();
+  const {currentLayout} = useLayout();
   const localUid = useLocalUid();
   const {dispatch} = useRtc();
   const {setLayout} = useLayout();
@@ -137,15 +139,30 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const endRemoteCall = useRemoteEndCall();
-  const [pos, setPos] = useState({bottom: 0, left: 0});
+  const [pos, setPos] = useState({});
   const showMoreMenu = () => {
     videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
-      setPos({
-        bottom: Dimensions.get('window').height - _py - h,
-        left: _px - 200 - _w,
-      });
+      const breakpoint = Dimensions.get('window').height / 2;
+      let extraLeftSpace = 0;
+      if (
+        sidePanel !== SidePanelType.None &&
+        currentLayout === getPinnedLayoutName()
+      ) {
+        extraLeftSpace = 50;
+      }
+      if (_py > breakpoint) {
+        setPos({
+          bottom: Dimensions.get('window').height - _py - h,
+          left: _px - 200 - _w + extraLeftSpace,
+        });
+      } else {
+        setPos({
+          top: _py,
+          left: _px - 200 - _w + extraLeftSpace,
+        });
+      }
+      setActionMenuVisible(true);
     });
-    setActionMenuVisible(true);
   };
   const [dim, setDim] = useState([
     Dimensions.get('window').width,

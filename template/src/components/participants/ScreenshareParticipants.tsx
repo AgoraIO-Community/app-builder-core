@@ -10,7 +10,13 @@
 *********************************************
 */
 import React, {useRef, useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -35,7 +41,7 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
     useState(false);
-  const [pos, setPos] = useState({top: 0, left: 0});
+  const [pos, setPos] = useState({});
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -80,12 +86,24 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
   // };
   const showModal = () => {
     screenshareRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      setPos({
-        top: py + h - 20,
-        left: _px + 50,
-      });
+      // setPos({
+      //   top: py + h - 20,
+      //   right: Dimensions.get('window').width - _px,
+      // });
+      const breakpoint = Dimensions.get('window').height / 2;
+      if (py < breakpoint) {
+        setPos({
+          top: py + h - 20,
+          right: Dimensions.get('window').width - _px,
+        });
+      } else {
+        setPos({
+          bottom: Dimensions.get('window').height - py - h,
+          right: Dimensions.get('window').width - _px,
+        });
+      }
+      setActionMenuVisible((state) => !state);
     });
-    setActionMenuVisible((state) => !state);
   };
   return (
     <>
@@ -100,7 +118,7 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
         user={props.user}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
-        <View style={styles.container} ref={screenshareRef}>
+        <View style={styles.container}>
           <View style={styles.userInfoContainer}>
             <View style={styles.bgContainerStyle}>
               <UserAvatar
@@ -114,7 +132,7 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
             </View>
           </View>
           {true ? (
-            <View style={styles.iconContainer}>
+            <View style={styles.iconContainer} ref={screenshareRef}>
               {isHovered || actionMenuVisible || !isWebInternal() ? (
                 //todo mobile by default it should show
                 <View
@@ -211,19 +229,15 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   container: {
-    flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 8,
   },
   userInfoContainer: {
     flexDirection: 'row',
-    flex: 0.7,
   },
   iconContainer: {
-    flex: 0.3,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignSelf: 'center',
   },
 });

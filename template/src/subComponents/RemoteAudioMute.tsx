@@ -69,8 +69,8 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
               top: py + h,
               left: _px,
             });
+            setShowModal(true);
           });
-          setShowModal(true);
         }}
         hoverEffect={props.audio}
         hoverEffectStyle={{

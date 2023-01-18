@@ -85,7 +85,7 @@ const Participant = (props: ParticipantInterface) => {
     handleClose,
     updateActionSheet,
   } = props;
-  const [pos, setPos] = useState({top: 0, right: 0});
+  const [pos, setPos] = useState({});
   const [removeMeetingPopupVisible, setRemoveMeetingPopupVisible] =
     useState(false);
   const endRemoteCall = useRemoteEndCall();
@@ -275,12 +275,20 @@ const Participant = (props: ParticipantInterface) => {
 
   const showModal = () => {
     moreIconRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      setPos({
-        top: py + h - 20,
-        right: Dimensions.get('window').width - _px,
-      });
+      const breakpoint = Dimensions.get('window').height / 2;
+      if (py < breakpoint) {
+        setPos({
+          top: py + h - 20,
+          right: Dimensions.get('window').width - _px,
+        });
+      } else {
+        setPos({
+          bottom: Dimensions.get('window').height - py - h,
+          right: Dimensions.get('window').width - _px,
+        });
+      }
+      setActionMenuVisible((state) => !state);
     });
-    setActionMenuVisible((state) => !state);
   };
   return (
     <>
