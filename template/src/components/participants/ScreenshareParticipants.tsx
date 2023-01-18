@@ -184,16 +184,13 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
 
 const styles = StyleSheet.create({
   bgContainerStyle: {
-    backgroundColor:
-      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 36,
     height: 36,
     borderRadius: 18,
     marginRight: 8,
   },
   containerStyle: {
-    backgroundColor:
-      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -202,7 +199,7 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 10,
     fontWeight: '400',
-    color: $config.FONT_COLOR,
+    color: $config.CARD_LAYER_1_COLOR,
   },
   participantNameText: {
     fontWeight: '400',

@@ -138,7 +138,7 @@ const ChatContainer = (props?: {
               />
             </View>
             <View style={style.participantTextContainer}>
-              <Text style={[style.participantText]}>
+              <Text style={[style.participantText]} numberOfLines={1}>
                 {renderList[selectedUserID].name}
               </Text>
             </View>
@@ -282,8 +282,7 @@ const style = StyleSheet.create({
     color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
   },
   bgContainerStyle: {
-    backgroundColor:
-      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -302,7 +301,7 @@ const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 12,
     fontWeight: '400',
-    color: $config.FONT_COLOR,
+    color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
     flexDirection: 'row',
@@ -314,6 +313,7 @@ const style = StyleSheet.create({
   participantTextContainer: {
     flex: 1,
     alignSelf: 'center',
+    marginRight: 8,
   },
   participantText: {
     flex: 1,
