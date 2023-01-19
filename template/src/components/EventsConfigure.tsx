@@ -37,18 +37,18 @@ const EventsConfigure: React.FC<Props> = (props) => {
   }, [renderList]);
   useEffect(() => {
     //user joined event listener
-    events.on(controlMessageEnum.newUserJoined, ({payload}) => {
-      const data = JSON.parse(payload);
-      if (data?.name) {
-        Toast.show({
-          text1: `${trimText(data.name)} has joined the call`,
-          visibilityTime: 3000,
-          type: 'info',
-          primaryBtn: null,
-          secondaryBtn: null,
-        });
-      }
-    });
+    // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
+    //   const data = JSON.parse(payload);
+    //   if (data?.name) {
+    //     Toast.show({
+    //       text1: `${trimText(data.name)} has joined the call`,
+    //       visibilityTime: 3000,
+    //       type: 'info',
+    //       primaryBtn: null,
+    //       secondaryBtn: null,
+    //     });
+    //   }
+    // });
     events.on(controlMessageEnum.muteVideo, ({payload, sender}) => {
       Toast.show({
         type: 'info',
@@ -149,7 +149,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     });
 
     return () => {
-      events.off(controlMessageEnum.newUserJoined);
+      //events.off(controlMessageEnum.newUserJoined);
       events.off(controlMessageEnum.requestAudio);
       events.off(controlMessageEnum.requestVideo);
       events.off(controlMessageEnum.muteVideo);

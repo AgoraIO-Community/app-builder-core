@@ -163,13 +163,13 @@ const VideoCallScreen = () => {
         message: 'Call is active',
       });
     }
-    setTimeout(() => {
-      events.send(
-        controlMessageEnum.newUserJoined,
-        JSON.stringify({name}),
-        EventPersistLevel.LEVEL1,
-      );
-    }, 1000);
+    // setTimeout(() => {
+    //   events.send(
+    //     controlMessageEnum.newUserJoined,
+    //     JSON.stringify({name}),
+    //     EventPersistLevel.LEVEL1,
+    //   );
+    // }, 1000);
 
     /**
      * OLD: Commenting this code as getDevices API is web only
