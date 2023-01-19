@@ -32,7 +32,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
       <Text style={styles.subHeading}>{leaveMeetingLabelSubHeading}</Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
-        <View style={{flex: 1}}>
+        <View style={isDesktop && {flex: 1}}>
           <TertiaryButton
             containerStyle={{
               width: '100%',
@@ -46,8 +46,11 @@ const EndcallPopup = (props: EndcallPopupProps) => {
             onPress={() => props.setModalVisible(false)}
           />
         </View>
-        {isDesktop ? <Spacer size={10} horizontal={true} /> : <></>}
-        <View style={{flex: 1}}>
+        <Spacer
+          size={isDesktop ? 10 : 20}
+          horizontal={isDesktop ? true : false}
+        />
+        <View style={isDesktop && {flex: 1}}>
           <PrimaryButton
             containerStyle={{
               minWidth: 'auto',
@@ -57,7 +60,6 @@ const EndcallPopup = (props: EndcallPopupProps) => {
               backgroundColor: $config.SEMANTIC_ERROR,
               paddingVertical: 12,
               paddingHorizontal: 12,
-              marginBottom: isDesktop ? 0 : 20,
             }}
             text={leaveBtnLabel}
             textStyle={styles.btnText}
