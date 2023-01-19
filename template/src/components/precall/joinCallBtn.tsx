@@ -21,6 +21,7 @@ import useGetName from '../../utils/useGetName';
 import {useWakeLock} from '../../components/useWakeLock';
 import isMobileOrTablet from '../../utils/isMobileOrTablet';
 import {isWebInternal} from '../../utils/common';
+import useSetName from '../../utils/useSetName';
 
 const audio = new Audio(
   'https://dl.dropboxusercontent.com/s/1cdwpm3gca9mlo0/kick.mp3',
@@ -38,6 +39,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();
+  const setUsername = useSetName();
   const {isJoinDataFetched} = useMeetingInfo();
   const {awake, request} = useWakeLock();
   const joinRoomButton =
@@ -51,6 +53,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   );
 
   const onSubmit = () => {
+    setUsername(username.trim());
     setCallActive(true);
     // Play a sound to avoid autoblocking in safari
     if (isWebInternal() || isMobileOrTablet()) {
@@ -80,7 +83,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
 
   const title = buttonText;
   const onPress = () => onSubmit();
-  const disabled = !isJoinDataFetched || username === '';
+  const disabled = !isJoinDataFetched || username?.trim() === '';
   return props?.render ? (
     props.render(onPress, title, disabled)
   ) : (

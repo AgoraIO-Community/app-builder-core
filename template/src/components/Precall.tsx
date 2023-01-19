@@ -12,7 +12,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
-import {isValidReactComponent, isWebInternal} from '../utils/common';
+import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import PreCallLogo from './common/Logo';
@@ -274,7 +274,7 @@ const Precall = (props: any) => {
   useEffect(() => {
     if (isWebInternal() && !isSDK) {
       if (meetingTitle) {
-        document.title = meetingTitle + ' | ' + $config.APP_NAME;
+        document.title = trimText(meetingTitle) + ' | ' + $config.APP_NAME;
       }
     }
   });

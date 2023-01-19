@@ -15,8 +15,11 @@ import Platform from '../subComponents/Platform';
 
 import * as ReactIs from 'react-is';
 
-const trimUserName = (name: string) => {
-  return name?.substring(0, 25) + (name?.length > 25 ? '...' : '');
+const trimText = (text: string, length: number = 25) => {
+  if (!text) {
+    return '';
+  }
+  return text?.substring(0, length) + (text?.length > length ? '...' : '');
 };
 const maxInputLimit = 60;
 const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
@@ -74,5 +77,5 @@ export {
   isArray,
   isValidReactComponent,
   maxInputLimit,
-  trimUserName,
+  trimText,
 };

@@ -29,6 +29,7 @@ import {
   isIOS,
   isValidReactComponent,
   isWebInternal,
+  trimText,
 } from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
@@ -336,8 +337,7 @@ const Navbar = () => {
           testID="videocall-meetingName"
           numberOfLines={1}
           ellipsizeMode="tail">
-          {meetingTitle?.substring(0, 25) +
-            (meetingTitle?.length > 25 ? '...' : '')}
+          {trimText(meetingTitle)}
         </Text>
         <Spacer size={8} horizontal={true} />
         <View style={style.countContainer}>

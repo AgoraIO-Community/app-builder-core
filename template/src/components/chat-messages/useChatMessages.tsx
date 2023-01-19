@@ -22,7 +22,7 @@ import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
 import {useSidePanel} from '../../utils/useSidePanel';
 import getUniqueID from '../../utils/getUniqueID';
-import {trimUserName} from '../../utils/common';
+import {trimText} from '../../utils/common';
 
 enum ChatMessageActionEnum {
   Create = 'Create_Chat_Message',
@@ -146,7 +146,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           ? privateMessageLabel
           : renderListRef.current.renderList[uidAsNumber]?.name
           ? fromText(
-              trimUserName(renderListRef.current.renderList[uidAsNumber]?.name),
+              trimText(renderListRef.current.renderList[uidAsNumber]?.name),
             )
           : '',
         text2: isPrivateMessage

@@ -18,6 +18,7 @@ import {useRender} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import Spacer from '../../atoms/Spacer';
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -76,18 +77,23 @@ const ChatParticipants = (props: any) => {
                     />
                   </View>
                   <View style={style.participantTextContainer}>
-                    <Text style={[style.participantText]}>{name}</Text>
+                    <Text numberOfLines={1} style={[style.participantText]}>
+                      {name}
+                    </Text>
                   </View>
                   {isHoveredUid !== uidAsNumber ? (
                     unreadIndividualMessageCount &&
                     unreadIndividualMessageCount[uidAsNumber] ? (
-                      <View style={style.chatNotificationPrivate}>
-                        <Text style={style.chatNotificationCountText}>
-                          {unreadIndividualMessageCount[uidAsNumber]}
-                        </Text>
-                      </View>
+                      <>
+                        <View style={style.chatNotificationPrivate}>
+                          <Text style={style.chatNotificationCountText}>
+                            {unreadIndividualMessageCount[uidAsNumber]}
+                          </Text>
+                        </View>
+                        <Spacer size={20} horizontal={true} />
+                      </>
                     ) : (
-                      <></>
+                      <Spacer size={20} horizontal={true} />
                     )
                   ) : (
                     <View style={{alignSelf: 'center', marginRight: 20}}>
@@ -147,8 +153,7 @@ const style = StyleSheet.create({
     color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
   },
   bgContainerStyle: {
-    backgroundColor:
-      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -157,8 +162,6 @@ const style = StyleSheet.create({
     marginVertical: 8,
   },
   userAvatarContainer: {
-    backgroundColor:
-      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -167,7 +170,7 @@ const style = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 12,
     fontWeight: '400',
-    color: $config.FONT_COLOR,
+    color: $config.CARD_LAYER_1_COLOR,
   },
   participantContainer: {
     flexDirection: 'row',
@@ -192,9 +195,6 @@ const style = StyleSheet.create({
   chatNotificationPrivate: {
     backgroundColor: $config.SEMANTIC_NETRUAL,
     borderRadius: 8,
-    marginRight: 22,
-    width: 24,
-    height: 16,
     alignSelf: 'center',
   },
   chatNotificationCountText: {

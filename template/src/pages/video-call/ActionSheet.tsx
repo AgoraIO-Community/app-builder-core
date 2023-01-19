@@ -108,7 +108,7 @@ const ActionSheet = () => {
           open={true}
           onSpringStart={handleSpringStart}
           expandOnContentDrag={true}
-          snapPoints={({maxHeight}) => [0.15 * maxHeight, 0.5 * maxHeight]}
+          snapPoints={({maxHeight}) => [100, 350]}
           defaultSnap={({lastSnap, snapPoints}) =>
             lastSnap ?? Math.min(...snapPoints)
           }

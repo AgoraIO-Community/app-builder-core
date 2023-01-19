@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text, StyleSheet, View, TextStyle} from 'react-native';
+import {trimText} from '../../utils/common';
 import ThemeConfig from '../../theme';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
@@ -12,8 +13,7 @@ const MeetingTitle = (props?: MeetingTitleProps) => {
   } = useMeetingInfo();
   return (
     <Text style={[style.titleHeading, props?.textStyle ? props.textStyle : {}]}>
-      {meetingTitle?.substring(0, 25) +
-        (meetingTitle?.length > 25 ? '...' : '')}
+      {trimText(meetingTitle)}
     </Text>
   );
 };

@@ -45,12 +45,31 @@ const EditName: React.FC = (props?: EditNameProps) => {
   const username = useGetName();
   const [newName, setNewName] = useState(username);
   const [editable, setEditable] = useState(false);
+  const [disabled, setDisabled] = useState(
+    !newName ||
+      newName.length === 0 ||
+      newName.trim() == '' ||
+      newName === username,
+  );
   const setUsername = useSetName();
-  const disabled = !newName || newName.length === 0 || newName === username;
+
+  useEffect(() => {
+    setDisabled(
+      !newName ||
+        newName.length === 0 ||
+        newName.trim() == '' ||
+        newName === username,
+    );
+  }, [newName]);
+
   const inputRef = useRef(null);
   const onPress = () => {
     if (editable) {
-      setUsername(newName);
+      const trimmedText = newName?.trim();
+      if (trimmedText) {
+        setUsername(trimmedText);
+        setNewName(trimmedText);
+      }
       setSaved(true);
       setTimeout(() => {
         setSaved(false);
@@ -107,10 +126,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             value={newName}
             editable={editable}
             onChangeText={(text) => setNewName(text)}
-            onSubmitEditing={() => {
-              setUsername(newName);
-              setEditable(false);
-            }}
+            onSubmitEditing={onPress}
             placeholderTextColor={
               $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
             }
@@ -223,6 +239,7 @@ const SettingsView = (props) => {
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
+
   return (
     <View
       style={[
@@ -241,6 +258,7 @@ const SettingsView = (props) => {
         }
         trailingIconName="close"
         trailingIconOnPress={() => {
+          props.handleClose && props.handleClose();
           setSidePanel(SidePanelType.None);
         }}
       />

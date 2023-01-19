@@ -15,7 +15,7 @@ export default RecordingInfo;
 
 const styles = StyleSheet.create({
   recordingView: {
-    padding: 12,
+    padding: 6,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   recordingText: {
     fontSize: 12,
     lineHeight: 12,
-    fontWeight: '400',
+    fontWeight: '600',
     fontFamily: 'Source Sans Pro',
     color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
   },
