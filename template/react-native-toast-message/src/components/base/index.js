@@ -41,7 +41,8 @@ function BaseToast({
             }}>
             <View
               style={{
-                flexDirection: 'row'
+                flexDirection: 'row',
+                flex: 1
               }}>
               {leadingIcon ? leadingIcon : <></>}
               <Text
