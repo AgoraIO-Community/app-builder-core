@@ -329,7 +329,10 @@ const Navbar = () => {
       onLayout={onLayout}
       style={[
         isWebInternal() ? style.navHolder : style.navHolderNative,
-        {paddingHorizontal: isDesktop ? 32 : 10, zIndex: 999},
+        {
+          paddingHorizontal: isDesktop ? 32 : 10,
+          zIndex: 999,
+        },
       ]}>
       <View style={style.titleContainer}>
         <Text
@@ -401,9 +404,10 @@ const style = StyleSheet.create({
     flexDirection: 'row',
   },
   navHolder: {
+    backgroundColor: $config.TOOLBAR_COLOR,
     width: '100%',
-    marginTop: 8,
-    marginBottom: 20,
+    paddingTop: 8,
+    paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

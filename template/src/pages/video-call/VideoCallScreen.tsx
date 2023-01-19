@@ -207,7 +207,10 @@ const VideoCallScreen = () => {
           <TopbarComponent />
         </ButtonTemplateProvider>
         <View
-          style={[style.videoView, {paddingHorizontal: isDesktop ? 32 : 10}]}>
+          style={[
+            style.videoView,
+            {paddingHorizontal: isDesktop ? 32 : 10, paddingVertical: 10},
+          ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />
