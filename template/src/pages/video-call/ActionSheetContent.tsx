@@ -34,6 +34,7 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
 import {useLocalUserInfo} from 'customization-api';
+import LayoutIconButton from '../../subComponents/LayoutIconButton';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -309,10 +310,13 @@ const ActionSheetContent = (props) => {
       </View>
       <View style={[styles.row, {paddingVertical: 0}]}>
         {/* Layout view */}
-        <LayoutIcon
+        {/* <LayoutIcon
           onPress={handleLayoutChange}
           currentLayout={layouts[layout]?.iconName}
-        />
+        /> */}
+        <View>
+          <LayoutIconButton />
+        </View>
 
         {/* settings */}
         <SettingsIcon
@@ -320,6 +324,7 @@ const ActionSheetContent = (props) => {
             setSidePanel(SidePanelType.Settings);
           }}
         />
+
         {/* invite */}
         <ShareIcon />
         <View style={styles.emptyContainer}></View>
@@ -342,12 +347,13 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   emptyContainer: {
     width: 50,
     height: 50,

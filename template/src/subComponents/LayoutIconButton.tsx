@@ -7,6 +7,7 @@ import {useLayout} from '../utils/useLayout';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isWeb} from 'customization-api';
 import {Dimensions} from 'react-native';
+import {isMobileUA} from '../utils/common';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -17,6 +18,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
+  const isMobileView = isMobileUA();
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
@@ -55,6 +57,10 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         textColor: $config.FONT_COLOR,
       },
     };
+    const iconName =
+      layouts[layout]?.iconName === 'pinned' && isMobileView
+        ? 'list-view'
+        : layouts[layout]?.iconName;
 
     renderContent.push(
       props?.render ? (
@@ -67,7 +73,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
             }}
             key={'defaultLayoutIconWithName'}
             iconProps={{
-              name: layouts[layout]?.iconName,
+              name: iconName,
               tintColor: $config.SECONDARY_ACTION_COLOR,
             }}
             {...iconButtonProps}
