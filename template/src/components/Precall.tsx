@@ -39,6 +39,7 @@ import StorageContext from './StorageContext';
 import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {VideoPreviewProps} from './precall/VideoPreview';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -199,7 +200,7 @@ const Precall = (props: any) => {
       PrecallAfterView: React.ComponentType;
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType;
-      VideoPreview: React.ComponentType;
+      VideoPreview: React.ComponentType<VideoPreviewProps>;
       MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
       PrecallAfterView: React.Fragment,
@@ -320,7 +321,7 @@ const Precall = (props: any) => {
   const onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
-  const isMobileView = dim[0] < dim[1] + 150;
+  const isMobileView = dim[0] < 700;
   const isDesktop = !isMobileView;
 
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
@@ -370,7 +371,7 @@ const Precall = (props: any) => {
                   <View
                     testID="precall-preview"
                     style={[style.leftContent, style.boxStyle]}>
-                    <VideoPreview />
+                    <VideoPreview isMobileView={false} />
                   </View>
                   <Spacer size={24} horizontal={true} />
                   <Card style={style.rightContent}>
@@ -399,7 +400,7 @@ const Precall = (props: any) => {
                     flex: 1,
                   }}
                   testID="precall-mobile-preview">
-                  <VideoPreview />
+                  <VideoPreview isMobileView={isMobileView} />
                 </View>
                 <Spacer size={40} />
                 <View

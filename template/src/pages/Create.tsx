@@ -29,6 +29,7 @@ import {
   isWebInternal,
   isValidReactComponent,
   maxInputLimit,
+  isMobileUA,
 } from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
@@ -127,7 +128,8 @@ const Create = () => {
   ]);
 
   const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  // const {isDesktop} = getDimensionData();
+  const isDesktop = !isMobileUA();
   useEffect(() => {
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
