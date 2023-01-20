@@ -32,7 +32,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
       <Text style={styles.subHeading}>{recordingLabelSubHeading}</Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
-        <View style={{flex: 1}}>
+        <View style={isDesktop && {flex: 1}}>
           <TertiaryButton
             containerStyle={{
               minWidth: 'auto',
@@ -47,8 +47,11 @@ const RecordingPopup = (props: RecordingPopupProps) => {
             onPress={() => props.setModalVisible(false)}
           />
         </View>
-        {isDesktop ? <Spacer size={10} horizontal={true} /> : <></>}
-        <View style={{flex: 2}}>
+        <Spacer
+          size={isDesktop ? 10 : 20}
+          horizontal={isDesktop ? true : false}
+        />
+        <View style={isDesktop && {flex: 2}}>
           <PrimaryButton
             containerStyle={{
               minWidth: 'auto',
@@ -58,7 +61,6 @@ const RecordingPopup = (props: RecordingPopupProps) => {
               backgroundColor: $config.SEMANTIC_ERROR,
               paddingVertical: 12,
               paddingHorizontal: 12,
-              marginBottom: isDesktop ? 0 : 20,
             }}
             textStyle={styles.btnText}
             text={stopRecordingBtnLabel}
