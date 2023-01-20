@@ -30,7 +30,7 @@ import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useHistory} from '../components/Router';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent, trimText} from '../utils/common';
+import {isMobileUA, isValidReactComponent, trimText} from '../utils/common';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
@@ -113,7 +113,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   ]);
 
   const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  // const {isDesktop} = getDimensionData();
 
   const clipboardIconButton = (type: SHARE_LINK_CONTENT_TYPE) => {
     return (
@@ -304,8 +304,9 @@ const Share = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
 
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  // const {getDimensionData} = useContext(DimensionContext);
+  // const {isDesktop} = getDimensionData();
+  const isDesktop = !isMobileUA();
 
   return FpeShareComponent ? (
     <FpeShareComponent />

@@ -44,7 +44,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
       ]}
       {...otherProps}>
       {iconName && (
-        <View>
+        <View style={{marginRight: 8}}>
           <ImageIcon
             iconType="plain"
             name={iconName}
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.medium,
     fontWeight: '700',
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    paddingLeft: 8,
+    //paddingLeft: 8,
     textTransform: 'uppercase',
   },
 });

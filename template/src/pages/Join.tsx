@@ -16,6 +16,7 @@ import {useHistory} from '../components/Router';
 import Logo from '../components/common/Logo';
 import Spacer from '../atoms/Spacer';
 import {
+  isMobileUA,
   isValidReactComponent,
   shouldAuthenticate,
   useHasBrandLogo,
@@ -69,7 +70,8 @@ const Join = () => {
     Dimensions.get('window').width > Dimensions.get('window').height,
   ]);
   const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  //const {isDesktop} = getDimensionData();
+  const isDesktop = !isMobileUA();
 
   const useJoin = useJoinMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();

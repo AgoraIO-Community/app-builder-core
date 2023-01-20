@@ -1,6 +1,6 @@
 import React, {SetStateAction, useContext} from 'react';
 import {View, StyleSheet, TouchableWithoutFeedback, Modal} from 'react-native';
-import {isWeb} from '../utils/common';
+import {isMobileUA, isWeb} from '../utils/common';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
@@ -32,6 +32,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {activeUids} = useRender();
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();
+  const isMobileView = isMobileUA();
 
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
@@ -73,7 +74,10 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             padding: 10,
           },
           iconType: 'plain',
-          name: item.iconName,
+          name:
+            item.iconName === 'pinned' && isMobileView
+              ? 'list-view'
+              : item.iconName,
           tintColor: $config.SECONDARY_ACTION_COLOR,
         },
         btnTextProps: {
