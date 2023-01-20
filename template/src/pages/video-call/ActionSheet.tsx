@@ -27,7 +27,7 @@ const ActionSheet = () => {
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
 
-  const {sidePanel} = useSidePanel();
+  const {sidePanel, setSidePanel} = useSidePanel();
 
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
@@ -67,7 +67,7 @@ const ActionSheet = () => {
   }, [sidePanel]);
 
   function onDismiss() {
-    handleSheetChanges(0);
+    setSidePanel(SidePanelType.None);
   }
 
   const handleSpringStart = (event: SpringEvent) => {

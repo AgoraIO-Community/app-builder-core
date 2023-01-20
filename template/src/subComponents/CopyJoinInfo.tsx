@@ -83,6 +83,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
         setModalVisible={setModalVisible}
         title="Invite others to join this meeting"
         showCloseIcon={true}
+        containerStyle={style.containerStyle}
         contentContainerStyle={style.contentContainer}>
         <CopyMeetingInfo showSubLabel={false} />
         <View style={isDesktop ? style.btnContainer : style.btnContainerMobile}>
@@ -163,6 +164,9 @@ const style = StyleSheet.create({
   contentContainer: {
     padding: 24,
     minWidth: 342,
+  },
+  containerStyle: {
+    alignItems: 'stretch',
   },
 });
 

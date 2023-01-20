@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
     justifyContent: 'center',
-    // alignItems: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
   },
   modalView: {

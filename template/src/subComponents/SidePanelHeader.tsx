@@ -21,25 +21,27 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
         isChat ? SidePanelStyles.chatPadding : {},
       ]}>
       {props?.leadingIconName ? (
-        <IconButton
-          hoverEffect={true}
-          hoverEffectStyle={{
-            backgroundColor: $config.ICON_BG_COLOR,
-            borderRadius: 20,
-          }}
-          iconProps={{
-            iconType: 'plain',
-            iconContainerStyle: {
-              padding: 5,
-            },
-            iconSize: 20,
-            name: props.leadingIconName,
-            tintColor: $config.SECONDARY_ACTION_COLOR,
-          }}
-          onPress={() => {
-            props?.leadingIconOnPress && props.leadingIconOnPress();
-          }}
-        />
+        <View>
+          <IconButton
+            hoverEffect={true}
+            hoverEffectStyle={{
+              backgroundColor: $config.ICON_BG_COLOR,
+              borderRadius: 20,
+            }}
+            iconProps={{
+              iconType: 'plain',
+              iconContainerStyle: {
+                padding: 5,
+              },
+              iconSize: 20,
+              name: props.leadingIconName,
+              tintColor: $config.SECONDARY_ACTION_COLOR,
+            }}
+            onPress={() => {
+              props?.leadingIconOnPress && props.leadingIconOnPress();
+            }}
+          />
+        </View>
       ) : isChat ? (
         <View style={{width: 30, height: 'auto'}}></View>
       ) : (
