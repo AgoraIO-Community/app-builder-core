@@ -58,15 +58,14 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-      <View style={{flex: 1}}>
-        <Text
-          numberOfLines={1}
-          textBreakStrategy="simple"
-          ellipsizeMode="tail"
-          style={style.name}>
-          {user.name || remoteUserDefaultLabel}
-        </Text>
-      </View>
+
+      <Text
+        numberOfLines={1}
+        textBreakStrategy="simple"
+        ellipsizeMode="tail"
+        style={style.name}>
+        {user.name || remoteUserDefaultLabel}
+      </Text>
     </View>
   );
 };
@@ -77,7 +76,7 @@ const style = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     padding: 8,
-    height: 32,
+    // height: 34,
     left: 12,
     bottom: 12,
     borderRadius: 4,

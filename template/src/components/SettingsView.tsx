@@ -265,7 +265,7 @@ const SettingsView = (props) => {
       <ScrollView style={style.contentContainer}>
         <EditName />
         <Spacer size={24} />
-        <SelectDevice isIconDropdown />
+        {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
       </ScrollView>
     </View>
