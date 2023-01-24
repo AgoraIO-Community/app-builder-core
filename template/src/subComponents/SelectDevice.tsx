@@ -11,7 +11,12 @@
 */
 import React, {useContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import {PropsContext, ClientRole} from '../../agora-rn-uikit';
+import {
+  PropsContext,
+  ClientRole,
+  LocalContext,
+  PermissionState,
+} from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
 import {useString} from '../utils/useString';
@@ -63,6 +68,10 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   useEffect(() => {
     setDataValue();
   }, [deviceList]);
+  const local = useContext(LocalContext);
+  const permissionGranted =
+    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
   const setDataValue = () => {
     const data = deviceList
@@ -87,8 +96,12 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
       <Dropdown
         icon={props?.isIconDropdown ? 'video-on' : undefined}
         enabled={!isPickerDisabled}
-        label={!data || !data.length ? 'No Camera Detected' : ''}
-        data={data}
+        label={
+          !permissionGranted || !data || !data.length
+            ? 'No Camera Detected'
+            : ''
+        }
+        data={permissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
           setSelectedCam(value);
@@ -114,7 +127,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
   const [data, setData] = useState([]);
-
+  const local = useContext(LocalContext);
   useEffect(() => {
     setDataValue();
   }, []);
@@ -139,6 +152,9 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       });
     setData(data);
   };
+  const permissionGranted =
+    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+    local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
 
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
@@ -149,8 +165,12 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         icon={props?.isIconDropdown ? 'mic-on' : undefined}
         enabled={!isPickerDisabled}
         selectedValue={selectedMic}
-        label={!data || !data.length ? 'No Microphone Detected' : ''}
-        data={data}
+        label={
+          !permissionGranted || !data || !data.length
+            ? 'No Microphone Detected'
+            : ''
+        }
+        data={permissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
           setSelectedMic(value);
@@ -173,6 +193,7 @@ interface SelectSpeakerDeviceProps {
 const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const {selectedSpeaker, setSelectedSpeaker, deviceList} =
     useContext(DeviceContext);
+  const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
@@ -202,7 +223,9 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   ) : (
     <View>
       <Text style={style.label}>Speaker</Text>
-      {!data || data.length === 0 ? (
+      {(local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
+        local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
+      (!data || data.length === 0) ? (
         <Dropdown
           icon={props?.isIconDropdown ? 'speaker' : undefined}
           enabled={!isPickerDisabled}
