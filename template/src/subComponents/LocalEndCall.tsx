@@ -39,7 +39,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       iconBackgroundColor: $config.SEMANTIC_ERROR,
       iconContainerStyle: !isOnActionSheet && {
         width: 72,
-        height: 48,
+        height: 52,
       },
     },
     onPress,

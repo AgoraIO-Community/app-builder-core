@@ -169,8 +169,9 @@ const style = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
-    marginBottom: 16,
+    paddingTop: 10,
+    paddingBottom: 16,
+    backgroundColor: $config.TOOLBAR_COLOR,
   },
   leftContent: {
     flex: 1,

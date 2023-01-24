@@ -254,15 +254,12 @@ const ParticipantView = (props) => {
         )}
       </ScrollView>
 
-      <View style={style.footer}>
-        <CopyJoinInfo showTeritaryButton />
-        {isHost && (
-          <>
-            <Spacer horizontal size={16} />
-            <HostControlView />
-          </>
-        )}
-      </View>
+      {isHost && (
+        <View style={style.footer}>
+          {/*  <CopyJoinInfo showTeritaryButton /> */}
+          <HostControlView />
+        </View>
+      )}
     </View>
   );
 };

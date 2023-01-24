@@ -10,7 +10,7 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
-import {isIOS, isWeb, isWebInternal} from '../../utils/common';
+import {isIOS, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
@@ -116,7 +116,7 @@ const ChatParticipants = (props: any) => {
 };
 
 const PlatformWrapper = ({children, isHoveredUid, setIsHoveredUid, uid}) => {
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       style={{
         backgroundColor:

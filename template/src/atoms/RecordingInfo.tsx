@@ -15,13 +15,13 @@ export default RecordingInfo;
 
 const styles = StyleSheet.create({
   recordingView: {
-    padding: 6,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 24,
-    backgroundColor: $config.ICON_BG_COLOR + hexadecimalTransparency['10%'],
+    backgroundColor: $config.ICON_BG_COLOR,
     marginLeft: 8,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,

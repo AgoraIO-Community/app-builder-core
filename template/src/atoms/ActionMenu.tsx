@@ -13,7 +13,7 @@ import React, {SetStateAction, useState} from 'react';
 import ImageIcon from '../atoms/ImageIcon';
 import {IconsInterface} from '../atoms/CustomIcon';
 import ThemeConfig from '../theme';
-import {isWeb} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ActionMenuItem {
@@ -112,7 +112,7 @@ const ActionMenu = (props: ActionMenuProps) => {
 
 const PlatformWrapper = ({children}) => {
   const [isHovered, setIsHovered] = useState(false);
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       onMouseEnter={() => {
         setIsHovered(true);

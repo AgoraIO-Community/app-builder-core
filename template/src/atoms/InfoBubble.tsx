@@ -13,7 +13,6 @@ import ImageIcon, {ImageIconProps} from './ImageIcon';
 import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {isWeb} from '../utils/common';
 
 interface iconProps extends ImageIconProps {
   activeTintColor: string;
@@ -72,7 +71,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
       toolTipVisible={toolTipVisible}
       hoverMode={hoverMode}>
       {/* toolTipBox for desktop  */}
-      {hoverMode && isWeb() && !isSmall && toolTipVisible ? (
+      {hoverMode && isWebInternal() && !isSmall && toolTipVisible ? (
         <>
           <View
             style={[
@@ -109,7 +108,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         <></>
       )}
       {/* toolTip modal for mobile  */}
-      {(!isWeb() || isSmall || !hoverMode) && (
+      {(!isWebInternal() || isSmall || !hoverMode) && (
         <>
           <Modal
             animationType="none"
@@ -197,7 +196,7 @@ const PlatformWrapper = ({
       setToolTipVisible(false);
     });
   }
-  return hoverMode && isWeb() && !isSmall ? (
+  return hoverMode && isWebInternal() && !isSmall ? (
     <div
       style={{
         position: 'relative',

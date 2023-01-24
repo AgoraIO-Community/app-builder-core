@@ -96,6 +96,7 @@ interface ConfigInterface {
   HARD_CODED_BLACK_COLOR: string;
   ICON_TEXT: boolean;
   ICON_BG_COLOR: string;
+  TOOLBAR_COLOR: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

@@ -21,7 +21,7 @@ import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ClientRole, RenderInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
-import {isWeb, isWebInternal} from '../../utils/common';
+import {isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import Spacer from '../../atoms/Spacer';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
@@ -432,7 +432,7 @@ const Participant = (props: ParticipantInterface) => {
 export default Participant;
 
 const PlatformWrapper = ({children, showModal, setIsHovered}) => {
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       style={{}}
       onMouseEnter={() => {

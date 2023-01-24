@@ -1,6 +1,6 @@
 import React, {SetStateAction, useContext} from 'react';
 import {View, StyleSheet, TouchableWithoutFeedback, Modal} from 'react-native';
-import {isMobileUA, isWeb} from '../utils/common';
+import {isMobileUA, isWebInternal} from '../utils/common';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 import DimensionContext from '../components/dimension/DimensionContext';
