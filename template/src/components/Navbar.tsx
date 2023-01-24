@@ -122,9 +122,10 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'participants',
-      tintColor: isPanelActive
+      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : $config.SECONDARY_ACTION_COLOR,
+        : '',
     },
     btnTextProps: {
       text: isOnActionSheet || !$config.ICON_TEXT ? '' : participantsLabel,
@@ -219,9 +220,10 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     onPress: onPress,
     iconProps: {
       name: 'chat-nav',
-      tintColor: isPanelActive
+      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : $config.SECONDARY_ACTION_COLOR,
+        : '',
     },
     btnTextProps: {
       text: isOnActionSheet || !$config.ICON_TEXT ? '' : chatLabel,
