@@ -18,4 +18,5 @@ export {
   useHistory,
   useParams,
   BackButton,
+  Prompt,
 } from 'react-router-native';

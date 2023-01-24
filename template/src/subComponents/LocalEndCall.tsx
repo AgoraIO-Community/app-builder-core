@@ -2,7 +2,7 @@ import React, {useContext, useState} from 'react';
 import {useRtc} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
-import {useParams} from '../components/Router';
+import {Prompt, useParams} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 export interface LocalEndcallProps {
   showLabel?: boolean;
@@ -53,6 +53,16 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     props.render(onPress)
   ) : (
     <>
+      <Prompt
+        when={true}
+        message={(location, action) => {
+          if (action === 'POP') {
+            onPress();
+            return false;
+          }
+          return true;
+        }}
+      />
       <EndcallPopup
         endCall={endCall}
         setModalVisible={setEndcallVisible}
