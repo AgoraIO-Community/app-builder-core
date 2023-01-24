@@ -142,7 +142,7 @@ const style = StyleSheet.create({
   chatBubbleRemoteView: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     minWidth: '30%',
-    maxWidth: '100%',
+    maxWidth: '80%',
     alignSelf: 'flex-start',
     marginVertical: 2,
     marginHorizontal: 20,
@@ -178,7 +178,7 @@ const style = StyleSheet.create({
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
     minWidth: '30%',
-    maxWidth: '100%',
+    maxWidth: '80%',
     alignSelf: 'flex-end',
     marginVertical: 2,
     marginHorizontal: 20,
