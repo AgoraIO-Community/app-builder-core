@@ -18,7 +18,7 @@ import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {isAndroid, isWebInternal} from '../utils/common';
+import {isAndroid, isWeb, isWebInternal} from '../utils/common';
 import {useRender, useRtc} from 'customization-api';
 import {
   safeJsonParse,
@@ -91,11 +91,18 @@ const RtmConfigure = (props: any) => {
     };
 
     if (!isWebInternal()) return;
-    window.addEventListener('beforeunload', handBrowserClose);
+    window.addEventListener(
+      'beforeunload',
+      isWeb() ? handBrowserClose : () => {},
+    );
+
     window.addEventListener('unload', logoutRtm);
     // cleanup this component
     return () => {
-      window.removeEventListener('beforeunload', handBrowserClose);
+      window.removeEventListener(
+        'beforeunload',
+        isWeb() ? handBrowserClose : () => {},
+      );
       window.removeEventListener('unload', logoutRtm);
     };
   }, []);
