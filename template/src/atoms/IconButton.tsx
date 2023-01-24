@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
-import {isMobileUA, isWeb} from '../utils/common';
+import {isMobileUA, isWebInternal} from '../utils/common';
 import ToolTip from './Tooltip';
 import ThemeConfig from '../theme';
 
@@ -96,7 +96,7 @@ const ButtonWrapper = ({children, ...props}) => {
 };
 
 const PlatformWrapper = ({children, ...props}) => {
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       onMouseEnter={() => {
         props?.setIsHovered(true);

@@ -1,10 +1,10 @@
 import React from 'react';
 import {useState} from 'react';
-import {isWeb} from './common';
+import {isWebInternal} from './common';
 
 const PlatformWrapper = ({children}) => {
   const [isHovered, setIsHovered] = useState(false);
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       onMouseEnter={() => {
         setIsHovered(true);

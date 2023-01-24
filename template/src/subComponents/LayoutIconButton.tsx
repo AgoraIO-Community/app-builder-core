@@ -5,7 +5,6 @@ import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useLayout} from '../utils/useLayout';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import {isWeb} from 'customization-api';
 import {Dimensions} from 'react-native';
 import {isMobileUA} from '../utils/common';
 

@@ -21,7 +21,6 @@ import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {
-  isWeb,
   RenderInterface,
   UidType,
   useLocalUid,
@@ -179,7 +178,7 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
 export default ScreenshareParticipants;
 
 const PlatformWrapper = ({children, showModal, setIsHovered}) => {
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       style={{}}
       onMouseEnter={() => {

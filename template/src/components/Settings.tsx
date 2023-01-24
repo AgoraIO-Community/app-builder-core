@@ -34,11 +34,13 @@ const Settings = (props: SettingsIconButtonProps) => {
   };
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
+
     iconProps: {
       name: 'settings',
-      tintColor: isPanelActive
+      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
-        : $config.SECONDARY_ACTION_COLOR,
+        : '',
     },
     btnTextProps: {
       text: $config.ICON_TEXT ? settingsLabel : '',
