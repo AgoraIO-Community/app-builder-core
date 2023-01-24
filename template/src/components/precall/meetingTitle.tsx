@@ -27,6 +27,5 @@ const style = StyleSheet.create({
     fontWeight: '600',
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    textTransform: 'capitalize',
   },
 });

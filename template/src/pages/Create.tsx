@@ -357,11 +357,15 @@ const Create = () => {
                     if (!$config.BACKEND_ENDPOINT) {
                       showError();
                     } else {
+                      let randomMeetingName = '';
+                      if (!roomTitle) {
+                        randomMeetingName = `${randomNameGenerator(
+                          3,
+                        )}-${randomNameGenerator(3)}-${randomNameGenerator(3)}`;
+                        onChangeRoomTitle(randomMeetingName);
+                      }
                       createRoomAndNavigateToShare(
-                        roomTitle ||
-                          `${randomNameGenerator(3)}-${randomNameGenerator(
-                            3,
-                          )}-${randomNameGenerator(3)}`,
+                        roomTitle || randomMeetingName,
                         pstnToggle,
                         !coHostToggle,
                       );
