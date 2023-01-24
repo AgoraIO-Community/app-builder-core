@@ -8,7 +8,7 @@ import {
   View,
   Image,
 } from 'react-native';
-import {isWeb, isWebInternal} from '../utils/common';
+import {isWebInternal} from '../utils/common';
 import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 import {IconsInterface} from './CustomIcon';
@@ -193,7 +193,7 @@ const Dropdown: FC<Props> = ({
 
 const PlatformWrapper = ({children, onPress}) => {
   const [isHovered, setIsHovered] = React.useState(false);
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       style={{
         backgroundColor: isHovered

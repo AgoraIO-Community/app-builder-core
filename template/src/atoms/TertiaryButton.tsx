@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import ThemeConfig from '../theme';
-import {isWeb} from 'customization-api';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {isWebInternal} from '../utils/common';
 
 interface ButtonProps extends TouchableOpacityProps {
   setRef?: (ref: any) => void;
@@ -43,7 +43,7 @@ const TertiaryButton = (props: ButtonProps) => {
   );
 };
 const PlatformWrapper = ({children, setIsHovered}) => {
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       onMouseEnter={() => {
         setIsHovered(true);

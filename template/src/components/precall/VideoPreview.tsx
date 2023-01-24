@@ -32,7 +32,7 @@ import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
-import {isWeb, isWebInternal} from '../../utils/common';
+import {isWebInternal} from '../../utils/common';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const Fallback = () => {
@@ -42,7 +42,7 @@ const Fallback = () => {
     try {
       const URL =
         'https://support.google.com/chrome/answer/2693767?hl=en&co=GENIE.Platform%3DDesktop';
-      if (isWeb()) {
+      if (isWebInternal()) {
         window.open(URL, '_blank');
       } else {
         Linking.openURL(URL);

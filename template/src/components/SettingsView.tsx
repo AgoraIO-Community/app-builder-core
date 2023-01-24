@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWeb, isWebInternal, maxInputLimit} from '../utils/common';
+import {isWebInternal, maxInputLimit} from '../utils/common';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ThemeConfig from '../theme';
@@ -157,7 +157,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
 
 const PlatformWrapper = ({children}) => {
   const [isHovered, setIsHovered] = useState(false);
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       style={
         isHovered

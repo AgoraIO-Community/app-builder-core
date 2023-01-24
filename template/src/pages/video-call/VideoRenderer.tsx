@@ -13,7 +13,6 @@ import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
 import {
-  isWeb,
   MUTE_REMOTE_TYPE,
   SidePanelType,
   useLayout,
@@ -34,6 +33,7 @@ import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import {useChatMessages} from '../../components/chat-messages/useChatMessages';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
+import {isWebInternal} from '../../utils/common';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -318,7 +318,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
 };
 
 const PlatformWrapper = ({children, setIsHovered}) => {
-  return isWeb() ? (
+  return isWebInternal() ? (
     <div
       style={{width: '100%', height: '100%'}}
       onMouseEnter={() => {
