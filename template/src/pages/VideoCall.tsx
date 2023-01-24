@@ -249,7 +249,7 @@ const VideoCall: React.FC = () => {
                                               }}>
                                               <LiveStreamDataProvider>
                                                 <LocalUserContext
-                                                  localUid={rtcProps?.uid || 0}>
+                                                  localUid={rtcProps?.uid}>
                                                   <CustomUserContextHolder>
                                                     <NetworkQualityProvider>
                                                       {isDesktop && (
