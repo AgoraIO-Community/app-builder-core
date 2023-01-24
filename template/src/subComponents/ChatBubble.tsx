@@ -48,6 +48,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
+
   return props?.render ? (
     props.render(
       isLocal,
@@ -152,8 +153,8 @@ const style = StyleSheet.create({
   },
   chatBubbleRemoteViewLayer2: {
     backgroundColor: 'transparent',
-    width: '100%',
-    height: '100%',
+    //  width: '100%',
+    // height: '100%',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderBottomLeftRadius: 12,
@@ -162,8 +163,8 @@ const style = StyleSheet.create({
     borderTopRightRadius: 0,
   },
   chatBubbleLocalViewLayer2: {
-    width: '100%',
-    height: '100%',
+    //width: '100%',
+    //height: '100%',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderBottomLeftRadius: 12,

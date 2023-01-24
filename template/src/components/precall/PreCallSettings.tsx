@@ -11,6 +11,7 @@ interface PreCallSettingsProps {
 const PreCallSettings = (props: PreCallSettingsProps) => {
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const {isMobileView = true} = props;
+
   return (
     <>
       <Popup
@@ -23,9 +24,7 @@ const PreCallSettings = (props: PreCallSettingsProps) => {
         <SettingsView handleClose={() => setIsSettingsVisible(false)} />
       </Popup>
 
-      <TouchableOpacity
-        onPress={() => setIsSettingsVisible(true)}
-        style={{paddingLeft: 20, paddingRight: 20}}>
+      <TouchableOpacity onPress={() => setIsSettingsVisible(true)}>
         <ImageIcon
           name={'settings'}
           tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
@@ -46,7 +45,8 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   containerStyle: {
-    marginVertical: 20,
+    marginVertical: 100,
     paddingHorizontal: 16,
+    alignItems: 'stretch',
   },
 });

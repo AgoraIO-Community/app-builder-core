@@ -291,11 +291,8 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
           //todo pass handle close
-          handleClose={() => {}}
           isMobile={isMobile}
           modalPosition={pos}
-          //todo pass updateActionSheet
-          updateActionSheet={() => {}}
           user={user}
         />
         <IconButton

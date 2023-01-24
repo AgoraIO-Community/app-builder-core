@@ -316,7 +316,7 @@ const style = StyleSheet.create({
     marginRight: 8,
   },
   participantText: {
-    flex: 1,
+    // flex: 1,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 14,

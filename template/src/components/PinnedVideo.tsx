@@ -151,7 +151,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 flexDirection: 'row',
                 position: 'absolute',
                 top: 12,
-                left: 12 + 32 + 12 + 12,
+                left: 12 + (isSidePinnedlayout ? 32 + 12 + 12 : 0),
                 zIndex: 999,
               }}
               iconProps={{

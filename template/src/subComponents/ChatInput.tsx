@@ -15,7 +15,7 @@ import ColorContext from '../components/ColorContext';
 import TextInput from '../atoms/TextInput';
 import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
-import {isValidReactComponent} from '../utils/common';
+import {isValidReactComponent, isWebInternal} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
 import {useRender, useUserName} from 'customization-api';
@@ -100,7 +100,9 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 
   useEffect(() => {
     setTimeout(() => {
-      chatInputRef?.current?.focus();
+      if (isWebInternal()) {
+        chatInputRef?.current?.focus();
+      }
     });
   }, []);
 

@@ -6,9 +6,10 @@ import {
   StyleSheet,
   Pressable,
   PressableProps,
+  TouchableOpacity,
 } from 'react-native';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
-import {isWeb} from '../utils/common';
+import {isMobileUA, isWeb} from '../utils/common';
 import ToolTip from './Tooltip';
 import ThemeConfig from '../theme';
 
@@ -35,19 +36,7 @@ export interface IconButtonProps {
 
 const IconButton = (props: IconButtonProps) => {
   return (
-    <Pressable
-      ref={(ref) => props?.setRef && props.setRef(ref)}
-      style={
-        !props.isOnActionSheet && [
-          styles.containerStyle,
-          props?.containerStyle,
-          props?.hoverEffect && props?.isToolTipVisible
-            ? props?.hoverEffectStyle
-            : {},
-        ]
-      }
-      onPress={props.onPress}
-      disabled={props.disabled}>
+    <ButtonWrapper {...props}>
       <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
@@ -65,6 +54,43 @@ const IconButton = (props: IconButtonProps) => {
       ) : (
         <></>
       )}
+    </ButtonWrapper>
+  );
+};
+
+const ButtonWrapper = ({children, ...props}) => {
+  const isMobileView = isMobileUA();
+  return isMobileView ? (
+    <TouchableOpacity
+      ref={(ref) => props?.setRef && props.setRef(ref)}
+      style={
+        !props.isOnActionSheet && [
+          styles.containerStyle,
+          props?.containerStyle,
+          props?.hoverEffect && props?.isToolTipVisible
+            ? props?.hoverEffectStyle
+            : {},
+        ]
+      }
+      onPress={props.onPress}
+      disabled={props.disabled}>
+      {children}
+    </TouchableOpacity>
+  ) : (
+    <Pressable
+      ref={(ref) => props?.setRef && props.setRef(ref)}
+      style={
+        !props.isOnActionSheet && [
+          styles.containerStyle,
+          props?.containerStyle,
+          props?.hoverEffect && props?.isToolTipVisible
+            ? props?.hoverEffectStyle
+            : {},
+        ]
+      }
+      onPress={props.onPress}
+      disabled={props.disabled}>
+      {children}
     </Pressable>
   );
 };

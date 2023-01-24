@@ -105,12 +105,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         visibilityTime: 3000,
         primaryBtn: (
           <PrimaryButton
-            containerStyle={{
-              maxWidth: 109,
-              minWidth: 109,
-              height: 40,
-              borderRadius: 4,
-            }}
+            containerStyle={style.primaryBtn}
             textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
             text="UNMUTE"
             onPress={() => {
@@ -170,6 +165,8 @@ const style = StyleSheet.create({
     minWidth: 109,
     height: 40,
     borderRadius: 4,
+    paddingVertical: 11,
+    paddingHorizontal: 12,
   },
   primaryBtnText: {
     fontWeight: '600',

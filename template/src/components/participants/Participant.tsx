@@ -295,10 +295,8 @@ const Participant = (props: ParticipantInterface) => {
       <UserActionMenuOptionsOptions
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
-        handleClose={handleClose}
         isMobile={isMobile}
         modalPosition={pos}
-        updateActionSheet={updateActionSheet}
         user={props.user}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
@@ -357,15 +355,49 @@ const Participant = (props: ParticipantInterface) => {
                 {!$config.AUDIO_ROOM &&
                   (isLocal
                     ? !isAudienceUser && (
-                        <LocalVideoMute
+                        <View>
+                          <LocalVideoMute
+                            plainIconHoverEffect={true}
+                            iconProps={(isVideoEnabled, isPermissionDenied) => {
+                              return {
+                                iconSize: 20,
+                                iconType: 'plain',
+                                iconContainerStyle: {padding: 8},
+                                showWarningIcon: false,
+                                tintColor: isVideoEnabled
+                                  ? $config.PRIMARY_ACTION_BRAND_COLOR
+                                  : isPermissionDenied
+                                  ? $config.SEMANTIC_NETRUAL
+                                  : $config.SEMANTIC_ERROR,
+                              };
+                            }}
+                            showLabel={false}
+                            isMobileView={isMobile}
+                          />
+                        </View>
+                      )
+                    : !isAudienceUser && (
+                        <View>
+                          <RemoteVideoMute
+                            uid={user.uid}
+                            video={user.video}
+                            isHost={isHost}
+                            userContainerRef={usercontainerRef}
+                          />
+                        </View>
+                      ))}
+                {isLocal
+                  ? !isAudienceUser && (
+                      <View>
+                        <LocalAudioMute
                           plainIconHoverEffect={true}
-                          iconProps={(isVideoEnabled, isPermissionDenied) => {
+                          iconProps={(isAudioEnabled, isPermissionDenied) => {
                             return {
                               iconSize: 20,
                               iconType: 'plain',
                               iconContainerStyle: {padding: 8},
                               showWarningIcon: false,
-                              tintColor: isVideoEnabled
+                              tintColor: isAudioEnabled
                                 ? $config.PRIMARY_ACTION_BRAND_COLOR
                                 : isPermissionDenied
                                 ? $config.SEMANTIC_NETRUAL
@@ -375,43 +407,17 @@ const Participant = (props: ParticipantInterface) => {
                           showLabel={false}
                           isMobileView={isMobile}
                         />
-                      )
-                    : !isAudienceUser && (
-                        <RemoteVideoMute
+                      </View>
+                    )
+                  : !isAudienceUser && (
+                      <View>
+                        <RemoteAudioMute
                           uid={user.uid}
-                          video={user.video}
+                          audio={user.audio}
                           isHost={isHost}
                           userContainerRef={usercontainerRef}
                         />
-                      ))}
-                {isLocal
-                  ? !isAudienceUser && (
-                      <LocalAudioMute
-                        plainIconHoverEffect={true}
-                        iconProps={(isAudioEnabled, isPermissionDenied) => {
-                          return {
-                            iconSize: 20,
-                            iconType: 'plain',
-                            iconContainerStyle: {padding: 8},
-                            showWarningIcon: false,
-                            tintColor: isAudioEnabled
-                              ? $config.PRIMARY_ACTION_BRAND_COLOR
-                              : isPermissionDenied
-                              ? $config.SEMANTIC_NETRUAL
-                              : $config.SEMANTIC_ERROR,
-                          };
-                        }}
-                        showLabel={false}
-                        isMobileView={isMobile}
-                      />
-                    )
-                  : !isAudienceUser && (
-                      <RemoteAudioMute
-                        uid={user.uid}
-                        audio={user.audio}
-                        isHost={isHost}
-                        userContainerRef={usercontainerRef}
-                      />
+                      </View>
                     )}
               </>
             ) : (
@@ -492,5 +498,8 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     flexDirection: 'row',
+  },
+  controlsContainer: {
+    backgroundColor: 'red',
   },
 });

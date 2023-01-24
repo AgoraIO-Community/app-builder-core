@@ -97,7 +97,10 @@ const Fallback = () => {
   );
 };
 
-const VideoPreview: React.FC = () => {
+export interface VideoPreviewProps {
+  isMobileView?: boolean;
+}
+const VideoPreview = ({isMobileView = false}: VideoPreviewProps) => {
   const {renderList, activeUids} = useRender();
 
   const [maxUid] = activeUids;
@@ -113,8 +116,8 @@ const VideoPreview: React.FC = () => {
   const onLayout = (e: any) => {
     setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
-  const isMobileView = dim[0] < dim[1] + 150;
-
+  // const isMobileView = dim[0] < dim[1] + 150;
+  // const isMobileView = dim[0] < 700;
   return (
     <View style={[styles.container]} onLayout={onLayout}>
       <View
@@ -165,6 +168,8 @@ const styles = StyleSheet.create({
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   fallbackContainer: {
     flex: 1,

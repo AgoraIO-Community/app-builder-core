@@ -26,7 +26,7 @@ import {useSidePanel} from '../../utils/useSidePanel';
 
 const ActionSheet = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const {sidePanel} = useSidePanel();
+  const {sidePanel, setSidePanel} = useSidePanel();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const chatSheetRef = useRef<BottomSheetModal>(null);
   const participantsSheetRef = useRef<BottomSheetModal>(null);
@@ -69,7 +69,7 @@ const ActionSheet = () => {
   }, [sidePanel]);
 
   function onDismiss() {
-    handleSheetChanges(0);
+    setSidePanel(SidePanelType.None);
   }
 
   return (
@@ -81,7 +81,7 @@ const ActionSheet = () => {
       )}
       {/* Controls  Action Sheet*/}
       <BottomSheetModal
-        snapPoints={['15%', '50%']}
+        snapPoints={[100, 350]}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         enablePanDownToClose={false}

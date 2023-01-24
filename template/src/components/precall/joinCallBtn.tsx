@@ -92,6 +92,11 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
       onPress={onPress}
       disabled={disabled}
       text={title}
+      containerStyle={{
+        minWidth: '100%',
+        paddingHorizontal: 10,
+      }}
+      textStyle={{textAlign: 'center'}}
     />
   );
 };

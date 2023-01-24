@@ -239,6 +239,7 @@ const SettingsView = (props) => {
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
+
   return (
     <View
       style={[
@@ -257,6 +258,7 @@ const SettingsView = (props) => {
         }
         trailingIconName="close"
         trailingIconOnPress={() => {
+          props.handleClose && props.handleClose();
           setSidePanel(SidePanelType.None);
         }}
       />

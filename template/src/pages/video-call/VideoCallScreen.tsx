@@ -13,7 +13,11 @@ import SettingsView from '../../components/SettingsView';
 import Controls from '../../components/Controls';
 import Chat, {ChatProps} from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {isValidReactComponent, isWebInternal} from '../../utils/common';
+import {
+  isMobileUA,
+  isValidReactComponent,
+  isWebInternal,
+} from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
@@ -194,7 +198,8 @@ const VideoCallScreen = () => {
 
   return VideocallComponent ? (
     <VideocallComponent />
-  ) : !isDesktop ? (
+  ) : // ) : !isDesktop ? (
+  isMobileUA() ? (
     // Mobile View
     <VideoCallMobileView />
   ) : (

@@ -39,9 +39,7 @@ interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
-  handleClose: () => void;
   isMobile: boolean;
-  updateActionSheet: (screenName: 'chat' | 'participants' | 'settings') => {};
   modalPosition: {};
 }
 export default function UserActionMenuOptionsOptions(
@@ -125,14 +123,8 @@ export default function UserActionMenuOptionsOptions(
         textColor: $config.SECONDARY_ACTION_COLOR,
         title: 'Message Privately',
         callback: () => {
-          if (props.isMobile) {
-            props.handleClose();
-            openPrivateChat(user.uid);
-            props.updateActionSheet('chat');
-          } else {
-            setActionMenuVisible(false);
-            openPrivateChat(user.uid);
-          }
+          setActionMenuVisible(false);
+          openPrivateChat(user.uid);
         },
       });
 
@@ -260,14 +252,9 @@ export default function UserActionMenuOptionsOptions(
               editName: true,
             };
           });
-          if (props.isMobile) {
-            props.handleClose();
-            setSidePanel(SidePanelType.Settings);
-            props.updateActionSheet('settings');
-          } else {
-            setActionMenuVisible(false);
-            setSidePanel(SidePanelType.Settings);
-          }
+
+          setActionMenuVisible(false);
+          setSidePanel(SidePanelType.Settings);
         },
       });
     }

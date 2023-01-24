@@ -17,20 +17,33 @@ const VideoCallMobileView = () => {
     data: {meetingTitle},
   } = useMeetingInfo();
   const {isRecordingActive} = useRecording();
-  const recordingLabel = 'Recording';
+  const recordingLabel = 'REC';
   return (
     <View style={styles.container}>
       <View style={styles.titleBar}>
         <Text style={styles.title}>{trimText(meetingTitle)}</Text>
         <Spacer size={8} horizontal={false} />
         <View style={styles.countView}>
-          <ParticipantsCount />
+          <View
+            style={{
+              width: 45,
+              height: 35,
+              justifyContent: 'center',
+              alignItems: 'center',
+              alignSelf: 'center',
+
+              //flex: 1,
+            }}>
+            <ParticipantsCount />
+          </View>
           {isRecordingActive ? (
             <RecordingInfo recordingLabel={recordingLabel} />
-          ) : null}
+          ) : (
+            <></>
+          )}
         </View>
       </View>
-      <Spacer size={40} />
+      <Spacer size={16} />
       <View style={styles.videoView}>
         <VideoComponent />
       </View>
