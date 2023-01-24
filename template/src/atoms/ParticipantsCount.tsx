@@ -44,7 +44,7 @@ const ParticipantsCount = () => {
           fontSize: 12,
           lineHeight: 12,
           marginTop: 0,
-          marginLeft: 6,
+          marginLeft: 4,
         },
       }}
     />
@@ -56,7 +56,7 @@ export default ParticipantsCount;
 const styles = StyleSheet.create({
   participantCountView: {
     flexDirection: 'row',
-    padding: 6,
+    padding: 12,
     backgroundColor: $config.ICON_BG_COLOR,
     borderRadius: 25,
     borderWidth: 1,
