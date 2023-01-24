@@ -89,7 +89,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
           <Hyperlink
             onPress={handleUrl}
             linkStyle={{
-              color: '#0038FF',
+              color: $config.FONT_COLOR,
               textDecorationLine: 'underline',
             }}>
             <Text style={style.messageStyle} selectable={true}>
