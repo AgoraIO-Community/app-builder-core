@@ -28,7 +28,7 @@ const ActionSheet = () => {
   const settingsSheetRef = useRef<BottomSheetRef>(null);
 
   const {sidePanel, setSidePanel} = useSidePanel();
-
+  const [showOverlay, setShowOverlay] = React.useState(false);
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
@@ -71,8 +71,21 @@ const ActionSheet = () => {
   }
 
   const handleSpringStart = (event: SpringEvent) => {
-    if (event.type == 'SNAP' && event.source == 'dragging') {
-      setIsExpanded(!isExpanded);
+    if (event.type == 'SNAP') {
+      setShowOverlay(true); // as soon drag start show overlay
+    }
+  };
+  const handleSpringEnd = (event: SpringEvent) => {
+    if (event.type == 'SNAP') {
+      const isMinmized = bottomSheetRef.current.height === 100;
+      isMinmized && setShowOverlay(false);
+      if (event.source === 'dragging') {
+        if (isMinmized) {
+          setIsExpanded(false);
+        } else {
+          setIsExpanded(true);
+        }
+      }
     }
   };
 
@@ -95,8 +108,12 @@ const ActionSheet = () => {
   };
   return (
     <>
-      {isExpanded && (
-        <TouchableWithoutFeedback onPress={() => handleSheetChanges(0)}>
+      {showOverlay && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            handleSheetChanges(0);
+            debugger;
+          }}>
           <View style={[styles.backDrop]} />
         </TouchableWithoutFeedback>
       )}
@@ -107,6 +124,8 @@ const ActionSheet = () => {
           ref={bottomSheetRef}
           open={true}
           onSpringStart={handleSpringStart}
+          onSpringEnd={handleSpringEnd}
+          // skipInitialTransition={true}
           expandOnContentDrag={true}
           snapPoints={({maxHeight}) => [100, 350]}
           defaultSnap={({lastSnap, snapPoints}) =>
@@ -175,6 +194,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    opacity: 0.2,
+    opacity: 0.5,
   },
 });
