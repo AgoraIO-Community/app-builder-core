@@ -16,6 +16,7 @@ import {
   ClientRole,
   LocalContext,
   PermissionState,
+  LocalUserContext,
 } from '../../agora-rn-uikit';
 import DeviceContext from '../components/DeviceContext';
 import ColorContext from '../components/ColorContext';
@@ -68,10 +69,6 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   useEffect(() => {
     setDataValue();
   }, [deviceList]);
-  const local = useContext(LocalContext);
-  const permissionGranted =
-    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
-    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
 
   const setDataValue = () => {
     const data = deviceList
@@ -96,12 +93,8 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
       <Dropdown
         icon={props?.isIconDropdown ? 'video-on' : undefined}
         enabled={!isPickerDisabled}
-        label={
-          !permissionGranted || !data || !data.length
-            ? 'No Camera Detected'
-            : ''
-        }
-        data={permissionGranted ? data : []}
+        label={!data || !data.length ? 'No Camera Detected' : ''}
+        data={data}
         onSelect={({label, value}) => {
           setIsFocussed(true);
           setSelectedCam(value);
@@ -127,7 +120,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
   const [data, setData] = useState([]);
-  const local = useContext(LocalContext);
+
   useEffect(() => {
     setDataValue();
   }, []);
@@ -152,10 +145,6 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       });
     setData(data);
   };
-  const permissionGranted =
-    local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
-    local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
-
   return props?.render ? (
     props.render(selectedMic, setSelectedMic, deviceList, isPickerDisabled)
   ) : (
@@ -165,12 +154,8 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         icon={props?.isIconDropdown ? 'mic-on' : undefined}
         enabled={!isPickerDisabled}
         selectedValue={selectedMic}
-        label={
-          !permissionGranted || !data || !data.length
-            ? 'No Microphone Detected'
-            : ''
-        }
-        data={permissionGranted ? data : []}
+        label={!data || !data.length ? 'No Microphone Detected' : ''}
+        data={data}
         onSelect={({label, value}) => {
           setIsFocussed(true);
           setSelectedMic(value);
@@ -197,21 +182,32 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    setDataValue();
+  }, []);
 
-  let data = deviceList
-    .filter((device) => {
-      if (device.kind === 'audiooutput') {
-        return true;
-      }
-    })
-    ?.map((device: any) => {
-      if (device.kind === 'audiooutput') {
-        return {
-          label: device.label,
-          value: device.deviceId,
-        };
-      }
-    });
+  useEffect(() => {
+    setDataValue();
+  }, [deviceList]);
+
+  const setDataValue = () => {
+    let data = deviceList
+      .filter((device) => {
+        if (device.kind === 'audiooutput') {
+          return true;
+        }
+      })
+      ?.map((device: any) => {
+        if (device.kind === 'audiooutput') {
+          return {
+            label: device.label,
+            value: device.deviceId,
+          };
+        }
+      });
+    setData(data);
+  };
 
   return props?.render ? (
     props.render(
