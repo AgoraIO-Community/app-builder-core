@@ -124,7 +124,7 @@ const ActionSheet = () => {
           onDismiss={onDismiss}
           open={isChatOpen}
           blocking={false}
-          expandOnContentDrag={true}
+          expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
           <Chat />
@@ -134,7 +134,7 @@ const ActionSheet = () => {
           ref={participantsSheetRef}
           onDismiss={onDismiss}
           open={isParticipantsOpen}
-          expandOnContentDrag={true}
+          expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           blocking={false}>
@@ -145,7 +145,7 @@ const ActionSheet = () => {
           ref={settingsSheetRef}
           onDismiss={onDismiss}
           open={isSettingsOpen}
-          expandOnContentDrag={true}
+          expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           blocking={false}>
