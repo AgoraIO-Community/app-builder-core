@@ -286,7 +286,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
 
   return (
     <>
-      <View style={{position: 'absolute', right: 12, bottom: 12, zIndex: 999}}>
+      <View style={{position: 'absolute', right: 8, bottom: 8, zIndex: 999}}>
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}

@@ -21,6 +21,7 @@ import {layoutProps} from '../../theme.json';
 import {layoutComponent, useRender, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
@@ -126,14 +127,16 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             <IconButton
               containerStyle={{
                 position: 'absolute',
-                top: 12,
-                left: 12,
+                top: 8,
+                left: 8,
                 zIndex: 999,
               }}
               onPress={() => setCollapse(!collapse)}
               iconProps={{
                 iconContainerStyle: {
                   padding: 8,
+                  backgroundColor:
+                    $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
                 },
                 name: collapse ? 'collapse' : 'expand',
                 tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
