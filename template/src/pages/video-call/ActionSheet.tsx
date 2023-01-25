@@ -112,7 +112,6 @@ const ActionSheet = () => {
         <TouchableWithoutFeedback
           onPress={() => {
             handleSheetChanges(0);
-            debugger;
           }}>
           <View style={[styles.backDrop]} />
         </TouchableWithoutFeedback>

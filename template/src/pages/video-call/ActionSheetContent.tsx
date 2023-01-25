@@ -45,14 +45,16 @@ interface ShowMoreIconProps {
 const ShowMoreIcon = (props: ShowMoreIconProps) => {
   const {isExpanded, onPress, showNotification} = props;
   return (
-    <View style={styles.iconContainer}>
-      <TouchableOpacity onPress={onPress}>
-        <ImageIcon
-          name={isExpanded ? 'arrow-down' : 'more-menu'}
-          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-        />
-      </TouchableOpacity>
-      {showNotification && <View style={styles.notification} />}
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={onPress}>
+          <ImageIcon
+            name={isExpanded ? 'arrow-down' : 'more-menu'}
+            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+          />
+        </TouchableOpacity>
+        {showNotification && <View style={styles.notification} />}
+      </View>
     </View>
   );
 };
@@ -68,9 +70,11 @@ const LiveStreamIcon = (props: LiveStreamIconProps) => {
       <View style={styles.iconContainer}>
         <LiveStreamControls showControls={true} isDesktop={false} />
       </View>
-      <Text style={styles.iconText}>
-        {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
-      </Text>
+      {$config.ICON_TEXT && (
+        <Text style={styles.iconText}>
+          {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
+        </Text>
+      )}
     </View>
   );
 };
@@ -82,7 +86,7 @@ const ChatIcon = () => {
       <View style={styles.iconContainer}>
         <ChatIconButton isOnActionSheet={true} />
       </View>
-      <Text style={styles.iconText}>Chat</Text>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Chat</Text>}
     </View>
   );
 };
@@ -98,20 +102,24 @@ const ParticipantsIcon = (props: ParticipantsIconProps) => {
       <View style={styles.iconContainer}>
         <ParticipantsIconButton isOnActionSheet={true} />
       </View>
-      <Text style={styles.iconText}>People</Text>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>People</Text>}
       {showNotification && <View style={styles.notification} />}
     </View>
   );
 };
 
 //Icon for Recording
-const RecordingIcon = () => {
+interface RecordingIconProps {
+  showLabel?: boolean;
+}
+const RecordingIcon = (props: RecordingIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
         <Recording showLabel={false} isOnActionSheet={true} />
       </View>
-      <Text style={styles.iconText}>Record</Text>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Record</Text>}
     </View>
   );
 };
@@ -126,39 +134,17 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
       <View style={styles.iconContainer}>
         <LocalSwitchCamera showLabel={false} disabled={disabled} />
       </View>
-      <Text
-        style={[
-          styles.iconText,
-          {
-            color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
-          },
-        ]}>
-        Switch {'\n'} Camera
-      </Text>
-    </View>
-  );
-};
-
-interface LayoutIconProps {
-  onPress: () => void;
-  currentLayout: string;
-}
-const LayoutIcon = (props: LayoutIconProps) => {
-  const {onPress, currentLayout} = props;
-  return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <IconButton
-          onPress={onPress}
-          isOnActionSheet={true}
-          iconProps={{
-            name: currentLayout === 'grid' ? 'grid' : 'list-view',
-            tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
-          }}
-        />
-        {/* layout */}
-      </View>
-      <Text style={styles.iconText}>Layout</Text>
+      {$config.ICON_TEXT && (
+        <Text
+          style={[
+            styles.iconText,
+            {
+              color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+            },
+          ]}>
+          Switch {'\n'} Camera
+        </Text>
+      )}
     </View>
   );
 };
@@ -176,7 +162,7 @@ const SettingsIcon = (props: SettingsIconProps) => {
           tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
         />
       </TouchableOpacity>
-      <Text style={styles.iconText}>Settings</Text>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Settings</Text>}
     </View>
   );
 };
@@ -187,29 +173,93 @@ const ShareIcon = () => {
       <View style={styles.iconContainer}>
         <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
       </View>
-      <Text style={styles.iconText}>Invite</Text>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Invite</Text>}
+    </View>
+  );
+};
+
+interface AudioIconProps {
+  isMobileView: boolean;
+  isOnActionSheet: boolean;
+  showLabel: boolean;
+  disabled: boolean;
+}
+const AudioIcon = (props: AudioIconProps) => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <LocalAudioMute {...props} />
+      </View>
+    </View>
+  );
+};
+
+interface CamIconProps {
+  isMobileView: boolean;
+  isOnActionSheet: boolean;
+  showLabel: boolean;
+  disabled: boolean;
+}
+const CamIcon = (props: CamIconProps) => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <LocalVideoMute {...props} />
+      </View>
+    </View>
+  );
+};
+
+interface EndCallIconProps {
+  showLabel: boolean;
+  isOnActionSheet: boolean;
+}
+const EndCallIcon = (props: EndCallIconProps) => {
+  return (
+    <View style={styles.iconWithText}>
+      <View
+        style={[
+          styles.iconContainer,
+          {backgroundColor: $config.SEMANTIC_ERROR},
+        ]}>
+        <LocalEndcall {...props} />
+      </View>
+    </View>
+  );
+};
+
+interface LayoutIconProps {
+  showLabel: boolean;
+}
+const LayoutIcon = (props: LayoutIconProps) => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <LayoutIconButton {...props} />
+      </View>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Layout</Text>}
     </View>
   );
 };
 
 type ActionSheetComponentsProps = [
-  (props: LocalAudioMuteProps) => JSX.Element,
-  (props: LocalVideoMuteProps) => JSX.Element,
-  (props: LocalEndcallProps) => JSX.Element,
+  (props: AudioIconProps) => JSX.Element,
+  (props: CamIconProps) => JSX.Element,
+  (props: EndCallIconProps) => JSX.Element,
   (props: ShowMoreIconProps) => JSX.Element,
-  () => JSX.Element,
+  (props) => JSX.Element,
   (props: ParticipantsIconProps) => JSX.Element,
-  () => JSX.Element,
+  (props) => JSX.Element,
   (props: SwitchCameraIconProps) => JSX.Element,
   (props: LayoutIconProps) => JSX.Element,
   (props: SettingsIconProps) => JSX.Element,
-  () => JSX.Element,
+  (props) => JSX.Element,
 ];
 
 export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
-  LocalAudioMute,
-  LocalAudioMute,
-  LocalEndcall,
+  AudioIcon,
+  CamIcon,
+  EndCallIcon,
   ShowMoreIcon,
   ChatIcon,
   ParticipantsIcon,
@@ -244,34 +294,36 @@ const ActionSheetContent = (props) => {
     changeLayout();
   };
 
+  const isAudioRoom = $config.AUDIO_ROOM;
+  const isAudioRoomHost = $config.AUDIO_ROOM && isHost;
+  const isAudioRoomAudience = $config.AUDIO_ROOM && isAudience;
+
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
   return (
     <View>
+      {/* Row Always Visible */}
       <View style={[styles.row, {borderBottomWidth: 1, paddingTop: 4}]}>
-        <View style={styles.iconContainer}>
-          <LocalVideoMute
-            isOnActionSheet={true}
-            isMobileView={true}
-            showLabel={false}
-            disabled={isLiveStream && isAudience && !isBroadCasting}
-          />
-        </View>
-        <View style={[styles.iconContainer]}>
-          <LocalAudioMute
-            isMobileView={true}
-            isOnActionSheet={true}
-            showLabel={false}
-            disabled={isLiveStream && isAudience && !isBroadCasting}
-          />
-        </View>
+        <AudioIcon
+          isMobileView={true}
+          isOnActionSheet={true}
+          showLabel={false}
+          disabled={isLiveStream && isAudience && !isBroadCasting}
+        />
 
-        <View
-          style={[
-            styles.iconContainer,
-            {backgroundColor: $config.SEMANTIC_ERROR},
-          ]}>
-          <LocalEndcall showLabel={false} isOnActionSheet={true} />
-        </View>
+        {isAudioRoomHost && $config.CLOUD_RECORDING && (
+          <RecordingIcon showLabel={false} />
+        )}
+        {isAudioRoomAudience && <LayoutIconButton showLabel={false} />}
+        {!isAudioRoom && (
+          <CamIcon
+            isOnActionSheet={true}
+            isMobileView={true}
+            showLabel={false}
+            disabled={isLiveStream && isAudience && !isBroadCasting}
+          />
+        )}
+
+        <EndCallIcon showLabel={false} isOnActionSheet={true} />
 
         <ShowMoreIcon
           isExpanded={isExpanded}
@@ -282,6 +334,8 @@ const ActionSheetContent = (props) => {
           onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
         />
       </View>
+
+      {/* Rest Of Controls */}
       <View style={styles.row}>
         {/**
          * In event mode when raise hand feature is active
@@ -299,24 +353,18 @@ const ActionSheetContent = (props) => {
           showNotification={$config.EVENT_MODE && isPendingRequestToReview}
         />
         {/* record */}
-        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
+        {isHost && !isAudioRoom && $config.CLOUD_RECORDING ? (
+          <RecordingIcon />
+        ) : null}
 
         {/* switch camera */}
-        <SwitchCameraIcon
-          disabled={
-            (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled
-          }
-        />
-      </View>
-      <View style={[styles.row, {paddingVertical: 0}]}>
-        {/* Layout view */}
-        {/* <LayoutIcon
-          onPress={handleLayoutChange}
-          currentLayout={layouts[layout]?.iconName}
-        /> */}
-        <View>
-          <LayoutIconButton />
-        </View>
+        {!isAudioRoom && (
+          <SwitchCameraIcon
+            disabled={
+              (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled
+            }
+          />
+        )}
 
         {/* settings */}
         <SettingsIcon
@@ -327,7 +375,9 @@ const ActionSheetContent = (props) => {
 
         {/* invite */}
         <ShareIcon />
-        <View style={styles.emptyContainer}></View>
+
+        {/* Layout view */}
+        {!isAudioRoomAudience && <LayoutIcon showLabel={false} />}
       </View>
     </View>
   );
@@ -338,13 +388,13 @@ export default ActionSheetContent;
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    paddingTop: 24,
     borderColor: $config.CARD_LAYER_3_COLOR,
     flexWrap: 'wrap',
   },
+
   iconContainer: {
     backgroundColor: $config.CARD_LAYER_2_COLOR,
     width: 52,
@@ -354,13 +404,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  emptyContainer: {
-    width: 50,
-    height: 50,
-  },
   iconWithText: {
     justifyContent: 'center',
     alignItems: 'center',
+    flexBasis: '25%',
+    paddingBottom: 24,
   },
   iconText: {
     color: $config.FONT_COLOR,
