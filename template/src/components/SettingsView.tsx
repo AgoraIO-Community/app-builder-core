@@ -201,6 +201,7 @@ const editNameStyle = StyleSheet.create({
   nameContainer: {
     flexDirection: 'row',
     flex: 1,
+    alignItems: 'center',
   },
   inputStyle: {
     color: $config.FONT_COLOR,
