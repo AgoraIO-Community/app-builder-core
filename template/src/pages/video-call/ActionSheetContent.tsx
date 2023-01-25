@@ -234,15 +234,16 @@ const EndCallIcon = (props: EndCallIconProps) => {
 };
 
 interface LayoutIconProps {
-  showLabel: boolean;
+  showLabel?: boolean;
 }
 const LayoutIcon = (props: LayoutIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <LayoutIconButton {...props} />
+        <LayoutIconButton showLabel={false} />
       </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Layout</Text>}
+      {showLabel && <Text style={styles.iconText}>Layout</Text>}
     </View>
   );
 };
@@ -382,7 +383,7 @@ const ActionSheetContent = (props) => {
         <ShareIcon />
 
         {/* Layout view */}
-        {!isAudioRoomAudience && <LayoutIcon showLabel={false} />}
+        {!isAudioRoomAudience && <LayoutIcon />}
       </View>
     </View>
   );
