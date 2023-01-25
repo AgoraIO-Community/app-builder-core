@@ -79,6 +79,9 @@ const PlatformWrapper = ({children}) => {
         WebkitUserSelect: 'none',
         msUserSelect: 'none',
         alignSelf: 'center',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
       }}>
       {children}
     </div>
