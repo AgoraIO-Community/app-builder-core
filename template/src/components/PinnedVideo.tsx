@@ -52,10 +52,11 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       onLayout={onLayout}>
       {!collapse && (
         <ScrollView
+          showsVerticalScrollIndicator={false}
           horizontal={!isSidePinnedlayout}
           decelerationRate={0}
           style={
-            isSidePinnedlayout ? {width: '20%', paddingRight: 24} : {flex: 1}
+            isSidePinnedlayout ? {width: '20%', paddingRight: 8} : {flex: 1}
           }>
           {pinnedUid && pinnedUid !== maxUid ? (
             <Pressable
@@ -66,7 +67,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                       width: '100%',
                       height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                       zIndex: 40,
-                      paddingBottom: 24,
+                      paddingBottom: 8,
                     }
                   : {
                       width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
@@ -95,7 +96,8 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                         width: '100%',
                         height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                         zIndex: 40,
-                        paddingBottom: 24,
+                        //pinned video last element should have space at bottom
+                        paddingBottom: minUids?.length - 1 === i ? 0 : 8,
                       }
                     : {
                         width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
