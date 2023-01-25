@@ -106,6 +106,7 @@ const ActionSheet = () => {
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
+        enableContentPanningGesture={false}
         stackBehavior="push">
         <BottomSheetView>
           <Chat />
@@ -121,6 +122,7 @@ const ActionSheet = () => {
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
+        enableContentPanningGesture={false}
         stackBehavior="push">
         <BottomSheetView>
           <ParticipantView />
@@ -136,6 +138,7 @@ const ActionSheet = () => {
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
+        enableContentPanningGesture={false}
         stackBehavior="push">
         <BottomSheetView>
           <SettingsView />
