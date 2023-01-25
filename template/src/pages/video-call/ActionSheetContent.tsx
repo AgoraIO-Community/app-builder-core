@@ -62,13 +62,18 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
 //Icon for Live Streaming Controls
 interface LiveStreamIconProps {
   isHandRaised: boolean;
+  showLabel: boolean;
 }
 const LiveStreamIcon = (props: LiveStreamIconProps) => {
-  const {isHandRaised} = props;
+  const {isHandRaised, showLabel} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <LiveStreamControls showControls={true} isDesktop={false} />
+        <LiveStreamControls
+          showControls={true}
+          isDesktop={false}
+          showLabel={showLabel}
+        />
       </View>
       {$config.ICON_TEXT && (
         <Text style={styles.iconText}>
@@ -119,7 +124,7 @@ const RecordingIcon = (props: RecordingIconProps) => {
       <View style={styles.iconContainer}>
         <Recording showLabel={false} isOnActionSheet={true} />
       </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Record</Text>}
+      {showLabel && <Text style={styles.iconText}>Record</Text>}
     </View>
   );
 };
@@ -313,7 +318,7 @@ const ActionSheetContent = (props) => {
         {isAudioRoomHost && $config.CLOUD_RECORDING && (
           <RecordingIcon showLabel={false} />
         )}
-        {isAudioRoomAudience && <LayoutIconButton showLabel={false} />}
+        {isAudioRoomAudience && <LayoutIcon showLabel={false} />}
         {!isAudioRoom && (
           <CamIcon
             isOnActionSheet={true}
@@ -343,7 +348,7 @@ const ActionSheetContent = (props) => {
          * demote himself
          */}
         {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          <LiveStreamIcon isHandRaised={isHandRaised} />
+          <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
         ) : null}
 
         {/* chat */}
