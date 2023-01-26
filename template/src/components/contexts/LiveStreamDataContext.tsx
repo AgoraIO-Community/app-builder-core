@@ -36,11 +36,10 @@ interface ScreenShareProviderProps {
   children: React.ReactNode;
 }
 const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
-  const {renderList, activeUids} = useRender();
+  const {renderList} = useRender();
   const {raiseHandList} = useContext(LiveStreamContext);
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [audienceUids, setAudienceUids] = useState<UidType[]>([]);
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   React.useEffect(() => {
     if (Object.keys(renderList).length !== 0) {
@@ -69,15 +68,11 @@ const LiveStreamDataProvider = (props: ScreenShareProviderProps) => {
     }
   }, [renderList, raiseHandList]);
 
-  useEffect(() => {
-    forceUpdate();
-  }, [activeUids]);
-
   return (
     <LiveStreamDataContext.Provider
       value={{
         liveStreamData: raiseHandList,
-        hostUids: hostUids.filter((i) => activeUids.indexOf(i) !== -1),
+        hostUids: hostUids,
         audienceUids,
       }}>
       {props.children}
