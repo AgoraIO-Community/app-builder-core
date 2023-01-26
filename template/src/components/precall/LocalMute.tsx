@@ -12,7 +12,7 @@
 import React, {useState} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent} from '../../utils/common';
+import {isAndroid, isIOS, isValidReactComponent} from '../../utils/common';
 import LocalVideoMute, {
   LocalVideoMuteProps,
 } from '../../subComponents/LocalVideoMute';
@@ -64,22 +64,28 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
     return components;
   });
   const {isMobileView = false} = props;
+  const isNative = isAndroid() || isIOS();
 
   return (
     <View
-      style={[style.precallControls, isMobileView && {paddingVertical: 8}]}
+      style={[style.precallControls, isMobileView && {paddingVertical: 10}]}
       testID="precall-controls">
-      <View style={{alignSelf: 'center'}}>
+      <View style={{width: 52, height: 52}}>
         <AudioMute
           isMobileView={isMobileView}
           showLabel={!isMobileView}
           showToolTip={true}
         />
       </View>
+
       {!$config.AUDIO_ROOM && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <View style={{alignSelf: 'center'}}>
+          <View
+            style={{
+              width: 52,
+              height: 52,
+            }}>
             <VideoMute
               isMobileView={isMobileView}
               showLabel={!isMobileView}
@@ -88,16 +94,19 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
           </View>
         </>
       )}
+
       {/* Settings View in Mobile */}
-      {isMobileView ? (
+      {isMobileView && !isNative && (
         <>
           <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
-          <View style={{alignSelf: 'center'}}>
+          <View
+            style={{
+              width: 52,
+              height: 52,
+            }}>
             <PreCallSettings />
           </View>
         </>
-      ) : (
-        <></>
       )}
     </View>
   );

@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   fallbackContainer: {
     flex: 1,
-    maxHeight: '34%',
+    maxHeight: 200,
     maxWidth: 440,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: 20,
