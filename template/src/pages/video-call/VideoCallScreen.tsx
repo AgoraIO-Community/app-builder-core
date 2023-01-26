@@ -29,8 +29,6 @@ import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import DimensionContext from '../../components/dimension/DimensionContext';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
-import ReactNativeForegroundService from '@supersami/rn-foreground-service';
-import {AppRegistry} from 'react-native';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 
@@ -145,28 +143,6 @@ const VideoCallScreen = () => {
   });
 
   useEffect(() => {
-    // Register the foreground service
-    if (Platform.OS === 'android') {
-      ReactNativeForegroundService.register();
-      AppRegistry.registerComponent(
-        $config.APP_NAME,
-        () => VideoCallMobileView,
-      );
-      ReactNativeForegroundService.add_task(
-        () => console.log('App is active!'),
-        {
-          delay: 1000,
-          onLoop: true,
-          taskId: 'taskid',
-          onError: (e) => console.log(`Error logging:`, e),
-        },
-      );
-      ReactNativeForegroundService.start({
-        id: 145,
-        title: $config.APP_NAME,
-        message: 'Call is active',
-      });
-    }
     // setTimeout(() => {
     //   events.send(
     //     controlMessageEnum.newUserJoined,
