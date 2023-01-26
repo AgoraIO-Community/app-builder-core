@@ -190,7 +190,7 @@ export default function UserActionMenuOptionsOptions(
             onHoverIcon: 'promote-filled',
             iconColor: $config.SECONDARY_ACTION_COLOR,
             textColor: $config.SECONDARY_ACTION_COLOR,
-            title: 'Promote to Co-host',
+            title: 'Add as Presenter',
             callback: () => {
               setActionMenuVisible(false);
               promoteAudienceAsCoHost(user.uid);
@@ -208,7 +208,7 @@ export default function UserActionMenuOptionsOptions(
               onHoverIcon: 'demote-filled',
               iconColor: $config.SECONDARY_ACTION_COLOR,
               textColor: $config.SECONDARY_ACTION_COLOR,
-              title: 'Demote to audience',
+              title: 'Remove as Presenter',
               callback: () => {
                 setActionMenuVisible(false);
                 events.send(
