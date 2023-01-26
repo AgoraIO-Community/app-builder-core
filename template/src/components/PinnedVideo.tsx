@@ -80,8 +80,6 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       style={{
         flexDirection: isSidePinnedlayout ? 'row' : 'column',
         flex: 1,
-        borderWidth: 1,
-        borderColor: 'red',
       }}
       onLayout={onLayout}>
       {!collapse && (
@@ -91,38 +89,34 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
               ? {
                   width: '20%',
                   paddingRight: 24,
-                  borderWidth: 1,
-                  borderColor: 'blue',
                 }
-              : {flex: 1, borderWidth: 1, borderColor: 'yellow'}
+              : {flex: 1}
           }>
-          {/* Impact of below commented   */}
           {pinnedUid && pinnedUid !== maxUid ? (
-            // <Pressable
-            //   disabled={renderData?.length === 1}
-            //   style={
-            //     isSidePinnedlayout
-            //       ? {
-            //           width: '100%',
-            //           height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-            //           zIndex: 40,
-            //           paddingBottom: 24,
-            //         }
-            //       : {
-            //           width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-            //           height: '100%',
-            //           zIndex: 40,
-            //           paddingRight: 8,
-            //           paddingVertical: 4,
-            //         }
-            //   }
-            //   key={'minVideo' + maxUid}
-            //   onPress={() => {
-            //     dispatch({type: 'SwapVideo', value: [maxUid]});
-            //   }}>
-            //   <RenderComponent uid={maxUid} />
-            // </Pressable>
-            <></>
+            <Pressable
+              disabled={renderData?.length === 1}
+              style={
+                isSidePinnedlayout
+                  ? {
+                      width: '100%',
+                      height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                      zIndex: 40,
+                      paddingBottom: 24,
+                    }
+                  : {
+                      width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                      height: '100%',
+                      zIndex: 40,
+                      paddingRight: 8,
+                      paddingVertical: 4,
+                    }
+              }
+              key={'minVideo' + maxUid}
+              onPress={() => {
+                dispatch({type: 'SwapVideo', value: [maxUid]});
+              }}>
+              <RenderComponent uid={maxUid} />
+            </Pressable>
           ) : (
             <></>
           )}
