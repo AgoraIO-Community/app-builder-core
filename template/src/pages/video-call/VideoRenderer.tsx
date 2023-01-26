@@ -75,7 +75,6 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           containerStyle={{
             width: '100%',
             height: '100%',
-            borderRadius: 8,
           }}
           key={user.uid}
         />
@@ -355,6 +354,7 @@ const maxStyle = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'relative',
+    overflow: 'hidden',
     borderRadius: 4,
     borderWidth: 2,
   },
@@ -362,7 +362,7 @@ const maxStyle = StyleSheet.create({
     borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   nonActiveContainerStyle: {
-    borderColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    borderColor: 'transparent',
   },
   noVideoStyle: {
     borderColor: 'transparent',

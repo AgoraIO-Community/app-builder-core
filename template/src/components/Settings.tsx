@@ -37,7 +37,9 @@ const Settings = (props: SettingsIconButtonProps) => {
 
     iconProps: {
       name: 'settings',
-      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      tintColor: isPanelActive
+        ? $config.PRIMARY_ACTION_TEXT_COLOR
+        : $config.SECONDARY_ACTION_COLOR,
       iconBackgroundColor: isPanelActive
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',

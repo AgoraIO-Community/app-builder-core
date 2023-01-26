@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
-    borderRadius: 0,
   },
   activeSpeakerBg: {
     width: 140,

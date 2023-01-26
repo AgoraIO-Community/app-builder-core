@@ -131,8 +131,8 @@ const VideoPreview = ({isMobileView = false}: VideoPreviewProps) => {
           containerStyle={{
             width: '100%',
             height: '100%',
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
+            // borderTopLeftRadius: 4,
+            // borderTopRightRadius: 4,
           }}
         />
       </View>
@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
     alignItems: 'center',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    // borderTopLeftRadius: 4,
+    // borderTopRightRadius: 4,
   },
   fallbackContainer: {
     flex: 1,
@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
     justifyContent: 'space-between',
+    overflow: 'hidden',
   },
   avatar: {
     width: 100,

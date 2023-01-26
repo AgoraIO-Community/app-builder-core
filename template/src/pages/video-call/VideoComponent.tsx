@@ -16,10 +16,10 @@ const VideoComponent = () => {
     if (activeUids && activeUids.length === 1) {
       if (pinnedUid) {
         dispatch({type: 'UserPin', value: [0]});
-        const gridLayoutName = getGridLayoutName();
-        if (currentLayout !== gridLayoutName) {
-          setLayout(gridLayoutName);
-        }
+      }
+      const gridLayoutName = getGridLayoutName();
+      if (currentLayout !== gridLayoutName) {
+        setLayout(gridLayoutName);
       }
     }
   }, [activeUids]);
