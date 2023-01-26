@@ -38,8 +38,8 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
       console.log('_px', _px);
       console.log('_fx', _fx);
       setModalPosition({
-        top: py - h - 100,
-        left: _px - 225,
+        top: py - h - 120,
+        left: _px - 150,
       });
     });
     setShowAudioMuteModal(true);
@@ -87,8 +87,8 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const showVideoModal = () => {
     videoBtnRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
       setModalPosition({
-        top: py - h - 100,
-        left: _px - _w / 2,
+        top: py - h - 120,
+        left: _px - 20,
       });
     });
     setShowVideoMuteModal(true);
