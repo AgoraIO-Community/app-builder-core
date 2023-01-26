@@ -1,6 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import ThemeConfig from '../theme';
+import {isWeb} from '../utils/common';
 
 function getInitials(name: string) {
   if (name && name?.length) {
@@ -20,18 +21,37 @@ const UserAvatar = ({name, containerStyle, textStyle}) => {
           justifyContent: 'center',
         },
       ]}>
-      <Text
-        style={[
-          textStyle,
-          {
-            fontFamily: ThemeConfig.FontFamily.sansPro,
-            alignSelf: 'center',
-            textAlign: 'center',
-          },
-        ]}>
-        {getInitials(name)}
-      </Text>
+      <PlatformWrapper>
+        <Text
+          style={[
+            textStyle,
+            {
+              fontFamily: ThemeConfig.FontFamily.sansPro,
+              alignSelf: 'center',
+              textAlign: 'center',
+            },
+          ]}>
+          {getInitials(name)}
+        </Text>
+      </PlatformWrapper>
     </View>
+  );
+};
+
+const PlatformWrapper = ({children}) => {
+  return isWeb() ? (
+    <div
+      style={{
+        userSelect: 'none',
+        MozUserSelect: 'none',
+        WebkitUserSelect: 'none',
+        msUserSelect: 'none',
+        alignSelf: 'center',
+      }}>
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
   );
 };
 

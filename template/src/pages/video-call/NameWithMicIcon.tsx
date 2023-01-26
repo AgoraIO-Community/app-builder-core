@@ -8,7 +8,7 @@ import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import {useString} from '../../utils/useString';
 import {useRender} from 'customization-api';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {isWebInternal} from '../../utils/common';
+import {isWeb, isWebInternal} from '../../utils/common';
 import AnimatedActiveSpeaker from '../../atoms/AnimatedActiveSpeaker';
 
 interface NameWithMicIconProps {
@@ -58,15 +58,35 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-
-      <Text
-        numberOfLines={1}
-        textBreakStrategy="simple"
-        ellipsizeMode="tail"
-        style={style.name}>
-        {user.name || remoteUserDefaultLabel}
-      </Text>
+      <PlatformWrapper>
+        <Text
+          numberOfLines={1}
+          textBreakStrategy="simple"
+          ellipsizeMode="tail"
+          style={style.name}>
+          {user.name || remoteUserDefaultLabel}
+        </Text>
+      </PlatformWrapper>
     </View>
+  );
+};
+const PlatformWrapper = ({children}) => {
+  return isWeb() ? (
+    <div
+      style={{
+        userSelect: 'none',
+        MozUserSelect: 'none',
+        WebkitUserSelect: 'none',
+        msUserSelect: 'none',
+        alignSelf: 'center',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+      }}>
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
   );
 };
 
@@ -77,8 +97,8 @@ const style = StyleSheet.create({
     alignItems: 'center',
     padding: 8,
     // height: 34,
-    left: 12,
-    bottom: 12,
+    left: 8,
+    bottom: 8,
     borderRadius: 4,
     flexDirection: 'row',
     zIndex: 5,

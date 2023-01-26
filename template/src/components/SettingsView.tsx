@@ -44,7 +44,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
   const [saved, setSaved] = useState(false);
   const username = useGetName();
   const [newName, setNewName] = useState(username);
-  const [editable, setEditable] = useState(false);
+  const [editable, setEditable] = useState(true);
   const [disabled, setDisabled] = useState(
     !newName ||
       newName.length === 0 ||
@@ -64,11 +64,14 @@ const EditName: React.FC = (props?: EditNameProps) => {
 
   const inputRef = useRef(null);
   const onPress = () => {
-    if (editable) {
+    //true -> prev editable variable
+    if (true) {
       const trimmedText = newName?.trim();
       if (trimmedText) {
         setUsername(trimmedText);
         setNewName(trimmedText);
+      } else {
+        setNewName(username);
       }
       setSaved(true);
       setTimeout(() => {
@@ -115,16 +118,18 @@ const EditName: React.FC = (props?: EditNameProps) => {
             ref={inputRef}
             style={[
               editNameStyle.inputStyle,
-              !editable
+              //true -> previously editable variable
+              !true
                 ? {
                     color:
                       $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
                   }
                 : {},
             ]}
+            onBlur={onPress}
             placeholder={username}
             value={newName}
-            editable={editable}
+            editable={true}
             onChangeText={(text) => setNewName(text)}
             onSubmitEditing={onPress}
             placeholderTextColor={
@@ -132,8 +137,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             }
           />
         </View>
-
-        <PlatformWrapper>
+        {/* <PlatformWrapper>
           <TouchableOpacity
             disabled={saved ? true : editable ? disabled : false}
             style={[
@@ -149,7 +153,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
               {saved ? 'Saved' : editable ? 'Save' : 'Edit'}
             </Text>
           </TouchableOpacity>
-        </PlatformWrapper>
+        </PlatformWrapper> */}
       </View>
     </>
   );
@@ -210,6 +214,7 @@ const editNameStyle = StyleSheet.create({
     fontSize: ThemeConfig.FontSize.medium,
     width: '100%',
     paddingHorizontal: 8,
+    paddingVertical: 18,
     borderWidth: 0,
     ...Platform.select({
       web: {

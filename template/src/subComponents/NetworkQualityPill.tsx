@@ -149,8 +149,8 @@ const style = StyleSheet.create({
     borderRadius: 50,
   },
   rootStyle: {
-    top: 12,
-    right: 12,
+    top: 8,
+    right: 8,
   },
   networkPillContent: {
     display: 'flex',
