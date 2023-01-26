@@ -43,6 +43,8 @@ export enum LiveStreamControlMessageEnum {
   notifyAllRequestRejected = 'NOTIFY_REQUEST_REJECTED',
   notifyHostsInChannel = 'NOTIFY_HOSTS_IN_CHANNEL',
   promoteAsCoHost = 'PROMOTE_AS_CO_HOST',
+  coHostJoined = 'CO_HOST_JOINED',
+  coHostRemoved = 'CO_HOST_REMOVED',
 }
 
 export const LSNotificationObject = {
@@ -95,6 +97,7 @@ export interface liveStreamContext {
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
   promoteAudienceAsCoHost: (uid: UidType) => void;
+  coHostUids: UidType[];
 }
 
 export interface requestInterface {

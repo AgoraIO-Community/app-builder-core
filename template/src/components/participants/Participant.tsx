@@ -69,7 +69,7 @@ interface ParticipantInterface {
 const Participant = (props: ParticipantInterface) => {
   const {setSidePanel} = useSidePanel();
   const {hostUids} = useLiveStreamDataContext();
-  const {promoteAudienceAsCoHost} = useContext(LiveStreamContext);
+  const {promoteAudienceAsCoHost, coHostUids} = useContext(LiveStreamContext);
   const [isHovered, setIsHovered] = React.useState(false);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const usercontainerRef = useRef(null);
@@ -313,6 +313,13 @@ const Participant = (props: ParticipantInterface) => {
               {name}
             </Text>
             {isLocal && <Text style={styles.subText}>{'Me'}</Text>}
+            {!isLocal &&
+            $config.EVENT_MODE &&
+            coHostUids.indexOf(user.uid) !== -1 ? (
+              <Text style={styles.subText}>{'Presenter'}</Text>
+            ) : (
+              <></>
+            )}
           </View>
           <View style={styles.iconContainer}>
             {isHovered || actionMenuVisible || !isWebInternal() || isMobile ? (

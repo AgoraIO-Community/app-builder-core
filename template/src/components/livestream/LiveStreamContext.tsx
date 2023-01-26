@@ -42,6 +42,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const raiseHandListRef = useRef<any>();
   raiseHandListRef.current = raiseHandList;
 
+  const [coHostUids, setCoHostUids] = useState<UidType[]>([]);
+  const coHostUidsRef = useRef<any>();
+  coHostUidsRef.current = coHostUids;
+
   React.useEffect(() => {
     renderListRef.current = renderList;
   }, [renderList]);
@@ -49,6 +53,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   React.useEffect(() => {
     raiseHandListRef.current = raiseHandList;
   }, [raiseHandList]);
+
+  React.useEffect(() => {
+    coHostUidsRef.current = coHostUids;
+  }, [coHostUids]);
 
   const localUid = useLocalUid();
   const localUidRef = useRef<any>();
@@ -164,6 +172,18 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           }),
           EventPersistLevel.LEVEL2,
         );
+        //update local cohost state
+        setCoHostUids((prevState) => {
+          return [
+            ...prevState.filter((i) => i !== parseInt(localUidRef.current)),
+          ];
+        });
+        // Audience notfies all users that co-host permission removed
+        events.send(
+          LiveStreamControlMessageEnum.coHostRemoved,
+          JSON.stringify({uid: localUidRef.current}),
+          EventPersistLevel.LEVEL2,
+        );
         break;
       case ClientRole.Broadcaster:
         // Update local state
@@ -179,6 +199,16 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.TRUE,
           }),
+          EventPersistLevel.LEVEL2,
+        );
+        //update local cohost state
+        setCoHostUids((prevState) => {
+          return [...prevState, localUidRef.current];
+        });
+        // Audience notfies all users that co-host has joined
+        events.send(
+          LiveStreamControlMessageEnum.coHostJoined,
+          JSON.stringify({uid: localUidRef.current}),
           EventPersistLevel.LEVEL2,
         );
       default:
@@ -398,6 +428,32 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Audience updates its local attributes and notfies all host when request is approved
       UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
     });
+    // 4. New co-host has joined
+    events.on(LiveStreamControlMessageEnum.coHostJoined, ({payload}) => {
+      try {
+        const data = JSON.parse(payload);
+        if (data?.uid) {
+          setCoHostUids((prevState) => {
+            return [...prevState, parseInt(data.uid)];
+          });
+        }
+      } catch (error) {
+        console.log('debugging error on setting new co host uid - join');
+      }
+    });
+    // 5. Co-host removed
+    events.on(LiveStreamControlMessageEnum.coHostRemoved, ({payload}) => {
+      try {
+        const data = JSON.parse(payload);
+        if (data?.uid) {
+          setCoHostUids((prevState) => {
+            return [...prevState.filter((i) => i !== parseInt(data.uid))];
+          });
+        }
+      } catch (error) {
+        console.log('debugging error on setting new co host uid - rmove');
+      }
+    });
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
   }, []);
 
@@ -505,6 +561,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   return (
     <LiveStreamContext.Provider
       value={{
+        coHostUids: coHostUids,
         setLastCheckedRequestTimestamp,
         isPendingRequestToReview,
         raiseHandList,
