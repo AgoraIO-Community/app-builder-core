@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR,
     fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    paddingVertical: 2,
   },
   videoView: {
     flex: 0.8,
