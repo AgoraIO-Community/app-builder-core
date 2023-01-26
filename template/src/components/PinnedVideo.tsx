@@ -16,6 +16,7 @@ import {
   Dimensions,
   StyleSheet,
   Pressable,
+  FlatList,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
 import {layoutComponent, useRender, useRtc} from 'customization-api';
@@ -43,6 +44,38 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
   const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
 
+  // item render fn for Flatlist
+  const rendeOtherParticipants = ({item}) => {
+    const minUid = item;
+    if (minUid !== pinnedUid) {
+      return (
+        <Pressable
+          style={
+            isSidePinnedlayout
+              ? {
+                  width: '100%',
+                  height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                  zIndex: 40,
+                  paddingBottom: 24,
+                }
+              : {
+                  width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                  height: '100%',
+                  zIndex: 40,
+                  paddingRight: 8,
+                  paddingVertical: 4,
+                }
+          }
+          key={'minVideo' + minUid}
+          onPress={() => {
+            dispatch({type: 'SwapVideo', value: [minUid]});
+          }}>
+          <RenderComponent uid={minUid} />
+        </Pressable>
+      );
+    }
+  };
+
   return (
     <View
       style={{
@@ -51,12 +84,14 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       }}
       onLayout={onLayout}>
       {!collapse && (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          horizontal={!isSidePinnedlayout}
-          decelerationRate={0}
+        <View
           style={
-            isSidePinnedlayout ? {width: '20%', paddingRight: 8} : {flex: 1}
+            isSidePinnedlayout
+              ? {
+                  width: '20%',
+                  paddingRight: 8,
+                }
+              : {flex: 1}
           }>
           {pinnedUid && pinnedUid !== maxUid ? (
             <Pressable
@@ -86,6 +121,19 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           ) : (
             <></>
           )}
+
+          {/* Renders Rest of Participants in Side/Top */}
+          <FlatList
+            horizontal={!isSidePinnedlayout}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            data={minUids}
+            keyExtractor={(id) => id.toString()}
+            renderItem={rendeOtherParticipants}
+          />
+
+          {/* Pinned Video Top / Side */}
+          {/*      
           {minUids
             .filter((i) => i !== pinnedUid)
             .map((minUid, i) => (
@@ -114,7 +162,8 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 <RenderComponent uid={minUid} />
               </Pressable>
             ))}
-        </ScrollView>
+        */}
+        </View>
       )}
       <View
         style={
@@ -180,6 +229,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           ) : (
             <></>
           )}
+          {/* Renders Pinned User */}
           {pinnedUid ? (
             <RenderComponent uid={pinnedUid} isMax={true} />
           ) : (

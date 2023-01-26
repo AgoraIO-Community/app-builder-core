@@ -356,6 +356,7 @@ const style = StyleSheet.create({
     lineHeight: ThemeConfig.FontSize.extraLarge,
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
+    paddingVertical: 2,
   },
   container: {
     flexDirection: 'row',
