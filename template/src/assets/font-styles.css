@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?fx2lrz') format('truetype');
+  src: url('fonts/icomoon.ttf?6qgqxy') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -22,6 +22,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-demote-filled:before {
+  content: '\e912';
+  color: #fafafa;
+}
+.icon-demote-outlined:before {
+  content: '\e922';
+  color: #fafafa;
+}
 .icon-active-speaker:before {
   content: '\e903';
   color: #099dfd;
@@ -87,54 +95,6 @@
 .icon-connection-very-bad:before {
   content: '\e90e';
   color: #ff414d;
-}
-.icon-demote-filled .path1:before {
-  content: '\e912';
-  color: rgb(250, 250, 250);
-}
-.icon-demote-filled .path2:before {
-  content: '\e922';
-  margin-left: -1em;
-  color: rgb(250, 250, 250);
-}
-.icon-demote-filled .path3:before {
-  content: '\e93c';
-  margin-left: -1em;
-  color: rgb(250, 250, 250);
-}
-.icon-demote-filled .path4:before {
-  content: '\e93d';
-  margin-left: -1em;
-  color: rgb(17, 17, 17);
-}
-.icon-demote-filled .path5:before {
-  content: '\e93e';
-  margin-left: -1em;
-  color: rgb(250, 250, 250);
-}
-.icon-demote-outlined .path1:before {
-  content: '\e93f';
-  color: rgb(250, 250, 250);
-}
-.icon-demote-outlined .path2:before {
-  content: '\e941';
-  margin-left: -1em;
-  color: rgb(250, 250, 250);
-}
-.icon-demote-outlined .path3:before {
-  content: '\e942';
-  margin-left: -1em;
-  color: rgb(250, 250, 250);
-}
-.icon-demote-outlined .path4:before {
-  content: '\e944';
-  margin-left: -1em;
-  color: rgb(17, 17, 17);
-}
-.icon-demote-outlined .path5:before {
-  content: '\e945';
-  margin-left: -1em;
-  color: rgb(250, 250, 250);
 }
 .icon-downside-triangle:before {
   content: '\e936';
