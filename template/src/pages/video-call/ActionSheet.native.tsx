@@ -185,6 +185,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    opacity: 0.2,
+    opacity: 0.5,
   },
 });

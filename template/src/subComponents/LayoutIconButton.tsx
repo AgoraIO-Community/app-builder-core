@@ -10,6 +10,7 @@ import {isMobileUA} from '../utils/common';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
+  showLabel?: boolean;
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
@@ -18,6 +19,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
   const isMobileView = isMobileUA();
+  const {showLabel = $config.ICON_TEXT} = props;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
@@ -52,7 +54,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
     let iconButtonProps: Partial<IconButtonProps> = {
       onPress: onPress,
       btnTextProps: {
-        text: $config.ICON_TEXT ? layoutLabel : '',
+        text: showLabel ? layoutLabel : '',
         textColor: $config.FONT_COLOR,
       },
     };
