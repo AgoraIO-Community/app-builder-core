@@ -22,6 +22,7 @@ import {layoutProps} from '../../theme.json';
 import {layoutComponent, useRender, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
@@ -88,7 +89,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             isSidePinnedlayout
               ? {
                   width: '20%',
-                  paddingRight: 24,
+                  paddingRight: 8,
                 }
               : {flex: 1}
           }>
@@ -101,7 +102,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                       width: '100%',
                       height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                       zIndex: 40,
-                      paddingBottom: 24,
+                      paddingBottom: 8,
                     }
                   : {
                       width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
@@ -143,7 +144,8 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                         width: '100%',
                         height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                         zIndex: 40,
-                        paddingBottom: 24,
+                        //pinned video last element should have space at bottom
+                        paddingBottom: minUids?.length - 1 === i ? 0 : 8,
                       }
                     : {
                         width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
@@ -176,14 +178,16 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             <IconButton
               containerStyle={{
                 position: 'absolute',
-                top: 12,
-                left: 12,
+                top: 8,
+                left: 8,
                 zIndex: 999,
               }}
               onPress={() => setCollapse(!collapse)}
               iconProps={{
                 iconContainerStyle: {
                   padding: 8,
+                  backgroundColor:
+                    $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
                 },
                 name: collapse ? 'collapse' : 'expand',
                 tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,

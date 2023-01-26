@@ -46,17 +46,15 @@ const CurrentLiveStreamRequestsView = (props: any) => {
     };
   }, []);
   const containerStyle = {
-    background: '#021F3380',
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     width: 36,
     height: 36,
     borderRadius: 18,
-    marginRight: 8,
   };
   const textStyle = {
     fontSize: 12,
-    lineHeight: 10,
     fontWeight: '400',
-    color: '#fff',
+    color: $config.CARD_LAYER_1_COLOR,
   };
   const [showRequestSection, setShowRequestSection] = useState(true);
   return (
@@ -132,11 +130,11 @@ const styles = StyleSheet.create({
   participantNameText: {
     fontWeight: '400',
     fontSize: 12,
-    lineHeight: 15,
     fontFamily: 'Source Sans Pro',
     flexDirection: 'row',
     color: $config.FONT_COLOR,
     textAlign: 'left',
+    marginHorizontal: 8,
   },
 });
 

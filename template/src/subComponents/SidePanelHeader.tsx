@@ -3,6 +3,7 @@ import {View, StyleSheet, ViewStyle} from 'react-native';
 import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {IconsInterface} from '../atoms/CustomIcon';
+import {isWebInternal} from '../utils/common';
 
 export interface SidePanelHeaderProps {
   centerComponent?: React.ReactNode;
@@ -79,7 +80,7 @@ const SidePanelHeader = (props: SidePanelHeaderProps) => {
 
 export const SidePanelStyles = StyleSheet.create({
   sidePanelHeader: {
-    //height: 60,
+    height: isWebInternal() ? 60 : 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
