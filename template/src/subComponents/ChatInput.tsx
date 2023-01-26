@@ -224,6 +224,8 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
+    borderTopWidth: 1,
+    borderTopColor: 'transparent',
   },
   chatInputButton: {
     flex: 0.1,

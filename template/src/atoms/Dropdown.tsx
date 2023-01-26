@@ -152,7 +152,8 @@ const Dropdown: FC<Props> = ({
           ? {
               borderBottomLeftRadius: 0,
               borderBottomRightRadius: 0,
-              borderBottomWidth: 0,
+              //borderBottomWidth: 0,
+              borderBottomColor: 'transparent',
             }
           : {},
       ]}
