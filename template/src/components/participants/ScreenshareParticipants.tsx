@@ -15,7 +15,7 @@ import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {RenderInterface} from 'customization-api';
-import {isWebInternal} from '../../utils/common';
+import {isWebInternal, isMobileUA} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
@@ -55,8 +55,11 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
             </View>
           </View>
           {true ? (
-            <View style={styles.iconContainer} ref={screenshareRef}>
-              {isHovered || actionMenuVisible || !isWebInternal() ? (
+            <View
+              style={styles.iconContainer}
+              ref={screenshareRef}
+              collapsable={false}>
+              {isHovered || actionMenuVisible || isMobileUA() ? (
                 //todo mobile by default it should show
                 <View
                   style={{

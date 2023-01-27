@@ -10,7 +10,7 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import TextWithTooltip from '../TextWithTooltip';
 import {useString} from '../../utils/useString';
-import {isIOS, isWebInternal} from '../../utils/common';
+import {isIOS, isMobileUA, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
@@ -19,6 +19,16 @@ import UserAvatar from '../../atoms/UserAvatar';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Spacer from '../../atoms/Spacer';
+
+const ChatIcon = () => (
+  <View style={{alignSelf: 'center', marginRight: 20}}>
+    <ImageIcon
+      iconType="plain"
+      name="chat-nav"
+      tintColor={$config.SECONDARY_ACTION_COLOR}
+    />
+  </View>
+);
 
 const ChatParticipants = (props: any) => {
   //commented for v1 release
@@ -38,6 +48,7 @@ const ChatParticipants = (props: any) => {
       !userInfo?.offline
     );
   };
+  const isMobile = isMobileUA();
   const [isHoveredUid, setIsHoveredUid] = React.useState(0);
   return (
     <ScrollView>
@@ -93,17 +104,13 @@ const ChatParticipants = (props: any) => {
                         </View>
                         <Spacer size={20} horizontal={true} />
                       </>
+                    ) : isMobile ? (
+                      <ChatIcon />
                     ) : (
                       <Spacer size={20} horizontal={true} />
                     )
                   ) : (
-                    <View style={{alignSelf: 'center', marginRight: 20}}>
-                      <ImageIcon
-                        iconType="plain"
-                        name="chat-nav"
-                        tintColor={$config.SECONDARY_ACTION_COLOR}
-                      />
-                    </View>
+                    <ChatIcon />
                   )}
                 </View>
               </Pressable>
@@ -116,7 +123,7 @@ const ChatParticipants = (props: any) => {
 };
 
 const PlatformWrapper = ({children, isHoveredUid, setIsHoveredUid, uid}) => {
-  return isWebInternal() ? (
+  return isWebInternal() && !isMobileUA() ? (
     <div
       style={{
         backgroundColor:
