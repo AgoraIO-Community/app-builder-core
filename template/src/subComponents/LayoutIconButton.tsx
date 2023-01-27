@@ -72,6 +72,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         props.render(onPress)
       ) : (
         <PlatformWrapper
+          key={'layout-icon-btn'}
           showDropdown={isHovered}
           setIsHovered={(flag) => {
             if (flag) {

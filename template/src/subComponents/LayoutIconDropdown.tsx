@@ -89,7 +89,9 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           textColor: $config.FONT_COLOR,
         },
       };
-      content.push(<IconButton {...iconButtonProps} />);
+      content.push(
+        <IconButton key={'layout_button' + item.name} {...iconButtonProps} />,
+      );
       return content;
     });
 
