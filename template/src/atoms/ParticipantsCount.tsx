@@ -6,6 +6,7 @@ import {numFormatter} from '../utils/index';
 import ChatContext from '../components/ChatContext';
 import {useLiveStreamDataContext} from '../components/contexts/LiveStreamDataContext';
 import {useVideoMeetingData} from '../components/contexts/VideoMeetingDataContext';
+import {isMobileUA} from '../utils/common';
 
 const ParticipantsCount = () => {
   const {onlineUsersCount} = useContext(ChatContext);
@@ -57,6 +58,7 @@ const styles = StyleSheet.create({
   participantCountView: {
     flexDirection: 'row',
     padding: 12,
+    paddingVertical: isMobileUA ? 5 : 12,
     backgroundColor: $config.ICON_BG_COLOR,
     borderRadius: 25,
     borderWidth: 1,
