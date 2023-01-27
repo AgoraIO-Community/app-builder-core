@@ -18,6 +18,8 @@ import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
+import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 interface LocalRaiseHandProps {
   showLabel?: boolean;
@@ -25,18 +27,28 @@ interface LocalRaiseHandProps {
 const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
+  const {rtcProps} = useContext(PropsContext);
   const {localUid} = useContext(ChatContext);
+  const {activeUids} = useRender();
   const {showLabel = $config.ICON_TEXT} = props;
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
     toggle ? 'Lower hand' : 'Raise Hand';
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
+  const disabled =
+    $config.EVENT_MODE &&
+    rtcProps?.role === ClientRole.Audience &&
+    activeUids.length === 0;
   return (
     <IconButton
+      toolTipMessage={disabled ? 'Wait for host to join' : ''}
+      disabled={disabled}
       iconProps={{
         name: isHandRasied ? 'lower-hand' : 'raise-hand',
-        tintColor: isHandRasied
+        tintColor: disabled
+          ? $config.SEMANTIC_NETRUAL
+          : isHandRasied
           ? $config.PRIMARY_ACTION_TEXT_COLOR
           : $config.SECONDARY_ACTION_COLOR,
         iconBackgroundColor: isHandRasied
