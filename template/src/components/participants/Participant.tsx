@@ -21,7 +21,7 @@ import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
 import {ClientRole, RenderInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
-import {isWebInternal} from '../../utils/common';
+import {isMobileUA, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import Spacer from '../../atoms/Spacer';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
@@ -123,9 +123,10 @@ const Participant = (props: ParticipantInterface) => {
             )}
           </View>
           <View style={styles.iconContainer}>
-            {isHovered || actionMenuVisible || !isWebInternal() || isMobile ? (
+            {isHovered || actionMenuVisible || isMobileUA() ? (
               <View
                 ref={moreIconRef}
+                collapsable={false}
                 style={{
                   width: 24,
                   height: 24,
@@ -252,12 +253,7 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
       {children}
     </div>
   ) : (
-    <TouchableOpacity
-      onPress={() => {
-        showModal();
-      }}>
-      {children}
-    </TouchableOpacity>
+    <>{children}</>
   );
 };
 

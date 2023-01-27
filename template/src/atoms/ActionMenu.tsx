@@ -133,7 +133,7 @@ export default ActionMenu;
 const styles = StyleSheet.create({
   modalView: {
     position: 'absolute',
-    width: 220,
+    width: 230,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     shadowColor: '#000',

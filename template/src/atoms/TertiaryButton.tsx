@@ -67,12 +67,12 @@ const styles = StyleSheet.create({
     borderColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 4,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
     color: $config.SECONDARY_ACTION_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.small,
     fontWeight: '600',
-    textAlign: 'center',
   },
 });
