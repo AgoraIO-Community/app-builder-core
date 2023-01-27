@@ -136,7 +136,13 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
           toolTipMessage="Copied to clipboard"
           renderContent={(isToolTipVisible, setToolTipVisible) => {
             return (
-              <TouchableOpacity onPress={() => setToolTipVisible(true)}>
+              <TouchableOpacity
+                onPress={() => {
+                  copyShareLinkToClipboard(type, () => {
+                    setToolTipVisible(true);
+                  });
+                  //setToolTipVisible(true);
+                }}>
                 <ImageIcon
                   iconType="plain"
                   name="clipboard"

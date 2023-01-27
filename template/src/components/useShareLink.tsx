@@ -239,7 +239,10 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     return stringToCopy;
   };
 
-  const copyShareLinkToClipboard = (input: SHARE_LINK_CONTENT_TYPE) => {
+  const copyShareLinkToClipboard = (
+    input: SHARE_LINK_CONTENT_TYPE,
+    callbackFn?: () => void,
+  ) => {
     let stringToCopy = '';
     switch (input) {
       case SHARE_LINK_CONTENT_TYPE.MEETING_INVITE:
@@ -257,6 +260,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
         break;
     }
     Clipboard.setString(stringToCopy);
+    callbackFn && callbackFn();
   };
 
   return (
