@@ -84,7 +84,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
           textStyle={style.primaryBtnText}
-          text="ALLOW TO CO-HOST"
+          text="ALLOW TO BE A PRESENTER"
           onPress={() => {
             hostApprovesRequestOfUID(uid);
             Toast.hide();
@@ -443,9 +443,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             return [...prevState, parseInt(data.uid)];
           });
         }
-      } catch (error) {
-        console.log('debugging error on setting new co host uid - join');
-      }
+      } catch (error) {}
     });
     // 5. Co-host removed
     events.on(LiveStreamControlMessageEnum.coHostRemoved, ({payload}) => {
@@ -456,9 +454,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             return [...prevState.filter((i) => i !== parseInt(data.uid))];
           });
         }
-      } catch (error) {
-        console.log('debugging error on setting new co host uid - rmove');
-      }
+      } catch (error) {}
     });
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
   }, []);
