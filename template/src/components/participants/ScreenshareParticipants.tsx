@@ -29,7 +29,7 @@ import {
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
-import {isWebInternal} from '../../utils/common';
+import {isMobileUA, isWebInternal} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
@@ -131,8 +131,11 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
             </View>
           </View>
           {true ? (
-            <View style={styles.iconContainer} ref={screenshareRef}>
-              {isHovered || actionMenuVisible || !isWebInternal() ? (
+            <View
+              style={styles.iconContainer}
+              ref={screenshareRef}
+              collapsable={false}>
+              {isHovered || actionMenuVisible || isMobileUA() ? (
                 //todo mobile by default it should show
                 <View
                   style={{
