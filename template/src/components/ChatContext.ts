@@ -48,6 +48,7 @@ export enum messageActionType {
 
 export interface chatContext {
   hasUserJoinedRTM: boolean;
+  rtmInitTimstamp: number;
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
