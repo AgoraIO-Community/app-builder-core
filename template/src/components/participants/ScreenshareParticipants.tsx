@@ -84,25 +84,7 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
   //   );
   // };
   const showModal = () => {
-    screenshareRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      // setPos({
-      //   top: py + h - 20,
-      //   right: Dimensions.get('window').width - _px,
-      // });
-      const breakpoint = Dimensions.get('window').height / 2;
-      if (py < breakpoint) {
-        setPos({
-          top: py + h - 20,
-          right: Dimensions.get('window').width - _px,
-        });
-      } else {
-        setPos({
-          bottom: Dimensions.get('window').height - py - h,
-          right: Dimensions.get('window').width - _px,
-        });
-      }
-      setActionMenuVisible((state) => !state);
-    });
+    setActionMenuVisible((state) => !state);
   };
   return (
     <>
@@ -112,9 +94,9 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
         setActionMenuVisible={setActionMenuVisible}
         handleClose={() => {}}
         isMobile={false}
-        modalPosition={pos}
         updateActionSheet={() => {}}
         user={props.user}
+        btnRef={screenshareRef}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container}>

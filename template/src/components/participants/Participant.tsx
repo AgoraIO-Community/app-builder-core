@@ -274,21 +274,7 @@ const Participant = (props: ParticipantInterface) => {
   // };
 
   const showModal = () => {
-    moreIconRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      const breakpoint = Dimensions.get('window').height / 2;
-      if (py < breakpoint) {
-        setPos({
-          top: py + h - 20,
-          right: Dimensions.get('window').width - _px,
-        });
-      } else {
-        setPos({
-          bottom: Dimensions.get('window').height - py - h,
-          right: Dimensions.get('window').width - _px,
-        });
-      }
-      setActionMenuVisible((state) => !state);
-    });
+    setActionMenuVisible((state) => !state);
   };
   return (
     <>
@@ -296,8 +282,8 @@ const Participant = (props: ParticipantInterface) => {
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
         isMobile={isMobile}
-        modalPosition={pos}
         user={props.user}
+        btnRef={moreIconRef}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>

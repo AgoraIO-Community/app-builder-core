@@ -139,30 +139,6 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
     useState(false);
   const endRemoteCall = useRemoteEndCall();
   const [pos, setPos] = useState({});
-  const showMoreMenu = () => {
-    videoMoreMenuRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
-      const breakpoint = Dimensions.get('window').height / 2;
-      let extraLeftSpace = 0;
-      if (
-        sidePanel !== SidePanelType.None &&
-        currentLayout === getPinnedLayoutName()
-      ) {
-        extraLeftSpace = 50;
-      }
-      if (_py > breakpoint) {
-        setPos({
-          bottom: Dimensions.get('window').height - _py - h,
-          left: _px - 200 - _w + extraLeftSpace,
-        });
-      } else {
-        setPos({
-          top: _py,
-          left: _px - 200 - _w + extraLeftSpace,
-        });
-      }
-      setActionMenuVisible(true);
-    });
-  };
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
     Dimensions.get('window').height,
@@ -291,15 +267,15 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
           setActionMenuVisible={setActionMenuVisible}
           //todo pass handle close
           isMobile={isMobile}
-          modalPosition={pos}
           user={user}
+          btnRef={videoMoreMenuRef}
         />
         <IconButton
           setRef={(ref) => {
             videoMoreMenuRef.current = ref;
           }}
           onPress={() => {
-            showMoreMenu();
+            setActionMenuVisible(true);
           }}
           iconProps={{
             iconContainerStyle: {

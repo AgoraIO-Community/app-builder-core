@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   MUTE_REMOTE_TYPE,
   RenderInterface,
@@ -21,6 +21,7 @@ import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
 import {ClientRole, UidType} from '../../../agora-rn-uikit';
+import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
   RaiseHandValue,
@@ -40,7 +41,7 @@ interface UserActionMenuOptionsOptionsProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   isMobile: boolean;
-  modalPosition: {};
+  btnRef: any;
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
@@ -287,6 +288,60 @@ export default function UserActionMenuOptionsOptions(
     setActionMenuitems(items);
   }, [pinnedUid, isHost, raiseHandList, hostUids, user]);
 
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const [modalPosition, setModalPosition] = useState({});
+
+  useEffect(() => {
+    if (actionMenuVisible) {
+      //getting btnRef x,y
+      props.btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          //right hand side
+          if (px > globalWidth / 2) {
+            //right bottom
+            if (py > globalHeight / 2) {
+              setModalPosition({
+                bottom: globalHeight - py,
+                right: globalWidth - px,
+              });
+            }
+            //right top
+            else {
+              setModalPosition({
+                top: py + localHeight,
+                right: globalWidth - px,
+              });
+            }
+          }
+          //left hand side
+          else {
+            //left bottom
+            if (py > globalHeight / 2) {
+              setModalPosition({
+                bottom: globalHeight - py,
+                left: px + localWidth,
+              });
+            }
+            //left top
+            else {
+              setModalPosition({
+                top: py + localHeight,
+                left: px + localWidth,
+              });
+            }
+          }
+        },
+      );
+    }
+  }, [actionMenuVisible]);
+
   return (
     <>
       {isHost ? (
@@ -295,7 +350,7 @@ export default function UserActionMenuOptionsOptions(
           actionMenuVisible={showAudioMuteModal}
           setActionMenuVisible={setShowAudioMuteModal}
           name={props?.user.name}
-          modalPosition={props.modalPosition}
+          modalPosition={modalPosition}
           onMutePress={() => {
             remoteMute(MUTE_REMOTE_TYPE.audio, user.uid);
             setShowAudioMuteModal(false);
@@ -310,7 +365,7 @@ export default function UserActionMenuOptionsOptions(
           actionMenuVisible={showVideoMuteModal}
           setActionMenuVisible={setShowVideoMuteModal}
           name={props?.user.name}
-          modalPosition={props.modalPosition}
+          modalPosition={modalPosition}
           onMutePress={() => {
             remoteMute(MUTE_REMOTE_TYPE.video, user.uid);
             setShowVideoMuteModal(false);
@@ -357,7 +412,7 @@ export default function UserActionMenuOptionsOptions(
       <ActionMenu
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
-        modalPosition={props.modalPosition}
+        modalPosition={modalPosition}
         items={actionMenuitems}
       />
     </>
