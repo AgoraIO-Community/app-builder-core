@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     flex: 1,
     maxHeight: '34%',
     maxWidth: 440,
-    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
