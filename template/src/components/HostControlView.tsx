@@ -10,13 +10,14 @@
 *********************************************
 */
 import React, {useRef, useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import SecondaryButton from '../atoms/SecondaryButton';
 import {useString} from '../utils/useString';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
 import RemoteMutePopup from '../subComponents/RemoteMutePopup';
+import {calculatedPosition} from '../utils/common';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -31,18 +32,27 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   //const muteAllAudioButton = useString('muteAllAudioButton')();
   const muteAllAudioButton = 'Mute all';
   const onPressAction = () => muteRemoteAudio(MUTE_REMOTE_TYPE.audio);
-
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const showAudioModal = () => {
-    audioBtnRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      console.log('w', _w);
-      console.log('_px', _px);
-      console.log('_fx', _fx);
-      setModalPosition({
-        top: py - h - 120,
-        left: _px - 150,
-      });
-    });
-    setShowAudioMuteModal(true);
+    audioBtnRef?.current?.measure(
+      (_fx, _fy, localWidth, localHeight, px, py) => {
+        const data = calculatedPosition({
+          px,
+          py,
+          localHeight,
+          localWidth,
+          globalHeight,
+          globalWidth,
+          extra: {
+            bottom: 10,
+            left: localWidth / 2,
+            right: -(localWidth / 2),
+          },
+        });
+        setModalPosition(data);
+        setShowAudioMuteModal(true);
+      },
+    );
   };
   const onPress = () => {
     showAudioModal();
@@ -79,19 +89,31 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const videoBtnRef = useRef(null);
   const [modalPosition, setModalPosition] = useState({});
   const muteRemoteVideo = useRemoteMute();
-
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   //commented for v1 release
   //const muteAllVideoButton = useString('muteAllVideoButton')();
   const muteAllVideoButton = 'Turn off all cameras';
   const onPressAction = () => muteRemoteVideo(MUTE_REMOTE_TYPE.video);
   const showVideoModal = () => {
-    videoBtnRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      setModalPosition({
-        top: py - h - 120,
-        left: _px - 20,
-      });
-    });
-    setShowVideoMuteModal(true);
+    videoBtnRef?.current?.measure(
+      (_fx, _fy, localWidth, localHeight, px, py) => {
+        const data = calculatedPosition({
+          px,
+          py,
+          localHeight,
+          localWidth,
+          globalHeight,
+          globalWidth,
+          extra: {
+            bottom: 10,
+            left: localWidth / 2,
+            right: -(localWidth / 2),
+          },
+        });
+        setModalPosition(data);
+        setShowVideoMuteModal(true);
+      },
+    );
   };
   const onPress = () => {
     showVideoModal();

@@ -86,6 +86,78 @@ const isMobileUA = () => {
 
 const isArray = (data: any[]) =>
   data && Array.isArray(data) && data.length ? true : false ? true : false;
+
+interface calculatedPositionProps {
+  px: number;
+  py: number;
+  localWidth: number;
+  localHeight: number;
+  globalWidth: number;
+  globalHeight: number;
+  extra?: {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+}
+const calculatedPosition = (params: calculatedPositionProps) => {
+  const {
+    px,
+    py,
+    localWidth,
+    localHeight,
+    globalWidth,
+    globalHeight,
+    extra: {top = 0, bottom = 0, left = 0, right = 0} = {},
+  } = params;
+  //right hand side
+  if (px > globalWidth / 2) {
+    // if actionmenu overflow - horizontal
+    const w = globalWidth - px + 220;
+    let minus = 0;
+    if (w > globalWidth) {
+      minus = w - globalWidth + 10;
+    }
+    //right bottom
+    if (py > globalHeight / 2) {
+      return {
+        bottom: globalHeight - py + bottom,
+        right: globalWidth - px - minus + right,
+      };
+    }
+    //right top
+    else {
+      return {
+        top: py + localHeight + top,
+        right: globalWidth - px - minus + right,
+      };
+    }
+  }
+  //left hand side
+  else {
+    // if actionmenu overflow - horizontal
+    const w = px + localWidth + 220;
+    let minus = 0;
+    if (w > globalWidth) {
+      minus = w - globalWidth + 10;
+    }
+    //left bottom
+    if (py > globalHeight / 2) {
+      return {
+        bottom: globalHeight - py + bottom,
+        left: px + localWidth - minus + left,
+      };
+    }
+    //left top
+    else {
+      return {
+        top: py + localHeight + top + top,
+        left: px + localWidth - minus + left,
+      };
+    }
+  }
+};
 export {
   useHasBrandLogo,
   isMobileUA,
@@ -99,4 +171,5 @@ export {
   isValidReactComponent,
   maxInputLimit,
   trimText,
+  calculatedPosition,
 };

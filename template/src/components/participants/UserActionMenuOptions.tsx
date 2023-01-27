@@ -34,7 +34,7 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
-import {trimText} from '../../utils/common';
+import {calculatedPosition, trimText} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -305,52 +305,15 @@ export default function UserActionMenuOptionsOptions(
           px: number,
           py: number,
         ) => {
-          //right hand side
-          if (px > globalWidth / 2) {
-            // if actionmenu overflow - horizontal
-            const w = globalWidth - px + 220;
-            let minus = 0;
-            if (w > globalWidth) {
-              minus = w - globalWidth + 10;
-            }
-            //right bottom
-            if (py > globalHeight / 2) {
-              setModalPosition({
-                bottom: globalHeight - py,
-                right: globalWidth - px - minus,
-              });
-            }
-            //right top
-            else {
-              setModalPosition({
-                top: py + localHeight,
-                right: globalWidth - px - minus,
-              });
-            }
-          }
-          //left hand side
-          else {
-            // if actionmenu overflow - horizontal
-            const w = px + localWidth + 220;
-            let minus = 0;
-            if (w > globalWidth) {
-              minus = w - globalWidth + 10;
-            }
-            //left bottom
-            if (py > globalHeight / 2) {
-              setModalPosition({
-                bottom: globalHeight - py,
-                left: px + localWidth - minus,
-              });
-            }
-            //left top
-            else {
-              setModalPosition({
-                top: py + localHeight,
-                left: px + localWidth - minus,
-              });
-            }
-          }
+          const data = calculatedPosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          setModalPosition(data);
           setIsPosCalculated(true);
         },
       );

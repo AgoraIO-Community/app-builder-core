@@ -9,8 +9,8 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {useWindowDimensions} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useIsPSTN from '../utils/useIsPSTN';
 import useMutePSTN from '../utils/useMutePSTN';
@@ -19,6 +19,7 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
 import {useRender} from 'customization-api';
+import {calculatedPosition} from '../utils/common';
 
 export interface RemoteAudioMuteProps {
   uid: UidType;
@@ -32,13 +33,15 @@ export interface RemoteAudioMuteProps {
  * If the local user is not a host, it simply renders an image
  */
 const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
+  const btnRef = useRef(null);
   const {isHost = false, userContainerRef} = props;
   const muteRemoteAudio = useRemoteMute();
   const [showModal, setShowModal] = useState(false);
-  const [pos, setPos] = useState({top: 0, left: 0});
+  const [pos, setPos] = useState({});
   const {renderList} = useRender();
   const isPSTN = useIsPSTN();
   const mutePSTN = useMutePSTN();
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const onPress = () => {
     if (isPSTN(props.uid)) {
       try {
@@ -58,19 +61,34 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
         name={renderList[props.uid]?.name}
-        modalPosition={{top: pos.top - 15, left: pos.left + 23}}
+        modalPosition={pos}
         onMutePress={onPress}
       />
       <IconButton
+        setRef={(ref) => (btnRef.current = ref)}
         disabled={!isHost || !props.audio}
         onPress={() => {
-          userContainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-            setPos({
-              top: py + h,
-              left: _px,
-            });
-            setShowModal(true);
-          });
+          btnRef?.current?.measure(
+            (
+              _fx: number,
+              _fy: number,
+              localWidth: number,
+              localHeight: number,
+              px: number,
+              py: number,
+            ) => {
+              const data = calculatedPosition({
+                px,
+                py,
+                localHeight,
+                localWidth,
+                globalHeight,
+                globalWidth,
+              });
+              setPos(data);
+              setShowModal(true);
+            },
+          );
         }}
         hoverEffect={props.audio}
         hoverEffectStyle={{
