@@ -4,12 +4,15 @@ import {
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import ThemeConfig from '../theme';
 import Spacer from '../atoms/Spacer';
 import PlatformWrapper from '../utils/PlatformWrapper';
+import {isMobileOrTablet} from 'customization-api';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ActionMenuProps {
   actionMenuVisible: boolean;
@@ -26,6 +29,7 @@ export interface ActionMenuProps {
 }
 
 const RemoteMutePopup = (props: ActionMenuProps) => {
+  const {height} = useWindowDimensions();
   const {actionMenuVisible, setActionMenuVisible, modalPosition} = props;
   let message = props?.name
     ? `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`
@@ -41,9 +45,25 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
           onPress={() => {
             setActionMenuVisible(false);
           }}>
-          <View style={styles.backDrop} />
+          <View
+            style={[
+              styles.backDrop,
+              isMobileOrTablet()
+                ? {
+                    backgroundColor:
+                      $config.HARD_CODED_BLACK_COLOR +
+                      hexadecimalTransparency['50%'],
+                  }
+                : {},
+            ]}
+          />
         </TouchableWithoutFeedback>
-        <View style={[styles.modalView, modalPosition]}>
+        <View
+          style={
+            isMobileOrTablet()
+              ? [styles.modalViewUA, {marginTop: height / 3}]
+              : [styles.modalView, modalPosition]
+          }>
           <View style={styles.container}>
             <Text style={styles.messageStyle}>{message}</Text>
             <View style={styles.btnContainer}>
@@ -112,6 +132,21 @@ const styles = StyleSheet.create({
   modalView: {
     position: 'absolute',
     width: 290,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    borderRadius: 4,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    zIndex: 1,
+    elevation: 1,
+  },
+  modalViewUA: {
+    alignSelf: 'center',
+    maxWidth: '80%',
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
