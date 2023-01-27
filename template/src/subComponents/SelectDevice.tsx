@@ -315,12 +315,20 @@ const SelectDevice = (props: SelectDeviceProps) => {
 
   //commented for v1 release
   // const settingScreenInfoMessage = useString('settingScreenInfoMessage')();
-  const settingScreenInfoMessage = $config.AUDIO_ROOM
-    ? 'Audio sharing is disabled for attendees. Raise hand to request permission to share.'
-    : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
+  // const settingScreenInfoMessage = $config.AUDIO_ROOM
+  //   ? 'Audio sharing is disabled for attendees. Raise hand to request permission to share.'
+  //   : 'Video and Audio sharing is disabled for attendees. Raise hand to request permission to share.';
+  const settingScreenInfoMessage =
+    'Attendees need to raise their hand to access the devices.';
   return (
     <>
       <>
+        {$config.EVENT_MODE && isPickerDisabled && (
+          <View style={style.infoTxtContainer}>
+            <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
+          </View>
+        )}
+        <Spacer size={24} />
         {!$config.AUDIO_ROOM && (
           <>
             <SelectVideoDevice {...props} />
@@ -332,12 +340,6 @@ const SelectDevice = (props: SelectDeviceProps) => {
         <SelectSpeakerDevice {...props} />
         <Spacer size={24} />
       </>
-      {$config.EVENT_MODE && isPickerDisabled && (
-        <View>
-          <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
-        </View>
-      )}
-      <Spacer size={24} />
     </>
   );
 };
@@ -363,10 +365,17 @@ const style = StyleSheet.create({
     marginVertical: 20,
     backgroundColor: '#FFFFFF',
   },
+  infoTxtContainer: {
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    borderRadius: 4,
+  },
   infoTxt: {
-    textAlign: 'center',
-    fontSize: 12,
-    color: '#FF0000',
+    textAlign: 'left',
+    fontSize: 16,
+    color: $config.FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '400',
+    padding: 12,
   },
   label: {
     fontWeight: '400',

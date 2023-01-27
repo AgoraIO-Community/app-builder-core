@@ -7,6 +7,7 @@ import {useLayout} from '../utils/useLayout';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {Dimensions} from 'react-native';
 import {isMobileUA} from '../utils/common';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -18,18 +19,21 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);
+  const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
   const isMobileView = isMobileUA();
   const {showLabel = $config.ICON_TEXT} = props;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
       layoutBtnRef?.current?.measure((_fx, _fy, _w, h, _px, _py) => {
         setModalPosition({
-          bottom: windowHeight - _py + 10,
-          left: _px - 10,
+          bottom: isMobileOrTablet()
+            ? windowHeight - _py + 10
+            : windowHeight - _py - 10,
+          left: isMobileOrTablet() ? _px - 10 : -10,
         });
+        setIsHoveredLocal(hovered);
       });
     }
-    setIsHoveredLocal(hovered);
   };
   //commented for v1 release
   //const layoutLabel = useString('layoutLabel')('');
@@ -67,7 +71,22 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       props?.render ? (
         props.render(onPress)
       ) : (
-        <PlatformWrapper showDropdown={isHovered} setIsHovered={setIsHovered}>
+        <PlatformWrapper
+          key={'layout-icon-btn'}
+          showDropdown={isHovered}
+          setIsHovered={(flag) => {
+            if (flag) {
+              setIsHovered(true);
+            } else {
+              if (isMobileOrTablet()) {
+                setIsHovered(false);
+              } else {
+                setTimeout(() => {
+                  setIsHovered(false);
+                }, 500);
+              }
+            }
+          }}>
           <IconButton
             setRef={(ref) => {
               layoutBtnRef.current = ref;
@@ -89,11 +108,16 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       {/**
        * Based on the flag. it will render the dropdown
        */}
-      <PlatformWrapperPopup setIsHovered={setIsHovered}>
+      <PlatformWrapperPopup
+        setIsHovered={isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal}>
         <LayoutIconDropdown
           modalPosition={modalPosition}
-          showDropdown={isHovered}
-          setShowDropdown={setIsHovered}
+          showDropdown={
+            isMobileOrTablet() ? isHovered : isHovered || isHoveredOnModal
+          }
+          setShowDropdown={
+            isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
+          }
         />
       </PlatformWrapperPopup>
       {/**
@@ -106,7 +130,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   );
 };
 const PlatformWrapper = ({children, ...props}) => {
-  return false ? (
+  return !isMobileOrTablet() ? (
     <div
       onMouseEnter={() => {
         props?.setIsHovered(true);
@@ -121,7 +145,7 @@ const PlatformWrapper = ({children, ...props}) => {
   );
 };
 const PlatformWrapperPopup = ({children, ...props}) => {
-  return false ? (
+  return !isMobileOrTablet() ? (
     <div
       onMouseEnter={() => {
         props?.setIsHovered(true);

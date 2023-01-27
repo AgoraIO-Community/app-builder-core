@@ -18,6 +18,8 @@ import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
 import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
+import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
 
 interface LocalRaiseHandProps {
   showLabel?: boolean;
@@ -25,7 +27,9 @@ interface LocalRaiseHandProps {
 const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
+  const {rtcProps} = useContext(PropsContext);
   const {localUid} = useContext(ChatContext);
+  const {activeUids} = useRender();
   const {showLabel = $config.ICON_TEXT} = props;
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');

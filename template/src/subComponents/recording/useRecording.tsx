@@ -35,12 +35,14 @@ export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
   isRecordingActive: boolean;
+  inProgress: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
   isRecordingActive: false,
+  inProgress: false,
 });
 
 const START_RECORDING = gql`
@@ -85,6 +87,7 @@ interface RecordingProviderProps {
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setRecordingActive, isRecordingActive} = props?.value;
+  const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
   const {renderList, activeUids} = useRender();
   const {phrase} = useParams<{phrase: string}>();
@@ -151,6 +154,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   }, [isRecordingActive]);
 
   const startRecording = () => {
+    setInProgress(true);
     // If recording is not going on, start the recording by executing the graphql query
     startRecordingQuery({
       variables: {
@@ -163,6 +167,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then((res) => {
         console.log(res.data);
+        setInProgress(false);
         if (res.data.startRecordingSession === 'success') {
           /**
            * 1. Once the backend sucessfuly starts recording, send message
@@ -198,6 +203,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }
       })
       .catch((err) => {
+        setInProgress(false);
         console.log(err);
       });
   };
@@ -219,10 +225,12 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       localUid === uidWhoStarted ||
       activeUids.indexOf(uidWhoStarted) === -1
     ) {
+      setInProgress(true);
       // If recording is already going on, stop the recording by executing the graphql query.
       stopRecordingQuery({variables: {passphrase: phrase}})
         .then((res) => {
           console.log(res.data);
+          setInProgress(false);
           if (res.data.stopRecordingSession === 'success') {
             /**
              * 1. Once the backend sucessfuly starts recording, send message
@@ -241,6 +249,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           }
         })
         .catch((err) => {
+          setInProgress(false);
           console.log(err);
         });
     } else {
@@ -258,6 +267,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   return (
     <RecordingContext.Provider
       value={{
+        inProgress,
         startRecording,
         stopRecording,
         isRecordingActive,
