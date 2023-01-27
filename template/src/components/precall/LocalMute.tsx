@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import {isAndroid, isIOS, isValidReactComponent} from '../../utils/common';
@@ -22,6 +22,8 @@ import LocalAudioMute, {
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import PreCallSettings from './PreCallSettings';
 import Spacer from '../../atoms/Spacer';
+import {usePreCall} from './usePreCall';
+import DeviceContext from '../DeviceContext';
 
 const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
@@ -65,7 +67,31 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
   });
   const {isMobileView = false} = props;
   const isNative = isAndroid() || isIOS();
+  // for mweb check for camera * mic availablity for desktop it happens in settings panel
+  // refactor later to set mic/camera availablity oustside settings panel <selectDevice>
+  const {deviceList} = useContext(DeviceContext);
+  const {setCameraAvailable, setMicAvailable} = usePreCall();
+  const audioDevices = deviceList.filter((device) => {
+    if (device.kind === 'audioinput') {
+      return true;
+    }
+  });
+  const videoDevices = deviceList.filter((device) => {
+    if (device.kind === 'videoinput') {
+      return true;
+    }
+  });
+  useEffect(() => {
+    if (audioDevices && audioDevices.length) {
+      isMobileView && !isNative && setMicAvailable(true);
+    }
+  }, [audioDevices]);
 
+  useEffect(() => {
+    if (videoDevices && videoDevices.length) {
+      isMobileView && !isNative && setCameraAvailable(true);
+    }
+  }, [videoDevices]);
   return (
     <View
       style={[style.precallControls, isMobileView && {paddingVertical: 10}]}
