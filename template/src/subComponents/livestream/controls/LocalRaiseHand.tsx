@@ -36,19 +36,11 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const handStatusText = (toggle: boolean) =>
     toggle ? 'Lower hand' : 'Raise Hand';
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
-  const disabled =
-    $config.EVENT_MODE &&
-    rtcProps?.role === ClientRole.Audience &&
-    activeUids.length === 0;
   return (
     <IconButton
-      toolTipMessage={disabled ? 'Wait for host to join' : ''}
-      disabled={disabled}
       iconProps={{
         name: isHandRasied ? 'lower-hand' : 'raise-hand',
-        tintColor: disabled
-          ? $config.SEMANTIC_NETRUAL
-          : isHandRasied
+        tintColor: isHandRasied
           ? $config.PRIMARY_ACTION_TEXT_COLOR
           : $config.SECONDARY_ACTION_COLOR,
         iconBackgroundColor: isHandRasied
