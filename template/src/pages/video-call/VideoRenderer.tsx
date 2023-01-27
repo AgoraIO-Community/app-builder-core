@@ -116,6 +116,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
           isMobile={isMobile}
           user={user}
           btnRef={videoMoreMenuRef}
+          from={'video-tile'}
         />
         <IconButton
           setRef={(ref) => {

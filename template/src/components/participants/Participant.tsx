@@ -98,6 +98,7 @@ const Participant = (props: ParticipantInterface) => {
         isMobile={isMobile}
         user={props.user}
         btnRef={moreIconRef}
+        from={'partcipant'}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container} ref={usercontainerRef}>

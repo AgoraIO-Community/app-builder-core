@@ -38,6 +38,7 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
         updateActionSheet={() => {}}
         user={props.user}
         btnRef={screenshareRef}
+        from={'screenshare-participant'}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container}>

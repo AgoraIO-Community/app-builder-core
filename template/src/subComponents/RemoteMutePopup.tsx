@@ -34,7 +34,7 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
     <View>
       <Modal
         testID="action-menu"
-        animationType="fade"
+        animationType="none"
         transparent={true}
         visible={actionMenuVisible}>
         <TouchableWithoutFeedback

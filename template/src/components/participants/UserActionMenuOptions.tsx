@@ -42,12 +42,14 @@ interface UserActionMenuOptionsOptionsProps {
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   isMobile: boolean;
   btnRef: any;
+  from: 'partcipant' | 'screenshare-participant' | 'video-tile';
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
 ) {
   const [showAudioMuteModal, setShowAudioMuteModal] = useState(false);
   const [showVideoMuteModal, setShowVideoMuteModal] = useState(false);
+  const [isPosCalculated, setIsPosCalculated] = useState(false);
   const {setFocus} = useFocus();
   const {stopUserScreenShare} = useScreenshare();
   const remoteEndScreenshare = useRemoteEndScreenshare();
@@ -337,6 +339,7 @@ export default function UserActionMenuOptionsOptions(
               });
             }
           }
+          setIsPosCalculated(true);
         },
       );
     }
@@ -410,7 +413,8 @@ export default function UserActionMenuOptionsOptions(
         <></>
       )}
       <ActionMenu
-        actionMenuVisible={actionMenuVisible}
+        from={props.from}
+        actionMenuVisible={actionMenuVisible && isPosCalculated}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={modalPosition}
         items={actionMenuitems}
