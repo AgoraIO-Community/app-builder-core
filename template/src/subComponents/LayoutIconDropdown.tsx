@@ -9,6 +9,7 @@ import Spacer from '../atoms/Spacer';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useRender} from 'customization-api';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -88,7 +89,9 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           textColor: $config.FONT_COLOR,
         },
       };
-      content.push(<IconButton {...iconButtonProps} />);
+      content.push(
+        <IconButton key={'layout_button' + item.name} {...iconButtonProps} />,
+      );
       return content;
     });
 
@@ -100,10 +103,11 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             height: 20,
             backgroundColor: $config.CARD_LAYER_4_COLOR,
             position: 'absolute',
-            bottom: -8,
-            left: 26,
+            bottom: isMobileOrTablet() ? -8 : -10,
+            left: isMobileOrTablet() ? 26 : 26,
             borderRadius: 2,
             transform: [{rotate: '45deg'}],
+            zIndex: -1,
           }}></View>
         <View
           style={{
@@ -116,7 +120,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       </View>
     );
 
-    return false ? (
+    return !isMobileOrTablet() ? (
       showDropdown ? (
         viewContent
       ) : (
@@ -150,8 +154,7 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 8,
     zIndex: 999,
-    shadowColor:
-      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['10%'],
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {
       width: 0,
       height: -4,

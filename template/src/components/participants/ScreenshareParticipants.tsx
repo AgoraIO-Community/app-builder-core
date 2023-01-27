@@ -10,99 +10,22 @@
 *********************************************
 */
 import React, {useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import ThemeConfig from '../../theme';
 import UserAvatar from '../../atoms/UserAvatar';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
-import {
-  RenderInterface,
-  UidType,
-  useLocalUid,
-  useMeetingInfo,
-} from 'customization-api';
-import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
-import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
-import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
+import {RenderInterface} from 'customization-api';
 import {isWebInternal} from '../../utils/common';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 
 const ScreenshareParticipants = (props: {user: RenderInterface}) => {
   const screenshareRef = useRef();
-  const localUid = useLocalUid();
   const [isHovered, setIsHovered] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
-  const [removeScreensharePopupVisible, setRemoveScreensharePopupVisible] =
-    useState(false);
-  const [pos, setPos] = useState({});
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
-  const remoteEndScreenshare = useRemoteEndScreenshare();
-  // const renderActionMenu = () => {
-  //   const items: ActionMenuItem[] = [];
 
-  //   if (isHost) {
-  //     items.push({
-  //       icon: 'remove-meeting',
-  //       iconColor: $config.SEMANTIC_ERROR,
-  //       textColor: $config.SEMANTIC_ERROR,
-  //       title: 'Remove Screenshare',
-  //       callback: () => {
-  //         setActionMenuVisible(false);
-  //         setRemoveScreensharePopupVisible(true);
-  //       },
-  //     });
-  //   }
-  //   return (
-  //     <>
-  //       {isHost ? (
-  //         <RemoveScreensharePopup
-  //           modalVisible={removeScreensharePopupVisible}
-  //           setModalVisible={setRemoveScreensharePopupVisible}
-  //           username={props.name}
-  //           removeScreenShareFromMeeting={() =>
-  //             remoteEndScreenshare(props.parentUid)
-  //           }
-  //         />
-  //       ) : (
-  //         <></>
-  //       )}
-  //       <ActionMenu
-  //         actionMenuVisible={actionMenuVisible}
-  //         setActionMenuVisible={setActionMenuVisible}
-  //         modalPosition={{top: pos.top - 20, left: pos.left + 50}}
-  //         items={items}
-  //       />
-  //     </>
-  //   );
-  // };
   const showModal = () => {
-    screenshareRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      // setPos({
-      //   top: py + h - 20,
-      //   right: Dimensions.get('window').width - _px,
-      // });
-      const breakpoint = Dimensions.get('window').height / 2;
-      if (py < breakpoint) {
-        setPos({
-          top: py + h - 20,
-          right: Dimensions.get('window').width - _px,
-        });
-      } else {
-        setPos({
-          bottom: Dimensions.get('window').height - py - h,
-          right: Dimensions.get('window').width - _px,
-        });
-      }
-      setActionMenuVisible((state) => !state);
-    });
+    setActionMenuVisible((state) => !state);
   };
   return (
     <>
@@ -112,9 +35,10 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
         setActionMenuVisible={setActionMenuVisible}
         handleClose={() => {}}
         isMobile={false}
-        modalPosition={pos}
         updateActionSheet={() => {}}
         user={props.user}
+        btnRef={screenshareRef}
+        from={'screenshare-participant'}
       />
       <PlatformWrapper showModal={showModal} setIsHovered={setIsHovered}>
         <View style={styles.container}>
@@ -180,7 +104,6 @@ export default ScreenshareParticipants;
 const PlatformWrapper = ({children, showModal, setIsHovered}) => {
   return isWebInternal() ? (
     <div
-      style={{}}
       onMouseEnter={() => {
         setIsHovered(true);
       }}

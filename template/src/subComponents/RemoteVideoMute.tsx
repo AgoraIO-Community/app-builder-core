@@ -9,12 +9,14 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
+import {useWindowDimensions} from 'react-native';
 import {UidType} from '../../agora-rn-uikit';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
 import {useRender} from 'customization-api';
+import {calculatedPosition} from '../utils/common';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
@@ -27,11 +29,13 @@ export interface RemoteVideoMuteProps {
   userContainerRef: any;
 }
 const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
+  const btnRef = useRef(null);
   const {isHost = false, userContainerRef} = props;
   const muteRemoteVideo = useRemoteMute();
   const [showModal, setShowModal] = useState(false);
-  const [pos, setPos] = useState({top: 0, left: 0});
+  const [pos, setPos] = useState({});
   const {renderList} = useRender();
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const onPress = () => {
     muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
     setShowModal(false);
@@ -43,7 +47,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
         name={renderList[props.uid]?.name}
-        modalPosition={{top: pos.top - 15, left: pos.left + 23}}
+        modalPosition={pos}
         onMutePress={onPress}
       />
       <IconButton
@@ -52,15 +56,30 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,
         }}
+        setRef={(ref) => (btnRef.current = ref)}
         disabled={!isHost || !props.video}
         onPress={() => {
-          userContainerRef?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-            setPos({
-              top: py + h,
-              left: _px,
-            });
-            setShowModal(true);
-          });
+          btnRef?.current?.measure(
+            (
+              _fx: number,
+              _fy: number,
+              localWidth: number,
+              localHeight: number,
+              px: number,
+              py: number,
+            ) => {
+              const data = calculatedPosition({
+                px,
+                py,
+                localHeight,
+                localWidth,
+                globalHeight,
+                globalWidth,
+              });
+              setPos(data);
+              setShowModal(true);
+            },
+          );
         }}
         iconProps={{
           iconContainerStyle: {padding: 8},

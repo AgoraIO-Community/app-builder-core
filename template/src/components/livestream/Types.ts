@@ -53,13 +53,13 @@ export const LSNotificationObject = {
     text2: 'Waiting for host to approve the request',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestReceived]: {
-    text1: 'has raised their hand to Co-host',
+    text1: 'has raised their hand to be a Presenter',
     text2:
       'Once approved they will be able to speak, share their video and present during this call.',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestAccepted]: {
     text1: 'Host has approved your request.',
-    text2: 'You are now a Co-host',
+    text2: 'You are now a Presenter',
   },
   [LiveStreamControlMessageEnum.raiseHandRequestRejected]: {
     text1: 'Your request was rejected by the host',
@@ -78,7 +78,7 @@ export const LSNotificationObject = {
     text2: null,
   },
   [LiveStreamControlMessageEnum.promoteAsCoHost]: {
-    text1: 'Host promoted you as Co-Host',
+    text1: 'Host promoted you as a Presenter',
     text2: null,
   },
 };

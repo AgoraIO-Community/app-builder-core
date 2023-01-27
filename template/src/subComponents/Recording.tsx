@@ -26,7 +26,8 @@ export interface RecordingButtonProps {
 }
 
 const Recording = (props: RecordingButtonProps) => {
-  const {startRecording, stopRecording, isRecordingActive} = useRecording();
+  const {startRecording, stopRecording, inProgress, isRecordingActive} =
+    useRecording();
   //commented for v1 release
   //const recordingButton = useString<boolean>('recordingButton');
   const recordingButton = (recording: boolean) =>
@@ -60,6 +61,8 @@ const Recording = (props: RecordingButtonProps) => {
       textColor: $config.FONT_COLOR,
     },
     onPress,
+    disabled: inProgress,
+    containerStyle: inProgress ? {opacity: 0.6} : {},
   };
 
   iconButtonProps.isOnActionSheet = isOnActionSheet;

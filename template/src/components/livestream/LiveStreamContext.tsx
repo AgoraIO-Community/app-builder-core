@@ -62,7 +62,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const localUidRef = useRef<any>();
   localUidRef.current = localUid;
 
-  const {hasUserJoinedRTM} = useContext(ChatContext);
+  const {hasUserJoinedRTM, rtmInitTimstamp} = useContext(ChatContext);
 
   const {setRtcProps, rtcProps, callActive} = props?.value;
   const {
@@ -84,7 +84,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
           textStyle={style.primaryBtnText}
-          text="ALLOW TO CO-HOST"
+          text="ALLOW TO BE A PRESENTER"
           onPress={() => {
             hostApprovesRequestOfUID(uid);
             Toast.hide();
@@ -169,6 +169,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           JSON.stringify({
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.FALSE,
+            ts: new Date().getTime(),
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -198,6 +199,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           JSON.stringify({
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.TRUE,
+            ts: new Date().getTime(),
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -307,13 +309,15 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           switch (value) {
             case RaiseHandValue.TRUE:
               // Step 1: Show notifications
-              showToast(
-                `${getAttendeeName(data.sender)} ${
-                  LSNotificationObject.RAISE_HAND_RECEIVED.text1
-                }`,
-                LSNotificationObject.RAISE_HAND_RECEIVED.text2,
-                data.sender,
-              );
+              if (payload.ts > rtmInitTimstamp) {
+                showToast(
+                  `${getAttendeeName(data.sender)} ${
+                    LSNotificationObject.RAISE_HAND_RECEIVED.text1
+                  }`,
+                  LSNotificationObject.RAISE_HAND_RECEIVED.text2,
+                  data.sender,
+                );
+              }
               // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
               addOrUpdateLiveStreamRequest(data.sender, {
                 ts: data.ts,
@@ -323,12 +327,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               break;
             case RaiseHandValue.FALSE:
               // Step 1: Show notifications
-              showToast(
-                `${getAttendeeName(data.sender)} ${
-                  LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
-                }`,
-                LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,
-              );
+              if (payload.ts > rtmInitTimstamp) {
+                showToast(
+                  `${getAttendeeName(data.sender)} ${
+                    LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
+                  }`,
+                  LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,
+                );
+              }
               // 2. All Hosts in channel update raised state to "false" when attendee recalls their request
               addOrUpdateLiveStreamRequest(data.sender, {
                 ts: data.ts,
@@ -437,9 +443,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             return [...prevState, parseInt(data.uid)];
           });
         }
-      } catch (error) {
-        console.log('debugging error on setting new co host uid - join');
-      }
+      } catch (error) {}
     });
     // 5. Co-host removed
     events.on(LiveStreamControlMessageEnum.coHostRemoved, ({payload}) => {
@@ -450,9 +454,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             return [...prevState.filter((i) => i !== parseInt(data.uid))];
           });
         }
-      } catch (error) {
-        console.log('debugging error on setting new co host uid - rmove');
-      }
+      } catch (error) {}
     });
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
   }, []);
@@ -523,6 +525,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       JSON.stringify({
         action: LiveStreamControlMessageEnum.raiseHandRequest,
         value: RaiseHandValue.TRUE,
+        ts: new Date().getTime(),
       }),
       EventPersistLevel.LEVEL2,
     );

@@ -9,12 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent, useRtc} from 'customization-api';
-import React, {useMemo, useState} from 'react';
-import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
+import {layoutComponent, useRender, useRtc} from 'customization-api';
+import React, {useContext, useMemo, useState} from 'react';
+import {View, StyleSheet, Dimensions, Pressable, Text} from 'react-native';
 import {isWebInternal} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
+import {ClientRole, PropsContext} from '../../agora-rn-uikit';
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -35,6 +36,8 @@ const layout = (len: number, isDesktop: boolean = true) => {
 
 const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useRtc();
+  const {rtcProps} = useContext(PropsContext);
+  const {activeUids} = useRender();
   let onLayout = (e: any) => {
     setDim([
       e.nativeEvent.layout.width,
@@ -55,6 +58,20 @@ const GridVideo: layoutComponent = ({renderData}) => {
   );
 
   const setPinnedLayout = useSetPinnedLayout();
+
+  //livestreaming audience will see this if no host joined the call
+  if (
+    $config.EVENT_MODE &&
+    rtcProps?.role === ClientRole.Audience &&
+    activeUids.length === 0
+  ) {
+    return (
+      <View style={style.infoTextContainer}>
+        <Text style={style.infoTextStyle}>Waiting for the host to join...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={[style.full]} onLayout={onLayout}>
       {matrix.map((r, ridx) => (
@@ -105,6 +122,21 @@ const style = StyleSheet.create({
     //borderRadius: 12,
     flex: 1,
     overflow: 'hidden',
+  },
+  infoTextContainer: {
+    flex: 1,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+    justifyContent: 'center',
+    marginHorizontal: 'auto',
+    marginVertical: 4,
+  },
+  infoTextStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 32,
+    color: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+    textAlign: 'center',
+    padding: 12,
   },
 });
 export default GridVideo;

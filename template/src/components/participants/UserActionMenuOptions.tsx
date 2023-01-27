@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   MUTE_REMOTE_TYPE,
   RenderInterface,
@@ -21,6 +21,7 @@ import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
 import {ClientRole, UidType} from '../../../agora-rn-uikit';
+import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
   RaiseHandValue,
@@ -33,20 +34,22 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
-import {trimText} from '../../utils/common';
+import {calculatedPosition, trimText} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   isMobile: boolean;
-  modalPosition: {};
+  btnRef: any;
+  from: 'partcipant' | 'screenshare-participant' | 'video-tile';
 }
 export default function UserActionMenuOptionsOptions(
   props: UserActionMenuOptionsOptionsProps,
 ) {
   const [showAudioMuteModal, setShowAudioMuteModal] = useState(false);
   const [showVideoMuteModal, setShowVideoMuteModal] = useState(false);
+  const [isPosCalculated, setIsPosCalculated] = useState(false);
   const {setFocus} = useFocus();
   const {stopUserScreenShare} = useScreenshare();
   const remoteEndScreenshare = useRemoteEndScreenshare();
@@ -287,6 +290,36 @@ export default function UserActionMenuOptionsOptions(
     setActionMenuitems(items);
   }, [pinnedUid, isHost, raiseHandList, hostUids, user]);
 
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const [modalPosition, setModalPosition] = useState({});
+
+  useEffect(() => {
+    if (actionMenuVisible) {
+      //getting btnRef x,y
+      props.btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          const data = calculatedPosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          setModalPosition(data);
+          setIsPosCalculated(true);
+        },
+      );
+    }
+  }, [actionMenuVisible]);
+
   return (
     <>
       {isHost ? (
@@ -295,7 +328,7 @@ export default function UserActionMenuOptionsOptions(
           actionMenuVisible={showAudioMuteModal}
           setActionMenuVisible={setShowAudioMuteModal}
           name={props?.user.name}
-          modalPosition={props.modalPosition}
+          modalPosition={modalPosition}
           onMutePress={() => {
             remoteMute(MUTE_REMOTE_TYPE.audio, user.uid);
             setShowAudioMuteModal(false);
@@ -310,7 +343,7 @@ export default function UserActionMenuOptionsOptions(
           actionMenuVisible={showVideoMuteModal}
           setActionMenuVisible={setShowVideoMuteModal}
           name={props?.user.name}
-          modalPosition={props.modalPosition}
+          modalPosition={modalPosition}
           onMutePress={() => {
             remoteMute(MUTE_REMOTE_TYPE.video, user.uid);
             setShowVideoMuteModal(false);
@@ -355,9 +388,10 @@ export default function UserActionMenuOptionsOptions(
         <></>
       )}
       <ActionMenu
-        actionMenuVisible={actionMenuVisible}
+        from={props.from}
+        actionMenuVisible={actionMenuVisible && isPosCalculated}
         setActionMenuVisible={setActionMenuVisible}
-        modalPosition={props.modalPosition}
+        modalPosition={modalPosition}
         items={actionMenuitems}
       />
     </>

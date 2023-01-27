@@ -37,6 +37,7 @@ export enum UserType {
 }
 
 const RtmConfigure = (props: any) => {
+  const rtmInitTimstamp = new Date().getTime();
   const localUid = useLocalUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
@@ -435,6 +436,7 @@ const RtmConfigure = (props: any) => {
   return (
     <ChatContext.Provider
       value={{
+        rtmInitTimstamp,
         hasUserJoinedRTM,
         engine: engine.current,
         localUid: localUid,

@@ -27,6 +27,7 @@ export interface ActionMenuItem {
   disabled?: boolean;
 }
 export interface ActionMenuProps {
+  from: string;
   actionMenuVisible: boolean;
   setActionMenuVisible: React.Dispatch<SetStateAction<boolean>>;
   modalPosition?: {
@@ -44,7 +45,7 @@ const ActionMenu = (props: ActionMenuProps) => {
     <View>
       <Modal
         testID="action-menu"
-        animationType="fade"
+        animationType="none"
         transparent={true}
         visible={actionMenuVisible}>
         <TouchableWithoutFeedback
@@ -68,7 +69,7 @@ const ActionMenu = (props: ActionMenuProps) => {
               },
               index,
             ) => (
-              <PlatformWrapper>
+              <PlatformWrapper key={props.from + '_' + title + index}>
                 {(isHovered: boolean) => (
                   <TouchableOpacity
                     disabled={disabled}
