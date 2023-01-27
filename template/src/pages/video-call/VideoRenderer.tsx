@@ -11,7 +11,7 @@ import {useLayout, useRender, useRtc} from 'customization-api';
 import {getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-import {isWebInternal} from '../../utils/common';
+import {isMobileUA, isWebInternal} from '../../utils/common';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -57,7 +57,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           key={user.uid}
         />
         <NameWithMicIcon user={user} />
-        {user.uid !== rtcProps?.screenShareUid && isHovered ? (
+        {user.uid !== rtcProps?.screenShareUid &&
+        (isHovered || isMobileUA()) ? (
           <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
         ) : (
           <></>

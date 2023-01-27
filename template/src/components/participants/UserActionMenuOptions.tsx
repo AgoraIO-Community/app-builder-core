@@ -307,35 +307,47 @@ export default function UserActionMenuOptionsOptions(
         ) => {
           //right hand side
           if (px > globalWidth / 2) {
+            // if actionmenu overflow - horizontal
+            const w = globalWidth - px + 220;
+            let minus = 0;
+            if (w > globalWidth) {
+              minus = w - globalWidth + 10;
+            }
             //right bottom
             if (py > globalHeight / 2) {
               setModalPosition({
                 bottom: globalHeight - py,
-                right: globalWidth - px,
+                right: globalWidth - px - minus,
               });
             }
             //right top
             else {
               setModalPosition({
                 top: py + localHeight,
-                right: globalWidth - px,
+                right: globalWidth - px - minus,
               });
             }
           }
           //left hand side
           else {
+            // if actionmenu overflow - horizontal
+            const w = px + localWidth + 220;
+            let minus = 0;
+            if (w > globalWidth) {
+              minus = w - globalWidth + 10;
+            }
             //left bottom
             if (py > globalHeight / 2) {
               setModalPosition({
                 bottom: globalHeight - py,
-                left: px + localWidth,
+                left: px + localWidth - minus,
               });
             }
             //left top
             else {
               setModalPosition({
                 top: py + localHeight,
-                left: px + localWidth,
+                left: px + localWidth - minus,
               });
             }
           }
