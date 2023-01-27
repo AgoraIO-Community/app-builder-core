@@ -17,7 +17,7 @@ const VideoCallMobileView = () => {
     data: {meetingTitle},
   } = useMeetingInfo();
   const {isRecordingActive} = useRecording();
-  const recordingLabel = 'REC';
+  const recordingLabel = 'Recording';
   return (
     <View style={styles.container}>
       <View style={styles.titleBar}>

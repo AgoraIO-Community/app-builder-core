@@ -1,6 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import React from 'react';
+import {isMobileUA} from '../utils/common';
 
 const RecordingInfo = ({recordingLabel = ''}) => {
   return (
@@ -16,6 +17,7 @@ export default RecordingInfo;
 const styles = StyleSheet.create({
   recordingView: {
     padding: 12,
+    paddingVertical: isMobileUA() ? 5 : 12,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
