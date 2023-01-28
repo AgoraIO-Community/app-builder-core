@@ -10,7 +10,10 @@
 *********************************************
 */
 import React from 'react';
-import {Platform as ReactNativePlatform} from 'react-native';
+import {
+  Platform as ReactNativePlatform,
+  useWindowDimensions,
+} from 'react-native';
 import Platform from '../subComponents/Platform';
 
 import * as ReactIs from 'react-is';
@@ -158,6 +161,21 @@ const calculatedPosition = (params: calculatedPositionProps) => {
     }
   }
 };
+
+const MOBILE_BREAK_POINT = 360;
+const TABLET_BREAK_POINT = 740;
+const useResponsive = () => {
+  const {width} = useWindowDimensions();
+  return (input: number) => {
+    if (width < MOBILE_BREAK_POINT) {
+      return input / 2;
+    } else if (width < TABLET_BREAK_POINT) {
+      return input / 1.5;
+    } else {
+      return input;
+    }
+  };
+};
 export {
   useHasBrandLogo,
   isMobileUA,
@@ -172,4 +190,5 @@ export {
   maxInputLimit,
   trimText,
   calculatedPosition,
+  useResponsive,
 };
