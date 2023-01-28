@@ -108,7 +108,7 @@ const ParticipantsIcon = (props: ParticipantsIconProps) => {
         <ParticipantsIconButton isOnActionSheet={true} />
       </View>
       {$config.ICON_TEXT && <Text style={styles.iconText}>People</Text>}
-      {showNotification && <View style={styles.notification} />}
+      {/* {showNotification && <View style={styles.notification} />} */}
     </View>
   );
 };
@@ -303,31 +303,39 @@ const ActionSheetContent = (props) => {
   const isAudioRoom = $config.AUDIO_ROOM;
   const isAudioRoomHost = $config.AUDIO_ROOM && isHost;
   const isAudioRoomAudience = $config.AUDIO_ROOM && isAudience;
-
+  const isAudioVideoControlsDisabled =
+    isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
   return (
     <View>
       {/* Row Always Visible */}
-      <View style={[styles.row, {borderBottomWidth: 1, paddingTop: 4}]}>
-        <AudioIcon
-          isMobileView={true}
-          isOnActionSheet={true}
-          showLabel={false}
-          disabled={isLiveStream && isAudience && !isBroadCasting}
-        />
+      <View
+        style={[
+          styles.row,
+          {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
+        ]}>
+        {isAudioVideoControlsDisabled ? null : (
+          <AudioIcon
+            isMobileView={true}
+            isOnActionSheet={true}
+            showLabel={false}
+            disabled={isLiveStream && isAudience && !isBroadCasting}
+          />
+        )}
 
         {isAudioRoomHost && $config.CLOUD_RECORDING && (
           <RecordingIcon showLabel={false} />
         )}
         {isAudioRoomAudience && <LayoutIcon showLabel={false} />}
-        {!isAudioRoom && (
-          <CamIcon
-            isOnActionSheet={true}
-            isMobileView={true}
-            showLabel={false}
-            disabled={isLiveStream && isAudience && !isBroadCasting}
-          />
-        )}
+        {!isAudioRoom &&
+          (isAudioVideoControlsDisabled ? null : (
+            <CamIcon
+              isOnActionSheet={true}
+              isMobileView={true}
+              showLabel={false}
+              disabled={isLiveStream && isAudience && !isBroadCasting}
+            />
+          ))}
 
         <EndCallIcon showLabel={false} isOnActionSheet={true} />
 
@@ -349,7 +357,9 @@ const ActionSheetContent = (props) => {
          * demote himself
          */}
         {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
+          $config.RAISE_HAND ? (
+            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
+          ) : null
         ) : null}
 
         {/* chat */}
@@ -364,13 +374,15 @@ const ActionSheetContent = (props) => {
         ) : null}
 
         {/* switch camera */}
-        {!isAudioRoom && (
-          <SwitchCameraIcon
-            disabled={
-              (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled
-            }
-          />
-        )}
+        {!isAudioRoom &&
+          (isAudioVideoControlsDisabled ? null : (
+            <SwitchCameraIcon
+              disabled={
+                (isLiveStream && isAudience && !isBroadCasting) ||
+                isVideoDisabled
+              }
+            />
+          ))}
 
         {/* settings */}
         <SettingsIcon
