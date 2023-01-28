@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
@@ -18,7 +18,7 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {isWebInternal} from '../utils/common';
+import {isWebInternal, useIsSmall} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
@@ -61,12 +61,7 @@ const ParticipantView = (props) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isSmall = dim[0] < 700;
+  const isSmall = useIsSmall()('');
   //video meeting
   const [showHostSection, setShowHostSection] = useState(true);
   const [showParticipantSection, setShowParticipantSection] = useState(true);

@@ -10,20 +10,19 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import ChatContainer from '../subComponents/ChatContainer';
 import ChatInput from '../subComponents/ChatInput';
 import ChatParticipants from '../subComponents/chat/ChatParticipants';
 import ColorContext from './ColorContext';
 import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
-import {isIOS, isValidReactComponent, isWebInternal} from '../utils/common';
+import {
+  isIOS,
+  isValidReactComponent,
+  isWebInternal,
+  useIsSmall,
+} from '../utils/common';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
@@ -55,12 +54,8 @@ const Chat = (props?: ChatProps) => {
   const chatLabel = 'Chat';
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isSmall = dim[0] < 700;
+
+  const isSmall = useIsSmall()();
   const {setSidePanel} = useSidePanel();
 
   const {

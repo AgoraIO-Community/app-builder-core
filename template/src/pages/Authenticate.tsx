@@ -20,21 +20,12 @@ import {
 import Logo from '../subComponents/Logo';
 import OAuth from '../components/OAuth';
 import Illustration from '../subComponents/Illustration';
-import {useHasBrandLogo} from '../utils/common';
-import DimensionContext from '../components/dimension/DimensionContext';
+import {useHasBrandLogo, useIsDesktop} from '../utils/common';
 import {useString} from '../utils/useString';
 
 const Authenticate = () => {
   const hasBrandLogo = useHasBrandLogo();
-  const {getDimensionData} = useContext(DimensionContext);
-  const [isDesktop, setIsDesktop] = useState(false);
-  let onLayout = (e: LayoutChangeEvent) => {
-    const {isDesktop} = getDimensionData(
-      e.nativeEvent.layout.width,
-      e.nativeEvent.layout.height,
-    );
-    setIsDesktop(isDesktop);
-  };
+  const isDesktop = useIsDesktop();
   //commented for v1 release
   // const oauthLoginLabel = useString('oauthLoginLabel')();
   // const oauthProviderLabel = useString('oauthProviderLabel')();
@@ -42,7 +33,6 @@ const Authenticate = () => {
   const oauthProviderLabel = 'Please select an OAuth provider to login.';
   return (
     <ImageBackground
-      onLayout={onLayout}
       source={{uri: $config.BACKGROUND_IMAGE}}
       style={style.full}
       resizeMode={'cover'}>
@@ -54,7 +44,7 @@ const Authenticate = () => {
             <Text style={style.headline}>{oauthProviderLabel}</Text>
             <OAuth />
           </View>
-          {isDesktop ? (
+          {isDesktop() ? (
             <View style={style.full}>
               <Illustration />
             </View>

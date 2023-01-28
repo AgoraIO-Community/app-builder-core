@@ -5,7 +5,7 @@ import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
-import DimensionContext from '../components/dimension/DimensionContext';
+import {useIsDesktop} from '../utils/common';
 
 interface RemoveMeetingPopupProps {
   modalVisible: boolean;
@@ -14,8 +14,7 @@ interface RemoveMeetingPopupProps {
   username: string;
 }
 const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  const isDesktop = useIsDesktop();
   const removeMeetingLabelHeading = 'Remove ' + props.username + '?';
   const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to rejoin the meeting later.`;
 

@@ -5,9 +5,9 @@ import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useLayout} from '../utils/useLayout';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
-import {Dimensions} from 'react-native';
 import {isMobileUA} from '../utils/common';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
+import {useWindowDimensions} from 'react-native';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -15,7 +15,7 @@ interface LayoutIconButtonInterface {
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const windowHeight = Dimensions.get('window').height;
+  const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
   const [isHovered, setIsHoveredLocal] = useState(false);

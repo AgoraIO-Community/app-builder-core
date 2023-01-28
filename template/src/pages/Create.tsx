@@ -228,7 +228,7 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <ScrollView contentContainerStyle={style.main}>
-            <Card isDesktop={isDesktop}>
+            <Card>
               <View>
                 <Logo />
                 <Spacer size={isDesktop ? 20 : 16} />

@@ -14,7 +14,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   ScrollView,
   TouchableOpacity,
   Image,
@@ -34,7 +33,6 @@ import {isMobileUA, isValidReactComponent, trimText} from '../utils/common';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import DimensionContext from '../components/dimension/DimensionContext';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
@@ -103,17 +101,6 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
       return meetingIdText;
     }
   };
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const [dim, setDim] = React.useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-
-  const {getDimensionData} = useContext(DimensionContext);
-  // const {isDesktop} = getDimensionData();
 
   const clipboardIconButton = (type: SHARE_LINK_CONTENT_TYPE) => {
     return (
@@ -301,24 +288,11 @@ const Share = () => {
   const isWebCheck =
     $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
 
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const [dim, setDim] = React.useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-
-  // const {getDimensionData} = useContext(DimensionContext);
-  // const {isDesktop} = getDimensionData();
-  const isDesktop = !isMobileUA();
-
   return FpeShareComponent ? (
     <FpeShareComponent />
   ) : (
-    <ScrollView contentContainerStyle={style.scrollMain} onLayout={onLayout}>
-      <Card isDesktop={isDesktop}>
+    <ScrollView contentContainerStyle={style.scrollMain}>
+      <Card>
         <View>
           <Logo />
           <Spacer size={20} />
@@ -333,7 +307,7 @@ const Share = () => {
           <PrimaryButton
             iconName="video-on"
             onPress={() => enterMeeting()}
-            containerStyle={!isDesktop && {width: '100%'}}
+            containerStyle={isMobileUA() && {width: '100%'}}
             text={enterMeetingAfterCreateButton.toUpperCase()}
           />
           <Spacer size={16} />

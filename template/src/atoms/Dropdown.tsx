@@ -173,9 +173,7 @@ const Dropdown: FC<Props> = ({
         ) : (
           <></>
         )}
-        <View
-          // onLayout={() => updateDropdownPosition()}
-          style={[styles.dropdownOptionTextContainer]}>
+        <View style={[styles.dropdownOptionTextContainer]}>
           <Text numberOfLines={1} style={styles.dropdownOptionText}>
             {(selected && selected.label) || label}
           </Text>

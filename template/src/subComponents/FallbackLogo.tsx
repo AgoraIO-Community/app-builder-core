@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState} from 'react';
-import {Image, Text, View, StyleSheet, Dimensions} from 'react-native';
+import {Image, Text, View, StyleSheet} from 'react-native';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import UserAvatar from '../atoms/UserAvatar';
 import AnimatedRings from '../atoms/AnimatedRings';

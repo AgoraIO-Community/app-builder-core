@@ -17,6 +17,7 @@ import {
   isMobileUA,
   isValidReactComponent,
   isWebInternal,
+  useIsDesktop,
 } from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
@@ -27,7 +28,6 @@ import {
 } from '../../utils/useButtonTemplate';
 import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import DimensionContext from '../../components/dimension/DimensionContext';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
@@ -169,8 +169,7 @@ const VideoCallScreen = () => {
     }
   }, []);
 
-  const {height, width} = useWindowDimensions();
-  const isDesktop = width > 700; //< height + 150 ? false : true; //TODO: verify in with other mobile screens
+  const isDesktop = useIsDesktop()();
 
   return VideocallComponent ? (
     <VideocallComponent />

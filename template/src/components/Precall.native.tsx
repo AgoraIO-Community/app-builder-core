@@ -36,7 +36,6 @@ import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 
 import StorageContext from './StorageContext';
-import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {VideoPreviewProps} from './precall/VideoPreview';

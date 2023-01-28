@@ -1,19 +1,22 @@
 import {StyleSheet, View, ViewStyle} from 'react-native';
 import React from 'react';
-import {useResponsive} from '../utils/common';
+import {isMobileUA, useResponsive} from '../utils/common';
 
 interface CardProps {
-  isDesktop?: boolean;
   style?: ViewStyle;
   children?: React.ReactNode;
 }
 
 const Card = (props: CardProps) => {
-  const {style, children, isDesktop = true, ...rest} = props;
+  const {style, children, ...rest} = props;
   const styles = useStyles();
   return (
     <View
-      style={[styles.root, isDesktop ? styles.desktop : styles.mobile, style]}
+      style={[
+        styles.root,
+        isMobileUA() ? styles.mobile : styles.desktop,
+        style,
+      ]}
       {...rest}>
       {children}
     </View>

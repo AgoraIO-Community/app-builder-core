@@ -5,7 +5,7 @@ import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
-import DimensionContext from '../components/dimension/DimensionContext';
+import {useIsDesktop} from '../utils/common';
 
 interface RemoveScreensharePopupProps {
   modalVisible: boolean;
@@ -14,8 +14,7 @@ interface RemoveScreensharePopupProps {
   username: string;
 }
 const RemoveScreensharePopup = (props: RemoveScreensharePopupProps) => {
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  const isDesktop = useIsDesktop();
   const removeMeetingLabelHeading = 'Remove Screenshare?';
   const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to screen share later.`;
 

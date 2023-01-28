@@ -1,5 +1,5 @@
 import React, {useState, useRef, useContext} from 'react';
-import {View, StyleSheet, Dimensions} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -11,7 +11,7 @@ import {useLayout, useRender, useRtc} from 'customization-api';
 import {getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-import {isMobileUA, isWebInternal} from '../../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -101,12 +101,7 @@ interface MoreMenuProps {
 const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isMobile = dim[0] < 700;
+  const isMobile = useIsSmall()();
   return (
     <>
       <View style={{position: 'absolute', right: 8, bottom: 8, zIndex: 999}}>

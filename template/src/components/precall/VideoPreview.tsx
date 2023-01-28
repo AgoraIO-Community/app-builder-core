@@ -17,7 +17,6 @@ import {
   Image,
   Text,
   TouchableOpacity,
-  Dimensions,
   Linking,
 } from 'react-native';
 import {MaxVideoView} from '../../../agora-rn-uikit';

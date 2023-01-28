@@ -162,6 +162,35 @@ const calculatedPosition = (params: calculatedPositionProps) => {
   }
 };
 
+const BREAKPOINTS = {
+  xs: 360,
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1200,
+  xxl: 1400,
+};
+
+const useIsDesktop = () => {
+  const {width, height} = useWindowDimensions();
+  return (from: 'default' | 'toolbar' | 'popup' = 'default') => {
+    if (from === 'default') {
+      return width > height + 150 ? true : false;
+    } else if (from === 'toolbar') {
+      return width > 1224;
+    } else if (from === 'popup') {
+      return width > 675;
+    }
+    return width >= BREAKPOINTS.xl;
+  };
+};
+const useIsSmall = () => {
+  const {width} = useWindowDimensions();
+  return () => {
+    return width < 700;
+  };
+};
+
 const MOBILE_BREAK_POINT = 360;
 const TABLET_BREAK_POINT = 740;
 const useResponsive = () => {
@@ -177,6 +206,9 @@ const useResponsive = () => {
   };
 };
 export {
+  useIsDesktop,
+  useIsSmall,
+  //BREAKPOINTS,
   useHasBrandLogo,
   isMobileUA,
   isAndroid,
