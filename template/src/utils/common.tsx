@@ -168,9 +168,9 @@ const useResponsive = () => {
   const {width} = useWindowDimensions();
   return (input: number) => {
     if (width < MOBILE_BREAK_POINT) {
-      return input / 2;
+      return input / 3;
     } else if (width < TABLET_BREAK_POINT) {
-      return input / 1.5;
+      return input / 2;
     } else {
       return input;
     }
