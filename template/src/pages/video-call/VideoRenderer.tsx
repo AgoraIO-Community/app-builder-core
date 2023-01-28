@@ -8,7 +8,7 @@ import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
 import {useLayout, useRender, useRtc} from 'customization-api';
-import {getPinnedLayoutName} from './DefaultLayouts';
+import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
@@ -20,13 +20,14 @@ interface VideoRendererProps {
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {dispatch} = useRtc();
   const isActiveSpeaker = useIsActiveSpeaker();
-  const {pinnedUid} = useRender();
+  const {pinnedUid, activeUids} = useRender();
   const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
   const showReplacePin =
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
+
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <View
@@ -100,11 +101,23 @@ interface MoreMenuProps {
 }
 const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const videoMoreMenuRef = useRef(null);
+  const {activeUids} = useRender();
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const isMobile = useIsSmall()();
+  const {currentLayout} = useLayout();
+  const reduceSpace =
+    isMobileUA() &&
+    activeUids.length > 4 &&
+    currentLayout === getGridLayoutName();
   return (
     <>
-      <View style={{position: 'absolute', right: 8, bottom: 8, zIndex: 999}}>
+      <View
+        style={{
+          position: 'absolute',
+          right: reduceSpace ? 2 : 8,
+          bottom: reduceSpace ? 2 : 8,
+          zIndex: 999,
+        }}>
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
@@ -123,7 +136,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
           }}
           iconProps={{
             iconContainerStyle: {
-              padding: 8,
+              padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
               backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
             },
             name: 'more-menu',

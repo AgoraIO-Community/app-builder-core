@@ -23,6 +23,7 @@ import {
   isMobileUA,
   isWebInternal,
   trimText,
+  useIsDesktop,
   useResponsive,
 } from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
@@ -300,9 +301,7 @@ const Precall = () => {
     return undefined;
   });
 
-  const {width, height} = useWindowDimensions();
-  //const isMinimized = width < height + 150;
-  const isMinimized = width < 992;
+  const isNotDesktop = !useIsDesktop()();
   const getResponsiveValue = useResponsive();
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
   return FpePrecallComponent ? (
@@ -332,7 +331,7 @@ const Precall = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             style.main,
-            !isMinimized
+            !isNotDesktop
               ? {
                   flexGrow: 1,
                   justifyContent: 'center',
@@ -345,28 +344,29 @@ const Precall = () => {
             <Spacer size={32} />
             <View
               style={{
-                flexDirection: isMinimized ? 'column' : 'row',
+                flexDirection: isNotDesktop ? 'column' : 'row',
                 justifyContent: 'space-between',
               }}>
               <View
                 testID="precall-preview"
                 style={
-                  isMinimized
+                  isNotDesktop
                     ? style.leftContentVertical
                     : style.leftContentHorizontal
                 }>
                 <VideoPreview />
               </View>
-              <Spacer size={24} horizontal={isMinimized ? false : true} />
+              <Spacer size={24} horizontal={isNotDesktop ? false : true} />
               <Card
                 style={
-                  isMinimized
+                  isNotDesktop
                     ? style.rightContentVertical
                     : style.rightContentHorizontal
                 }>
                 <View style={style.rightInputContent}>
                   <JoinRoomName isDesktop={true} />
                   <DeviceSelect />
+                  <Spacer size={$config.AUDIO_ROOM ? 120 : 30} />
                 </View>
                 <View
                   style={{
@@ -377,6 +377,7 @@ const Precall = () => {
                   <JoinRoomButton />
                 </View>
               </Card>
+              {isNotDesktop ? <Spacer size={24} horizontal={false} /> : <></>}
             </View>
           </>
         </ScrollView>
