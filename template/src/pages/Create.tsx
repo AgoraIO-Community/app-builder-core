@@ -10,27 +10,14 @@
 *********************************************
 */
 import React, {useEffect, useState, useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  Image,
-  Pressable,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Pressable} from 'react-native';
 import {useHistory} from '../components/Router';
 import PrimaryButton from '../atoms/PrimaryButton';
 import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {
-  isWebInternal,
-  isValidReactComponent,
-  maxInputLimit,
-  isMobileUA,
-} from '../utils/common';
+import {isWebInternal, maxInputLimit, isMobileUA} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
@@ -41,12 +28,9 @@ import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
-import styles from 'react-native-toast-message/src/components/icon/styles';
-import isMobileOrTablet from '../utils/isMobileOrTablet';
 import Card from '../atoms/Card';
 import Spacer from '../atoms/Spacer';
 import LinkButton from '../atoms/LinkButton';
-import DimensionContext from '../components/dimension/DimensionContext';
 import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
@@ -118,17 +102,6 @@ const Create = () => {
   const createMeetingButton = btnLabel();
   const haveMeetingID = 'Join with a meeting ID';
 
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const [dim, setDim] = React.useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-
-  const {getDimensionData} = useContext(DimensionContext);
-  // const {isDesktop} = getDimensionData();
   const isDesktop = !isMobileUA();
   useEffect(() => {
     if (isWebInternal()) {
@@ -254,7 +227,7 @@ const Create = () => {
         CreateComponent ? (
           <CreateComponent />
         ) : (
-          <ScrollView contentContainerStyle={style.main} onLayout={onLayout}>
+          <ScrollView contentContainerStyle={style.main}>
             <Card isDesktop={isDesktop}>
               <View>
                 <Logo />
@@ -291,7 +264,7 @@ const Create = () => {
                       !$config.PSTN ? style.lower : {},
                     ]}>
                     <View style={style.infoContainer}>
-                      <Text style={style.toggleLabel}>
+                      <Text numberOfLines={1} style={style.toggleLabel}>
                         Make everyone a Co-Host
                       </Text>
                       <Tooltip
@@ -321,7 +294,7 @@ const Create = () => {
                         $config.EVENT_MODE ? style.upper : {},
                       ]}>
                       <View style={style.infoContainer}>
-                        <Text style={style.toggleLabel}>
+                        <Text numberOfLines={1} style={style.toggleLabel}>
                           Allow joining via a phone number
                         </Text>
                         <Tooltip
@@ -450,6 +423,7 @@ const style = StyleSheet.create({
   infoToggleContainer: {
     flex: 0.2,
     alignItems: 'flex-end',
+    alignSelf: 'center',
   },
   tooltipActiveBgStyle: {
     backgroundColor:
