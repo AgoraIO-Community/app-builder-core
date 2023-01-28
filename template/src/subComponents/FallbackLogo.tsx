@@ -9,12 +9,12 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
-import {Image, Text, View, StyleSheet} from 'react-native';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import React from 'react';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import UserAvatar from '../atoms/UserAvatar';
-import AnimatedRings from '../atoms/AnimatedRings';
+//import AnimatedRings from '../atoms/AnimatedRings';
 import {useLayout, useRender} from 'customization-api';
+import {isMobileUA, useIsDesktop, useIsSmall} from '../utils/common';
 import {
   getGridLayoutName,
   getPinnedLayoutName,
@@ -28,7 +28,8 @@ export default function FallbackLogo(
 ) {
   const {activeUids} = useRender();
   const {currentLayout} = useLayout();
-
+  const {width} = useWindowDimensions();
+  const isSmall = width < 1300;
   return (
     <View style={[styles.container]}>
       {!hideAvatar ? (
@@ -50,9 +51,14 @@ export default function FallbackLogo(
           name={name}
           containerStyle={[
             styles.avatarBg,
-            (currentLayout === getGridLayoutName() && activeUids.length > 9) ||
-            (currentLayout === getPinnedLayoutName() && !isMax)
+            (currentLayout === getGridLayoutName() &&
+              isSmall &&
+              activeUids.length > 9) ||
+            (currentLayout === getPinnedLayoutName() && isSmall && !isMax)
               ? styles.avatarBgSmall
+              : {},
+            isMobileUA() && activeUids.length > 4
+              ? styles.avatarBgMobileUA
               : {},
             {
               backgroundColor: isActiveSpeaker
@@ -76,18 +82,18 @@ const styles = StyleSheet.create({
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
   },
-  activeSpeakerBg: {
-    width: 140,
-    height: 140,
-    borderRadius: 80,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    color: $config.VIDEO_AUDIO_TILE_COLOR,
-  },
-  activeSpeakerBgSmall: {
-    width: 80,
-    height: 80,
-  },
+  // activeSpeakerBg: {
+  //   width: 140,
+  //   height: 140,
+  //   borderRadius: 80,
+  //   alignSelf: 'center',
+  //   justifyContent: 'center',
+  //   color: $config.VIDEO_AUDIO_TILE_COLOR,
+  // },
+  // activeSpeakerBgSmall: {
+  //   width: 80,
+  //   height: 80,
+  // },
   avatarBg: {
     width: 100,
     height: 100,
@@ -96,6 +102,10 @@ const styles = StyleSheet.create({
   avatarBgSmall: {
     width: 60,
     height: 60,
+  },
+  avatarBgMobileUA: {
+    width: 45,
+    height: 45,
   },
   textStyle: {
     fontSize: 32,

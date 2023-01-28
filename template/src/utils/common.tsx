@@ -190,6 +190,12 @@ const useIsSmall = () => {
     return width < 700;
   };
 };
+const useIsMobile = () => {
+  const {width} = useWindowDimensions();
+  return () => {
+    return width <= 576;
+  };
+};
 
 const MOBILE_BREAK_POINT = 360;
 const TABLET_BREAK_POINT = 740;
@@ -206,6 +212,7 @@ const useResponsive = () => {
   };
 };
 export {
+  useIsMobile,
   useIsDesktop,
   useIsSmall,
   //BREAKPOINTS,

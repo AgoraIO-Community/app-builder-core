@@ -12,12 +12,14 @@ import {
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
 //import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
-import {isWebInternal} from '../utils/common';
+import {isMobileUA, isWebInternal} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
 import {RenderInterface, UidType} from '../../agora-rn-uikit';
 import ThemeConfig from '../theme';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useLayout, useRender} from 'customization-api';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 
 /**
  *
@@ -63,7 +65,12 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
     : user.audio || user.video
     ? 8
     : 7;
-
+  const {activeUids} = useRender();
+  const {currentLayout} = useLayout();
+  const reduceSpace =
+    isMobileUA() &&
+    activeUids.length > 4 &&
+    currentLayout === getGridLayoutName();
   return (
     <View
       testID="videocall-networkpill"
@@ -75,8 +82,15 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
             ? networkIconsObject[networkStat].tint
             : $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
         },
+        reduceSpace ? {top: 2, right: 2} : {},
       ]}>
-      <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
+      <PlatformSpecificWrapper
+        {...{
+          networkTextVisible,
+          setNetworkTextVisible,
+          reduceSpace,
+          activeUids,
+        }}>
         <View>
           <ImageIcon
             iconType="plain"
@@ -103,6 +117,8 @@ const PlatformSpecificWrapper = ({
   networkTextVisible,
   setNetworkTextVisible,
   children,
+  reduceSpace,
+  activeUids,
 }: any) => {
   return !isWebInternal() ? (
     <Pressable
@@ -111,7 +127,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 8,
+        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
@@ -125,7 +141,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 8,
+        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
       }}
       onClick={(e) => {
         e.preventDefault();
