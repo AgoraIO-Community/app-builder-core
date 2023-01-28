@@ -5,7 +5,7 @@ import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
-import DimensionContext from '../components/dimension/DimensionContext';
+import {useIsDesktop} from '../utils/common';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -13,8 +13,7 @@ interface EndcallPopupProps {
   endCall: () => void;
 }
 const EndcallPopup = (props: EndcallPopupProps) => {
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  const isDesktop = useIsDesktop();
   const leaveMeetingLabelHeading = 'Leave Meeting?';
   const leaveMeetingLabelSubHeading =
     'Are you sure you want to leave this meeting?';

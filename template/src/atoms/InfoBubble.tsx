@@ -5,13 +5,13 @@ import {
   Pressable,
   Text,
   Modal,
-  Dimensions,
   TouchableWithoutFeedback,
+  useWindowDimensions,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import ThemeConfig from '../theme';
-import {isWebInternal} from '../utils/common';
+import {isWebInternal, useIsSmall} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface iconProps extends ImageIconProps {
@@ -35,8 +35,8 @@ const InfoBubble = (props: InfoBubbleProps) => {
   const tooltipRef = useRef(null);
   const iconRef = useRef(null);
   const pressableRef = useRef(null);
-  const {width, height} = Dimensions.get('window');
-  const isSmall = width < 700;
+  const {width, height} = useWindowDimensions();
+  const isSmall = useIsSmall()();
 
   const setModalPosition = (width: number) => {
     setTimeout(() => {

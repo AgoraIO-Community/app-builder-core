@@ -15,14 +15,13 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Dimensions,
   TouchableOpacity,
   TextInput,
   Platform,
 } from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWebInternal, maxInputLimit} from '../utils/common';
+import {isWebInternal, maxInputLimit, useIsSmall} from '../utils/common';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ThemeConfig from '../theme';
@@ -236,12 +235,7 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = (props) => {
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isSmall = dim[0] < 700;
+  const isSmall = useIsSmall()();
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
@@ -270,7 +264,6 @@ const SettingsView = (props) => {
       />
       <ScrollView style={style.contentContainer}>
         <EditName />
-        <Spacer size={24} />
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
       </ScrollView>

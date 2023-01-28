@@ -11,8 +11,8 @@
 */
 import {layoutComponent, useRender, useRtc} from 'customization-api';
 import React, {useContext, useMemo, useState} from 'react';
-import {View, StyleSheet, Dimensions, Pressable, Text} from 'react-native';
-import {isWebInternal} from '../utils/common';
+import {View, StyleSheet, Pressable, Text} from 'react-native';
+import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import {ClientRole, PropsContext} from '../../agora-rn-uikit';
@@ -38,19 +38,7 @@ const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useRtc();
   const {rtcProps} = useContext(PropsContext);
   const {activeUids} = useRender();
-  let onLayout = (e: any) => {
-    setDim([
-      e.nativeEvent.layout.width,
-      e.nativeEvent.layout.height,
-      e.nativeEvent.layout.width > e.nativeEvent.layout.height,
-    ]);
-  };
-  const [dim, setDim] = useState<[number, number, boolean]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isDesktop = dim[0] > dim[1] + 100;
+  const isDesktop = useIsDesktop()();
 
   let {matrix, dims} = useMemo(
     () => layout(renderData.length, isDesktop),
@@ -73,7 +61,7 @@ const GridVideo: layoutComponent = ({renderData}) => {
   }
 
   return (
-    <View style={[style.full]} onLayout={onLayout}>
+    <View style={[style.full]}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (

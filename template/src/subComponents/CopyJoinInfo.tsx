@@ -27,8 +27,8 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {CopyMeetingInfo} from '../components/Share';
-import DimensionContext from '../components/dimension/DimensionContext';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useIsDesktop} from '../utils/common';
 
 export interface CopyJoinInfoProps {
   showLabel?: boolean;
@@ -50,8 +50,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  const isDesktop = useIsDesktop();
 
   useEffect(() => {
     getMeeting(phrase);

@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {useHistory} from '../components/Router';
 //import Logo from '../subComponents/Logo';
 import Logo from '../components/common/Logo';
@@ -37,7 +37,6 @@ import LinkButton from '../atoms/LinkButton';
 import Toast from '../../react-native-toast-message';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
-import DimensionContext from '../components/dimension/DimensionContext';
 import ThemeConfig from '../theme';
 
 const isLiveStream = $config.EVENT_MODE;
@@ -61,17 +60,6 @@ const Join = () => {
   const [error, setError] = useState<null | {name: string; message: string}>(
     null,
   );
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const [dim, setDim] = React.useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const {getDimensionData} = useContext(DimensionContext);
-  //const {isDesktop} = getDimensionData();
-  const isDesktop = !isMobileUA();
 
   const useJoin = useJoinMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
@@ -119,9 +107,9 @@ const Join = () => {
   return JoinComponent ? (
     <JoinComponent />
   ) : (
-    <ScrollView contentContainerStyle={style.main} onLayout={onLayout}>
+    <ScrollView contentContainerStyle={style.main}>
       {error ? <Error error={error} /> : <></>}
-      <Card isDesktop={isDesktop}>
+      <Card>
         <View>
           <Logo />
           <Spacer size={20} />
@@ -151,7 +139,7 @@ const Join = () => {
             disabled={phrase === ''}
             onPress={() => startCall()}
             text={enterMeetingButton}
-            containerStyle={!isDesktop && {width: '100%'}}
+            containerStyle={isMobileUA() && {width: '100%'}}
           />
           <Spacer size={16} />
           <LinkButton

@@ -10,7 +10,10 @@
 *********************************************
 */
 import React from 'react';
-import {Platform as ReactNativePlatform} from 'react-native';
+import {
+  Platform as ReactNativePlatform,
+  useWindowDimensions,
+} from 'react-native';
 import Platform from '../subComponents/Platform';
 
 import * as ReactIs from 'react-is';
@@ -158,7 +161,54 @@ const calculatedPosition = (params: calculatedPositionProps) => {
     }
   }
 };
+
+const BREAKPOINTS = {
+  xs: 360,
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1200,
+  xxl: 1400,
+};
+
+const useIsDesktop = () => {
+  const {width, height} = useWindowDimensions();
+  return (from: 'default' | 'toolbar' | 'popup' = 'default') => {
+    if (from === 'default') {
+      return width > height + 150 ? true : false;
+    } else if (from === 'toolbar') {
+      return width > 1224;
+    } else if (from === 'popup') {
+      return width > 675;
+    }
+    return width >= BREAKPOINTS.xl;
+  };
+};
+const useIsSmall = () => {
+  const {width} = useWindowDimensions();
+  return () => {
+    return width < 700;
+  };
+};
+
+const MOBILE_BREAK_POINT = 360;
+const TABLET_BREAK_POINT = 740;
+const useResponsive = () => {
+  const {width} = useWindowDimensions();
+  return (input: number) => {
+    if (width < MOBILE_BREAK_POINT) {
+      return input / 3;
+    } else if (width < TABLET_BREAK_POINT) {
+      return input / 2;
+    } else {
+      return input;
+    }
+  };
+};
 export {
+  useIsDesktop,
+  useIsSmall,
+  //BREAKPOINTS,
   useHasBrandLogo,
   isMobileUA,
   isAndroid,
@@ -172,4 +222,5 @@ export {
   maxInputLimit,
   trimText,
   calculatedPosition,
+  useResponsive,
 };

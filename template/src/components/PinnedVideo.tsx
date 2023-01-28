@@ -13,34 +13,25 @@ import React, {useState} from 'react';
 import {
   ScrollView,
   View,
-  Dimensions,
   StyleSheet,
   Pressable,
   FlatList,
+  useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
 import {layoutComponent, useRender, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useIsDesktop} from '../utils/common';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
   const {pinnedUid} = useRender();
   const [collapse, setCollapse] = useState(false);
-  const [dim, setDim] = useState<[number, number, boolean]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = () => {
-    setTimeout(() => {
-      let {height, width} = Dimensions.get('window');
-      let isLandscape = width > height;
-      setDim([width, height, isLandscape]);
-    }, 20);
-  };
-  const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
+  const isDesktop = useIsDesktop()('default');
+  const {width, height} = useWindowDimensions();
+  const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
 
@@ -54,12 +45,12 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             isSidePinnedlayout
               ? {
                   width: '100%',
-                  height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                  height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                   zIndex: 40,
                   paddingBottom: 8,
                 }
               : {
-                  width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                  width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
                   height: '100%',
                   zIndex: 40,
                   paddingRight: 8,
@@ -81,8 +72,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       style={{
         flexDirection: isSidePinnedlayout ? 'row' : 'column',
         flex: 1,
-      }}
-      onLayout={onLayout}>
+      }}>
       {!collapse && (
         <View
           style={
@@ -100,12 +90,12 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 isSidePinnedlayout
                   ? {
                       width: '100%',
-                      height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                      height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                       zIndex: 40,
                       paddingBottom: 8,
                     }
                   : {
-                      width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                      width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
                       height: '100%',
                       zIndex: 40,
                       paddingRight: 8,

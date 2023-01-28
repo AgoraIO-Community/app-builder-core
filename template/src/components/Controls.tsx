@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext} from 'react';
-import {View, Dimensions, StyleSheet, Text} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
 import {PropsContext} from '../../agora-rn-uikit';
 import LocalAudioMute, {
   LocalAudioMuteProps,
@@ -30,7 +30,7 @@ import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls, {
   LiveStreamControlsProps,
 } from './livestream/views/LiveStreamControls';
-import {isWebInternal} from '../utils/common';
+import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 import Spacer from '../atoms/Spacer';
@@ -40,16 +40,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
-
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isDesktop = dim[0] > 1224;
+  const isDesktop = useIsDesktop()('toolbar');
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -61,8 +52,7 @@ const Controls = () => {
         {
           paddingHorizontal: isDesktop ? 32 : 16,
         },
-      ]}
-      onLayout={onLayout}>
+      ]}>
       <View style={style.leftContent}>
         <View testID="layout-btn" style={{marginRight: 10}} collapsable={false}>
           {/**

@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, TextStyle} from 'react-native';
+import {View, Text, StyleSheet, TextStyle} from 'react-native';
 import Settings, {
   SettingsWithViewWrapper,
   SettingsIconButtonProps,
@@ -30,11 +30,11 @@ import {
   isValidReactComponent,
   isWebInternal,
   trimText,
+  useIsDesktop,
 } from '../utils/common';
 import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
-import DimensionContext from './dimension/DimensionContext';
 import {useString} from '../utils/useString';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useSidePanel} from '../utils/useSidePanel';
@@ -311,28 +311,18 @@ const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
+  const isDesktop = useIsDesktop()('toolbar');
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     data: {meetingTitle},
   } = useMeetingInfo();
 
   const {isRecordingActive} = useRecording();
-  const {getDimensionData} = useContext(DimensionContext);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isDesktop = dim[0] > 1224;
   const {onlineUsersCount} = useContext(ChatContext);
 
   return (
     <View
       testID="videocall-topbar"
-      onLayout={onLayout}
       style={[
         isWebInternal() ? style.navHolder : style.navHolderNative,
         {

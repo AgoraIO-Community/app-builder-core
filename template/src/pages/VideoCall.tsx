@@ -24,7 +24,7 @@ import {useParams, useHistory} from '../components/Router';
 import RtmConfigure from '../components/RTMConfigure';
 import DeviceConfigure from '../components/DeviceConfigure';
 import Logo from '../subComponents/Logo';
-import {useHasBrandLogo, isArray} from '../utils/common';
+import {useHasBrandLogo, isArray, isMobileUA} from '../utils/common';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {videoView} from '../../theme.json';
 import {LiveStreamContextProvider} from '../components/livestream';
@@ -191,8 +191,6 @@ const VideoCall: React.FC = () => {
   const [isMicAvailable, setMicAvailable] = useState(false);
   const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
   const [isPermissionRequested, setIsPermissionRequested] = useState(false);
-  const {height, width} = useWindowDimensions();
-  const isDesktop = width > 700;
   return (
     <>
       {queryComplete ? (
@@ -252,7 +250,7 @@ const VideoCall: React.FC = () => {
                                                   localUid={rtcProps?.uid}>
                                                   <CustomUserContextHolder>
                                                     <NetworkQualityProvider>
-                                                      {isDesktop && (
+                                                      {!isMobileUA() && (
                                                         <PermissionHelper />
                                                       )}
                                                       {callActive ? (

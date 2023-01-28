@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {StyleSheet, View, Text, Dimensions, Platform} from 'react-native';
+import {StyleSheet, View, Text, Platform} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
@@ -9,6 +9,7 @@ import StorageContext from '../components/StorageContext';
 import ThemeConfig from '../theme';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import CircularProgress from '../atoms/CircularProgress';
+import {useIsDesktop} from '../utils/common';
 
 /* For android only, bg audio */
 const StopForegroundService = () => {
@@ -31,14 +32,7 @@ const Endcall = () => {
     StopForegroundService();
   }, []);
 
-  const [dim, setDim] = useState<[number, number]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-  ]);
-  const onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const isDesktop = dim[0] > dim[1] + 150;
+  const isDesktop = useIsDesktop()();
 
   const reJoin = () => {
     StopForegroundService();
@@ -48,7 +42,7 @@ const Endcall = () => {
     StopForegroundService();
   };
   return (
-    <View style={styles.main} onLayout={onLayout}>
+    <View style={styles.main}>
       <View
         style={[styles.contentContainer, isDesktop && {alignItems: 'center'}]}>
         <View style={{alignSelf: 'center'}}>

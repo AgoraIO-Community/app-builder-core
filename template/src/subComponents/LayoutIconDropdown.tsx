@@ -3,7 +3,6 @@ import {View, StyleSheet, TouchableWithoutFeedback, Modal} from 'react-native';
 import {isMobileUA, isWebInternal} from '../utils/common';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
-import DimensionContext from '../components/dimension/DimensionContext';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import Spacer from '../atoms/Spacer';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -28,8 +27,6 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
     setShowDropdown,
     modalPosition = {top: 0, left: 0},
   } = props;
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop, dim} = getDimensionData();
   const {activeUids} = useRender();
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();

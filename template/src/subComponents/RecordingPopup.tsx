@@ -5,7 +5,7 @@ import Popup from '../atoms/Popup';
 import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
-import DimensionContext from '../components/dimension/DimensionContext';
+import {useIsDesktop} from '../utils/common';
 
 interface RecordingPopupProps {
   modalVisible: boolean;
@@ -13,8 +13,7 @@ interface RecordingPopupProps {
   stopRecording: () => void;
 }
 const RecordingPopup = (props: RecordingPopupProps) => {
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop} = getDimensionData();
+  const isDesktop = useIsDesktop();
   const recordingLabelHeading = 'Stop Recording?';
   const recordingLabelSubHeading =
     'Are you sure you want to stop recording? You can’t undo this action.';

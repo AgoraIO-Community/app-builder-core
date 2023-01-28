@@ -12,7 +12,7 @@ import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {isMobileUA} from '../../src/utils/common';
+import {isMobileUA, useIsDesktop} from '../../src/utils/common';
 
 interface PopupProps extends ModalProps {
   title?: string;
@@ -33,8 +33,8 @@ const Popup = (props: PopupProps) => {
     ...otherProps
   } = props;
   const isMobileInvitePopup = isMobileUA() && showCloseIcon;
-  const {height, width} = useWindowDimensions();
-  const isDesktop = width > 675;
+  const isDesktop = useIsDesktop()('popup');
+
   return (
     <Modal
       animationType="none"
