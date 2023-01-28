@@ -270,7 +270,6 @@ const SettingsView = (props) => {
       />
       <ScrollView style={style.contentContainer}>
         <EditName />
-        <Spacer size={24} />
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
       </ScrollView>
