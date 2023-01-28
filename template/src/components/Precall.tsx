@@ -366,6 +366,7 @@ const Precall = () => {
                 <View style={style.rightInputContent}>
                   <JoinRoomName isDesktop={true} />
                   <DeviceSelect />
+                  <Spacer size={$config.AUDIO_ROOM ? 120 : 30} />
                 </View>
                 <View
                   style={{
