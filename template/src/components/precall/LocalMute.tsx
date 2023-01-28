@@ -151,7 +151,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    // borderBottomLeftRadius: 4,
+    // borderBottomRightRadius: 4,
   },
 });

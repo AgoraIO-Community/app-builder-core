@@ -32,8 +32,7 @@ import {usePreCall} from './usePreCall';
 import ImageIcon from '../../atoms/ImageIcon';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
-import {isWebInternal} from '../../utils/common';
-import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {isMobileUA, isWebInternal, useResponsive} from '../../utils/common';
 
 const Fallback = () => {
   const {isCameraAvailable, isMicAvailable} = usePreCall();
@@ -51,6 +50,7 @@ const Fallback = () => {
       console.error(`Couldn't open the support url`);
     }
   };
+  const styles = useStyles();
   return (
     <View style={styles.fallbackRootContainer}>
       {isCameraAvailable ||
@@ -58,7 +58,6 @@ const Fallback = () => {
       local.permissionStatus === PermissionState.NOT_REQUESTED ||
       local.permissionStatus === PermissionState.REQUESTED ? (
         <View style={styles.avatar}>
-          {/*TODO fix ttf file <ImageIcon name="profile" customSize={{width: 100, height: 100}} /> */}
           <UiKitImageIcon name={'profile'} />
         </View>
       ) : (
@@ -97,10 +96,7 @@ const Fallback = () => {
   );
 };
 
-export interface VideoPreviewProps {
-  isMobileView?: boolean;
-}
-const VideoPreview = ({isMobileView = false}: VideoPreviewProps) => {
+const VideoPreview = () => {
   const {renderList, activeUids} = useRender();
 
   const [maxUid] = activeUids;
@@ -108,18 +104,9 @@ const VideoPreview = ({isMobileView = false}: VideoPreviewProps) => {
   if (!maxUid) {
     return null;
   }
-
-  const [dim, setDim] = useState<[number, number]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-  ]);
-  const onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  // const isMobileView = dim[0] < dim[1] + 150;
-  // const isMobileView = dim[0] < 700;
+  const styles = useStyles();
   return (
-    <View style={[styles.container]} onLayout={onLayout}>
+    <View style={[styles.container]}>
       <View
         style={{
           flex: 1,
@@ -129,6 +116,7 @@ const VideoPreview = ({isMobileView = false}: VideoPreviewProps) => {
           key={maxUid}
           fallback={Fallback}
           containerStyle={{
+            minHeight: 200,
             width: '100%',
             height: '100%',
             // borderTopLeftRadius: 4,
@@ -136,65 +124,66 @@ const VideoPreview = ({isMobileView = false}: VideoPreviewProps) => {
           }}
         />
       </View>
-
-      <PreCallLocalMute isMobileView={isMobileView} />
+      <PreCallLocalMute isMobileView={isMobileUA() ? true : false} />
     </View>
   );
 };
 export default VideoPreview;
 
-const styles = StyleSheet.create({
-  infoText1: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '700',
-    fontSize: 20,
-    lineHeight: 25,
-    textAlign: 'center',
-    color: $config.FONT_COLOR,
-    paddingTop: 24,
-    paddingBottom: 12,
-  },
-  infoText2: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.small,
-    lineHeight: 18,
-    textAlign: 'center',
-    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
-    paddingHorizontal: 48,
-  },
-  fallbackRootContainer: {
-    flex: 1,
-    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // borderTopLeftRadius: 4,
-    // borderTopRightRadius: 4,
-  },
-  fallbackContainer: {
-    flex: 1,
-    maxHeight: 200,
-    maxWidth: 440,
-    backgroundColor: $config.CARD_LAYER_4_COLOR,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  retryBtn: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
-    fontSize: ThemeConfig.FontSize.normal,
-    color: $config.PRIMARY_ACTION_BRAND_COLOR,
-    alignSelf: 'center',
-  },
-  container: {
-    flex: 1,
-    position: 'relative',
-    justifyContent: 'space-between',
-    overflow: 'hidden',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-  },
-});
+const useStyles = () => {
+  const getResponsiveValue = useResponsive();
+  return StyleSheet.create({
+    infoText1: {
+      fontFamily: ThemeConfig.FontFamily.sansPro,
+      fontWeight: '700',
+      fontSize: 20,
+      textAlign: 'center',
+      color: $config.FONT_COLOR,
+      paddingTop: 24,
+      paddingBottom: 12,
+      paddingHorizontal: 10,
+    },
+    infoText2: {
+      fontFamily: ThemeConfig.FontFamily.sansPro,
+      fontWeight: '400',
+      fontSize: ThemeConfig.FontSize.small,
+      textAlign: 'center',
+      color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
+      paddingHorizontal: getResponsiveValue(48),
+    },
+    fallbackRootContainer: {
+      flex: 1,
+      backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
+      justifyContent: 'center',
+      alignItems: 'center',
+      // borderTopLeftRadius: 4,
+      // borderTopRightRadius: 4,
+    },
+    fallbackContainer: {
+      minHeight: 200,
+      maxWidth: 440,
+      backgroundColor: $config.CARD_LAYER_4_COLOR,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: 40,
+    },
+    retryBtn: {
+      fontFamily: ThemeConfig.FontFamily.sansPro,
+      fontWeight: '600',
+      fontSize: ThemeConfig.FontSize.normal,
+      color: $config.PRIMARY_ACTION_BRAND_COLOR,
+      alignSelf: 'center',
+    },
+    container: {
+      flex: 1,
+      position: 'relative',
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+    },
+    avatar: {
+      width: 100,
+      height: 100,
+    },
+  });
+};

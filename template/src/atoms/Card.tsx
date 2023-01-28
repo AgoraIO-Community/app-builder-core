@@ -31,6 +31,7 @@ const useStyles = () => {
       elevation: 5,
       maxWidth: 676,
       width: '100%',
+      overflow: 'hidden',
     },
     mobile: {
       paddingHorizontal: 16,
