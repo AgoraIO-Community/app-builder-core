@@ -518,6 +518,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     fontSize: ThemeConfig.FontSize.extraLarge,
+    lineHeight: ThemeConfig.FontSize.extraLarge,
     color: $config.FONT_COLOR,
     paddingLeft: 0,
   },
