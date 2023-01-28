@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Animated, PanResponder, Keyboard } from 'react-native';
+import { Animated, PanResponder, Keyboard, Dimensions } from 'react-native';
 import PropTypes from 'prop-types';
 
 import SuccessToast from './components/success';
@@ -10,6 +10,7 @@ import { includeKeys } from './utils/obj';
 import { stylePropType } from './utils/prop-types';
 import { isIOS } from './utils/platform';
 import styles from './styles';
+import isMobileOrTablet from '../../src/utils/isMobileOrTablet';
 
 const FRICTION = 8;
 
@@ -109,7 +110,8 @@ class Toast extends Component {
       keyboardHeight: 0,
       keyboardVisible: false,
 
-      customProps: {}
+      customProps: {},
+      customStyle: this.getCustomStyle()
     };
 
     this.panResponder = PanResponder.create({
@@ -125,6 +127,36 @@ class Toast extends Component {
       }
     });
   }
+
+  getCustomStyle = () => {
+    let customStyle = {};
+    if (isMobileOrTablet() || Dimensions.get('window').width < 768) {
+      customStyle = {
+        left: '3%',
+        right: '3%',
+        width: '94%'
+      };
+    } else if (Dimensions.get('window').width < 900) {
+      customStyle = {
+        left: '18%',
+        right: '18%',
+        width: '64%'
+      };
+    } else if (Dimensions.get('window').width < 1200) {
+      customStyle = {
+        left: '25%',
+        right: '25%',
+        width: '50%'
+      };
+    } else {
+      customStyle = {
+        left: '33.33%',
+        right: '33.33%',
+        width: '33.33%'
+      };
+    }
+    return customStyle;
+  };
 
   componentDidMount() {
     const noop = {
@@ -360,6 +392,11 @@ class Toast extends Component {
 
     return [
       styles.base,
+      {
+        left: this.state.customStyle.left,
+        right: this.state.customStyle.right,
+        width: this.state.customStyle.width
+      },
       styles[position],
       {
         transform: [{ translateY }]
@@ -368,7 +405,10 @@ class Toast extends Component {
   }
 
   onLayout(e) {
-    this.setState({ height: e.nativeEvent.layout.height });
+    this.setState({
+      height: e.nativeEvent.layout.height,
+      customStyle: this.getCustomStyle()
+    });
   }
 
   render() {
