@@ -11,6 +11,7 @@ import { stylePropType } from './utils/prop-types';
 import { isIOS } from './utils/platform';
 import styles from './styles';
 import isMobileOrTablet from '../../src/utils/isMobileOrTablet';
+import { isWebInternal } from '../../src/utils/common';
 
 const FRICTION = 8;
 
@@ -86,7 +87,7 @@ class Toast extends Component {
   }
 
   static hide() {
-    Toast._ref.hide();
+    Toast._ref.hide({ forceHide: true });
   }
 
   constructor(props) {
@@ -111,7 +112,8 @@ class Toast extends Component {
       keyboardVisible: false,
 
       customProps: {},
-      customStyle: this.getCustomStyle()
+      customStyle: this.getCustomStyle(),
+      isHovered: false
     };
 
     this.panResponder = PanResponder.create({
@@ -283,24 +285,28 @@ class Toast extends Component {
     }
   }
 
-  async hide({ speed } = {}) {
-    await this._setState((prevState) => ({
-      ...prevState,
-      inProgress: true
-    }));
-    await this.animateHide({
-      speed
-    });
-    this.clearTimer();
-    await this._setState((prevState) => ({
-      ...prevState,
-      isVisible: false,
-      inProgress: false
-    }));
+  async hide({ speed, forceHide = false } = {}) {
+    if (this.state.isHovered && !forceHide) {
+      return;
+    } else {
+      await this._setState((prevState) => ({
+        ...prevState,
+        inProgress: true
+      }));
+      await this.animateHide({
+        speed
+      });
+      this.clearTimer();
+      await this._setState((prevState) => ({
+        ...prevState,
+        isVisible: false,
+        inProgress: false
+      }));
 
-    const { onHide } = this.state;
-    if (onHide) {
-      onHide();
+      const { onHide } = this.state;
+      if (onHide) {
+        onHide();
+      }
     }
   }
 
@@ -417,16 +423,43 @@ class Toast extends Component {
     const baseStyle = this.getBaseStyle(position, keyboardHeight);
 
     return (
-      <Animated.View
-        testID='animatedView'
-        onLayout={this.onLayout}
-        style={[baseStyle, style, { zIndex: 100 }]} //added zindex
-        {...this.panResponder.panHandlers}>
-        {this.renderContent(this.props)}
-      </Animated.View>
+      <PlatformWrapper
+        setIsHovered={(value) => {
+          this.setState({
+            isHovered: value
+          });
+          setTimeout(() => {
+            if (!value) {
+              this.startTimer();
+            }
+          });
+        }}>
+        <Animated.View
+          testID='animatedView'
+          onLayout={this.onLayout}
+          style={[baseStyle, style, { zIndex: 100 }]} //added zindex
+          {...this.panResponder.panHandlers}>
+          {this.renderContent(this.props)}
+        </Animated.View>
+      </PlatformWrapper>
     );
   }
 }
+const PlatformWrapper = ({ children, setIsHovered }) => {
+  return isWebInternal() ? (
+    <div
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
+  );
+};
 
 Toast.propTypes = {
   config: PropTypes.objectOf(PropTypes.func),
