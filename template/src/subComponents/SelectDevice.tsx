@@ -324,9 +324,12 @@ const SelectDevice = (props: SelectDeviceProps) => {
     <>
       <>
         {$config.EVENT_MODE && isPickerDisabled && (
-          <View style={style.infoTxtContainer}>
-            <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
-          </View>
+          <>
+            <Spacer size={24} />
+            <View style={style.infoTxtContainer}>
+              <Text style={style.infoTxt}>{settingScreenInfoMessage}</Text>
+            </View>
+          </>
         )}
         <Spacer size={24} />
         {!$config.AUDIO_ROOM && (
