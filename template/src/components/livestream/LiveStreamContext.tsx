@@ -59,6 +59,32 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     coHostUidsRef.current = coHostUids;
   }, [coHostUids]);
 
+  React.useEffect(() => {
+    /**
+     * when user rejoin the meeting. its showing previosly raised livesteaming request.
+     * so deleting raise hand data once the user is offline
+     * */
+    let newRaiseHandList = raiseHandList;
+    const data = Object.keys(
+      filterObject(
+        renderList,
+        ([k, v]) => v?.type === 'rtc' && v.offline === true,
+      ),
+    );
+    let isRaiseHandListChanged = false;
+    data &&
+      data.length &&
+      data.forEach((uid, index) => {
+        if (newRaiseHandList[uid]) {
+          isRaiseHandListChanged = true;
+          delete newRaiseHandList[uid];
+        }
+        if (data.length - 1 === index && isRaiseHandListChanged) {
+          setRaiseHandList(newRaiseHandList);
+        }
+      });
+  }, [renderList]);
+
   const localUid = useLocalUid();
   const localUidRef = useRef<any>();
   localUidRef.current = localUid;
