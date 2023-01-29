@@ -18,7 +18,7 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
-import {useRtc} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 
 interface UserPreferenceContextInterface {
   displayName: string;
@@ -31,11 +31,14 @@ const UserPreferenceContext =
     setDisplayName: () => {},
   });
 
-const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
+const UserPreferenceProvider = (props: {
+  children: React.ReactNode;
+  callActive: boolean;
+}) => {
   const localUid = useLocalUid();
+  const {activeUids} = useRender();
   const screenShareUid = useLocalScreenShareUid();
   const {dispatch} = useRtc();
-
   const {store, setStore} = useContext(StorageContext);
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const getInitialUsername = () =>
@@ -83,25 +86,41 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
       };
     });
 
-    //update local state for user and screenshare
-    updateRenderListState(localUid, {name: displayName || userText});
-    updateRenderListState(screenShareUid, {
-      name: getScreenShareName(displayName || userText),
-    });
+    //rejoin hot fix
+    if (
+      props.callActive ||
+      (!props.callActive &&
+        activeUids &&
+        activeUids.length &&
+        activeUids[0] === localUid)
+    ) {
+      //update local state for user and screenshare
+      updateRenderListState(localUid, {name: displayName || userText});
+      updateRenderListState(screenShareUid, {
+        name: getScreenShareName(displayName || userText),
+      });
 
-    if (hasUserJoinedRTM) {
-      //update remote state for user and screenshare
-      events.send(
-        EventNames.NAME_ATTRIBUTE,
-        JSON.stringify({
-          uid: localUid,
-          screenShareUid: screenShareUid,
-          name: displayName || userText,
-        }),
-        EventPersistLevel.LEVEL2,
-      );
+      if (hasUserJoinedRTM) {
+        //update remote state for user and screenshare
+        events.send(
+          EventNames.NAME_ATTRIBUTE,
+          JSON.stringify({
+            uid: localUid,
+            screenShareUid: screenShareUid,
+            name: displayName || userText,
+          }),
+          EventPersistLevel.LEVEL2,
+        );
+      }
     }
-  }, [displayName, hasUserJoinedRTM]);
+  }, [
+    props.callActive,
+    displayName,
+    hasUserJoinedRTM,
+    localUid,
+    screenShareUid,
+    activeUids,
+  ]);
 
   const updateRenderListState = (
     uid: number,

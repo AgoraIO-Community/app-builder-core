@@ -125,6 +125,27 @@ const VideoCall: React.FC = () => {
     audioRoom: $config.AUDIO_ROOM,
   });
 
+  //rejoin hot fix
+  useEffect(() => {
+    setRtcProps({
+      appId: $config.APP_ID,
+      channel: null,
+      uid: null,
+      token: null,
+      rtm: null,
+      screenShareUid: null,
+      screenShareToken: null,
+      profile: $config.PROFILE,
+      dual: true,
+      encryption: $config.ENCRYPTION_ENABLED
+        ? {key: null, mode: RnEncryptionEnum.AES128XTS, screenKey: null}
+        : false,
+      role: ClientRole.Broadcaster,
+      geoFencing: $config.GEO_FENCING,
+      audioRoom: $config.AUDIO_ROOM,
+    });
+  }, []);
+
   const useJoin = useJoinMeeting();
 
   React.useEffect(() => {
@@ -230,7 +251,8 @@ const VideoCall: React.FC = () => {
                                 <RtmConfigure
                                   setRecordingActive={setRecordingActive}
                                   callActive={callActive}>
-                                  <UserPreferenceProvider>
+                                  {/** rejoin hot fix */}
+                                  <UserPreferenceProvider value={{callActive}}>
                                     <EventsConfigure>
                                       <WhiteboardProvider>
                                         <RecordingProvider
