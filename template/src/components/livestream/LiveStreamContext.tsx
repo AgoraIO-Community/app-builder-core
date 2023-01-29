@@ -20,6 +20,7 @@ import {EventNames} from '../../rtm-events';
 import {useRender} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
+import {trimText} from '../../utils/common';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -311,7 +312,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               // Step 1: Show notifications
               if (payload.ts > rtmInitTimstamp) {
                 showToast(
-                  `${getAttendeeName(data.sender)} ${
+                  `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_RECEIVED.text1
                   }`,
                   LSNotificationObject.RAISE_HAND_RECEIVED.text2,
@@ -329,7 +330,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               // Step 1: Show notifications
               if (payload.ts > rtmInitTimstamp) {
                 showToast(
-                  `${getAttendeeName(data.sender)} ${
+                  `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
                   }`,
                   LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,

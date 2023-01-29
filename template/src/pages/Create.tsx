@@ -17,7 +17,12 @@ import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {isWebInternal, maxInputLimit, isMobileUA} from '../utils/common';
+import {
+  isWebInternal,
+  maxInputLimit,
+  isMobileUA,
+  trimText,
+} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
@@ -144,7 +149,7 @@ const Create = () => {
         setLoading(false);
         Toast.show({
           type: 'success',
-          text1: roomTitle + createdText,
+          text1: trimText(roomTitle) + createdText,
           text2: 'Your New meeting is now live',
           visibilityTime: 3000,
           primaryBtn: null,
