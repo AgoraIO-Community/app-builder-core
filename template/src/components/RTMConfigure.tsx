@@ -211,6 +211,7 @@ const RtmConfigure = (props: any) => {
                   //below thing for livestreaming
                   type: 'rtc',
                   uid,
+                  offline: false,
                 };
                 updateRenderListState(uid, userData);
                 //end- updating user data in rtc
@@ -303,6 +304,7 @@ const RtmConfigure = (props: any) => {
             //below thing for livestreaming
             type: 'rtc',
             uid,
+            offline: false,
           };
           updateRenderListState(uid, userData);
           //end- updating user data in rtc
