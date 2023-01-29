@@ -29,7 +29,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
 
   return (
-    <PlatformWrapper setIsHovered={setIsHovered}>
+    <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <View
         style={[
           maxStyle.container,
@@ -149,12 +149,21 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   );
 };
 
-const PlatformWrapper = ({children, setIsHovered}) => {
+const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
   return isWebInternal() ? (
     <div
       style={{width: '100%', height: '100%'}}
-      onMouseEnter={() => {
-        setIsHovered(true);
+      /**
+       * why onMouseOver is used instead of onMouseEnter
+       * when user clicks close icon the participant then video tile will expand and
+       * cursor will directly land on child elements. so onhover kabab menu icon is not displayed
+       *
+       * As per doc
+       * The mouseover event triggers when the mouse pointer enters the div element, and its child elements.
+       * The mouseenter event is only triggered when the mouse pointer enters the div element.
+       *  */
+      onMouseOver={() => {
+        !isHovered && setIsHovered(true);
       }}
       onMouseLeave={() => {
         setIsHovered(false);

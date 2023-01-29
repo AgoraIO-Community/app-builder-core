@@ -20,6 +20,7 @@ import {EventNames} from '../../rtm-events';
 import {useRender} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
+import {trimText} from '../../utils/common';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -57,6 +58,32 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   React.useEffect(() => {
     coHostUidsRef.current = coHostUids;
   }, [coHostUids]);
+
+  React.useEffect(() => {
+    /**
+     * when user rejoin the meeting. its showing previosly raised livesteaming request.
+     * so deleting raise hand data once the user is offline
+     * */
+    let newRaiseHandList = raiseHandList;
+    const data = Object.keys(
+      filterObject(
+        renderList,
+        ([k, v]) => v?.type === 'rtc' && v.offline === true,
+      ),
+    );
+    let isRaiseHandListChanged = false;
+    data &&
+      data.length &&
+      data.forEach((uid, index) => {
+        if (newRaiseHandList[uid]) {
+          isRaiseHandListChanged = true;
+          delete newRaiseHandList[uid];
+        }
+        if (data.length - 1 === index && isRaiseHandListChanged) {
+          setRaiseHandList(newRaiseHandList);
+        }
+      });
+  }, [renderList]);
 
   const localUid = useLocalUid();
   const localUidRef = useRef<any>();
@@ -311,7 +338,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               // Step 1: Show notifications
               if (payload.ts > rtmInitTimstamp) {
                 showToast(
-                  `${getAttendeeName(data.sender)} ${
+                  `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_RECEIVED.text1
                   }`,
                   LSNotificationObject.RAISE_HAND_RECEIVED.text2,
@@ -329,7 +356,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               // Step 1: Show notifications
               if (payload.ts > rtmInitTimstamp) {
                 showToast(
-                  `${getAttendeeName(data.sender)} ${
+                  `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
                   }`,
                   LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,

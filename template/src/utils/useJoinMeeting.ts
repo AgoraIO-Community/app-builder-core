@@ -73,7 +73,6 @@ export default function useJoinMeeting() {
         variables: {
           passphrase: phrase,
         },
-        fetchPolicy: 'no-cache',
       });
       if (response.error) {
         throw response.error;
