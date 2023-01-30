@@ -14,6 +14,8 @@ const ParticipantsCount = () => {
   const {attendeeUids, hostUids: hostUidsVM} = useVideoMeetingData();
   return (
     <IconButton
+      placement="right"
+      isClickable={isMobileUA() ? true : false}
       toolTipMessage={
         $config.EVENT_MODE
           ? `Host: ${

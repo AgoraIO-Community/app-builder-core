@@ -1,6 +1,6 @@
 import RNTooltip from 'react-native-walkthrough-tooltip';
 import React, {useState} from 'react';
-import {Text, View, ViewStyle} from 'react-native';
+import {Pressable, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
@@ -13,9 +13,11 @@ interface TooltipProps {
   ) => React.ReactNode;
   toolTipMessage: string;
   toolTipIcon?: React.ReactNode;
+  placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
+  const {placement = 'top'} = props;
   return (
     <RNTooltip
       arrowSize={{width: 25, height: 15}}
@@ -50,12 +52,13 @@ const Tooltip = (props: TooltipProps) => {
           </Text>
         </View>
       }
-      placement="top"
+      placement={placement}
       onClose={() => setToolTipVisible(false)}>
-      <View
-        style={isToolTipVisible ? props?.activeBgStyle : props?.defaultBgStyle}>
+      <Pressable
+        style={isToolTipVisible ? props?.activeBgStyle : props?.defaultBgStyle}
+        onPress={() => setToolTipVisible(true)}>
         {props.renderContent(isToolTipVisible, setToolTipVisible)}
-      </View>
+      </Pressable>
     </RNTooltip>
   );
 };
