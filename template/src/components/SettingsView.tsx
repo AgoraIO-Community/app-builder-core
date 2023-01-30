@@ -235,7 +235,7 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = (props) => {
-  const isSmall = useIsSmall()();
+  const isSmall = useIsSmall();
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
@@ -244,11 +244,11 @@ const SettingsView = (props) => {
     <View
       style={[
         isWebInternal()
-          ? isSmall
+          ? isSmall()
             ? CommonStyles.sidePanelContainerNative
             : CommonStyles.sidePanelContainerWeb
           : CommonStyles.sidePanelContainerNative,
-        isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+        isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
       ]}>

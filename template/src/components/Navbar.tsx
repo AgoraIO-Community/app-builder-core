@@ -311,7 +311,7 @@ const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
-  const isDesktop = useIsDesktop()('toolbar');
+  const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     data: {meetingTitle},
@@ -326,7 +326,7 @@ const Navbar = () => {
       style={[
         isWebInternal() ? style.navHolder : style.navHolderNative,
         {
-          paddingHorizontal: isDesktop ? 32 : 10,
+          paddingHorizontal: isDesktop('toolbar') ? 32 : 10,
           zIndex: 999,
         },
       ]}>

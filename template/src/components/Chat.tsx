@@ -55,7 +55,7 @@ const Chat = (props?: ChatProps) => {
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
 
-  const isSmall = useIsSmall()();
+  const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
 
   const {
@@ -152,11 +152,11 @@ const Chat = (props?: ChatProps) => {
       <View
         style={[
           isWebInternal()
-            ? !isSmall
+            ? !isSmall()
               ? CommonStyles.sidePanelContainerWeb
               : style.chatViewNative
             : style.chatViewNative,
-          isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+          isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
         ]}>

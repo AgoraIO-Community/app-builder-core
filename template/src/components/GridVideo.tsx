@@ -38,11 +38,11 @@ const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useRtc();
   const {rtcProps} = useContext(PropsContext);
   const {activeUids} = useRender();
-  const isDesktop = useIsDesktop()();
+  const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
-    () => layout(renderData.length, isDesktop),
-    [renderData.length, isDesktop],
+    () => layout(renderData.length, isDesktop()),
+    [renderData.length, isDesktop()],
   );
 
   const setPinnedLayout = useSetPinnedLayout();

@@ -33,7 +33,7 @@ const Popup = (props: PopupProps) => {
     ...otherProps
   } = props;
   const isMobileInvitePopup = isMobileUA() && showCloseIcon;
-  const isDesktop = useIsDesktop()('popup');
+  const isDesktop = useIsDesktop();
 
   return (
     <Modal
@@ -47,7 +47,7 @@ const Popup = (props: PopupProps) => {
       <View
         style={[
           styles.centeredView,
-          isDesktop && {alignItems: 'center'},
+          isDesktop('popup') && {alignItems: 'center'},
           props?.containerStyle,
         ]}>
         <TouchableWithoutFeedback

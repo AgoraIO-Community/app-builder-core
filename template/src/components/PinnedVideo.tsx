@@ -29,7 +29,6 @@ const {topPinned} = layoutProps;
 const PinnedVideo: layoutComponent = ({renderData}) => {
   const {pinnedUid} = useRender();
   const [collapse, setCollapse] = useState(false);
-  //const isDesktop = useIsDesktop()('default');
   const {width, height} = useWindowDimensions();
   const isDesktop = width > 1100;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation

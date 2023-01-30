@@ -36,7 +36,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
   const iconRef = useRef(null);
   const pressableRef = useRef(null);
   const {width, height} = useWindowDimensions();
-  const isSmall = useIsSmall()();
+  const isSmall = useIsSmall();
 
   const setModalPosition = (width: number) => {
     setTimeout(() => {
@@ -67,11 +67,11 @@ const InfoBubble = (props: InfoBubbleProps) => {
     <PlatformWrapper
       onPress={() => setToolTipVisible(true)}
       setToolTipVisible={setToolTipVisible}
-      isSmall={isSmall}
+      isSmall={isSmall()}
       toolTipVisible={toolTipVisible}
       hoverMode={hoverMode}>
       {/* toolTipBox for desktop  */}
-      {hoverMode && isWebInternal() && !isSmall && toolTipVisible ? (
+      {hoverMode && isWebInternal() && !isSmall() && toolTipVisible ? (
         <>
           <View
             style={[
@@ -108,7 +108,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         <></>
       )}
       {/* toolTip modal for mobile  */}
-      {(!isWebInternal() || isSmall || !hoverMode) && (
+      {(!isWebInternal() || isSmall() || !hoverMode) && (
         <>
           <Modal
             animationType="none"
