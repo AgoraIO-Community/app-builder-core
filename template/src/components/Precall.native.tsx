@@ -84,9 +84,9 @@ const JoinRoomInputView = ({isDesktop}) => {
       />
       {$config.EVENT_MODE ? (
         <>
-          <Text style={style.subTextStyle}>
+          {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
-          </Text>
+          </Text> */}
           {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
         </>
       ) : (
