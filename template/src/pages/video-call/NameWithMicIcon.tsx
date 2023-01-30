@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, StyleSheet, useWindowDimensions, Text} from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ThemeConfig from '../../theme';
@@ -8,18 +8,14 @@ import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import {useString} from '../../utils/useString';
 import {useLayout, useRender} from 'customization-api';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {
-  isMobileUA,
-  isWeb,
-  isWebInternal,
-  useIsMobile,
-  useIsSmall,
-} from '../../utils/common';
+import {isMobileUA, isWeb, isWebInternal, useIsSmall} from '../../utils/common';
 import AnimatedActiveSpeaker from '../../atoms/AnimatedActiveSpeaker';
-import {getGridLayoutName} from './DefaultLayouts';
+import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 
 interface NameWithMicIconProps {
   user: RenderInterface;
+  isMax: boolean;
+  videoTileWidth: number;
 }
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
@@ -36,11 +32,15 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
-  const isMobile = useIsMobile()();
+  const isSmall = useIsSmall();
   return (
     <View
       style={[
         style.container,
+        {
+          maxWidth:
+            props.videoTileWidth * 0.6 > 180 ? 180 : props.videoTileWidth * 0.6,
+        },
         reduceSpace ? {left: 2, bottom: 2} : {},
         reduceSpace && activeUids.length > 12 ? {padding: 2} : {},
       ]}>
@@ -77,7 +77,14 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-      {!isMobile ? (
+      {((isMobileUA() || (!isMobileUA() && isSmall())) &&
+        currentLayout === getGridLayoutName() &&
+        activeUids.length > 6) ||
+      (isMobileUA() &&
+        currentLayout === getPinnedLayoutName() &&
+        !props?.isMax) ? (
+        <></>
+      ) : (
         <PlatformWrapper>
           <Text
             numberOfLines={1}
@@ -87,8 +94,6 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
             {user.name || remoteUserDefaultLabel}
           </Text>
         </PlatformWrapper>
-      ) : (
-        <></>
       )}
     </View>
   );
@@ -125,7 +130,6 @@ const style = StyleSheet.create({
     borderRadius: 4,
     flexDirection: 'row',
     zIndex: 5,
-    maxWidth: 180,
   },
   name: {
     color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,

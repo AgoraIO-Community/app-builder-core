@@ -89,7 +89,6 @@ const Participant = (props: ParticipantInterface) => {
       <UserActionMenuOptionsOptions
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
-        isMobile={isMobile}
         user={props.user}
         btnRef={moreIconRef}
         from={'partcipant'}

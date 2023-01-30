@@ -19,6 +19,7 @@ import {useChatNotification} from './chat-notification/useChatNotification';
 import {useString} from '../utils/useString';
 import {
   isIOS,
+  isMobileUA,
   isValidReactComponent,
   isWebInternal,
   useIsSmall,
@@ -55,7 +56,7 @@ const Chat = (props?: ChatProps) => {
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
 
-  const isSmall = useIsSmall()();
+  const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
 
   const {
@@ -151,12 +152,15 @@ const Chat = (props?: ChatProps) => {
     <>
       <View
         style={[
-          isWebInternal()
-            ? !isSmall
-              ? CommonStyles.sidePanelContainerWeb
-              : style.chatViewNative
-            : style.chatViewNative,
-          isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+          isMobileUA()
+            ? //mobile and mobile web
+              CommonStyles.sidePanelContainerNative
+            : isSmall()
+            ? // desktop minimized
+              CommonStyles.sidePanelContainerWebMinimzed
+            : // desktop maximized
+              CommonStyles.sidePanelContainerWeb,
+          isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
         ]}>

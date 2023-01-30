@@ -212,6 +212,7 @@ const RtmConfigure = (props: any) => {
                   type: 'rtc',
                   uid,
                   offline: false,
+                  lastMessageTimeStamp: 0,
                 };
                 updateRenderListState(uid, userData);
                 //end- updating user data in rtc
@@ -305,6 +306,7 @@ const RtmConfigure = (props: any) => {
             type: 'rtc',
             uid,
             offline: false,
+            lastMessageTimeStamp: 0,
           };
           updateRenderListState(uid, userData);
           //end- updating user data in rtc

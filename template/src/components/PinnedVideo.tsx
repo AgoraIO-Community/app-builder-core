@@ -23,15 +23,14 @@ import {layoutComponent, useRender, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {isMobileUA, useIsDesktop} from '../utils/common';
+import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
   const {pinnedUid} = useRender();
   const [collapse, setCollapse] = useState(false);
-  //const isDesktop = useIsDesktop()('default');
   const {width, height} = useWindowDimensions();
-  const isDesktop = width > 1100;
+  const isDesktop = width > BREAKPOINTS.xl;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
@@ -82,7 +81,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                   width: '20%',
                   paddingRight: 8,
                 }
-              : {flex: 1, minHeight: isMobileUA() ? 150 : 130}
+              : {flex: 1, minHeight: 108}
           }>
           {pinnedUid && pinnedUid !== maxUid ? (
             <Pressable

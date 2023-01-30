@@ -21,7 +21,12 @@ import {
 } from 'react-native';
 import SelectDevice from '../subComponents/SelectDevice';
 import LanguageSelector from '../subComponents/LanguageSelector';
-import {isWebInternal, maxInputLimit, useIsSmall} from '../utils/common';
+import {
+  isMobileUA,
+  isWebInternal,
+  maxInputLimit,
+  useIsSmall,
+} from '../utils/common';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import ThemeConfig from '../theme';
@@ -235,7 +240,7 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = (props) => {
-  const isSmall = useIsSmall()();
+  const isSmall = useIsSmall();
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
   const {currentLayout} = useLayout();
@@ -243,12 +248,15 @@ const SettingsView = (props) => {
   return (
     <View
       style={[
-        isWebInternal()
-          ? isSmall
-            ? CommonStyles.sidePanelContainerNative
-            : CommonStyles.sidePanelContainerWeb
-          : CommonStyles.sidePanelContainerNative,
-        isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+        isMobileUA()
+          ? //mobile and mobile web
+            CommonStyles.sidePanelContainerNative
+          : isSmall()
+          ? // desktop minimized
+            CommonStyles.sidePanelContainerWebMinimzed
+          : // desktop maximized
+            CommonStyles.sidePanelContainerWeb,
+        isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
       ]}>

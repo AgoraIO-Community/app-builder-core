@@ -6,7 +6,6 @@ import {
   TouchableWithoutFeedback,
   ModalProps,
   ViewStyle,
-  useWindowDimensions,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
@@ -33,7 +32,7 @@ const Popup = (props: PopupProps) => {
     ...otherProps
   } = props;
   const isMobileInvitePopup = isMobileUA() && showCloseIcon;
-  const isDesktop = useIsDesktop()('popup');
+  const isDesktop = useIsDesktop();
 
   return (
     <Modal
@@ -47,7 +46,7 @@ const Popup = (props: PopupProps) => {
       <View
         style={[
           styles.centeredView,
-          isDesktop && {alignItems: 'center'},
+          isDesktop('popup') && {alignItems: 'center'},
           props?.containerStyle,
         ]}>
         <TouchableWithoutFeedback
@@ -110,7 +109,7 @@ const styles = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
-    borderRadius: 8,
+    borderRadius: 4,
     padding: 32,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {

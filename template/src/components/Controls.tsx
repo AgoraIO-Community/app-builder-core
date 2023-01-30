@@ -40,7 +40,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
-  const isDesktop = useIsDesktop()('toolbar');
+  const isDesktop = useIsDesktop();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -50,7 +50,7 @@ const Controls = () => {
       style={[
         style.container,
         {
-          paddingHorizontal: isDesktop ? 32 : 16,
+          paddingHorizontal: isDesktop('toolbar') ? 32 : 16,
         },
       ]}>
       <View style={style.leftContent}>
@@ -68,7 +68,10 @@ const Controls = () => {
       </View>
       <View style={style.centerContent}>
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls showControls={true} isDesktop />
+          <LiveStreamControls
+            showControls={true}
+            isDesktop={isDesktop('toolbar')}
+          />
         ) : (
           <></>
         )}
@@ -80,7 +83,7 @@ const Controls = () => {
            */}
           {$config.EVENT_MODE ? (
             <LiveStreamControls
-              isDesktop
+              isDesktop={isDesktop('toolbar')}
               showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
             />
           ) : (

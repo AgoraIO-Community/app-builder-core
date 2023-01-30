@@ -11,7 +11,7 @@ import {useLayout, useRender, useRtc} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
+import {isMobileUA, isWebInternal} from '../../utils/common';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -27,10 +27,17 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {currentLayout} = useLayout();
   const showReplacePin =
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
-
+  const [videoTileWidth, setVideoTileWidth] = useState(0);
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <View
+        onLayout={({
+          nativeEvent: {
+            layout: {x, y, width, height},
+          },
+        }) => {
+          setVideoTileWidth(width);
+        }}
         style={[
           maxStyle.container,
           activeSpeaker
@@ -57,7 +64,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           }}
           key={user.uid}
         />
-        <NameWithMicIcon user={user} />
+        <NameWithMicIcon
+          videoTileWidth={videoTileWidth}
+          user={user}
+          isMax={isMax}
+        />
         {user.uid !== rtcProps?.screenShareUid &&
         (isHovered || isMobileUA()) ? (
           <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
@@ -103,7 +114,6 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const videoMoreMenuRef = useRef(null);
   const {activeUids} = useRender();
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  const isMobile = useIsSmall()();
   const {currentLayout} = useLayout();
   const reduceSpace =
     isMobileUA() &&
@@ -121,8 +131,6 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
-          //todo pass handle close
-          isMobile={isMobile}
           user={user}
           btnRef={videoMoreMenuRef}
           from={'video-tile'}

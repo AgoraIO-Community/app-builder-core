@@ -11,13 +11,7 @@
 */
 import PrecallNative from './Precall.native';
 import React, {useContext, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  useWindowDimensions,
-  ScrollView,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {
   isMobileUA,
@@ -301,7 +295,7 @@ const Precall = () => {
     return undefined;
   });
 
-  const isNotDesktop = !useIsDesktop()();
+  const isDesktop = useIsDesktop();
   const getResponsiveValue = useResponsive();
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
   return FpePrecallComponent ? (
@@ -331,7 +325,7 @@ const Precall = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             style.main,
-            !isNotDesktop
+            isDesktop()
               ? {
                   flexGrow: 1,
                   justifyContent: 'center',
@@ -344,22 +338,22 @@ const Precall = () => {
             <Spacer size={32} />
             <View
               style={{
-                flexDirection: isNotDesktop ? 'column' : 'row',
+                flexDirection: !isDesktop() ? 'column' : 'row',
                 justifyContent: 'space-between',
               }}>
               <View
                 testID="precall-preview"
                 style={
-                  isNotDesktop
+                  !isDesktop()
                     ? style.leftContentVertical
                     : style.leftContentHorizontal
                 }>
                 <VideoPreview />
               </View>
-              <Spacer size={24} horizontal={isNotDesktop ? false : true} />
+              <Spacer size={24} horizontal={!isDesktop() ? false : true} />
               <Card
                 style={
-                  isNotDesktop
+                  !isDesktop()
                     ? style.rightContentVertical
                     : style.rightContentHorizontal
                 }>
@@ -377,7 +371,7 @@ const Precall = () => {
                   <JoinRoomButton />
                 </View>
               </Card>
-              {isNotDesktop ? <Spacer size={24} horizontal={false} /> : <></>}
+              {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>}
             </View>
           </>
         </ScrollView>
