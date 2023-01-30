@@ -18,7 +18,7 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {isWebInternal, useIsSmall} from '../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
@@ -73,11 +73,14 @@ const ParticipantView = (props) => {
     <View
       testID="videocall-participants"
       style={[
-        isWebInternal()
-          ? isSmall()
-            ? CommonStyles.sidePanelContainerNative
-            : CommonStyles.sidePanelContainerWeb
-          : CommonStyles.sidePanelContainerNative,
+        isMobileUA()
+          ? //mobile and mobile web
+            CommonStyles.sidePanelContainerNative
+          : isSmall()
+          ? // desktop minimized
+            CommonStyles.sidePanelContainerWebMinimzed
+          : // desktop maximized
+            CommonStyles.sidePanelContainerWeb,
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
