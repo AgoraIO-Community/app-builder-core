@@ -84,9 +84,9 @@ const JoinRoomInputView = ({isDesktop}) => {
       />
       {$config.EVENT_MODE ? (
         <>
-          <Text style={style.subTextStyle}>
+          {/* <Text style={style.subTextStyle}>
             Enter the name you would like to join the room as
-          </Text>
+          </Text> */}
           {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
         </>
       ) : (
@@ -517,6 +517,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '700',
     fontSize: ThemeConfig.FontSize.extraLarge,
+    lineHeight: ThemeConfig.FontSize.extraLarge,
     color: $config.FONT_COLOR,
     paddingLeft: 0,
   },
