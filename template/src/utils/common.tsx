@@ -175,7 +175,7 @@ const useIsDesktop = () => {
   const {width, height} = useWindowDimensions();
   return (from: 'default' | 'toolbar' | 'popup' = 'default') => {
     if (from === 'default') {
-      return width > height + 150 ? true : false;
+      return width > height ? true : false;
     } else if (from === 'toolbar') {
       return width > BREAKPOINTS.xl;
     } else if (from === 'popup') {
