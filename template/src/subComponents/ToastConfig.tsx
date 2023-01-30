@@ -22,17 +22,20 @@ const trailingIcon = (
   <TouchableOpacity
     onPress={() => Toast.hide()}
     style={{alignSelf: 'flex-end'}}>
-    <ImageIcon
-      iconType="plain"
-      tintColor={$config.SECONDARY_ACTION_COLOR}
-      name="close"
-    />
+    <View style={{width: 26, height: 26}}>
+      <ImageIcon
+        iconType="plain"
+        tintColor={$config.SECONDARY_ACTION_COLOR}
+        name="close"
+        iconSize={26}
+      />
+    </View>
   </TouchableOpacity>
 );
 
 const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
   return (
-    <View style={{paddingRight: 4, alignSelf: 'center'}}>
+    <View style={{marginRight: 4, alignSelf: 'center', width: 26, height: 26}}>
       <ImageIcon iconType="plain" tintColor={color} name={iconName} />
     </View>
   );
@@ -118,6 +121,7 @@ export default ToastConfig;
 const styles = StyleSheet.create({
   text1Style: {
     fontSize: ThemeConfig.FontSize.normal,
+    lineHeight: ThemeConfig.FontSize.medium,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     color: $config.FONT_COLOR,
