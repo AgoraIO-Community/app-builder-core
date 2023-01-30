@@ -186,7 +186,7 @@ const useIsDesktop = () => {
 };
 const useIsSmall = () => {
   const {width} = useWindowDimensions();
-  return (number = 700) => {
+  return (number = 576) => {
     return width < number;
   };
 };

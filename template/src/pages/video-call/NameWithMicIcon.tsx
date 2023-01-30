@@ -77,7 +77,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-      {((isMobileUA() || (!isMobileUA() && isSmall(576))) &&
+      {((isMobileUA() || (!isMobileUA() && isSmall())) &&
         currentLayout === getGridLayoutName() &&
         activeUids.length > 6) ||
       (isMobileUA() &&

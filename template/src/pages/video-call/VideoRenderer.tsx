@@ -11,7 +11,7 @@ import {useLayout, useRender, useRtc} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
-import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
+import {isMobileUA, isWebInternal} from '../../utils/common';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -114,7 +114,6 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
   const videoMoreMenuRef = useRef(null);
   const {activeUids} = useRender();
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  const isMobile = useIsSmall();
   const {currentLayout} = useLayout();
   const reduceSpace =
     isMobileUA() &&
@@ -132,8 +131,6 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
-          //todo pass handle close
-          isMobile={isMobile()}
           user={user}
           btnRef={videoMoreMenuRef}
           from={'video-tile'}

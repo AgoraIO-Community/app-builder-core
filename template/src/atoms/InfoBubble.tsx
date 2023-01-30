@@ -11,7 +11,7 @@ import {
 import React, {useRef, useState} from 'react';
 import ImageIcon, {ImageIconProps} from './ImageIcon';
 import ThemeConfig from '../theme';
-import {isWebInternal, useIsSmall} from '../utils/common';
+import {isMobileUA, isWebInternal} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface iconProps extends ImageIconProps {
@@ -36,7 +36,6 @@ const InfoBubble = (props: InfoBubbleProps) => {
   const iconRef = useRef(null);
   const pressableRef = useRef(null);
   const {width, height} = useWindowDimensions();
-  const isSmall = useIsSmall();
 
   const setModalPosition = (width: number) => {
     setTimeout(() => {
@@ -67,11 +66,10 @@ const InfoBubble = (props: InfoBubbleProps) => {
     <PlatformWrapper
       onPress={() => setToolTipVisible(true)}
       setToolTipVisible={setToolTipVisible}
-      isSmall={isSmall()}
       toolTipVisible={toolTipVisible}
       hoverMode={hoverMode}>
       {/* toolTipBox for desktop  */}
-      {hoverMode && isWebInternal() && !isSmall() && toolTipVisible ? (
+      {!isMobileUA() && hoverMode && isWebInternal() && toolTipVisible ? (
         <>
           <View
             style={[
@@ -108,7 +106,7 @@ const InfoBubble = (props: InfoBubbleProps) => {
         <></>
       )}
       {/* toolTip modal for mobile  */}
-      {(!isWebInternal() || isSmall() || !hoverMode) && (
+      {(isMobileUA() || !hoverMode) && (
         <>
           <Modal
             animationType="none"
@@ -188,7 +186,6 @@ const PlatformWrapper = ({
   onPress,
   setToolTipVisible,
   toolTipVisible,
-  isSmall,
   hoverMode,
 }) => {
   if (isWebInternal()) {
@@ -196,7 +193,7 @@ const PlatformWrapper = ({
       setToolTipVisible(false);
     });
   }
-  return hoverMode && isWebInternal() && !isSmall ? (
+  return hoverMode && isWebInternal() && !isMobileUA() ? (
     <div
       style={{
         position: 'relative',

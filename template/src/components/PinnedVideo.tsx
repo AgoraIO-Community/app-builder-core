@@ -30,7 +30,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
   const {pinnedUid} = useRender();
   const [collapse, setCollapse] = useState(false);
   const {width, height} = useWindowDimensions();
-  const isDesktop = width > 1100;
+  const isDesktop = width > 1330;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();

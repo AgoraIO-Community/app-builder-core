@@ -33,9 +33,6 @@ const ScreenshareParticipants = (props: {user: RenderInterface}) => {
       <UserActionMenuOptionsOptions
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
-        handleClose={() => {}}
-        isMobile={false}
-        updateActionSheet={() => {}}
         user={props.user}
         btnRef={screenshareRef}
         from={'screenshare-participant'}
