@@ -14,7 +14,7 @@ import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import UserAvatar from '../atoms/UserAvatar';
 //import AnimatedRings from '../atoms/AnimatedRings';
 import {useLayout, useRender} from 'customization-api';
-import {isMobileUA, useIsDesktop, useIsSmall} from '../utils/common';
+import {BREAKPOINTS, isMobileUA} from '../utils/common';
 import {
   getGridLayoutName,
   getPinnedLayoutName,
@@ -29,7 +29,7 @@ export default function FallbackLogo(
   const {activeUids} = useRender();
   const {currentLayout} = useLayout();
   const {width} = useWindowDimensions();
-  const isSmall = width < 1300;
+  const isSmall = width < BREAKPOINTS.xl;
   return (
     <View style={[styles.container]}>
       {!hideAvatar ? (

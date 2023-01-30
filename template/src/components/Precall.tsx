@@ -11,13 +11,7 @@
 */
 import PrecallNative from './Precall.native';
 import React, {useContext, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  useWindowDimensions,
-  ScrollView,
-} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {
   isMobileUA,

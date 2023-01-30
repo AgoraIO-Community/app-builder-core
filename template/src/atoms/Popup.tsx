@@ -6,7 +6,6 @@ import {
   TouchableWithoutFeedback,
   ModalProps,
   ViewStyle,
-  useWindowDimensions,
 } from 'react-native';
 import React, {SetStateAction} from 'react';
 import IconButton from './IconButton';
