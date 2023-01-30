@@ -35,7 +35,7 @@ const trailingIcon = (
 
 const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
   return (
-    <View style={{paddingRight: 4, alignSelf: 'center'}}>
+    <View style={{marginRight: 4, alignSelf: 'center', width: 26, height: 26}}>
       <ImageIcon iconType="plain" tintColor={color} name={iconName} />
     </View>
   );
