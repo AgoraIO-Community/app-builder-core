@@ -22,13 +22,13 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import {ChatBubbleProps} from '../components/ChatContext';
-import {useLocalUid} from '../../agora-rn-uikit';
+import {RenderInterface, useLocalUid} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent, isWebInternal} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
-import {useRender} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
@@ -44,6 +44,7 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const {dispatch} = useRtc();
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {renderList} = useRender();
@@ -88,8 +89,18 @@ const ChatContainer = (props?: {
           [selectedUserID]: 0,
         };
       });
+      //Once message is seen, reset lastMessageTimeStamp.
+      //so whoever has unread count will show in the top of participant list
+      updateRenderListState(selectedUserID, {lastMessageTimeStamp: 0});
     }
   }, [selectedUserID]);
+
+  const updateRenderListState = (
+    uid: number,
+    data: Partial<RenderInterface>,
+  ) => {
+    dispatch({type: 'UpdateRenderList', value: [uid, data]});
+  };
 
   const {ChatBubbleComponent} = useCustomization((data) => {
     let components: {
