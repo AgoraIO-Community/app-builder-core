@@ -51,11 +51,18 @@ export default function FallbackLogo(
           name={name}
           containerStyle={[
             styles.avatarBg,
-            (currentLayout === getGridLayoutName() &&
+            currentLayout === getPinnedLayoutName() && !isMax
+              ? styles.avatarBgSmall
+              : {},
+            (!isMobileUA() &&
+              currentLayout === getGridLayoutName() &&
               isSmall &&
               activeUids.length > 9) ||
-            (currentLayout === getPinnedLayoutName() && isSmall && !isMax)
-              ? styles.avatarBgSmall
+            (!isMobileUA() &&
+              currentLayout === getPinnedLayoutName() &&
+              isSmall &&
+              !isMax)
+              ? styles.avatarBgMobileUA
               : {},
             isMobileUA() &&
             (activeUids.length > 4 ||
