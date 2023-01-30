@@ -8,13 +8,7 @@ import TextWithTooltip from '../../subComponents/TextWithTooltip';
 import {useString} from '../../utils/useString';
 import {useLayout, useRender} from 'customization-api';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {
-  isMobileUA,
-  isWeb,
-  isWebInternal,
-  useIsMobile,
-  useIsSmall,
-} from '../../utils/common';
+import {isMobileUA, isWeb, isWebInternal, useIsSmall} from '../../utils/common';
 import AnimatedActiveSpeaker from '../../atoms/AnimatedActiveSpeaker';
 import {getGridLayoutName} from './DefaultLayouts';
 
@@ -36,7 +30,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
-  const isMobile = useIsMobile()();
+  const isSmall = useIsSmall();
   return (
     <View
       style={[
@@ -77,7 +71,11 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-      {!isMobile ? (
+      {(isMobileUA() || (!isMobileUA() && isSmall(576))) &&
+      currentLayout === getGridLayoutName() &&
+      activeUids.length > 6 ? (
+        <></>
+      ) : (
         <PlatformWrapper>
           <Text
             numberOfLines={1}
@@ -87,8 +85,6 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
             {user.name || remoteUserDefaultLabel}
           </Text>
         </PlatformWrapper>
-      ) : (
-        <></>
       )}
     </View>
   );

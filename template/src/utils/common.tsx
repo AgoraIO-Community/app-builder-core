@@ -186,14 +186,8 @@ const useIsDesktop = () => {
 };
 const useIsSmall = () => {
   const {width} = useWindowDimensions();
-  return () => {
-    return width < 700;
-  };
-};
-const useIsMobile = () => {
-  const {width} = useWindowDimensions();
-  return () => {
-    return width <= 576;
+  return (number = 700) => {
+    return width < number;
   };
 };
 
@@ -212,7 +206,6 @@ const useResponsive = () => {
   };
 };
 export {
-  useIsMobile,
   useIsDesktop,
   useIsSmall,
   //BREAKPOINTS,
