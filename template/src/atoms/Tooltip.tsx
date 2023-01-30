@@ -12,11 +12,12 @@ interface TooltipProps {
   toolTipMessage: string;
   toolTipIcon?: React.ReactNode;
   isClickable?: boolean;
+  placement?: 'top' | 'bottom' | 'left' | 'right';
   onPress?: () => void;
 }
 const Tooltip = (props: TooltipProps) => {
   const [isToolTipVisible, setToolTipVisible] = useState(false);
-  const {isClickable = false} = props;
+  const {isClickable = false, placement = 'top'} = props;
   const css = `
   .custom-tool-tip{
     padding:12px;
@@ -76,7 +77,7 @@ const Tooltip = (props: TooltipProps) => {
         id={toolTipId}
         backgroundColor={$config.CARD_LAYER_3_COLOR}
         className="custom-tool-tip"
-        place="top"
+        place={'top'}
         type="dark"
         effect="solid">
         <style type="text/css">{css}</style>

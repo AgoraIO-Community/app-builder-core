@@ -13,7 +13,7 @@ interface RecordingPopupProps {
   stopRecording: () => void;
 }
 const RecordingPopup = (props: RecordingPopupProps) => {
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsDesktop()('popup');
   const recordingLabelHeading = 'Stop Recording?';
   const recordingLabelSubHeading =
     'Are you sure you want to stop recording? You can’t undo this action.';

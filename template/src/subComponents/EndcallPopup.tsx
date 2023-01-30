@@ -13,7 +13,7 @@ interface EndcallPopupProps {
   endCall: () => void;
 }
 const EndcallPopup = (props: EndcallPopupProps) => {
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsDesktop()('popup');
   const leaveMeetingLabelHeading = 'Leave Meeting?';
   const leaveMeetingLabelSubHeading =
     'Are you sure you want to leave this meeting?';

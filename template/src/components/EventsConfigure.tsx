@@ -159,13 +159,13 @@ const EventsConfigure: React.FC<Props> = (props) => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40},
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 0},
   primaryBtn: {
     maxWidth: 109,
     minWidth: 109,
     height: 40,
     borderRadius: 4,
-    paddingVertical: 11,
+    paddingVertical: 0,
     paddingHorizontal: 12,
   },
   primaryBtnText: {
