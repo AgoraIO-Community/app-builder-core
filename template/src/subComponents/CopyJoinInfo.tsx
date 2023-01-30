@@ -50,7 +50,7 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //commented for v1 release
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsDesktop()('popup');
 
   useEffect(() => {
     getMeeting(phrase);

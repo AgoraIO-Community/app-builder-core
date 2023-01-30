@@ -14,7 +14,7 @@ interface RemoveScreensharePopupProps {
   username: string;
 }
 const RemoveScreensharePopup = (props: RemoveScreensharePopupProps) => {
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsDesktop()('popup');
   const removeMeetingLabelHeading = 'Remove Screenshare?';
   const removeMeetingLabelSubHeading = `Once removed, ${props.username} will still be able to screen share later.`;
 
