@@ -82,7 +82,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                   width: '20%',
                   paddingRight: 8,
                 }
-              : {flex: 1, minHeight: isMobileUA() ? 150 : 130}
+              : {flex: 1, minHeight: 108}
           }>
           {pinnedUid && pinnedUid !== maxUid ? (
             <Pressable

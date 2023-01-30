@@ -57,7 +57,9 @@ export default function FallbackLogo(
             (currentLayout === getPinnedLayoutName() && isSmall && !isMax)
               ? styles.avatarBgSmall
               : {},
-            isMobileUA() && activeUids.length > 4
+            isMobileUA() &&
+            (activeUids.length > 4 ||
+              (currentLayout === getPinnedLayoutName() && !isMax))
               ? styles.avatarBgMobileUA
               : {},
             {

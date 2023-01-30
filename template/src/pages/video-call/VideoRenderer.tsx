@@ -27,10 +27,17 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {currentLayout} = useLayout();
   const showReplacePin =
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
-
+  const [videoTileWidth, setVideoTileWidth] = useState(0);
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <View
+        onLayout={({
+          nativeEvent: {
+            layout: {x, y, width, height},
+          },
+        }) => {
+          setVideoTileWidth(width);
+        }}
         style={[
           maxStyle.container,
           activeSpeaker
@@ -57,7 +64,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           }}
           key={user.uid}
         />
-        <NameWithMicIcon user={user} />
+        <NameWithMicIcon
+          videoTileWidth={videoTileWidth}
+          user={user}
+          isMax={isMax}
+        />
         {user.uid !== rtcProps?.screenShareUid &&
         (isHovered || isMobileUA()) ? (
           <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
