@@ -84,7 +84,21 @@ const GridVideo: layoutComponent = ({renderData}) => {
               <View
                 style={[
                   style.gridVideoContainerInner,
-                  r?.length - 1 === cidx ? {} : {marginRight: 8},
+                  //if only one item no margin required
+                  r?.length > 1
+                    ? //first item will have marginRight in the row
+                      cidx === 0
+                      ? {marginRight: 4}
+                      : //last item will have marginLeft in the row
+                      cidx === r?.length - 1
+                      ? {marginLeft: 4}
+                      : //middle item will have marginHorizontal
+                        {marginHorizontal: 4}
+                    : //if more than one row than add marginHorizontal
+                    //for ex: 7 people in the call with 3 column layout. last person tile should be aligned propert
+                    ridx > 1
+                    ? {marginHorizontal: 4}
+                    : {},
                 ]}>
                 <RenderComponent uid={renderData[ridx * dims.c + cidx]} />
               </View>
