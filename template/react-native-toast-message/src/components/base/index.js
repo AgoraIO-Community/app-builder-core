@@ -52,7 +52,7 @@ function BaseToast({
                 {text1}
               </Text>
             </View>
-            <View style={{ justifyContent: 'flex-end', alignSelf: 'center' }}>
+            <View style={{ justifyContent: 'flex-start', alignSelf: 'center' }}>
               {trailingIcon ? trailingIcon : <></>}
             </View>
           </View>

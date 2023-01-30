@@ -32,6 +32,8 @@ export interface IconButtonProps {
   isOnActionSheet?: boolean;
   hoverEffect?: boolean;
   hoverEffectStyle?: ViewStyle;
+  placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+  isClickable?: boolean;
 }
 
 const IconButton = (props: IconButtonProps) => {
@@ -113,10 +115,13 @@ const PlatformWrapper = ({children, ...props}) => {
 
 const IconButtonWithToolTip = (props: IconButtonProps) => {
   const [isHovered, setIsHovered] = React.useState(false);
+  const {placement = 'top', isClickable = false} = props;
   if (props?.toolTipMessage) {
     return (
       <ToolTip
+        isClickable={isClickable}
         toolTipMessage={props.toolTipMessage}
+        placement={placement}
         renderContent={(isToolTipVisible, setToolTipVisible) => {
           return (
             <IconButton

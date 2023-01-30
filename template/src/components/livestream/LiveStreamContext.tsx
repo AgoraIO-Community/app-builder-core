@@ -609,12 +609,13 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 export default LiveStreamContext;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40},
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
   primaryBtn: {
     minWidth: 'auto',
     paddingHorizontal: 12,
     height: 40,
     borderRadius: 4,
+    paddingVertical: 5,
   },
   primaryBtnText: {
     fontWeight: '600',
