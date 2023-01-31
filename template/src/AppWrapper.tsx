@@ -23,8 +23,6 @@ import {
   View,
 } from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
-import Toast from '../react-native-toast-message';
-import ToastConfig from './subComponents/ToastConfig';
 import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
@@ -32,6 +30,7 @@ import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
 import {PropsConsumer} from 'agora-rn-uikit';
+import ToastComponent from './components/ToastComponent';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -82,7 +81,7 @@ const AppWrapper = (props: AppWrapperProps) => {
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-          <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
+          <ToastComponent />
           <StorageProvider>
             <GraphQLProvider>
               <Router>

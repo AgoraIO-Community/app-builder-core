@@ -18,7 +18,7 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {isWebInternal, useIsSmall} from '../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
@@ -61,7 +61,7 @@ const ParticipantView = (props) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
-  const isSmall = useIsSmall()('');
+  const isSmall = useIsSmall();
   //video meeting
   const [showHostSection, setShowHostSection] = useState(true);
   const [showParticipantSection, setShowParticipantSection] = useState(true);
@@ -73,12 +73,15 @@ const ParticipantView = (props) => {
     <View
       testID="videocall-participants"
       style={[
-        isWebInternal()
-          ? isSmall
-            ? CommonStyles.sidePanelContainerNative
-            : CommonStyles.sidePanelContainerWeb
-          : CommonStyles.sidePanelContainerNative,
-        isWebInternal() && !isSmall && currentLayout === getGridLayoutName()
+        isMobileUA()
+          ? //mobile and mobile web
+            CommonStyles.sidePanelContainerNative
+          : isSmall()
+          ? // desktop minimized
+            CommonStyles.sidePanelContainerWebMinimzed
+          : // desktop maximized
+            CommonStyles.sidePanelContainerWeb,
+        isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
       ]}>
@@ -118,7 +121,7 @@ const ParticipantView = (props) => {
                       <AllHostParticipants
                         emptyMessage={'No Host has joined yet.'}
                         uids={hostUids}
-                        isMobile={isSmall}
+                        isMobile={isSmall()}
                         updateActionSheet={props.updateActionSheet}
                         handleClose={props.handleClose}
                       />
@@ -143,7 +146,7 @@ const ParticipantView = (props) => {
                       <AllAudienceParticipants
                         emptyMessage={'No Host has joined yet.'}
                         uids={hostUids}
-                        isMobile={isSmall}
+                        isMobile={isSmall()}
                         updateActionSheet={props.updateActionSheet}
                         handleClose={props.handleClose}
                       />
@@ -169,7 +172,7 @@ const ParticipantView = (props) => {
                     <AllAudienceParticipants
                       emptyMessage={'No Host has joined yet.'}
                       uids={hostUids}
-                      isMobile={isSmall}
+                      isMobile={isSmall()}
                       updateActionSheet={props.updateActionSheet}
                       handleClose={props.handleClose}
                     />
@@ -192,7 +195,7 @@ const ParticipantView = (props) => {
                   <AllAudienceParticipants
                     emptyMessage={'No Audience has joined yet.'}
                     uids={audienceUids}
-                    isMobile={isSmall}
+                    isMobile={isSmall()}
                     updateActionSheet={props.updateActionSheet}
                     handleClose={props.handleClose}
                   />
@@ -207,7 +210,7 @@ const ParticipantView = (props) => {
             <AllHostParticipants
               emptyMessage={'No Users has joined yet'}
               uids={activeUids}
-              isMobile={isSmall}
+              isMobile={isSmall()}
               updateActionSheet={props.updateActionSheet}
               handleClose={props.handleClose}
             />
@@ -221,7 +224,7 @@ const ParticipantView = (props) => {
               <AllHostParticipants
                 emptyMessage={'No Host has joined yet'}
                 uids={hostUidsVideoMeeting}
-                isMobile={isSmall}
+                isMobile={isSmall()}
                 updateActionSheet={props.updateActionSheet}
                 handleClose={props.handleClose}
               />
@@ -238,7 +241,7 @@ const ParticipantView = (props) => {
               <AllHostParticipants
                 emptyMessage={'No Attendee has joined yet'}
                 uids={attendeeUidsVideoMeeting}
-                isMobile={isSmall}
+                isMobile={isSmall()}
                 updateActionSheet={props.updateActionSheet}
                 handleClose={props.handleClose}
               />

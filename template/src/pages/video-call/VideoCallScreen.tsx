@@ -169,7 +169,7 @@ const VideoCallScreen = () => {
     }
   }, []);
 
-  const isDesktop = useIsDesktop()();
+  const isDesktop = useIsDesktop();
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -189,7 +189,7 @@ const VideoCallScreen = () => {
         <View
           style={[
             style.videoView,
-            {paddingHorizontal: isDesktop ? 32 : 10, paddingVertical: 10},
+            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
           ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (

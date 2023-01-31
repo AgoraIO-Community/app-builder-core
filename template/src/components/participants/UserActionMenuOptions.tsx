@@ -40,7 +40,6 @@ interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
-  isMobile: boolean;
   btnRef: any;
   from: 'partcipant' | 'screenshare-participant' | 'video-tile';
 }

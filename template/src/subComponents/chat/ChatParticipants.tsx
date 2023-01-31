@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -35,21 +35,10 @@ const ChatParticipants = (props: any) => {
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
-  const {height, width} = useWindowDimensions();
   const {renderList, activeUids} = useRender();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
-  const isChatUser = (userId: UidType, userInfo: any) => {
-    return (
-      userId !== localUid && //user can't chat with own user
-      // @ts-ignore
-      userId !== '1' && //user can't chat with pstn user
-      userInfo?.type === 'rtc' &&
-      !userInfo?.offline
-    );
-  };
   const isMobile = isMobileUA();
-  const [isHoveredUid, setIsHoveredUid] = React.useState(0);
   return (
     <ScrollView>
       {activeUids && activeUids.length === 1 ? (
@@ -61,87 +50,106 @@ const ChatParticipants = (props: any) => {
       ) : (
         <></>
       )}
-      {Object.entries(renderList).map(([uid, value]) => {
-        const uidAsNumber = parseInt(uid);
-
-        if (isChatUser(uidAsNumber, value)) {
+      {Object.keys(renderList)
+        .map((i) => parseInt(i))
+        .filter((i) => {
+          try {
+            if (isNaN(i)) {
+              return false;
+            } else {
+              const userId = i;
+              const userInfo = renderList[userId];
+              return (
+                userId !== localUid && //user can't chat with own user
+                // @ts-ignore
+                userId !== '1' && //user can't chat with pstn user
+                userInfo?.type === 'rtc' &&
+                !userInfo?.offline
+              );
+            }
+          } catch (error) {
+            return false;
+          }
+        })
+        .sort((a, b) => {
+          return (
+            renderList[b]?.lastMessageTimeStamp -
+            renderList[a]?.lastMessageTimeStamp
+          );
+        })
+        .map((uid) => {
+          const uidAsNumber = uid;
           const name = renderList[uidAsNumber]
             ? renderList[uidAsNumber].name + ''
             : remoteUserDefaultLabel;
           return (
-            <PlatformWrapper
-              isHoveredUid={isHoveredUid}
-              setIsHoveredUid={setIsHoveredUid}
-              key={uid}
-              uid={uidAsNumber}>
-              <Pressable
-                onPress={() => {
-                  selectUser(uidAsNumber);
-                }}
-                // style={{width: '100%', height: '100%'}}>
-              >
-                <View style={style.participantContainer}>
-                  <View style={style.bgContainerStyle}>
-                    <UserAvatar
-                      name={name}
-                      containerStyle={style.userAvatarContainer}
-                      textStyle={style.userAvatarText}
-                    />
-                  </View>
-                  <View style={style.participantTextContainer}>
-                    <Text numberOfLines={1} style={[style.participantText]}>
-                      {name}
-                    </Text>
-                  </View>
-                  {isHoveredUid !== uidAsNumber ? (
-                    unreadIndividualMessageCount &&
-                    unreadIndividualMessageCount[uidAsNumber] ? (
-                      <>
-                        <View style={style.chatNotificationPrivate}>
-                          <Text style={style.chatNotificationCountText}>
-                            {unreadIndividualMessageCount[uidAsNumber]}
-                          </Text>
-                        </View>
-                        <Spacer size={20} horizontal={true} />
-                      </>
-                    ) : isMobile ? (
-                      <ChatIcon />
-                    ) : (
-                      <Spacer size={20} horizontal={true} />
-                    )
-                  ) : (
-                    <ChatIcon />
-                  )}
-                </View>
-              </Pressable>
+            <PlatformWrapper key={'chat-participant' + uid}>
+              {(isHovered: boolean) => {
+                return (
+                  <Pressable
+                    onPress={() => {
+                      selectUser(uidAsNumber);
+                    }}>
+                    <View style={style.participantContainer}>
+                      <View style={style.bgContainerStyle}>
+                        <UserAvatar
+                          name={name}
+                          containerStyle={style.userAvatarContainer}
+                          textStyle={style.userAvatarText}
+                        />
+                      </View>
+                      <View style={style.participantTextContainer}>
+                        <Text numberOfLines={1} style={[style.participantText]}>
+                          {name}
+                        </Text>
+                      </View>
+                      {unreadIndividualMessageCount &&
+                      unreadIndividualMessageCount[uidAsNumber] &&
+                      !isHovered ? (
+                        <>
+                          <View style={style.chatNotificationPrivate}>
+                            <Text style={style.chatNotificationCountText}>
+                              {unreadIndividualMessageCount[uidAsNumber]}
+                            </Text>
+                          </View>
+                          <Spacer size={20} horizontal={true} />
+                        </>
+                      ) : isMobile || isHovered ? (
+                        <ChatIcon />
+                      ) : (
+                        <></>
+                      )}
+                    </View>
+                  </Pressable>
+                );
+              }}
             </PlatformWrapper>
           );
-        }
-      })}
+        })}
     </ScrollView>
   );
 };
 
-const PlatformWrapper = ({children, isHoveredUid, setIsHoveredUid, uid}) => {
+const PlatformWrapper = ({children}) => {
+  const [isHovered, setIsHovered] = useState(false);
   return isWebInternal() && !isMobileUA() ? (
     <div
       style={{
-        backgroundColor:
-          isHoveredUid === uid
-            ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%']
-            : 'transparent',
-        cursor: isHoveredUid === uid ? 'pointer' : 'auto',
+        backgroundColor: isHovered
+          ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%']
+          : 'transparent',
+        cursor: isHovered ? 'pointer' : 'auto',
       }}
       onMouseEnter={() => {
-        setIsHoveredUid(uid);
+        setIsHovered(true);
       }}
       onMouseLeave={() => {
-        setIsHoveredUid(0);
+        setIsHovered(false);
       }}>
-      {children}
+      {children(isHovered)}
     </div>
   ) : (
-    <>{children}</>
+    <>{children(false)}</>
   );
 };
 

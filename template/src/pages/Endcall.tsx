@@ -32,7 +32,7 @@ const Endcall = () => {
     StopForegroundService();
   }, []);
 
-  const isDesktop = useIsDesktop()();
+  const isDesktop = useIsDesktop();
 
   const reJoin = () => {
     StopForegroundService();
@@ -44,7 +44,10 @@ const Endcall = () => {
   return (
     <View style={styles.main}>
       <View
-        style={[styles.contentContainer, isDesktop && {alignItems: 'center'}]}>
+        style={[
+          styles.contentContainer,
+          isDesktop() && {alignItems: 'center'},
+        ]}>
         <View style={{alignSelf: 'center'}}>
           <Logo />
         </View>
@@ -52,21 +55,21 @@ const Endcall = () => {
         <Text
           style={[
             styles.heading,
-            !isDesktop && {fontSize: 20, lineHeight: 25},
+            !isDesktop() && {fontSize: 20, lineHeight: 25},
           ]}>
           {leftMeetingLabel}
         </Text>
         <Spacer size={40} />
         <View
-          style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
+          style={isDesktop() ? styles.btnContainer : styles.btnContainerMobile}>
           <TertiaryButton
             containerStyle={{
               height: 60,
               paddingHorizontal: 34,
               paddingVertical: 20,
               borderRadius: 8,
-              minWidth: isDesktop ? 'auto' : '100%',
-              marginRight: isDesktop ? 12 : 0,
+              minWidth: isDesktop() ? 'auto' : '100%',
+              marginRight: isDesktop() ? 12 : 0,
             }}
             textStyle={styles.btnText}
             text={rejoinBtnLabel}
@@ -78,8 +81,8 @@ const Endcall = () => {
           <PrimaryButton
             containerStyle={{
               height: 60,
-              minWidth: isDesktop ? 'auto' : '100%',
-              marginBottom: isDesktop ? 0 : 20,
+              minWidth: isDesktop() ? 'auto' : '100%',
+              marginBottom: isDesktop() ? 0 : 20,
               paddingHorizontal: 30,
               paddingVertical: 20,
             }}

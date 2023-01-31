@@ -167,7 +167,7 @@ const BREAKPOINTS = {
   sm: 576,
   md: 768,
   lg: 992,
-  xl: 1200,
+  xl: 1330,
   xxl: 1400,
 };
 
@@ -175,36 +175,28 @@ const useIsDesktop = () => {
   const {width, height} = useWindowDimensions();
   return (from: 'default' | 'toolbar' | 'popup' = 'default') => {
     if (from === 'default') {
-      return width > height + 150 ? true : false;
+      return width > height ? true : false;
     } else if (from === 'toolbar') {
-      return width > 1224;
+      return width > BREAKPOINTS.xl;
     } else if (from === 'popup') {
-      return width > 675;
+      return width > BREAKPOINTS.md;
     }
     return width >= BREAKPOINTS.xl;
   };
 };
 const useIsSmall = () => {
   const {width} = useWindowDimensions();
-  return () => {
-    return width < 700;
-  };
-};
-const useIsMobile = () => {
-  const {width} = useWindowDimensions();
-  return () => {
-    return width <= 576;
+  return (number = BREAKPOINTS.sm) => {
+    return width < number;
   };
 };
 
-const MOBILE_BREAK_POINT = 360;
-const TABLET_BREAK_POINT = 740;
 const useResponsive = () => {
   const {width} = useWindowDimensions();
   return (input: number) => {
-    if (width < MOBILE_BREAK_POINT) {
+    if (width < BREAKPOINTS.xs) {
       return input / 3;
-    } else if (width < TABLET_BREAK_POINT) {
+    } else if (width < BREAKPOINTS.md) {
       return input / 2;
     } else {
       return input;
@@ -212,10 +204,9 @@ const useResponsive = () => {
   };
 };
 export {
-  useIsMobile,
   useIsDesktop,
   useIsSmall,
-  //BREAKPOINTS,
+  BREAKPOINTS,
   useHasBrandLogo,
   isMobileUA,
   isAndroid,

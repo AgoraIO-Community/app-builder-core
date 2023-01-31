@@ -11,9 +11,9 @@
 */
 import {createHook} from 'customization-implementation';
 import React, {useState, useEffect, useRef} from 'react';
-import {useRender} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useLocalUid, UidType} from '../../../agora-rn-uikit';
+import {useLocalUid, UidType, RenderInterface} from '../../../agora-rn-uikit';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {useChatUIControl} from '../chat-ui/useChatUIControl';
@@ -63,6 +63,7 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
+  const {dispatch} = useRtc();
   const {renderList} = useRender();
   const localUid = useLocalUid();
   const {setSidePanel} = useSidePanel();
@@ -121,6 +122,13 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     setSelectedChatUserId(uidAsNumber);
     setPrivateActive(true);
     setSidePanel(SidePanelType.Chat);
+  };
+
+  const updateRenderListState = (
+    uid: number,
+    data: Partial<RenderInterface>,
+  ) => {
+    dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
 
   React.useEffect(() => {
@@ -240,6 +248,14 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       const messageData = payload.value;
       switch (messageAction) {
         case ChatMessageActionEnum.Create:
+          //To order chat participant based on recent message
+          try {
+            updateRenderListState(data.sender, {
+              lastMessageTimeStamp: new Date().getTime(),
+            });
+          } catch (error) {
+            console.log("ERROR : couldn't update the last message timestamp");
+          }
           showMessageNotification(messageData.msg, `${data.sender}`, true);
           addMessageToPrivateStore(
             data.sender,

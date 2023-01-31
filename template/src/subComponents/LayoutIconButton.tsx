@@ -8,6 +8,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isMobileUA} from '../utils/common';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {useWindowDimensions} from 'react-native';
+import {useRender} from 'customization-api';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -15,6 +16,7 @@ interface LayoutIconButtonInterface {
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+  const {activeUids} = useRender();
   const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
@@ -88,6 +90,10 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
             }
           }}>
           <IconButton
+            disabled={!activeUids || activeUids.length === 0}
+            containerStyle={{
+              opacity: !activeUids || activeUids.length === 0 ? 0.6 : 1,
+            }}
             setRef={(ref) => {
               layoutBtnRef.current = ref;
             }}
@@ -108,18 +114,24 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       {/**
        * Based on the flag. it will render the dropdown
        */}
-      <PlatformWrapperPopup
-        setIsHovered={isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal}>
-        <LayoutIconDropdown
-          modalPosition={modalPosition}
-          showDropdown={
-            isMobileOrTablet() ? isHovered : isHovered || isHoveredOnModal
-          }
-          setShowDropdown={
+      {activeUids && activeUids.length ? (
+        <PlatformWrapperPopup
+          setIsHovered={
             isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
-          }
-        />
-      </PlatformWrapperPopup>
+          }>
+          <LayoutIconDropdown
+            modalPosition={modalPosition}
+            showDropdown={
+              isMobileOrTablet() ? isHovered : isHovered || isHoveredOnModal
+            }
+            setShowDropdown={
+              isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
+            }
+          />
+        </PlatformWrapperPopup>
+      ) : (
+        <></>
+      )}
       {/**
        * If layout contains more than 2 data. it will render the dropdown.
        */}
