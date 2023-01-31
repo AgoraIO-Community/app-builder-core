@@ -323,15 +323,7 @@ const Precall = () => {
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            style.main,
-            isDesktop()
-              ? {
-                  flexGrow: 1,
-                  justifyContent: 'center',
-                }
-              : {},
-          ]}
+          contentContainerStyle={[style.main]}
           testID="precall-screen">
           <>
             <MeetingName textStyle={{textAlign: 'left'}} />
@@ -397,7 +389,6 @@ const style = StyleSheet.create({
   },
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
   main: {
-    flex: 1,
     padding: 32,
   },
   leftContentHorizontal: {
