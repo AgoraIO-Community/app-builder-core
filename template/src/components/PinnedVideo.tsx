@@ -13,147 +13,103 @@ import React, {useState} from 'react';
 import {
   ScrollView,
   View,
+  Dimensions,
   StyleSheet,
+  Text,
   Pressable,
-  FlatList,
-  useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {layoutComponent, useRender, useRtc} from 'customization-api';
+import {layoutComponent, useRtc} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
-import IconButton from '../atoms/IconButton';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid} = useRender();
   const [collapse, setCollapse] = useState(false);
-  const {width, height} = useWindowDimensions();
-  const isDesktop = width > BREAKPOINTS.xl;
-  const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
+  const [dim, setDim] = useState<[number, number, boolean]>([
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+    Dimensions.get('window').width > Dimensions.get('window').height,
+  ]);
+  let onLayout = () => {
+    setTimeout(() => {
+      let {height, width} = Dimensions.get('window');
+      let isLandscape = width > height;
+      setDim([width, height, isLandscape]);
+    }, 20);
+  };
+  const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
   const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
-
-  // item render fn for Flatlist
-  const rendeOtherParticipants = ({item}) => {
-    const minUid = item;
-    if (minUid !== pinnedUid) {
-      return (
-        <Pressable
-          style={
-            isSidePinnedlayout
-              ? {
-                  width: '100%',
-                  height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                  zIndex: 40,
-                  paddingBottom: 8,
-                }
-              : {
-                  width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                  height: '100%',
-                  zIndex: 40,
-                  paddingRight: 8,
-                  paddingVertical: 4,
-                }
-          }
-          key={'minVideo' + minUid}
-          onPress={() => {
-            dispatch({type: 'SwapVideo', value: [minUid]});
-          }}>
-          <RenderComponent uid={minUid} />
-        </Pressable>
-      );
-    }
-  };
 
   return (
     <View
       style={{
         flexDirection: isSidePinnedlayout ? 'row' : 'column',
         flex: 1,
-      }}>
+        padding: 4,
+      }}
+      onLayout={onLayout}>
+      {isSidePinnedlayout && (
+        <Pressable
+          onPress={() => setCollapse(!collapse)}
+          style={{
+            position: 'absolute',
+            zIndex: 50,
+            marginTop: 5,
+            width: 35,
+            height: 35,
+            marginLeft: collapse ? 5 : '20.1%',
+            backgroundColor: $config.SECONDARY_ACTION_COLOR + 'aa',
+            borderRadius: 50,
+            justifyContent: 'center',
+          }}>
+          <Text
+            style={{
+              alignSelf: 'center',
+              justifyContent: 'center',
+              color: $config.PRIMARY_ACTION_BRAND_COLOR,
+              fontWeight: '500',
+              fontSize: 20,
+            }}>
+            {collapse ? '>' : '<'}
+          </Text>
+        </Pressable>
+      )}
       {!collapse && (
-        <View
+        <ScrollView
+          horizontal={!isSidePinnedlayout}
+          decelerationRate={0}
           style={
             isSidePinnedlayout
-              ? {
-                  width: '20%',
-                  paddingRight: 8,
-                }
-              : {flex: 1, minHeight: 108}
+              ? {width: '20%', paddingHorizontal: 8}
+              : {flex: 1}
           }>
-          {pinnedUid && pinnedUid !== maxUid ? (
+          {minUids.map((minUid, i) => (
             <Pressable
-              disabled={renderData?.length === 1}
               style={
                 isSidePinnedlayout
                   ? {
                       width: '100%',
-                      height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                      height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                       zIndex: 40,
                       paddingBottom: 8,
                     }
                   : {
-                      width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                      width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
                       height: '100%',
                       zIndex: 40,
                       paddingRight: 8,
                       paddingVertical: 4,
                     }
               }
-              key={'minVideo' + maxUid}
+              key={'minVideo' + i}
               onPress={() => {
-                dispatch({type: 'SwapVideo', value: [maxUid]});
+                dispatch({type: 'SwapVideo', value: [minUid]});
               }}>
-              <RenderComponent uid={maxUid} />
+              <RenderComponent uid={minUid} />
             </Pressable>
-          ) : (
-            <></>
-          )}
-
-          {/* Renders Rest of Participants in Side/Top */}
-          <FlatList
-            horizontal={!isSidePinnedlayout}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            data={minUids}
-            keyExtractor={(id) => id.toString()}
-            renderItem={rendeOtherParticipants}
-          />
-
-          {/* Pinned Video Top / Side */}
-          {/*      
-          {minUids
-            .filter((i) => i !== pinnedUid)
-            .map((minUid, i) => (
-              <Pressable
-                style={
-                  isSidePinnedlayout
-                    ? {
-                        width: '100%',
-                        height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                        zIndex: 40,
-                        //pinned video last element should have space at bottom
-                        paddingBottom: minUids?.length - 1 === i ? 0 : 8,
-                      }
-                    : {
-                        width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                        height: '100%',
-                        zIndex: 40,
-                        paddingRight: 8,
-                        paddingVertical: 4,
-                      }
-                }
-                key={'minVideo' + i}
-                onPress={() => {
-                  dispatch({type: 'SwapVideo', value: [minUid]});
-                }}>
-                <RenderComponent uid={minUid} />
-              </Pressable>
-            ))}
-        */}
-        </View>
+          ))}
+        </ScrollView>
       )}
       <View
         style={
@@ -164,67 +120,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             : style.flex4
         }>
         <View style={style.flex1} key={'maxVideo' + maxUid}>
-          {isSidePinnedlayout && (
-            <IconButton
-              containerStyle={{
-                position: 'absolute',
-                top: 8,
-                left: 8,
-                zIndex: 999,
-              }}
-              onPress={() => setCollapse(!collapse)}
-              iconProps={{
-                iconContainerStyle: {
-                  padding: 8,
-                  backgroundColor:
-                    $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
-                },
-                name: collapse ? 'collapse' : 'expand',
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-                iconSize: 24,
-              }}
-            />
-          )}
-          {pinnedUid ? (
-            <IconButton
-              containerStyle={{
-                paddingHorizontal: 8,
-                paddingVertical: 10,
-                backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
-                borderRadius: 8,
-                flexDirection: 'row',
-                position: 'absolute',
-                top: 12,
-                left: 12 + (isSidePinnedlayout ? 32 + 12 + 12 : 0),
-                zIndex: 999,
-              }}
-              iconProps={{
-                iconType: 'plain',
-                iconContainerStyle: {
-                  padding: 0,
-                },
-                name: 'unpin-filled',
-                iconSize: 20,
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-              }}
-              onPress={() => {
-                dispatch({type: 'UserPin', value: [0]});
-              }}
-              btnTextProps={{
-                text: 'Unpin',
-                textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-                textStyle: {marginTop: 0, marginLeft: 6, fontWeight: '700'},
-              }}
-            />
-          ) : (
-            <></>
-          )}
-          {/* Renders Pinned User */}
-          {pinnedUid ? (
-            <RenderComponent uid={pinnedUid} isMax={true} />
-          ) : (
-            <RenderComponent uid={maxUid} isMax={true} />
-          )}
+          <RenderComponent uid={maxUid} />
         </View>
       </View>
     </View>
@@ -235,7 +131,7 @@ const style = StyleSheet.create({
   width80: {width: '80%'},
   width100: {width: '100%'},
   flex2: {flex: 2},
-  flex4: {flex: 4},
+  flex4: {flex: 4, backgroundColor: '#ffffff00'},
   flex1: {flex: 1},
 });
 
