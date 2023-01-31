@@ -54,7 +54,7 @@ const useStyles = () => {
       shadowOffset: {width: 0, height: 4},
       shadowOpacity: 0.1,
       shadowRadius: 20,
-      marginHorizontal: getResponsiveValue(40),
+      margin: getResponsiveValue(40),
     },
   });
 };

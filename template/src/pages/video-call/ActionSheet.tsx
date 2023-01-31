@@ -16,6 +16,8 @@ import SettingsView from '../../components/SettingsView';
 
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
+import ToastComponent from '../../components/ToastComponent';
+import {isMobileUA} from '../../utils/common';
 
 const ActionSheet = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -26,7 +28,7 @@ const ActionSheet = () => {
   const chatSheetRef = useRef<BottomSheetRef>(null);
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
-
+  const ToastComponentRender = isMobileUA() ? <ToastComponent /> : <></>;
   const {sidePanel, setSidePanel} = useSidePanel();
   const [showOverlay, setShowOverlay] = React.useState(false);
   const handleSheetChanges = useCallback((index: number) => {
@@ -138,6 +140,7 @@ const ActionSheet = () => {
         </BottomSheet>
         {/* Chat  Action Sheet */}
         <BottomSheet
+          sibling={ToastComponentRender}
           ref={chatSheetRef}
           onDismiss={onDismiss}
           open={isChatOpen}
@@ -149,6 +152,7 @@ const ActionSheet = () => {
         </BottomSheet>
         {/* Participants Action Sheet */}
         <BottomSheet
+          sibling={ToastComponentRender}
           ref={participantsSheetRef}
           onDismiss={onDismiss}
           open={isParticipantsOpen}
@@ -160,6 +164,7 @@ const ActionSheet = () => {
         </BottomSheet>
         {/* Settings  Action Sheet */}
         <BottomSheet
+          sibling={ToastComponentRender}
           ref={settingsSheetRef}
           onDismiss={onDismiss}
           open={isSettingsOpen}

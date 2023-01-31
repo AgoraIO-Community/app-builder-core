@@ -39,7 +39,6 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   return (
     <IconButton
       iconProps={{
-        base64: true,
         name: isHandRasied ? 'lower-hand' : 'raise-hand',
         tintColor: isHandRasied
           ? $config.PRIMARY_ACTION_TEXT_COLOR
