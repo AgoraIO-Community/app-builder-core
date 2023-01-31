@@ -82,7 +82,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           style={
             isSidePinnedlayout
               ? {width: '20%', paddingHorizontal: 8}
-              : {flex: 1}
+              : {flex: 1, minHeight: 108}
           }>
           {minUids.map((minUid, i) => (
             <Pressable

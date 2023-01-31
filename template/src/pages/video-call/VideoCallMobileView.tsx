@@ -47,7 +47,7 @@ const VideoCallMobileView = () => {
       <View style={styles.videoView}>
         <VideoComponent />
       </View>
-      {/* <ActionSheet /> */}
+      <ActionSheet />
     </View>
   );
 };
@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 20,
     flex: 1,
+    flexDirection: 'column',
   },
   title: {
     fontSize: ThemeConfig.FontSize.normal,
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
   },
   videoView: {
     flex: 0.8,
+    flexDirection: 'row',
   },
   titleBar: {
     flexDirection: 'column',
