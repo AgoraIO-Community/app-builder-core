@@ -68,6 +68,7 @@ const Create = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [roomTitle, onChangeRoomTitle] = useState('');
+  const [randomRoomTitle, setRandomRoomTitle] = useState('');
   const [pstnToggle, setPstnToggle] = useState(false);
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
@@ -109,6 +110,13 @@ const Create = () => {
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
+    //Generating the random room title for placeholder
+    setRandomRoomTitle(
+      `${randomNameGenerator(3)}-${randomNameGenerator(
+        3,
+      )}-${randomNameGenerator(3)}`,
+    );
+
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
@@ -244,14 +252,17 @@ const Create = () => {
                   labelStyle={style.inputLabelStyle}
                   label={getInputLabel()}
                   value={roomTitle}
-                  placeholder={meetingNameInputPlaceholder}
-                  onChangeText={(text) => onChangeRoomTitle(text)}
+                  placeholder={randomRoomTitle}
+                  onChangeText={(text) =>
+                    onChangeRoomTitle(text ? text.trim() : text)
+                  }
                   onSubmitEditing={() => {
                     if (!$config.BACKEND_ENDPOINT) {
                       showError();
                     } else {
+                      !roomTitle && onChangeRoomTitle(randomRoomTitle);
                       createRoomAndNavigateToShare(
-                        roomTitle,
+                        roomTitle || randomRoomTitle,
                         pstnToggle,
                         !coHostToggle,
                       );
@@ -335,15 +346,9 @@ const Create = () => {
                     if (!$config.BACKEND_ENDPOINT) {
                       showError();
                     } else {
-                      let randomMeetingName = '';
-                      if (!roomTitle) {
-                        randomMeetingName = `${randomNameGenerator(
-                          3,
-                        )}-${randomNameGenerator(3)}-${randomNameGenerator(3)}`;
-                        onChangeRoomTitle(randomMeetingName);
-                      }
+                      !roomTitle && onChangeRoomTitle(randomRoomTitle);
                       createRoomAndNavigateToShare(
-                        roomTitle || randomMeetingName,
+                        roomTitle || randomRoomTitle,
                         pstnToggle,
                         !coHostToggle,
                       );
