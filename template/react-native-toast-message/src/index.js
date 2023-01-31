@@ -68,10 +68,10 @@ const getInitialState = ({
 });
 
 class Toast extends Component {
-  static _ref = null;
+  static _ref = [];
 
   static setRef(ref = {}) {
-    Toast._ref = ref;
+    Toast._ref.push(ref);
   }
 
   static getRef() {
@@ -79,15 +79,15 @@ class Toast extends Component {
   }
 
   static clearRef() {
-    Toast._ref = null;
+    Toast._ref = [];
   }
 
   static show(options = {}) {
-    Toast._ref.show(options);
+    Toast._ref.map((i) => i?.show(options));
   }
 
   static hide() {
-    Toast._ref.hide({ forceHide: true });
+    Toast._ref.map((i) => i?.hide({ forceHide: true }));
   }
 
   constructor(props) {
