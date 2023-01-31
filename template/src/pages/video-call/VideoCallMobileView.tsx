@@ -47,7 +47,7 @@ const VideoCallMobileView = () => {
       <View style={styles.videoView}>
         <VideoComponent />
       </View>
-      <ActionSheet />
+      {/* <ActionSheet /> */}
     </View>
   );
 };
