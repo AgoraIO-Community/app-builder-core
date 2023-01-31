@@ -32,7 +32,6 @@ const Popup = (props: PopupProps) => {
     showCloseIcon,
     ...otherProps
   } = props;
-  const isMobileInvitePopup = isMobileUA() && showCloseIcon;
   const isDesktop = useIsDesktop()('popup');
 
   return (
@@ -62,26 +61,26 @@ const Popup = (props: PopupProps) => {
             <View style={styles.header}>
               <Text style={styles.title}>{title}</Text>
               {showCloseIcon ? (
-                <IconButton
-                  hoverEffect={true}
-                  hoverEffectStyle={{
-                    backgroundColor: $config.ICON_BG_COLOR,
-                    borderRadius: 20,
-                  }}
-                  iconProps={{
-                    iconType: 'plain',
-                    iconContainerStyle: {
-                      padding: 5,
-                      marginRight: isMobileInvitePopup ? -20 : 0,
-                      marginTop: isMobileInvitePopup ? -20 : 0,
-                    },
-                    name: 'close',
-                    tintColor: $config.SECONDARY_ACTION_COLOR,
-                  }}
-                  onPress={() => {
-                    setModalVisible(false);
-                  }}
-                />
+                <View>
+                  <IconButton
+                    hoverEffect={true}
+                    hoverEffectStyle={{
+                      backgroundColor: $config.ICON_BG_COLOR,
+                      borderRadius: 20,
+                    }}
+                    iconProps={{
+                      iconType: 'plain',
+                      iconContainerStyle: {
+                        padding: isMobileUA() ? 0 : 5,
+                      },
+                      name: 'close',
+                      tintColor: $config.SECONDARY_ACTION_COLOR,
+                    }}
+                    onPress={() => {
+                      setModalVisible(false);
+                    }}
+                  />
+                </View>
               ) : (
                 <></>
               )}
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 32,
   },
   title: {
@@ -143,5 +142,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 24,
     fontWeight: '600',
+    flex: 0.9,
   },
 });
