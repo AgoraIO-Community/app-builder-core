@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useMemo} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {
   PropsContext,
@@ -26,6 +26,7 @@ import Dropdown from '../atoms/Dropdown';
 import {usePreCall} from '../components/precall/usePreCall';
 import ThemeConfig from '../theme';
 import {randomNameGenerator} from '../utils';
+import pendingStateUpdateHelper from '../utils/pendingStateUpdateHelper';
 // import {dropdown} from '../../theme.json';
 /**
  * A component to diplay a dropdown and select a device.
@@ -62,30 +63,26 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const [data, setData] = useState([]);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
-  useEffect(() => {
-    setDataValue();
-  }, []);
-  useEffect(() => {
-    setDataValue();
-  }, [deviceList]);
 
-  const setDataValue = () => {
-    const data = deviceList
-      .filter((device: any) => {
+  const data = useMemo(() => {
+    return deviceList
+      .filter((device) => {
         if (device.kind === 'videoinput') {
           return true;
         }
       })
-      ?.map((device) => {
-        return {
-          label: device.label,
-          value: device.deviceId,
-        };
+      ?.map((device: any) => {
+        if (device.kind === 'videoinput') {
+          return {
+            label: device.label,
+            value: device.deviceId,
+          };
+        }
       });
-    setData(data);
-  };
+  }, [deviceList]);
+
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
@@ -95,7 +92,13 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     <>
       <Text style={style.label}>Camera</Text>
       <Dropdown
-        icon={props?.isIconDropdown ? 'video-on' : undefined}
+        icon={
+          isPendingUpdate
+            ? 'connection-loading'
+            : props?.isIconDropdown
+            ? 'mic-on'
+            : undefined
+        }
         enabled={!isPickerDisabled}
         label={
           !isPermissionGranted || !data || !data.length
@@ -105,7 +108,14 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedCam(value);
+          try {
+            pendingStateUpdateHelper(
+              async () => await setSelectedCam(value),
+              setIsPendingUpdate,
+            );
+          } catch (e) {
+            setIsPendingUpdate(false);
+          }
         }}
         selectedValue={selectedCam}
       />
@@ -126,18 +136,12 @@ interface SelectAudioDeviceProps {
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
-  const [isFocussed, setIsFocussed] = React.useState(false);
-  const [data, setData] = useState([]);
+  const [isFocussed, setIsFocussed] = useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
-  useEffect(() => {
-    setDataValue();
-  }, []);
-  useEffect(() => {
-    setDataValue();
-  }, [deviceList]);
 
-  const setDataValue = () => {
-    const data = deviceList
+  const data = useMemo(() => {
+    return deviceList
       .filter((device) => {
         if (device.kind === 'audioinput') {
           return true;
@@ -151,8 +155,8 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
           };
         }
       });
-    setData(data);
-  };
+  }, [deviceList]);
+
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
@@ -162,8 +166,14 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     <View>
       <Text style={style.label}>Microphone</Text>
       <Dropdown
-        icon={props?.isIconDropdown ? 'mic-on' : undefined}
-        enabled={!isPickerDisabled}
+        icon={
+          isPendingUpdate
+            ? 'connection-loading'
+            : props?.isIconDropdown
+            ? 'mic-on'
+            : undefined
+        }
+        enabled={!isPickerDisabled && !isPendingUpdate}
         selectedValue={selectedMic}
         label={
           !isPermissionGranted || !data || !data.length
@@ -173,7 +183,14 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedMic(value);
+          try {
+            pendingStateUpdateHelper(
+              async () => await setSelectedMic(value),
+              setIsPendingUpdate,
+            );
+          } catch (e) {
+            setIsPendingUpdate(false);
+          }
         }}
       />
     </View>
@@ -196,24 +213,17 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    setDataValue();
-  }, []);
 
-  useEffect(() => {
-    setDataValue();
-  }, [deviceList]);
-
-  const setDataValue = () => {
-    let data = deviceList
+  const data = useMemo(() => {
+    return deviceList
       .filter((device) => {
         if (device.kind === 'audiooutput') {
           return true;
         }
       })
-      ?.map((device: any) => {
+      ?.map((device) => {
         if (device.kind === 'audiooutput') {
           return {
             label: device.label,
@@ -221,8 +231,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           };
         }
       });
-    setData(data);
-  };
+  }, [deviceList]);
 
   return props?.render ? (
     props.render(
@@ -238,8 +247,14 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
         local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
       (!data || data.length === 0) ? (
         <Dropdown
-          icon={props?.isIconDropdown ? 'speaker' : undefined}
-          enabled={!isPickerDisabled}
+          icon={
+            isPendingUpdate
+              ? 'connection-loading'
+              : props?.isIconDropdown
+              ? 'speaker'
+              : undefined
+          }
+          enabled={!isPickerDisabled && !isPendingUpdate}
           selectedValue={newRandomDeviceId}
           label={''}
           data={[
@@ -250,6 +265,14 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           ]}
           onSelect={({label, value}) => {
             setIsFocussed(true);
+            try {
+              pendingStateUpdateHelper(
+                async () => await setSelectedSpeaker(value),
+                setIsPendingUpdate,
+              );
+            } catch (e) {
+              setIsPendingUpdate(false);
+            }
           }}
         />
       ) : (

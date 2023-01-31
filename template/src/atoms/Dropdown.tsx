@@ -46,6 +46,7 @@ const Dropdown: FC<Props> = ({
   }, []);
 
   useEffect(() => {
+    console.log('Device testing neo: Selected value updated', selectedValue);
     if (selectedValue && data && data.length) {
       const selectedItem = data?.filter((i) => i.value == selectedValue);
       if (selectedItem && selectedItem.length) {
@@ -75,7 +76,8 @@ const Dropdown: FC<Props> = ({
   };
 
   const onItemPress = (item): void => {
-    setSelected(item);
+    // // Dropdown should rely on the provided
+    // setSelected(item);
     onSelect(item);
     setVisible(false);
   };
