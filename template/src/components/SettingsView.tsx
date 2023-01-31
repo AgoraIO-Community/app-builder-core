@@ -240,6 +240,7 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = (props) => {
+  const {hideName = false} = props;
   const isSmall = useIsSmall();
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
@@ -271,7 +272,7 @@ const SettingsView = (props) => {
         }}
       />
       <ScrollView style={style.contentContainer}>
-        <EditName />
+        {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />
       </ScrollView>

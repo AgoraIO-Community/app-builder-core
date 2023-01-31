@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect} from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
@@ -262,11 +262,6 @@ const Precall = (props: any) => {
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 
-  const [dim, setDim] = useState<[number, number]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-  ]);
-
   //permission helper modal show/hide
   const [isVisible, setIsVisible] = useState(false);
   const {store} = useContext(StorageContext);
@@ -317,89 +312,38 @@ const Precall = (props: any) => {
     return undefined;
   });
 
-  const onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-  const isMobileView = dim[0] < 700;
-  const isDesktop = !isMobileView;
-
   if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
     <>
       <PrecallBeforeView />
-      <View
-        style={isDesktop ? style.main : style.mainMobile}
-        onLayout={onLayout}
-        testID="precall-screen">
-        {/* Precall screen only changes for audience in Live Stream event */}
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          // Live (Audience) - Desktop
-          isDesktop ? (
-            <View>
-              <Card style={{borderRadius: 4}}>
-                <View>
-                  <MeetingName textStyle={style.meetingTitleStyle} />
-                </View>
-                <Spacer size={32} />
-                <JoinRoomInputView isDesktop={isDesktop} />
-              </Card>
-            </View>
-          ) : (
+      <View style={{flex: 1}}>
+        <ScrollView
+          contentContainerStyle={style.mainMobile}
+          testID="precall-screen">
+          {/* Precall screen only changes for audience in Live Stream event */}
+          {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
             //  Live (Audience) - Mobile
             <View style={{flex: 1}}>
               <MeetingName textStyle={style.meetingTitleStyle} />
               <Spacer size={24} />
               <View testID="precall-mobile-join" style={{flex: 1}}>
-                <JoinRoomInputView isDesktop={isDesktop} />
+                <JoinRoomInputView isDesktop={false} />
               </View>
             </View>
-          )
-        ) : (
-          // Conferncing / Live (Host)
-          <>
-            <MeetingName
-              textStyle={{textAlign: isDesktop ? 'left' : 'center'}}
-            />
-            <Spacer size={isDesktop ? 32 : 24} />
-            {isDesktop ? (
-              // Conferncing / Live(Host) - Desktop
-              <>
-                <View style={[style.container]}>
-                  <View
-                    testID="precall-preview"
-                    style={[style.leftContent, style.boxStyle]}>
-                    <VideoPreview isMobileView={false} />
-                  </View>
-                  <Spacer size={24} horizontal={true} />
-                  <Card style={style.rightContent}>
-                    <View style={style.rightInputContent}>
-                      <JoinRoomName isDesktop={isDesktop} />
-                      <Spacer size={32} />
-                      <DeviceSelect />
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        paddingHorizontal: 32,
-                        paddingVertical: 40,
-                      }}>
-                      <JoinRoomButton />
-                    </View>
-                  </Card>
-                </View>
-                {/* <Spacer size={90} /> */}
-              </>
-            ) : (
-              // Conferncing / Live(Host) - Mobile
+          ) : (
+            // Conferncing / Live (Host)
+            <View style={{flex: 1}}>
+              <MeetingName textStyle={{textAlign: 'center'}} />
+              <Spacer size={24} />
               <View style={{flex: 1}}>
                 <View
                   style={{
                     flex: 1,
                   }}
                   testID="precall-mobile-preview">
-                  <VideoPreview isMobileView={isMobileView} />
+                  <VideoPreview isMobileView={true} />
                 </View>
                 <Spacer size={40} />
                 <View
@@ -411,12 +355,12 @@ const Precall = (props: any) => {
                     //alignItems: 'center',
                     //justifyContent: 'center',
                   }}>
-                  <JoinRoomInputView isDesktop={isDesktop} />
+                  <JoinRoomInputView isDesktop={false} />
                 </View>
               </View>
-            )}
-          </>
-        )}
+            </View>
+          )}
+        </ScrollView>
       </View>
       <PrecallAfterView />
     </>
@@ -440,15 +384,17 @@ const style = StyleSheet.create({
   },
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
   main: {
-    flex: 2,
+    flexGrow: 1,
     padding: 32,
     justifyContent: 'center',
   },
   mainMobile: {
-    flex: 2,
+    flexGrow: 1,
+    flexDirection: 'row',
     paddingHorizontal: 16,
     paddingTop: 25,
     paddingBottom: 32,
+    justifyContent: 'center',
   },
   nav: {
     flex: 1,
