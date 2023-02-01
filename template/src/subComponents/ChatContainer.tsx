@@ -160,6 +160,7 @@ const ChatContainer = (props?: {
         <></>
       )}
       <ScrollView
+        showsVerticalScrollIndicator={false}
         ref={scrollViewRef}
         onContentSizeChange={() => {
           scrollViewRef.current?.scrollToEnd({animated: false});

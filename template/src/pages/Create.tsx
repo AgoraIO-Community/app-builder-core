@@ -241,7 +241,9 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <View style={style.root}>
-            <ScrollView contentContainerStyle={style.main}>
+            <ScrollView
+              contentContainerStyle={style.main}
+              showsVerticalScrollIndicator={false}>
               <Card>
                 <View>
                   <Logo />

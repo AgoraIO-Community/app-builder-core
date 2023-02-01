@@ -271,7 +271,9 @@ const SettingsView = (props) => {
           setSidePanel(SidePanelType.None);
         }}
       />
-      <ScrollView style={style.contentContainer}>
+      <ScrollView
+        style={style.contentContainer}
+        showsVerticalScrollIndicator={false}>
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}
         <LanguageSelector />

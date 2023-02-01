@@ -127,6 +127,7 @@ const Dropdown: FC<Props> = ({
               },
             ]}>
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={data}
               renderItem={renderItem}
               keyExtractor={(item, index) => index.toString()}

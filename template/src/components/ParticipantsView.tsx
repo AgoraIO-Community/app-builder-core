@@ -94,7 +94,9 @@ const ParticipantView = (props) => {
           setSidePanel(SidePanelType.None);
         }}
       />
-      <ScrollView style={[style.bodyContainer]}>
+      <ScrollView
+        style={[style.bodyContainer]}
+        showsVerticalScrollIndicator={false}>
         {$config.EVENT_MODE ? (
           <>
             {

@@ -320,6 +320,7 @@ const Precall = (props: any) => {
       <PrecallBeforeView />
       <View style={{flex: 1}}>
         <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={style.mainMobile}
           testID="precall-screen">
           {/* Precall screen only changes for audience in Live Stream event */}
