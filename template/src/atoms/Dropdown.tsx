@@ -1,4 +1,11 @@
-import React, {FC, ReactElement, useEffect, useRef, useState} from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -33,9 +40,11 @@ const Dropdown: FC<Props> = ({
 }) => {
   const DropdownButton = useRef();
   const [visible, setVisible] = useState(false);
-  const [selected, setSelected] = useState(undefined);
   const [dropdownPos, setDropdownPos] = useState({top: 0, left: 0, width: 0});
   const [isHovered, setIsHovered] = React.useState(false);
+  const selected = useMemo(() => {
+    return data.find((dataItem) => dataItem.value === selectedValue);
+  }, [selectedValue, data]);
 
   useEffect(() => {
     if (isWebInternal()) {
@@ -44,16 +53,6 @@ const Dropdown: FC<Props> = ({
       });
     }
   }, []);
-
-  useEffect(() => {
-    console.log('Device testing neo: Selected value updated', selectedValue);
-    if (selectedValue && data && data.length) {
-      const selectedItem = data?.filter((i) => i.value == selectedValue);
-      if (selectedItem && selectedItem.length) {
-        setSelected(selectedItem[0]);
-      }
-    }
-  }, [selectedValue, data]);
 
   const toggleDropdown = (): void => {
     visible ? setVisible(false) : openDropdown();

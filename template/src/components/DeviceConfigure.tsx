@@ -71,11 +71,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     const currentDevice = rtc.RtcEngine.localStream[type]
       ?.getMediaStreamTrack()
       .getSettings().deviceId;
-    log(
-      `Agora ${type} Track is using`,
-      deviceList.find((d) => d.deviceId === currentDevice),
-      currentDevice,
-    );
+    log(`Agora ${type} Track is using`, currentDevice);
     return currentDevice;
   };
 
@@ -233,13 +229,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       rtc.RtcEngine.changeMic(
         deviceId,
         () => {
-          const currentMic = getAgoraTrackDeviceId('audio');
-          setUiSelectedMic(currentMic);
-          res(currentMic);
+          syncSelectedDeviceUi('audioinput');
+          res();
         },
         (e: any) => {
           console.error('DeviceConfigure: Error setting mic', e);
-          rej(getAgoraTrackDeviceId('audio'));
+          rej(e);
         },
       );
     });
@@ -251,13 +246,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       rtc.RtcEngine.changeCamera(
         deviceId,
         () => {
-          const currentCam = getAgoraTrackDeviceId('video');
-          setUiSelectedCam(currentCam);
-          res(currentCam);
+          syncSelectedDeviceUi('videoinput');
+          res();
         },
         (e: any) => {
           console.error('Device Configure: Error setting webcam', e);
-          rej(getAgoraTrackDeviceId('audio'));
+          rej(e);
         },
       );
     });
@@ -270,7 +264,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         deviceId,
         () => {
           setUiSelectedSpeaker(deviceId);
-          res(deviceId);
+          res();
         },
         (e: any) => {
           console.error('Device Configure: Error setting speaker', e);
