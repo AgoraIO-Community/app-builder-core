@@ -37,6 +37,7 @@ const useSelectDevice = (): [boolean, string] => {
   const {primaryColor} = useContext(ColorContext);
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
       setPickerDisabled(true);
@@ -46,6 +47,7 @@ const useSelectDevice = (): [boolean, string] => {
       setBtnTheme(primaryColor);
     }
   }, [rtcProps?.role]);
+
   return [isPickerDisabled, btnTheme];
 };
 
@@ -247,14 +249,8 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
         local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY) &&
       (!data || data.length === 0) ? (
         <Dropdown
-          icon={
-            isPendingUpdate
-              ? 'connection-loading'
-              : props?.isIconDropdown
-              ? 'speaker'
-              : undefined
-          }
-          enabled={!isPickerDisabled && !isPendingUpdate}
+          icon={props?.isIconDropdown ? 'speaker' : undefined}
+          enabled={!isPickerDisabled}
           selectedValue={newRandomDeviceId}
           label={''}
           data={[
@@ -277,8 +273,14 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
         />
       ) : (
         <Dropdown
-          icon={props?.isIconDropdown ? 'speaker' : undefined}
-          enabled={!isPickerDisabled}
+          icon={
+            isPendingUpdate
+              ? 'connection-loading'
+              : props?.isIconDropdown
+              ? 'speaker'
+              : undefined
+          }
+          enabled={data && data.length && !isPendingUpdate}
           selectedValue={selectedSpeaker}
           label={!data || !data.length ? 'No Speaker Detected' : ''}
           data={data}
@@ -302,21 +304,43 @@ const SelectDevice = (props: SelectDeviceProps) => {
   const {setCameraAvailable, setMicAvailable, setSpeakerAvailable} =
     usePreCall();
 
-  const audioDevices = deviceList.filter((device) => {
-    if (device.kind === 'audioinput') {
-      return true;
-    }
-  });
-  const videoDevices = deviceList.filter((device) => {
-    if (device.kind === 'videoinput') {
-      return true;
-    }
-  });
-  const speakerDevices = deviceList.filter((device) => {
-    if (device.kind === 'audiooutput') {
-      return true;
-    }
-  });
+  const [audioDevices, videoDevices, speakerDevices] = useMemo(
+    () =>
+      deviceList.reduce(
+        (prev, device) => {
+          const [audioDevices, videoDevices, speakerDevices] = prev;
+          if (device.kind === 'audioinput') {
+            audioDevices.push(device);
+          } else if (device.kind === 'videoinput') {
+            videoDevices.push(device);
+          } else if (device.kind === 'audiooutput') {
+            speakerDevices.push(device);
+          }
+
+          return [audioDevices, videoDevices, speakerDevices];
+        },
+        [[], [], []] as any,
+      ),
+    [deviceList],
+  );
+
+  // const audioDevices =
+  //     deviceList.filter((device) => {
+  //       if (device.kind === 'audioinput') {
+  //         return true;
+  //       }
+  //    });
+  //
+  // const videoDevices = deviceList.filter((device) => {
+  //   if (device.kind === 'videoinput') {
+  //     return true;
+  //   }
+  // });
+  // const speakerDevices = deviceList.filter((device) => {
+  //   if (device.kind === 'audiooutput') {
+  //     return true;
+  //   }
+  // });
 
   useEffect(() => {
     if (audioDevices && audioDevices.length) {
