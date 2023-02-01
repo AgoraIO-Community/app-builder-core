@@ -122,6 +122,7 @@ const ActionSheet = () => {
         {/* Controls Action Sheet */}
 
         <BottomSheet
+          scrollLocking={false}
           ref={bottomSheetRef}
           open={true}
           onSpringStart={handleSpringStart}
