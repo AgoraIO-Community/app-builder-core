@@ -16,7 +16,7 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
 import {useRender} from 'customization-api';
-import {calculatedPosition} from '../utils/common';
+import {calculatePosition} from '../utils/common';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
@@ -68,7 +68,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
               px: number,
               py: number,
             ) => {
-              const data = calculatedPosition({
+              const data = calculatePosition({
                 px,
                 py,
                 localHeight,

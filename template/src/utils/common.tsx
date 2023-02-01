@@ -105,7 +105,7 @@ interface calculatedPositionProps {
   };
   popupWidth?: number;
 }
-const calculatedPosition = (params: calculatedPositionProps) => {
+const calculatePosition = (params: calculatedPositionProps) => {
   const {
     px,
     py,
@@ -221,6 +221,6 @@ export {
   isValidReactComponent,
   maxInputLimit,
   trimText,
-  calculatedPosition,
+  calculatePosition,
   useResponsive,
 };
