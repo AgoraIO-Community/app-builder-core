@@ -28,6 +28,21 @@ import ThemeConfig from '../theme';
 import {randomNameGenerator} from '../utils';
 import pendingStateUpdateHelper from '../utils/pendingStateUpdateHelper';
 // import {dropdown} from '../../theme.json';
+
+/*
+ * Chrome sometimes doesn't apply the "Default" prefix hence
+ * Checks if the deviceId is default and adds "Default - " to label
+ * string if not already present to differentiate from actual
+ * device entry.
+ */
+const applyDefaultPrefixConditionally = (device: MediaDeviceInfo) => {
+  const {label, deviceId} = device;
+  if (deviceId === 'default') {
+    return label.includes('Default') ? label : 'Default - ' + label;
+  }
+  return label;
+};
+
 /**
  * A component to diplay a dropdown and select a device.
  * It will add the selected device to the device context.
@@ -152,7 +167,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       ?.map((device: any) => {
         if (device.kind === 'audioinput') {
           return {
-            label: device.label,
+            label: applyDefaultPrefixConditionally(device),
             value: device.deviceId,
           };
         }
@@ -228,7 +243,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
       ?.map((device) => {
         if (device.kind === 'audiooutput') {
           return {
-            label: device.label,
+            label: applyDefaultPrefixConditionally(device),
             value: device.deviceId,
           };
         }

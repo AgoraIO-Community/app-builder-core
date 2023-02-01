@@ -33,17 +33,38 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedSpeaker, setUiSelectedSpeaker] = useState('');
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
 
-  const [
-    audioOutputFallbackDeviceId,
-    audioInputFallbackDeviceId,
-    videoInputFallbackDeviceId,
-  ] = useMemo(() => {
-    return [
-      deviceList.find((device) => device.kind === 'audiooutput')?.deviceId,
-      deviceList.find((device) => device.kind === 'audioinput')?.deviceId,
-      deviceList.find((device) => device.kind === 'videoinput')?.deviceId,
-    ];
-  }, [deviceList]);
+  const refreshDeviceList = useCallback(async () => {
+    //@ts-ignore
+    let updatedDeviceList: MediaDeviceInfo[];
+    await rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {
+      log('Fetching all devices: ', devices);
+      /**
+       * Some browsers list the same microphone twice with different Id's,
+       * their group Id's match as they are the same physical device.
+       * deviceId == default is an oddity in chrome which stores the user
+       * preference
+       */
+      /**
+       *  1. Fetch devices and filter so the deviceId with empty
+       *     values are exluded
+       *  2. Store only unique devices with unique groupIds
+       */
+
+      updatedDeviceList = devices.filter(
+        (device: deviceInfo) =>
+          // device?.deviceId !== 'default' &&
+          device?.deviceId !== '' &&
+          (device.kind == 'audioinput' ||
+            device.kind == 'videoinput' ||
+            device.kind == 'audiooutput'),
+      );
+
+      log('Setting unique devices', updatedDeviceList);
+      setDeviceList(updatedDeviceList);
+    });
+
+    return updatedDeviceList;
+  }, []);
 
   const getAgoraTrackDeviceId = (type: 'audio' | 'video') => {
     //@ts-ignore
@@ -58,58 +79,93 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     return currentDevice;
   };
 
-  const refreshSelectedDevice = (kind?: deviceKind) => {
+  /**
+   * Retrieves the devices being used by agora tracks and
+   * updates the selected Ui states with them.
+   * Ignores for audioOutput since state acts as ground
+   * truth.
+   */
+  const syncSelectedDeviceUi = (kind?: deviceKind) => {
     log('Refreshing', kind ?? 'all');
     switch (kind) {
       case 'audioinput':
         setUiSelectedMic(getAgoraTrackDeviceId('audio'));
         break;
-      case 'audiooutput':
-        setUiSelectedSpeaker(audioOutputFallbackDeviceId);
-        break;
       case 'videoinput':
         setUiSelectedCam(getAgoraTrackDeviceId('video'));
         break;
+      case 'audiooutput':
+        break;
       default:
         setUiSelectedMic(getAgoraTrackDeviceId('audio'));
-        setUiSelectedSpeaker(audioOutputFallbackDeviceId);
         setUiSelectedCam(getAgoraTrackDeviceId('video'));
     }
   };
 
-  const refreshDevices = useCallback(async () => {
-    //@ts-ignore
-    rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {
-      log('Fetching all devices: ', devices);
-      /**
-       * Some browsers list the same microphone twice with different Id's,
-       * their group Id's match as they are the same physical device.
-       * deviceId == default is an oddity in chrome which stores the user
-       * preference
-       */
-      /**
-       *  1. Fetch devices and filter so the deviceId with empty
-       *     values are exluded
-       *  2. Store only unique devices with unique groupIds
-       */
+  /**
+   * Sets the devices to first item on the devices list
+   * optionally takes device list to use that instead
+   * of state which might be stale
+   */
+  const fallbackToFirstDevice = (
+    kind: deviceKind,
+    uniqueDevices?: MediaDeviceInfo[],
+  ) => {
+    const deviceListLocal = uniqueDevices || deviceList;
+    switch (kind) {
+      case 'audioinput':
+        const audioInputFallbackDeviceId = deviceListLocal.find(
+          (device) => device.kind === 'audioinput',
+        )?.deviceId;
+        setSelectedMic(audioInputFallbackDeviceId);
+        break;
+      case 'videoinput':
+        const videoInputFallbackDeviceId = deviceListLocal.find(
+          (device) => device.kind === 'videoinput',
+        )?.deviceId;
+        setSelectedCam(videoInputFallbackDeviceId);
+        break;
+      case 'audiooutput':
+        const audioOutputFallbackDeviceId = deviceListLocal.find(
+          (device) => device.kind === 'audiooutput',
+        )?.deviceId;
 
-      const uniqueDevices = devices.filter(
-        (device: deviceInfo) =>
-          // device?.deviceId !== 'default' &&
-          device?.deviceId !== '' &&
-          (device.kind == 'audioinput' ||
-            device.kind == 'videoinput' ||
-            device.kind == 'audiooutput'),
-      );
-
-      log('Setting unique devices', uniqueDevices);
-      setDeviceList(uniqueDevices);
-    });
-  }, []);
+        setSelectedSpeaker(audioOutputFallbackDeviceId);
+        break;
+    }
+  };
 
   useEffect(() => {
-    refreshSelectedDevice();
-  }, [deviceList]);
+    // Labels are empty in firefox when permission is granted first time
+    // refresh device list if labels are empty
+
+    // If stream exists and selected devices are empty, check for devices again
+    if (!selectedCam || selectedCam.trim().length == 0) {
+      log('useEffect[rtc]: Device list populated but No selected cam');
+      syncSelectedDeviceUi('videoinput');
+    }
+
+    if (!selectedMic || selectedMic.trim().length == 0) {
+      log('useEffect[rtc]: Device list populated but No selected mic');
+      syncSelectedDeviceUi('audioinput');
+    }
+
+    if (!selectedSpeaker || selectedSpeaker.trim().length == 0) {
+      log('useEffect[rtc]: Device list populated but No selected speaker');
+      // Initializes ui with first speaker in device list
+      setUiSelectedSpeaker(
+        deviceList.find((device) => device.kind === 'audiooutput')?.deviceId,
+      );
+    }
+
+    if (
+      deviceList.length === 0 ||
+      deviceList.find((device: MediaDeviceInfo) => device.label === '')
+    ) {
+      log('useEffect[rtc]: Empty device list');
+      refreshDeviceList();
+    }
+  }, [rtc]);
 
   // Port this to useEffectEvent(https://beta.reactjs.org/reference/react/useEffectEvent) when
   // released
@@ -121,12 +177,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         changedDevice.state,
         changedDevice,
       );
-      refreshDevices();
+      // Extracted because we want to perform fallback with the latest
+      // device list, state update will be handled with next render
+      const updatedDeviceList = await refreshDeviceList();
       if (
         changedDevice.device.deviceId === selectedMic &&
         changedDevice.state === 'INACTIVE'
       ) {
-        setSelectedMic(audioInputFallbackDeviceId);
+        fallbackToFirstDevice('audioinput', updatedDeviceList);
       }
       if (selectedMic === 'default') {
         setSelectedMic('default');
@@ -142,12 +200,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         changedDevice.state,
         changedDevice,
       );
-      refreshDevices();
+      const updatedDeviceList = await refreshDeviceList();
       if (
         changedDevice.device.deviceId === selectedMic &&
         changedDevice.state === 'INACTIVE'
       ) {
-        setSelectedSpeaker(audioOutputFallbackDeviceId);
+        fallbackToFirstDevice('audiooutput', updatedDeviceList);
       }
       if (selectedMic === 'default') {
         setSelectedSpeaker('default');
@@ -158,47 +216,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   useEffect(() => {
     AgoraRTC.onCameraChanged = async (changedDevice) => {
       log('cam: on-camera-changed');
-      refreshDevices();
+      const updatedDeviceList = await refreshDeviceList();
       if (
         changedDevice.device.deviceId === selectedCam &&
         changedDevice.state === 'INACTIVE'
       ) {
-        setSelectedCam(videoInputFallbackDeviceId);
+        fallbackToFirstDevice('videoinput', updatedDeviceList);
       }
     };
   }, [selectedCam]);
-
-  useEffect(() => {
-    // window.gd = () => getAgoraTrackDeviceId('audio');
-    // If stream exists and selected devices are empty, check for devices again
-    if (!selectedCam || selectedCam.trim().length == 0) {
-      log('No selected cam');
-      refreshSelectedDevice('videoinput');
-    }
-
-    if (!selectedMic || selectedMic.trim().length == 0) {
-      log('No selected mic');
-      refreshSelectedDevice('audioinput');
-    }
-
-    if (!selectedSpeaker || selectedSpeaker.trim().length == 0) {
-      log('No selected speaker');
-      refreshSelectedDevice('audiooutput');
-    }
-
-    // Labels are empty in firefox when permission is granted first time
-    // refresh device list if labels are empty
-    if (
-      deviceList.length === 0 ||
-      deviceList.find((device: MediaDeviceInfo) => device.label === '')
-      // [selectedMic, selectedSpeaker, selectedCam].filter(
-      //   (deviceId) => !Boolean(deviceId),
-      // ).length > 0
-    ) {
-      log('Empty device list');
-      refreshDevices();
-    }
-  }, [rtc]);
 
   const setSelectedMic = (deviceId: deviceId) => {
     log('Setting mic to', deviceId);
