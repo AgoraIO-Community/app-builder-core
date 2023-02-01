@@ -140,15 +140,27 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
         <LocalSwitchCamera showLabel={false} disabled={disabled} />
       </View>
       {$config.ICON_TEXT && (
-        <Text
-          style={[
-            styles.iconText,
-            {
-              color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
-            },
-          ]}>
-          Switch {'\n'} Camera
-        </Text>
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+              },
+            ]}>
+            Switch
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Camera
+          </Text>
+        </View>
       )}
     </View>
   );

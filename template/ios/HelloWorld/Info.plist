@@ -41,7 +41,7 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-			<key>NSExceptionDomains</key>
+		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>
 			<dict>
@@ -74,8 +74,12 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
