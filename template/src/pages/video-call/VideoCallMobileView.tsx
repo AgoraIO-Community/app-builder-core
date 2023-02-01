@@ -10,7 +10,7 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
-import {trimText} from '../../utils/common';
+import {isAndroid, trimText} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
 
@@ -29,11 +29,13 @@ const VideoCallMobileView = () => {
   const isCamON = useRef(local.video);
 
   useEffect(() => {
+    if ($config.AUDIO_ROOM) return;
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'background') {
         // check if cam was on before app goes to background
-        isCamON.current =
-          RtcEngine?.isVideoEnabled || local.video === ToggleState.enabled;
+        isCamON.current = isAndroid()
+          ? local.video === ToggleState.enabled
+          : RtcEngine?.isVideoEnabled;
 
         if (isCamON.current) {
           RtcEngine.muteLocalVideoStream(true);
