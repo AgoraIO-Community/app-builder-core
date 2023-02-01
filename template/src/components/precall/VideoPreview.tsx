@@ -162,7 +162,7 @@ const useStyles = () => {
       minHeight: 200,
       maxWidth: 440,
       backgroundColor: $config.CARD_LAYER_4_COLOR,
-      borderRadius: 20,
+      borderRadius: ThemeConfig.BorderRadius.large,
       justifyContent: 'center',
       alignItems: 'center',
       margin: 40,

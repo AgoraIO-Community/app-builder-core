@@ -38,7 +38,7 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
               height: 48,
               paddingVertical: 12,
               paddingHorizontal: 12,
-              borderRadius: 8,
+              borderRadius: ThemeConfig.BorderRadius.medium,
             }}
             textStyle={styles.btnText}
             text={cancelBtnLabel}
@@ -54,7 +54,7 @@ const RemoveMeetingPopup = (props: RemoveMeetingPopupProps) => {
             containerStyle={{
               minWidth: 'auto',
               width: '100%',
-              borderRadius: 8,
+              borderRadius: ThemeConfig.BorderRadius.medium,
               height: 48,
               backgroundColor: $config.SEMANTIC_ERROR,
               paddingVertical: 12,

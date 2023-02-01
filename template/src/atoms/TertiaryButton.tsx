@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     borderWidth: 1,
     borderColor: $config.SECONDARY_ACTION_COLOR,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.small,
     justifyContent: 'center',
     alignItems: 'center',
   },

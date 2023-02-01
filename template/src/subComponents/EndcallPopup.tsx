@@ -38,7 +38,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
               height: 48,
               paddingVertical: 12,
               paddingHorizontal: 12,
-              borderRadius: 8,
+              borderRadius: ThemeConfig.BorderRadius.medium,
             }}
             text={stayBtnLabel}
             textStyle={styles.btnText}
@@ -54,7 +54,7 @@ const EndcallPopup = (props: EndcallPopupProps) => {
             containerStyle={{
               minWidth: 'auto',
               width: '100%',
-              borderRadius: 8,
+              borderRadius: ThemeConfig.BorderRadius.medium,
               height: 48,
               backgroundColor: $config.SEMANTIC_ERROR,
               paddingVertical: 12,

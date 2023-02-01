@@ -99,7 +99,7 @@ const ToastConfig = {
       trailingIcon={trailingIcon}
       style={{
         height: primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
-        borderRadius: 4,
+        borderRadius: ThemeConfig.BorderRadius.small,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         width: '100%',

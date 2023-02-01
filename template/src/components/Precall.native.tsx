@@ -411,7 +411,7 @@ const style = StyleSheet.create({
   },
   leftContent: {
     flex: 2.5,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
   },
   boxStyle: {
@@ -426,11 +426,11 @@ const style = StyleSheet.create({
   },
   mobileBoxStyle: {
     marginRight: 0,
-    borderRadius: 20,
+    borderRadius: ThemeConfig.BorderRadius.large,
     flex: 3,
   },
   rightContent: {
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     flex: 1,
     paddingHorizontal: 0,
     paddingVertical: 0,

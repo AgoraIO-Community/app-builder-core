@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     padding: 32,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
     shadowOffset: {
