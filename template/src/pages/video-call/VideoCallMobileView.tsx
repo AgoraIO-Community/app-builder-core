@@ -1,5 +1,5 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {StyleSheet, Text, View, AppState} from 'react-native';
+import React, {useRef, useContext, useState, useEffect} from 'react';
 import VideoComponent from './VideoComponent';
 import ActionSheet from './ActionSheet';
 import ThemeConfig from '../../theme';
@@ -11,6 +11,8 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
 import {trimText} from '../../utils/common';
+import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
+import {useLocalUserInfo, useRender} from 'customization-api';
 
 const VideoCallMobileView = () => {
   const {
@@ -18,6 +20,47 @@ const VideoCallMobileView = () => {
   } = useMeetingInfo();
   const {isRecordingActive} = useRecording();
   const recordingLabel = 'Recording';
+
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const {RtcEngine, dispatch} = useContext(RtcContext);
+  const local = useLocalUserInfo();
+
+  const isCamON = useRef(local.video);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background') {
+        // check if cam was on before app goes to background
+        isCamON.current =
+          RtcEngine?.isVideoEnabled || local.video === ToggleState.enabled;
+
+        if (isCamON.current) {
+          RtcEngine.muteLocalVideoStream(true);
+          dispatch({
+            type: 'LocalMuteVideo',
+            value: [0],
+          });
+        }
+      }
+      if (nextAppState === 'active') {
+        // enable cam only if cam was on before app goes to background
+        if (isCamON.current) {
+          RtcEngine.muteLocalVideoStream(false);
+          dispatch({
+            type: 'LocalMuteVideo',
+            value: [1],
+          });
+        }
+      }
+      appState.current = nextAppState;
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.titleBar}>
