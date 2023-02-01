@@ -74,7 +74,10 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
         flex: 1,
       }}>
       {!collapse && (
-        <View
+        <ScrollView
+          horizontal={!isSidePinnedlayout}
+          showsHorizontalScrollIndicator={false}
+          decelerationRate={0}
           style={
             isSidePinnedlayout
               ? {
@@ -113,17 +116,20 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           )}
 
           {/* Renders Rest of Participants in Side/Top */}
-          <FlatList
+          {/* FlatList is not udpating content as  orenderData is always same when pinned view
+          https://stackoverflow.com/questions/43397803/how-to-re-render-flatlist
+          */}
+          {/* <FlatList
             horizontal={!isSidePinnedlayout}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             data={minUids}
             keyExtractor={(id) => id.toString()}
             renderItem={rendeOtherParticipants}
-          />
+          /> */}
 
           {/* Pinned Video Top / Side */}
-          {/*      
+
           {minUids
             .filter((i) => i !== pinnedUid)
             .map((minUid, i) => (
@@ -132,13 +138,12 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                   isSidePinnedlayout
                     ? {
                         width: '100%',
-                        height: dim[0] * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                        height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
                         zIndex: 40,
-                        //pinned video last element should have space at bottom
-                        paddingBottom: minUids?.length - 1 === i ? 0 : 8,
+                        paddingBottom: 8,
                       }
                     : {
-                        width: ((dim[1] / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                        width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
                         height: '100%',
                         zIndex: 40,
                         paddingRight: 8,
@@ -152,8 +157,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 <RenderComponent uid={minUid} />
               </Pressable>
             ))}
-        */}
-        </View>
+        </ScrollView>
       )}
       <View
         style={
