@@ -256,16 +256,15 @@ const Create = () => {
                     label={getInputLabel()}
                     value={roomTitle}
                     placeholder={randomRoomTitle}
-                    onChangeText={(text) =>
-                      onChangeRoomTitle(text ? text.trim() : text)
-                    }
+                    onChangeText={(text) => onChangeRoomTitle(text)}
                     onSubmitEditing={() => {
                       if (!$config.BACKEND_ENDPOINT) {
                         showError();
                       } else {
-                        !roomTitle && onChangeRoomTitle(randomRoomTitle);
+                        !roomTitle?.trim() &&
+                          onChangeRoomTitle(randomRoomTitle);
                         createRoomAndNavigateToShare(
-                          roomTitle || randomRoomTitle,
+                          roomTitle?.trim() || randomRoomTitle,
                           pstnToggle,
                           !coHostToggle,
                         );
@@ -355,9 +354,10 @@ const Create = () => {
                       if (!$config.BACKEND_ENDPOINT) {
                         showError();
                       } else {
-                        !roomTitle && onChangeRoomTitle(randomRoomTitle);
+                        !roomTitle?.trim() &&
+                          onChangeRoomTitle(randomRoomTitle);
                         createRoomAndNavigateToShare(
-                          roomTitle || randomRoomTitle,
+                          roomTitle?.trim() || randomRoomTitle,
                           pstnToggle,
                           !coHostToggle,
                         );
