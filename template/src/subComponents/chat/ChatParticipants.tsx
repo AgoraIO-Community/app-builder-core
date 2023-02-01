@@ -40,7 +40,7 @@ const ChatParticipants = (props: any) => {
   const {unreadIndividualMessageCount} = useChatNotification();
   const isMobile = isMobileUA();
   return (
-    <ScrollView>
+    <ScrollView showsVerticalScrollIndicator={false}>
       {activeUids && activeUids.length === 1 ? (
         <View style={style.defaultMessageContainer}>
           <Text style={style.defaultMessageText}>
