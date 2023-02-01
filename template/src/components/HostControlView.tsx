@@ -48,6 +48,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
             left: localWidth / 2,
             right: -(localWidth / 2),
           },
+          popupWidth: 290,
         });
         setModalPosition(data);
         setShowAudioMuteModal(true);
@@ -106,9 +107,10 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
           globalWidth,
           extra: {
             bottom: 10,
-            left: localWidth / 2,
-            right: -(localWidth / 2),
+            left: globalWidth < 720 ? 0 : localWidth / 2,
+            right: globalHeight < 720 ? 0 : -(localWidth / 2),
           },
+          popupWidth: 290,
         });
         setModalPosition(data);
         setShowVideoMuteModal(true);
