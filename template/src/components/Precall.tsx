@@ -401,7 +401,7 @@ const style = StyleSheet.create({
   },
   leftContentHorizontal: {
     flex: 2.5,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -413,7 +413,7 @@ const style = StyleSheet.create({
   },
   leftContentVertical: {
     width: '100%',
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -425,7 +425,7 @@ const style = StyleSheet.create({
   },
   rightContentHorizontal: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     paddingHorizontal: 0,
     paddingVertical: 0,
     height: '100%',
@@ -435,7 +435,7 @@ const style = StyleSheet.create({
   },
   rightContentVertical: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     paddingHorizontal: 0,
     paddingVertical: 0,
     maxWidth: '100%',

@@ -29,5 +29,18 @@ const FontFamily = {
   sansPro: 'Source Sans Pro',
 };
 
-const ThemeConfig = {EmphasisOpacity, EmphasisPlus, FontSize, FontFamily};
+const BorderRadius: {small: 4; medium: 8; large: 12; extraLarge: 20} = {
+  small: 4,
+  medium: 8,
+  large: 12,
+  extraLarge: 20,
+};
+
+const ThemeConfig = {
+  EmphasisOpacity,
+  EmphasisPlus,
+  FontSize,
+  FontFamily,
+  BorderRadius,
+};
 export default ThemeConfig;

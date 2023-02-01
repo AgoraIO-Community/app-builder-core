@@ -19,7 +19,7 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
 import {useRender} from 'customization-api';
-import {calculatedPosition} from '../utils/common';
+import {calculatePosition} from '../utils/common';
 
 export interface RemoteAudioMuteProps {
   uid: UidType;
@@ -77,7 +77,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
               px: number,
               py: number,
             ) => {
-              const data = calculatedPosition({
+              const data = calculatePosition({
                 px,
                 py,
                 localHeight,

@@ -421,12 +421,12 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
   },
   upper: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderTopRightRadius: ThemeConfig.BorderRadius.medium,
   },
   lower: {
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
   },
   toggleLabel: {
     color: $config.FONT_COLOR,

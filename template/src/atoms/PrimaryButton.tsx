@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 52,
     paddingVertical: 18,
-    borderRadius: 12,
+    borderRadius: ThemeConfig.BorderRadius.large,
     minWidth: 250,
   },
   text: {

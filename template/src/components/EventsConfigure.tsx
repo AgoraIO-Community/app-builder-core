@@ -114,6 +114,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
                 type: 'LocalMuteAudio',
                 value: [1],
               });
+              Toast.hide();
             }}
           />
         ),
@@ -136,6 +137,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
                 type: 'LocalMuteVideo',
                 value: [1],
               });
+              Toast.hide();
             }}
           />
         ),

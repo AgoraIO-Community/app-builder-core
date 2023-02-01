@@ -17,7 +17,7 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import TertiaryButton from '../atoms/TertiaryButton';
 import Spacer from '../atoms/Spacer';
 import RemoteMutePopup from '../subComponents/RemoteMutePopup';
-import {calculatedPosition} from '../utils/common';
+import {calculatePosition} from '../utils/common';
 
 export interface MuteAllAudioButtonProps {
   render?: (onPress: () => void) => JSX.Element;
@@ -36,7 +36,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
   const showAudioModal = () => {
     audioBtnRef?.current?.measure(
       (_fx, _fy, localWidth, localHeight, px, py) => {
-        const data = calculatedPosition({
+        const data = calculatePosition({
           px,
           py,
           localHeight,
@@ -48,6 +48,7 @@ export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
             left: localWidth / 2,
             right: -(localWidth / 2),
           },
+          popupWidth: 290,
         });
         setModalPosition(data);
         setShowAudioMuteModal(true);
@@ -97,7 +98,7 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
   const showVideoModal = () => {
     videoBtnRef?.current?.measure(
       (_fx, _fy, localWidth, localHeight, px, py) => {
-        const data = calculatedPosition({
+        const data = calculatePosition({
           px,
           py,
           localHeight,
@@ -106,9 +107,10 @@ export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
           globalWidth,
           extra: {
             bottom: 10,
-            left: localWidth / 2,
-            right: -(localWidth / 2),
+            left: globalWidth < 720 ? 0 : localWidth / 2,
+            right: globalHeight < 720 ? 0 : -(localWidth / 2),
           },
+          popupWidth: 290,
         });
         setModalPosition(data);
         setShowVideoMuteModal(true);

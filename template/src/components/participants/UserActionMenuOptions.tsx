@@ -34,7 +34,7 @@ import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import {useFocus} from '../../utils/useFocus';
 import Toast from '../../../react-native-toast-message';
 import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
-import {calculatedPosition, trimText} from '../../utils/common';
+import {calculatePosition, trimText} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
   user: RenderInterface;
@@ -304,7 +304,7 @@ export default function UserActionMenuOptionsOptions(
           px: number,
           py: number,
         ) => {
-          const data = calculatedPosition({
+          const data = calculatePosition({
             px,
             py,
             localWidth,

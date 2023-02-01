@@ -99,7 +99,7 @@ const ToastConfig = {
       trailingIcon={trailingIcon}
       style={{
         height: primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
-        borderRadius: 4,
+        borderRadius: ThemeConfig.BorderRadius.small,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         width: '100%',
@@ -121,7 +121,6 @@ export default ToastConfig;
 const styles = StyleSheet.create({
   text1Style: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     color: $config.FONT_COLOR,
@@ -129,7 +128,6 @@ const styles = StyleSheet.create({
   },
   text2Style: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,

@@ -12,6 +12,7 @@ import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
+import ThemeConfig from '../../theme';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -205,7 +206,7 @@ const maxStyle = StyleSheet.create({
     height: '100%',
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.small,
     borderWidth: 2,
   },
   activeContainerStyle: {

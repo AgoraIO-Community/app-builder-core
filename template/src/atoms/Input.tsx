@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.medium,
-    borderRadius: 8,
+    borderRadius: ThemeConfig.BorderRadius.medium,
     ...Platform.select({
       web: {
         outlineStyle: 'none',

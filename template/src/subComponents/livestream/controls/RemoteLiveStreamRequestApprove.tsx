@@ -3,6 +3,7 @@ import {View} from 'react-native';
 import {PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
 import PrimaryButton from '../../../atoms/PrimaryButton';
+import ThemeConfig from '../../../theme';
 
 export interface RemoteLiveStreamControlProps {
   uid: UidType;
@@ -19,7 +20,7 @@ const RemoteLiveStreamRequestApprove = (
       <PrimaryButton
         containerStyle={{
           minWidth: 'auto',
-          borderRadius: 4,
+          borderRadius: ThemeConfig.BorderRadius.small,
           height: 38,
           paddingHorizontal: 8,
           paddingVertical: 8,

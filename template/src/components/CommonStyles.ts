@@ -1,10 +1,11 @@
 import {StyleSheet} from 'react-native';
+import ThemeConfig from '../theme';
 const CommonStyles = StyleSheet.create({
   sidePanelContainerWeb: {
     flex: 1,
     maxWidth: '20%',
     minWidth: 338,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.small,
     marginLeft: 12,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -29,7 +30,7 @@ const CommonStyles = StyleSheet.create({
     left: '2%',
     top: '2%',
     bottom: '2%',
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.small,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderWidth: 1,
