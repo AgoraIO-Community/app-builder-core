@@ -169,6 +169,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         [userId]: {
           raised: payload?.raised || RaiseHandValue.FALSE,
           ts: payload?.ts || Date.now(),
+          isProcessed: payload?.isProcessed || false,
           role:
             payload?.role ||
             oldRaisedHandList[userId]?.role ||
@@ -197,6 +198,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.FALSE,
             ts: new Date().getTime(),
+            isProcessed: true,
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -227,6 +229,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.TRUE,
             ts: new Date().getTime(),
+            isProcessed: true,
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -329,6 +332,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
+      const isProcessed = payload?.isProcessed || false;
 
       switch (action) {
         // 1. Host can receive raise hand request with true or false value
@@ -350,6 +354,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.TRUE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
               break;
             case RaiseHandValue.FALSE:
@@ -367,6 +372,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.FALSE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
             default:
               break;
@@ -381,6 +387,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.TRUE,
                 role: ClientRole.Broadcaster,
+                isProcessed: isProcessed,
               });
               break;
             case RaiseHandValue.FALSE:
@@ -388,6 +395,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.FALSE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
               break;
             default:
@@ -495,29 +503,45 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
    */
 
   const hostApprovesRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.TRUE,
-      ts: new Date().getTime(),
-    });
-    events.send(
-      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      '',
-      EventPersistLevel.LEVEL1,
-      uid,
-    );
+    if (!raiseHandListRef.current[uid]?.isProcessed) {
+      addOrUpdateLiveStreamRequest(uid, {
+        raised: RaiseHandValue.TRUE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      });
+      events.send(
+        LiveStreamControlMessageEnum.raiseHandRequestAccepted,
+        '',
+        EventPersistLevel.LEVEL1,
+        uid,
+      );
+    } else {
+      Toast.hide();
+      setTimeout(() => {
+        showToast('Request already processed.', null);
+      });
+    }
   };
 
   const hostRejectsRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.FALSE,
-      ts: new Date().getTime(),
-    });
-    events.send(
-      LiveStreamControlMessageEnum.raiseHandRequestRejected,
-      '',
-      EventPersistLevel.LEVEL1,
-      uid,
-    );
+    if (!raiseHandListRef.current[uid]?.isProcessed) {
+      addOrUpdateLiveStreamRequest(uid, {
+        raised: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      });
+      events.send(
+        LiveStreamControlMessageEnum.raiseHandRequestRejected,
+        '',
+        EventPersistLevel.LEVEL1,
+        uid,
+      );
+    } else {
+      Toast.hide();
+      setTimeout(() => {
+        showToast('Request already processed.', null);
+      });
+    }
   };
 
   // promote audience as co-host
@@ -553,6 +577,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         action: LiveStreamControlMessageEnum.raiseHandRequest,
         value: RaiseHandValue.TRUE,
         ts: new Date().getTime(),
+        isProcessed: false,
       }),
       EventPersistLevel.LEVEL2,
     );
