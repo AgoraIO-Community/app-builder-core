@@ -121,7 +121,6 @@ export default ToastConfig;
 const styles = StyleSheet.create({
   text1Style: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     color: $config.FONT_COLOR,
@@ -129,7 +128,6 @@ const styles = StyleSheet.create({
   },
   text2Style: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
