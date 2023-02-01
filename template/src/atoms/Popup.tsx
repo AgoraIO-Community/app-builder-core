@@ -46,7 +46,7 @@ const Popup = (props: PopupProps) => {
       <View
         style={[
           styles.centeredView,
-          isDesktop('popup') && {alignItems: 'center'},
+          isDesktop && {alignItems: 'center'},
           props?.containerStyle,
         ]}>
         <TouchableWithoutFeedback
