@@ -30,7 +30,7 @@ const PreCallSettings = (props: PreCallSettingsProps) => {
       <TouchableOpacity onPress={() => setIsSettingsVisible(true)}>
         <ImageIcon
           name={'settings'}
-          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </TouchableOpacity>
     </>
