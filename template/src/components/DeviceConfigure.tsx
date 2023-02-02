@@ -15,9 +15,13 @@ import DeviceContext from './DeviceContext';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import {useRtc} from 'customization-api';
 
+import type RtcEngine from '../../bridge/rtc/webNg/';
+
 const log = (...args) => {
   console.log('[DeviceConfigure] ', ...args);
 };
+
+type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 
 interface Props {
   userRole: ClientRole;
@@ -33,10 +37,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedSpeaker, setUiSelectedSpeaker] = useState('');
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
 
+  const {RtcEngine} = rtc as unknown as {RtcEngine: WebRtcEngineInstance};
+  const {localStream} = RtcEngine;
+
   const refreshDeviceList = useCallback(async () => {
-    //@ts-ignore
     let updatedDeviceList: MediaDeviceInfo[];
-    await rtc.RtcEngine.getDevices(function (devices: deviceInfo[]) {
+    await RtcEngine.getDevices(function (devices: deviceInfo[]) {
       log('Fetching all devices: ', devices);
       /**
        * Some browsers list the same microphone twice with different Id's,
@@ -67,12 +73,24 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   }, []);
 
   const getAgoraTrackDeviceId = (type: 'audio' | 'video') => {
-    //@ts-ignore
-    const currentDevice = rtc.RtcEngine.localStream[type]
-      ?.getMediaStreamTrack()
-      .getSettings().deviceId;
-    log(`Agora ${type} Track is using`, currentDevice);
-    return currentDevice;
+    const mutedState =
+      //@ts-ignore
+      type === 'audio' ? !RtcEngine.isAudioEnabled : !RtcEngine.isVideoEnabled;
+
+    let currentDevice: string;
+
+    if (mutedState) {
+      currentDevice =
+        //@ts-ignore
+        type === 'audio' ? RtcEngine.audioDeviceId : RtcEngine.videoDeviceId;
+      log(`Agora ${type} Engine is using`, currentDevice);
+    } else {
+      currentDevice = localStream[type]
+        ?.getMediaStreamTrack()
+        .getSettings().deviceId;
+      log(`Agora ${type} Track is using`, currentDevice);
+    }
+    return currentDevice ?? '';
   };
 
   /**
@@ -225,8 +243,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const setSelectedMic = (deviceId: deviceId) => {
     log('Setting mic to', deviceId);
     return new Promise((res, rej) => {
-      //@ts-ignore
-      rtc.RtcEngine.changeMic(
+      RtcEngine.changeMic(
         deviceId,
         () => {
           syncSelectedDeviceUi('audioinput');
@@ -241,9 +258,9 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   const setSelectedCam = (deviceId: deviceId) => {
+    log('Setting cam to', deviceId);
     return new Promise((res, rej) => {
-      //@ts-ignore
-      rtc.RtcEngine.changeCamera(
+      RtcEngine.changeCamera(
         deviceId,
         () => {
           syncSelectedDeviceUi('videoinput');
@@ -258,9 +275,9 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   const setSelectedSpeaker = (deviceId: deviceId) => {
+    log('Setting speaker to', deviceId);
     return new Promise((res, rej) => {
-      //@ts-ignore
-      rtc.RtcEngine.changeSpeaker(
+      RtcEngine.changeSpeaker(
         deviceId,
         () => {
           setUiSelectedSpeaker(deviceId);
