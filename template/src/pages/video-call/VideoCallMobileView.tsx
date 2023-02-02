@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   videoView: {
-    flex: 0.8,
+    flex: 0.85,
     zIndex: 0,
     elevation: 0,
   },
