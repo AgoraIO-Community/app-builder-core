@@ -144,6 +144,7 @@ const ActionSheet = () => {
           sibling={ToastComponentRender}
           ref={chatSheetRef}
           onDismiss={onDismiss}
+          scrollLocking={false}
           open={isChatOpen}
           blocking={false}
           expandOnContentDrag={false}
@@ -160,6 +161,7 @@ const ActionSheet = () => {
           expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+          scrollLocking={false}
           blocking={false}>
           <ParticipantView />
         </BottomSheet>
