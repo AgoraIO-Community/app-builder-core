@@ -175,7 +175,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 top: 8,
                 left: 8,
                 zIndex: 999,
-                elevation: 1000,
+                elevation: 999,
               }}
               onPress={() => setCollapse(!collapse)}
               iconProps={{
@@ -202,7 +202,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 top: 12,
                 left: 12 + (isSidePinnedlayout ? 32 + 12 + 12 : 0),
                 zIndex: 999,
-                elevation: 1000,
+                elevation: 999,
               }}
               iconProps={{
                 iconType: 'plain',
