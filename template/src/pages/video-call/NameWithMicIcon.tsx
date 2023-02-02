@@ -77,12 +77,12 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-      {((isMobileUA() || (!isMobileUA() && isSmall())) &&
-        currentLayout === getGridLayoutName() &&
-        activeUids.length > 6) ||
-      (isMobileUA() &&
-        currentLayout === getPinnedLayoutName() &&
-        !props?.isMax) ? (
+      {(isMobileUA() || (!isMobileUA() && isSmall())) &&
+      currentLayout === getGridLayoutName() &&
+      activeUids.length > 6 ? (
+        //  ||  (isMobileUA() &&
+        //     currentLayout !== getPinnedLayoutName() &&
+        //     !props?.isMax)
         <></>
       ) : (
         <PlatformWrapper>
