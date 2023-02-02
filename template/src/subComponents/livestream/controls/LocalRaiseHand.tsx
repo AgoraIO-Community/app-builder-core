@@ -46,6 +46,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
         iconBackgroundColor: isHandRasied
           ? $config.PRIMARY_ACTION_BRAND_COLOR
           : '',
+        base64: true,
       }}
       btnTextProps={{
         text: showLabel ? handStatusText(isHandRasied) : '',
