@@ -55,7 +55,7 @@ const ActionMenu = (props: ActionMenuProps) => {
   } = props;
 
   const renderItems = () => {
-    return items.map(
+    return items?.map(
       (
         {
           icon,
@@ -82,6 +82,9 @@ const ActionMenu = (props: ActionMenuProps) => {
                   styles.row,
                   isHovered && !disabled ? styles.rowHovered : {},
                   disabled ? {opacity: 0.4} : {},
+                  items?.length - 1 === index
+                    ? {borderBottomColor: 'transparent'}
+                    : {},
                 ]}
                 onPress={callback}
                 key={icon + index}>
@@ -165,6 +168,7 @@ export default ActionMenu;
 const styles = StyleSheet.create({
   modalView: {
     position: 'absolute',
+    overflow: 'hidden',
     width: 230,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
