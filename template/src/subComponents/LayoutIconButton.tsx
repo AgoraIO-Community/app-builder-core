@@ -83,9 +83,9 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
               if (isMobileOrTablet()) {
                 setIsHovered(false);
               } else {
-                setTimeout(() => {
-                  setIsHovered(false);
-                }, 500);
+                //setTimeout(() => {
+                setIsHovered(false);
+                // }, 500);
               }
             }
           }}>
@@ -120,6 +120,10 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
             isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
           }>
           <LayoutIconDropdown
+            caretPosition={{
+              bottom: isMobileOrTablet() ? -8 : -10,
+              left: isMobileOrTablet() ? 26 : 26,
+            }}
             modalPosition={modalPosition}
             showDropdown={
               isMobileOrTablet() ? isHovered : isHovered || isHoveredOnModal
