@@ -369,6 +369,7 @@ class Toast extends Component {
           'isVisible',
           'text1',
           'text2',
+          'leadingIcon',
           'hide',
           'show',
           'onPress',

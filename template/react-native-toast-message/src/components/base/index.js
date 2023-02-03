@@ -32,7 +32,7 @@ function BaseToast({
       <View
         testID='contentContainer'
         style={[styles.contentContainer, contentContainerStyle]}>
-        {text1?.length > 0 && (
+        {(text1 || text1?.length > 0) && (
           <View
             style={{
               flex: 1,
@@ -57,7 +57,7 @@ function BaseToast({
             </View>
           </View>
         )}
-        {text2?.length > 0 && (
+        {(text2 || text2?.length > 0) && (
           <View>
             <Text
               testID='text2'
