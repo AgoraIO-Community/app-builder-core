@@ -113,7 +113,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
           isPendingUpdate
             ? 'connection-loading'
             : props?.isIconDropdown
-            ? 'mic-on'
+            ? 'video-on'
             : undefined
         }
         enabled={!isPickerDisabled}
