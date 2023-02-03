@@ -99,6 +99,16 @@ const MoreButton = () => {
       },
     });
     actionMenuitems.push({
+      icon: 'settings',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Settings',
+      callback: () => {
+        setActionMenuVisible(false);
+        setSidePanel(SidePanelType.Settings);
+      },
+    });
+    actionMenuitems.push({
       icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
       iconColor: isScreenshareActive
         ? $config.SEMANTIC_ERROR
@@ -132,18 +142,7 @@ const MoreButton = () => {
       },
     });
   }
-  if (globalWidth <= BREAKPOINTS.sm) {
-    actionMenuitems.push({
-      icon: 'settings',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Settings',
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Settings);
-      },
-    });
-  }
+
   if (globalWidth <= BREAKPOINTS.md) {
     actionMenuitems.push({
       icon: layouts[layout]?.iconName,
@@ -177,6 +176,19 @@ const MoreButton = () => {
       },
     });
   }
+
+  // if (globalWidth <= BREAKPOINTS.sm) {
+  //   actionMenuitems.push({
+  //     icon: 'settings',
+  //     iconColor: $config.SECONDARY_ACTION_COLOR,
+  //     textColor: $config.FONT_COLOR,
+  //     title: 'Settings',
+  //     callback: () => {
+  //       setActionMenuVisible(false);
+  //       setSidePanel(SidePanelType.Settings);
+  //     },
+  //   });
+  // }
 
   useEffect(() => {
     if (isHovered) {
