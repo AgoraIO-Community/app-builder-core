@@ -1,18 +1,17 @@
-import React, {SetStateAction, useContext} from 'react';
+import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import Spacer from '../atoms/Spacer';
-import Popup from '../atoms/Popup';
-import TertiaryButton from '../atoms/TertiaryButton';
-import PrimaryButton from '../atoms/PrimaryButton';
-import ThemeConfig from '../theme';
-import {useIsDesktop} from '../utils/common';
+import Spacer from '../../atoms/Spacer';
+import Popup from '../../atoms/Popup';
+import TertiaryButton from '../../atoms/TertiaryButton';
+import PrimaryButton from '../../atoms/PrimaryButton';
+import ThemeConfig from '../../theme';
+import {useIsDesktop} from '../../utils/common';
+import {useRecording} from 'customization-api';
+import {useVideoCall} from '../useVideoCall';
 
-interface RecordingPopupProps {
-  modalVisible: boolean;
-  setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  stopRecording: () => void;
-}
-const RecordingPopup = (props: RecordingPopupProps) => {
+const StopRecordingPopup = () => {
+  const {showStopRecordingPopup, setShowStopRecordingPopup} = useVideoCall();
+  const {stopRecording, isRecordingActive} = useRecording();
   const isDesktop = useIsDesktop()('popup');
   const recordingLabelHeading = 'Stop Recording?';
   const recordingLabelSubHeading =
@@ -20,10 +19,17 @@ const RecordingPopup = (props: RecordingPopupProps) => {
 
   const cancelBtnLabel = 'CANCEL';
   const stopRecordingBtnLabel = 'END RECORDING';
+
+  const doStopRecording = () => {
+    if (isRecordingActive) {
+      stopRecording && stopRecording();
+      setShowStopRecordingPopup(false);
+    }
+  };
   return (
     <Popup
-      modalVisible={props.modalVisible}
-      setModalVisible={props.setModalVisible}
+      modalVisible={showStopRecordingPopup}
+      setModalVisible={setShowStopRecordingPopup}
       showCloseIcon={false}
       contentContainerStyle={styles.contentContainer}>
       <Text style={styles.heading}>{recordingLabelHeading}</Text>
@@ -43,7 +49,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
             }}
             textStyle={styles.btnText}
             text={cancelBtnLabel}
-            onPress={() => props.setModalVisible(false)}
+            onPress={() => setShowStopRecordingPopup(false)}
           />
         </View>
         <Spacer
@@ -63,7 +69,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
             }}
             textStyle={styles.btnText}
             text={stopRecordingBtnLabel}
-            onPress={props.stopRecording}
+            onPress={doStopRecording}
           />
         </View>
       </View>
@@ -71,7 +77,7 @@ const RecordingPopup = (props: RecordingPopupProps) => {
   );
 };
 
-export default RecordingPopup;
+export default StopRecordingPopup;
 
 const styles = StyleSheet.create({
   btnContainer: {

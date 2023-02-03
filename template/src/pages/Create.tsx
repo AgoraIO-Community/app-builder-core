@@ -68,7 +68,7 @@ const Create = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [roomTitle, onChangeRoomTitle] = useState('');
-  const [randomRoomTitle, setRandomRoomTitle] = useState('');
+  // const [randomRoomTitle, setRandomRoomTitle] = useState('');
   const [pstnToggle, setPstnToggle] = useState(false);
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
@@ -111,11 +111,11 @@ const Create = () => {
   const isDesktop = !isMobileUA();
   useEffect(() => {
     //Generating the random room title for placeholder
-    setRandomRoomTitle(
-      `${randomNameGenerator(3)}-${randomNameGenerator(
-        3,
-      )}-${randomNameGenerator(3)}`,
-    );
+    // setRandomRoomTitle(
+    //   `${randomNameGenerator(3)}-${randomNameGenerator(
+    //     3,
+    //   )}-${randomNameGenerator(3)}`,
+    // );
 
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
@@ -241,9 +241,7 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <View style={style.root}>
-            <ScrollView
-              contentContainerStyle={style.main}
-              showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={style.main}>
               <Card>
                 <View>
                   <Logo />
@@ -255,19 +253,23 @@ const Create = () => {
                     labelStyle={style.inputLabelStyle}
                     label={getInputLabel()}
                     value={roomTitle}
-                    placeholder={randomRoomTitle}
+                    placeholder={meetingNameInputPlaceholder}
                     onChangeText={(text) => onChangeRoomTitle(text)}
                     onSubmitEditing={() => {
-                      if (!$config.BACKEND_ENDPOINT) {
-                        showError();
+                      if (!roomTitle?.trim()) {
+                        return;
                       } else {
-                        !roomTitle?.trim() &&
-                          onChangeRoomTitle(randomRoomTitle);
-                        createRoomAndNavigateToShare(
-                          roomTitle?.trim() || randomRoomTitle,
-                          pstnToggle,
-                          !coHostToggle,
-                        );
+                        if (!$config.BACKEND_ENDPOINT) {
+                          showError();
+                        } else {
+                          // !roomTitle?.trim() &&
+                          //   onChangeRoomTitle(randomRoomTitle);
+                          createRoomAndNavigateToShare(
+                            roomTitle?.trim(),
+                            pstnToggle,
+                            !coHostToggle,
+                          );
+                        }
                       }
                     }}
                   />
@@ -348,16 +350,16 @@ const Create = () => {
                 <View style={[style.btnContainer]}>
                   <PrimaryButton
                     iconName={'video-plus'}
-                    disabled={loading}
+                    disabled={loading || !roomTitle?.trim()}
                     containerStyle={!isDesktop && {width: '100%'}}
                     onPress={() => {
                       if (!$config.BACKEND_ENDPOINT) {
                         showError();
                       } else {
-                        !roomTitle?.trim() &&
-                          onChangeRoomTitle(randomRoomTitle);
+                        // !roomTitle?.trim() &&
+                        //   onChangeRoomTitle(randomRoomTitle);
                         createRoomAndNavigateToShare(
-                          roomTitle?.trim() || randomRoomTitle,
+                          roomTitle?.trim(),
                           pstnToggle,
                           !coHostToggle,
                         );

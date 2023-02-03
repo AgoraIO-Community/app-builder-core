@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableWithoutFeedback} from 'react-native';
 import React, {useRef, useCallback, useLayoutEffect, useEffect} from 'react';
 import {BottomSheet, BottomSheetRef} from 'react-spring-bottom-sheet';
 import './ActionSheetStyles.css';

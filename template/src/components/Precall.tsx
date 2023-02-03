@@ -305,9 +305,7 @@ const Precall = () => {
       <PrecallBeforeView />
       {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
         <View style={style.root}>
-          <ScrollView
-            contentContainerStyle={style.main}
-            showsVerticalScrollIndicator={false}>
+          <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
                 <MeetingName textStyle={style.meetingTitleStyle} />
@@ -320,7 +318,6 @@ const Precall = () => {
       ) : (
         <View style={style.root}>
           <ScrollView
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={[
               style.main,
               {padding: 32, flexDirection: 'column'},

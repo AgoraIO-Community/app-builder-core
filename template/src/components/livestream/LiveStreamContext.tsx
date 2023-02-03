@@ -17,7 +17,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {useRender} from 'customization-api';
+import {SidePanelType, useRender, useSidePanel} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {trimText} from '../../utils/common';
@@ -46,6 +46,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const [coHostUids, setCoHostUids] = useState<UidType[]>([]);
   const coHostUidsRef = useRef<any>();
   coHostUidsRef.current = coHostUids;
+
+  const {sidePanel} = useSidePanel();
+  const sidePanelRef = useRef<any>();
+  sidePanelRef.current = sidePanel;
+
+  React.useEffect(() => {
+    sidePanelRef.current = sidePanel;
+  }, [sidePanel]);
 
   React.useEffect(() => {
     renderListRef.current = renderList;
@@ -340,7 +348,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           switch (value) {
             case RaiseHandValue.TRUE:
               // Step 1: Show notifications
-              if (payload.ts > rtmInitTimstamp) {
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
                 showToast(
                   `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_RECEIVED.text1

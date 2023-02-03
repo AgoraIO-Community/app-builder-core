@@ -7,6 +7,7 @@ import {
   View,
   Image,
   TouchableOpacity,
+  ViewStyle,
 } from 'react-native';
 import React, {SetStateAction, useState} from 'react';
 
@@ -24,6 +25,8 @@ export interface ActionMenuItem {
   textColor: string;
   title: string;
   callback: () => void;
+  onHoverCallback?: (isHovered: boolean) => void;
+  onHoverContent?: JSX.Element;
   disabled?: boolean;
 }
 export interface ActionMenuProps {
@@ -37,76 +40,108 @@ export interface ActionMenuProps {
     bottom?: number;
   };
   items: ActionMenuItem[];
+  hoverMode?: boolean;
+  onHover?: (hover: boolean) => void;
+  containerStyle?: ViewStyle;
 }
 
 const ActionMenu = (props: ActionMenuProps) => {
-  const {actionMenuVisible, setActionMenuVisible, modalPosition, items} = props;
+  const {
+    actionMenuVisible,
+    setActionMenuVisible,
+    modalPosition,
+    items,
+    hoverMode = false,
+  } = props;
+
+  const renderItems = () => {
+    return items?.map(
+      (
+        {
+          icon,
+          onHoverIcon,
+          isBase64Icon = false,
+          title,
+          callback,
+          iconColor,
+          textColor,
+          disabled = false,
+          onHoverCallback = undefined,
+          onHoverContent = undefined,
+        },
+        index,
+      ) => (
+        <PlatformWrapper key={props.from + '_' + title + index}>
+          {(isHovered: boolean) => (
+            <>
+              {/* {onHoverCallback && onHoverCallback(isHovered)} */}
+              {isHovered ? onHoverContent ? onHoverContent : <></> : <></>}
+              <TouchableOpacity
+                disabled={disabled}
+                style={[
+                  styles.row,
+                  isHovered && !disabled ? styles.rowHovered : {},
+                  disabled ? {opacity: 0.4} : {},
+                  items?.length - 1 === index
+                    ? {borderBottomColor: 'transparent'}
+                    : {},
+                ]}
+                onPress={callback}
+                key={icon + index}>
+                <View style={styles.iconContainer}>
+                  <ImageIcon
+                    base64={isBase64Icon}
+                    iconType="plain"
+                    iconSize={20}
+                    name={
+                      isHovered && onHoverIcon && !disabled ? onHoverIcon : icon
+                    }
+                    tintColor={iconColor}
+                  />
+                </View>
+                <Text
+                  style={[styles.text, textColor ? {color: textColor} : {}]}>
+                  {title}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </PlatformWrapper>
+      ),
+    );
+  };
+
   return (
     <View>
-      <Modal
-        testID="action-menu"
-        animationType="none"
-        transparent={true}
-        visible={actionMenuVisible}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setActionMenuVisible(false);
-          }}>
-          <View style={styles.backDrop} />
-        </TouchableWithoutFeedback>
-        <View style={[styles.modalView, modalPosition]}>
-          {items.map(
-            (
-              {
-                icon,
-                onHoverIcon,
-                isBase64Icon = false,
-                title,
-                callback,
-                iconColor,
-                textColor,
-                disabled = false,
-              },
-              index,
-            ) => (
-              <PlatformWrapper key={props.from + '_' + title + index}>
-                {(isHovered: boolean) => (
-                  <TouchableOpacity
-                    disabled={disabled}
-                    style={[
-                      styles.row,
-                      isHovered && !disabled ? styles.rowHovered : {},
-                      disabled ? {opacity: 0.4} : {},
-                    ]}
-                    onPress={callback}
-                    key={icon + index}>
-                    <View style={styles.iconContainer}>
-                      <ImageIcon
-                        base64={isBase64Icon}
-                        iconType="plain"
-                        iconSize={20}
-                        name={
-                          isHovered && onHoverIcon && !disabled
-                            ? onHoverIcon
-                            : icon
-                        }
-                        tintColor={iconColor}
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.text,
-                        textColor ? {color: textColor} : {},
-                      ]}>
-                      {title}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </PlatformWrapper>
-            ),
-          )}
-        </View>
-      </Modal>
+      {hoverMode ? (
+        actionMenuVisible && (
+          <View
+            style={[styles.modalView, props?.containerStyle, modalPosition]}>
+            <div
+              onMouseEnter={() => props?.onHover && props.onHover(true)}
+              onMouseLeave={() => props?.onHover && props.onHover(false)}>
+              {renderItems()}
+            </div>
+          </View>
+        )
+      ) : (
+        <Modal
+          testID="action-menu"
+          animationType="none"
+          transparent={true}
+          visible={actionMenuVisible}>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              setActionMenuVisible(false);
+            }}>
+            <View style={styles.backDrop} />
+          </TouchableWithoutFeedback>
+          <View
+            style={[styles.modalView, props?.containerStyle, modalPosition]}>
+            {renderItems()}
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -133,6 +168,7 @@ export default ActionMenu;
 const styles = StyleSheet.create({
   modalView: {
     position: 'absolute',
+    overflow: 'hidden',
     width: 230,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,

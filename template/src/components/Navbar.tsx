@@ -10,7 +10,13 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, TextStyle} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextStyle,
+  useWindowDimensions,
+} from 'react-native';
 import Settings, {
   SettingsWithViewWrapper,
   SettingsIconButtonProps,
@@ -25,8 +31,10 @@ import {useLayout} from '../utils/useLayout';
 import {useChatNotification} from '../components/chat-notification/useChatNotification';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
+  BREAKPOINTS,
   isAndroid,
   isIOS,
+  isMobileUA,
   isValidReactComponent,
   isWebInternal,
   trimText,
@@ -319,7 +327,7 @@ const Navbar = () => {
 
   const {isRecordingActive} = useRecording();
   const {onlineUsersCount} = useContext(ChatContext);
-
+  const {width} = useWindowDimensions();
   return (
     <View
       testID="videocall-topbar"
@@ -348,21 +356,25 @@ const Navbar = () => {
           )}
         </View>
       </View>
-      <View style={style.navControlBar} testID="videocall-navcontrols">
-        <View testID="videocall-participantsicon" style={{marginRight: 10}}>
-          <ParticipantsIconButton />
+      {width > BREAKPOINTS.sm || isMobileUA() ? (
+        <View style={style.navControlBar} testID="videocall-navcontrols">
+          <View testID="videocall-participantsicon" style={{marginRight: 10}}>
+            <ParticipantsIconButton />
+          </View>
+          {$config.CHAT && (
+            <>
+              <View testID="videocall-chaticon" style={{marginHorizontal: 10}}>
+                <ChatIconButton />
+              </View>
+            </>
+          )}
+          <View testID="videocall-settingsicon" style={{marginLeft: 10}}>
+            <SettingsIconButtonWithWrapper />
+          </View>
         </View>
-        {$config.CHAT && (
-          <>
-            <View testID="videocall-chaticon" style={{marginHorizontal: 10}}>
-              <ChatIconButton />
-            </View>
-          </>
-        )}
-        <View testID="videocall-settingsicon" style={{marginLeft: 10}}>
-          <SettingsIconButtonWithWrapper />
-        </View>
-      </View>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };

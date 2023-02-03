@@ -292,9 +292,7 @@ const Share = () => {
     <FpeShareComponent />
   ) : (
     <View style={style.root}>
-      <ScrollView
-        contentContainerStyle={style.scrollMain}
-        showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={style.scrollMain}>
         <Card>
           <View>
             <Logo />
