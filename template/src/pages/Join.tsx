@@ -108,9 +108,7 @@ const Join = () => {
     <JoinComponent />
   ) : (
     <View style={style.root}>
-      <ScrollView
-        contentContainerStyle={style.main}
-        showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={style.main}>
         {error ? <Error error={error} /> : <></>}
         <Card>
           <View>
