@@ -1,5 +1,5 @@
 import React, {useState, useRef, useContext} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Platform} from 'react-native';
 import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -29,6 +29,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const showReplacePin =
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
   const [videoTileWidth, setVideoTileWidth] = useState(0);
+  const [avatarSize, setAvatarSize] = useState(100);
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <View
@@ -38,6 +39,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           },
         }) => {
           setVideoTileWidth(width);
+          setAvatarSize(Math.floor(width * 0.35));
         }}
         style={[
           maxStyle.container,
@@ -54,8 +56,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             return FallbackLogo(
               user?.name,
               activeSpeaker,
-              showReplacePin ? true : false,
+              showReplacePin && !isMobileUA() ? true : false,
               isMax,
+              avatarSize,
             );
           }}
           user={user}
@@ -76,7 +79,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         ) : (
           <></>
         )}
-        {showReplacePin ? (
+        {showReplacePin && !isMobileUA() ? (
           <IconButton
             onPress={() => {
               dispatch({type: 'UserPin', value: [user.uid]});

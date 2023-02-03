@@ -25,11 +25,14 @@ export default function FallbackLogo(
   isActiveSpeaker?: boolean,
   hideAvatar?: boolean,
   isMax?: boolean,
+  avatarSize?: number,
 ) {
   const {activeUids} = useRender();
   const {currentLayout} = useLayout();
   const {width} = useWindowDimensions();
   const isSmall = width < BREAKPOINTS.xl;
+  const iconSize = Math.min(avatarSize, 100);
+  const textSize = Math.min(avatarSize * 0.35, 32);
   return (
     <View style={[styles.container]}>
       {!hideAvatar ? (
@@ -49,33 +52,44 @@ export default function FallbackLogo(
         //   ]}>
         <UserAvatar
           name={name}
+          //name={avatarSize}
           containerStyle={[
-            styles.avatarBg,
-            currentLayout === getPinnedLayoutName() && !isMax
-              ? styles.avatarBgSmall
-              : {},
-            (!isMobileUA() &&
-              currentLayout === getGridLayoutName() &&
-              isSmall &&
-              activeUids.length > 9) ||
-            (!isMobileUA() &&
-              currentLayout === getPinnedLayoutName() &&
-              isSmall &&
-              !isMax)
-              ? styles.avatarBgMobileUA
-              : {},
-            isMobileUA() &&
-            (activeUids.length > 4 ||
-              (currentLayout === getPinnedLayoutName() && !isMax))
-              ? styles.avatarBgMobileUA
-              : {},
+            //  styles.avatarBg,
+            {
+              width: iconSize,
+              height: iconSize,
+              borderRadius: iconSize / 2,
+            },
+
+            // currentLayout === getPinnedLayoutName() && !isMax
+            //   ? styles.avatarBgSmall
+            //   : {},
+            // (!isMobileUA() &&
+            //   currentLayout === getGridLayoutName() &&
+            //   isSmall &&
+            //   activeUids.length > 9) ||
+            // (!isMobileUA() &&
+            //   currentLayout === getPinnedLayoutName() &&
+            //   isSmall &&
+            //   !isMax)
+            //   ? styles.avatarBgMobileUA
+            //   : {},
+            // isMobileUA() &&
+            // (activeUids.length > 4 ||
+            //   (currentLayout === getPinnedLayoutName() && !isMax))
+            //   ? styles.avatarBgMobileUA
+            //   : {},
+
             {
               backgroundColor: isActiveSpeaker
                 ? $config.PRIMARY_ACTION_BRAND_COLOR
                 : $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
             },
           ]}
-          textStyle={styles.textStyle}
+          textStyle={[
+            styles.textStyle,
+            {fontSize: textSize, lineHeight: textSize},
+          ]}
         />
       ) : (
         //</View>
