@@ -54,7 +54,10 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       };
     } else {
       onPress = () => {
-        setIsHovered(!isHovered);
+        //desktop web don't need onpress
+        if (isMobileUA()) {
+          setIsHovered(!isHovered);
+        }
       };
     }
     let iconButtonProps: Partial<IconButtonProps> = {
@@ -75,20 +78,23 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       ) : (
         <PlatformWrapper
           key={'layout-icon-btn'}
-          showDropdown={isHovered}
-          setIsHovered={(flag) => {
-            if (flag) {
-              setIsHovered(true);
-            } else {
-              if (isMobileOrTablet()) {
-                setIsHovered(false);
-              } else {
-                //setTimeout(() => {
-                setIsHovered(false);
-                // }, 500);
-              }
-            }
-          }}>
+          //showDropdown={isHovered}
+          setIsHovered={
+            setIsHovered
+            // (flag) => {
+            //   if (flag) {
+            //     setIsHovered(true);
+            //   } else {
+            //     if (isMobileOrTablet()) {
+            //       setIsHovered(false);
+            //     } else {
+            //       setTimeout(() => {
+            //         setIsHovered(false);
+            //       }, 100);
+            //     }
+            //   }
+            // }
+          }>
           <IconButton
             disabled={!activeUids || activeUids.length === 0}
             containerStyle={{
@@ -117,7 +123,23 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       {activeUids && activeUids.length ? (
         <PlatformWrapperPopup
           setIsHovered={
-            isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
+            isMobileOrTablet()
+              ? setIsHovered
+              : (isHoveredOnPopup: boolean) => {
+                  if (isHoveredOnPopup) {
+                    setIsHoveredOnModal(isHoveredOnPopup);
+                  } else {
+                    if (isMobileUA()) {
+                      setIsHoveredOnModal(isHoveredOnPopup);
+                    } else {
+                      setTimeout(() => {
+                        if (!isHovered) {
+                          setIsHoveredOnModal(isHoveredOnPopup);
+                        }
+                      }, 100);
+                    }
+                  }
+                }
           }>
           <LayoutIconDropdown
             caretPosition={{
