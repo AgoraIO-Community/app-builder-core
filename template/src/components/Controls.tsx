@@ -56,6 +56,7 @@ import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 
 const MoreButton = () => {
+  const {rtcProps} = useContext(PropsContext);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
@@ -65,6 +66,9 @@ const MoreButton = () => {
   const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const {setSidePanel} = useSidePanel();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const {
     showLayoutOption,
     setShowInvitePopup,
@@ -98,49 +102,59 @@ const MoreButton = () => {
         setSidePanel(SidePanelType.Chat);
       },
     });
-    actionMenuitems.push({
-      icon: 'settings',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Settings',
-      callback: () => {
-        setActionMenuVisible(false);
-        setSidePanel(SidePanelType.Settings);
-      },
-    });
-    actionMenuitems.push({
-      icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
-      iconColor: isScreenshareActive
-        ? $config.SEMANTIC_ERROR
-        : $config.SECONDARY_ACTION_COLOR,
-      textColor: isScreenshareActive
-        ? $config.SEMANTIC_ERROR
-        : $config.FONT_COLOR,
-      title: isScreenshareActive ? 'Stop Share' : 'Share',
-      callback: () => {
-        setActionMenuVisible(false);
-        isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
-      },
-    });
-    actionMenuitems.push({
-      disabled: inProgress,
-      icon: isRecordingActive ? 'stop-recording' : 'recording',
-      iconColor: isRecordingActive
-        ? $config.SEMANTIC_ERROR
-        : $config.SECONDARY_ACTION_COLOR,
-      textColor: isRecordingActive
-        ? $config.SEMANTIC_ERROR
-        : $config.FONT_COLOR,
-      title: isRecordingActive ? 'Stop Recording' : 'Record',
-      callback: () => {
-        setActionMenuVisible(false);
-        if (!isRecordingActive) {
-          startRecording();
-        } else {
-          setShowStopRecordingPopup(true);
-        }
-      },
-    });
+
+    if ($config.SCREEN_SHARING) {
+      if (
+        !(
+          rtcProps.role == ClientRole.Audience &&
+          $config.EVENT_MODE &&
+          !$config.RAISE_HAND
+        )
+      ) {
+        actionMenuitems.push({
+          disabled:
+            rtcProps.role == ClientRole.Audience &&
+            $config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            !isHost,
+          icon: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
+          iconColor: isScreenshareActive
+            ? $config.SEMANTIC_ERROR
+            : $config.SECONDARY_ACTION_COLOR,
+          textColor: isScreenshareActive
+            ? $config.SEMANTIC_ERROR
+            : $config.FONT_COLOR,
+          title: isScreenshareActive ? 'Stop Share' : 'Share',
+          callback: () => {
+            setActionMenuVisible(false);
+            isScreenshareActive
+              ? stopUserScreenShare()
+              : startUserScreenshare();
+          },
+        });
+      }
+    }
+    if (isHost && $config.CLOUD_RECORDING) {
+      actionMenuitems.push({
+        disabled: inProgress,
+        icon: isRecordingActive ? 'stop-recording' : 'recording',
+        iconColor: isRecordingActive
+          ? $config.SEMANTIC_ERROR
+          : $config.SECONDARY_ACTION_COLOR,
+        textColor: isRecordingActive
+          ? $config.SEMANTIC_ERROR
+          : $config.FONT_COLOR,
+        title: isRecordingActive ? 'Stop Recording' : 'Record',
+        callback: () => {
+          setActionMenuVisible(false);
+          if (!isRecordingActive) {
+            startRecording();
+          } else {
+            setShowStopRecordingPopup(true);
+          }
+        },
+      });
+    }
   }
 
   if (globalWidth <= BREAKPOINTS.md) {
@@ -160,7 +174,11 @@ const MoreButton = () => {
           onHoverPlaceHolder="vertical"
           setShowDropdown={() => {}}
           showDropdown={true}
-          modalPosition={{bottom: 20, left: -150}}
+          modalPosition={
+            globalWidth <= BREAKPOINTS.sm
+              ? {bottom: 65, left: -150}
+              : {bottom: 20, left: -150}
+          }
           caretPosition={{bottom: 45, right: -10}}
         />
       ),
@@ -177,24 +195,29 @@ const MoreButton = () => {
     });
   }
 
-  // if (globalWidth <= BREAKPOINTS.sm) {
-  //   actionMenuitems.push({
-  //     icon: 'settings',
-  //     iconColor: $config.SECONDARY_ACTION_COLOR,
-  //     textColor: $config.FONT_COLOR,
-  //     title: 'Settings',
-  //     callback: () => {
-  //       setActionMenuVisible(false);
-  //       setSidePanel(SidePanelType.Settings);
-  //     },
-  //   });
-  // }
+  if (globalWidth <= BREAKPOINTS.sm) {
+    actionMenuitems.push({
+      icon: 'settings',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Settings',
+      callback: () => {
+        setActionMenuVisible(false);
+        setSidePanel(SidePanelType.Settings);
+      },
+    });
+  }
 
   useEffect(() => {
     if (isHovered) {
       setActionMenuVisible(true);
     }
   }, [isHovered]);
+
+  useEffect(() => {
+    //hide action menu when user change layout
+    setActionMenuVisible(false);
+  }, [currentLayout]);
 
   return (
     <>
