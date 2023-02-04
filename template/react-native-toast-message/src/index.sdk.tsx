@@ -11,7 +11,7 @@ import { stylePropType } from './utils/prop-types';
 import { isIOS } from './utils/platform';
 import styles from './styles';
 import isMobileOrTablet from '../../src/utils/isMobileOrTablet';
-import { isWebInternal } from '../../src/utils/common';
+import { isWebInternal, isMobileUA } from '../../src/utils/common';
 
 const FRICTION = 8;
 
@@ -286,7 +286,7 @@ class Toast extends Component {
   }
 
   async hide({ speed, forceHide = false } = {}) {
-    if (this.state.isHovered && !forceHide) {
+    if (this.state.isHovered && !forceHide && !isMobileUA()) {
       return;
     } else {
       await this._setState((prevState) => ({
@@ -423,14 +423,16 @@ class Toast extends Component {
     return (
       <PlatformWrapper
         setIsHovered={(value) => {
-          this.setState({
-            isHovered: value
-          });
-          setTimeout(() => {
-            if (!value) {
-              this.startTimer();
-            }
-          });
+          if (!isMobileUA()) {
+            this.setState({
+              isHovered: value
+            });
+            setTimeout(() => {
+              if (!value) {
+                this.startTimer();
+              }
+            });
+          }
         }}>
         <Animated.View
           testID='animatedView'
