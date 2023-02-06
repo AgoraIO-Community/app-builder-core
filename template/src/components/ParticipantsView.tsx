@@ -39,6 +39,7 @@ import SidePanelHeader, {
 import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
 import {useLayout, useRender} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
+import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
 
 const ParticipantView = (props) => {
   const {activeUids} = useRender();
@@ -50,6 +51,7 @@ const ParticipantView = (props) => {
   const {onlineUsersCount} = useContext(ChatContext);
   const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
+  const {showHeader = false} = props;
   //commented for v1 release
   // const hostLabel = useString('hostLabel')();
   // const audienceLabel = useString('audienceLabel')();
@@ -85,15 +87,7 @@ const ParticipantView = (props) => {
           ? {marginVertical: 4}
           : {},
       ]}>
-      <SidePanelHeader
-        centerComponent={
-          <Text style={SidePanelStyles.heading}>{participantsLabel}</Text>
-        }
-        trailingIconName="close"
-        trailingIconOnPress={() => {
-          setSidePanel(SidePanelType.None);
-        }}
-      />
+      {showHeader && <PeopleHeader />}
       <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
           <>
