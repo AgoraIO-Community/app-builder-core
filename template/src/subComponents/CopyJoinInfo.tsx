@@ -24,8 +24,6 @@ export interface CopyJoinInfoProps {
 }
 
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
-  const {phrase} = useParams<{phrase: string}>();
-  const getMeeting = useGetMeetingPhrase();
   const {
     showLabel = $config.ICON_TEXT || false,
     showTeritaryButton = false,
@@ -35,9 +33,6 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
   //const copyMeetingInviteButton = useString('copyMeetingInviteButton')();
   const copyMeetingInviteButton = 'Invite';
   const {setShowInvitePopup} = useVideoCall();
-  useEffect(() => {
-    getMeeting(phrase);
-  }, [phrase]);
 
   const onPress = () => {
     setShowInvitePopup(true);

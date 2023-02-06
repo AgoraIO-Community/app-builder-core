@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
   SHARE_LINK_CONTENT_TYPE,
@@ -23,22 +23,32 @@ import ThemeConfig from '../../theme';
 import {CopyMeetingInfo} from '../../components/Share';
 import {useIsDesktop} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
+import {useParams} from '../Router';
+import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
-  const isDesktop = useIsDesktop()('popup');
+  const isDesktop = useIsDesktop();
   const {copyShareLinkToClipboard} = useShareLink();
+  const {phrase} = useParams<{phrase: string}>();
+  const getMeeting = useGetMeetingPhrase();
+  useEffect(() => {
+    getMeeting(phrase);
+  }, [phrase]);
   return (
     <Popup
       modalVisible={showInvitePopup}
       setModalVisible={setShowInvitePopup}
       title="Invite others to join this meeting"
       showCloseIcon={true}
-      containerStyle={{alignItems: isDesktop ? 'center' : 'stretch'}}
+      containerStyle={{alignItems: isDesktop('popup') ? 'center' : 'stretch'}}
       contentContainerStyle={style.contentContainer}>
       <CopyMeetingInfo showSubLabel={false} />
-      <View style={isDesktop ? style.btnContainer : style.btnContainerMobile}>
-        {isDesktop ? (
+      <View
+        style={
+          isDesktop('popup') ? style.btnContainer : style.btnContainerMobile
+        }>
+        {isDesktop('popup') ? (
           <View style={{flex: 1}}>
             <TertiaryButton
               text={'CANCEL'}
@@ -56,7 +66,7 @@ const InvitePopup = () => {
             />
           </View>
         ) : null}
-        {isDesktop ? <Spacer size={10} horizontal={true} /> : <></>}
+        {isDesktop('popup') ? <Spacer size={10} horizontal={true} /> : <></>}
         <View style={{flex: 1}}>
           <PrimaryButton
             textStyle={style.btnText}
