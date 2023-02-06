@@ -12,8 +12,10 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import ToastComponent from '../../components/ToastComponent';
 import {isMobileUA} from '../../utils/common';
+import {useToast} from '../../components/useToast';
 
 const ActionSheet = () => {
+  const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
@@ -22,7 +24,8 @@ const ActionSheet = () => {
   const chatSheetRef = useRef<BottomSheetRef>(null);
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
-  const ToastComponentRender = isMobileUA() ? <ToastComponent /> : <></>;
+  const ToastComponentRender =
+    isMobileUA() && isExpanded ? <ToastComponent /> : <></>;
   const {sidePanel, setSidePanel} = useSidePanel();
   const [showOverlay, setShowOverlay] = React.useState(false);
   const handleSheetChanges = useCallback((index: number) => {
@@ -36,6 +39,14 @@ const ActionSheet = () => {
     root.style.setProperty('--sheet-background', $config.CARD_LAYER_1_COLOR);
     root.style.setProperty('--handle-background', $config.SEMANTIC_NETRUAL);
   }, []);
+
+  useEffect(() => {
+    if (isExpanded) {
+      setActionSheetVisible(true);
+    } else {
+      setActionSheetVisible(false);
+    }
+  }, [isExpanded]);
 
   // updating on sidepanel changes
   useEffect(() => {

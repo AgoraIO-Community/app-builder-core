@@ -31,6 +31,7 @@ import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
 import {PropsConsumer} from 'agora-rn-uikit';
 import ToastComponent from './components/ToastComponent';
+import {ToastContext, ToastProvider} from './components/useToast';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -81,26 +82,32 @@ const AppWrapper = (props: AppWrapperProps) => {
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-          <ToastComponent />
-          <StorageProvider>
-            <GraphQLProvider>
-              <Router>
-                <SessionProvider>
-                  <ColorConfigure>
-                    <DimensionProvider>
-                      <LanguageProvider>
-                        <ErrorProvider>
-                          <Error />
-                          <Navigation />
-                          {props.children}
-                        </ErrorProvider>
-                      </LanguageProvider>
-                    </DimensionProvider>
-                  </ColorConfigure>
-                </SessionProvider>
-              </Router>
-            </GraphQLProvider>
-          </StorageProvider>
+          <ToastProvider>
+            <ToastContext.Consumer>
+              {({isActionSheetVisible}) => {
+                return !isActionSheetVisible ? <ToastComponent /> : null;
+              }}
+            </ToastContext.Consumer>
+            <StorageProvider>
+              <GraphQLProvider>
+                <Router>
+                  <SessionProvider>
+                    <ColorConfigure>
+                      <DimensionProvider>
+                        <LanguageProvider>
+                          <ErrorProvider>
+                            <Error />
+                            <Navigation />
+                            {props.children}
+                          </ErrorProvider>
+                        </LanguageProvider>
+                      </DimensionProvider>
+                    </ColorConfigure>
+                  </SessionProvider>
+                </Router>
+              </GraphQLProvider>
+            </StorageProvider>
+          </ToastProvider>
         </SafeAreaView>
       </ImageBackgroundComp>
     </AppRoot>
