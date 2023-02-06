@@ -162,7 +162,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
 };
 
 const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
-  return isWebInternal() ? (
+  return isWebInternal() && !isMobileUA() ? (
     <div
       style={{width: '100%', height: '100%'}}
       /**
