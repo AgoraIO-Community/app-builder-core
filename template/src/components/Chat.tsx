@@ -90,18 +90,6 @@ const Chat = (props?: ChatProps) => {
     };
   }, []);
 
-  const selectGroup = () => {
-    setPrivateActive(false);
-    setGroupActive(true);
-    //move this logic into ChatContainer
-    //setUnreadGroupMessageCount(0);
-    setSelectedUser(0);
-  };
-  const selectPrivate = () => {
-    setGroupActive(false);
-    setSelectedUser(0);
-    setPrivateActive(false);
-  };
   const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
