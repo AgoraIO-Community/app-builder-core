@@ -17,6 +17,7 @@ import Toast, {BaseToast} from '../../react-native-toast-message';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ImageIcon from '../atoms/ImageIcon';
 import {IconsInterface} from 'src/atoms/CustomIcon';
+import {autoUpdater} from 'electron';
 
 const trailingIcon = (
   <TouchableOpacity
@@ -98,7 +99,7 @@ const ToastConfig = {
       //BaseToast is modified to have zIndex: 100
       trailingIcon={trailingIcon}
       style={{
-        height: primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
+        height: 'auto', //primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
         borderRadius: ThemeConfig.BorderRadius.small,
         borderTopWidth: 6,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
@@ -121,7 +122,7 @@ export default ToastConfig;
 const styles = StyleSheet.create({
   text1Style: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
+    lineHeight: 22,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     color: $config.FONT_COLOR,
@@ -129,11 +130,11 @@ const styles = StyleSheet.create({
   },
   text2Style: {
     fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: ThemeConfig.FontSize.normal,
+    lineHeight: 22,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    paddingTop: 11,
+    marginTop: 11,
     alignSelf: 'center',
   },
   contentContainerStyle: {
