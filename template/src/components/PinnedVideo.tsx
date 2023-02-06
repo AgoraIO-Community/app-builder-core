@@ -44,6 +44,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
       {!collapse && (
         <ScrollView
           horizontal={!isSidePinnedlayout}
+          showsHorizontalScrollIndicator={isMobileUA() ? false : true}
           decelerationRate={0}
           style={
             isSidePinnedlayout
