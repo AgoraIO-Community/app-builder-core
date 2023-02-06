@@ -112,9 +112,16 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
-  const showToast = (text: string, text2: string, uid?: UidType) => {
+  const showToast = (
+    text: string,
+    text2: string,
+    uid?: UidType,
+    toastId?: number,
+  ) => {
     let btns: any = {};
     if (uid) {
+      //toastId used to hide this particular notification
+      btns.toastId = toastId;
       btns.primaryBtn = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
@@ -358,6 +365,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                   }`,
                   LSNotificationObject.RAISE_HAND_RECEIVED.text2,
                   data.sender,
+                  data.ts,
                 );
               }
               // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand

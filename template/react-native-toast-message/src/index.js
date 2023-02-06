@@ -90,6 +90,10 @@ class Toast extends Component {
     Toast._ref?.hide({ forceHide: true });
   }
 
+  static getToastId() {
+    return Toast._ref?.getToastId();
+  }
+
   constructor(props) {
     super(props);
 
@@ -113,7 +117,8 @@ class Toast extends Component {
 
       customProps: {},
       customStyle: this.getCustomStyle(),
-      isHovered: false
+      isHovered: false,
+      toastId: 0
     };
 
     this.panResponder = PanResponder.create({
@@ -129,6 +134,10 @@ class Toast extends Component {
       }
     });
   }
+
+  getToastId = () => {
+    return this.state?.toastId;
+  };
 
   getCustomStyle = () => {
     let customStyle = {};
@@ -300,7 +309,8 @@ class Toast extends Component {
       await this._setState((prevState) => ({
         ...prevState,
         isVisible: false,
-        inProgress: false
+        inProgress: false,
+        toastId: 0
       }));
 
       const { onHide } = this.state;
@@ -373,7 +383,8 @@ class Toast extends Component {
           'show',
           'onPress',
           'primaryBtn',
-          'secondaryBtn'
+          'secondaryBtn',
+          'toastId'
         ]
       }),
       props: { ...customProps },
