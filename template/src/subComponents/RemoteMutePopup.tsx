@@ -26,14 +26,36 @@ export interface ActionMenuProps {
   name: string;
   onMutePress: () => void;
   type: 'video' | 'audio';
+  action?: 'mute' | 'request';
 }
 
 const RemoteMutePopup = (props: ActionMenuProps) => {
   const {height} = useWindowDimensions();
-  const {actionMenuVisible, setActionMenuVisible, modalPosition} = props;
-  let message = props?.name
-    ? `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`
-    : `Mute everyone's ${props.type} on the call?`;
+  const {
+    actionMenuVisible,
+    setActionMenuVisible,
+    modalPosition,
+    action = 'mute',
+  } = props;
+  let message = '';
+
+  if (props.name) {
+    //mute action
+    if (action === 'mute') {
+      message = `Mute ${props.name}'s ${props.type} for everyone on the call? Only ${props.name} can unmute themselves.`;
+    }
+    //request action
+    else {
+      if (props?.type === 'audio') {
+        message = `Request ${props.name} to turn on the microphone?`;
+      } else {
+        message = `Request ${props.name} to turn on the camera?`;
+      }
+    }
+  } else {
+    message = `Mute everyone's ${props.type} on the call?`;
+  }
+
   return (
     <View>
       <Modal
@@ -85,7 +107,9 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
                     <TouchableOpacity
                       style={isHovered ? styles.onHoverBtnStyle : {}}
                       onPress={() => props.onMutePress()}>
-                      <Text style={styles.btnText}>Mute</Text>
+                      <Text style={styles.btnText}>
+                        {action === 'mute' ? 'Mute' : 'Request'}
+                      </Text>
                     </TouchableOpacity>
                   );
                 }}
