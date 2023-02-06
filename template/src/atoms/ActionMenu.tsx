@@ -80,7 +80,16 @@ const ActionMenu = (props: ActionMenuProps) => {
                 disabled={disabled}
                 style={[
                   styles.row,
-                  isHovered && !disabled ? styles.rowHovered : {},
+                  isHovered && !disabled
+                    ? //first item should have border-radius on top left and top right
+                      index === 0
+                      ? styles.rowHoveredFirstChild
+                      : //last item should have border-radius on bottom left and top right
+                      items?.length - 1 === index
+                      ? styles.rowHoveredLastChild
+                      : //middle items don't need any border-radius
+                        styles.rowHoveredMiddleItems
+                    : {},
                   disabled ? {opacity: 0.4} : {},
                   items?.length - 1 === index
                     ? {borderBottomColor: 'transparent'}
@@ -167,8 +176,8 @@ export default ActionMenu;
 
 const styles = StyleSheet.create({
   modalView: {
+    //don't added overflow: hidden, bottombar minimized version layout popup will be shown in the overflow
     position: 'absolute',
-    overflow: 'hidden',
     width: 230,
     backgroundColor: $config.CARD_LAYER_4_COLOR,
     borderRadius: 4,
@@ -182,9 +191,21 @@ const styles = StyleSheet.create({
     zIndex: 1,
     elevation: 1,
   },
-  rowHovered: {
+  rowHoveredMiddleItems: {
     backgroundColor:
       $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+  },
+  rowHoveredFirstChild: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+  rowHoveredLastChild: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
   },
   row: {
     borderBottomWidth: 1,
