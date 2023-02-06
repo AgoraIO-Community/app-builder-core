@@ -10,10 +10,9 @@ import React, {useCallback, useRef, useState} from 'react';
 import BottomSheet, {
   BottomSheetModal,
   BottomSheetModalProvider,
-  BottomSheetProps,
-  BottomSheetScrollView,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import KeyboardManager from 'react-native-keyboard-manager';
 
 import Chat from '../../components/Chat';
 import ParticipantView from '../../components/ParticipantsView';
@@ -21,6 +20,7 @@ import SettingsView from '../../components/SettingsView';
 import ActionSheetContent from './ActionSheetContent';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
+import {isIOS} from '../../utils/common';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -68,6 +68,13 @@ const ActionSheet = () => {
     }
   }, [sidePanel]);
 
+  React.useEffect(() => {
+    if (isIOS()) {
+      KeyboardManager.setEnable(false);
+      return () => KeyboardManager.setEnable(true);
+    }
+  }, []);
+
   function onDismiss() {
     setSidePanel(SidePanelType.None);
   }
@@ -107,6 +114,7 @@ const ActionSheet = () => {
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         enableContentPanningGesture={false}
+        keyboardBehavior="extend"
         stackBehavior="push">
         <BottomSheetView>
           <Chat />
