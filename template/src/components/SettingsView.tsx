@@ -42,6 +42,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useFocus} from '../utils/useFocus';
+import {SettingsHeader} from '../pages/video-call/SidePanelHeader';
 
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
@@ -240,7 +241,7 @@ const editNameStyle = StyleSheet.create({
   },
 });
 const SettingsView = (props) => {
-  const {hideName = false} = props;
+  const {hideName = false, showHeader = true} = props;
   const isSmall = useIsSmall();
   const settingsLabel = 'Settings';
   const {setSidePanel} = useSidePanel();
@@ -261,16 +262,7 @@ const SettingsView = (props) => {
           ? {marginVertical: 4}
           : {},
       ]}>
-      <SidePanelHeader
-        centerComponent={
-          <Text style={SidePanelStyles.heading}>{settingsLabel}</Text>
-        }
-        trailingIconName="close"
-        trailingIconOnPress={() => {
-          props.handleClose && props.handleClose();
-          setSidePanel(SidePanelType.None);
-        }}
-      />
+      {showHeader && <SettingsHeader {...props} />}
       <ScrollView style={style.contentContainer}>
         {hideName ? <></> : <EditName />}
         {isWebInternal() && <SelectDevice isIconDropdown />}

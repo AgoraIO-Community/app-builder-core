@@ -41,11 +41,13 @@ import SidePanelHeader from '../subComponents/SidePanelHeader';
 import CommonStyles from './CommonStyles';
 import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
+import {ChatHeader} from '../pages/video-call/SidePanelHeader';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+  showHeader?: boolean;
 }
 
 const Chat = (props?: ChatProps) => {
@@ -58,6 +60,7 @@ const Chat = (props?: ChatProps) => {
 
   const isSmall = useIsSmall();
   const {setSidePanel} = useSidePanel();
+  const {showHeader = true} = props;
 
   const {
     groupActive,
@@ -87,18 +90,6 @@ const Chat = (props?: ChatProps) => {
     };
   }, []);
 
-  const selectGroup = () => {
-    setPrivateActive(false);
-    setGroupActive(true);
-    //move this logic into ChatContainer
-    //setUnreadGroupMessageCount(0);
-    setSelectedUser(0);
-  };
-  const selectPrivate = () => {
-    setGroupActive(false);
-    setSelectedUser(0);
-    setPrivateActive(false);
-  };
   const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);
     setPrivateActive(true);
@@ -168,54 +159,7 @@ const Chat = (props?: ChatProps) => {
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view
          */}
         <ChatBeforeView />
-        <SidePanelHeader
-          isChat={true}
-          leadingIconName={privateActive ? 'back-btn' : null}
-          leadingIconOnPress={
-            privateActive
-              ? () => {
-                  setSelectedUser(0);
-                  setPrivateActive(false);
-                }
-              : () => {}
-          }
-          centerComponent={
-            <View style={style.buttonHolder}>
-              <TouchableOpacity
-                onPress={selectGroup}
-                style={
-                  groupActive ? style.activeContainer : style.nonActiveContainer
-                }>
-                {unreadGroupMessageCount !== 0 ? (
-                  <View style={style.chatNotification} />
-                ) : null}
-                <Text
-                  style={groupActive ? style.activeText : style.nonActiveText}>
-                  {groupChatLabel}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={selectPrivate}
-                style={
-                  !groupActive
-                    ? [style.activeContainer]
-                    : [style.nonActiveContainer]
-                }>
-                {unreadPrivateMessageCount !== 0 ? (
-                  <View style={style.chatNotification} />
-                ) : null}
-                <Text
-                  style={!groupActive ? style.activeText : style.nonActiveText}>
-                  {privateChatLabel}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          }
-          trailingIconName="close"
-          trailingIconOnPress={() => {
-            setSidePanel(SidePanelType.None);
-          }}
-        />
+        {showHeader && <ChatHeader />}
         {groupActive ? (
           <>
             <ChatContainer {...props} />

@@ -21,6 +21,8 @@ import ActionSheetContent from './ActionSheetContent';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import {isIOS} from '../../utils/common';
+import ActionSheetHandle from './ActionSheetHandle';
+import Spacer from '../../atoms/Spacer';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -95,6 +97,12 @@ const ActionSheet = () => {
         style={styles.container}
         backgroundStyle={styles.backgroundStyle}
         stackBehavior="push"
+        handleComponent={() => (
+          <>
+            <ActionSheetHandle sidePanel={SidePanelType.None} />
+            <Spacer size={12} />
+          </>
+        )}
         handleIndicatorStyle={styles.handleIndicatorStyle}>
         <BottomSheetView>
           <ActionSheetContent
@@ -114,10 +122,13 @@ const ActionSheet = () => {
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         enableContentPanningGesture={false}
+        handleComponent={() => (
+          <ActionSheetHandle sidePanel={SidePanelType.Chat} />
+        )}
         keyboardBehavior="extend"
         stackBehavior="push">
         <BottomSheetView>
-          <Chat />
+          <Chat showHeader={false} />
         </BottomSheetView>
       </BottomSheetModal>
 
@@ -131,9 +142,12 @@ const ActionSheet = () => {
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         enableContentPanningGesture={false}
+        handleComponent={() => (
+          <ActionSheetHandle sidePanel={SidePanelType.Participants} />
+        )}
         stackBehavior="push">
         <BottomSheetView>
-          <ParticipantView />
+          <ParticipantView showHeader={false} />
         </BottomSheetView>
       </BottomSheetModal>
 
@@ -147,9 +161,12 @@ const ActionSheet = () => {
         backgroundStyle={styles.backgroundStyle}
         handleIndicatorStyle={styles.handleIndicatorStyle}
         enableContentPanningGesture={false}
+        handleComponent={() => (
+          <ActionSheetHandle sidePanel={SidePanelType.Settings} />
+        )}
         stackBehavior="push">
         <BottomSheetView>
-          <SettingsView />
+          <SettingsView showHeader={false} />
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>
@@ -182,9 +199,9 @@ const styles = StyleSheet.create({
   },
 
   handleIndicatorStyle: {
-    backgroundColor: $config.SEMANTIC_NETRUAL,
-    width: 40,
-    height: 4,
+    // backgroundColor: $config.SEMANTIC_NETRUAL,
+    // width: 40,
+    // height: 4,
   },
   backDrop: {
     position: 'absolute',
