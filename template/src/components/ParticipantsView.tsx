@@ -51,7 +51,7 @@ const ParticipantView = (props) => {
   const {onlineUsersCount} = useContext(ChatContext);
   const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
-  const {showHeader = false} = props;
+  const {showHeader = true} = props;
   //commented for v1 release
   // const hostLabel = useString('hostLabel')();
   // const audienceLabel = useString('audienceLabel')();
