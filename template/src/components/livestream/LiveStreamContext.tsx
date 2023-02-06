@@ -370,7 +370,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               break;
             case RaiseHandValue.FALSE:
               // Step 1: Show notifications
-              if (payload.ts > rtmInitTimstamp) {
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
                 showToast(
                   `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
@@ -615,6 +618,17 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Change role
       changeClientRoleTo(ClientRole.Audience);
     }
+    //notify host users
+    events.send(
+      EventNames.RAISED_ATTRIBUTE,
+      JSON.stringify({
+        action: LiveStreamControlMessageEnum.raiseHandRequest,
+        value: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      }),
+      EventPersistLevel.LEVEL2,
+    );
     UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
     showToast(
       LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text1,
