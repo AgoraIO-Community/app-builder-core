@@ -90,7 +90,7 @@ function BaseToast({
                 marginRight: 8
               }}
             />
-            <Text>{checkbox.text}</Text>
+            <Text style={{ color: 'white' }}>{checkbox.text}</Text>
           </Pressable>
         )}
         {primaryBtn || secondaryBtn ? (
@@ -98,7 +98,7 @@ function BaseToast({
             style={{
               flex: 1,
               flexDirection: 'row',
-              paddingTop: 8,
+              paddingTop: 16,
               paddingBottom: 24
             }}>
             {primaryBtn && (
@@ -108,7 +108,8 @@ function BaseToast({
                   height: 40,
                   borderRadius: 4,
                   paddingVertical: 0,
-                  paddingHorizontal: 12
+                  paddingHorizontal: 12,
+                  minWidth: 'unset'
                 }}
                 {...primaryBtn}
                 onPress={(e) => {

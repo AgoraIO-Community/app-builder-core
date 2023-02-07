@@ -440,7 +440,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         setAction: setSelectedCam,
       },
       audiooutput: {
-        name: 'mic',
+        name: 'speaker',
         setAction: setSelectedSpeaker,
       },
     }[device.kind];
@@ -454,7 +454,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         <Text>
           <Text>New {name} named </Text>
           <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
-          <Text> detected. Do you want to switch</Text>
+          <Text> detected. Do you want to switch?</Text>
         </Text>
       ),
       visibilityTime: 60000,
