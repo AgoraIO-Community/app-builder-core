@@ -47,6 +47,7 @@ import ActionMenu, {ActionMenuItem} from '../atoms/ActionMenu';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   SidePanelType,
+  useChatUIControl,
   useLayout,
   useRecording,
   useSidePanel,
@@ -65,7 +66,7 @@ const MoreButton = () => {
   const layouts = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
-  const {setSidePanel} = useSidePanel();
+  const {setSidePanel, sidePanel} = useSidePanel();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -78,7 +79,7 @@ const MoreButton = () => {
   const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
     useScreenshare();
   const {isRecordingActive, startRecording, inProgress} = useRecording();
-
+  const {setGroupActive} = useChatUIControl();
   const actionMenuitems: ActionMenuItem[] = [];
 
   if (globalWidth <= BREAKPOINTS.sm) {
@@ -99,6 +100,7 @@ const MoreButton = () => {
       title: 'Chat',
       callback: () => {
         setActionMenuVisible(false);
+        setGroupActive(true);
         setSidePanel(SidePanelType.Chat);
       },
     });

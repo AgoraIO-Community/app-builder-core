@@ -60,6 +60,8 @@ declare module 'react-native-toast-message' {
 
     static hide(): void;
 
+    static getToastId(): number;
+
     static setRef(ref: any): any;
   }
 }

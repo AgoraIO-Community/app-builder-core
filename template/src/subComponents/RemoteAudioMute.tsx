@@ -20,7 +20,7 @@ import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
 import {useRender} from 'customization-api';
 import {calculatePosition} from '../utils/common';
-
+import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 export interface RemoteAudioMuteProps {
   uid: UidType;
   audio: boolean;
@@ -36,6 +36,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
   const btnRef = useRef(null);
   const {isHost = false, userContainerRef} = props;
   const muteRemoteAudio = useRemoteMute();
+  const requestRemoteAudio = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
   const [pos, setPos] = useState({});
   const {renderList} = useRender();
@@ -50,13 +51,16 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
         console.error('An error occurred while muting the PSTN user.');
       }
     } else {
-      muteRemoteAudio(MUTE_REMOTE_TYPE.audio, props.uid);
+      props?.audio
+        ? muteRemoteAudio(MUTE_REMOTE_TYPE.audio, props.uid)
+        : requestRemoteAudio(REQUEST_REMOTE_TYPE.audio, props.uid);
     }
     setShowModal(false);
   };
   return (
     <>
       <RemoteMutePopup
+        action={props?.audio ? 'mute' : 'request'}
         type="audio"
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
@@ -66,7 +70,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
       />
       <IconButton
         setRef={(ref) => (btnRef.current = ref)}
-        disabled={!isHost || !props.audio}
+        disabled={!isHost}
         onPress={() => {
           btnRef?.current?.measure(
             (

@@ -112,9 +112,16 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
-  const showToast = (text: string, text2: string, uid?: UidType) => {
+  const showToast = (
+    text: string,
+    text2: string,
+    uid?: UidType,
+    toastId?: number,
+  ) => {
     let btns: any = {};
     if (uid) {
+      //toastId used to hide this particular notification
+      btns.toastId = toastId;
       btns.primaryBtn = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
@@ -358,6 +365,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                   }`,
                   LSNotificationObject.RAISE_HAND_RECEIVED.text2,
                   data.sender,
+                  data.ts,
                 );
               }
               // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
@@ -370,7 +378,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
               break;
             case RaiseHandValue.FALSE:
               // Step 1: Show notifications
-              if (payload.ts > rtmInitTimstamp) {
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
                 showToast(
                   `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
@@ -615,6 +626,17 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Change role
       changeClientRoleTo(ClientRole.Audience);
     }
+    //notify host users
+    events.send(
+      EventNames.RAISED_ATTRIBUTE,
+      JSON.stringify({
+        action: LiveStreamControlMessageEnum.raiseHandRequest,
+        value: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      }),
+      EventPersistLevel.LEVEL2,
+    );
     UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
     showToast(
       LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text1,
