@@ -1,4 +1,4 @@
-import React, {useState, useRef, useContext} from 'react';
+import React, {useState, useRef, useContext, useEffect} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
 import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
@@ -75,7 +75,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         />
         {user.uid !== rtcProps?.screenShareUid &&
         (isHovered || isMobileUA()) ? (
-          <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
+          <MoreMenu
+            isMax={isMax}
+            pinnedUid={pinnedUid}
+            user={user}
+            setIsHovered={setIsHovered}
+          />
         ) : (
           <></>
         )}
@@ -113,8 +118,9 @@ interface MoreMenuProps {
   user: RenderInterface;
   isMax: boolean;
   pinnedUid: UidType;
+  setIsHovered: (isHovered: boolean) => void;
 }
-const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
+const MoreMenu = ({user, isMax, pinnedUid, setIsHovered}: MoreMenuProps) => {
   const videoMoreMenuRef = useRef(null);
   const {activeUids} = useRender();
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
@@ -134,7 +140,13 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         }}>
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={setActionMenuVisible}
+          setActionMenuVisible={(flag) => {
+            //once user clicks action menu item -> hide the action menu and set parent isHovered false
+            if (!flag) {
+              setIsHovered(false);
+            }
+            setActionMenuVisible(flag);
+          }}
           user={user}
           btnRef={videoMoreMenuRef}
           from={'video-tile'}
