@@ -100,6 +100,17 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
       });
   }, [deviceList]);
 
+  useEffect(() => {
+    const selectedDeviceExists = Boolean(
+      data.find((device) => device.value === selectedCam),
+    );
+    if (isPendingUpdate) {
+      selectedDeviceExists && setIsPendingUpdate(false);
+    } else {
+      !selectedDeviceExists && setIsPendingUpdate(true);
+    }
+  }, [selectedCam, deviceList]);
+
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
@@ -120,6 +131,8 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
         label={
           !isPermissionGranted || !data || !data.length
             ? 'No Camera Detected'
+            : isPendingUpdate
+            ? 'Updating'
             : ''
         }
         data={isPermissionGranted ? data : []}
@@ -154,8 +167,8 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = useState(false);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
 
   const data = useMemo(() => {
     return deviceList
@@ -173,6 +186,17 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         }
       });
   }, [deviceList]);
+
+  useEffect(() => {
+    const selectedDeviceExists = Boolean(
+      data.find((device) => device.value === selectedMic),
+    );
+    if (isPendingUpdate) {
+      selectedDeviceExists && setIsPendingUpdate(false);
+    } else {
+      !selectedDeviceExists && setIsPendingUpdate(true);
+    }
+  }, [selectedMic, deviceList]);
 
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
@@ -195,6 +219,8 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
         label={
           !isPermissionGranted || !data || !data.length
             ? 'No Microphone Detected'
+            : isPendingUpdate
+            ? 'Updating'
             : ''
         }
         data={isPermissionGranted ? data : []}
@@ -250,6 +276,17 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
       });
   }, [deviceList]);
 
+  useEffect(() => {
+    const selectedDeviceExists = Boolean(
+      data.find((device) => device.value === selectedSpeaker),
+    );
+    if (isPendingUpdate) {
+      selectedDeviceExists && setIsPendingUpdate(false);
+    } else {
+      !selectedDeviceExists && setIsPendingUpdate(true);
+    }
+  }, [selectedSpeaker, deviceList]);
+
   return props?.render ? (
     props.render(
       selectedSpeaker,
@@ -297,7 +334,13 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           }
           enabled={data && data.length && !isPendingUpdate}
           selectedValue={selectedSpeaker}
-          label={!data || !data.length ? 'No Speaker Detected' : ''}
+          label={
+            !data || !data.length
+              ? 'No Speaker Detected'
+              : isPendingUpdate
+              ? 'Updating'
+              : ''
+          }
           data={data}
           onSelect={({label, value}) => {
             setIsFocussed(true);
