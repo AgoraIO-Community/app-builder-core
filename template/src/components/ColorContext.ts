@@ -15,6 +15,6 @@ interface ColorContext {
   primaryColor: any;
 }
 
-const ColorContext = createContext((null as unknown) as ColorContext);
+const ColorContext = createContext({} as unknown as ColorContext);
 
 export default ColorContext;

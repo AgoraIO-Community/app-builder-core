@@ -28,6 +28,7 @@ import CustomIcon from '../atoms/CustomIcon';
 import StorageContext from './StorageContext';
 
 import type RtcEngine from '../../bridge/rtc/webNg/';
+import ColorContext from './ColorContext';
 
 const log = (...args) => {
   console.log('[DeviceConfigure] ', ...args);
@@ -49,8 +50,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedSpeaker, setUiSelectedSpeaker] = useState('');
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
 
+  const {primaryColor} = useContext(ColorContext);
   const {store, setStore} = useContext(StorageContext);
   const {rememberedDevicesList, activeDeviceId} = store;
+
+  const isChrome = useMemo(() => {
+    return (
+      deviceList.filter((device) => device.deviceId === 'default').length > 0
+    );
+  }, [deviceList]);
 
   // const rememberedDevicesList = useRef<
   //   Record<MediaDeviceInfo['kind'], savedDeviceInfo[]>
@@ -179,11 +187,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   /**
-   * Sets the devices to first item on the devices list
+   * Sets the devices to the default device on chrome or
+   * the first item on the devices list on other browsers
    * optionally takes device list to use that instead
    * of state which might be stale
    */
-  const fallbackToFirstDevice = (
+  const fallbackToDefaultDevice = (
     kind: deviceKind,
     uniqueDevices?: MediaDeviceInfo[],
   ) => {
@@ -191,19 +200,25 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     switch (kind) {
       case 'audioinput':
         const audioInputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'audioinput',
+          (device) =>
+            device.kind === 'audioinput' &&
+            (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
         setSelectedMic(audioInputFallbackDeviceId);
         break;
       case 'videoinput':
         const videoInputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'videoinput',
+          (device) =>
+            device.kind === 'videoinput' &&
+            (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
         setSelectedCam(videoInputFallbackDeviceId);
         break;
       case 'audiooutput':
         const audioOutputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'audiooutput',
+          (device) =>
+            device.kind === 'audiooutput' &&
+            (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
 
         setSelectedSpeaker(audioOutputFallbackDeviceId);
@@ -259,7 +274,9 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         log(logTag, 'speaker: Device list populated but No selected speaker');
         const {audiooutput: storedAudioOutput} = activeDeviceId;
         const defaultSpeaker = deviceList.find(
-          (device) => device.kind === 'audiooutput',
+          (device) =>
+            device.deviceId === 'default' &&
+            (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
 
         if (
@@ -288,6 +305,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       refreshDeviceList();
     }
   }, [rtc, store]);
+
+  useEffect(() => {
+    //@ts-ignore
+    window.st = async () => {
+      const devices = await refreshDeviceList();
+      showNewDeviceDetectedToast(devices[0]);
+    };
+  }, []);
 
   const commonOnChangedEvent = async (changedDeviceData: DeviceInfo) => {
     // Extracted devicelist because we want to perform fallback with
@@ -329,7 +354,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       }
     } else if (changedDeviceData.state === 'INACTIVE') {
       if (changedDevice.deviceId === currentDevice) {
-        fallbackToFirstDevice(changedDevice.kind, updatedDeviceList);
+        fallbackToDefaultDevice(changedDevice.kind, updatedDeviceList);
         return;
       }
     }
@@ -407,7 +432,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   const showNewDeviceDetectedToast = (device: MediaDeviceInfo) => {
-    const deviceTypeData = {
+    const {name, setAction} = {
       audioinput: {
         name: 'mic',
         setAction: setSelectedMic,
@@ -423,65 +448,38 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }[device.kind];
 
     Toast.show({
-      type: 'info',
+      type: 'checked',
       // leadingIcon: <CustomIcon name={'mic-on'} />,
-      text1: 'New mic detected',
+      text1: `New ${name} detected`,
       // @ts-ignore
       text2: (
         <Text>
-          <Text>New {deviceTypeData.name} named </Text>
+          <Text>New {name} named </Text>
           <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
           <Text> detected. Do you want to switch</Text>
         </Text>
       ),
-      // text2: `New mic named ${
-      //   updatedDeviceList.find(
-      //     (device) => device.deviceId === changedDevice.device.deviceId,
-      //   ).label
-      // } detected. Do you want to switch`,
-      visibilityTime: 6000,
-      primaryBtn: (
-        <>
-          <PrimaryButton
-            containerStyle={style.primaryBtn}
-            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
-            text="SWITCH DEVICE"
-            onPress={() => {
-              deviceTypeData.setAction(device.deviceId);
-              Toast.hide();
-            }}
-          />
-          <PrimaryButton
-            containerStyle={style.primaryBtn}
-            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
-            text="SWITCH DEVICE REM"
-            onPress={() => {
-              deviceTypeData.setAction(device.deviceId);
-              updateRememberedDeviceList(device, true);
-              Toast.hide();
-            }}
-          />
-        </>
-      ),
-      secondaryBtn: (
-        <>
-          <TertiaryButton
-            containerStyle={style.secondaryBtn}
-            text="IGNORE"
-            onPress={() => {
-              Toast.hide();
-            }}
-          />
-          <TertiaryButton
-            containerStyle={style.secondaryBtn}
-            text="IGNORE REM"
-            onPress={() => {
-              updateRememberedDeviceList(device, false);
-              Toast.hide();
-            }}
-          />
-        </>
-      ),
+      visibilityTime: 60000,
+      checkbox: {
+        disabled: false,
+        color: primaryColor,
+        text: "Do not ask me again",
+      },
+      primaryBtn: {
+        text: 'SWITCH DEVICE',
+        onPress: (checked: boolean) => {
+          setAction(device.deviceId);
+          checked && updateRememberedDeviceList(device, true);
+          Toast.hide();
+        },
+      },
+      secondaryBtn: {
+        text: 'IGNORE',
+        onPress: (checked: boolean) => {
+          checked && updateRememberedDeviceList(device, false);
+          Toast.hide();
+        },
+      },
     });
   };
 
@@ -501,22 +499,5 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     </DeviceContext.Provider>
   );
 };
-
-const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 0},
-  primaryBtn: {
-    maxWidth: 150,
-    minWidth: 150,
-    height: 40,
-    borderRadius: 4,
-    paddingVertical: 0,
-    paddingHorizontal: 12,
-  },
-  primaryBtnText: {
-    fontWeight: '600',
-    fontSize: 16,
-    paddingLeft: 0,
-  },
-});
 
 export default DeviceConfigure;

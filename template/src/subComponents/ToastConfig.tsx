@@ -14,6 +14,7 @@ import React from 'react';
 import {Platform, TouchableOpacity, View, StyleSheet} from 'react-native';
 import ThemeConfig from '../theme';
 import Toast, {BaseToast} from '../../react-native-toast-message';
+import CheckBoxBaseToast from '../../react-native-toast-message/src/components/checkbox';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ImageIcon from '../atoms/ImageIcon';
 import {IconsInterface} from 'src/atoms/CustomIcon';
@@ -112,6 +113,29 @@ const ToastConfig = {
       text2={text2}
       primaryBtn={primaryBtn ? primaryBtn : null}
       secondaryBtn={secondaryBtn ? secondaryBtn : null}
+    />
+  ),
+  checked: ({text1, text2, props, primaryBtn, secondaryBtn, checkbox, ...rest}) => (
+    <CheckBoxBaseToast
+      {...rest}
+      //BaseToast is modified to have zIndex: 100
+      trailingIcon={trailingIcon}
+      style={{
+        height: primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
+        borderRadius: 4,
+        borderTopWidth: 6,
+        backgroundColor: $config.CARD_LAYER_4_COLOR,
+        width: '100%',
+        borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+      }}
+      contentContainerStyle={styles.contentContainerStyle}
+      text1Style={styles.text1Style}
+      text2Style={styles.text2Style}
+      text1={text1}
+      text2={text2}
+      primaryBtn={primaryBtn ? primaryBtn : null}
+      secondaryBtn={secondaryBtn ? secondaryBtn : null}
+      checkbox={checkbox}
     />
   ),
 };
