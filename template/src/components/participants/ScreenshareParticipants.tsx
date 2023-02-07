@@ -113,12 +113,7 @@ const PlatformWrapper = ({children, showModal, setIsHovered}) => {
       {children}
     </div>
   ) : (
-    <TouchableOpacity
-      onPress={() => {
-        showModal();
-      }}>
-      {children}
-    </TouchableOpacity>
+    <>{children}</>
   );
 };
 
