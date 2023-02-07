@@ -76,6 +76,8 @@ const VideoCallMobileView = () => {
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'center',
+              zIndex: 3,
+              elevation: 3,
 
               //flex: 1,
             }}>
