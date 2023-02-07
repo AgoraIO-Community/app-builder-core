@@ -208,9 +208,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         break;
       case 'videoinput':
         const videoInputFallbackDeviceId = deviceListLocal.find(
-          (device) =>
-            device.kind === 'videoinput' &&
-            (isChrome ? device.deviceId === 'default' : true),
+          (device) => device.kind === 'videoinput',
         )?.deviceId;
         setSelectedCam(videoInputFallbackDeviceId);
         break;
@@ -463,7 +461,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       checkbox: {
         disabled: false,
         color: primaryColor,
-        text: "Do not ask me again",
+        text: 'Do not ask me again',
       },
       primaryBtn: {
         text: 'SWITCH DEVICE',
