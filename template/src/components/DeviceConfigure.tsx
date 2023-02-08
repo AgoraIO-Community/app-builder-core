@@ -457,7 +457,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           <Text> detected. Do you want to switch?</Text>
         </Text>
       ),
-      visibilityTime: 60000,
+      visibilityTime: 6000,
       checkbox: {
         disabled: false,
         color: primaryColor,

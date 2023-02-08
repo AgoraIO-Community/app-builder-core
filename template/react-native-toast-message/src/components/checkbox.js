@@ -75,8 +75,8 @@ function BaseToast({
             style={{
               flex: 1,
               flexDirection: 'row',
-              paddingTop: 24,
-              paddingBottom: 0,
+              paddingTop: 16,
+              paddingBottom: 8,
               marginLeft: 4
             }}
             onPress={() => {
