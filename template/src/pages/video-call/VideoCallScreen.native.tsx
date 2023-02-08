@@ -10,7 +10,9 @@ const VideoCallleScreen = () => {
       ReactNativeForegroundService.register();
       AppRegistry.registerComponent($config.APP_NAME, () => VideoCallleScreen);
       ReactNativeForegroundService.add_task(
-        () => console.log('App is active!'),
+        () => {
+          //console.log('App is active!')
+        },
         {
           delay: 1000,
           onLoop: true,

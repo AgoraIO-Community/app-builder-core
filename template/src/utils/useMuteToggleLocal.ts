@@ -11,6 +11,7 @@
 */
 import {useLocalUserInfo, useRtc} from 'customization-api';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {isWebInternal} from './common';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -82,9 +83,14 @@ function useMuteToggleLocal() {
           });
 
           try {
-            await RtcEngine.muteLocalVideoStream(
-              localVideoState === ToggleState.enabled ? true : false,
-            );
+            //enableLocalVideo not available on web
+            isWebInternal()
+              ? await RtcEngine.muteLocalVideoStream(
+                  localVideoState === ToggleState.enabled ? true : false,
+                )
+              : await RtcEngine.enableLocalVideo(
+                  localVideoState === ToggleState.enabled ? false : true,
+                );
 
             // Enable UI
             dispatch({
