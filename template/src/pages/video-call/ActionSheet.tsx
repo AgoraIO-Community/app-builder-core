@@ -27,7 +27,11 @@ const ActionSheet = () => {
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
   const ToastComponentRender =
-    isMobileUA() && isExpanded ? <ToastComponent /> : <></>;
+    isMobileUA() && (isChatOpen || isSettingsOpen || isParticipantsOpen) ? (
+      <ToastComponent />
+    ) : (
+      <></>
+    );
   const {sidePanel, setSidePanel} = useSidePanel();
   const [showOverlay, setShowOverlay] = React.useState(false);
   const handleSheetChanges = useCallback((index: number) => {
@@ -43,12 +47,12 @@ const ActionSheet = () => {
   }, []);
 
   useEffect(() => {
-    if (isExpanded) {
+    if (isChatOpen || isSettingsOpen || isParticipantsOpen) {
       setActionSheetVisible(true);
     } else {
       setActionSheetVisible(false);
     }
-  }, [isExpanded]);
+  }, [isChatOpen, isSettingsOpen, isParticipantsOpen]);
 
   // updating on sidepanel changes
   useEffect(() => {

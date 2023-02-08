@@ -241,10 +241,19 @@ const MoreButton = () => {
           setIsHovered(true);
         }}
         onMouseLeave={() => {
-          setTimeout(() => {
-            setIsHovered(false);
-          }, 500);
+          setIsHovered(false);
         }}>
+        {/** placeholder to hovering */}
+        <View
+          style={{
+            position: 'absolute',
+            top: -20,
+            zIndex: -1,
+            height: '50%',
+            width: '100%',
+            backgroundColor: 'transparent',
+          }}
+        />
         <IconButton
           setRef={(ref) => {
             moreBtnRef.current = ref;

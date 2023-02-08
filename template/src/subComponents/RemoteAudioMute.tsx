@@ -94,7 +94,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
             },
           );
         }}
-        hoverEffect={props.audio}
+        hoverEffect={true}
         hoverEffectStyle={{
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,

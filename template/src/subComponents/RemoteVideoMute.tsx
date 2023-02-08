@@ -56,7 +56,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
         onMutePress={onPress}
       />
       <IconButton
-        hoverEffect={props.video}
+        hoverEffect={true}
         hoverEffectStyle={{
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,

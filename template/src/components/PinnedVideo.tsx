@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ScrollView,
   View,
@@ -19,7 +19,12 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {layoutComponent, useRender, useRtc} from 'customization-api';
+import {
+  layoutComponent,
+  useLocalUid,
+  useRender,
+  useRtc,
+} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -27,13 +32,62 @@ import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid} = useRender();
+  const {pinnedUid, activeUids, renderList, activeSpeaker} = useRender();
   const [collapse, setCollapse] = useState(false);
+  const localUid = useLocalUid();
   const {width, height} = useWindowDimensions();
   const isDesktop = width > BREAKPOINTS.xl;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
-  const [maxUid, ...minUids] = renderData;
+  //const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
+  const [uids, setUids] = useState(renderData);
+
+  useEffect(() => {
+    const nonPinnedUids = activeUids.filter((uid) => uid !== pinnedUid);
+
+    const nonActiveSpeakerUids = nonPinnedUids.filter(
+      (uid) => uid !== activeSpeaker,
+    );
+
+    const remoteScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
+      return (
+        renderList[uid].type === 'screenshare' &&
+        renderList[uid].parentUid !== localUid
+      );
+    });
+
+    const localScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
+      return (
+        renderList[uid].type === 'screenshare' &&
+        renderList[uid].parentUid === localUid
+      );
+    });
+
+    const restOfTheUids = nonActiveSpeakerUids.filter(
+      (uid) => renderList[uid].type !== 'screenshare',
+    );
+
+    /**
+     * Order for pinned layout -
+     * - [1] means only one user
+     * - [N] means multiple users
+     * 1.Pinned User[1]
+     * 2.Remote screenshare users[N]
+     * 3.Active Speaker[1]
+     * 4.Local Screenshare[1]
+     * 5 and etc.Other Users[N]
+     */
+
+    const updatedOrder = [
+      pinnedUid,
+      ...remoteScreenShareUids,
+      pinnedUid !== activeSpeaker ? activeSpeaker : 0,
+      ...localScreenShareUids,
+      ...restOfTheUids,
+    ].filter((uid) => uid !== undefined && uid !== 0);
+
+    setUids(updatedOrder);
+  }, [activeUids, renderList, activeSpeaker, pinnedUid]);
 
   return (
     <View
@@ -58,54 +112,19 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                   marginBottom: 8,
                 }
           }>
-          {pinnedUid && pinnedUid !== maxUid ? (
-            <Pressable
-              disabled={renderData?.length === 1}
-              style={
-                isSidePinnedlayout
-                  ? {
-                      width: '100%',
-                      height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
-                      zIndex: 40,
-                      paddingBottom: 8,
-                    }
-                  : {
-                      //  width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
-                      width: 254,
-                      height: '100%',
-                      zIndex: 40,
-                      marginRight: 8,
-                    }
-              }
-              key={'minVideo' + maxUid}
-              onPress={() => {
-                dispatch({type: 'SwapVideo', value: [maxUid]});
-              }}>
-              <RenderComponent uid={maxUid} />
-            </Pressable>
-          ) : (
-            <></>
-          )}
-
-          {/* Renders Rest of Participants in Side/Top */}
-          {/* FlatList is not udpating content as  orenderData is always same when pinned view
-          https://stackoverflow.com/questions/43397803/how-to-re-render-flatlist
-          */}
-          {/* <FlatList
-            horizontal={!isSidePinnedlayout}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            data={minUids}
-            keyExtractor={(id) => id.toString()}
-            renderItem={rendeOtherParticipants}
-          /> */}
-
-          {/* Pinned Video Top / Side */}
-
-          {minUids
-            .filter((i) => i !== pinnedUid)
-            .map((minUid, i) => (
+          {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
+          {uids?.map((minUid, i) => {
+            //first item -> maximized view so returning null
+            if (i === 0) return null;
+            //remaining items -> minimized view
+            {
+              /**Rendering minimized views */
+            }
+            return (
               <Pressable
+                //if user pinned somebody then side panel items should not be clickable - swap video should be called
+                //instead we will show replace pin button on hovering the video tile
+                disabled={activeSpeaker || pinnedUid ? true : false}
                 style={
                   isSidePinnedlayout
                     ? {
@@ -128,83 +147,83 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 }}>
                 <RenderComponent uid={minUid} />
               </Pressable>
-            ))}
+            );
+          })}
         </ScrollView>
       )}
-      <View
-        style={
-          isSidePinnedlayout
-            ? collapse
-              ? style.width100
-              : style.width80
-            : style.flex8
-        }>
-        <View style={style.flex1} key={'maxVideo' + maxUid}>
-          {isSidePinnedlayout && (
-            <IconButton
-              containerStyle={{
-                position: 'absolute',
-                top: 8,
-                left: 8,
-                zIndex: 999,
-                elevation: 999,
-              }}
-              onPress={() => setCollapse(!collapse)}
-              iconProps={{
-                iconContainerStyle: {
-                  padding: 8,
-                  backgroundColor:
-                    $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
-                },
-                name: collapse ? 'collapse' : 'expand',
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-                iconSize: 24,
-              }}
-            />
-          )}
-          {pinnedUid ? (
-            <IconButton
-              containerStyle={{
-                paddingHorizontal: 8,
-                paddingVertical: 10,
-                backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
-                borderRadius: 8,
-                flexDirection: 'row',
-                position: 'absolute',
-                top: 12,
-                left: 12 + (isSidePinnedlayout ? 32 + 12 + 12 : 0),
-                zIndex: 999,
-                elevation: 999,
-              }}
-              iconProps={{
-                iconType: 'plain',
-                iconContainerStyle: {
-                  padding: 0,
-                },
-                name: 'unpin-filled',
-                iconSize: 20,
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-              }}
-              onPress={() => {
-                dispatch({type: 'UserPin', value: [0]});
-              }}
-              btnTextProps={{
-                text: 'Unpin',
-                textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-                textStyle: {marginTop: 0, marginLeft: 6, fontWeight: '700'},
-              }}
-            />
-          ) : (
-            <></>
-          )}
-          {/* Renders Pinned User */}
-          {pinnedUid ? (
-            <RenderComponent uid={pinnedUid} isMax={true} />
-          ) : (
-            <RenderComponent uid={maxUid} isMax={true} />
-          )}
+      {uids && uids?.length && (
+        <View
+          style={
+            isSidePinnedlayout
+              ? collapse
+                ? style.width100
+                : style.width80
+              : style.flex8
+          }>
+          <View style={style.flex1} key={'maxVideo' + uids[0]}>
+            {isSidePinnedlayout && (
+              <IconButton
+                containerStyle={{
+                  position: 'absolute',
+                  top: 8,
+                  left: 8,
+                  zIndex: 999,
+                  elevation: 999,
+                }}
+                onPress={() => setCollapse(!collapse)}
+                iconProps={{
+                  iconContainerStyle: {
+                    padding: 8,
+                    backgroundColor:
+                      $config.CARD_LAYER_5_COLOR +
+                      hexadecimalTransparency['10%'],
+                  },
+                  name: collapse ? 'collapse' : 'expand',
+                  tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                  iconSize: 24,
+                }}
+              />
+            )}
+            {pinnedUid ? (
+              <IconButton
+                containerStyle={{
+                  paddingHorizontal: 8,
+                  paddingVertical: 10,
+                  backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  position: 'absolute',
+                  top: 12,
+                  left: 12 + (isSidePinnedlayout ? 32 + 12 + 12 : 0),
+                  zIndex: 999,
+                  elevation: 999,
+                }}
+                iconProps={{
+                  iconType: 'plain',
+                  iconContainerStyle: {
+                    padding: 0,
+                  },
+                  name: 'unpin-filled',
+                  iconSize: 20,
+                  tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                }}
+                onPress={() => {
+                  dispatch({type: 'UserPin', value: [0]});
+                }}
+                btnTextProps={{
+                  text: 'Unpin',
+                  textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                  textStyle: {marginTop: 0, marginLeft: 6, fontWeight: '700'},
+                }}
+              />
+            ) : (
+              <></>
+            )}
+            {/** Render the maximized view */}
+            <RenderComponent uid={uids[0]} isMax={true} />
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 };
