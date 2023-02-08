@@ -20,7 +20,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import {useRender} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
-import {trimText} from '../utils/common';
+import {isWebInternal, trimText} from '../utils/common';
 
 interface Props {
   children: React.ReactNode;
@@ -49,7 +49,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     //     });
     //   }
     // });
-    events.on(controlMessageEnum.muteVideo, ({payload, sender}) => {
+    events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
         type: 'info',
         // text1: `${
@@ -60,7 +60,9 @@ const EventsConfigure: React.FC<Props> = (props) => {
         primaryBtn: null,
         secondaryBtn: null,
       });
-      RtcEngine.muteLocalVideoStream(true);
+      isWebInternal()
+        ? await RtcEngine.muteLocalVideoStream(true)
+        : await RtcEngine.enableLocalVideo(false);
       dispatch({
         type: 'LocalMuteVideo',
         value: [0],
@@ -131,8 +133,10 @@ const EventsConfigure: React.FC<Props> = (props) => {
             containerStyle={style.primaryBtn}
             textStyle={style.primaryBtnText}
             text="UNMUTE"
-            onPress={() => {
-              RtcEngine.muteLocalVideoStream(false);
+            onPress={async () => {
+              isWebInternal()
+                ? await RtcEngine.muteLocalVideoStream(false)
+                : await RtcEngine.enableLocalVideo(true);
               dispatch({
                 type: 'LocalMuteVideo',
                 value: [1],

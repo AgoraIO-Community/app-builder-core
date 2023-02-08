@@ -10,7 +10,7 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
-import {isAndroid, trimText} from '../../utils/common';
+import {isAndroid, isWebInternal, trimText} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
 
@@ -30,33 +30,41 @@ const VideoCallMobileView = () => {
 
   useEffect(() => {
     if ($config.AUDIO_ROOM) return;
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (nextAppState === 'background') {
-        // check if cam was on before app goes to background
-        isCamON.current = isAndroid()
-          ? local.video === ToggleState.enabled
-          : RtcEngine?.isVideoEnabled;
+    const subscription = AppState.addEventListener(
+      'change',
+      async (nextAppState) => {
+        if (nextAppState === 'background') {
+          // check if cam was on before app goes to background
+          isCamON.current = isAndroid()
+            ? local.video === ToggleState.enabled
+            : RtcEngine?.isVideoEnabled;
 
-        if (isCamON.current) {
-          RtcEngine.muteLocalVideoStream(true);
-          dispatch({
-            type: 'LocalMuteVideo',
-            value: [0],
-          });
+          if (isCamON.current) {
+            isWebInternal()
+              ? await RtcEngine.muteLocalVideoStream(true)
+              : await RtcEngine.enableLocalVideo(false);
+
+            dispatch({
+              type: 'LocalMuteVideo',
+              value: [0],
+            });
+          }
         }
-      }
-      if (nextAppState === 'active') {
-        // enable cam only if cam was on before app goes to background
-        if (isCamON.current) {
-          RtcEngine.muteLocalVideoStream(false);
-          dispatch({
-            type: 'LocalMuteVideo',
-            value: [1],
-          });
+        if (nextAppState === 'active') {
+          // enable cam only if cam was on before app goes to background
+          if (isCamON.current) {
+            isWebInternal()
+              ? await RtcEngine.muteLocalVideoStream(false)
+              : await RtcEngine.enableLocalVideo(true);
+            dispatch({
+              type: 'LocalMuteVideo',
+              value: [1],
+            });
+          }
         }
-      }
-      appState.current = nextAppState;
-    });
+        appState.current = nextAppState;
+      },
+    );
 
     return () => {
       subscription?.remove();
@@ -76,6 +84,7 @@ const VideoCallMobileView = () => {
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'center',
+              zIndex: isWebInternal() ? 3 : 0,
 
               //flex: 1,
             }}>
