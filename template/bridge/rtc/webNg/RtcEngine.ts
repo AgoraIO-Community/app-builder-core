@@ -48,8 +48,11 @@ type callbackType = (uid?: UID) => void;
 declare global {
   interface Window {
     engine: RtcEngine;
+    AgoraRTC: typeof AgoraRTC;
   }
 }
+
+window.AgoraRTC = AgoraRTC;
 
 export enum AREAS {
   /**
@@ -273,7 +276,6 @@ export default class RtcEngine {
         let localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
         this.localStream.video = localVideo;
       } catch (error) {
-
         videoError = error;
       }
       e.status = {audioError, videoError};

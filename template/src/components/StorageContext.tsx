@@ -13,8 +13,20 @@ import React, {createContext, ReactChildren, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // '@react-native-community/async-storage';
 import useMount from './useMount';
 
+type rememberedDevicesListEntries = Record<
+  string,
+  'switch-on-connect' | 'ignore-on-connect'
+>;
+
 export interface StoreInterface {
-  [key: string]: string | null;
+  token: string;
+  displayName: string;
+  selectedLanguageCode: string;
+  rememberedDevicesList: Record<
+    MediaDeviceInfo['kind'],
+    rememberedDevicesListEntries
+  >;
+  activeDeviceId: Record<MediaDeviceInfo['kind'], string>;
 }
 
 export interface StorageContextInterface {
@@ -26,6 +38,16 @@ export const initStoreValue: StoreInterface = {
   token: null,
   displayName: '',
   selectedLanguageCode: '',
+  rememberedDevicesList: {
+    audioinput: {},
+    audiooutput: {},
+    videoinput: {},
+  },
+  activeDeviceId: {
+    audioinput: '',
+    audiooutput: '',
+    videoinput: '',
+  },
 };
 
 const initStorageContextValue = {
@@ -54,7 +76,12 @@ export const StorageProvider = (props: {children: React.ReactNode}) => {
           await AsyncStorage.setItem('store', JSON.stringify(initStoreValue));
           setReady(true);
         } else {
-          setStore(JSON.parse(storeString));
+          const storeFromStorage = JSON.parse(storeString);
+          Object.keys(initStoreValue).forEach((key) => {
+            if (!storeFromStorage[key])
+              storeFromStorage[key] = initStoreValue[key];
+          });
+          setStore(storeFromStorage);
           setReady(true);
         }
         console.log('store hydrated', storeString);

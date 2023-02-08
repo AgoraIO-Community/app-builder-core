@@ -9,13 +9,26 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useEffect, useCallback, useMemo} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useContext,
+} from 'react';
 import {ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
-import AgoraRTC from 'agora-rtc-sdk-ng';
-import {useRtc} from 'customization-api';
+import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
+import {useRtc, PrimaryButton} from 'customization-api';
+import Toast from '../../react-native-toast-message';
+import TertiaryButton from '../atoms/TertiaryButton';
+import {StyleSheet, Text} from 'react-native';
+import CustomIcon from '../atoms/CustomIcon';
+import StorageContext from './StorageContext';
 
 import type RtcEngine from '../../bridge/rtc/webNg/';
+import ColorContext from './ColorContext';
 
 const log = (...args) => {
   console.log('[DeviceConfigure] ', ...args);
@@ -36,6 +49,63 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [selectedMic, setUiSelectedMic] = useState('');
   const [selectedSpeaker, setUiSelectedSpeaker] = useState('');
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
+
+  const {primaryColor} = useContext(ColorContext);
+  const {store, setStore} = useContext(StorageContext);
+  const {rememberedDevicesList, activeDeviceId} = store;
+
+  const isChrome = useMemo(() => {
+    return (
+      deviceList.filter((device) => device.deviceId === 'default').length > 0
+    );
+  }, [deviceList]);
+
+  // const rememberedDevicesList = useRef<
+  //   Record<MediaDeviceInfo['kind'], savedDeviceInfo[]>
+  // >({
+  //   audioinput: [],
+  //   videoinput: [],
+  //   audiooutput: [],
+  // });
+
+  const updateActiveDeviceId = (
+    kind: MediaDeviceInfo['kind'],
+    deviceId: string,
+  ) => {
+    // const {kind, deviceId} = device;
+
+    setStore((prevState) => ({
+      ...prevState,
+      activeDeviceId: {
+        ...activeDeviceId,
+        [kind]: deviceId,
+      },
+    }));
+  };
+
+  const updateRememberedDeviceList = (
+    device: MediaDeviceInfo,
+    switchOnConnect: boolean,
+  ) => {
+    const {kind} = device;
+    // rememberedDevicesList.current[kind].push({...device, switchOnConnect});
+    // window.localStorage.setItem(
+    //   'rememberedDevicesList',
+    //   JSON.stringify(rememberedDevicesList.current),
+    // );
+    setStore((prevState) => ({
+      ...prevState,
+      rememberedDevicesList: {
+        ...prevState.rememberedDevicesList,
+        [kind]: {
+          [device.deviceId]: switchOnConnect
+            ? 'switch-on-connect'
+            : 'ignore-on-connect',
+          ...prevState.rememberedDevicesList[kind],
+        },
+      },
+    }));
+  };
 
   const {RtcEngine} = rtc as unknown as {RtcEngine: WebRtcEngineInstance};
   const {localStream} = RtcEngine;
@@ -117,11 +187,12 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   /**
-   * Sets the devices to first item on the devices list
+   * Sets the devices to the default device on chrome or
+   * the first item on the devices list on other browsers
    * optionally takes device list to use that instead
    * of state which might be stale
    */
-  const fallbackToFirstDevice = (
+  const fallbackToDefaultDevice = (
     kind: deviceKind,
     uniqueDevices?: MediaDeviceInfo[],
   ) => {
@@ -129,7 +200,9 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     switch (kind) {
       case 'audioinput':
         const audioInputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'audioinput',
+          (device) =>
+            device.kind === 'audioinput' &&
+            (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
         setSelectedMic(audioInputFallbackDeviceId);
         break;
@@ -141,7 +214,9 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         break;
       case 'audiooutput':
         const audioOutputFallbackDeviceId = deviceListLocal.find(
-          (device) => device.kind === 'audiooutput',
+          (device) =>
+            device.kind === 'audiooutput' &&
+            (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
 
         setSelectedSpeaker(audioOutputFallbackDeviceId);
@@ -153,100 +228,161 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     // Labels are empty in firefox when permission is granted first time
     // refresh device list if labels are empty
 
-    // If stream exists and selected devices are empty, check for devices again
-    if (!selectedCam || selectedCam.trim().length == 0) {
-      log('useEffect[rtc]: Device list populated but No selected cam');
-      syncSelectedDeviceUi('videoinput');
-    }
+    const logTag = 'useEffect[rtc]';
 
-    if (!selectedMic || selectedMic.trim().length == 0) {
-      log('useEffect[rtc]: Device list populated but No selected mic');
-      syncSelectedDeviceUi('audioinput');
-    }
+    if (activeDeviceId && deviceList.length !== 0) {
+      // If stream exists and selected devices are empty, check for devices again
+      if (!selectedCam || selectedCam.trim().length == 0) {
+        log(logTag, 'cam: Device list populated but No selected cam');
+        const currentVideoDevice = getAgoraTrackDeviceId('video');
+        const {videoinput: storedVideoInput} = activeDeviceId;
 
-    if (!selectedSpeaker || selectedSpeaker.trim().length == 0) {
-      log('useEffect[rtc]: Device list populated but No selected speaker');
-      // Initializes ui with first speaker in device list
-      setUiSelectedSpeaker(
-        deviceList.find((device) => device.kind === 'audiooutput')?.deviceId,
-      );
+        if (
+          storedVideoInput &&
+          currentVideoDevice &&
+          currentVideoDevice !== storedVideoInput &&
+          deviceList.find((device) => device.deviceId === storedVideoInput)
+        ) {
+          log(logTag, 'cam: Setting cam to active id', storedVideoInput);
+          setSelectedCam(storedVideoInput);
+        } else {
+          setUiSelectedCam(currentVideoDevice);
+        }
+      }
+
+      if (!selectedMic || selectedMic.trim().length == 0) {
+        log(logTag, 'mic: Device list populated but No selected mic');
+        const currentAudioDevice = getAgoraTrackDeviceId('audio');
+        const {audioinput: storedAudioInput} = activeDeviceId;
+
+        if (
+          storedAudioInput &&
+          currentAudioDevice &&
+          currentAudioDevice !== storedAudioInput &&
+          deviceList.find((device) => device.deviceId === storedAudioInput)
+        ) {
+          log(logTag, 'mic: Setting mic to active id', storedAudioInput);
+          setSelectedMic(storedAudioInput);
+        } else {
+          setUiSelectedMic(currentAudioDevice);
+        }
+      }
+
+      if (!selectedSpeaker || selectedSpeaker.trim().length == 0) {
+        log(logTag, 'speaker: Device list populated but No selected speaker');
+        const {audiooutput: storedAudioOutput} = activeDeviceId;
+        const defaultSpeaker = deviceList.find(
+          (device) =>
+            device.deviceId === 'default' &&
+            (isChrome ? device.deviceId === 'default' : true),
+        )?.deviceId;
+
+        if (
+          defaultSpeaker &&
+          storedAudioOutput &&
+          defaultSpeaker !== storedAudioOutput &&
+          deviceList.find((device) => device.deviceId === storedAudioOutput)
+        ) {
+          log(
+            logTag,
+            'speaker: Setting speaker to active id',
+            storedAudioOutput,
+          );
+          setSelectedSpeaker(storedAudioOutput);
+        } else {
+          setUiSelectedSpeaker(defaultSpeaker);
+        }
+      }
     }
 
     if (
       deviceList.length === 0 ||
       deviceList.find((device: MediaDeviceInfo) => device.label === '')
     ) {
-      log('useEffect[rtc]: Empty device list');
+      log(logTag, 'Empty device list');
       refreshDeviceList();
     }
-  }, [rtc]);
+  }, [rtc, store]);
+
+  useEffect(() => {
+    //@ts-ignore
+    window.st = async () => {
+      const devices = await refreshDeviceList();
+      showNewDeviceDetectedToast(devices[0]);
+    };
+  }, []);
+
+  const commonOnChangedEvent = async (changedDeviceData: DeviceInfo) => {
+    // Extracted devicelist because we want to perform fallback with
+    // the most current version.
+    const updatedDeviceList = await refreshDeviceList();
+    const changedDevice = changedDeviceData.device;
+
+    const {logTag, currentDevice, setCurrentDevice} = {
+      audioinput: {
+        logTag: 'mic: on-microphone-changed',
+        currentDevice: selectedMic,
+        setCurrentDevice: setSelectedMic,
+      },
+      audiooutput: {
+        logTag: 'speaker: on-speaker-changed',
+        currentDevice: selectedSpeaker,
+        setCurrentDevice: setSelectedSpeaker,
+      },
+      videoinput: {
+        logTag: 'cam: on-camera-changed',
+        currentDevice: selectedCam,
+        setCurrentDevice: setSelectedCam,
+      },
+    }[changedDevice.kind];
+
+    log(logTag, changedDeviceData);
+
+    if (changedDeviceData.state === 'ACTIVE') {
+      const rememberedDevice =
+        rememberedDevicesList[changedDevice.kind][changedDevice.deviceId];
+
+      if (!rememberedDevice) {
+        showNewDeviceDetectedToast(changedDevice);
+      } else {
+        if (rememberedDevice === 'switch-on-connect') {
+          setCurrentDevice(changedDevice.deviceId);
+          return;
+        }
+      }
+    } else if (changedDeviceData.state === 'INACTIVE') {
+      if (changedDevice.deviceId === currentDevice) {
+        fallbackToDefaultDevice(changedDevice.kind, updatedDeviceList);
+        return;
+      }
+    }
+    if (selectedMic === 'default') {
+      setCurrentDevice('default');
+    }
+  };
 
   // Port this to useEffectEvent(https://beta.reactjs.org/reference/react/useEffectEvent) when
   // released
   useEffect(() => {
-    AgoraRTC.onMicrophoneChanged = async (changedDevice) => {
-      log(
-        `mic: on-microphone-changed from ${selectedMic}`,
-        changedDevice.device.label,
-        changedDevice.state,
-        changedDevice,
-      );
-      // Extracted because we want to perform fallback with the latest
-      // device list, state update will be handled with next render
-      const updatedDeviceList = await refreshDeviceList();
-      if (
-        changedDevice.device.deviceId === selectedMic &&
-        changedDevice.state === 'INACTIVE'
-      ) {
-        fallbackToFirstDevice('audioinput', updatedDeviceList);
-      }
-      if (selectedMic === 'default') {
-        setSelectedMic('default');
-      }
-    };
+    AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
   }, [selectedMic]);
 
   useEffect(() => {
-    AgoraRTC.onPlaybackDeviceChanged = async (changedDevice) => {
-      log(
-        `speaker: on-playback-changed from ${selectedSpeaker}`,
-        changedDevice.device.label,
-        changedDevice.state,
-        changedDevice,
-      );
-      const updatedDeviceList = await refreshDeviceList();
-      if (
-        changedDevice.device.deviceId === selectedMic &&
-        changedDevice.state === 'INACTIVE'
-      ) {
-        fallbackToFirstDevice('audiooutput', updatedDeviceList);
-      }
-      if (selectedMic === 'default') {
-        setSelectedSpeaker('default');
-      }
-    };
+    AgoraRTC.onPlaybackDeviceChanged = commonOnChangedEvent;
   }, [selectedSpeaker]);
 
   useEffect(() => {
-    AgoraRTC.onCameraChanged = async (changedDevice) => {
-      log('cam: on-camera-changed');
-      const updatedDeviceList = await refreshDeviceList();
-      if (
-        changedDevice.device.deviceId === selectedCam &&
-        changedDevice.state === 'INACTIVE'
-      ) {
-        fallbackToFirstDevice('videoinput', updatedDeviceList);
-      }
-    };
+    AgoraRTC.onCameraChanged = commonOnChangedEvent;
   }, [selectedCam]);
 
   const setSelectedMic = (deviceId: deviceId) => {
-    log('Setting mic to', deviceId);
+    log('mic: setting to', deviceId);
     return new Promise((res, rej) => {
       RtcEngine.changeMic(
         deviceId,
         () => {
           syncSelectedDeviceUi('audioinput');
+          updateActiveDeviceId('audioinput', deviceId);
           res();
         },
         (e: any) => {
@@ -258,12 +394,13 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   const setSelectedCam = (deviceId: deviceId) => {
-    log('Setting cam to', deviceId);
+    log('cam: setting  to', deviceId);
     return new Promise((res, rej) => {
       RtcEngine.changeCamera(
         deviceId,
         () => {
           syncSelectedDeviceUi('videoinput');
+          updateActiveDeviceId('videoinput', deviceId);
           res();
         },
         (e: any) => {
@@ -275,12 +412,13 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   const setSelectedSpeaker = (deviceId: deviceId) => {
-    log('Setting speaker to', deviceId);
+    log('speaker: setting to', deviceId);
     return new Promise((res, rej) => {
       RtcEngine.changeSpeaker(
         deviceId,
         () => {
           setUiSelectedSpeaker(deviceId);
+          updateActiveDeviceId('audiooutput', deviceId);
           res();
         },
         (e: any) => {
@@ -288,6 +426,58 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           rej(selectedSpeaker);
         },
       );
+    });
+  };
+
+  const showNewDeviceDetectedToast = (device: MediaDeviceInfo) => {
+    const {name, setAction} = {
+      audioinput: {
+        name: 'mic',
+        setAction: setSelectedMic,
+      },
+      videoinput: {
+        name: 'webcam',
+        setAction: setSelectedCam,
+      },
+      audiooutput: {
+        name: 'speaker',
+        setAction: setSelectedSpeaker,
+      },
+    }[device.kind];
+
+    Toast.show({
+      type: 'checked',
+      // leadingIcon: <CustomIcon name={'mic-on'} />,
+      text1: `New ${name} detected`,
+      // @ts-ignore
+      text2: (
+        <Text>
+          <Text>New {name} named </Text>
+          <Text style={{fontWeight: 'bold'}}>{device.label}</Text>
+          <Text> detected. Do you want to switch?</Text>
+        </Text>
+      ),
+      visibilityTime: 6000,
+      checkbox: {
+        disabled: false,
+        color: primaryColor,
+        text: 'Do not ask me again',
+      },
+      primaryBtn: {
+        text: 'SWITCH DEVICE',
+        onPress: (checked: boolean) => {
+          setAction(device.deviceId);
+          checked && updateRememberedDeviceList(device, true);
+          Toast.hide();
+        },
+      },
+      secondaryBtn: {
+        text: 'IGNORE',
+        onPress: (checked: boolean) => {
+          checked && updateRememberedDeviceList(device, false);
+          Toast.hide();
+        },
+      },
     });
   };
 
