@@ -47,9 +47,9 @@ const RemoteMutePopup = (props: ActionMenuProps) => {
     //request action
     else {
       if (props?.type === 'audio') {
-        message = `Request ${props.name} to turn on the microphone?`;
+        message = `Request ${props.name} to turn on their microphone?`;
       } else {
-        message = `Request ${props.name} to turn on the camera?`;
+        message = `Request ${props.name} to turn on their camera?`;
       }
     }
   } else {
