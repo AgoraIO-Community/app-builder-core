@@ -10,7 +10,7 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
-import {isAndroid, trimText} from '../../utils/common';
+import {isAndroid, isWebInternal, trimText} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
 
@@ -76,8 +76,7 @@ const VideoCallMobileView = () => {
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'center',
-              zIndex: 3,
-              elevation: 3,
+              zIndex: isWebInternal() ? 3 : 0,
 
               //flex: 1,
             }}>
