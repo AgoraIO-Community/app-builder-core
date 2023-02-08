@@ -461,7 +461,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       checkbox: {
         disabled: false,
         color: primaryColor,
-        text: 'Do not ask me again',
+        text: 'Remember my choice',
       },
       primaryBtn: {
         text: 'SWITCH DEVICE',
