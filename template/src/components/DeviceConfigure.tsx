@@ -228,7 +228,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     // Labels are empty in firefox when permission is granted first time
     // refresh device list if labels are empty
 
-    const logTag = 'useEffect[rtc]';
+    const logTag = 'useEffect[rtc,store]';
 
     if (activeDeviceId && deviceList.length !== 0) {
       // If stream exists and selected devices are empty, check for devices again
@@ -303,14 +303,6 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       refreshDeviceList();
     }
   }, [rtc, store]);
-
-  useEffect(() => {
-    //@ts-ignore
-    window.st = async () => {
-      const devices = await refreshDeviceList();
-      showNewDeviceDetectedToast(devices[0]);
-    };
-  }, []);
 
   const commonOnChangedEvent = async (changedDeviceData: DeviceInfo) => {
     // Extracted devicelist because we want to perform fallback with
