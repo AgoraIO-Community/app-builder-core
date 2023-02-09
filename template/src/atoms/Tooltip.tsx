@@ -56,7 +56,7 @@ const Tooltip = (props: TooltipProps) => {
         style={{cursor: isClickable ? 'pointer' : 'auto'}}
         data-tip
         data-event={isClickable ? 'click focus' : 'mouseenter'}
-        data-event-off={isClickable ? 'focusout' : 'mouseleave'}
+        data-event-off={isClickable ? '' : 'mouseleave'}
         data-for={toolTipId}
         onMouseEnter={() => setToolTipVisible(true)}
         onMouseLeave={() => {
