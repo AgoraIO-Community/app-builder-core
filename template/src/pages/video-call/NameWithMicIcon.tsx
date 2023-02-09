@@ -138,6 +138,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexShrink: 1,
     marginLeft: 4,
+    marginRight: 2,
   },
 });
 

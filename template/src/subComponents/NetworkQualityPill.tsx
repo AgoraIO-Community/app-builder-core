@@ -79,7 +79,8 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
         style.rootStyle,
         {
           backgroundColor: networkTextVisible
-            ? networkIconsObject[networkStat].tint
+            ? networkIconsObject[networkStat].tint +
+              hexadecimalTransparency['50%']
             : $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
         },
         reduceSpace ? {top: 2, right: 2} : {},
@@ -97,7 +98,8 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
             tintColor={
               networkTextVisible
                 ? $config.PRIMARY_ACTION_TEXT_COLOR
-                : networkIconsObject[networkStat].tint
+                : networkIconsObject[networkStat].tint +
+                  hexadecimalTransparency['30%']
             }
             name={networkIconsObject[networkStat].icon}
             iconSize={16}

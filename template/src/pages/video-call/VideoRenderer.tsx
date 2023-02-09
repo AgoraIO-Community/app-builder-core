@@ -49,7 +49,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             ? maxStyle.noVideoStyle
             : maxStyle.nonActiveContainerStyle,
         ]}>
-        <ScreenShareNotice uid={user.uid} isMax={isMax} />
+        {!showReplacePin && <ScreenShareNotice uid={user.uid} isMax={isMax} />}
         <NetworkQualityPill user={user} />
         <MaxVideoView
           fallback={() => {
@@ -165,7 +165,7 @@ const MoreMenu = ({user, isMax, pinnedUid, setIsHovered}: MoreMenuProps) => {
             },
             name: 'more-menu',
             iconSize: 20,
-            tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+            tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
         />
       </View>
