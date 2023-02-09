@@ -21,7 +21,7 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import ThemeConfig from '../../theme';
 import {CopyMeetingInfo} from '../../components/Share';
-import {useIsDesktop} from '../../utils/common';
+import {isMobileUA, useIsDesktop} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {useParams} from '../Router';
 import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
@@ -109,7 +109,7 @@ const style = StyleSheet.create({
     fontSize: 16,
   },
   contentContainer: {
-    padding: 24,
+    padding: isMobileUA() ? 24 : 40,
     minWidth: 342,
   },
 });

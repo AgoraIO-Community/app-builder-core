@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 20,
-    color: $config.FONT_COLOR,
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
   },
   screensharingMessage: {
     alignSelf: 'center',
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 32,
     lineHeight: 40,
-    color: $config.FONT_COLOR,
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
     paddingBottom: 24,
   },
 });

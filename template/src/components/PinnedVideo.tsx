@@ -42,6 +42,8 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useRtc();
   const [uids, setUids] = useState(renderData);
 
+  const [screenShareOn, setScreenShareOn] = useState(false);
+
   useEffect(() => {
     const nonPinnedUids = activeUids.filter((uid) => uid !== pinnedUid);
 
@@ -62,6 +64,9 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
         renderList[uid].parentUid === localUid
       );
     });
+    if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
+      setScreenShareOn(true);
+    }
 
     const restOfTheUids = nonActiveSpeakerUids.filter(
       (uid) => renderList[uid].type !== 'screenshare',
@@ -124,7 +129,9 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
               <Pressable
                 //if user pinned somebody then side panel items should not be clickable - swap video should be called
                 //instead we will show replace pin button on hovering the video tile
-                disabled={activeSpeaker || pinnedUid ? true : false}
+                disabled={
+                  activeSpeaker || pinnedUid || screenShareOn ? true : false
+                }
                 style={
                   isSidePinnedlayout
                     ? {
@@ -179,7 +186,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                       hexadecimalTransparency['10%'],
                   },
                   name: collapse ? 'collapse' : 'expand',
-                  tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                  tintColor: $config.SECONDARY_ACTION_COLOR,
                   iconSize: 24,
                 }}
               />

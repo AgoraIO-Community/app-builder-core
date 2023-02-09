@@ -165,7 +165,7 @@ const MoreMenu = ({user, isMax, pinnedUid, setIsHovered}: MoreMenuProps) => {
             },
             name: 'more-menu',
             iconSize: 20,
-            tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+            tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
         />
       </View>
