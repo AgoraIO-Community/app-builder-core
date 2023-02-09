@@ -427,6 +427,7 @@ const style = StyleSheet.create({
     minWidth: 350,
     justifyContent: 'space-between',
     marginHorizontal: 0,
+    marginVertical: 0,
   },
   rightContentVertical: {
     flex: 1,
