@@ -200,8 +200,8 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                   borderRadius: 8,
                   flexDirection: 'row',
                   position: 'absolute',
-                  top: 12,
-                  left: 12 + (isSidePinnedlayout ? 32 + 12 + 12 : 0),
+                  top: 8,
+                  left: 8 + (isSidePinnedlayout ? 32 + 12 + 8 : 0),
                   zIndex: 999,
                   elevation: 999,
                 }}
@@ -220,7 +220,12 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 btnTextProps={{
                   text: 'Unpin',
                   textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-                  textStyle: {marginTop: 0, marginLeft: 6, fontWeight: '700'},
+                  textStyle: {
+                    marginTop: 0,
+                    marginLeft: 6,
+                    marginRight: 2,
+                    fontWeight: '700',
+                  },
                 }}
               />
             ) : (
