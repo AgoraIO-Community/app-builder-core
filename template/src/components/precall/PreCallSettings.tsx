@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     borderColor: $config.CARD_LAYER_3_COLOR,
     borderRadius: 4,
     padding: 0,
-    maxWidth: '100%',
+    width: '100%',
   },
   containerStyle: {},
 });
