@@ -53,7 +53,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Mic access</string>
 	<key>UIAppFonts</key>
