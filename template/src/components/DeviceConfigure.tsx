@@ -338,20 +338,22 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       const currentDefaultDevice = updatedDeviceList.find(
         (device) => device.deviceId === 'default',
       );
-      log(logTag, 'Default device changed', {
-        previousDefaultDevice,
-        currentDefaultDevice,
-      });
       if (previousDefaultDevice.groupId !== currentDefaultDevice.groupId) {
-        // log(logTag, 'Default device changed', {
-        //   previousDefaultDevice,
-        //   currentDefaultDevice,
-        // });
+        log(logTag, 'Default device changed', {
+          previousDefaultDevice,
+          currentDefaultDevice,
+        });
         setCurrentDevice('default');
       }
     }
 
-    if (changedDeviceData.state === 'ACTIVE') {
+    const didChangeDeviceExistBefore = previousDeviceList.find(
+      (device) => device.deviceId === changedDevice.deviceId,
+    )
+      ? true
+      : false;
+
+    if (changedDeviceData.state === 'ACTIVE' && !didChangeDeviceExistBefore) {
       const rememberedDevice =
         rememberedDevicesList[changedDevice.kind][changedDevice.deviceId];
 
@@ -375,15 +377,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   // released
   useEffect(() => {
     AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
-  }, [selectedMic]);
+  }, [selectedMic, deviceList]);
 
   useEffect(() => {
     AgoraRTC.onPlaybackDeviceChanged = commonOnChangedEvent;
-  }, [selectedSpeaker]);
+  }, [selectedSpeaker, deviceList]);
 
   useEffect(() => {
     AgoraRTC.onCameraChanged = commonOnChangedEvent;
-  }, [selectedCam]);
+  }, [selectedCam, deviceList]);
 
   const setSelectedMic = (deviceId: deviceId) => {
     log('mic: setting to', deviceId);
