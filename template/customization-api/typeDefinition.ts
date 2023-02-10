@@ -18,7 +18,7 @@ import {
   UidType,
 } from '../agora-rn-uikit';
 import {I18nInterface} from '../src/language/i18nTypes';
-import {IconsInterface} from '../agora-rn-uikit/src/Controls/Icons';
+import {IconsInterface} from '../src/atoms/CustomIcon';
 export type {RenderInterface, RenderStateInterface, UidType};
 export type {
   ChatTextInputProps,
@@ -56,6 +56,7 @@ export interface ChatCmpInterface {
 
 export interface renderComponentInterface {
   user: RenderInterface;
+  isMax?: boolean;
 }
 
 export interface renderComponentObjectInterface {

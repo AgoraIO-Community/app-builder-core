@@ -1,59 +1,49 @@
 import React, {useContext} from 'react';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
-import {
-  BtnTemplate,
-  PropsContext,
-  ToggleState,
-  BtnTemplateInterface,
-} from '../../agora-rn-uikit';
+import {PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useLocalUserInfo, useRtc} from 'customization-api';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
 
 export interface LocalSwitchCameraProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isVideoEnabled: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  showLabel?: boolean;
+  render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
+  disabled?: boolean;
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
   const {RtcEngine} = useRtc();
   const local = useLocalUserInfo();
+  const {showLabel = $config.ICON_TEXT, disabled = false} = props;
   //commented for v1 release
   //const switchCameraButtonText = useString('switchCameraButton')();
   const switchCameraButtonText = 'Switch';
 
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
   const onPress = () => {
     RtcEngine.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
   };
   const isVideoEnabled = local.video === ToggleState.enabled;
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: 'switchCamera',
-    disabled: isVideoEnabled ? false : true,
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: 'switch-camera',
+      tintColor:
+        isVideoEnabled || !disabled
+          ? $config.PRIMARY_ACTION_TEXT_COLOR
+          : $config.SEMANTIC_NETRUAL,
+    },
+    disabled: !isVideoEnabled || disabled ? true : false,
     onPress: onPress,
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = switchCameraButtonText;
-  }
+  iconButtonProps.style = Styles.localButton as Object;
+  iconButtonProps.btnTextProps = showLabel ? switchCameraButtonText : '';
 
   return props?.render ? (
-    props.render(onPress, isVideoEnabled, buttonTemplateName)
+    props.render(onPress, isVideoEnabled)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 }
 

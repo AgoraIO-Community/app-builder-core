@@ -23,6 +23,8 @@ import AgoraRTC, {
   EncryptionMode,
   ILocalTrack,
   ClientRoleOptions,
+  CameraVideoTrackInitConfig,
+  MicrophoneAudioTrackInitConfig,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
@@ -46,8 +48,11 @@ type callbackType = (uid?: UID) => void;
 declare global {
   interface Window {
     engine: RtcEngine;
+    AgoraRTC: typeof AgoraRTC;
   }
 }
+
+window.AgoraRTC = AgoraRTC;
 
 export enum AREAS {
   /**
@@ -166,6 +171,7 @@ if ($config.LOG_ENABLED) {
 }
 
 export default class RtcEngine {
+  private activeSpeakerUid: number;
   public appId: string;
   // public AgoraRTC: any;
   public client: any | IAgoraRTCClient;
@@ -178,6 +184,7 @@ export default class RtcEngine {
     ['RemoteAudioStateChanged', () => null],
     ['RemoteVideoStateChanged', () => null],
     ['NetworkQuality', () => null],
+    ['ActiveSpeaker', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -190,10 +197,11 @@ export default class RtcEngine {
   private isAudioPublished = false;
   private isVideoPublished = false;
   private isJoined = false;
-  private deviceId = '';
+  private videoDeviceId = undefined;
+  private audioDeviceId = undefined;
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
-
+  private speakerDeviceId = '';
   // Create channel profile and set it here
 
   // Create channel profile and set it here
@@ -214,8 +222,12 @@ export default class RtcEngine {
   }
 
   async enableAudio(): Promise<void> {
+    const audioConfig: MicrophoneAudioTrackInitConfig = {
+      bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
+      // microphoneId: this.audioDeviceId,
+    };
     try {
-      let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+      let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
       this.localStream.audio = localAudio;
     } catch (e) {
       let audioError = e;
@@ -234,13 +246,20 @@ export default class RtcEngine {
      *    The Web SDK directly publishes the local audio stream without processing it through WebAudio.
      */
 
-    const audioConfig =
-      Platform.OS == 'web' && isMobileOrTablet() ? {bypassWebAudio: true} : {};
+    const audioConfig: MicrophoneAudioTrackInitConfig = {
+      bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
+      // microphoneId: this.audioDeviceId,
+    };
+    const videoConfig: CameraVideoTrackInitConfig = {
+      encoderConfig: this.videoProfile,
+      // cameraId: this.videoDeviceId,
+    };
     try {
       let [localAudio, localVideo] =
-        await AgoraRTC.createMicrophoneAndCameraTracks(audioConfig, {
-          encoderConfig: this.videoProfile,
-        });
+        await AgoraRTC.createMicrophoneAndCameraTracks(
+          audioConfig,
+          videoConfig,
+        );
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
@@ -254,9 +273,7 @@ export default class RtcEngine {
         audioError = error;
       }
       try {
-        let localVideo = await AgoraRTC.createCameraVideoTrack({
-          encoderConfig: this.videoProfile,
-        });
+        let localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
         this.localStream.video = localVideo;
       } catch (error) {
         videoError = error;
@@ -269,6 +286,11 @@ export default class RtcEngine {
       //     audioError ? 'No Microphone found' : 'No Video device found',
       //   );
     }
+  }
+
+  async enableAudioVolumeIndication(interval, smooth, isLocal) {
+    AgoraRTC.setParameter('AUDIO_VOLUME_INDICATION_INTERVAL', interval);
+    this.client.enableAudioVolumeIndicator();
   }
 
   async publish() {
@@ -360,6 +382,12 @@ export default class RtcEngine {
           ...this.remoteStreams.get(user.uid),
           audio: audioTrack,
         });
+        if (this.speakerDeviceId) {
+          // setting sepeaker for all remote stream (newly joining user)
+          this.remoteStreams
+            .get(user.uid)
+            ?.audio?.setPlaybackDevice(this.speakerDeviceId);
+        }
         (this.eventsMap.get('RemoteAudioStateChanged') as callbackType)(
           user.uid,
           2,
@@ -401,6 +429,36 @@ export default class RtcEngine {
           0,
           0,
         );
+      }
+    });
+
+    this.client.on('volume-indicator', (volumes) => {
+      const highestvolumeObj = volumes.reduce(
+        (highestVolume, volume, index) => {
+          if (highestVolume === null) {
+            return volume;
+          } else {
+            if (volume.level > highestVolume.level) {
+              return volume;
+            }
+            return highestVolume;
+          }
+          // console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
+        },
+        null,
+      );
+      const activeSpeakerUid =
+        highestvolumeObj && highestvolumeObj?.level > 0 && highestvolumeObj?.uid
+          ? highestvolumeObj.uid
+          : undefined;
+
+      //To avoid infinite calling dispatch checking if condition.
+      if (this.activeSpeakerUid !== activeSpeakerUid) {
+        const activeSpeakerCallBack = this.eventsMap.get(
+          'ActiveSpeaker',
+        ) as callbackType;
+        activeSpeakerCallBack(activeSpeakerUid);
+        this.activeSpeakerUid = activeSpeakerUid;
       }
     });
 
@@ -468,7 +526,8 @@ export default class RtcEngine {
       event === 'ScreenshareStopped' ||
       event === 'RemoteAudioStateChanged' ||
       event === 'RemoteVideoStateChanged' ||
-      event === 'NetworkQuality'
+      event === 'NetworkQuality' ||
+      event === 'ActiveSpeaker'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }
@@ -616,7 +675,7 @@ export default class RtcEngine {
   async changeCamera(cameraId, callback, error): Promise<void> {
     try {
       await this.localStream.video?.setDevice(cameraId);
-      this.deviceId = cameraId;
+      this.videoDeviceId = cameraId;
       callback(cameraId);
     } catch (e) {
       error(e);
@@ -628,9 +687,9 @@ export default class RtcEngine {
       const devices = await AgoraRTC.getDevices(true);
       for (let i = 0; i < devices.length; i++) {
         let d = devices[i];
-        if (d.kind === 'videoinput' && d.deviceId !== this.deviceId) {
+        if (d.kind === 'videoinput' && d.deviceId !== this.videoDeviceId) {
           await this.localStream.video?.setDevice(d.deviceId);
-          this.deviceId = d.deviceId;
+          this.videoDeviceId = d.deviceId;
           break;
         }
       }
@@ -642,7 +701,21 @@ export default class RtcEngine {
   async changeMic(micId, callback, error) {
     try {
       await this.localStream.audio?.setDevice(micId);
+      this.audioDeviceId = micId;
       callback(micId);
+    } catch (e) {
+      error(e);
+    }
+  }
+
+  async changeSpeaker(speakerId, callback, error) {
+    try {
+      this.speakerDeviceId = speakerId;
+      // setting sepeaker for all remote stream (previously joined users)
+      this.remoteStreams?.forEach((stream, uid, map) => {
+        stream?.audio?.setPlaybackDevice(speakerId);
+      });
+      callback(speakerId);
     } catch (e) {
       error(e);
     }

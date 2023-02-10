@@ -1,17 +1,14 @@
 import React, {SetStateAction, useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Modal,
-} from 'react-native';
-import {isWebInternal} from '../utils/common';
-import {ImageIcon} from '../../agora-rn-uikit';
+import {View, StyleSheet, TouchableWithoutFeedback, Modal} from 'react-native';
+import {isMobileUA, isWebInternal} from '../utils/common';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
-import DimensionContext from '../components/dimension/DimensionContext';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import Spacer from '../atoms/Spacer';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
+import {useRender} from 'customization-api';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
 
 interface LayoutIconDropdownProps {
   modalPosition?: {
@@ -22,31 +19,27 @@ interface LayoutIconDropdownProps {
   };
   showDropdown: boolean;
   setShowDropdown: React.Dispatch<SetStateAction<boolean>>;
+  caretPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+  onHoverPlaceHolder?: 'vertical' | 'horizontal';
 }
 
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
   const {
     showDropdown,
     setShowDropdown,
-    modalPosition = {top: 45, right: 15, bottom: undefined, left: undefined},
+    modalPosition = {top: 0, left: 0},
+    onHoverPlaceHolder = 'horizontal',
   } = props;
-  const {getDimensionData} = useContext(DimensionContext);
-  const {isDesktop, dim} = getDimensionData();
-
+  const {activeUids} = useRender();
   const layouts = useLayoutsData();
-  const {currentLayout, setLayout} = useLayout();
-  const renderSeparatorHorizontal = () => {
-    return isWebInternal() && isDesktop ? (
-      <View style={style.navItem}>
-        <View style={style.navItemSeparatorHorizontal}></View>
-      </View>
-    ) : (
-      <View style={{marginHorizontal: 2}}></View>
-    );
-  };
-  const selectedItemHighlighter = (isSelected: boolean) => {
-    return <View style={isSelected ? style.highlighter : {}} />;
-  };
+  const {setLayout, currentLayout} = useLayout();
+  const isMobileView = isMobileUA();
+
   const renderDropdown = () => {
     const data = layouts.map((item, index) => {
       let onPress = () => {
@@ -54,53 +47,107 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
         setShowDropdown(false);
       };
       let content = [];
-      let BtnTemplateLocal = [
-        item?.iconName ? (
-          <ImageIcon
-            key={'btnTemplateNameDropdown' + index}
-            style={style.btnHolderCustom}
-            name={item?.iconName}
-          />
-        ) : (
-          <ImageIcon
-            key={'btnTemplateIconDropdown' + index}
-            style={style.btnHolderCustom}
-            icon={item.icon}
-          />
-        ),
-      ];
+      const disabled =
+        item.name === getPinnedLayoutName() && activeUids?.length === 1
+          ? true
+          : false;
+      let iconButtonProps: IconButtonProps = {
+        disabled,
+        hoverEffect: disabled
+          ? false
+          : currentLayout !== item.name
+          ? true
+          : false,
+        hoverEffectStyle: {
+          backgroundColor:
+            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['15%'],
+        },
+        containerStyle: {
+          opacity: disabled ? 0.4 : 1,
+          flexDirection: 'row',
+          marginHorizontal: 8,
+          marginTop: 8,
+          marginBottom: layouts.length - 1 === index ? 8 : 0,
+          borderRadius: 4,
+          backgroundColor:
+            currentLayout === item.name
+              ? $config.PRIMARY_ACTION_BRAND_COLOR
+              : 'transparent',
+        },
+        onPress,
+        iconProps: {
+          iconContainerStyle: {
+            padding: 10,
+          },
+          iconType: 'plain',
+          name:
+            item.iconName === 'pinned' && isMobileView
+              ? 'list-view'
+              : item.iconName,
+          tintColor: $config.SECONDARY_ACTION_COLOR,
+        },
+        btnTextProps: {
+          textStyle: {
+            marginTop: 0,
+          },
+          text: $config.ICON_TEXT ? item.label : '',
+          textColor: $config.FONT_COLOR,
+        },
+      };
       content.push(
-        <TouchableOpacity
-          key={'dropdownLayoutIcon' + index}
-          style={style.dropdownInnerIconContainer}
-          onPress={onPress}>
-          <>
-            <View style={style.highlighterContainer}>
-              {selectedItemHighlighter(item.name === currentLayout)}
-            </View>
-            <View style={{flex: 1}}>{BtnTemplateLocal}</View>
-            <View style={style.layoutNameContainer}>
-              <Text numberOfLines={2} style={style.layoutNameText}>
-                {item.label}
-              </Text>
-            </View>
-          </>
-        </TouchableOpacity>,
+        <IconButton key={'layout_button' + item.name} {...iconButtonProps} />,
       );
-      if (layouts.length - 1 !== index) {
-        content.push(
-          <View
-            style={style.separaterContainer}
-            key={'navLayoutIconSeparater' + index}>
-            {renderSeparatorHorizontal()}
-          </View>,
-        );
-      }
       return content;
     });
-    return (
+
+    let viewContent = (
+      <View style={[style.dropdownContainer, modalPosition]}>
+        <View
+          style={[
+            {
+              width: 20,
+              height: 20,
+              backgroundColor: $config.CARD_LAYER_4_COLOR,
+              position: 'absolute',
+              borderRadius: 2,
+              transform: [{rotate: '45deg'}],
+              zIndex: -1,
+            },
+            props?.caretPosition,
+          ]}></View>
+        {!isMobileUA() && (
+          <View
+            style={[
+              {
+                zIndex: -2,
+                position: 'absolute',
+              },
+              onHoverPlaceHolder === 'vertical'
+                ? {width: 20, height: '100%', bottom: 0, right: -20}
+                : {width: '100%', height: 20, bottom: -20},
+            ]}
+          />
+        )}
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}>
+          {data}
+        </View>
+      </View>
+    );
+
+    return !isMobileOrTablet() ? (
+      showDropdown ? (
+        viewContent
+      ) : (
+        <></>
+      )
+    ) : (
       <Modal
-        animationType="fade"
+        animationType="none"
         transparent={true}
         visible={showDropdown}
         onRequestClose={() => {
@@ -112,18 +159,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           }}>
           <View style={style.backDrop} />
         </TouchableWithoutFeedback>
-        <View
-          style={[
-            style.dropdownContainer,
-            {
-              top: modalPosition?.top,
-              right: modalPosition?.right,
-              left: modalPosition?.left,
-              bottom: modalPosition?.bottom,
-            },
-          ]}>
-          {data}
-        </View>
+        {viewContent}
       </Modal>
     );
   };
@@ -131,60 +167,20 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
 };
 
 const style = StyleSheet.create({
-  layoutNameContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    paddingHorizontal: 5,
-  },
-  layoutNameText: {
-    textAlign: 'left',
-  },
-  highlighter: {
-    justifyContent: 'center',
-    alignSelf: 'center',
-    height: 1,
-    width: 1,
-    borderRadius: 10,
-    borderWidth: 4,
-    borderColor: $config.PRIMARY_COLOR,
-  },
-  highlighterContainer: {flex: 0.5, justifyContent: 'center'},
-  dropdownInnerIconContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    paddingHorizontal: 5,
-    paddingVertical: 5,
-    minHeight: 40,
-  },
-  navItem: {
-    height: '100%',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  navItemSeparatorHorizontal: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-    width: '100%',
-    height: 1,
-    marginVertical: 10,
-    alignSelf: 'center',
-    opacity: 0.8,
-  },
-  separaterContainer: {
-    flex: 0.5,
-    paddingHorizontal: 5,
-  },
   dropdownContainer: {
+    width: 140,
     position: 'absolute',
-    marginTop: 5,
-    width: 160,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    paddingVertical: 10,
-  },
-  btnHolderCustom: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    borderRadius: 8,
+    zIndex: 999,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 1,
   },
   backDrop: {
     position: 'absolute',

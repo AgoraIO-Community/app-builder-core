@@ -9,13 +9,19 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-// @ts-nocheck
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, ScrollView} from 'react-native';
+import React, {useState, useContext} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Pressable,
+} from 'react-native';
 import platform from '../subComponents/Platform';
 import PrimaryButton from '../atoms/PrimaryButton';
 import SecondaryButton from '../atoms/SecondaryButton';
-import {BtnTemplate} from '../../agora-rn-uikit';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from './useShareLink';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
@@ -23,31 +29,25 @@ import Logo from '../components/common/Logo';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useHistory} from '../components/Router';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent} from '../utils/common';
+import {isMobileUA, isValidReactComponent, trimText} from '../utils/common';
+import Card from '../atoms/Card';
+import Spacer from '../atoms/Spacer';
+import LinkButton from '../atoms/LinkButton';
+import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
+import Tooltip from '../atoms/Tooltip';
 
-const Share = () => {
-  const {FpeShareComponent} = useCustomization((data) => {
-    let components: {
-      FpeShareComponent?: React.ElementType;
-    } = {};
-    // commented for v1 release
-    // if (
-    //   data?.components?.share &&
-    //   typeof data?.components?.share !== 'object'
-    // ) {
-    //   if (
-    //     data?.components?.share &&
-    //     isValidReactComponent(data?.components?.share)
-    //   ) {
-    //     components.FpeShareComponent = data?.components?.share;
-    //   }
-    // }
-    return components;
-  });
+const isLiveStream = $config.EVENT_MODE;
+
+export interface CopyMeetingInfoProps {
+  showSubLabel?: boolean;
+}
+export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const {copyShareLinkToClipboard, getShareLink} = useShareLink();
   const {
-    data: {roomId, pstn, isSeparateHostLink},
+    data: {roomId, isHost, pstn, isSeparateHostLink, meetingTitle},
   } = useMeetingInfo();
+  const {showSubLabel = true} = props;
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
   // const meetingIdText = useString('meetingIdLabel')();
@@ -62,31 +62,24 @@ const Share = () => {
   //   'enterMeetingAfterCreateButton',
   // )();
   // const copyInviteButton = useString('copyInviteButton')();
-  const meetingUrlText = 'Meeting URL';
+  const meetingUrlText = 'Meeting Link';
   const meetingIdText = 'Meeting ID';
   const hostIdText = 'Host ID';
-  const attendeeUrlLabel = 'Attendee URL';
+  const attendeeUrlLabel = 'Attendee Link';
   const attendeeIdLabel = 'Attendee ID';
-  const hostUrlLabel = 'Host URL';
+  const hostUrlLabel = 'Host Link';
   const pstnLabel = 'PSTN';
   const pstnNumberLabel = 'Number';
   const pinLabel = 'Pin';
-  const enterMeetingAfterCreateButton = 'Start Meeting (as host)';
+  const enterMeetingAfterCreateButton = isLiveStream
+    ? 'Start Stream (as host)'
+    : 'Start Meeting (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
   const history = useHistory();
   const enterMeeting = () => {
     if (roomId?.host) {
       history.push(roomId.host);
     }
-  };
-
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
   };
   const isSDK = isSDKCheck();
   const isWebCheck =
@@ -108,273 +101,309 @@ const Share = () => {
       return meetingIdText;
     }
   };
-  return FpeShareComponent ? (
-    <FpeShareComponent />
-  ) : (
-    <ScrollView contentContainerStyle={style.scrollMain}>
-      <Logo />
-      <View style={style.content} onLayout={onLayout}>
-        <View style={style.leftContent}>
-          <Text style={style.heading}>{$config.APP_NAME}</Text>
-          <Text style={style.headline}>{$config.LANDING_SUB_HEADING}</Text>
-          {isSeparateHostLink ? (
-            <View style={style.urlContainer}>
-              <View style={{width: '80%'}}>
-                <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
-                <View style={style.urlHolder}>
-                  <Text style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
-                    {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={{
-                  marginLeft: 'auto',
-                  flexDirection: 'row',
-                  alignSelf: 'center',
+
+  const clipboardIconButton = (type: SHARE_LINK_CONTENT_TYPE) => {
+    return (
+      <View style={style.iconContainer}>
+        <Tooltip
+          isClickable
+          onPress={() => {
+            copyShareLinkToClipboard(type);
+          }}
+          toolTipIcon={
+            <>
+              <ImageIcon
+                iconType="plain"
+                name="tick-fill"
+                tintColor={$config.SEMANTIC_SUCCESS}
+              />
+              <Spacer size={8} horizontal={true} />
+            </>
+          }
+          toolTipMessage="Copied to clipboard"
+          renderContent={(isToolTipVisible, setToolTipVisible) => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  copyShareLinkToClipboard(type, () => {
+                    setToolTipVisible(true);
+                  });
+                  //setToolTipVisible(true);
                 }}>
-                <View
-                  style={{
-                    backgroundColor: $config.PRIMARY_COLOR + '80',
-                    width: 1,
-                    height: 'auto',
-                    marginRight: 15,
-                  }}
+                <ImageIcon
+                  iconType="plain"
+                  name="clipboard"
+                  tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
                 />
-                <View style={style.clipboardIconHolder}>
-                  <BtnTemplate
-                    style={style.clipboardIcon}
-                    color={$config.PRIMARY_COLOR}
-                    name={'clipboard'}
-                    onPress={() =>
-                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.ATTENDEE)
-                    }
-                  />
-                </View>
-              </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
+    );
+  };
+  return (
+    <>
+      {isSeparateHostLink ? (
+        <>
+          <Text style={style.urlTitle}>{getAttendeeLabel()}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={style.urlContainer}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[
+                  style.url,
+                  style.urlPadding,
+                  //@ts-ignore
+                  isWebCheck ? urlWeb : {opacity: 1},
+                ]}>
+                {getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+              </Text>
             </View>
-          ) : (
-            <></>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
+          </View>
+
+          {showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                Share this with attendees you want to invite.
+              </Text>
+            </>
           )}
-          <View style={style.urlContainer}>
-            <View style={{width: '80%'}}>
-              <Text style={style.urlTitle}>{getHostLabel()}</Text>
-              <View style={style.urlHolder}>
-                <Text style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
-                  {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
+          <Spacer size={25} />
+        </>
+      ) : (
+        <></>
+      )}
+      {isHost ? (
+        <>
+          <Text style={style.urlTitle}>{getHostLabel()}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={style.urlContainer}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={[
+                  style.url,
+                  style.urlPadding,
+                  //@ts-ignore
+                  isWebCheck ? urlWeb : {opacity: 1},
+                ]}>
+                {getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
+              </Text>
+            </View>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.HOST)}
+          </View>
+
+          {showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                Share this with other co-hosts you want to invite.
+              </Text>
+            </>
+          )}
+          <Spacer size={25} />
+        </>
+      ) : (
+        <></>
+      )}
+      {pstn ? (
+        <>
+          <Text style={style.urlTitle}>{pstnLabel}</Text>
+          <Spacer size={11} />
+          <View style={style.container}>
+            <View style={[style.urlContainer, style.urlPadding]}>
+              <View>
+                <Text
+                  style={[
+                    style.url,
+                    //@ts-ignore
+                    isWebCheck ? urlWeb : {opacity: 1},
+                  ]}>
+                  {pstnNumberLabel} - {pstn?.number} {' | '} {pinLabel} -{' '}
+                  {pstn?.pin}
                 </Text>
               </View>
             </View>
-            <View
-              style={{
-                marginLeft: 'auto',
-                flexDirection: 'row',
-                alignSelf: 'center',
-              }}>
-              <View
-                style={{
-                  backgroundColor: $config.PRIMARY_COLOR + '80',
-                  width: 1,
-                  height: 'auto',
-                  marginRight: 15,
-                }}
-              />
-              <View style={style.clipboardIconHolder}>
-                <BtnTemplate
-                  style={style.clipboardIcon}
-                  color={$config.PRIMARY_COLOR}
-                  name={'clipboard'}
-                  onPress={() =>
-                    copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.HOST)
-                  }
-                />
-              </View>
-            </View>
+            {clipboardIconButton(SHARE_LINK_CONTENT_TYPE.PSTN)}
           </View>
-          {pstn ? (
-            <View style={style.urlContainer}>
-              <View style={{width: '80%'}}>
-                <Text style={style.urlTitle}>{pstnLabel}</Text>
-                <View>
-                  <View style={style.pstnHolder}>
-                    <Text style={style.urlTitle}>{pstnNumberLabel}: </Text>
-                    <Text
-                      style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
-                      {pstn?.number}
-                    </Text>
-                  </View>
-                  <View style={style.pstnHolder}>
-                    <Text style={style.urlTitle}>{pinLabel}: </Text>
-                    <Text
-                      style={[style.url, isWebCheck ? urlWeb : {opacity: 1}]}>
-                      {pstn?.pin}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <View style={{marginLeft: 'auto', flexDirection: 'row'}}>
-                <View
-                  style={{
-                    backgroundColor: $config.PRIMARY_COLOR + '80',
-                    width: 1,
-                    height: 'auto',
-                    marginRight: 15,
-                  }}
-                />
-                <View style={style.clipboardIconHolder}>
-                  <BtnTemplate
-                    style={style.clipboardIcon}
-                    color={$config.PRIMARY_COLOR}
-                    name={'clipboard'}
-                    onPress={() =>
-                      copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.PSTN)
-                    }
-                  />
-                </View>
-              </View>
-            </View>
-          ) : (
-            <></>
+
+          {showSubLabel && (
+            <>
+              <Spacer size={14} />
+              <Text style={style.helpText}>
+                Share this phone number and pin to dial from phone.
+              </Text>
+            </>
           )}
-          <PrimaryButton
-            onPress={() => enterMeeting()}
-            text={enterMeetingAfterCreateButton}
-          />
-          <View style={{height: 10}} />
-          <SecondaryButton
-            onPress={() =>
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-            }
-            text={copyInviteButton}
-          />
-        </View>
-      </View>
-    </ScrollView>
+          {/* <Spacer size={25} /> */}
+        </>
+      ) : (
+        <></>
+      )}
+    </>
+  );
+};
+
+const Share = () => {
+  const {FpeShareComponent} = useCustomization((data) => {
+    let components: {
+      FpeShareComponent?: React.ElementType;
+    } = {};
+    // commented for v1 release
+    // if (
+    //   data?.components?.share &&
+    //   typeof data?.components?.share !== 'object'
+    // ) {
+    //   if (
+    //     data?.components?.share &&
+    //     isValidReactComponent(data?.components?.share)
+    //   ) {
+    //     components.FpeShareComponent = data?.components?.share;
+    //   }
+    // }
+    return components;
+  });
+  const {copyShareLinkToClipboard} = useShareLink();
+  const {
+    data: {roomId, meetingTitle},
+  } = useMeetingInfo();
+
+  const enterMeetingAfterCreateButton = isLiveStream
+    ? 'Start Stream (as host)'
+    : 'Start Meeting (as host)';
+  const copyInviteButton = 'Copy invite to clipboard';
+  const history = useHistory();
+  const enterMeeting = () => {
+    if (roomId?.host) {
+      history.push(roomId.host);
+    }
+  };
+  const isSDK = isSDKCheck();
+  const isWebCheck =
+    $config.FRONTEND_ENDPOINT || (platform === 'web' && !isSDK);
+
+  return FpeShareComponent ? (
+    <FpeShareComponent />
+  ) : (
+    <View style={style.root}>
+      <ScrollView contentContainerStyle={style.scrollMain}>
+        <Card>
+          <View>
+            <Logo />
+            <Spacer size={20} />
+            <Text style={style.heading} numberOfLines={1}>
+              {trimText(meetingTitle)}
+            </Text>
+            <Spacer size={40} />
+            <CopyMeetingInfo />
+            <Spacer size={60} />
+          </View>
+          <View style={style.btnContainer}>
+            <PrimaryButton
+              iconName="video-on"
+              onPress={() => enterMeeting()}
+              containerStyle={isMobileUA() && {width: '100%'}}
+              text={enterMeetingAfterCreateButton.toUpperCase()}
+            />
+            <Spacer size={16} />
+            <LinkButton
+              text={copyInviteButton}
+              onPress={() =>
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+              }
+            />
+          </View>
+        </Card>
+      </ScrollView>
+    </View>
   );
 };
 const urlWeb = {wordBreak: 'break-all'};
 
 const style = StyleSheet.create({
-  full: {flex: 1},
+  root: {
+    flex: 1,
+  },
   scrollMain: {
-    paddingVertical: '8%',
-    marginHorizontal: '8%',
-    display: 'flex',
-    justifyContent: 'space-evenly',
     flexGrow: 1,
-  },
-  main: {
-    flex: 2,
-    justifyContent: 'space-evenly',
-    marginHorizontal: '8%',
-    marginVertical: '2%',
-  },
-  content: {flex: 6, flexDirection: 'row'},
-  leftContent: {
-    width: '100%',
-    flex: 1,
-    justifyContent: 'space-evenly',
-    marginBottom: '12%',
-    marginTop: '2%',
-    // marginRight: '5%',
-    marginHorizontal: 'auto',
-    alignItems: 'center',
-  },
-  heading: {
-    fontSize: 32,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
-  },
-  headline: {
-    fontSize: 18,
-    fontWeight: '400',
-    textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
-  },
-  inputs: {
-    flex: 1,
-    width: '100%',
-    alignSelf: 'flex-start',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  checkboxHolder: {
-    marginVertical: 0,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  checkboxTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
-    paddingHorizontal: 5,
+  heading: {
+    fontSize: ThemeConfig.FontSize.extraLarge,
     fontWeight: '700',
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    paddingVertical: 2,
   },
-  checkboxCaption: {color: '#333', paddingHorizontal: 5},
-  checkboxTextHolder: {
-    marginVertical: 0, //check if 5
-    flexDirection: 'column',
-  },
-  urlContainer: {
-    backgroundColor: $config.PRIMARY_COLOR + '22',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 10,
-    width: '100%',
-    // minWidth: ''
-    maxWidth: 700,
+  container: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
   },
   urlTitle: {
-    color: $config.PRIMARY_FONT_COLOR,
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'left',
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.medium,
+    fontWeight: '600',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    paddingLeft: 8,
   },
-  pstnHolder: {
-    width: '100%',
-    // paddingHorizontal: 10,
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 10,
+  urlContainer: {
+    flex: 0.9,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderWidth: 1,
+    borderTopLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
   },
-  urlHolder: {
-    width: '100%',
-    // paddingHorizontal: 10,
-    // marginBottom: 15,
-    flexDirection: 'row',
+  iconContainer: {
+    flex: 0.1,
+    minWidth: 25,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
+    justifyContent: 'center',
     alignItems: 'center',
-    // justifyContent: 'center',
-    // maxWidth: 600,
-    minHeight: 30,
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    borderLeftWidth: 0,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderTopRightRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
+    borderTopLeftRadius: 0,
   },
   url: {
-    color: $config.PRIMARY_FONT_COLOR,
-    fontSize: 18,
-    // textDecorationLine: 'underline',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    fontSize: ThemeConfig.FontSize.small,
+    fontWeight: '600',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
   },
-  // pstnHolder: {
-  //   flexDirection: 'row',
-  //   width: '80%',
-  // },
-  pstnMargin: {
-    marginRight: '10%',
-  },
-  clipboardIconHolder: {
-    width: 40,
-    height: 40,
-    marginVertical: 'auto',
+  urlPadding: {
+    paddingHorizontal: 20,
+    paddingVertical: 21,
   },
   clipboardIcon: {
-    width: 40,
-    height: 40,
-    marginVertical: 'auto',
-    opacity: 0.5,
-    backgroundColor: 'transparent',
+    width: 17,
+    height: 20,
+  },
+  btnContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  helpText: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
+    fontWeight: '400',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    paddingLeft: 8,
   },
 });
 

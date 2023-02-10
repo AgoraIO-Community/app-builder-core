@@ -9,12 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent, useRtc} from 'customization-api';
-import React, {useMemo, useState} from 'react';
-import {View, StyleSheet, Dimensions, Pressable} from 'react-native';
-import {isWebInternal} from '../utils/common';
+import {layoutComponent, useRender, useRtc} from 'customization-api';
+import React, {useContext, useMemo, useState} from 'react';
+import {View, StyleSheet, Pressable, Text} from 'react-native';
+import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
+import {ClientRole, PropsContext} from '../../agora-rn-uikit';
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -35,34 +36,37 @@ const layout = (len: number, isDesktop: boolean = true) => {
 
 const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useRtc();
-  let onLayout = (e: any) => {
-    setDim([
-      e.nativeEvent.layout.width,
-      e.nativeEvent.layout.height,
-      e.nativeEvent.layout.width > e.nativeEvent.layout.height,
-    ]);
-  };
-  const [dim, setDim] = useState<[number, number, boolean]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isDesktop = dim[0] > dim[1] + 100;
+  const {rtcProps} = useContext(PropsContext);
+  const {activeUids} = useRender();
+  const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
-    () => layout(renderData.length, isDesktop),
-    [renderData.length, isDesktop],
+    () => layout(renderData.length, isDesktop()),
+    [renderData.length, isDesktop()],
   );
 
   const setPinnedLayout = useSetPinnedLayout();
+
+  //livestreaming audience will see this if no host joined the call
+  if (
+    $config.EVENT_MODE &&
+    rtcProps?.role === ClientRole.Audience &&
+    activeUids.length === 0
+  ) {
+    return (
+      <View style={style.infoTextContainer}>
+        <Text style={style.infoTextStyle}>Waiting for the host to join...</Text>
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={[style.full, {paddingHorizontal: isDesktop ? 50 : 0}]}
-      onLayout={onLayout}>
+    <View style={[style.full]}>
       {matrix.map((r, ridx) => (
         <View style={style.gridRow} key={ridx}>
           {r.map((c, cidx) => (
             <Pressable
+              disabled={renderData.length === 1}
               onPress={() => {
                 if (!(ridx === 0 && cidx === 0)) {
                   dispatch({
@@ -77,7 +81,25 @@ const GridVideo: layoutComponent = ({renderData}) => {
                 marginHorizontal: 'auto',
               }}
               key={cidx}>
-              <View style={style.gridVideoContainerInner}>
+              <View
+                style={[
+                  style.gridVideoContainerInner,
+                  //if only one item no margin required
+                  r?.length > 1
+                    ? //first item will have marginRight in the row
+                      cidx === 0
+                      ? {marginRight: 4}
+                      : //last item will have marginLeft in the row
+                      cidx === r?.length - 1
+                      ? {marginLeft: 4}
+                      : //middle item will have marginHorizontal
+                        {marginHorizontal: 4}
+                    : //if more than one row than add marginHorizontal
+                    //for ex: 7 people in the call with 3 column layout. last person tile should be aligned propert
+                    ridx > 1
+                    ? {marginHorizontal: 4}
+                    : {},
+                ]}>
                 <RenderComponent uid={renderData[ridx * dims.c + cidx]} />
               </View>
             </Pressable>
@@ -91,39 +113,32 @@ const GridVideo: layoutComponent = ({renderData}) => {
 const style = StyleSheet.create({
   full: {
     flex: 1,
-    // padding: 20,
   },
   gridRow: {
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-    paddingVertical: 10,
+    paddingVertical: 4,
   },
   gridVideoContainerInner: {
-    // borderColor: '#fff',
-    // borderWidth:2,
-    // width: '100%',
-    borderRadius: 15,
+    //borderRadius: 12,
     flex: 1,
     overflow: 'hidden',
-    // margin: 1,
-    marginHorizontal: 10,
   },
-  MicBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginHorizontal: 10,
-    marginRight: 20,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    display: 'flex',
+  infoTextContainer: {
+    flex: 1,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     justifyContent: 'center',
+    marginHorizontal: 'auto',
+    marginVertical: 4,
   },
-  MicIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
+  infoTextStyle: {
+    fontFamily: 'Source Sans Pro',
+    fontWeight: '600',
+    fontSize: 32,
+    color: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+    textAlign: 'center',
+    padding: 12,
   },
 });
 export default GridVideo;

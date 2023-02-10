@@ -26,8 +26,8 @@ const Checkbox = (props: any) => {
       value={urlCheckbox}
       onValueChange={setUrlCheckbox}
       //@ts-ignore Color prop exists on react-native-web but it not present in @react-native-community/checkbox
-      color={primaryColor}
-      style={styles.check}
+      color={props.color ?? primaryColor}
+      style={{...styles.check, ...props.style}}
     />
   );
 };

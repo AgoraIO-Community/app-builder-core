@@ -12,8 +12,14 @@
 
 import {PropsContext, UidType} from '../../agora-rn-uikit';
 import React, {useContext} from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, Image} from 'react-native';
 import {useString} from '../utils/useString';
+import {useScreenshare} from './screenshare/useScreenshare';
+import ImageIcon from '../atoms/ImageIcon';
+import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useLayout} from 'customization-api';
+import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
 /**
  *
  * @param uid - uid of the user
@@ -21,23 +27,78 @@ import {useString} from '../utils/useString';
  * why its needed : To prevent screensharing tunneling effect
  *
  */
-function ScreenShareNotice({uid}: {uid: UidType}) {
+function ScreenShareNotice({uid, isMax}: {uid: UidType; isMax: boolean}) {
   //commented for v1 release
   // const screensharingActiveOverlayLabel = useString(
   //   'screensharingActiveOverlayLabel',
   // )();
-  const screensharingActiveOverlayLabel = 'Your screen share is active.';
+  const {currentLayout} = useLayout();
+  const {stopUserScreenShare} = useScreenshare();
+  const screensharingActiveOverlayLabel = 'You are sharing your screen';
   const {rtcProps} = useContext(PropsContext);
   return uid === rtcProps?.screenShareUid ? (
     <View style={styles.screenSharingMessageContainer}>
-      <Text style={styles.screensharingMessage}>
+      <Text
+        style={
+          !isMax && currentLayout === getPinnedLayoutName()
+            ? styles.screensharingMessageMin
+            : styles.screensharingMessage
+        }>
         {screensharingActiveOverlayLabel}
       </Text>
+      {!isMax && currentLayout === getPinnedLayoutName() ? (
+        <></>
+      ) : (
+        <TouchableOpacity
+          style={styles.btnContainer}
+          onPress={() => stopUserScreenShare()}>
+          <View style={styles.iconContainer}>
+            <ImageIcon
+              iconType="plain"
+              iconSize={20}
+              name={'close'}
+              tintColor={$config.SEMANTIC_ERROR}
+            />
+          </View>
+          <View style={styles.btnTextContainer}>
+            <Text style={styles.btnText}>Stop Sharing</Text>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   ) : null;
 }
 
 const styles = StyleSheet.create({
+  iconContainer: {
+    marginVertical: 12,
+    marginLeft: 16,
+    marginRight: 12,
+    backgroundColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+    alignSelf: 'center',
+    width: 20,
+    height: 20,
+  },
+  btnContainer: {
+    alignSelf: 'center',
+    backgroundColor: $config.SEMANTIC_ERROR,
+    borderRadius: 8,
+    height: 40,
+    maxWidth: 129,
+    flexDirection: 'row',
+  },
+  btnTextContainer: {
+    marginVertical: 12,
+    marginRight: 16,
+  },
+  btnText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+  },
   screenSharingMessageContainer: {
     position: 'absolute',
     top: 0,
@@ -48,13 +109,27 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
-    backgroundColor: 'rgba(0,0,0,0.9)',
-    borderRadius: 15,
+    backgroundColor:
+      $config.HARD_CODED_BLACK_COLOR + hexadecimalTransparency['80%'],
+    borderRadius: 4,
+  },
+  screensharingMessageMin: {
+    alignSelf: 'center',
+    textAlign: 'center',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 20,
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
   },
   screensharingMessage: {
     alignSelf: 'center',
-    fontSize: 20,
-    color: $config.SECONDARY_FONT_COLOR,
+    textAlign: 'center',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: 32,
+    lineHeight: 40,
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+    paddingBottom: 24,
   },
 });
 

@@ -31,6 +31,7 @@ import {
 } from './components/meeting-info/useMeetingInfo';
 import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
 import {ShareLinkProvider} from './components/useShareLink';
+import Endcall from './pages/Endcall';
 
 //hook can't be used in the outside react function calls. so directly checking the platform.
 if (Platform.OS === 'ios') {
@@ -46,6 +47,7 @@ declare module 'agora-rn-uikit' {
     name: string;
     screenUid: number;
     offline: boolean;
+    lastMessageTimeStamp: number;
   }
   interface RtcPropsInterface {
     screenShareUid: number;
@@ -107,6 +109,10 @@ const App: React.FC = () => {
               <Route exact path={'/join'}>
                 <Join />
               </Route>
+              {/* Will be used in the future
+              <Route exact path={'/leave'}>
+                <Endcall />
+              </Route> */}
               {shouldAuthenticate ? (
                 <PrivateRoute
                   path={'/create'}

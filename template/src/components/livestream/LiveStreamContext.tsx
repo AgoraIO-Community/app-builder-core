@@ -1,4 +1,5 @@
 import React, {createContext, useContext, useState, useRef} from 'react';
+import {StyleSheet} from 'react-native';
 import ChatContext, {controlMessageEnum} from '../ChatContext';
 import Toast from '../../../react-native-toast-message';
 import {
@@ -16,7 +17,10 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {useRender} from 'customization-api';
+import {SidePanelType, useRender, useSidePanel} from 'customization-api';
+import TertiaryButton from '../../atoms/TertiaryButton';
+import PrimaryButton from '../../atoms/PrimaryButton';
+import {trimText} from '../../utils/common';
 
 const LiveStreamContext = createContext(null as unknown as liveStreamContext);
 
@@ -39,6 +43,18 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const raiseHandListRef = useRef<any>();
   raiseHandListRef.current = raiseHandList;
 
+  const [coHostUids, setCoHostUids] = useState<UidType[]>([]);
+  const coHostUidsRef = useRef<any>();
+  coHostUidsRef.current = coHostUids;
+
+  const {sidePanel} = useSidePanel();
+  const sidePanelRef = useRef<any>();
+  sidePanelRef.current = sidePanel;
+
+  React.useEffect(() => {
+    sidePanelRef.current = sidePanel;
+  }, [sidePanel]);
+
   React.useEffect(() => {
     renderListRef.current = renderList;
   }, [renderList]);
@@ -47,11 +63,41 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     raiseHandListRef.current = raiseHandList;
   }, [raiseHandList]);
 
+  React.useEffect(() => {
+    coHostUidsRef.current = coHostUids;
+  }, [coHostUids]);
+
+  React.useEffect(() => {
+    /**
+     * when user rejoin the meeting. its showing previosly raised livesteaming request.
+     * so deleting raise hand data once the user is offline
+     * */
+    let newRaiseHandList = raiseHandList;
+    const data = Object.keys(
+      filterObject(
+        renderList,
+        ([k, v]) => v?.type === 'rtc' && v.offline === true,
+      ),
+    );
+    let isRaiseHandListChanged = false;
+    data &&
+      data.length &&
+      data.forEach((uid, index) => {
+        if (newRaiseHandList[uid]) {
+          isRaiseHandListChanged = true;
+          delete newRaiseHandList[uid];
+        }
+        if (data.length - 1 === index && isRaiseHandListChanged) {
+          setRaiseHandList(newRaiseHandList);
+        }
+      });
+  }, [renderList]);
+
   const localUid = useLocalUid();
   const localUidRef = useRef<any>();
   localUidRef.current = localUid;
 
-  const {hasUserJoinedRTM} = useContext(ChatContext);
+  const {hasUserJoinedRTM, rtmInitTimstamp} = useContext(ChatContext);
 
   const {setRtcProps, rtcProps, callActive} = props?.value;
   const {
@@ -66,11 +112,48 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
-  const showToast = (text: string) => {
+  const showToast = (
+    text: string,
+    text2: string,
+    uid?: UidType,
+    toastId?: number,
+  ) => {
+    let btns: any = {};
+    if (uid) {
+      //toastId used to hide this particular notification
+      btns.toastId = toastId;
+      btns.primaryBtn = (
+        <PrimaryButton
+          containerStyle={style.primaryBtn}
+          textStyle={style.primaryBtnText}
+          text="ALLOW TO BE A PRESENTER"
+          onPress={() => {
+            hostApprovesRequestOfUID(uid);
+            Toast.hide();
+          }}
+        />
+      );
+      btns.secondaryBtn = (
+        <TertiaryButton
+          containerStyle={style.secondaryBtn}
+          text="DENY"
+          onPress={() => {
+            hostRejectsRequestOfUID(uid);
+            Toast.hide();
+          }}
+        />
+      );
+    } else {
+      btns.primaryBtn = null;
+      btns.secondaryBtn = null;
+    }
+
     Toast.show({
-      type: 'success',
+      type: 'info',
       text1: text,
-      visibilityTime: 1000,
+      text2: text2 ? text2 : null,
+      visibilityTime: 3000,
+      ...btns,
     });
   };
 
@@ -101,6 +184,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         [userId]: {
           raised: payload?.raised || RaiseHandValue.FALSE,
           ts: payload?.ts || Date.now(),
+          isProcessed: payload?.isProcessed || false,
           role:
             payload?.role ||
             oldRaisedHandList[userId]?.role ||
@@ -128,7 +212,21 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           JSON.stringify({
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.FALSE,
+            ts: new Date().getTime(),
+            isProcessed: true,
           }),
+          EventPersistLevel.LEVEL2,
+        );
+        //update local cohost state
+        setCoHostUids((prevState) => {
+          return [
+            ...prevState.filter((i) => i !== parseInt(localUidRef.current)),
+          ];
+        });
+        // Audience notfies all users that co-host permission removed
+        events.send(
+          LiveStreamControlMessageEnum.coHostRemoved,
+          JSON.stringify({uid: localUidRef.current}),
           EventPersistLevel.LEVEL2,
         );
         break;
@@ -145,7 +243,19 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           JSON.stringify({
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.TRUE,
+            ts: new Date().getTime(),
+            isProcessed: true,
           }),
+          EventPersistLevel.LEVEL2,
+        );
+        //update local cohost state
+        setCoHostUids((prevState) => {
+          return [...prevState, localUidRef.current];
+        });
+        // Audience notfies all users that co-host has joined
+        events.send(
+          LiveStreamControlMessageEnum.coHostJoined,
+          JSON.stringify({uid: localUidRef.current}),
           EventPersistLevel.LEVEL2,
         );
       default:
@@ -237,6 +347,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
+      const isProcessed = payload?.isProcessed || false;
 
       switch (action) {
         // 1. Host can receive raise hand request with true or false value
@@ -244,30 +355,46 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           switch (value) {
             case RaiseHandValue.TRUE:
               // Step 1: Show notifications
-              showToast(
-                `${getAttendeeName(data.sender)} ${
-                  LSNotificationObject.RAISE_HAND_RECEIVED
-                }`,
-              );
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
+                showToast(
+                  `${trimText(getAttendeeName(data.sender))} ${
+                    LSNotificationObject.RAISE_HAND_RECEIVED.text1
+                  }`,
+                  LSNotificationObject.RAISE_HAND_RECEIVED.text2,
+                  data.sender,
+                  data.ts,
+                );
+              }
               // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
               addOrUpdateLiveStreamRequest(data.sender, {
                 ts: data.ts,
                 raised: RaiseHandValue.TRUE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
               break;
             case RaiseHandValue.FALSE:
               // Step 1: Show notifications
-              showToast(
-                `${getAttendeeName(data.sender)} ${
-                  LSNotificationObject.RAISE_HAND_REQUEST_RECALL
-                }`,
-              );
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
+                showToast(
+                  `${trimText(getAttendeeName(data.sender))} ${
+                    LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
+                  }`,
+                  LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text2,
+                );
+              }
               // 2. All Hosts in channel update raised state to "false" when attendee recalls their request
               addOrUpdateLiveStreamRequest(data.sender, {
                 ts: data.ts,
                 raised: RaiseHandValue.FALSE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
             default:
               break;
@@ -282,6 +409,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.TRUE,
                 role: ClientRole.Broadcaster,
+                isProcessed: isProcessed,
               });
               break;
             case RaiseHandValue.FALSE:
@@ -289,6 +417,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.FALSE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
               break;
             default:
@@ -306,7 +435,10 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     events.on(LiveStreamControlMessageEnum.raiseHandRequestAccepted, (data) => {
       if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.FALSE)
         return;
-      showToast(LSNotificationObject.RAISE_HAND_ACCEPTED);
+      showToast(
+        LSNotificationObject.RAISE_HAND_ACCEPTED.text1,
+        LSNotificationObject.RAISE_HAND_ACCEPTED.text2,
+      );
       // Promote user's privileges to host
       changeClientRoleTo(ClientRole.Broadcaster);
       // Audience updates its local attributes and notfies all host when request is approved
@@ -322,13 +454,19 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         raiseHandListRef.current[localUidRef.current].role ==
         ClientRole.Audience
       ) {
-        showToast(LSNotificationObject.RAISE_HAND_REJECTED);
+        showToast(
+          LSNotificationObject.RAISE_HAND_REJECTED.text1,
+          LSNotificationObject.RAISE_HAND_REJECTED.text2,
+        );
       } else if (
         raiseHandListRef.current[localUidRef.current].role ==
         ClientRole.Broadcaster
       ) {
         /** 2.b */
-        showToast(LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL);
+        showToast(
+          LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text1,
+          LSNotificationObject.RAISE_HAND_APPROVED_REQUEST_RECALL.text2,
+        );
         screenshareContextInstanceRef?.current?.stopUserScreenShare(); // This will not exist on ios
 
         // Demote user's privileges to audience
@@ -342,6 +480,39 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Audience updates its local attributes and notfies all host when they(audience) are kicked out
       UpdtLocStateAndBCastAttr(ClientRole.Audience, data.ts);
     });
+    // 4. Host promote audience as co-host
+    events.on(LiveStreamControlMessageEnum.promoteAsCoHost, (data) => {
+      showToast(
+        LSNotificationObject.PROMOTE_AS_CO_HOST.text1,
+        LSNotificationObject.PROMOTE_AS_CO_HOST.text2,
+      );
+      // Promote user's privileges to host
+      changeClientRoleTo(ClientRole.Broadcaster);
+      // Audience updates its local attributes and notfies all host when request is approved
+      UpdtLocStateAndBCastAttr(ClientRole.Broadcaster, data.ts);
+    });
+    // 4. New co-host has joined
+    events.on(LiveStreamControlMessageEnum.coHostJoined, ({payload}) => {
+      try {
+        const data = JSON.parse(payload);
+        if (data?.uid) {
+          setCoHostUids((prevState) => {
+            return [...prevState, parseInt(data.uid)];
+          });
+        }
+      } catch (error) {}
+    });
+    // 5. Co-host removed
+    events.on(LiveStreamControlMessageEnum.coHostRemoved, ({payload}) => {
+      try {
+        const data = JSON.parse(payload);
+        if (data?.uid) {
+          setCoHostUids((prevState) => {
+            return [...prevState.filter((i) => i !== parseInt(data.uid))];
+          });
+        }
+      } catch (error) {}
+    });
     /** ********************** AUDIENCE EVENTS SECTION ENDS ********************** */
   }, []);
 
@@ -354,25 +525,51 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
    */
 
   const hostApprovesRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.TRUE,
-      ts: new Date().getTime(),
-    });
-    events.send(
-      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      '',
-      EventPersistLevel.LEVEL1,
-      uid,
-    );
+    if (!raiseHandListRef.current[uid]?.isProcessed) {
+      addOrUpdateLiveStreamRequest(uid, {
+        raised: RaiseHandValue.TRUE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      });
+      events.send(
+        LiveStreamControlMessageEnum.raiseHandRequestAccepted,
+        '',
+        EventPersistLevel.LEVEL1,
+        uid,
+      );
+    } else {
+      Toast.hide();
+      setTimeout(() => {
+        showToast('Request already processed.', null);
+      });
+    }
   };
 
   const hostRejectsRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.FALSE,
-      ts: new Date().getTime(),
-    });
+    if (!raiseHandListRef.current[uid]?.isProcessed) {
+      addOrUpdateLiveStreamRequest(uid, {
+        raised: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      });
+      events.send(
+        LiveStreamControlMessageEnum.raiseHandRequestRejected,
+        '',
+        EventPersistLevel.LEVEL1,
+        uid,
+      );
+    } else {
+      Toast.hide();
+      setTimeout(() => {
+        showToast('Request already processed.', null);
+      });
+    }
+  };
+
+  // promote audience as co-host
+  const promoteAudienceAsCoHost = async (uid: UidType): Promise<void> => {
     events.send(
-      LiveStreamControlMessageEnum.raiseHandRequestRejected,
+      LiveStreamControlMessageEnum.promoteAsCoHost,
       '',
       EventPersistLevel.LEVEL1,
       uid,
@@ -392,14 +589,19 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     // If hand is already raised, skip the call
     if (raiseHandList[localUidRef.current]?.raised === RaiseHandValue.TRUE)
       return;
-    showToast(LSNotificationObject.RAISE_HAND_REQUEST);
+    showToast(
+      LSNotificationObject.RAISE_HAND_REQUEST.text1,
+      LSNotificationObject.RAISE_HAND_REQUEST.text2,
+    );
     events.send(
       EventNames.RAISED_ATTRIBUTE,
       JSON.stringify({
         action: LiveStreamControlMessageEnum.raiseHandRequest,
         value: RaiseHandValue.TRUE,
+        ts: new Date().getTime(),
+        isProcessed: false,
       }),
-      EventPersistLevel.LEVEL1,
+      EventPersistLevel.LEVEL2,
     );
     // Update local state
     addOrUpdateLiveStreamRequest(localUidRef.current, {
@@ -424,8 +626,22 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Change role
       changeClientRoleTo(ClientRole.Audience);
     }
+    //notify host users
+    events.send(
+      EventNames.RAISED_ATTRIBUTE,
+      JSON.stringify({
+        action: LiveStreamControlMessageEnum.raiseHandRequest,
+        value: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      }),
+      EventPersistLevel.LEVEL2,
+    );
     UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
-    showToast(LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL);
+    showToast(
+      LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text1,
+      LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text2,
+    );
   };
 
   /** ******* AUDIENCE CONTROLS SECTION ENDS ******* */
@@ -433,6 +649,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   return (
     <LiveStreamContext.Provider
       value={{
+        coHostUids: coHostUids,
         setLastCheckedRequestTimestamp,
         isPendingRequestToReview,
         raiseHandList,
@@ -440,6 +657,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         hostRejectsRequestOfUID,
         audienceSendsRequest,
         audienceRecallsRequest,
+        promoteAudienceAsCoHost,
       }}>
       {props.children}
     </LiveStreamContext.Provider>
@@ -447,3 +665,19 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 };
 
 export default LiveStreamContext;
+
+const style = StyleSheet.create({
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  primaryBtn: {
+    minWidth: 'auto',
+    paddingHorizontal: 12,
+    height: 40,
+    borderRadius: 4,
+    paddingVertical: 5,
+  },
+  primaryBtnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    paddingLeft: 0,
+  },
+});

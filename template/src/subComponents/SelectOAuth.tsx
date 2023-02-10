@@ -23,6 +23,7 @@ import microsoft from '../assets/microsoft.png';
 import Logo from './Logo';
 import {useHasBrandLogo} from '../utils/common';
 import {useString} from '../utils/useString';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const SelectOAuth = ({onSelectOAuth}) => {
   const hasBrandLogo = useHasBrandLogo();
@@ -53,7 +54,7 @@ const SelectOAuth = ({onSelectOAuth}) => {
                   fontSize: 16,
                   fontWeight: '500',
                   marginBottom: 20,
-                  color: $config.PRIMARY_FONT_COLOR,
+                  color: $config.FONT_COLOR,
                 }}>
                 {oauthLoginLabel}
               </Text>
@@ -130,7 +131,7 @@ const style = StyleSheet.create({
   },
   secondaryBtn: {
     minWidth: 200,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderWidth: 1,
     display: 'flex',
     justifyContent: 'center',
@@ -138,7 +139,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'space-around',
     // paddingTop: 20,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.SECONDARY_ACTION_COLOR,
     paddingHorizontal: 30,
     margin: 10,
     borderRadius: 100,
@@ -148,7 +149,7 @@ const style = StyleSheet.create({
     height: 45,
     lineHeight: 45,
     fontSize: 16,
-    color: $config.PRIMARY_COLOR,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
     textAlign: 'center',
     fontWeight: '500',
     textAlignVertical: 'center',
@@ -187,14 +188,14 @@ const style = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     marginBottom: 20,
   },
   headline: {
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     marginBottom: 20,
   },
   inputs: {
@@ -219,14 +220,14 @@ const style = StyleSheet.create({
     // alignItems: 'flex-start',
   },
   checkboxTitle: {
-    color: $config.PRIMARY_FONT_COLOR + 80,
+    color: $config.FONT_COLOR + hexadecimalTransparency['80%'],
     paddingHorizontal: 5,
     alignSelf: 'center',
     // marginVertical: 'auto',
     // fontWeight: '700',
   },
   checkboxCaption: {
-    color: $config.PRIMARY_FONT_COLOR + 80,
+    color: $config.FONT_COLOR + hexadecimalTransparency['80%'],
     paddingHorizontal: 5,
   },
   checkboxTextHolder: {

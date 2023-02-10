@@ -4,7 +4,7 @@ export {default as PrimaryButton} from '../src/atoms/PrimaryButton';
 export {default as SecondaryButton} from '../src/atoms/SecondaryButton';
 export {default as TextInput} from '../src/atoms/TextInput';
 //Icons
-export {default as icons} from '../src/assets/icons';
+export {Icons} from '../agora-rn-uikit';
 
 // commented for v1 release
 //create screen

@@ -9,30 +9,151 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React, {useState, useContext, useEffect} from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import PrecallNative from './Precall.native';
+import React, {useContext, useEffect} from 'react';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
-import {isValidReactComponent, isWebInternal} from '../utils/common';
-import ColorContext from './ColorContext';
+import {
+  isMobileUA,
+  isWebInternal,
+  trimText,
+  useIsDesktop,
+  useResponsive,
+} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
-import PreCallLogo from './common/Logo';
 import {useCustomization} from 'customization-implementation';
-import PreCallLocalMute from './precall/LocalMute';
 import {
   PreCallJoinBtn,
   PreCallTextInput,
   PreCallMeetingTitle,
   PreCallSelectDevice,
   PreCallVideoPreview,
+  PreCallJoinCallBtnProps,
 } from './precall/index';
 import SDKEvents from '../utils/SdkEvents';
 import isSDKCheck from '../utils/isSDK';
+import Card from '../atoms/Card';
+import Spacer from '../atoms/Spacer';
 import {useRtc} from 'customization-api';
+import {MeetingTitleProps} from './precall/meetingTitle';
+import {PreCallTextInputProps} from './precall/textInput';
+import ThemeConfig from '../theme';
 
-const JoinRoomInputView = () => {
+const JoinRoomInputView = ({isDesktop}) => {
+  const {rtcProps} = useContext(PropsContext);
   const {JoinButton, Textbox} = useCustomization((data) => {
     let components: {
-      JoinButton: React.ComponentType;
+      JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
+      Textbox: React.ComponentType<PreCallTextInputProps>;
+    } = {
+      Textbox: PreCallTextInput,
+      JoinButton: PreCallJoinBtn,
+    };
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+    // }
+    return components;
+  });
+  return (
+    <View
+      style={$config.EVENT_MODE ? style.lsBtnContainer : style.btnContainer}>
+      <Textbox
+        isDesktop={isDesktop}
+        labelStyle={$config.EVENT_MODE ? style.labelStyle : {}}
+      />
+      {$config.EVENT_MODE ? (
+        <>
+          {/* <Text style={style.subTextStyle}>
+            Enter the name you would like to join the room as
+          </Text> */}
+          {rtcProps.role == ClientRole.Audience && <Spacer size={40} />}
+        </>
+      ) : (
+        <></>
+      )}
+      <View
+        style={
+          $config.EVENT_MODE &&
+          rtcProps.role == ClientRole.Audience && {
+            justifyContent: 'space-between',
+            flex: 1,
+          }
+        }>
+        <Spacer size={10} />
+        <View
+          style={
+            $config.EVENT_MODE && isDesktop
+              ? style.btnContainerStyle
+              : {width: '100%'}
+          }>
+          <JoinButton />
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const JoinRoomName = ({isDesktop}) => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
+    let components: {
+      JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
+      Textbox: React.ComponentType<PreCallTextInputProps>;
+    } = {
+      Textbox: PreCallTextInput,
+      JoinButton: PreCallJoinBtn,
+    };
+    // commented for v1 release
+    // if (
+    //   data?.components?.precall &&
+    //   typeof data?.components?.precall === 'object'
+    // ) {
+    //   if (
+    //     data?.components?.precall?.joinButton &&
+    //     typeof data?.components?.precall?.joinButton !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.joinButton)) {
+    //       components.JoinButton = data?.components?.precall?.joinButton;
+    //     }
+    //   }
+
+    //   if (
+    //     data?.components?.precall?.textBox &&
+    //     typeof data?.components?.precall?.textBox !== 'object'
+    //   ) {
+    //     if (isValidReactComponent(data?.components?.precall?.textBox)) {
+    //       components.Textbox = data?.components?.precall?.textBox;
+    //     }
+    //   }
+    // }
+    return components;
+  });
+  return <Textbox isDesktop={isDesktop} />;
+};
+
+const JoinRoomButton = () => {
+  const {JoinButton, Textbox} = useCustomization((data) => {
+    let components: {
+      JoinButton: React.ComponentType<PreCallJoinCallBtnProps>;
       Textbox: React.ComponentType;
     } = {Textbox: PreCallTextInput, JoinButton: PreCallJoinBtn};
     // commented for v1 release
@@ -60,17 +181,10 @@ const JoinRoomInputView = () => {
     // }
     return components;
   });
-  return (
-    <View style={style.btnContainer}>
-      <Textbox />
-      <View style={{height: 20}} />
-      <JoinButton />
-    </View>
-  );
+  return <JoinButton />;
 };
 
 const Precall = () => {
-  const {primaryColor} = useContext(ColorContext);
   const {rtcProps} = useContext(PropsContext);
   const {
     VideoPreview,
@@ -84,7 +198,7 @@ const Precall = () => {
       PrecallBeforeView: React.ComponentType;
       DeviceSelect: React.ComponentType;
       VideoPreview: React.ComponentType;
-      MeetingName: React.ComponentType;
+      MeetingName: React.ComponentType<MeetingTitleProps>;
     } = {
       PrecallAfterView: React.Fragment,
       PrecallBeforeView: React.Fragment,
@@ -146,19 +260,10 @@ const Precall = () => {
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 
-  const [dim, setDim] = useState<[number, number]>([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-  ]);
-
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
-  };
-
   useEffect(() => {
     if (isWebInternal() && !isSDK) {
       if (meetingTitle) {
-        document.title = meetingTitle + ' | ' + $config.APP_NAME;
+        document.title = trimText(meetingTitle) + ' | ' + $config.APP_NAME;
       }
     }
   });
@@ -176,12 +281,6 @@ const Precall = () => {
     }
   }, [isJoinDataFetched]);
 
-  const isMobileView = () => dim[0] < dim[1] + 150;
-
-  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
-
-  const brandHolder = () => <PreCallLogo />;
-
   const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
     // if (
@@ -196,145 +295,180 @@ const Precall = () => {
     return undefined;
   });
 
+  const isDesktop = useIsDesktop();
+  const getResponsiveValue = useResponsive();
+  if (!isJoinDataFetched) return <Text style={style.titleFont}>Loading..</Text>;
   return FpePrecallComponent ? (
     <FpePrecallComponent />
   ) : (
     <>
       <PrecallBeforeView />
-      <View style={style.main} onLayout={onLayout}>
-        {/* Precall screen only changes for audience in Live Stream event */}
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <View style={style.preCallContainer}>
-            {brandHolder()}
-            <MeetingName />
-            <JoinRoomInputView />
-          </View>
-        ) : (
-          <>
-            {brandHolder()}
-            <View style={style.content}>
-              <View style={style.upperContainer}>
-                <View
-                  style={[
-                    style.leftContent,
-                    isMobileView() ? {paddingRight: 0} : {paddingRight: 40},
-                  ]}>
-                  <VideoPreview />
-                  <PreCallLocalMute />
-                  <View style={{marginBottom: '10%'}}>
-                    {/* This view is visible only on MOBILE view */}
-                    {isMobileView() && <JoinRoomInputView />}
-                  </View>
-                </View>
-                {/* This view is visible only on WEB view */}
-                {!isMobileView() && (
-                  <View style={style.rightContent}>
-                    <MeetingName />
-                    <View
-                      style={[
-                        {shadowColor: primaryColor},
-                        style.precallPickers,
-                      ]}>
-                      <DeviceSelect />
-                      <View style={{width: '100%'}}>
-                        <JoinRoomInputView />
-                      </View>
-                    </View>
-                  </View>
-                )}
+      {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+        <View style={style.root}>
+          <ScrollView contentContainerStyle={style.main}>
+            <Card>
+              <View>
+                <MeetingName textStyle={style.meetingTitleStyle} />
               </View>
-            </View>
-          </>
-        )}
-      </View>
+              <Spacer size={32} />
+              <JoinRoomInputView isDesktop={true} />
+            </Card>
+          </ScrollView>
+        </View>
+      ) : (
+        <View style={style.root}>
+          <ScrollView
+            contentContainerStyle={[
+              style.main,
+              {padding: 32, flexDirection: 'column'},
+            ]}
+            testID="precall-screen">
+            <>
+              <MeetingName textStyle={{textAlign: 'left'}} />
+              <Spacer size={32} />
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: !isDesktop() ? 'column' : 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <View
+                  testID="precall-preview"
+                  style={
+                    !isDesktop()
+                      ? style.leftContentVertical
+                      : style.leftContentHorizontal
+                  }>
+                  <VideoPreview />
+                </View>
+                <Spacer size={24} horizontal={!isDesktop() ? false : true} />
+                <Card
+                  style={
+                    !isDesktop()
+                      ? style.rightContentVertical
+                      : style.rightContentHorizontal
+                  }>
+                  <View style={style.rightInputContent}>
+                    <JoinRoomName isDesktop={true} />
+                    <DeviceSelect />
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      padding: 32,
+                    }}>
+                    <JoinRoomButton />
+                  </View>
+                </Card>
+                {/* {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>} */}
+              </View>
+            </>
+          </ScrollView>
+        </View>
+      )}
       <PrecallAfterView />
     </>
   );
 };
 
 const style = StyleSheet.create({
-  full: {flex: 1},
+  labelStyle: {
+    paddingLeft: 8,
+  },
+  subTextStyle: {
+    marginTop: 8,
+    marginLeft: 8,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 18,
+    color: $config.SEMANTIC_NETRUAL,
+    textAlign: 'left',
+  },
+  btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
+  root: {
+    flex: 1,
+  },
   main: {
-    flex: 2,
-    // justifyContent: 'space-evenly',
-    marginHorizontal: '10%',
-    minHeight: 500,
-  },
-  preCallContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 350,
-    justifyContent: 'space-between',
-    marginTop: '15%',
-  },
-  nav: {
-    flex: 1,
-    width: '100%',
+    flexGrow: 1,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'column'},
-  leftContent: {
-    flex: 1.3,
-    height: '100%',
-  },
-  upperContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    flex: 3,
-  },
-  rightContent: {
-    flex: 1,
-    height: '70%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR + '25',
-    paddingLeft: 20,
-    borderRadius: 10,
-    alignItems: 'center',
+  leftContentHorizontal: {
+    flex: 2.5,
+    borderRadius: ThemeConfig.BorderRadius.large,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: $config.PRIMARY_COLOR,
-    justifyContent: 'center',
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  leftContentVertical: {
+    width: '100%',
+    borderRadius: ThemeConfig.BorderRadius.large,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
+    shadowColor: $config.HARD_CODED_BLACK_COLOR,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  rightContentHorizontal: {
+    flex: 1,
+    borderRadius: ThemeConfig.BorderRadius.large,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    height: '100%',
+    minWidth: 350,
+    justifyContent: 'space-between',
+    marginHorizontal: 0,
+    marginVertical: 0,
+  },
+  rightContentVertical: {
+    flex: 1,
+    borderRadius: ThemeConfig.BorderRadius.large,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    maxWidth: '100%',
+    height: '100%',
+    justifyContent: 'space-between',
+    marginHorizontal: 0,
+  },
+  rightInputContent: {
+    padding: 32,
   },
   titleFont: {
     textAlign: 'center',
     fontSize: 20,
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  titleHeading: {
-    fontSize: 28,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
-  },
-  subHeading: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
   },
   btnContainer: {
     flex: 1,
     width: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
+    //alignItems: 'center',
   },
-  precallControls: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    padding: 10,
-    width: '40%',
-    justifyContent: 'space-around',
-    marginVertical: '5%',
+  lsBtnContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
   },
-  precallPickers: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    justifyContent: 'space-around',
-    marginBottom: '10%',
-    height: '35%',
-    minHeight: 280,
+  meetingTitleContainer: {
+    marginVertical: 10,
+  },
+  meetingTitleStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '700',
+    fontSize: ThemeConfig.FontSize.extraLarge,
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    paddingLeft: 0,
   },
 });
 
-export default Precall;
+export default isMobileUA() ? PrecallNative : Precall;

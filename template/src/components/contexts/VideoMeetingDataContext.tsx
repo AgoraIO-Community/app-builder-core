@@ -1,10 +1,18 @@
-import React, {createContext, useState, useEffect, useContext} from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useReducer,
+  useRef,
+} from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import ChatContext from '../ChatContext';
+import {useRender} from 'customization-api';
 
 export interface VideoMeetingDataInterface {
   hostUids: UidType[];
@@ -22,10 +30,22 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const {activeUids} = useRender();
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const localUid = useLocalUid();
   const [hostUids, setHostUids] = useState<UidType[]>([]);
   const [attendeeUids, setAttendeeUids] = useState<UidType[]>([]);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  const hostUidsRef = useRef({hostUids});
+  const attendeeUidsRef = useRef({attendeeUids});
+
+  useEffect(() => {
+    hostUidsRef.current.hostUids = hostUids;
+  }, [hostUids]);
+
+  useEffect(() => {
+    attendeeUidsRef.current.attendeeUids = attendeeUids;
+  }, [attendeeUids]);
 
   useEffect(() => {
     //set local uid
@@ -36,8 +56,8 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
     events.on(EventNames.VIDEO_MEETING_HOST, (data) => {
       const payload = JSON.parse(data?.payload);
       const hostUid = payload?.uid;
-      if (hostUid && hostUids.indexOf(hostUid) === -1) {
-        setHostUids((prevState) => [...prevState, hostUid]);
+      if (hostUid && hostUidsRef?.current?.hostUids.indexOf(hostUid) === -1) {
+        setHostUids([...hostUidsRef?.current?.hostUids, hostUid]);
       }
     });
 
@@ -45,8 +65,14 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
     events.on(EventNames.VIDEO_MEETING_ATTENDEE, (data) => {
       const payload = JSON.parse(data?.payload);
       const attendeeUid = payload?.uid;
-      if (attendeeUid && attendeeUids.indexOf(attendeeUid) === -1) {
-        setAttendeeUids((prevState) => [...prevState, attendeeUid]);
+      if (
+        attendeeUid &&
+        attendeeUidsRef?.current?.attendeeUids?.indexOf(attendeeUid) === -1
+      ) {
+        setAttendeeUids([
+          ...attendeeUidsRef?.current?.attendeeUids,
+          attendeeUid,
+        ]);
       }
     });
 
@@ -70,11 +96,15 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
     }
   }, [isHost, hasUserJoinedRTM]);
 
+  useEffect(() => {
+    forceUpdate();
+  }, [activeUids]);
+
   return (
     <VideoMeetingData.Provider
       value={{
-        hostUids,
-        attendeeUids,
+        hostUids: hostUids.filter((i) => activeUids.indexOf(i) !== -1),
+        attendeeUids: attendeeUids.filter((i) => activeUids.indexOf(i) !== -1),
       }}>
       {props.children}
     </VideoMeetingData.Provider>

@@ -8,7 +8,7 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
-import {ImageIcon} from '../../agora-rn-uikit';
+import ImageIcon from '../atoms/ImageIcon';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {useLayout} from '../utils/useLayout';
 
@@ -40,14 +40,12 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
         item?.iconName ? (
           <ImageIcon
             key={'btnTemplateNameDropdown' + index}
-            style={style.btnHolderCustom}
             name={item?.iconName}
           />
         ) : (
           <ImageIcon
             key={'btnTemplateIconDropdown' + index}
-            style={style.btnHolderCustom}
-            icon={item.icon}
+            name={item?.iconName}
           />
         ),
       ];
@@ -112,7 +110,7 @@ const style = StyleSheet.create({
     width: 1,
     borderRadius: 10,
     borderWidth: 4,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   dropdownIconContainer: {
     flexDirection: 'row',
@@ -124,14 +122,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  navItemSeparatorHorizontal: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
-    width: '100%',
-    height: 1,
-    marginVertical: 10,
-    alignSelf: 'center',
-    opacity: 0.8,
-  },
+
   separaterContainer: {
     flex: 0.5,
     paddingHorizontal: 5,
@@ -144,11 +135,6 @@ const style = StyleSheet.create({
     marginBottom: 30,
     borderRadius: 10,
     padding: 10,
-  },
-  btnHolderCustom: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
   },
   backDrop: {
     position: 'absolute',

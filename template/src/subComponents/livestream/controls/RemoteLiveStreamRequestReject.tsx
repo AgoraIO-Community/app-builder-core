@@ -1,29 +1,36 @@
 import React, {useContext} from 'react';
 import {View} from 'react-native';
-import {BtnTemplate, PropsContext, UidType} from '../../../../agora-rn-uikit';
+import {PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
-import icons from '../../../assets/icons';
+import TertiaryButton from '../../../atoms/TertiaryButton';
+import Toast from '../../../../react-native-toast-message';
 
 interface RemoteLiveStreamControlProps {
   uid: UidType;
+  toastId: number;
 }
 
 const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
-  const {uid} = props;
+  const {uid, toastId} = props;
   const {hostRejectsRequestOfUID} = useContext(LiveStreamContext);
-  const {styleProps} = useContext(PropsContext);
-  const {remoteBtnStyles} = styleProps || {};
-  const {liveStreamHostControlBtns} = remoteBtnStyles || {};
 
   return (
-    <View style={{...(liveStreamHostControlBtns as object)}}>
-      <BtnTemplate
+    <View style={{flex: 1}}>
+      <TertiaryButton
+        containerStyle={{
+          paddingHorizontal: 8,
+          paddingVertical: 8,
+          height: 38,
+        }}
         disabled={!uid}
-        icon={icons['crossCircleIcon']}
-        style={{...(liveStreamHostControlBtns as object)}}
         onPress={() => {
+          //Hiding the toast if its get rejected in the participant panel
+          if (Toast.getToastId() === toastId) {
+            Toast.hide();
+          }
           hostRejectsRequestOfUID(uid);
         }}
+        text={'DENY'}
       />
     </View>
   );

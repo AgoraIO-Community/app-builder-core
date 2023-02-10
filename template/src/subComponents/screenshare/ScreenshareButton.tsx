@@ -9,15 +9,16 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {StyleSheet} from 'react-native';
-import {BtnTemplate, BtnTemplateInterface} from '../../../agora-rn-uikit';
+import React, {useContext} from 'react';
+import ThemeConfig from '../../theme';
+import IconButton, {IconButtonProps} from '../../atoms/IconButton';
+import Styles from '../../components/styles';
 import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../../utils/useButtonTemplate';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
+import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
+import useIsHandRaised from '../../utils/useIsHandRaised';
 /**
  * A component to start and stop screen sharing on web clients.
  * Screen sharing is not yet implemented on mobile platforms.
@@ -25,86 +26,67 @@ import {
  */
 
 export interface ScreenshareButtonProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isScreenshareActive: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  render?: (onPress: () => void, isScreenshareActive: boolean) => JSX.Element;
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
+  const {rtcProps} = useContext(PropsContext);
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+  const local = useLocalUserInfo();
+  const isHandRaised = useIsHandRaised();
   const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =
     useScreenshare();
   //commented for v1 release
   //const screenShareButton = useString('screenShareButton')();
-  const screenShareButton = 'Share';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
+
   const onPress = () =>
     isScreenshareActive ? stopUserScreenShare() : startUserScreenshare();
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: isScreenshareActive ? 'screenshareOffIcon' : 'screenshareIcon',
+  const screenShareButton = isScreenshareActive ? 'Stop Share' : 'Share';
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: isScreenshareActive ? 'stop-screen-share' : 'screen-share',
+      tintColor: isScreenshareActive
+        ? $config.SEMANTIC_ERROR
+        : $config.SECONDARY_ACTION_COLOR,
+    },
     onPress,
+    btnTextProps: {
+      text: $config.ICON_TEXT ? screenShareButton : '',
+      textColor: $config.FONT_COLOR,
+    },
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = isScreenshareActive
-      ? (style.activeBtn as Object)
-      : (style.nonActiveBtn as Object);
-  } else {
-    btnTemplateProps.btnText = screenShareButton;
-    btnTemplateProps.style = isScreenshareActive
-      ? style.greenLocalButton
-      : style.localButton;
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    !$config.RAISE_HAND
+  ) {
+    return null;
+  }
+
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    $config.RAISE_HAND &&
+    !isHost
+  ) {
+    iconButtonProps.iconProps = {
+      ...iconButtonProps.iconProps,
+      tintColor: $config.SEMANTIC_NETRUAL,
+    };
+    iconButtonProps.toolTipMessage = isHandRaised(local.uid)
+      ? 'Waiting for host to appove the request'
+      : 'Raise Hand in order to present';
+    iconButtonProps.disabled = true;
   }
 
   return props?.render ? (
-    props.render(onPress, isScreenshareActive, buttonTemplateName)
+    props.render(onPress, isScreenshareActive)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 };
-
-const style = StyleSheet.create({
-  localButton: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    borderRadius: 20,
-    borderColor: $config.PRIMARY_COLOR,
-    width: 40,
-    height: 40,
-    display: 'flex',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeBtn: {
-    backgroundColor: '#4BEB5B',
-    borderRadius: 20,
-    borderColor: '#F86051',
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  nonActiveBtn: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  greenLocalButton: {
-    backgroundColor: '#4BEB5B',
-    borderRadius: 20,
-    borderColor: '#F86051',
-    width: 40,
-    height: 40,
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonIcon: {
-    width: '90%',
-    height: '90%',
-  },
-});
 
 export default ScreenshareButton;

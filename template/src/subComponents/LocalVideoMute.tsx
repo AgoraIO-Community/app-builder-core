@@ -9,61 +9,151 @@
  information visit https://appbuilder.agora.io.
 *********************************************
 */
-import React from 'react';
+import React, {useContext} from 'react';
 import {
-  BtnTemplate,
   ToggleState,
-  BtnTemplateInterface,
+  PermissionState,
+  ImageIcon as UIKitImageIcon,
+  ClientRole,
+  PropsContext,
 } from '../../agora-rn-uikit';
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
 import {useString} from '../utils/useString';
-import {useLocalUserInfo} from 'customization-api';
-
+import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ThemeConfig from '../theme';
+import {ImageIconProps} from '../atoms/ImageIcon';
+import useIsHandRaised from '../utils/useIsHandRaised';
 /**
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
+  plainIconHoverEffect?: boolean;
+  showToolTip?: boolean;
+  showLabel?: boolean;
+  render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
+  disabled?: boolean;
+  isOnActionSheet?: boolean;
+  iconProps?: (
     isVideoEnabled: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+    isPermissionDenied: boolean,
+  ) => Partial<ImageIconProps>;
+  showWarningIcon?: boolean;
+  isMobileView?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
+  const {rtcProps} = useContext(PropsContext);
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
   const local = useLocalUserInfo();
+  const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
+  const {
+    showToolTip = false,
+    showLabel = $config.ICON_TEXT,
+    disabled = false,
+    isOnActionSheet = false,
+    showWarningIcon = true,
+    isMobileView = false,
+  } = props;
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
-  const videoLabel = 'Video';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
+
   const onPress = () => {
     localMute(MUTE_LOCAL_TYPE.video);
   };
   const isVideoEnabled = local.video === ToggleState.enabled;
-  let btnTemplateProps: BtnTemplateInterface = {
-    onPress: onPress,
-    name: isVideoEnabled ? 'videocam' : 'videocamOff',
+
+  const permissionDenied =
+    local.permissionStatus === PermissionState.REJECTED ||
+    local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
+
+  const videoLabel = permissionDenied
+    ? 'Video'
+    : isVideoEnabled
+    ? 'Video On'
+    : 'Video Off';
+
+  let iconProps: IconButtonProps['iconProps'] = {
+    showWarningIcon: permissionDenied && showWarningIcon ? true : false,
+    name: isVideoEnabled ? 'video-on' : 'video-off',
+    iconBackgroundColor: isVideoEnabled
+      ? $config.PRIMARY_ACTION_BRAND_COLOR
+      : '',
+    tintColor: isVideoEnabled
+      ? $config.PRIMARY_ACTION_TEXT_COLOR
+      : disabled
+      ? $config.SEMANTIC_NETRUAL
+      : permissionDenied
+      ? $config.SEMANTIC_NETRUAL
+      : $config.SEMANTIC_ERROR,
+    ...(props?.iconProps
+      ? props.iconProps(isVideoEnabled, permissionDenied)
+      : {}),
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    btnTemplateProps.style = Styles.localButton as Object;
-    btnTemplateProps.btnText = videoLabel;
+  let iconButtonProps: IconButtonProps = {
+    hoverEffect: !permissionDenied
+      ? props?.plainIconHoverEffect
+        ? true
+        : false
+      : false,
+    hoverEffectStyle: props?.plainIconHoverEffect
+      ? {backgroundColor: $config.ICON_BG_COLOR, borderRadius: 20}
+      : {},
+    onPress,
+    iconProps,
+    btnTextProps: {
+      text: showLabel ? videoLabel : '',
+      textColor: $config.FONT_COLOR,
+    },
+    disabled: permissionDenied || disabled ? true : false,
+  };
+
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
+  if (!isMobileView) {
+    iconButtonProps.toolTipMessage = showToolTip
+      ? permissionDenied
+        ? 'Give Permissions'
+        : isVideoEnabled
+        ? 'Disable Camera'
+        : 'Enable Camera'
+      : '';
   }
 
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    !$config.RAISE_HAND
+  ) {
+    return null;
+  }
+
+  if (
+    rtcProps.role == ClientRole.Audience &&
+    $config.EVENT_MODE &&
+    $config.RAISE_HAND &&
+    !isHost
+  ) {
+    iconButtonProps.iconProps = {
+      ...iconButtonProps.iconProps,
+      name: 'video-off',
+      tintColor: $config.SEMANTIC_NETRUAL,
+    };
+    iconButtonProps.toolTipMessage = showToolTip
+      ? isHandRaised(local.uid)
+        ? 'Waiting for host to appove the request'
+        : 'Raise Hand in order to turn video on'
+      : '';
+    iconButtonProps.disabled = true;
+  }
   return props?.render ? (
-    props.render(onPress, isVideoEnabled, buttonTemplateName)
+    props.render(onPress, isVideoEnabled)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <IconButton {...iconButtonProps} />
   );
 }
 

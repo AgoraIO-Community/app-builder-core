@@ -10,18 +10,19 @@
 *********************************************
 */
 import React, {useEffect, useState, useContext} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Pressable} from 'react-native';
 import {useHistory} from '../components/Router';
-import Checkbox from '../subComponents/Checkbox';
 import PrimaryButton from '../atoms/PrimaryButton';
-import SecondaryButton from '../atoms/SecondaryButton';
-import HorizontalRule from '../atoms/HorizontalRule';
-import TextInput from '../atoms/TextInput';
 import Toast from '../../react-native-toast-message';
 import {ErrorContext} from '../components/common';
 import ShareLink from '../components/Share';
 import Logo from '../components/common/Logo';
-import {isWebInternal, isValidReactComponent} from '../utils/common';
+import {
+  isWebInternal,
+  maxInputLimit,
+  isMobileUA,
+  trimText,
+} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
@@ -30,6 +31,17 @@ import useJoinMeeting from '../utils/useJoinMeeting';
 import SDKEvents from '../utils/SdkEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import Input from '../atoms/Input';
+import Toggle from '../atoms/Toggle';
+import Card from '../atoms/Card';
+import Spacer from '../atoms/Spacer';
+import LinkButton from '../atoms/LinkButton';
+import StorageContext from '../components/StorageContext';
+import ThemeConfig from '../theme';
+import Tooltip from '../atoms/Tooltip';
+import ImageIcon from '../atoms/ImageIcon';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {randomNameGenerator} from '../utils';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -51,13 +63,14 @@ const Create = () => {
   });
 
   const useJoin = useJoinMeeting();
-
+  const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [roomTitle, onChangeRoomTitle] = useState('');
-  const [pstnCheckbox, setPstnCheckbox] = useState(false);
-  const [hostControlCheckbox, setHostControlCheckbox] = useState(true);
+  // const [randomRoomTitle, setRandomRoomTitle] = useState('');
+  const [pstnToggle, setPstnToggle] = useState(false);
+  const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
@@ -69,20 +82,41 @@ const Create = () => {
   // const createMeetingButton = useString('createMeetingButton')();
   // const haveMeetingID = useString('haveMeetingID')();
 
-  const createdText = 'Created';
-  const hostControlsToggle = (toggle: boolean) =>
-    toggle
-      ? 'Restrict Host Controls (Separate host link)'
-      : 'Restrict Host Controls (Everyone is a Host)';
-  const pstnToggle = (value: boolean) => 'Use PSTN (Join by dialing a number)';
-  const meetingNameInputPlaceholder = useString(
-    'meetingNameInputPlaceholder',
-  )();
+  const createdText = ' has been created';
+  // const meetingNameInputPlaceholder = useString(
+  //   'meetingNameInputPlaceholder',
+  // )();
+  const meetingNameInputPlaceholder = 'The Annual Galactic Meet';
   const loadingWithDots = 'Loading...';
-  const createMeetingButton = 'Create Meeting';
-  const haveMeetingID = 'Have a Meeting ID?';
 
+  const btnLabel = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'CREATE A AUDIO LIVECAST';
+      } else {
+        return 'CREATE A VOICE CHAT';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'CREATE A STREAM';
+      } else {
+        return 'CREATE A MEETING';
+      }
+    }
+  };
+
+  const createMeetingButton = btnLabel();
+  const haveMeetingID = 'Join with a meeting ID';
+
+  const isDesktop = !isMobileUA();
   useEffect(() => {
+    //Generating the random room title for placeholder
+    // setRandomRoomTitle(
+    //   `${randomNameGenerator(3)}-${randomNameGenerator(
+    //     3,
+    //   )}-${randomNameGenerator(3)}`,
+    // );
+
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
@@ -123,8 +157,11 @@ const Create = () => {
         setLoading(false);
         Toast.show({
           type: 'success',
-          text1: createdText + ': ' + roomTitle,
-          visibilityTime: 1000,
+          text1: trimText(roomTitle) + createdText,
+          text2: 'Your New meeting is now live',
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
         });
         showShareScreen();
       } catch (error) {
@@ -132,6 +169,66 @@ const Create = () => {
         setGlobalErrorMessage(error);
       }
     }
+  };
+
+  const renderInfoIcon = (isToolTipVisible, setToolTipVisible) => {
+    return (
+      <Pressable onPress={() => setToolTipVisible(true)}>
+        <ImageIcon
+          iconType="plain"
+          name="info"
+          iconSize={20}
+          tintColor={
+            isToolTipVisible
+              ? $config.SECONDARY_ACTION_COLOR
+              : $config.SEMANTIC_NETRUAL
+          }
+        />
+      </Pressable>
+    );
+  };
+
+  const getHeading = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'Create a Audio Livecast';
+      } else {
+        return 'Create a Voice Chat';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'Create a Livestream';
+      } else {
+        return 'Create a Meeting';
+      }
+    }
+  };
+
+  const getInputLabel = () => {
+    if ($config.AUDIO_ROOM) {
+      if ($config.EVENT_MODE) {
+        return 'Audio Livecast Name';
+      } else {
+        return 'Voice Chat Name';
+      }
+    } else {
+      if ($config.EVENT_MODE) {
+        return 'Stream Name';
+      } else {
+        return 'Meeting Name';
+      }
+    }
+  };
+
+  const showError = () => {
+    Toast.show({
+      type: 'error',
+      text1: 'Backend endpoint not configured',
+      text2: 'Please configure backend endpoint config.json',
+      visibilityTime: 1000 * 10,
+      primaryBtn: null,
+      secondaryBtn: null,
+    });
   };
 
   return (
@@ -143,81 +240,142 @@ const Create = () => {
         CreateComponent ? (
           <CreateComponent />
         ) : (
-          <ScrollView contentContainerStyle={style.main}>
-            <Logo />
-            <View style={style.content}>
-              <View style={style.leftContent}>
-                <Text style={style.heading}>{$config.APP_NAME}</Text>
-                <Text style={style.headline}>
-                  {$config.LANDING_SUB_HEADING}
-                </Text>
-                <View style={style.inputs}>
-                  <TextInput
+          <View style={style.root}>
+            <ScrollView contentContainerStyle={style.main}>
+              <Card>
+                <View>
+                  <Logo />
+                  <Spacer size={isDesktop ? 20 : 16} />
+                  <Text style={style.heading}>{getHeading()}</Text>
+                  <Spacer size={40} />
+                  <Input
+                    maxLength={maxInputLimit}
+                    labelStyle={style.inputLabelStyle}
+                    label={getInputLabel()}
                     value={roomTitle}
-                    onChangeText={(text) => onChangeRoomTitle(text)}
-                    onSubmitEditing={() =>
-                      createRoomAndNavigateToShare(
-                        roomTitle,
-                        pstnCheckbox,
-                        hostControlCheckbox,
-                      )
-                    }
                     placeholder={meetingNameInputPlaceholder}
-                  />
-                  <View style={{paddingVertical: 10}}>
-                    <View style={style.checkboxHolder}>
-                      {$config.EVENT_MODE ? (
-                        <></>
-                      ) : (
-                        <>
-                          <Checkbox
-                            disabled={$config.EVENT_MODE}
-                            value={hostControlCheckbox}
-                            onValueChange={setHostControlCheckbox}
-                          />
-                          <Text style={style.checkboxTitle}>
-                            {/* Restrict Host Controls (Separate host link) */}
-                            {hostControlsToggle(hostControlCheckbox)}
-                          </Text>
-                        </>
-                      )}
-                    </View>
-                    {$config.PSTN ? (
-                      <View style={style.checkboxHolder}>
-                        <Checkbox
-                          value={pstnCheckbox}
-                          onValueChange={setPstnCheckbox}
-                        />
-                        <Text style={style.checkboxTitle}>
-                          {pstnToggle(pstnCheckbox)}
-                        </Text>
-                      </View>
-                    ) : (
-                      <></>
-                    )}
-                  </View>
-                  <View style={style.btnContainer}>
-                    <PrimaryButton
-                      disabled={roomTitle === '' || loading}
-                      onPress={() =>
-                        createRoomAndNavigateToShare(
-                          roomTitle,
-                          pstnCheckbox,
-                          hostControlCheckbox,
-                        )
+                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    onSubmitEditing={() => {
+                      if (!roomTitle?.trim()) {
+                        return;
+                      } else {
+                        if (!$config.BACKEND_ENDPOINT) {
+                          showError();
+                        } else {
+                          // !roomTitle?.trim() &&
+                          //   onChangeRoomTitle(randomRoomTitle);
+                          createRoomAndNavigateToShare(
+                            roomTitle?.trim(),
+                            pstnToggle,
+                            !coHostToggle,
+                          );
+                        }
                       }
-                      text={loading ? loadingWithDots : createMeetingButton}
-                    />
-                    <HorizontalRule />
-                    <SecondaryButton
-                      onPress={() => history.push('/join')}
-                      text={haveMeetingID}
-                    />
-                  </View>
+                    }}
+                  />
+                  <Spacer size={40} />
+                  {$config.EVENT_MODE ? (
+                    <></>
+                  ) : (
+                    <View
+                      style={[
+                        style.toggleContainer,
+                        style.upper,
+                        !$config.PSTN ? style.lower : {},
+                      ]}>
+                      <View style={style.infoContainer}>
+                        <Text numberOfLines={1} style={style.toggleLabel}>
+                          Make everyone a Co-Host
+                        </Text>
+                        <Tooltip
+                          activeBgStyle={style.tooltipActiveBgStyle}
+                          defaultBgStyle={style.tooltipDefaultBgStyle}
+                          toolTipMessage="Turning on will give everyone the control of this meeting"
+                          renderContent={(
+                            isToolTipVisible,
+                            setToolTipVisible,
+                          ) =>
+                            renderInfoIcon(isToolTipVisible, setToolTipVisible)
+                          }></Tooltip>
+                      </View>
+                      <View style={style.infoToggleContainer}>
+                        <Toggle
+                          disabled={$config.EVENT_MODE}
+                          isEnabled={coHostToggle}
+                          toggleSwitch={setCoHostToggle}
+                        />
+                      </View>
+                    </View>
+                  )}
+                  {$config.PSTN ? (
+                    <>
+                      <View style={style.separator} />
+                      <View
+                        style={[
+                          style.toggleContainer,
+                          style.lower,
+                          $config.EVENT_MODE ? style.upper : {},
+                        ]}>
+                        <View style={style.infoContainer}>
+                          <Text numberOfLines={1} style={style.toggleLabel}>
+                            Allow joining via a phone number
+                          </Text>
+                          <Tooltip
+                            activeBgStyle={style.tooltipActiveBgStyle}
+                            defaultBgStyle={style.tooltipDefaultBgStyle}
+                            toolTipMessage="Attendees can dial a number and join via PSTN"
+                            renderContent={(
+                              isToolTipVisible,
+                              setToolTipVisible,
+                            ) =>
+                              renderInfoIcon(
+                                isToolTipVisible,
+                                setToolTipVisible,
+                              )
+                            }></Tooltip>
+                        </View>
+                        <View style={style.infoToggleContainer}>
+                          <Toggle
+                            isEnabled={pstnToggle}
+                            toggleSwitch={setPstnToggle}
+                          />
+                        </View>
+                      </View>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  <Spacer size={isDesktop ? 60 : 125} />
                 </View>
-              </View>
-            </View>
-          </ScrollView>
+                <View style={[style.btnContainer]}>
+                  <PrimaryButton
+                    iconName={'video-plus'}
+                    disabled={loading || !roomTitle?.trim()}
+                    containerStyle={!isDesktop && {width: '100%'}}
+                    onPress={() => {
+                      if (!$config.BACKEND_ENDPOINT) {
+                        showError();
+                      } else {
+                        // !roomTitle?.trim() &&
+                        //   onChangeRoomTitle(randomRoomTitle);
+                        createRoomAndNavigateToShare(
+                          roomTitle?.trim(),
+                          pstnToggle,
+                          !coHostToggle,
+                        );
+                      }
+                    }}
+                    text={loading ? loadingWithDots : createMeetingButton}
+                  />
+                  <Spacer size={16} />
+                  <LinkButton
+                    text={haveMeetingID}
+                    onPress={() => history.push('/join')}
+                  />
+                </View>
+              </Card>
+            </ScrollView>
+          </View>
         )
       ) : (
         <></>
@@ -228,108 +386,78 @@ const Create = () => {
 };
 
 const style = StyleSheet.create({
-  main: {
-    paddingVertical: '8%',
-    marginHorizontal: '8%',
-    display: 'flex',
-    justifyContent: 'space-evenly',
-    flexGrow: 1,
-  },
-  nav: {
+  root: {
     flex: 1,
-    width: '100%',
+  },
+  inputLabelStyle: {
+    paddingLeft: 8,
+  },
+  main: {
+    flexGrow: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
     justifyContent: 'center',
   },
-  content: {flex: 6, flexDirection: 'row'},
-  leftContent: {
-    width: '100%',
-    flex: 1,
-    justifyContent: 'space-evenly',
-    minHeight: 350,
-    // marginRight: '5%',
-    marginHorizontal: 'auto',
-  },
   heading: {
-    fontSize: 32,
+    fontSize: ThemeConfig.FontSize.extraLarge,
     fontWeight: '700',
-    textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
-    marginBottom: 20,
+    lineHeight: ThemeConfig.FontSize.extraLarge,
+    color: $config.FONT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    opacity: ThemeConfig.EmphasisOpacity.high,
   },
   headline: {
     fontSize: 18,
     fontWeight: '400',
     textAlign: 'center',
-    color: $config.PRIMARY_FONT_COLOR,
+    color: $config.FONT_COLOR,
     marginBottom: 40,
-  },
-  inputs: {
-    flex: 1,
-    // marginVertical: '2%',
-    width: '100%',
-    alignSelf: 'flex-start',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  // textInput: textInput,
-  checkboxHolder: {
-    marginVertical: 0,
-    flexDirection: 'row',
-    marginTop: 0,
-    marginBottom: 20,
-    // flex: .2,
-    // height: 10,
-    // justifyContent: 'center',
-    // alignContent: 'center',
-    justifyContent: 'flex-start',
-    // alignItems: 'flex-start',
-  },
-  checkboxTitle: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    paddingHorizontal: 5,
-    alignSelf: 'center',
-    // marginVertical: 'auto',
-    // fontWeight: '700',
-  },
-  checkboxCaption: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    paddingHorizontal: 5,
-  },
-  checkboxTextHolder: {
-    marginVertical: 0, //check if 5
-    flexDirection: 'column',
-  },
-  // urlTitle: {
-  //   color: '#fff',
-  //   fontSize: 14,
-  // },
-  urlHolder: {
-    width: '100%',
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    justifyContent: 'center',
-    maxWidth: 400,
-    minHeight: 45,
-  },
-  // url: {
-  //   color: '#fff',
-  //   fontSize: 18,
-  //   fontWeight: '700',
-  //   textDecorationLine: 'underline',
-  // },
-  pstnHolder: {
-    flexDirection: 'row',
-    width: '80%',
-  },
-  pstnMargin: {
-    marginRight: '10%',
   },
   btnContainer: {
     width: '100%',
     alignItems: 'center',
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    paddingVertical: 22,
+    paddingHorizontal: 20,
+  },
+  upper: {
+    borderTopLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderTopRightRadius: ThemeConfig.BorderRadius.medium,
+  },
+  lower: {
+    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
+  },
+  toggleLabel: {
+    color: $config.FONT_COLOR,
+    fontSize: ThemeConfig.FontSize.normal,
+    marginRight: 4,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    alignSelf: 'center',
+  },
+  separator: {
+    height: 1,
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    flex: 0.8,
+  },
+  infoToggleContainer: {
+    flex: 0.2,
+    alignItems: 'flex-end',
+    alignSelf: 'center',
+  },
+  tooltipActiveBgStyle: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    borderRadius: 14,
+    padding: 5,
+  },
+  tooltipDefaultBgStyle: {
+    padding: 5,
   },
 });
 

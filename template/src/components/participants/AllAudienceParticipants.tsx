@@ -1,36 +1,102 @@
 import React, {useContext} from 'react';
-import {View, Text} from 'react-native';
-import RemoteEndCall from '../../subComponents/RemoteEndCall';
-import ParticipantName from '../../components/participants/ParticipantName';
+import {Text} from 'react-native';
 import chatContext from '../ChatContext';
 import {useString} from '../../utils/useString';
-import {useRender} from 'customization-api';
+import {
+  RenderInterface,
+  UidType,
+  useMeetingInfo,
+  useRender,
+} from 'customization-api';
+import Participant from './Participant';
+import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
+import {useScreenContext} from '../contexts/ScreenShareContext';
+import ScreenshareParticipants from './ScreenshareParticipants';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const AllAudienceParticipants = (props: any) => {
-  const {p_style, isHost, uids} = props;
+  const {screenShareData} = useScreenContext();
+  const {
+    uids,
+    isMobile = false,
+    handleClose,
+    updateActionSheet,
+    emptyMessage,
+  } = props;
   const {renderList} = useRender();
   const {localUid} = useContext(chatContext);
   //commented for v1 release
   //const participantListPlaceholder = useString('participantListPlaceholder')();
-  const participantListPlaceholder = 'No one has joined yet';
+  const remoteUserDefaultLabel = 'User';
+  const getParticipantName = (uid: UidType) => {
+    return renderList[uid]?.name || remoteUserDefaultLabel;
+  };
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
+  const {hostUids} = useLiveStreamDataContext();
+
+  const renderScreenShare = (user: RenderInterface) => {
+    if (screenShareData[user.screenUid]?.isActive) {
+      return (
+        <ScreenshareParticipants
+          user={renderList[user.screenUid]}
+          key={user.screenUid}
+        />
+      );
+    } else {
+      <></>;
+    }
+  };
+
   return (
-    <View style={p_style.participantContainer}>
+    <>
       {uids.length == 0 ? (
-        <Text style={p_style.infoText}>{participantListPlaceholder}</Text>
+        emptyMessage ? (
+          <Text
+            style={{
+              alignSelf: 'center',
+              paddingVertical: 20,
+              fontFamily: 'Source Sans Pro',
+              fontWeight: '400',
+              fontSize: 14,
+              color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
+            }}>
+            {emptyMessage}
+          </Text>
+        ) : (
+          <></>
+        )
       ) : (
         <>
-          {/* Audience should see his name first */}
+          {/**Audience should see his name first */}
           {uids.filter((i) => i === localUid).length ? (
-            <View style={p_style.participantRow} key={'local' + 0}>
-              <ParticipantName value={renderList[localUid]?.name} />
-              {isHost && (
-                <View style={p_style.participantActionContainer}>
-                  <View style={[p_style.actionBtnIcon]}>
-                    <RemoteEndCall uid={localUid} isHost={isHost} />
-                  </View>
-                </View>
-              )}
-            </View>
+            <>
+              <Participant
+                isLocal={true}
+                name={getParticipantName(localUid)}
+                user={renderList[localUid]}
+                isAudienceUser={
+                  $config.EVENT_MODE && hostUids.indexOf(localUid) !== -1
+                    ? false
+                    : true
+                }
+                showControls={
+                  (renderList[localUid]?.type === 'rtc' && isHost) ||
+                  (renderList[localUid]?.type === 'rtc' &&
+                    $config.EVENT_MODE &&
+                    hostUids.indexOf(localUid) !== -1)
+                    ? true
+                    : false
+                }
+                isHostUser={false}
+                key={localUid}
+                isMobile={isMobile}
+                handleClose={handleClose}
+                updateActionSheet={updateActionSheet}
+              />
+              {renderScreenShare(renderList[localUid])}
+            </>
           ) : (
             <></>
           )}
@@ -38,20 +104,25 @@ const AllAudienceParticipants = (props: any) => {
           {uids
             .filter((i) => i !== localUid)
             .map((uid: any, index: number) => (
-              <View style={p_style.participantRow} key={index}>
-                <ParticipantName value={renderList[uid]?.name} />
-                {isHost && (
-                  <View style={p_style.participantActionContainer}>
-                    <View style={[p_style.actionBtnIcon]}>
-                      <RemoteEndCall uid={uid} isHost={isHost} />
-                    </View>
-                  </View>
-                )}
-              </View>
+              <>
+                <Participant
+                  isLocal={false}
+                  name={getParticipantName(uid)}
+                  user={renderList[uid]}
+                  showControls={renderList[uid]?.type === 'rtc' && isHost}
+                  isAudienceUser={true}
+                  isHostUser={false}
+                  key={uid}
+                  isMobile={isMobile}
+                  handleClose={handleClose}
+                  updateActionSheet={updateActionSheet}
+                />
+                {renderScreenShare(renderList[uid])}
+              </>
             ))}
         </>
       )}
-    </View>
+    </>
   );
 };
 

@@ -16,13 +16,19 @@ import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
 import {isWebInternal} from '../utils/common';
-import {useRender} from 'customization-api';
+import {useChatUIControl, useRender} from 'customization-api';
+import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import Spacer from '../atoms/Spacer';
+import {formatAMPM} from '../utils';
 
 const ChatBubble = (props: ChatBubbleProps) => {
   const {renderList} = useRender();
   const {primaryColor} = useContext(ColorContext);
+  const {privateActive, selectedChatUserId} = useChatUIControl();
   let {
     isLocal,
+    isSameUser,
     message,
     createdTimestamp,
     uid,
@@ -30,10 +36,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
     msgId,
     updatedTimestamp,
   } = props;
-  let time =
-    new Date(parseInt(createdTimestamp)).getHours() +
-    ':' +
-    new Date(parseInt(createdTimestamp)).getMinutes();
+  let time = formatAMPM(new Date(parseInt(createdTimestamp)));
+
   const handleUrl = (url: string) => {
     if (isWebInternal()) {
       window.open(url, '_blank');
@@ -44,6 +48,7 @@ const ChatBubble = (props: ChatBubbleProps) => {
   //commented for v1 release
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
+
   return props?.render ? (
     props.render(
       isLocal,
@@ -53,106 +58,141 @@ const ChatBubble = (props: ChatBubbleProps) => {
       msgId,
       isDeleted,
       updatedTimestamp,
+      isSameUser,
     )
   ) : (
-    <View>
-      <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
-        <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {renderList[uid] ? renderList[uid].name : remoteUserDefaultLabel} |{' '}
-          {time + ' '}
+    <>
+      {!isSameUser && !(privateActive && selectedChatUserId) ? (
+        <Text
+          style={
+            isLocal ? style.localUsernameStyle : style.remoteUsernameStyle
+          }>
+          {isLocal
+            ? 'You'
+            : renderList[uid]
+            ? renderList[uid].name
+            : remoteUserDefaultLabel}
         </Text>
-      </View>
+      ) : (
+        <></>
+      )}
       <View
         style={
-          isLocal
-            ? [style.chatBubbleLocal, {backgroundColor: primaryColor}]
-            : style.chatBubble
+          isLocal ? style.chatBubbleLocalView : style.chatBubbleRemoteView
         }>
-        <Hyperlink
-          onPress={handleUrl}
-          linkStyle={{
-            color: !isLocal
-              ? $config.PRIMARY_FONT_COLOR
-              : $config.SECONDARY_FONT_COLOR,
-            textDecorationLine: 'underline',
-          }}>
-          <Text
-            style={isLocal ? style.whiteText : style.blackText}
-            selectable={true}>
-            {message}
-          </Text>
-        </Hyperlink>
+        <View
+          style={
+            isLocal
+              ? style.chatBubbleLocalViewLayer2
+              : style.chatBubbleRemoteViewLayer2
+          }>
+          <Hyperlink
+            onPress={handleUrl}
+            linkStyle={{
+              color: $config.FONT_COLOR,
+              textDecorationLine: 'underline',
+            }}>
+            <Text style={style.messageStyle} selectable={true}>
+              {message}
+            </Text>
+          </Hyperlink>
+          {/* <Spacer size={5} /> */}
+          <Text style={style.timestampStyle}>{time}</Text>
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
-  full: {
-    flex: 1,
-  },
-  chatSenderViewLocal: {
-    // flex: 2,
-    marginVertical: 2,
-    flexDirection: 'row',
-    marginRight: 15,
-    // marginLeft: 30,
-    justifyContent: 'flex-end',
-  },
-  chatSenderView: {
-    // flex: 2,
-    marginVertical: 2,
-    flexDirection: 'row',
-    marginRight: 30,
-    marginLeft: 15,
-  },
-  timestampText: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    fontWeight: '500',
-    fontSize: 12,
-    flex: 1,
+  remoteUsernameStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: ThemeConfig.FontSize.small,
     textAlign: 'left',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    alignSelf: 'flex-start',
+    marginTop: 20,
+    marginBottom: 8,
+    marginHorizontal: 20,
   },
-  timestampTextLocal: {
-    color: $config.PRIMARY_FONT_COLOR + '60',
-    fontWeight: '500',
-    fontSize: 12,
-    flex: 1,
+  localUsernameStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '600',
+    fontSize: ThemeConfig.FontSize.small,
+    textAlign: 'left',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    alignSelf: 'flex-end',
+    marginTop: 20,
+    marginBottom: 8,
+    marginHorizontal: 20,
+  },
+  timestampStyle: {
+    // position: 'absolute',
+    // bottom: 0,
+    // right: 12,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.tiny,
     textAlign: 'right',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled,
+    marginTop: 4,
+    marginBottom: 6,
   },
-  chatBubble: {
-    backgroundColor: $config.PRIMARY_FONT_COLOR + '20',
-    flex: 1,
-    // width: 'max-content',
+  chatBubbleRemoteView: {
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
+    minWidth: '30%',
     maxWidth: '80%',
     alignSelf: 'flex-start',
-    display: 'flex',
-    marginVertical: 5,
-    padding: 8,
-    marginRight: 30,
-    marginLeft: 15,
-    borderRadius: 10,
+    marginVertical: 2,
+    marginHorizontal: 20,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 12,
   },
-  chatBubbleLocal: {
-    backgroundColor: $config.PRIMARY_COLOR,
+  chatBubbleRemoteViewLayer2: {
+    backgroundColor: 'transparent',
+    //  width: '100%',
+    // height: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 0,
+  },
+  chatBubbleLocalViewLayer2: {
+    //width: '100%',
+    //height: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 0,
+    backgroundColor:
+      $config.PRIMARY_ACTION_BRAND_COLOR + hexadecimalTransparency['10%'],
+  },
+  chatBubbleLocalView: {
+    backgroundColor:
+      $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+    minWidth: '30%',
     maxWidth: '80%',
-    flex: 1,
-    display: 'flex',
     alignSelf: 'flex-end',
-    marginVertical: 5,
-    padding: 8,
-    marginRight: 15,
-    marginLeft: 30,
-    borderRadius: 10,
+    marginVertical: 2,
+    marginHorizontal: 20,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 0,
   },
-  whiteText: {
-    color: $config.SECONDARY_FONT_COLOR,
-    fontWeight: '500',
-  },
-  blackText: {
-    color: $config.PRIMARY_FONT_COLOR,
-    opacity: 1,
-    fontWeight: '500',
+  messageStyle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small * 1.4,
+    color: $config.FONT_COLOR,
   },
 });
 

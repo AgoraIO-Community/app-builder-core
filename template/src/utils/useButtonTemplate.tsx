@@ -16,6 +16,7 @@ import {createHook} from 'customization-implementation';
 export enum ButtonTemplateName {
   topBar,
   bottomBar,
+  actionBar,
 }
 
 export interface ButtonTemplateInferface {

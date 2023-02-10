@@ -18,6 +18,7 @@ import {
   Text,
   TextStyle,
 } from 'react-native';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {secondaryBtn, secondaryButtonText} from '../../theme.json';
 // import ColorContext from '../components/ColorContext';
 
@@ -27,7 +28,7 @@ export interface SecondaryButtonProps extends TouchableOpacityProps {
 }
 
 export default function SecondaryButton(props: SecondaryButtonProps) {
-  // const primaryColor = $config.PRIMARY_FONT_COLOR; //useContext(ColorContext);
+  // const primaryColor = $config.FONT_COLOR; //useContext(ColorContext);
   const {children, ...otherProps} = props;
   return (
     <TouchableOpacity
@@ -35,8 +36,9 @@ export default function SecondaryButton(props: SecondaryButtonProps) {
         styles.secondaryBtn,
         {
           borderColor: props.disabled
-            ? $config.PRIMARY_COLOR + '80'
-            : $config.PRIMARY_COLOR,
+            ? $config.PRIMARY_ACTION_BRAND_COLOR +
+              hexadecimalTransparency['80%']
+            : $config.PRIMARY_ACTION_BRAND_COLOR,
         },
       ]}
       {...otherProps}>
@@ -46,8 +48,9 @@ export default function SecondaryButton(props: SecondaryButtonProps) {
             styles.secondaryButtonText as StyleProp<TextStyle>,
             {
               color: props.disabled
-                ? $config.PRIMARY_COLOR + '80'
-                : $config.PRIMARY_COLOR,
+                ? $config.PRIMARY_ACTION_BRAND_COLOR +
+                  hexadecimalTransparency['80%']
+                : $config.PRIMARY_ACTION_BRAND_COLOR,
             },
           ]}>
           {props.text}

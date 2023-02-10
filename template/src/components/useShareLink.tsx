@@ -14,7 +14,6 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
-import Toast from '../../react-native-toast-message';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import platform from '../subComponents/Platform';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
@@ -124,31 +123,31 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (isHost) {
         if (isSeparateHostLink) {
           //seperate link for host and attendee
-          inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}\nURL for Host: ${url?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
         } else {
           //single link for everyone
-          inviteContent += `Meeting - ${meetingName}\nMeeting URL: ${url?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
         }
       }
       //for attendee
       else {
-        inviteContent += `Meeting - ${meetingName}\nURL for Attendee: ${url?.attendee}`;
+        inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
       }
     } else {
       if (isHost) {
         if (isSeparateHostLink) {
-          inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}\nHost Meeting ID: ${id?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}\n\nHost Meeting ID:\n${id?.host}`;
         } else {
-          inviteContent += `Meeting - ${meetingName}\nMeeting ID: ${id?.host}`;
+          inviteContent += `Meeting: ${meetingName}\n\nMeeting ID:\n${id?.host}`;
         }
       } else {
         //copy this label on videocall screen
-        inviteContent += `Meeting - ${meetingName}\nAttendee Meeting ID: ${id?.attendee}`;
+        inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}`;
       }
     }
     // Adding pstn data into meeting data if present
     if (pstn?.number && pstn?.pin) {
-      inviteContent += `\nPSTN Number: ${pstn.number}\nPSTN Pin: ${pstn.pin}`;
+      inviteContent += `\n\nPSTN Number:\n${pstn.number}\n\nPSTN Pin:\n${pstn.pin}`;
     }
     return inviteContent;
   };
@@ -240,7 +239,10 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
     return stringToCopy;
   };
 
-  const copyShareLinkToClipboard = (input: SHARE_LINK_CONTENT_TYPE) => {
+  const copyShareLinkToClipboard = (
+    input: SHARE_LINK_CONTENT_TYPE,
+    callbackFn?: () => void,
+  ) => {
     let stringToCopy = '';
     switch (input) {
       case SHARE_LINK_CONTENT_TYPE.MEETING_INVITE:
@@ -258,11 +260,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
         break;
     }
     Clipboard.setString(stringToCopy);
-    Toast.show({
-      type: 'success',
-      text1: copiedToClipboardText,
-      visibilityTime: 1000,
-    });
+    callbackFn && callbackFn();
   };
 
   return (

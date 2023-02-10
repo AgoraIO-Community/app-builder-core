@@ -47,7 +47,6 @@ interface ConfigInterface {
   APP_NAME: string;
   LOGO: string;
   APP_ID: string;
-  PRIMARY_COLOR: string;
   FRONTEND_ENDPOINT: string;
   BACKEND_ENDPOINT: string;
   PSTN: boolean;
@@ -57,11 +56,8 @@ interface ConfigInterface {
   SCREEN_SHARING: boolean;
   CLIENT_ID: string;
   LANDING_SUB_HEADING: string;
-  BG: string;
   ENCRYPTION_ENABLED: boolean;
   PROFILE: VideoProfile;
-  PRIMARY_FONT_COLOR: string;
-  SECONDARY_FONT_COLOR: string;
   SENTRY_DSN: string;
   ENABLE_GOOGLE_OAUTH: boolean;
   ENABLE_SLACK_OAUTH: boolean;
@@ -76,6 +72,31 @@ interface ConfigInterface {
   GEO_FENCING: boolean;
   LOG_ENABLED: boolean;
   AUDIO_ROOM: boolean;
+  PRIMARY_ACTION_BRAND_COLOR: string;
+  PRIMARY_ACTION_TEXT_COLOR: string;
+  SECONDARY_ACTION_COLOR: string;
+  FONT_COLOR: string;
+  BACKGROUND_IMAGE: string;
+  BACKGROUND_COLOR: string;
+  VIDEO_AUDIO_TILE_COLOR: string;
+  VIDEO_AUDIO_TILE_OVERLAY_COLOR: string;
+  VIDEO_AUDIO_TILE_TEXT_COLOR: string;
+  VIDEO_AUDIO_TILE_AVATAR_COLOR: string;
+  SEMANTIC_ERROR: string;
+  SEMANTIC_SUCCESS: string;
+  SEMANTIC_WARNING: string;
+  SEMANTIC_NETRUAL: string;
+  INPUT_FIELD_BACKGROUND_COLOR: string;
+  INPUT_FIELD_BORDER_COLOR: string;
+  CARD_LAYER_1_COLOR: string;
+  CARD_LAYER_2_COLOR: string;
+  CARD_LAYER_3_COLOR: string;
+  CARD_LAYER_4_COLOR: string;
+  CARD_LAYER_5_COLOR: string;
+  HARD_CODED_BLACK_COLOR: string;
+  ICON_TEXT: boolean;
+  ICON_BG_COLOR: string;
+  TOOLBAR_COLOR: string;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {

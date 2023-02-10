@@ -2,6 +2,9 @@
   package="com.helloworld">
 
     <uses-permission android:name="android.permission.INTERNET" />
+     <!-- for bg audio , foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
       android:name=".MainApplication"
@@ -10,12 +13,22 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+      
+       <!-- for bg audio , foreground service -->
+      <meta-data android:name="com.supersami.foregroundservice.notification_channel_name" 	android:value="AppBuilder"/> 
+      <meta-data  android:name="com.supersami.foregroundservice.notification_channel_description" android:value="AppBuilder is running"/> 
+      <meta-data  android:name="com.supersami.foregroundservice.notification_color"      android:resource="@color/blue"/> 
+      <service android:name="com.supersami.foregroundservice.ForegroundService"></service> 
+      <service android:name="com.supersami.foregroundservice.ForegroundServiceTask"></service>
+
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
         android:launchMode="singleTask"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="adjustResize"
+        android:screenOrientation="portrait"
+          android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
