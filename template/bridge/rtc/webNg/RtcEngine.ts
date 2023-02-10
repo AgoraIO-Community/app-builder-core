@@ -23,6 +23,8 @@ import AgoraRTC, {
   EncryptionMode,
   ILocalTrack,
   ClientRoleOptions,
+  CameraVideoTrackInitConfig,
+  MicrophoneAudioTrackInitConfig,
 } from 'agora-rtc-sdk-ng';
 import type {
   RtcEngineEvents,
@@ -46,8 +48,11 @@ type callbackType = (uid?: UID) => void;
 declare global {
   interface Window {
     engine: RtcEngine;
+    AgoraRTC: typeof AgoraRTC;
   }
 }
+
+window.AgoraRTC = AgoraRTC;
 
 export enum AREAS {
   /**
@@ -192,7 +197,8 @@ export default class RtcEngine {
   private isAudioPublished = false;
   private isVideoPublished = false;
   private isJoined = false;
-  private deviceId = '';
+  private videoDeviceId = undefined;
+  private audioDeviceId = undefined;
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
   private speakerDeviceId = '';
@@ -216,8 +222,12 @@ export default class RtcEngine {
   }
 
   async enableAudio(): Promise<void> {
+    const audioConfig: MicrophoneAudioTrackInitConfig = {
+      bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
+      // microphoneId: this.audioDeviceId,
+    };
     try {
-      let localAudio = await AgoraRTC.createMicrophoneAudioTrack({});
+      let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
       this.localStream.audio = localAudio;
     } catch (e) {
       let audioError = e;
@@ -236,13 +246,20 @@ export default class RtcEngine {
      *    The Web SDK directly publishes the local audio stream without processing it through WebAudio.
      */
 
-    const audioConfig =
-      Platform.OS == 'web' && isMobileOrTablet() ? {bypassWebAudio: true} : {};
+    const audioConfig: MicrophoneAudioTrackInitConfig = {
+      bypassWebAudio: Platform.OS == 'web' && isMobileOrTablet(),
+      // microphoneId: this.audioDeviceId,
+    };
+    const videoConfig: CameraVideoTrackInitConfig = {
+      encoderConfig: this.videoProfile,
+      // cameraId: this.videoDeviceId,
+    };
     try {
       let [localAudio, localVideo] =
-        await AgoraRTC.createMicrophoneAndCameraTracks(audioConfig, {
-          encoderConfig: this.videoProfile,
-        });
+        await AgoraRTC.createMicrophoneAndCameraTracks(
+          audioConfig,
+          videoConfig,
+        );
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
     } catch (e) {
@@ -256,9 +273,7 @@ export default class RtcEngine {
         audioError = error;
       }
       try {
-        let localVideo = await AgoraRTC.createCameraVideoTrack({
-          encoderConfig: this.videoProfile,
-        });
+        let localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
         this.localStream.video = localVideo;
       } catch (error) {
         videoError = error;
@@ -660,7 +675,7 @@ export default class RtcEngine {
   async changeCamera(cameraId, callback, error): Promise<void> {
     try {
       await this.localStream.video?.setDevice(cameraId);
-      this.deviceId = cameraId;
+      this.videoDeviceId = cameraId;
       callback(cameraId);
     } catch (e) {
       error(e);
@@ -672,9 +687,9 @@ export default class RtcEngine {
       const devices = await AgoraRTC.getDevices(true);
       for (let i = 0; i < devices.length; i++) {
         let d = devices[i];
-        if (d.kind === 'videoinput' && d.deviceId !== this.deviceId) {
+        if (d.kind === 'videoinput' && d.deviceId !== this.videoDeviceId) {
           await this.localStream.video?.setDevice(d.deviceId);
-          this.deviceId = d.deviceId;
+          this.videoDeviceId = d.deviceId;
           break;
         }
       }
@@ -686,6 +701,7 @@ export default class RtcEngine {
   async changeMic(micId, callback, error) {
     try {
       await this.localStream.audio?.setDevice(micId);
+      this.audioDeviceId = micId;
       callback(micId);
     } catch (e) {
       error(e);

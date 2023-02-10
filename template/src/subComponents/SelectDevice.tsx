@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState, useMemo} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {
   PropsContext,
@@ -26,7 +26,23 @@ import Dropdown from '../atoms/Dropdown';
 import {usePreCall} from '../components/precall/usePreCall';
 import ThemeConfig from '../theme';
 import {randomNameGenerator} from '../utils';
+import pendingStateUpdateHelper from '../utils/pendingStateUpdateHelper';
 // import {dropdown} from '../../theme.json';
+
+/*
+ * Chrome sometimes doesn't apply the "Default" prefix hence
+ * Checks if the deviceId is default and adds "Default - " to label
+ * string if not already present to differentiate from actual
+ * device entry.
+ */
+const applyDefaultPrefixConditionally = (device: MediaDeviceInfo) => {
+  const {label, deviceId} = device;
+  if (deviceId === 'default') {
+    return label.includes('Default') ? label : 'Default - ' + label;
+  }
+  return label;
+};
+
 /**
  * A component to diplay a dropdown and select a device.
  * It will add the selected device to the device context.
@@ -36,6 +52,7 @@ const useSelectDevice = (): [boolean, string] => {
   const {primaryColor} = useContext(ColorContext);
   const [btnTheme, setBtnTheme] = React.useState<string>(primaryColor);
   const [isPickerDisabled, setPickerDisabled] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     if ($config.EVENT_MODE && rtcProps.role === ClientRole.Audience) {
       setPickerDisabled(true);
@@ -45,6 +62,7 @@ const useSelectDevice = (): [boolean, string] => {
       setBtnTheme(primaryColor);
     }
   }, [rtcProps?.role]);
+
   return [isPickerDisabled, btnTheme];
 };
 
@@ -62,30 +80,37 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const [data, setData] = useState([]);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
-  useEffect(() => {
-    setDataValue();
-  }, []);
-  useEffect(() => {
-    setDataValue();
-  }, [deviceList]);
 
-  const setDataValue = () => {
-    const data = deviceList
-      .filter((device: any) => {
+  const data = useMemo(() => {
+    return deviceList
+      .filter((device) => {
         if (device.kind === 'videoinput') {
           return true;
         }
       })
-      ?.map((device) => {
-        return {
-          label: device.label,
-          value: device.deviceId,
-        };
+      ?.map((device: any) => {
+        if (device.kind === 'videoinput') {
+          return {
+            label: device.label,
+            value: device.deviceId,
+          };
+        }
       });
-    setData(data);
-  };
+  }, [deviceList]);
+
+  useEffect(() => {
+    const selectedDeviceExists = Boolean(
+      data.find((device) => device.value === selectedCam),
+    );
+    if (isPendingUpdate) {
+      selectedDeviceExists && setIsPendingUpdate(false);
+    } else {
+      !selectedDeviceExists && setIsPendingUpdate(true);
+    }
+  }, [selectedCam, deviceList]);
+
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_ONLY;
@@ -95,17 +120,32 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     <>
       <Text style={style.label}>Camera</Text>
       <Dropdown
-        icon={props?.isIconDropdown ? 'video-on' : undefined}
+        icon={
+          isPendingUpdate
+            ? 'connection-loading'
+            : props?.isIconDropdown
+            ? 'video-on'
+            : undefined
+        }
         enabled={!isPickerDisabled}
         label={
           !isPermissionGranted || !data || !data.length
             ? 'No Camera Detected'
+            : isPendingUpdate
+            ? 'Updating'
             : ''
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedCam(value);
+          try {
+            pendingStateUpdateHelper(
+              async () => await setSelectedCam(value),
+              setIsPendingUpdate,
+            );
+          } catch (e) {
+            setIsPendingUpdate(false);
+          }
         }}
         selectedValue={selectedCam}
       />
@@ -126,18 +166,12 @@ interface SelectAudioDeviceProps {
 const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const {selectedMic, setSelectedMic, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
-  const [isFocussed, setIsFocussed] = React.useState(false);
-  const [data, setData] = useState([]);
+  const [isFocussed, setIsFocussed] = useState(false);
   const local = useContext(LocalContext);
-  useEffect(() => {
-    setDataValue();
-  }, []);
-  useEffect(() => {
-    setDataValue();
-  }, [deviceList]);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
 
-  const setDataValue = () => {
-    const data = deviceList
+  const data = useMemo(() => {
+    return deviceList
       .filter((device) => {
         if (device.kind === 'audioinput') {
           return true;
@@ -146,13 +180,24 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       ?.map((device: any) => {
         if (device.kind === 'audioinput') {
           return {
-            label: device.label,
+            label: applyDefaultPrefixConditionally(device),
             value: device.deviceId,
           };
         }
       });
-    setData(data);
-  };
+  }, [deviceList]);
+
+  useEffect(() => {
+    const selectedDeviceExists = Boolean(
+      data.find((device) => device.value === selectedMic),
+    );
+    if (isPendingUpdate) {
+      selectedDeviceExists && setIsPendingUpdate(false);
+    } else {
+      !selectedDeviceExists && setIsPendingUpdate(true);
+    }
+  }, [selectedMic, deviceList]);
+
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
     local.permissionStatus === PermissionState.GRANTED_FOR_MIC_ONLY;
@@ -162,18 +207,33 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     <View>
       <Text style={style.label}>Microphone</Text>
       <Dropdown
-        icon={props?.isIconDropdown ? 'mic-on' : undefined}
-        enabled={!isPickerDisabled}
+        icon={
+          isPendingUpdate
+            ? 'connection-loading'
+            : props?.isIconDropdown
+            ? 'mic-on'
+            : undefined
+        }
+        enabled={!isPickerDisabled && !isPendingUpdate}
         selectedValue={selectedMic}
         label={
           !isPermissionGranted || !data || !data.length
             ? 'No Microphone Detected'
+            : isPendingUpdate
+            ? 'Updating'
             : ''
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
           setIsFocussed(true);
-          setSelectedMic(value);
+          try {
+            pendingStateUpdateHelper(
+              async () => await setSelectedMic(value),
+              setIsPendingUpdate,
+            );
+          } catch (e) {
+            setIsPendingUpdate(false);
+          }
         }}
       />
     </View>
@@ -196,33 +256,36 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    setDataValue();
-  }, []);
 
-  useEffect(() => {
-    setDataValue();
-  }, [deviceList]);
-
-  const setDataValue = () => {
-    let data = deviceList
+  const data = useMemo(() => {
+    return deviceList
       .filter((device) => {
         if (device.kind === 'audiooutput') {
           return true;
         }
       })
-      ?.map((device: any) => {
+      ?.map((device) => {
         if (device.kind === 'audiooutput') {
           return {
-            label: device.label,
+            label: applyDefaultPrefixConditionally(device),
             value: device.deviceId,
           };
         }
       });
-    setData(data);
-  };
+  }, [deviceList]);
+
+  useEffect(() => {
+    const selectedDeviceExists = Boolean(
+      data.find((device) => device.value === selectedSpeaker),
+    );
+    if (isPendingUpdate) {
+      selectedDeviceExists && setIsPendingUpdate(false);
+    } else {
+      !selectedDeviceExists && setIsPendingUpdate(true);
+    }
+  }, [selectedSpeaker, deviceList]);
 
   return props?.render ? (
     props.render(
@@ -250,14 +313,34 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
           ]}
           onSelect={({label, value}) => {
             setIsFocussed(true);
+            try {
+              pendingStateUpdateHelper(
+                async () => await setSelectedSpeaker(value),
+                setIsPendingUpdate,
+              );
+            } catch (e) {
+              setIsPendingUpdate(false);
+            }
           }}
         />
       ) : (
         <Dropdown
-          icon={props?.isIconDropdown ? 'speaker' : undefined}
-          enabled={!isPickerDisabled}
+          icon={
+            isPendingUpdate
+              ? 'connection-loading'
+              : props?.isIconDropdown
+              ? 'speaker'
+              : undefined
+          }
+          enabled={data && data.length && !isPendingUpdate}
           selectedValue={selectedSpeaker}
-          label={!data || !data.length ? 'No Speaker Detected' : ''}
+          label={
+            !data || !data.length
+              ? 'No Speaker Detected'
+              : isPendingUpdate
+              ? 'Updating'
+              : ''
+          }
           data={data}
           onSelect={({label, value}) => {
             setIsFocussed(true);
@@ -279,21 +362,43 @@ const SelectDevice = (props: SelectDeviceProps) => {
   const {setCameraAvailable, setMicAvailable, setSpeakerAvailable} =
     usePreCall();
 
-  const audioDevices = deviceList.filter((device) => {
-    if (device.kind === 'audioinput') {
-      return true;
-    }
-  });
-  const videoDevices = deviceList.filter((device) => {
-    if (device.kind === 'videoinput') {
-      return true;
-    }
-  });
-  const speakerDevices = deviceList.filter((device) => {
-    if (device.kind === 'audiooutput') {
-      return true;
-    }
-  });
+  const [audioDevices, videoDevices, speakerDevices] = useMemo(
+    () =>
+      deviceList.reduce(
+        (prev, device) => {
+          const [audioDevices, videoDevices, speakerDevices] = prev;
+          if (device.kind === 'audioinput') {
+            audioDevices.push(device);
+          } else if (device.kind === 'videoinput') {
+            videoDevices.push(device);
+          } else if (device.kind === 'audiooutput') {
+            speakerDevices.push(device);
+          }
+
+          return [audioDevices, videoDevices, speakerDevices];
+        },
+        [[], [], []] as any,
+      ),
+    [deviceList],
+  );
+
+  // const audioDevices =
+  //     deviceList.filter((device) => {
+  //       if (device.kind === 'audioinput') {
+  //         return true;
+  //       }
+  //    });
+  //
+  // const videoDevices = deviceList.filter((device) => {
+  //   if (device.kind === 'videoinput') {
+  //     return true;
+  //   }
+  // });
+  // const speakerDevices = deviceList.filter((device) => {
+  //   if (device.kind === 'audiooutput') {
+  //     return true;
+  //   }
+  // });
 
   useEffect(() => {
     if (audioDevices && audioDevices.length) {

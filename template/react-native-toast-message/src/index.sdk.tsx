@@ -384,6 +384,7 @@ class Toast extends Component {
           'onPress',
           'primaryBtn',
           'secondaryBtn',
+          'checkbox',
           'toastId'
         ]
       }),

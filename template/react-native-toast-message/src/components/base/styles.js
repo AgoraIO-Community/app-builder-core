@@ -18,7 +18,6 @@ export default StyleSheet.create({
     borderTopWidth: 5,
     borderTopColor: colors.alto
   },
-
   contentContainer: {
     paddingLeft: 20,
     flex: 1,

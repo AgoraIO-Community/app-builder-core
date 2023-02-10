@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import SuccessToast from './components/success';
 import ErrorToast from './components/error';
 import InfoToast from './components/info';
+
 import { complement } from './utils/arr';
 import { includeKeys } from './utils/obj';
 import { stylePropType } from './utils/prop-types';
@@ -379,11 +380,13 @@ class Toast extends Component {
           'isVisible',
           'text1',
           'text2',
+          'leadingIcon',
           'hide',
           'show',
           'onPress',
           'primaryBtn',
           'secondaryBtn',
+          'checkbox',
           'toastId'
         ]
       }),

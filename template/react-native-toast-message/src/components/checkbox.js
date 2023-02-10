@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text, Pressable } from 'react-native';
 import PropTypes from 'prop-types';
-
-import Icon from '../icon';
-import { icons } from '../../assets';
-import { stylePropType } from '../../utils/prop-types';
-import styles, { HEIGHT } from './styles';
+import { stylePropType } from '../utils/prop-types';
+import styles, { HEIGHT } from './base/styles';
+import Checkbox from '../../../src/subComponents/Checkbox';
+import { PrimaryButton } from 'customization-api';
+import TertiaryButton from '../../../src/atoms/TertiaryButton';
 
 function BaseToast({
   leadingIcon,
@@ -21,8 +21,11 @@ function BaseToast({
   text1NumberOfLines,
   text2NumberOfLines,
   primaryBtn,
-  secondaryBtn
+  secondaryBtn,
+  checkbox
 }) {
+  const [checked, setChecked] = useState(false);
+
   return (
     <TouchableOpacity
       testID='rootView'
@@ -67,16 +70,64 @@ function BaseToast({
             </Text>
           </View>
         )}
+        {checkbox && (
+          <Pressable
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              paddingTop: 16,
+              paddingBottom: 8,
+              marginLeft: 4
+            }}
+            onPress={() => {
+              setChecked((e) => !e);
+            }}>
+            <Checkbox
+              {...checkbox}
+              value={checked}
+              onValueChange={setChecked}
+              style={{
+                marginRight: 8
+              }}
+            />
+            <Text style={{ color: 'white' }}>{checkbox.text}</Text>
+          </Pressable>
+        )}
         {primaryBtn || secondaryBtn ? (
           <View
             style={{
               flex: 1,
               flexDirection: 'row',
-              paddingTop: 32,
+              paddingTop: 16,
               paddingBottom: 24
             }}>
-            {primaryBtn ? primaryBtn : <></>}
-            {secondaryBtn ? secondaryBtn : <></>}
+            {primaryBtn && (
+              <PrimaryButton
+                textStyle={{ fontWeight: '600', fontSize: 16, paddingLeft: 0 }}
+                containerStyle={{
+                  height: 40,
+                  borderRadius: 4,
+                  paddingVertical: 0,
+                  paddingHorizontal: 12,
+                  minWidth: 'unset'
+                }}
+                {...primaryBtn}
+                onPress={(e) => {
+                  primaryBtn.onPress(checked, e);
+                }}
+              />
+            )}
+            {secondaryBtn && (
+              <TertiaryButton
+                textStyle={{ fontWeight: '600', fontSize: 16, paddingLeft: 0 }}
+                containerStyle={{
+                  height: 40,
+                  marginLeft: 16,
+                  paddingVertical: 0
+                }}
+                {...secondaryBtn}
+              />
+            )}
           </View>
         ) : (
           <></>
@@ -92,7 +143,7 @@ BaseToast.propTypes = {
   leadingIcon: PropTypes.node,
   trailingIcon: PropTypes.node,
   text1: PropTypes.string,
-  text2: PropTypes.string,
+  text2: PropTypes.string || PropTypes.element,
   onPress: PropTypes.func,
   style: stylePropType,
   contentContainerStyle: stylePropType,
