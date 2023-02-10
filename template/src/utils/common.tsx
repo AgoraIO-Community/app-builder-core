@@ -103,8 +103,9 @@ interface calculatedPositionProps {
     left?: number;
     right?: number;
   };
+  popupWidth?: number;
 }
-const calculatedPosition = (params: calculatedPositionProps) => {
+const calculatePosition = (params: calculatedPositionProps) => {
   const {
     px,
     py,
@@ -113,11 +114,12 @@ const calculatedPosition = (params: calculatedPositionProps) => {
     globalWidth,
     globalHeight,
     extra: {top = 0, bottom = 0, left = 0, right = 0} = {},
+    popupWidth = 220,
   } = params;
   //right hand side
   if (px > globalWidth / 2) {
     // if actionmenu overflow - horizontal
-    const w = globalWidth - px + 220;
+    const w = globalWidth - px + popupWidth;
     let minus = 0;
     if (w > globalWidth) {
       minus = w - globalWidth + 10;
@@ -140,7 +142,7 @@ const calculatedPosition = (params: calculatedPositionProps) => {
   //left hand side
   else {
     // if actionmenu overflow - horizontal
-    const w = px + localWidth + 220;
+    const w = px + localWidth + popupWidth;
     let minus = 0;
     if (w > globalWidth) {
       minus = w - globalWidth + 10;
@@ -219,6 +221,6 @@ export {
   isValidReactComponent,
   maxInputLimit,
   trimText,
-  calculatedPosition,
+  calculatePosition,
   useResponsive,
 };

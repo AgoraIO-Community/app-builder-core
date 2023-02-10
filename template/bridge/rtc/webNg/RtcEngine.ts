@@ -447,9 +447,10 @@ export default class RtcEngine {
         },
         null,
       );
-      const activeSpeakerUid = highestvolumeObj
-        ? highestvolumeObj.uid
-        : undefined;
+      const activeSpeakerUid =
+        highestvolumeObj && highestvolumeObj?.level > 0 && highestvolumeObj?.uid
+          ? highestvolumeObj.uid
+          : undefined;
 
       //To avoid infinite calling dispatch checking if condition.
       if (this.activeSpeakerUid !== activeSpeakerUid) {

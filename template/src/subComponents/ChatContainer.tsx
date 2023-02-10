@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -44,6 +44,7 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
+  const [scrollToEnd, setScrollToEnd] = useState(false);
   const {dispatch} = useRtc();
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
@@ -136,6 +137,34 @@ const ChatContainer = (props?: {
   //commented for v1 release
   //const userOfflineLabel = useString('userOfflineLabel')();
   const userOfflineLabel = 'User is offline';
+
+  //if we don't have unread count then enable scroll to end
+  useEffect(() => {
+    if (!privateActive && !grpUnreadCount) {
+      setScrollToEnd(true);
+    } else if (privateActive && !privateUnreadCount) {
+      setScrollToEnd(true);
+    }
+  }, [privateActive, grpUnreadCount, privateUnreadCount]);
+
+  const onContentSizeChange = useCallback(() => {
+    if (scrollToEnd) {
+      scrollViewRef.current?.scrollToEnd({animated: false});
+    }
+  }, [scrollToEnd]);
+
+  //if we have unread container then scrollTo that container and scrollToEnd will be disabled since its has unread count
+  const unreadViewOnLayout = ({
+    nativeEvent: {
+      layout: {y},
+    },
+  }) => {
+    //scroll to unread message label
+    if (y) {
+      scrollViewRef.current?.scrollTo({y, animated: false});
+    }
+  };
+
   return (
     <View style={style.containerView}>
       {privateActive && selectedUserID ? (
@@ -159,11 +188,7 @@ const ChatContainer = (props?: {
       ) : (
         <></>
       )}
-      <ScrollView
-        ref={scrollViewRef}
-        onContentSizeChange={() => {
-          scrollViewRef.current?.scrollToEnd({animated: false});
-        }}>
+      <ScrollView ref={scrollViewRef} onContentSizeChange={onContentSizeChange}>
         {!privateActive ? (
           <>
             <View style={style.defaultMessageContainer}>
@@ -178,7 +203,9 @@ const ChatContainer = (props?: {
                 {messageStoreLengthRef.current === messageStore.length &&
                 grpUnreadCount &&
                 messageStore.length - grpUnreadCount === index ? (
-                  <View style={style.unreadMessageContainer}>
+                  <View
+                    style={style.unreadMessageContainer}
+                    onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {grpUnreadCount} Unread Message
                     </Text>
@@ -219,7 +246,9 @@ const ChatContainer = (props?: {
                 privateMessageStore[selectedUserID]?.length -
                   privateUnreadCount ===
                   index ? (
-                  <View style={style.unreadMessageContainer}>
+                  <View
+                    style={style.unreadMessageContainer}
+                    onLayout={unreadViewOnLayout}>
                     <Text style={style.unreadMessageText}>
                       {privateUnreadCount} Unread Message
                     </Text>

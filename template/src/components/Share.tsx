@@ -291,42 +291,47 @@ const Share = () => {
   return FpeShareComponent ? (
     <FpeShareComponent />
   ) : (
-    <ScrollView contentContainerStyle={style.scrollMain}>
-      <Card>
-        <View>
-          <Logo />
-          <Spacer size={20} />
-          <Text style={style.heading} numberOfLines={1}>
-            {trimText(meetingTitle)}
-          </Text>
-          <Spacer size={40} />
-          <CopyMeetingInfo />
-          <Spacer size={60} />
-        </View>
-        <View style={style.btnContainer}>
-          <PrimaryButton
-            iconName="video-on"
-            onPress={() => enterMeeting()}
-            containerStyle={isMobileUA() && {width: '100%'}}
-            text={enterMeetingAfterCreateButton.toUpperCase()}
-          />
-          <Spacer size={16} />
-          <LinkButton
-            text={copyInviteButton}
-            onPress={() =>
-              copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
-            }
-          />
-        </View>
-      </Card>
-    </ScrollView>
+    <View style={style.root}>
+      <ScrollView contentContainerStyle={style.scrollMain}>
+        <Card>
+          <View>
+            <Logo />
+            <Spacer size={20} />
+            <Text style={style.heading} numberOfLines={1}>
+              {trimText(meetingTitle)}
+            </Text>
+            <Spacer size={40} />
+            <CopyMeetingInfo />
+            <Spacer size={60} />
+          </View>
+          <View style={style.btnContainer}>
+            <PrimaryButton
+              iconName="video-on"
+              onPress={() => enterMeeting()}
+              containerStyle={isMobileUA() && {width: '100%'}}
+              text={enterMeetingAfterCreateButton.toUpperCase()}
+            />
+            <Spacer size={16} />
+            <LinkButton
+              text={copyInviteButton}
+              onPress={() =>
+                copyShareLinkToClipboard(SHARE_LINK_CONTENT_TYPE.MEETING_INVITE)
+              }
+            />
+          </View>
+        </Card>
+      </ScrollView>
+    </View>
   );
 };
 const urlWeb = {wordBreak: 'break-all'};
 
 const style = StyleSheet.create({
-  scrollMain: {
+  root: {
     flex: 1,
+  },
+  scrollMain: {
+    flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
   },
@@ -353,8 +358,8 @@ const style = StyleSheet.create({
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderWidth: 1,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderTopLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
   },
@@ -369,9 +374,9 @@ const style = StyleSheet.create({
     borderRightWidth: 1,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderTopRightRadius: 8,
+    borderTopRightRadius: ThemeConfig.BorderRadius.medium,
     borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 8,
+    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
     borderTopLeftRadius: 0,
   },
   url: {

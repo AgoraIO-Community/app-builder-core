@@ -97,14 +97,14 @@ const RtmConfigure = (props: any) => {
       isWeb() ? handBrowserClose : () => {},
     );
 
-    window.addEventListener('unload', logoutRtm);
+    window.addEventListener('pagehide', logoutRtm);
     // cleanup this component
     return () => {
       window.removeEventListener(
         'beforeunload',
         isWeb() ? handBrowserClose : () => {},
       );
-      window.removeEventListener('unload', logoutRtm);
+      window.removeEventListener('pagehide', logoutRtm);
     };
   }, []);
 

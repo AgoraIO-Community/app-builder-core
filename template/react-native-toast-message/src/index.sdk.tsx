@@ -11,7 +11,7 @@ import { stylePropType } from './utils/prop-types';
 import { isIOS } from './utils/platform';
 import styles from './styles';
 import isMobileOrTablet from '../../src/utils/isMobileOrTablet';
-import { isWebInternal } from '../../src/utils/common';
+import { isWebInternal, isMobileUA } from '../../src/utils/common';
 
 const FRICTION = 8;
 
@@ -83,11 +83,15 @@ class Toast extends Component {
   }
 
   static show(options = {}) {
-    Toast._ref.show(options);
+    Toast._ref?.show(options);
   }
 
   static hide() {
-    Toast._ref.hide({ forceHide: true });
+    Toast._ref?.hide({ forceHide: true });
+  }
+
+  static getToastId() {
+    return Toast._ref?.getToastId();
   }
 
   constructor(props) {
@@ -113,7 +117,8 @@ class Toast extends Component {
 
       customProps: {},
       customStyle: this.getCustomStyle(),
-      isHovered: false
+      isHovered: false,
+      toastId: 0
     };
 
     this.panResponder = PanResponder.create({
@@ -129,6 +134,10 @@ class Toast extends Component {
       }
     });
   }
+
+  getToastId = () => {
+    return this.state?.toastId;
+  };
 
   getCustomStyle = () => {
     let customStyle = {};
@@ -286,7 +295,7 @@ class Toast extends Component {
   }
 
   async hide({ speed, forceHide = false } = {}) {
-    if (this.state.isHovered && !forceHide) {
+    if (this.state.isHovered && !forceHide && !isMobileUA()) {
       return;
     } else {
       await this._setState((prevState) => ({
@@ -300,7 +309,8 @@ class Toast extends Component {
       await this._setState((prevState) => ({
         ...prevState,
         isVisible: false,
-        inProgress: false
+        inProgress: false,
+        toastId: 0
       }));
 
       const { onHide } = this.state;
@@ -371,7 +381,11 @@ class Toast extends Component {
           'text2',
           'hide',
           'show',
-          'onPress'
+          'onPress',
+          'primaryBtn',
+          'secondaryBtn',
+          'checkbox',
+          'toastId'
         ]
       }),
       props: { ...customProps },
@@ -423,14 +437,16 @@ class Toast extends Component {
     return (
       <PlatformWrapper
         setIsHovered={(value) => {
-          this.setState({
-            isHovered: value
-          });
-          setTimeout(() => {
-            if (!value) {
-              this.startTimer();
-            }
-          });
+          if (!isMobileUA()) {
+            this.setState({
+              isHovered: value
+            });
+            setTimeout(() => {
+              if (!value) {
+                this.startTimer();
+              }
+            });
+          }
         }}>
         <Animated.View
           testID='animatedView'

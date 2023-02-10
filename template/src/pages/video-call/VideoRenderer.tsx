@@ -1,5 +1,5 @@
-import React, {useState, useRef, useContext} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useState, useRef, useContext, useEffect} from 'react';
+import {View, StyleSheet, Platform} from 'react-native';
 import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -12,6 +12,7 @@ import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
+import ThemeConfig from '../../theme';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -28,6 +29,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const showReplacePin =
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
   const [videoTileWidth, setVideoTileWidth] = useState(0);
+  const [avatarSize, setAvatarSize] = useState(100);
   return (
     <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <View
@@ -37,6 +39,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           },
         }) => {
           setVideoTileWidth(width);
+          setAvatarSize(Math.floor(width * 0.35));
         }}
         style={[
           maxStyle.container,
@@ -46,15 +49,16 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             ? maxStyle.noVideoStyle
             : maxStyle.nonActiveContainerStyle,
         ]}>
-        <ScreenShareNotice uid={user.uid} isMax={isMax} />
+        {!showReplacePin && <ScreenShareNotice uid={user.uid} isMax={isMax} />}
         <NetworkQualityPill user={user} />
         <MaxVideoView
           fallback={() => {
             return FallbackLogo(
               user?.name,
               activeSpeaker,
-              showReplacePin ? true : false,
+              showReplacePin && !isMobileUA() ? true : false,
               isMax,
+              avatarSize,
             );
           }}
           user={user}
@@ -71,11 +75,16 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         />
         {user.uid !== rtcProps?.screenShareUid &&
         (isHovered || isMobileUA()) ? (
-          <MoreMenu isMax={isMax} pinnedUid={pinnedUid} user={user} />
+          <MoreMenu
+            isMax={isMax}
+            pinnedUid={pinnedUid}
+            user={user}
+            setIsHovered={setIsHovered}
+          />
         ) : (
           <></>
         )}
-        {showReplacePin ? (
+        {showReplacePin && !isMobileUA() ? (
           <IconButton
             onPress={() => {
               dispatch({type: 'UserPin', value: [user.uid]});
@@ -109,8 +118,9 @@ interface MoreMenuProps {
   user: RenderInterface;
   isMax: boolean;
   pinnedUid: UidType;
+  setIsHovered: (isHovered: boolean) => void;
 }
-const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
+const MoreMenu = ({user, isMax, pinnedUid, setIsHovered}: MoreMenuProps) => {
   const videoMoreMenuRef = useRef(null);
   const {activeUids} = useRender();
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
@@ -130,7 +140,13 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
         }}>
         <UserActionMenuOptionsOptions
           actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={setActionMenuVisible}
+          setActionMenuVisible={(flag) => {
+            //once user clicks action menu item -> hide the action menu and set parent isHovered false
+            if (!flag) {
+              setIsHovered(false);
+            }
+            setActionMenuVisible(flag);
+          }}
           user={user}
           btnRef={videoMoreMenuRef}
           from={'video-tile'}
@@ -149,7 +165,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
             },
             name: 'more-menu',
             iconSize: 20,
-            tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+            tintColor: $config.SECONDARY_ACTION_COLOR,
           }}
         />
       </View>
@@ -158,7 +174,7 @@ const MoreMenu = ({user, isMax, pinnedUid}: MoreMenuProps) => {
 };
 
 const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
-  return isWebInternal() ? (
+  return isWebInternal() && !isMobileUA() ? (
     <div
       style={{width: '100%', height: '100%'}}
       /**
@@ -205,7 +221,7 @@ const maxStyle = StyleSheet.create({
     height: '100%',
     position: 'relative',
     overflow: 'hidden',
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.small,
     borderWidth: 2,
   },
   activeContainerStyle: {

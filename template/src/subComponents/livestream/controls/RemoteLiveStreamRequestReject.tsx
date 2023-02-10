@@ -3,13 +3,15 @@ import {View} from 'react-native';
 import {PropsContext, UidType} from '../../../../agora-rn-uikit';
 import LiveStreamContext from '../../../components/livestream';
 import TertiaryButton from '../../../atoms/TertiaryButton';
+import Toast from '../../../../react-native-toast-message';
 
 interface RemoteLiveStreamControlProps {
   uid: UidType;
+  toastId: number;
 }
 
 const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
-  const {uid} = props;
+  const {uid, toastId} = props;
   const {hostRejectsRequestOfUID} = useContext(LiveStreamContext);
 
   return (
@@ -21,7 +23,13 @@ const RemoteLiveStreamRequestReject = (props: RemoteLiveStreamControlProps) => {
           height: 38,
         }}
         disabled={!uid}
-        onPress={() => hostRejectsRequestOfUID(uid)}
+        onPress={() => {
+          //Hiding the toast if its get rejected in the participant panel
+          if (Toast.getToastId() === toastId) {
+            Toast.hide();
+          }
+          hostRejectsRequestOfUID(uid);
+        }}
         text={'DENY'}
       />
     </View>

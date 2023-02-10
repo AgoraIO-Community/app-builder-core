@@ -17,7 +17,7 @@ import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {useRender} from 'customization-api';
+import {SidePanelType, useRender, useSidePanel} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {trimText} from '../../utils/common';
@@ -46,6 +46,14 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const [coHostUids, setCoHostUids] = useState<UidType[]>([]);
   const coHostUidsRef = useRef<any>();
   coHostUidsRef.current = coHostUids;
+
+  const {sidePanel} = useSidePanel();
+  const sidePanelRef = useRef<any>();
+  sidePanelRef.current = sidePanel;
+
+  React.useEffect(() => {
+    sidePanelRef.current = sidePanel;
+  }, [sidePanel]);
 
   React.useEffect(() => {
     renderListRef.current = renderList;
@@ -104,9 +112,16 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
 
   const [isPendingRequestToReview, setPendingRequestToReview] = useState(false);
 
-  const showToast = (text: string, text2: string, uid?: UidType) => {
+  const showToast = (
+    text: string,
+    text2: string,
+    uid?: UidType,
+    toastId?: number,
+  ) => {
     let btns: any = {};
     if (uid) {
+      //toastId used to hide this particular notification
+      btns.toastId = toastId;
       btns.primaryBtn = (
         <PrimaryButton
           containerStyle={style.primaryBtn}
@@ -169,6 +184,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         [userId]: {
           raised: payload?.raised || RaiseHandValue.FALSE,
           ts: payload?.ts || Date.now(),
+          isProcessed: payload?.isProcessed || false,
           role:
             payload?.role ||
             oldRaisedHandList[userId]?.role ||
@@ -197,6 +213,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.FALSE,
             ts: new Date().getTime(),
+            isProcessed: true,
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -227,6 +244,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             action: LiveStreamControlMessageEnum.notifyHostsInChannel,
             value: RaiseHandValue.TRUE,
             ts: new Date().getTime(),
+            isProcessed: true,
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -329,6 +347,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
+      const isProcessed = payload?.isProcessed || false;
 
       switch (action) {
         // 1. Host can receive raise hand request with true or false value
@@ -336,13 +355,17 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           switch (value) {
             case RaiseHandValue.TRUE:
               // Step 1: Show notifications
-              if (payload.ts > rtmInitTimstamp) {
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
                 showToast(
                   `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_RECEIVED.text1
                   }`,
                   LSNotificationObject.RAISE_HAND_RECEIVED.text2,
                   data.sender,
+                  data.ts,
                 );
               }
               // 2. All Hosts in channel update their raised state to "true" when attendee raise their hand
@@ -350,11 +373,15 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.TRUE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
               break;
             case RaiseHandValue.FALSE:
               // Step 1: Show notifications
-              if (payload.ts > rtmInitTimstamp) {
+              if (
+                payload.ts > rtmInitTimstamp &&
+                sidePanelRef.current !== SidePanelType.Participants
+              ) {
                 showToast(
                   `${trimText(getAttendeeName(data.sender))} ${
                     LSNotificationObject.RAISE_HAND_REQUEST_RECALL.text1
@@ -367,6 +394,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.FALSE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
             default:
               break;
@@ -381,6 +409,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.TRUE,
                 role: ClientRole.Broadcaster,
+                isProcessed: isProcessed,
               });
               break;
             case RaiseHandValue.FALSE:
@@ -388,6 +417,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
                 ts: data.ts,
                 raised: RaiseHandValue.FALSE,
                 role: ClientRole.Audience,
+                isProcessed: isProcessed,
               });
               break;
             default:
@@ -495,29 +525,45 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
    */
 
   const hostApprovesRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.TRUE,
-      ts: new Date().getTime(),
-    });
-    events.send(
-      LiveStreamControlMessageEnum.raiseHandRequestAccepted,
-      '',
-      EventPersistLevel.LEVEL1,
-      uid,
-    );
+    if (!raiseHandListRef.current[uid]?.isProcessed) {
+      addOrUpdateLiveStreamRequest(uid, {
+        raised: RaiseHandValue.TRUE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      });
+      events.send(
+        LiveStreamControlMessageEnum.raiseHandRequestAccepted,
+        '',
+        EventPersistLevel.LEVEL1,
+        uid,
+      );
+    } else {
+      Toast.hide();
+      setTimeout(() => {
+        showToast('Request already processed.', null);
+      });
+    }
   };
 
   const hostRejectsRequestOfUID = (uid: UidType) => {
-    addOrUpdateLiveStreamRequest(uid, {
-      raised: RaiseHandValue.FALSE,
-      ts: new Date().getTime(),
-    });
-    events.send(
-      LiveStreamControlMessageEnum.raiseHandRequestRejected,
-      '',
-      EventPersistLevel.LEVEL1,
-      uid,
-    );
+    if (!raiseHandListRef.current[uid]?.isProcessed) {
+      addOrUpdateLiveStreamRequest(uid, {
+        raised: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      });
+      events.send(
+        LiveStreamControlMessageEnum.raiseHandRequestRejected,
+        '',
+        EventPersistLevel.LEVEL1,
+        uid,
+      );
+    } else {
+      Toast.hide();
+      setTimeout(() => {
+        showToast('Request already processed.', null);
+      });
+    }
   };
 
   // promote audience as co-host
@@ -553,6 +599,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         action: LiveStreamControlMessageEnum.raiseHandRequest,
         value: RaiseHandValue.TRUE,
         ts: new Date().getTime(),
+        isProcessed: false,
       }),
       EventPersistLevel.LEVEL2,
     );
@@ -579,6 +626,17 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       // Change role
       changeClientRoleTo(ClientRole.Audience);
     }
+    //notify host users
+    events.send(
+      EventNames.RAISED_ATTRIBUTE,
+      JSON.stringify({
+        action: LiveStreamControlMessageEnum.raiseHandRequest,
+        value: RaiseHandValue.FALSE,
+        ts: new Date().getTime(),
+        isProcessed: true,
+      }),
+      EventPersistLevel.LEVEL2,
+    );
     UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
     showToast(
       LSNotificationObject.RAISE_HAND_REQUEST_RECALL_LOCAL.text1,

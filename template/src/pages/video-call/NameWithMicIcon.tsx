@@ -77,12 +77,12 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           }
           iconSize={'small'}
         /> */}
-      {((isMobileUA() || (!isMobileUA() && isSmall())) &&
-        currentLayout === getGridLayoutName() &&
-        activeUids.length > 6) ||
-      (isMobileUA() &&
-        currentLayout === getPinnedLayoutName() &&
-        !props?.isMax) ? (
+      {(isMobileUA() || (!isMobileUA() && isSmall())) &&
+      currentLayout === getGridLayoutName() &&
+      activeUids.length > 6 ? (
+        //  ||  (isMobileUA() &&
+        //     currentLayout !== getPinnedLayoutName() &&
+        //     !props?.isMax)
         <></>
       ) : (
         <PlatformWrapper>
@@ -138,6 +138,7 @@ const style = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     flexShrink: 1,
     marginLeft: 4,
+    marginRight: 2,
   },
 });
 

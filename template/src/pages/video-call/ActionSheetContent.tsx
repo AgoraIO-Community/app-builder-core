@@ -62,20 +62,20 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
 //Icon for Live Streaming Controls
 interface LiveStreamIconProps {
   isHandRaised: boolean;
-  showLabel: boolean;
+  showLabel?: boolean;
 }
 const LiveStreamIcon = (props: LiveStreamIconProps) => {
-  const {isHandRaised, showLabel} = props;
+  const {isHandRaised, showLabel = $config.ICON_TEXT} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
         <LiveStreamControls
           showControls={true}
           isDesktop={false}
-          showLabel={showLabel}
+          showLabel={false}
         />
       </View>
-      {$config.ICON_TEXT && (
+      {showLabel && (
         <Text style={styles.iconText}>
           {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
         </Text>
@@ -85,13 +85,17 @@ const LiveStreamIcon = (props: LiveStreamIconProps) => {
 };
 
 //Icon for Chat
-const ChatIcon = () => {
+interface ChatIconProps {
+  showLabel?: boolean;
+}
+const ChatIcon = (props: ChatIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
         <ChatIconButton isOnActionSheet={true} />
       </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Chat</Text>}
+      {showLabel && <Text style={styles.iconText}>Chat</Text>}
     </View>
   );
 };
@@ -140,15 +144,27 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
         <LocalSwitchCamera showLabel={false} disabled={disabled} />
       </View>
       {$config.ICON_TEXT && (
-        <Text
-          style={[
-            styles.iconText,
-            {
-              color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
-            },
-          ]}>
-          Switch {'\n'} Camera
-        </Text>
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+              },
+            ]}>
+            Switch
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Camera
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -253,7 +269,7 @@ type ActionSheetComponentsProps = [
   (props: CamIconProps) => JSX.Element,
   (props: EndCallIconProps) => JSX.Element,
   (props: ShowMoreIconProps) => JSX.Element,
-  (props) => JSX.Element,
+  (props: ChatIconProps) => JSX.Element,
   (props: ParticipantsIconProps) => JSX.Element,
   (props) => JSX.Element,
   (props: SwitchCameraIconProps) => JSX.Element,
@@ -301,8 +317,13 @@ const ActionSheetContent = (props) => {
   };
 
   const isAudioRoom = $config.AUDIO_ROOM;
-  const isAudioRoomHost = $config.AUDIO_ROOM && isHost;
-  const isAudioRoomAudience = $config.AUDIO_ROOM && isAudience;
+  const isVoiceChatHost = !$config.EVENT_MODE && $config.AUDIO_ROOM && isHost;
+  const isVoiceChatAudience =
+    !$config.EVENT_MODE && $config.AUDIO_ROOM && isAudience;
+  const isAudioCastHost = $config.EVENT_MODE && $config.AUDIO_ROOM && isHost;
+  const isAudioCastAudience =
+    $config.EVENT_MODE && $config.AUDIO_ROOM && isAudience;
+
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
@@ -323,10 +344,20 @@ const ActionSheetContent = (props) => {
           />
         )}
 
-        {isAudioRoomHost && $config.CLOUD_RECORDING && (
-          <RecordingIcon showLabel={false} />
+        {/*For AudioCast Host:Chat ,Attendee:Raise Hand 
+          For VoiceChat Host:Chat, Attendee:Chat
+         */}
+
+        {(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
+          <ChatIcon showLabel={false} />
         )}
-        {isAudioRoomAudience && <LayoutIcon showLabel={false} />}
+        {(isAudioCastAudience && isLiveStream && isAudience) ||
+        (isBroadCasting && !isHost) ? (
+          $config.RAISE_HAND && isAudioRoom ? (
+            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
+          ) : null
+        ) : null}
+
         {!isAudioRoom &&
           (isAudioVideoControlsDisabled ? null : (
             <CamIcon
@@ -357,21 +388,21 @@ const ActionSheetContent = (props) => {
          * demote himself
          */}
         {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
+          $config.RAISE_HAND && !isAudioRoom ? (
+            <LiveStreamIcon isHandRaised={isHandRaised} />
           ) : null
         ) : null}
 
         {/* chat */}
-        <ChatIcon />
+        {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
+          <ChatIcon />
+        )}
         {/* participants */}
         <ParticipantsIcon
           showNotification={$config.EVENT_MODE && isPendingRequestToReview}
         />
         {/* record */}
-        {isHost && !isAudioRoom && $config.CLOUD_RECORDING ? (
-          <RecordingIcon />
-        ) : null}
+        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
 
         {/* switch camera */}
         {!isAudioRoom &&
@@ -395,7 +426,7 @@ const ActionSheetContent = (props) => {
         <ShareIcon />
 
         {/* Layout view */}
-        {!isAudioRoomAudience && <LayoutIcon />}
+        <LayoutIcon />
       </View>
     </View>
   );

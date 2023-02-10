@@ -16,6 +16,7 @@ export interface raiseHandItemInterface {
   role: ClientRole;
   raised: RaiseHandValue;
   ts: number;
+  isProcessed: boolean;
 }
 
 import {UidType} from '../../../agora-rn-uikit';

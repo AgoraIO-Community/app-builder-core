@@ -16,7 +16,8 @@ import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
 import IconButton from '../atoms/IconButton';
 import RemoteMutePopup from './RemoteMutePopup';
 import {useRender} from 'customization-api';
-import {calculatedPosition} from '../utils/common';
+import {calculatePosition} from '../utils/common';
+import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
@@ -32,17 +33,21 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const btnRef = useRef(null);
   const {isHost = false, userContainerRef} = props;
   const muteRemoteVideo = useRemoteMute();
+  const requestRemoteVideo = useRemoteRequest();
   const [showModal, setShowModal] = useState(false);
   const [pos, setPos] = useState({});
   const {renderList} = useRender();
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const onPress = () => {
-    muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
+    props?.video
+      ? muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid)
+      : requestRemoteVideo(REQUEST_REMOTE_TYPE.video, props.uid);
     setShowModal(false);
   };
   return String(props.uid)[0] !== '1' ? (
     <>
       <RemoteMutePopup
+        action={props?.video ? 'mute' : 'request'}
         type="video"
         actionMenuVisible={showModal}
         setActionMenuVisible={setShowModal}
@@ -51,13 +56,13 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
         onMutePress={onPress}
       />
       <IconButton
-        hoverEffect={props.video}
+        hoverEffect={true}
         hoverEffectStyle={{
           backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,
         }}
         setRef={(ref) => (btnRef.current = ref)}
-        disabled={!isHost || !props.video}
+        disabled={!isHost}
         onPress={() => {
           btnRef?.current?.measure(
             (
@@ -68,7 +73,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
               px: number,
               py: number,
             ) => {
-              const data = calculatedPosition({
+              const data = calculatePosition({
                 px,
                 py,
                 localHeight,

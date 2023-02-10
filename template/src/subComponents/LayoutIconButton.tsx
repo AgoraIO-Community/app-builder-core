@@ -8,6 +8,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isMobileUA} from '../utils/common';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {useWindowDimensions} from 'react-native';
+import {useRender} from 'customization-api';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -15,6 +16,7 @@ interface LayoutIconButtonInterface {
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+  const {activeUids} = useRender();
   const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();
@@ -52,7 +54,10 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       };
     } else {
       onPress = () => {
-        setIsHovered(!isHovered);
+        //desktop web don't need onpress
+        if (isMobileUA()) {
+          setIsHovered(!isHovered);
+        }
       };
     }
     let iconButtonProps: Partial<IconButtonProps> = {
@@ -73,21 +78,28 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       ) : (
         <PlatformWrapper
           key={'layout-icon-btn'}
-          showDropdown={isHovered}
-          setIsHovered={(flag) => {
-            if (flag) {
-              setIsHovered(true);
-            } else {
-              if (isMobileOrTablet()) {
-                setIsHovered(false);
-              } else {
-                setTimeout(() => {
-                  setIsHovered(false);
-                }, 500);
-              }
-            }
-          }}>
+          //showDropdown={isHovered}
+          setIsHovered={
+            setIsHovered
+            // (flag) => {
+            //   if (flag) {
+            //     setIsHovered(true);
+            //   } else {
+            //     if (isMobileOrTablet()) {
+            //       setIsHovered(false);
+            //     } else {
+            //       setTimeout(() => {
+            //         setIsHovered(false);
+            //       }, 100);
+            //     }
+            //   }
+            // }
+          }>
           <IconButton
+            disabled={!activeUids || activeUids.length === 0}
+            containerStyle={{
+              opacity: !activeUids || activeUids.length === 0 ? 0.6 : 1,
+            }}
             setRef={(ref) => {
               layoutBtnRef.current = ref;
             }}
@@ -108,18 +120,44 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
       {/**
        * Based on the flag. it will render the dropdown
        */}
-      <PlatformWrapperPopup
-        setIsHovered={isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal}>
-        <LayoutIconDropdown
-          modalPosition={modalPosition}
-          showDropdown={
-            isMobileOrTablet() ? isHovered : isHovered || isHoveredOnModal
-          }
-          setShowDropdown={
-            isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
-          }
-        />
-      </PlatformWrapperPopup>
+      {activeUids && activeUids.length ? (
+        <PlatformWrapperPopup
+          setIsHovered={
+            isMobileOrTablet()
+              ? setIsHovered
+              : (isHoveredOnPopup: boolean) => {
+                  if (isHoveredOnPopup) {
+                    setIsHoveredOnModal(isHoveredOnPopup);
+                  } else {
+                    if (isMobileUA()) {
+                      setIsHoveredOnModal(isHoveredOnPopup);
+                    } else {
+                      setTimeout(() => {
+                        if (!isHovered) {
+                          setIsHoveredOnModal(isHoveredOnPopup);
+                        }
+                      }, 100);
+                    }
+                  }
+                }
+          }>
+          <LayoutIconDropdown
+            caretPosition={{
+              bottom: isMobileOrTablet() ? -8 : -10,
+              left: isMobileOrTablet() ? 26 : 26,
+            }}
+            modalPosition={modalPosition}
+            showDropdown={
+              isMobileOrTablet() ? isHovered : isHovered || isHoveredOnModal
+            }
+            setShowDropdown={
+              isMobileOrTablet() ? setIsHovered : setIsHoveredOnModal
+            }
+          />
+        </PlatformWrapperPopup>
+      ) : (
+        <></>
+      )}
       {/**
        * If layout contains more than 2 data. it will render the dropdown.
        */}

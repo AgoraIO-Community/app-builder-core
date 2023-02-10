@@ -56,6 +56,7 @@ import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
 import {currentFocus, FocusProvider} from '../utils/useFocus';
+import {VideoCallProvider} from '../components/useVideoCall';
 
 enum RnEncryptionEnum {
   /**
@@ -255,7 +256,9 @@ const VideoCall: React.FC = () => {
                                                       )}
                                                       {callActive ? (
                                                         <VideoMeetingDataProvider>
-                                                          <VideoCallScreen />
+                                                          <VideoCallProvider>
+                                                            <VideoCallScreen />
+                                                          </VideoCallProvider>
                                                         </VideoMeetingDataProvider>
                                                       ) : $config.PRECALL ? (
                                                         <PreCallProvider

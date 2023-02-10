@@ -90,9 +90,15 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                       </View>
                     </View>
                     <View style={styles.btnContainer}>
-                      <RemoteLiveStreamRequestReject uid={userUID} />
+                      <RemoteLiveStreamRequestReject
+                        uid={userUID}
+                        toastId={raiseHandList[userUID].ts}
+                      />
                       <Spacer size={8} horizontal={true} />
-                      <RemoteLiveStreamRequestApprove uid={userUID} />
+                      <RemoteLiveStreamRequestApprove
+                        uid={userUID}
+                        toastId={raiseHandList[userUID].ts}
+                      />
                     </View>
                   </View>
                 ) : (

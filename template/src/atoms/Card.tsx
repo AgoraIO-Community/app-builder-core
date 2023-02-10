@@ -1,6 +1,7 @@
 import {StyleSheet, View, ViewStyle} from 'react-native';
 import React from 'react';
 import {isMobileUA, useResponsive} from '../utils/common';
+import ThemeConfig from '../theme';
 
 interface CardProps {
   style?: ViewStyle;
@@ -48,13 +49,13 @@ const useStyles = () => {
       borderWidth: 1,
       paddingHorizontal: getResponsiveValue(60),
       paddingVertical: getResponsiveValue(60),
-      borderRadius: 4,
+      borderRadius: ThemeConfig.BorderRadius.extraLarge,
       borderColor: $config.CARD_LAYER_3_COLOR,
       shadowColor: $config.HARD_CODED_BLACK_COLOR,
       shadowOffset: {width: 0, height: 4},
       shadowOpacity: 0.1,
       shadowRadius: 20,
-      marginHorizontal: getResponsiveValue(40),
+      margin: getResponsiveValue(40),
     },
   });
 };

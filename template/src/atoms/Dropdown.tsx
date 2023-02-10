@@ -128,6 +128,7 @@ const Dropdown: FC<Props> = ({
               },
             ]}>
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={data}
               renderItem={renderItem}
               keyExtractor={(item, index) => index.toString()}
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderLeftWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
-    borderRadius: 12,
+    borderRadius: ThemeConfig.BorderRadius.medium,
     paddingLeft: 20,
     paddingRight: 20,
     justifyContent: 'space-between',
@@ -257,8 +258,8 @@ const styles = StyleSheet.create({
     borderLeftColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRightColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
     borderBottomWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,

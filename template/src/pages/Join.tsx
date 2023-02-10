@@ -107,56 +107,58 @@ const Join = () => {
   return JoinComponent ? (
     <JoinComponent />
   ) : (
-    <ScrollView contentContainerStyle={style.main}>
-      {error ? <Error error={error} /> : <></>}
-      <Card>
-        <View>
-          <Logo />
-          <Spacer size={20} />
-          <Text style={style.heading}>
-            {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
-          </Text>
-          <Spacer size={40} />
-          <Input
-            labelStyle={style.labelStyle}
-            label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
-            autoFocus
-            value={phrase}
-            helpText={
-              isLiveStream
-                ? 'Enter the stream ID here for the meeting you’d like to join'
-                : 'Enter the meeting ID here for the meeting you’d like to join'
-            }
-            placeholder={meetingIdInputPlaceholder}
-            onChangeText={(text) => setPhrase(text)}
-            onSubmitEditing={() => startCall()}
-          />
-          <Spacer size={60} />
-        </View>
-        <View style={style.btnContainer}>
-          <PrimaryButton
-            iconName="video-on"
-            disabled={phrase === ''}
-            onPress={() => startCall()}
-            text={enterMeetingButton}
-            containerStyle={isMobileUA() && {width: '100%'}}
-          />
-          <Spacer size={16} />
-          <LinkButton
-            text={createMeetingButton}
-            onPress={() => createMeeting()}
-          />
-          {shouldAuthenticate ? (
-            <LogoutButton
-              //@ts-ignore
-              setError={setError}
-            /> //setError not available in logout?
-          ) : (
-            <></>
-          )}
-        </View>
-      </Card>
-    </ScrollView>
+    <View style={style.root}>
+      <ScrollView contentContainerStyle={style.main}>
+        {error ? <Error error={error} /> : <></>}
+        <Card>
+          <View>
+            <Logo />
+            <Spacer size={20} />
+            <Text style={style.heading}>
+              {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}
+            </Text>
+            <Spacer size={40} />
+            <Input
+              labelStyle={style.labelStyle}
+              label={isLiveStream ? 'Stream ID' : 'Meeting ID'}
+              autoFocus
+              value={phrase}
+              helpText={
+                isLiveStream
+                  ? 'Enter the stream ID here for the meeting you’d like to join'
+                  : 'Enter the meeting ID here for the meeting you’d like to join'
+              }
+              placeholder={meetingIdInputPlaceholder}
+              onChangeText={(text) => setPhrase(text)}
+              onSubmitEditing={() => startCall()}
+            />
+            <Spacer size={60} />
+          </View>
+          <View style={style.btnContainer}>
+            <PrimaryButton
+              iconName="video-on"
+              disabled={phrase === ''}
+              onPress={() => startCall()}
+              text={enterMeetingButton}
+              containerStyle={isMobileUA() && {width: '100%'}}
+            />
+            <Spacer size={16} />
+            <LinkButton
+              text={createMeetingButton}
+              onPress={() => createMeeting()}
+            />
+            {shouldAuthenticate ? (
+              <LogoutButton
+                //@ts-ignore
+                setError={setError}
+              /> //setError not available in logout?
+            ) : (
+              <></>
+            )}
+          </View>
+        </Card>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -168,8 +170,11 @@ const style = StyleSheet.create({
   labelStyle: {
     paddingLeft: 8,
   },
-  main: {
+  root: {
     flex: 1,
+  },
+  main: {
+    flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
   },

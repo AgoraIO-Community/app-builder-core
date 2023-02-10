@@ -19,6 +19,13 @@ interface LayoutIconDropdownProps {
   };
   showDropdown: boolean;
   setShowDropdown: React.Dispatch<SetStateAction<boolean>>;
+  caretPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+  onHoverPlaceHolder?: 'vertical' | 'horizontal';
 }
 
 const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
@@ -26,6 +33,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
     showDropdown,
     setShowDropdown,
     modalPosition = {top: 0, left: 0},
+    onHoverPlaceHolder = 'horizontal',
   } = props;
   const {activeUids} = useRender();
   const layouts = useLayoutsData();
@@ -95,17 +103,31 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
     let viewContent = (
       <View style={[style.dropdownContainer, modalPosition]}>
         <View
-          style={{
-            width: 20,
-            height: 20,
-            backgroundColor: $config.CARD_LAYER_4_COLOR,
-            position: 'absolute',
-            bottom: isMobileOrTablet() ? -8 : -10,
-            left: isMobileOrTablet() ? 26 : 26,
-            borderRadius: 2,
-            transform: [{rotate: '45deg'}],
-            zIndex: -1,
-          }}></View>
+          style={[
+            {
+              width: 20,
+              height: 20,
+              backgroundColor: $config.CARD_LAYER_4_COLOR,
+              position: 'absolute',
+              borderRadius: 2,
+              transform: [{rotate: '45deg'}],
+              zIndex: -1,
+            },
+            props?.caretPosition,
+          ]}></View>
+        {!isMobileUA() && (
+          <View
+            style={[
+              {
+                zIndex: -2,
+                position: 'absolute',
+              },
+              onHoverPlaceHolder === 'vertical'
+                ? {width: 20, height: '100%', bottom: 0, right: -20}
+                : {width: '100%', height: 20, bottom: -20},
+            ]}
+          />
+        )}
         <View
           style={{
             flex: 1,

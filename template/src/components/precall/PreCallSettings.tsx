@@ -21,13 +21,16 @@ const PreCallSettings = (props: PreCallSettingsProps) => {
         containerStyle={styles.containerStyle}
         contentContainerStyle={styles.contentContainer}
         showCloseIcon={false}>
-        <SettingsView handleClose={() => setIsSettingsVisible(false)} />
+        <SettingsView
+          hideName={true}
+          handleClose={() => setIsSettingsVisible(false)}
+        />
       </Popup>
 
       <TouchableOpacity onPress={() => setIsSettingsVisible(true)}>
         <ImageIcon
           name={'settings'}
-          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </TouchableOpacity>
     </>
@@ -41,12 +44,9 @@ const styles = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
-    borderRadius: 8,
+    borderRadius: 4,
     padding: 0,
+    maxWidth: '90%',
   },
-  containerStyle: {
-    marginVertical: 100,
-    paddingHorizontal: 16,
-    alignItems: 'stretch',
-  },
+  containerStyle: {},
 });

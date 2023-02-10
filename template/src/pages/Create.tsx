@@ -68,6 +68,7 @@ const Create = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [roomTitle, onChangeRoomTitle] = useState('');
+  // const [randomRoomTitle, setRandomRoomTitle] = useState('');
   const [pstnToggle, setPstnToggle] = useState(false);
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
@@ -109,6 +110,13 @@ const Create = () => {
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
+    //Generating the random room title for placeholder
+    // setRandomRoomTitle(
+    //   `${randomNameGenerator(3)}-${randomNameGenerator(
+    //     3,
+    //   )}-${randomNameGenerator(3)}`,
+    // );
+
     if (isWebInternal()) {
       document.title = $config.APP_NAME;
     }
@@ -232,80 +240,57 @@ const Create = () => {
         CreateComponent ? (
           <CreateComponent />
         ) : (
-          <ScrollView contentContainerStyle={style.main}>
-            <Card>
-              <View>
-                <Logo />
-                <Spacer size={isDesktop ? 20 : 16} />
-                <Text style={style.heading}>{getHeading()}</Text>
-                <Spacer size={40} />
-                <Input
-                  maxLength={maxInputLimit}
-                  labelStyle={style.inputLabelStyle}
-                  label={getInputLabel()}
-                  value={roomTitle}
-                  placeholder={meetingNameInputPlaceholder}
-                  onChangeText={(text) => onChangeRoomTitle(text)}
-                  onSubmitEditing={() => {
-                    if (!$config.BACKEND_ENDPOINT) {
-                      showError();
-                    } else {
-                      createRoomAndNavigateToShare(
-                        roomTitle,
-                        pstnToggle,
-                        !coHostToggle,
-                      );
-                    }
-                  }}
-                />
-                <Spacer size={40} />
-                {$config.EVENT_MODE ? (
-                  <></>
-                ) : (
-                  <View
-                    style={[
-                      style.toggleContainer,
-                      style.upper,
-                      !$config.PSTN ? style.lower : {},
-                    ]}>
-                    <View style={style.infoContainer}>
-                      <Text numberOfLines={1} style={style.toggleLabel}>
-                        Make everyone a Co-Host
-                      </Text>
-                      <Tooltip
-                        activeBgStyle={style.tooltipActiveBgStyle}
-                        defaultBgStyle={style.tooltipDefaultBgStyle}
-                        toolTipMessage="Turning on will give everyone the control of this meeting"
-                        renderContent={(isToolTipVisible, setToolTipVisible) =>
-                          renderInfoIcon(isToolTipVisible, setToolTipVisible)
-                        }></Tooltip>
-                    </View>
-                    <View style={style.infoToggleContainer}>
-                      <Toggle
-                        disabled={$config.EVENT_MODE}
-                        isEnabled={coHostToggle}
-                        toggleSwitch={setCoHostToggle}
-                      />
-                    </View>
-                  </View>
-                )}
-                {$config.PSTN ? (
-                  <>
-                    <View style={style.separator} />
+          <View style={style.root}>
+            <ScrollView contentContainerStyle={style.main}>
+              <Card>
+                <View>
+                  <Logo />
+                  <Spacer size={isDesktop ? 20 : 16} />
+                  <Text style={style.heading}>{getHeading()}</Text>
+                  <Spacer size={40} />
+                  <Input
+                    maxLength={maxInputLimit}
+                    labelStyle={style.inputLabelStyle}
+                    label={getInputLabel()}
+                    value={roomTitle}
+                    placeholder={meetingNameInputPlaceholder}
+                    onChangeText={(text) => onChangeRoomTitle(text)}
+                    onSubmitEditing={() => {
+                      if (!roomTitle?.trim()) {
+                        return;
+                      } else {
+                        if (!$config.BACKEND_ENDPOINT) {
+                          showError();
+                        } else {
+                          // !roomTitle?.trim() &&
+                          //   onChangeRoomTitle(randomRoomTitle);
+                          createRoomAndNavigateToShare(
+                            roomTitle?.trim(),
+                            pstnToggle,
+                            !coHostToggle,
+                          );
+                        }
+                      }
+                    }}
+                  />
+                  <Spacer size={40} />
+                  {$config.EVENT_MODE ? (
+                    <></>
+                  ) : (
                     <View
                       style={[
                         style.toggleContainer,
-                        style.lower,
-                        $config.EVENT_MODE ? style.upper : {},
+                        style.upper,
+                        !$config.PSTN ? style.lower : {},
                       ]}>
                       <View style={style.infoContainer}>
                         <Text numberOfLines={1} style={style.toggleLabel}>
-                          Allow joining via a phone number
+                          Make everyone a Co-Host
                         </Text>
                         <Tooltip
                           activeBgStyle={style.tooltipActiveBgStyle}
                           defaultBgStyle={style.tooltipDefaultBgStyle}
-                          toolTipMessage="Attendees can dial a number and join via PSTN"
+                          toolTipMessage="Turning on will give everyone the control of this meeting"
                           renderContent={(
                             isToolTipVisible,
                             setToolTipVisible,
@@ -315,50 +300,82 @@ const Create = () => {
                       </View>
                       <View style={style.infoToggleContainer}>
                         <Toggle
-                          isEnabled={pstnToggle}
-                          toggleSwitch={setPstnToggle}
+                          disabled={$config.EVENT_MODE}
+                          isEnabled={coHostToggle}
+                          toggleSwitch={setCoHostToggle}
                         />
                       </View>
                     </View>
-                  </>
-                ) : (
-                  <></>
-                )}
-                <Spacer size={isDesktop ? 60 : 125} />
-              </View>
-              <View style={[style.btnContainer]}>
-                <PrimaryButton
-                  iconName={'video-plus'}
-                  disabled={loading}
-                  containerStyle={!isDesktop && {width: '100%'}}
-                  onPress={() => {
-                    if (!$config.BACKEND_ENDPOINT) {
-                      showError();
-                    } else {
-                      let randomMeetingName = '';
-                      if (!roomTitle) {
-                        randomMeetingName = `${randomNameGenerator(
-                          3,
-                        )}-${randomNameGenerator(3)}-${randomNameGenerator(3)}`;
-                        onChangeRoomTitle(randomMeetingName);
+                  )}
+                  {$config.PSTN ? (
+                    <>
+                      <View style={style.separator} />
+                      <View
+                        style={[
+                          style.toggleContainer,
+                          style.lower,
+                          $config.EVENT_MODE ? style.upper : {},
+                        ]}>
+                        <View style={style.infoContainer}>
+                          <Text numberOfLines={1} style={style.toggleLabel}>
+                            Allow joining via a phone number
+                          </Text>
+                          <Tooltip
+                            activeBgStyle={style.tooltipActiveBgStyle}
+                            defaultBgStyle={style.tooltipDefaultBgStyle}
+                            toolTipMessage="Attendees can dial a number and join via PSTN"
+                            renderContent={(
+                              isToolTipVisible,
+                              setToolTipVisible,
+                            ) =>
+                              renderInfoIcon(
+                                isToolTipVisible,
+                                setToolTipVisible,
+                              )
+                            }></Tooltip>
+                        </View>
+                        <View style={style.infoToggleContainer}>
+                          <Toggle
+                            isEnabled={pstnToggle}
+                            toggleSwitch={setPstnToggle}
+                          />
+                        </View>
+                      </View>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  <Spacer size={isDesktop ? 60 : 125} />
+                </View>
+                <View style={[style.btnContainer]}>
+                  <PrimaryButton
+                    iconName={'video-plus'}
+                    disabled={loading || !roomTitle?.trim()}
+                    containerStyle={!isDesktop && {width: '100%'}}
+                    onPress={() => {
+                      if (!$config.BACKEND_ENDPOINT) {
+                        showError();
+                      } else {
+                        // !roomTitle?.trim() &&
+                        //   onChangeRoomTitle(randomRoomTitle);
+                        createRoomAndNavigateToShare(
+                          roomTitle?.trim(),
+                          pstnToggle,
+                          !coHostToggle,
+                        );
                       }
-                      createRoomAndNavigateToShare(
-                        roomTitle || randomMeetingName,
-                        pstnToggle,
-                        !coHostToggle,
-                      );
-                    }
-                  }}
-                  text={loading ? loadingWithDots : createMeetingButton}
-                />
-                <Spacer size={16} />
-                <LinkButton
-                  text={haveMeetingID}
-                  onPress={() => history.push('/join')}
-                />
-              </View>
-            </Card>
-          </ScrollView>
+                    }}
+                    text={loading ? loadingWithDots : createMeetingButton}
+                  />
+                  <Spacer size={16} />
+                  <LinkButton
+                    text={haveMeetingID}
+                    onPress={() => history.push('/join')}
+                  />
+                </View>
+              </Card>
+            </ScrollView>
+          </View>
         )
       ) : (
         <></>
@@ -369,11 +386,14 @@ const Create = () => {
 };
 
 const style = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   inputLabelStyle: {
     paddingLeft: 8,
   },
   main: {
-    flex: 1,
+    flexGrow: 1,
     flexDirection: 'row',
     justifyContent: 'center',
   },
@@ -403,12 +423,12 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
   },
   upper: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderTopRightRadius: ThemeConfig.BorderRadius.medium,
   },
   lower: {
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
   },
   toggleLabel: {
     color: $config.FONT_COLOR,

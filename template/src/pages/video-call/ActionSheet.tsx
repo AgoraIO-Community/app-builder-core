@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableWithoutFeedback} from 'react-native';
 import React, {useRef, useCallback, useLayoutEffect, useEffect} from 'react';
 import {BottomSheet, BottomSheetRef} from 'react-spring-bottom-sheet';
 import './ActionSheetStyles.css';
@@ -16,8 +10,14 @@ import SettingsView from '../../components/SettingsView';
 
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
+import ToastComponent from '../../components/ToastComponent';
+import {isMobileUA} from '../../utils/common';
+import {useToast} from '../../components/useToast';
+import ActionSheetHandle from './ActionSheetHandle';
+import Spacer from '../../atoms/Spacer';
 
 const ActionSheet = () => {
+  const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
@@ -26,7 +26,12 @@ const ActionSheet = () => {
   const chatSheetRef = useRef<BottomSheetRef>(null);
   const participantsSheetRef = useRef<BottomSheetRef>(null);
   const settingsSheetRef = useRef<BottomSheetRef>(null);
-
+  const ToastComponentRender =
+    isMobileUA() && (isChatOpen || isSettingsOpen || isParticipantsOpen) ? (
+      <ToastComponent />
+    ) : (
+      <></>
+    );
   const {sidePanel, setSidePanel} = useSidePanel();
   const [showOverlay, setShowOverlay] = React.useState(false);
   const handleSheetChanges = useCallback((index: number) => {
@@ -40,6 +45,14 @@ const ActionSheet = () => {
     root.style.setProperty('--sheet-background', $config.CARD_LAYER_1_COLOR);
     root.style.setProperty('--handle-background', $config.SEMANTIC_NETRUAL);
   }, []);
+
+  useEffect(() => {
+    if (isChatOpen || isSettingsOpen || isParticipantsOpen) {
+      setActionSheetVisible(true);
+    } else {
+      setActionSheetVisible(false);
+    }
+  }, [isChatOpen, isSettingsOpen, isParticipantsOpen]);
 
   // updating on sidepanel changes
   useEffect(() => {
@@ -120,6 +133,7 @@ const ActionSheet = () => {
         {/* Controls Action Sheet */}
 
         <BottomSheet
+          scrollLocking={false}
           ref={bottomSheetRef}
           open={true}
           onSpringStart={handleSpringStart}
@@ -130,6 +144,12 @@ const ActionSheet = () => {
           defaultSnap={({lastSnap, snapPoints}) =>
             lastSnap ?? Math.min(...snapPoints)
           }
+          header={
+            <>
+              <ActionSheetHandle sidePanel={SidePanelType.None} />
+              <Spacer size={12} />
+            </>
+          }
           blocking={false}>
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
@@ -138,36 +158,44 @@ const ActionSheet = () => {
         </BottomSheet>
         {/* Chat  Action Sheet */}
         <BottomSheet
+          sibling={ToastComponentRender}
           ref={chatSheetRef}
           onDismiss={onDismiss}
+          scrollLocking={false}
           open={isChatOpen}
           blocking={false}
           expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
+          header={<ActionSheetHandle sidePanel={SidePanelType.Chat} />}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}>
-          <Chat />
+          <Chat showHeader={false} />
         </BottomSheet>
         {/* Participants Action Sheet */}
         <BottomSheet
+          sibling={ToastComponentRender}
           ref={participantsSheetRef}
           onDismiss={onDismiss}
           open={isParticipantsOpen}
           expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+          scrollLocking={false}
+          header={<ActionSheetHandle sidePanel={SidePanelType.Participants} />}
           blocking={false}>
-          <ParticipantView />
+          <ParticipantView showHeader={false} />
         </BottomSheet>
         {/* Settings  Action Sheet */}
         <BottomSheet
+          sibling={ToastComponentRender}
           ref={settingsSheetRef}
           onDismiss={onDismiss}
           open={isSettingsOpen}
           expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+          header={<ActionSheetHandle sidePanel={SidePanelType.Settings} />}
           blocking={false}>
-          <SettingsView />
+          <SettingsView showHeader={false} />
         </BottomSheet>
       </View>
     </>

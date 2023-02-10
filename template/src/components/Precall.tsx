@@ -304,13 +304,8 @@ const Precall = () => {
     <>
       <PrecallBeforeView />
       {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            marginHorizontal: getResponsiveValue(40),
-          }}>
-          <View>
+        <View style={style.root}>
+          <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
                 <MeetingName textStyle={style.meetingTitleStyle} />
@@ -318,63 +313,58 @@ const Precall = () => {
               <Spacer size={32} />
               <JoinRoomInputView isDesktop={true} />
             </Card>
-          </View>
+          </ScrollView>
         </View>
       ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            style.main,
-            isDesktop()
-              ? {
-                  flexGrow: 1,
-                  justifyContent: 'center',
-                }
-              : {},
-          ]}
-          testID="precall-screen">
-          <>
-            <MeetingName textStyle={{textAlign: 'left'}} />
-            <Spacer size={32} />
-            <View
-              style={{
-                flexDirection: !isDesktop() ? 'column' : 'row',
-                justifyContent: 'space-between',
-              }}>
+        <View style={style.root}>
+          <ScrollView
+            contentContainerStyle={[
+              style.main,
+              {padding: 32, flexDirection: 'column'},
+            ]}
+            testID="precall-screen">
+            <>
+              <MeetingName textStyle={{textAlign: 'left'}} />
+              <Spacer size={32} />
               <View
-                testID="precall-preview"
-                style={
-                  !isDesktop()
-                    ? style.leftContentVertical
-                    : style.leftContentHorizontal
-                }>
-                <VideoPreview />
-              </View>
-              <Spacer size={24} horizontal={!isDesktop() ? false : true} />
-              <Card
-                style={
-                  !isDesktop()
-                    ? style.rightContentVertical
-                    : style.rightContentHorizontal
-                }>
-                <View style={style.rightInputContent}>
-                  <JoinRoomName isDesktop={true} />
-                  <DeviceSelect />
-                  <Spacer size={$config.AUDIO_ROOM ? 120 : 30} />
-                </View>
+                style={{
+                  flex: 1,
+                  flexDirection: !isDesktop() ? 'column' : 'row',
+                  justifyContent: 'space-between',
+                }}>
                 <View
-                  style={{
-                    width: '100%',
-                    paddingHorizontal: 32,
-                    paddingVertical: 40,
-                  }}>
-                  <JoinRoomButton />
+                  testID="precall-preview"
+                  style={
+                    !isDesktop()
+                      ? style.leftContentVertical
+                      : style.leftContentHorizontal
+                  }>
+                  <VideoPreview />
                 </View>
-              </Card>
-              {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>}
-            </View>
-          </>
-        </ScrollView>
+                <Spacer size={24} horizontal={!isDesktop() ? false : true} />
+                <Card
+                  style={
+                    !isDesktop()
+                      ? style.rightContentVertical
+                      : style.rightContentHorizontal
+                  }>
+                  <View style={style.rightInputContent}>
+                    <JoinRoomName isDesktop={true} />
+                    <DeviceSelect />
+                  </View>
+                  <View
+                    style={{
+                      width: '100%',
+                      padding: 32,
+                    }}>
+                    <JoinRoomButton />
+                  </View>
+                </Card>
+                {/* {!isDesktop() ? <Spacer size={24} horizontal={false} /> : <></>} */}
+              </View>
+            </>
+          </ScrollView>
+        </View>
       )}
       <PrecallAfterView />
     </>
@@ -396,13 +386,17 @@ const style = StyleSheet.create({
     textAlign: 'left',
   },
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},
-  main: {
+  root: {
     flex: 1,
-    padding: 32,
+  },
+  main: {
+    flexGrow: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   leftContentHorizontal: {
-    width: '70%',
-    borderRadius: 4,
+    flex: 2.5,
+    borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -414,7 +408,7 @@ const style = StyleSheet.create({
   },
   leftContentVertical: {
     width: '100%',
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
@@ -426,22 +420,20 @@ const style = StyleSheet.create({
   },
   rightContentHorizontal: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    minWidth: 250,
-    maxWidth: '30%',
-    //maxWidth: 450,
     height: '100%',
+    minWidth: 350,
     justifyContent: 'space-between',
     marginHorizontal: 0,
+    marginVertical: 0,
   },
   rightContentVertical: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: ThemeConfig.BorderRadius.large,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    minWidth: 250,
     maxWidth: '100%',
     height: '100%',
     justifyContent: 'space-between',

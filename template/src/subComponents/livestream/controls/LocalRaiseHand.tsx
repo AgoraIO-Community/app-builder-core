@@ -20,6 +20,7 @@ import IconButton from '../../../atoms/IconButton';
 import ThemeConfig from '../../../theme';
 import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
 import {useRender} from 'customization-api';
+import {isMobileUA} from '../../../utils/common';
 
 interface LocalRaiseHandProps {
   showLabel?: boolean;
@@ -39,7 +40,6 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   return (
     <IconButton
       iconProps={{
-        base64: true,
         name: isHandRasied ? 'lower-hand' : 'raise-hand',
         tintColor: isHandRasied
           ? $config.PRIMARY_ACTION_TEXT_COLOR
@@ -47,6 +47,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
         iconBackgroundColor: isHandRasied
           ? $config.PRIMARY_ACTION_BRAND_COLOR
           : '',
+        base64: isMobileUA() ? true : false,
       }}
       btnTextProps={{
         text: showLabel ? handStatusText(isHandRasied) : '',
