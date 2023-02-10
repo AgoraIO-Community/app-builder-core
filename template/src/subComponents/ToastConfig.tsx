@@ -116,7 +116,15 @@ const ToastConfig = {
       secondaryBtn={secondaryBtn ? secondaryBtn : null}
     />
   ),
-  checked: ({text1, text2, props, primaryBtn, secondaryBtn, checkbox, ...rest}) => (
+  checked: ({
+    text1,
+    text2,
+    props,
+    primaryBtn,
+    secondaryBtn,
+    checkbox,
+    ...rest
+  }) => (
     <CheckBoxBaseToast
       {...rest}
       //BaseToast is modified to have zIndex: 100
@@ -132,6 +140,7 @@ const ToastConfig = {
       contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
       text2Style={styles.text2Style}
+      subTextStyle={styles.subTextStyle}
       text1={text1}
       text2={text2}
       primaryBtn={primaryBtn ? primaryBtn : null}
@@ -160,6 +169,9 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
     marginTop: 11,
     alignSelf: 'center',
+  },
+  subTextStyle: {
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
   },
   contentContainerStyle: {
     paddingHorizontal: 15,

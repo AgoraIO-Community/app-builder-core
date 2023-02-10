@@ -17,6 +17,7 @@ function BaseToast({
   contentContainerStyle,
   text1Style,
   text2Style,
+  subTextStyle,
   activeOpacity,
   text1NumberOfLines,
   text2NumberOfLines,
@@ -90,7 +91,7 @@ function BaseToast({
                 marginRight: 8
               }}
             />
-            <Text style={{ color: 'white' }}>{checkbox.text}</Text>
+            <Text style={subTextStyle}>{checkbox.text}</Text>
           </Pressable>
         )}
         {primaryBtn || secondaryBtn ? (
