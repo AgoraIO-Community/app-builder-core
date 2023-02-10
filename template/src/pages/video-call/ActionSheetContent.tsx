@@ -393,6 +393,9 @@ const ActionSheetContent = (props) => {
           ) : null
         ) : null}
 
+        {/* Layout view */}
+        <LayoutIcon />
+
         {/* chat */}
         {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
           <ChatIcon />
@@ -424,9 +427,6 @@ const ActionSheetContent = (props) => {
 
         {/* invite */}
         <ShareIcon />
-
-        {/* Layout view */}
-        <LayoutIcon />
       </View>
     </View>
   );
