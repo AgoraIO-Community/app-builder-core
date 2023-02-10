@@ -332,19 +332,30 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     log(logTag, changedDeviceData);
 
     if (currentDevice === 'default') {
-      const previousDefaultDevice = previousDeviceList.find(
-        (device) => device.deviceId === 'default',
-      );
-      const currentDefaultDevice = updatedDeviceList.find(
-        (device) => device.deviceId === 'default',
-      );
-      if (previousDefaultDevice.groupId !== currentDefaultDevice.groupId) {
-        log(logTag, 'Default device changed', {
-          previousDefaultDevice,
-          currentDefaultDevice,
-        });
-        setCurrentDevice('default');
-      }
+      // const previousDefaultDevice = previousDeviceList.find(
+      //   (device) => device.deviceId === 'default',
+      // );
+      // const currentDefaultDevice = updatedDeviceList.find(
+      //   (device) => device.deviceId === 'default',
+      // );
+      //   log(logTag, 'current Default device', {
+      //     changedDeviceData,
+      //     previousDeviceList,
+      //     updatedDeviceList,
+      //     previousDefaultDevice,
+      //     currentDefaultDevice,
+      //   });
+      // if (previousDefaultDevice.groupId !== currentDefaultDevice.groupId) {
+      //   log(logTag, 'Default device changed', {
+      //     changedDeviceData,
+      //     previousDeviceList,
+      //     updatedDeviceList,
+      //     previousDefaultDevice,
+      //     currentDefaultDevice,
+      //   });
+      //   setCurrentDevice('default');
+      // }
+      setCurrentDevice('default');
     }
 
     const didChangeDeviceExistBefore = previousDeviceList.find(
