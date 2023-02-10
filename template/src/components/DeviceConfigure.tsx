@@ -307,6 +307,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const commonOnChangedEvent = async (changedDeviceData: DeviceInfo) => {
     // Extracted devicelist because we want to perform fallback with
     // the most current version.
+    const previousDeviceList = deviceList;
     const updatedDeviceList = await refreshDeviceList();
     const changedDevice = changedDeviceData.device;
 
@@ -330,6 +331,26 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     log(logTag, changedDeviceData);
 
+    if (currentDevice === 'default') {
+      const previousDefaultDevice = previousDeviceList.find(
+        (device) => device.deviceId === 'default',
+      );
+      const currentDefaultDevice = updatedDeviceList.find(
+        (device) => device.deviceId === 'default',
+      );
+      log(logTag, 'Default device changed', {
+        previousDefaultDevice,
+        currentDefaultDevice,
+      });
+      if (previousDefaultDevice.groupId !== currentDefaultDevice.groupId) {
+        // log(logTag, 'Default device changed', {
+        //   previousDefaultDevice,
+        //   currentDefaultDevice,
+        // });
+        setCurrentDevice('default');
+      }
+    }
+
     if (changedDeviceData.state === 'ACTIVE') {
       const rememberedDevice =
         rememberedDevicesList[changedDevice.kind][changedDevice.deviceId];
@@ -347,9 +368,6 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         fallbackToDefaultDevice(changedDevice.kind, updatedDeviceList);
         return;
       }
-    }
-    if (selectedMic === 'default') {
-      setCurrentDevice('default');
     }
   };
 
