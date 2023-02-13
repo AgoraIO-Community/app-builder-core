@@ -423,6 +423,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   centerContent: {
+    zIndex: 2,
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
