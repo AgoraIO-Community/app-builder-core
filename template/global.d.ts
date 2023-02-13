@@ -76,7 +76,7 @@ interface ConfigInterface {
   PRIMARY_ACTION_TEXT_COLOR: string;
   SECONDARY_ACTION_COLOR: string;
   FONT_COLOR: string;
-  BACKGROUND_IMAGE: string;
+  BG: string;
   BACKGROUND_COLOR: string;
   VIDEO_AUDIO_TILE_COLOR: string;
   VIDEO_AUDIO_TILE_OVERLAY_COLOR: string;
