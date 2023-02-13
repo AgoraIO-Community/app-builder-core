@@ -146,12 +146,6 @@ function useMuteToggleLocal() {
                   : ToggleState.enabled,
               ],
             });
-
-            // setVideoState(!(localVideoState === ToggleState.enabled));
-            // console.warn(
-            //   'video state ---',
-            //   !(localVideoState === ToggleState.enabled),
-            // );
           } catch (e) {
             console.log('error while dispatching');
             dispatch({
