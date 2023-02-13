@@ -225,6 +225,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      navigator.mediaDevices.enumerateDevices();
+    }, 2000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
     // Labels are empty in firefox when permission is granted first time
     // refresh device list if labels are empty
 
@@ -387,6 +396,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   // Port this to useEffectEvent(https://beta.reactjs.org/reference/react/useEffectEvent) when
   // released
   useEffect(() => {
+    log('previous devicelist updated', deviceList);
     AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
   }, [selectedMic, deviceList]);
 
