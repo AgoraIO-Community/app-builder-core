@@ -33,7 +33,7 @@ const Authenticate = () => {
   const oauthProviderLabel = 'Please select an OAuth provider to login.';
   return (
     <ImageBackground
-      source={{uri: $config.BACKGROUND_IMAGE}}
+      source={{uri: $config.BG}}
       style={style.full}
       resizeMode={'cover'}>
       <View style={style.main}>

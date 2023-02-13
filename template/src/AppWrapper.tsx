@@ -75,9 +75,7 @@ const AppWrapper = (props: AppWrapperProps) => {
 
   return (
     <AppRoot>
-      <ImageBackgroundComp
-        bg={$config.BACKGROUND_IMAGE}
-        color={$config.BACKGROUND_COLOR}>
+      <ImageBackgroundComp bg={$config.BG} color={$config.BACKGROUND_COLOR}>
         <SafeAreaView
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>

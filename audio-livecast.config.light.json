@@ -32,7 +32,7 @@
   "PRIMARY_ACTION_TEXT_COLOR": "#FFFFFF",
   "SECONDARY_ACTION_COLOR": "#19394D",
   "FONT_COLOR": "#333333",
-  "BACKGROUND_IMAGE": "https://dbudicf5k4as1.cloudfront.net/10/Artboard.png",
+  "BG": "https://dbudicf5k4as1.cloudfront.net/10/Artboard.png",
   "BACKGROUND_COLOR": "#FFFFFF",
   "VIDEO_AUDIO_TILE_COLOR": "#222222",
   "VIDEO_AUDIO_TILE_OVERLAY_COLOR": "#80808080",
