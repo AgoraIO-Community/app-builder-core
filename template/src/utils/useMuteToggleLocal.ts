@@ -10,8 +10,11 @@
 *********************************************
 */
 import {useLocalUserInfo, useRtc} from 'customization-api';
+import {useContext, useEffect, useRef, useState} from 'react';
+
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import {isWebInternal} from './common';
+import {AppState} from 'react-native';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -23,6 +26,48 @@ export enum MUTE_LOCAL_TYPE {
 function useMuteToggleLocal() {
   const {RtcEngine, dispatch} = useRtc();
   const local = useLocalUserInfo();
+
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const isCamON = useRef(local.video);
+
+  useEffect(() => {
+    if ($config.AUDIO_ROOM) return;
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
+    if (appStateVisible === 'background') {
+      isCamON.current = local.video;
+      if (isCamON.current) {
+        isWebInternal()
+          ? RtcEngine.muteLocalVideoStream(true)
+          : RtcEngine.enableLocalVideo(false);
+
+        dispatch({
+          type: 'LocalMuteVideo',
+          value: [0],
+        });
+      }
+    }
+    if (appStateVisible === 'active' && isCamON.current) {
+      isWebInternal()
+        ? RtcEngine.muteLocalVideoStream(false)
+        : RtcEngine.enableLocalVideo(true);
+      dispatch({
+        type: 'LocalMuteVideo',
+        value: [1],
+      });
+    }
+  }, [appStateVisible]);
 
   return async (type: MUTE_LOCAL_TYPE) => {
     switch (type) {

@@ -28,48 +28,50 @@ const VideoCallMobileView = () => {
 
   const isCamON = useRef(local.video);
 
-  useEffect(() => {
-    if ($config.AUDIO_ROOM) return;
-    const subscription = AppState.addEventListener(
-      'change',
-      async (nextAppState) => {
-        if (nextAppState === 'background') {
-          // check if cam was on before app goes to background
-          isCamON.current = isAndroid()
-            ? local.video === ToggleState.enabled
-            : RtcEngine?.isVideoEnabled;
+  // moved below logic to useMuteToggleLocal
+  // useEffect(() => {
+  //   if ($config.AUDIO_ROOM) return;
+  //   const subscription = AppState.addEventListener(
+  //     'change',
+  //     async (nextAppState) => {
+  //       if (nextAppState === 'background') {
+  //         // check if cam was on before app goes to background
+  //         isCamON.current = isAndroid()
+  //           ? local.video === ToggleState.enabled
+  //           : RtcEngine?.isVideoEnabled;
 
-          if (isCamON.current) {
-            isWebInternal()
-              ? await RtcEngine.muteLocalVideoStream(true)
-              : await RtcEngine.enableLocalVideo(false);
+  //         if (isCamON.current || 1) {
+  //           isWebInternal()
+  //             ? await RtcEngine.muteLocalVideoStream(true)
+  //             : await RtcEngine.enableLocalVideo(false);
 
-            dispatch({
-              type: 'LocalMuteVideo',
-              value: [0],
-            });
-          }
-        }
-        if (nextAppState === 'active') {
-          // enable cam only if cam was on before app goes to background
-          if (isCamON.current) {
-            isWebInternal()
-              ? await RtcEngine.muteLocalVideoStream(false)
-              : await RtcEngine.enableLocalVideo(true);
-            dispatch({
-              type: 'LocalMuteVideo',
-              value: [1],
-            });
-          }
-        }
-        appState.current = nextAppState;
-      },
-    );
+  //           // dispatch({
+  //           //   type: 'LocalMuteVideo',
+  //           //   value: [0],
+  //           // });
+  //         }
+  //       }
+  //       if (nextAppState === 'active') {
+  //         // enable cam only if cam was on before app goes to background
+  //         console.log('active state 111111 ==>', isCamON.current);
+  //         if (local.video) {
+  //           isWebInternal()
+  //             ? await RtcEngine.muteLocalVideoStream(false)
+  //             : await RtcEngine.enableLocalVideo(true);
+  //           dispatch({
+  //             type: 'LocalMuteVideo',
+  //             value: [1],
+  //           });
+  //         }
+  //       }
+  //       appState.current = nextAppState;
+  //     },
+  //   );
 
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
+  //   return () => {
+  //     subscription?.remove();
+  //   };
+  // }, []);
 
   return (
     <View style={styles.container}>
