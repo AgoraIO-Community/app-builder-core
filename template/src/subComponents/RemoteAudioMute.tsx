@@ -106,7 +106,7 @@ const RemoteAudioMute = (props: RemoteAudioMuteProps) => {
           name: props.audio ? 'mic-on' : 'mic-off',
           tintColor: props.audio
             ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NETRUAL,
+            : $config.SEMANTIC_NEUTRAL,
         }}
       />
     </>

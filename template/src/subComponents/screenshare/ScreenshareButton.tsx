@@ -74,7 +74,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   ) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
-      tintColor: $config.SEMANTIC_NETRUAL,
+      tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = isHandRaised(local.uid)
       ? 'Waiting for host to appove the request'

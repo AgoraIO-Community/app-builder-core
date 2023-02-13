@@ -181,7 +181,7 @@ const Create = () => {
           tintColor={
             isToolTipVisible
               ? $config.SECONDARY_ACTION_COLOR
-              : $config.SEMANTIC_NETRUAL
+              : $config.SEMANTIC_NEUTRAL
           }
         />
       </Pressable>

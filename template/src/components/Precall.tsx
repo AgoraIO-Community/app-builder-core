@@ -382,7 +382,7 @@ const style = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 18,
-    color: $config.SEMANTIC_NETRUAL,
+    color: $config.SEMANTIC_NEUTRAL,
     textAlign: 'left',
   },
   btnContainerStyle: {maxWidth: 337, alignSelf: 'center', marginTop: 50},

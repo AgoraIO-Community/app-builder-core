@@ -169,7 +169,7 @@ const Dropdown: FC<Props> = ({
               iconType="plain"
               name={icon}
               iconSize={20}
-              tintColor={$config.SEMANTIC_NETRUAL}
+              tintColor={$config.SEMANTIC_NEUTRAL}
             />
           </View>
         ) : (

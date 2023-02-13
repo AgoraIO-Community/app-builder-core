@@ -52,7 +52,7 @@ export const ChatSendButton = (props: ChatSendButtonProps) => {
         tintColor={
           inputActive
             ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NETRUAL
+            : $config.SEMANTIC_NEUTRAL
         }
         name={'send'}
       />
