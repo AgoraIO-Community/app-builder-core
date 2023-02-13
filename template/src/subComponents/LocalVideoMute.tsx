@@ -86,9 +86,9 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     tintColor: isVideoEnabled
       ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
-      ? $config.SEMANTIC_NETRUAL
+      ? $config.SEMANTIC_NEUTRAL
       : permissionDenied
-      ? $config.SEMANTIC_NETRUAL
+      ? $config.SEMANTIC_NEUTRAL
       : $config.SEMANTIC_ERROR,
     ...(props?.iconProps
       ? props.iconProps(isVideoEnabled, permissionDenied)
@@ -141,7 +141,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'video-off',
-      tintColor: $config.SEMANTIC_NETRUAL,
+      tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = showToolTip
       ? isHandRaised(local.uid)

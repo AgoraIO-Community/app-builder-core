@@ -116,7 +116,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
             name="person"
             iconSize={20}
             iconType="plain"
-            tintColor={$config.SEMANTIC_NETRUAL}
+            tintColor={$config.SEMANTIC_NEUTRAL}
           />
           <TextInput
             maxLength={maxInputLimit}

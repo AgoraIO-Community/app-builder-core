@@ -31,7 +31,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
       tintColor:
         isVideoEnabled || !disabled
           ? $config.PRIMARY_ACTION_TEXT_COLOR
-          : $config.SEMANTIC_NETRUAL,
+          : $config.SEMANTIC_NEUTRAL,
     },
     disabled: !isVideoEnabled || disabled ? true : false,
     onPress: onPress,

@@ -85,7 +85,7 @@ interface ConfigInterface {
   SEMANTIC_ERROR: string;
   SEMANTIC_SUCCESS: string;
   SEMANTIC_WARNING: string;
-  SEMANTIC_NETRUAL: string;
+  SEMANTIC_NEUTRAL: string;
   INPUT_FIELD_BACKGROUND_COLOR: string;
   INPUT_FIELD_BORDER_COLOR: string;
   CARD_LAYER_1_COLOR: string;

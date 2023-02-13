@@ -149,7 +149,7 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
             style={[
               styles.iconText,
               {
-                color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+                color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
               },
             ]}>
             Switch
@@ -158,7 +158,7 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
             style={[
               styles.iconText,
               {
-                color: disabled ? $config.SEMANTIC_NETRUAL : $config.FONT_COLOR,
+                color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
                 marginTop: 0,
               },
             ]}>

@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
 
   handleIndicatorStyle: {
-    // backgroundColor: $config.SEMANTIC_NETRUAL,
+    // backgroundColor: $config.SEMANTIC_NEUTRAL,
     // width: 40,
     // height: 4,
   },

@@ -20,7 +20,7 @@ const Toggle = (props: SwitchProps) => {
         onValueChange={toggleSwitch}
         disabled={false}
         backgroundActive={$config.PRIMARY_ACTION_BRAND_COLOR}
-        backgroundInactive={$config.SEMANTIC_NETRUAL}
+        backgroundInactive={$config.SEMANTIC_NEUTRAL}
         circleActiveColor={$config.CARD_LAYER_1_COLOR}
         circleInActiveColor={$config.CARD_LAYER_1_COLOR}
         // renderInsideCircle={() => <CustomComponent />} // custom component to render inside the Switch circle (Text, Image, etc.)

@@ -169,7 +169,7 @@ const Participant = (props: ParticipantInterface) => {
                                 tintColor: isVideoEnabled
                                   ? $config.PRIMARY_ACTION_BRAND_COLOR
                                   : isPermissionDenied
-                                  ? $config.SEMANTIC_NETRUAL
+                                  ? $config.SEMANTIC_NEUTRAL
                                   : $config.SEMANTIC_ERROR,
                               };
                             }}
@@ -202,7 +202,7 @@ const Participant = (props: ParticipantInterface) => {
                               tintColor: isAudioEnabled
                                 ? $config.PRIMARY_ACTION_BRAND_COLOR
                                 : isPermissionDenied
-                                ? $config.SEMANTIC_NETRUAL
+                                ? $config.SEMANTIC_NEUTRAL
                                 : $config.SEMANTIC_ERROR,
                             };
                           }}

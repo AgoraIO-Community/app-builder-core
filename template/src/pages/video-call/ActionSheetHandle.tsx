@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   handleIndicatorStyle: {
-    backgroundColor: $config.SEMANTIC_NETRUAL,
+    backgroundColor: $config.SEMANTIC_NEUTRAL,
     width: 40,
     height: 4,
     alignSelf: 'center',

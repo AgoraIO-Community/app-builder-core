@@ -88,9 +88,9 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     tintColor: isAudioEnabled
       ? $config.PRIMARY_ACTION_TEXT_COLOR
       : disabled
-      ? $config.SEMANTIC_NETRUAL
+      ? $config.SEMANTIC_NEUTRAL
       : permissionDenied
-      ? $config.SEMANTIC_NETRUAL
+      ? $config.SEMANTIC_NEUTRAL
       : $config.SEMANTIC_ERROR,
     ...(props?.iconProps
       ? props.iconProps(isAudioEnabled, permissionDenied)
@@ -144,7 +144,7 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
     iconButtonProps.iconProps = {
       ...iconButtonProps.iconProps,
       name: 'mic-off',
-      tintColor: $config.SEMANTIC_NETRUAL,
+      tintColor: $config.SEMANTIC_NEUTRAL,
     };
     iconButtonProps.toolTipMessage = showToolTip
       ? isHandRaised(local.uid)

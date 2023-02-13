@@ -38,7 +38,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
       style={[
         styles.container,
         props?.disabled
-          ? {backgroundColor: $config.SEMANTIC_NETRUAL}
+          ? {backgroundColor: $config.SEMANTIC_NEUTRAL}
           : {backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR},
         containerStyle ? containerStyle : {},
       ]}

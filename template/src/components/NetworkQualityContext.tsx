@@ -37,7 +37,7 @@ export const networkIconsObject: {
 } = {
   0: {
     icon: 'connection-unsupported',
-    tint: $config.SEMANTIC_NETRUAL,
+    tint: $config.SEMANTIC_NEUTRAL,
     text: 'unknown',
   },
   1: {
@@ -72,12 +72,12 @@ export const networkIconsObject: {
   },
   7: {
     icon: 'connection-unpublished',
-    tint: $config.SEMANTIC_NETRUAL,
+    tint: $config.SEMANTIC_NEUTRAL,
     text: 'unpublished',
   },
   8: {
     icon: 'connection-loading',
-    tint: $config.SEMANTIC_NETRUAL,
+    tint: $config.SEMANTIC_NEUTRAL,
     text: 'loading',
   },
 };

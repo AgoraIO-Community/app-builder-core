@@ -93,7 +93,7 @@ const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
           iconType: 'plain',
           tintColor: props.video
             ? $config.PRIMARY_ACTION_BRAND_COLOR
-            : $config.SEMANTIC_NETRUAL,
+            : $config.SEMANTIC_NEUTRAL,
         }}
       />
     </>
