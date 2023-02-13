@@ -225,6 +225,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      navigator.mediaDevices.enumerateDevices();
+    }, 2000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
     // Labels are empty in firefox when permission is granted first time
     // refresh device list if labels are empty
 
@@ -307,6 +316,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const commonOnChangedEvent = async (changedDeviceData: DeviceInfo) => {
     // Extracted devicelist because we want to perform fallback with
     // the most current version.
+    const previousDeviceList = deviceList;
     const updatedDeviceList = await refreshDeviceList();
     const changedDevice = changedDeviceData.device;
 
@@ -330,7 +340,40 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     log(logTag, changedDeviceData);
 
-    if (changedDeviceData.state === 'ACTIVE') {
+    if (currentDevice === 'default') {
+      // const previousDefaultDevice = previousDeviceList.find(
+      //   (device) => device.deviceId === 'default',
+      // );
+      // const currentDefaultDevice = updatedDeviceList.find(
+      //   (device) => device.deviceId === 'default',
+      // );
+      //   log(logTag, 'current Default device', {
+      //     changedDeviceData,
+      //     previousDeviceList,
+      //     updatedDeviceList,
+      //     previousDefaultDevice,
+      //     currentDefaultDevice,
+      //   });
+      // if (previousDefaultDevice.groupId !== currentDefaultDevice.groupId) {
+      //   log(logTag, 'Default device changed', {
+      //     changedDeviceData,
+      //     previousDeviceList,
+      //     updatedDeviceList,
+      //     previousDefaultDevice,
+      //     currentDefaultDevice,
+      //   });
+      //   setCurrentDevice('default');
+      // }
+      setCurrentDevice('default');
+    }
+
+    const didChangeDeviceExistBefore = previousDeviceList.find(
+      (device) => device.deviceId === changedDevice.deviceId,
+    )
+      ? true
+      : false;
+
+    if (changedDeviceData.state === 'ACTIVE' && !didChangeDeviceExistBefore) {
       const rememberedDevice =
         rememberedDevicesList[changedDevice.kind][changedDevice.deviceId];
 
@@ -348,24 +391,22 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         return;
       }
     }
-    if (selectedMic === 'default') {
-      setCurrentDevice('default');
-    }
   };
 
   // Port this to useEffectEvent(https://beta.reactjs.org/reference/react/useEffectEvent) when
   // released
   useEffect(() => {
+    log('previous devicelist updated', deviceList);
     AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
-  }, [selectedMic]);
+  }, [selectedMic, deviceList]);
 
   useEffect(() => {
     AgoraRTC.onPlaybackDeviceChanged = commonOnChangedEvent;
-  }, [selectedSpeaker]);
+  }, [selectedSpeaker, deviceList]);
 
   useEffect(() => {
     AgoraRTC.onCameraChanged = commonOnChangedEvent;
-  }, [selectedCam]);
+  }, [selectedCam, deviceList]);
 
   const setSelectedMic = (deviceId: deviceId) => {
     log('mic: setting to', deviceId);
