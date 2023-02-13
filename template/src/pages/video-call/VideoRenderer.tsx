@@ -28,6 +28,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {currentLayout} = useLayout();
   const showReplacePin =
     pinnedUid && !isMax && isHovered && currentLayout === getPinnedLayoutName();
+  const showPinForMe =
+    !pinnedUid &&
+    !isMax &&
+    isHovered &&
+    currentLayout === getPinnedLayoutName();
   const [videoTileWidth, setVideoTileWidth] = useState(0);
   const [avatarSize, setAvatarSize] = useState(100);
   return (
@@ -49,14 +54,16 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             ? maxStyle.noVideoStyle
             : maxStyle.nonActiveContainerStyle,
         ]}>
-        {!showReplacePin && <ScreenShareNotice uid={user.uid} isMax={isMax} />}
+        {!showReplacePin && !showPinForMe && (
+          <ScreenShareNotice uid={user.uid} isMax={isMax} />
+        )}
         <NetworkQualityPill user={user} />
         <MaxVideoView
           fallback={() => {
             return FallbackLogo(
               user?.name,
               activeSpeaker,
-              showReplacePin && !isMobileUA() ? true : false,
+              (showReplacePin || showPinForMe) && !isMobileUA() ? true : false,
               isMax,
               avatarSize,
             );
@@ -84,14 +91,14 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         ) : (
           <></>
         )}
-        {showReplacePin && !isMobileUA() ? (
+        {(showReplacePin || showPinForMe) && !isMobileUA() ? (
           <IconButton
             onPress={() => {
               dispatch({type: 'UserPin', value: [user.uid]});
             }}
             containerStyle={maxStyle.replacePinContainer}
             btnTextProps={{
-              text: 'Replace Pin',
+              text: showReplacePin ? 'Replace Pin' : 'Pin for me',
               textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
               textStyle: {
                 marginTop: 0,

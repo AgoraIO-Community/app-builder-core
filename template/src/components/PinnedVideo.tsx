@@ -127,10 +127,18 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
             }
             return (
               <Pressable
+                //old
                 //if user pinned somebody then side panel items should not be clickable - swap video should be called
                 //instead we will show replace pin button on hovering the video tile
+                //old
                 disabled={
-                  activeSpeaker || pinnedUid || screenShareOn ? true : false
+                  //old fix
+                  //activeSpeaker || pinnedUid || screenShareOn ? true : false
+                  //old fix
+
+                  //latest fix : pinned video sidepanel layout should not be clickable
+                  //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
+                  true
                 }
                 style={
                   isSidePinnedlayout
