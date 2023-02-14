@@ -90,7 +90,8 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
           textStyle: {
             marginTop: 0,
           },
-          text: $config.ICON_TEXT ? item.label : '',
+          //text: $config.ICON_TEXT ? item.label : '',
+          text: item.label,
           textColor: $config.FONT_COLOR,
         },
       };
