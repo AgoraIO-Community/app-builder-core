@@ -6,7 +6,7 @@ import SDKAppWrapper, {
 import SDKEvents from './src/utils/SdkEvents';
 import React from 'react';
 import * as RN from 'react-native-web';
-
+import './src/assets/font-styles.css';
 export * from 'customization-api';
 export * from 'customization-implementation';
 
