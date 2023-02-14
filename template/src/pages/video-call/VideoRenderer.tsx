@@ -35,102 +35,115 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     currentLayout === getPinnedLayoutName();
   const [videoTileWidth, setVideoTileWidth] = useState(0);
   const [avatarSize, setAvatarSize] = useState(100);
+  const videoMoreMenuRef = useRef(null);
+  const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   return (
-    <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
-      <View
-        onLayout={({
-          nativeEvent: {
-            layout: {x, y, width, height},
-          },
-        }) => {
-          setVideoTileWidth(width);
-          setAvatarSize(Math.floor(width * 0.35));
+    <>
+      <UserActionMenuOptionsOptions
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={(flag) => {
+          //once user clicks action menu item -> hide the action menu and set parent isHovered false
+          if (!flag) {
+            setIsHovered(false);
+          }
+          setActionMenuVisible(flag);
         }}
-        style={[
-          maxStyle.container,
-          activeSpeaker
-            ? maxStyle.activeContainerStyle
-            : user.video
-            ? maxStyle.noVideoStyle
-            : maxStyle.nonActiveContainerStyle,
-        ]}>
-        {!showReplacePin && !showPinForMe && (
-          <ScreenShareNotice uid={user.uid} isMax={isMax} />
-        )}
-        <NetworkQualityPill user={user} />
-        <MaxVideoView
-          fallback={() => {
-            return FallbackLogo(
-              user?.name,
-              activeSpeaker,
-              (showReplacePin || showPinForMe) && !isMobileUA() ? true : false,
-              isMax,
-              avatarSize,
-            );
+        user={user}
+        btnRef={videoMoreMenuRef}
+        from={'video-tile'}
+      />
+      <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
+        <View
+          onLayout={({
+            nativeEvent: {
+              layout: {x, y, width, height},
+            },
+          }) => {
+            setVideoTileWidth(width);
+            setAvatarSize(Math.floor(width * 0.35));
           }}
-          user={user}
-          containerStyle={{
-            width: '100%',
-            height: '100%',
-          }}
-          key={user.uid}
-        />
-        <NameWithMicIcon
-          videoTileWidth={videoTileWidth}
-          user={user}
-          isMax={isMax}
-        />
-        {user.uid !== rtcProps?.screenShareUid &&
-        (isHovered || isMobileUA()) ? (
-          <MoreMenu
-            isMax={isMax}
-            pinnedUid={pinnedUid}
+          style={[
+            maxStyle.container,
+            activeSpeaker
+              ? maxStyle.activeContainerStyle
+              : user.video
+              ? maxStyle.noVideoStyle
+              : maxStyle.nonActiveContainerStyle,
+          ]}>
+          {!showReplacePin && !showPinForMe && (
+            <ScreenShareNotice uid={user.uid} isMax={isMax} />
+          )}
+          <NetworkQualityPill user={user} />
+          <MaxVideoView
+            fallback={() => {
+              return FallbackLogo(
+                user?.name,
+                activeSpeaker,
+                (showReplacePin || showPinForMe) && !isMobileUA()
+                  ? true
+                  : false,
+                isMax,
+                avatarSize,
+              );
+            }}
             user={user}
-            setIsHovered={setIsHovered}
+            containerStyle={{
+              width: '100%',
+              height: '100%',
+            }}
+            key={user.uid}
           />
-        ) : (
-          <></>
-        )}
-        {(showReplacePin || showPinForMe) && !isMobileUA() ? (
-          <IconButton
-            onPress={() => {
-              dispatch({type: 'UserPin', value: [user.uid]});
-            }}
-            containerStyle={maxStyle.replacePinContainer}
-            btnTextProps={{
-              text: showReplacePin ? 'Replace Pin' : 'Pin for me',
-              textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-              textStyle: {
-                marginTop: 0,
-                fontWeight: '700',
-                marginLeft: 6,
-              },
-            }}
-            iconProps={{
-              name: 'pin-filled',
-              iconSize: 20,
-              iconType: 'plain',
-              tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-            }}
+          <NameWithMicIcon
+            videoTileWidth={videoTileWidth}
+            user={user}
+            isMax={isMax}
           />
-        ) : (
-          <></>
-        )}
-      </View>
-    </PlatformWrapper>
+          {user.uid !== rtcProps?.screenShareUid &&
+          (isHovered || actionMenuVisible || isMobileUA()) ? (
+            <MoreMenu
+              videoMoreMenuRef={videoMoreMenuRef}
+              setActionMenuVisible={setActionMenuVisible}
+            />
+          ) : (
+            <></>
+          )}
+          {(showReplacePin || showPinForMe) && !isMobileUA() ? (
+            <IconButton
+              onPress={() => {
+                dispatch({type: 'UserPin', value: [user.uid]});
+              }}
+              containerStyle={maxStyle.replacePinContainer}
+              btnTextProps={{
+                text: showReplacePin ? 'Replace Pin' : 'Pin for me',
+                textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                textStyle: {
+                  marginTop: 0,
+                  fontWeight: '700',
+                  marginLeft: 6,
+                },
+              }}
+              iconProps={{
+                name: 'pin-filled',
+                iconSize: 20,
+                iconType: 'plain',
+                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+              }}
+            />
+          ) : (
+            <></>
+          )}
+        </View>
+      </PlatformWrapper>
+    </>
   );
 };
 
 interface MoreMenuProps {
-  user: RenderInterface;
-  isMax: boolean;
-  pinnedUid: UidType;
-  setIsHovered: (isHovered: boolean) => void;
+  setActionMenuVisible: (f: boolean) => void;
+  videoMoreMenuRef: any;
 }
-const MoreMenu = ({user, isMax, pinnedUid, setIsHovered}: MoreMenuProps) => {
-  const videoMoreMenuRef = useRef(null);
+const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
   const {activeUids} = useRender();
-  const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const {currentLayout} = useLayout();
   const reduceSpace =
     isMobileUA() &&
@@ -139,29 +152,15 @@ const MoreMenu = ({user, isMax, pinnedUid, setIsHovered}: MoreMenuProps) => {
   return (
     <>
       <View
+        ref={videoMoreMenuRef}
+        collapsable={false}
         style={{
           position: 'absolute',
           right: reduceSpace ? 2 : 8,
           bottom: reduceSpace ? 2 : 8,
           zIndex: 999,
         }}>
-        <UserActionMenuOptionsOptions
-          actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={(flag) => {
-            //once user clicks action menu item -> hide the action menu and set parent isHovered false
-            if (!flag) {
-              setIsHovered(false);
-            }
-            setActionMenuVisible(flag);
-          }}
-          user={user}
-          btnRef={videoMoreMenuRef}
-          from={'video-tile'}
-        />
         <IconButton
-          setRef={(ref) => {
-            videoMoreMenuRef.current = ref;
-          }}
           onPress={() => {
             setActionMenuVisible(true);
           }}
