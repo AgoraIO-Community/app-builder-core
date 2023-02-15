@@ -239,7 +239,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     const logTag = 'useEffect[rtc,store]';
 
-    if (activeDeviceId && deviceList.length !== 0) {
+    if (activeDeviceId) {
       // If stream exists and selected devices are empty, check for devices again
       if (!selectedCam || selectedCam.trim().length == 0) {
         log(logTag, 'cam: Device list populated but No selected cam');
