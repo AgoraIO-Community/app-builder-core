@@ -30,15 +30,12 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
       name: 'switch-camera',
       tintColor:
         isVideoEnabled || !disabled
-          ? $config.PRIMARY_ACTION_TEXT_COLOR
+          ? $config.SECONDARY_ACTION_COLOR
           : $config.SEMANTIC_NEUTRAL,
     },
     disabled: !isVideoEnabled || disabled ? true : false,
     onPress: onPress,
   };
-
-  iconButtonProps.style = Styles.localButton as Object;
-  iconButtonProps.btnTextProps = showLabel ? switchCameraButtonText : '';
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
