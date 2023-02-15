@@ -1,6 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
+
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.ttf?6qgqxy') format('truetype');
+  src: url('https://dbudicf5k4as1.cloudfront.net/10/icomoon.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;
