@@ -10,7 +10,13 @@
 *********************************************
 */
 import React from 'react';
-import {View, StyleSheet, useWindowDimensions, Platform} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  useWindowDimensions,
+  Platform,
+  Text,
+} from 'react-native';
 import TextWithToolTip from '../../subComponents/TextWithTooltip';
 import {RFValue} from 'react-native-responsive-fontsize';
 import {isWebInternal} from '../../utils/common';
@@ -36,13 +42,13 @@ export default ParticipantName;
 
 const style = StyleSheet.create({
   participantText: {
-    flex: 1,
-    fontWeight: '500',
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 15,
+    fontFamily: 'Source Sans Pro',
     flexDirection: 'row',
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 20,
-    paddingHorizontal: 5,
+    color: $config.FONT_COLOR,
     textAlign: 'left',
-    flexShrink: 1,
+    textTransform: 'capitalize',
   },
 });

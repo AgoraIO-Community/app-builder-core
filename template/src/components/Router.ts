@@ -17,4 +17,5 @@ export {
   Redirect,
   useHistory,
   useParams,
+  Prompt,
 } from 'react-router-dom';

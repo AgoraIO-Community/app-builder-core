@@ -9,18 +9,28 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useCustomization} from 'customization-implementation';
-import {isValidReactComponent} from '../../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isMobileUA,
+  isValidReactComponent,
+} from '../../utils/common';
 import LocalVideoMute, {
   LocalVideoMuteProps,
 } from '../../subComponents/LocalVideoMute';
 import LocalAudioMute, {
   LocalAudioMuteProps,
 } from '../../subComponents/LocalAudioMute';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import PreCallSettings from './PreCallSettings';
+import Spacer from '../../atoms/Spacer';
+import {usePreCall} from './usePreCall';
+import DeviceContext from '../DeviceContext';
 
-const PreCallLocalMute: React.FC = () => {
+const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
   const {VideoMute, AudioMute} = useCustomization((data) => {
     let components: {
       VideoMute: React.ComponentType<LocalAudioMuteProps>;
@@ -60,15 +70,74 @@ const PreCallLocalMute: React.FC = () => {
     // }
     return components;
   });
+  const {isMobileView = false} = props;
+  const isNative = isAndroid() || isIOS();
+  // for mweb check for camera * mic availablity for desktop it happens in settings panel
+  // refactor later to set mic/camera availablity oustside settings panel <selectDevice>
+  const {deviceList} = useContext(DeviceContext);
+  const {setCameraAvailable, setMicAvailable} = usePreCall();
+  const audioDevices = deviceList.filter((device) => {
+    if (device.kind === 'audioinput') {
+      return true;
+    }
+  });
+  const videoDevices = deviceList.filter((device) => {
+    if (device.kind === 'videoinput') {
+      return true;
+    }
+  });
+  useEffect(() => {
+    if (audioDevices && audioDevices.length) {
+      isMobileView && !isNative && setMicAvailable(true);
+    }
+  }, [audioDevices]);
+
+  useEffect(() => {
+    if (videoDevices && videoDevices.length) {
+      isMobileView && !isNative && setCameraAvailable(true);
+    }
+  }, [videoDevices]);
   return (
-    <View style={style.precallControls}>
-      <View style={{alignSelf: 'center'}}>
-        <AudioMute />
+    <View
+      style={[style.precallControls, isMobileView && {paddingVertical: 10}]}
+      testID="precall-controls">
+      <View style={{width: 52, height: 52}}>
+        <AudioMute
+          isMobileView={isMobileView}
+          showLabel={isMobileUA() ? !isMobileView : $config.ICON_TEXT}
+          showToolTip={true}
+        />
       </View>
+
       {!$config.AUDIO_ROOM && (
-        <View style={{alignSelf: 'center'}}>
-          <VideoMute />
-        </View>
+        <>
+          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
+          <View
+            style={{
+              width: 52,
+              height: 52,
+            }}>
+            <VideoMute
+              isMobileView={isMobileView}
+              showLabel={isMobileUA() ? !isMobileView : $config.ICON_TEXT}
+              showToolTip={true}
+            />
+          </View>
+        </>
+      )}
+
+      {/* Settings View in Mobile */}
+      {isMobileView && !isNative && (
+        <>
+          <Spacer size={isMobileView ? 24 : 16} horizontal={true} />
+          <View
+            style={{
+              width: 52,
+              height: 52,
+            }}>
+            <PreCallSettings />
+          </View>
+        </>
       )}
     </View>
   );
@@ -83,10 +152,11 @@ export default PreCallLocalMute;
 const style = StyleSheet.create({
   precallControls: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    padding: 10,
-    width: '40%',
-    justifyContent: 'space-around',
-    marginVertical: '5%',
+    paddingVertical: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    // borderBottomLeftRadius: 4,
+    // borderBottomRightRadius: 4,
   },
 });

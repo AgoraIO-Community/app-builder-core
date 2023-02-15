@@ -10,46 +10,51 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {StyleSheet} from 'react-native';
 import LiveStreamContext, {
   RaiseHandValue,
 } from '../../../components/livestream';
-import {PropsContext} from '../../../../agora-rn-uikit';
-import {BtnTemplate} from '../../../../agora-rn-uikit';
-import icons from '../../../assets/icons';
 import {useString} from '../../../utils/useString';
+import Styles from '../../../components/styles';
 import ChatContext from '../../../components/ChatContext';
+import IconButton from '../../../atoms/IconButton';
+import ThemeConfig from '../../../theme';
+import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
+import {useRender} from 'customization-api';
+import {isMobileUA} from '../../../utils/common';
 
-const LocalRaiseHand = () => {
-  const {styleProps} = useContext(PropsContext);
+interface LocalRaiseHandProps {
+  showLabel?: boolean;
+}
+const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
+  const {rtcProps} = useContext(PropsContext);
   const {localUid} = useContext(ChatContext);
-  const {localBtnStyles} = styleProps || {};
-  const {theme} = styleProps || {};
-  const {muteLocalAudio} = localBtnStyles || {};
+  const {activeUids} = useRender();
+  const {showLabel = $config.ICON_TEXT} = props;
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
     toggle ? 'Lower hand' : 'Raise Hand';
+  const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   return (
-    <BtnTemplate
-      icon={icons['raiseHandIcon']}
-      btnText={handStatusText(
-        raiseHandList[localUid]?.raised === RaiseHandValue.TRUE,
-      )}
-      color={
-        raiseHandList[localUid]?.raised === RaiseHandValue.TRUE
-          ? '#FD0845'
-          : theme
-      }
-      style={{
-        ...style.localBtn,
-        ...(localBtnStyles as object),
-        ...(muteLocalAudio as object),
+    <IconButton
+      iconProps={{
+        name: isHandRasied ? 'lower-hand' : 'raise-hand',
+        tintColor: isHandRasied
+          ? $config.PRIMARY_ACTION_TEXT_COLOR
+          : $config.SECONDARY_ACTION_COLOR,
+        iconBackgroundColor: isHandRasied
+          ? $config.PRIMARY_ACTION_BRAND_COLOR
+          : '',
+        base64: isMobileUA() ? true : false,
+      }}
+      btnTextProps={{
+        text: showLabel ? handStatusText(isHandRasied) : '',
+        textColor: $config.FONT_COLOR,
       }}
       onPress={() => {
-        if (raiseHandList[localUid]?.raised === RaiseHandValue.TRUE) {
+        if (isHandRasied) {
           audienceRecallsRequest();
         } else {
           audienceSendsRequest();
@@ -58,14 +63,5 @@ const LocalRaiseHand = () => {
     />
   );
 };
-
-const style = StyleSheet.create({
-  localBtn: {
-    borderRadius: 23,
-    borderWidth: 4 * StyleSheet.hairlineWidth,
-    borderColor: '#007aff',
-    backgroundColor: '#007aff',
-  },
-});
 
 export default LocalRaiseHand;

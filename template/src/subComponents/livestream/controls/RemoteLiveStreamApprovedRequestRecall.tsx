@@ -1,7 +1,7 @@
 import React from 'react';
-import {BtnTemplate, UidType} from '../../../../agora-rn-uikit';
+import IconButton from '../../../atoms/IconButton';
+import {UidType} from '../../../../agora-rn-uikit';
 import {LiveStreamControlMessageEnum} from '../../../components/livestream';
-import icons from '../../../assets/icons';
 import events, {EventPersistLevel} from '../../../rtm-events-api';
 
 export interface RemoteLiveStreamApprovedRequestRecallProps {
@@ -11,8 +11,7 @@ const RemoteLiveStreamApprovedRequestRecall = (
   props: RemoteLiveStreamApprovedRequestRecallProps,
 ) => {
   return (
-    <BtnTemplate
-      style={{width: 24, height: 22}}
+    <IconButton
       onPress={() => {
         events.send(
           LiveStreamControlMessageEnum.raiseHandRequestRejected,
@@ -21,8 +20,9 @@ const RemoteLiveStreamApprovedRequestRecall = (
           props.uid,
         );
       }}
-      color="#FD0845"
-      icon={icons['demoteIcon']}
+      // color="#FD0845"
+      //todo hari
+      //icon={Icons['demoteIcon']}
     />
   );
 };

@@ -10,56 +10,55 @@
 *********************************************
 */
 import React from 'react';
-import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
 import {useRecording} from './recording/useRecording';
-import {useString} from '../utils/useString';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
-import Styles from '../components/styles';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import {useVideoCall} from '../components/useVideoCall';
 
 export interface RecordingButtonProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    isRecordingActive: boolean,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  showLabel?: boolean;
+  render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
+  isOnActionSheet?: boolean;
 }
 
 const Recording = (props: RecordingButtonProps) => {
-  const {startRecording, stopRecording, isRecordingActive} = useRecording();
+  const {startRecording, inProgress, isRecordingActive} = useRecording();
   //commented for v1 release
   //const recordingButton = useString<boolean>('recordingButton');
   const recordingButton = (recording: boolean) =>
-    recording ? 'Recording' : 'Record';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
+    recording ? 'Stop Rec' : 'Record';
+  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
+  const {setShowStopRecordingPopup} = useVideoCall();
   const onPress = () => {
     if (!isRecordingActive) {
       startRecording && startRecording();
     } else {
-      stopRecording && stopRecording();
+      setShowStopRecordingPopup(true);
     }
   };
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: isRecordingActive ? 'recordingActiveIcon' : 'recordingIcon',
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: isRecordingActive ? 'stop-recording' : 'recording',
+      tintColor: isRecordingActive
+        ? $config.SEMANTIC_ERROR
+        : $config.SECONDARY_ACTION_COLOR,
+    },
+    btnTextProps: {
+      text: showLabel ? recordingButton(isRecordingActive) : '',
+      textColor: $config.FONT_COLOR,
+    },
     onPress,
-    color: isRecordingActive ? '#FD0845' : $config.PRIMARY_COLOR,
+    disabled: inProgress,
+    containerStyle: inProgress ? {opacity: 0.6} : {},
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    btnTemplateProps.btnText = recordingButton(isRecordingActive);
-    btnTemplateProps.style = Styles.localButton as Object;
-  }
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   return props?.render ? (
-    props.render(onPress, isRecordingActive, buttonTemplateName)
+    props.render(onPress, isRecordingActive)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <>
+      <IconButton {...iconButtonProps} />
+    </>
   );
 };
 

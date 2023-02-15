@@ -55,3 +55,22 @@ export function isEmptyObject(obj: object) {
   }
   return true;
 }
+
+export const randomNameGenerator = (num: number) => {
+  let res = '';
+  for (let i = 0; i < num; i++) {
+    const random = Math.floor(Math.random() * 10);
+    res += String.fromCharCode(97 + random);
+  }
+  return res;
+};
+export function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+}

@@ -37,22 +37,32 @@ async function processDotfiles() {
 async function copyConfig() {
   try {
     const mode = process.argv[2] || 'meeting';
+    const theme = process.argv[3] || 'dark';
     let configFile;
     switch (mode) {
       case 'meeting':
-        configFile = 'config.json';
+        configFile = theme === 'dark' ? 'config.json' : 'config.light.json';
         break;
       case 'live-streaming':
-        configFile = 'live-streaming.config.json';
+        configFile =
+          theme === 'dark'
+            ? 'live-streaming.config.json'
+            : 'live-streaming.config.light.json';
         break;
       case 'voice-chat':
-        configFile = 'voice-chat.config.json';
+        configFile =
+          theme === 'dark'
+            ? 'voice-chat.config.json'
+            : 'voice-chat.config.light.json';
         break;
       case 'audio-livecast':
-        configFile = 'audio-livecast.config.json';
+        configFile =
+          theme === 'dark'
+            ? 'audio-livecast.config.json'
+            : 'audio-livecast.config.light.json';
         break;
       default:
-        configFile = 'config.json';
+        configFile = theme === 'dark' ? 'config.json' : 'config.light.json';
         break;
     }
 

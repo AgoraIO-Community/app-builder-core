@@ -18,7 +18,7 @@ import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
-import {isAndroid, isWebInternal} from '../utils/common';
+import {isAndroid, isWeb, isWebInternal} from '../utils/common';
 import {useRender, useRtc} from 'customization-api';
 import {
   safeJsonParse,
@@ -37,6 +37,7 @@ export enum UserType {
 }
 
 const RtmConfigure = (props: any) => {
+  const rtmInitTimstamp = new Date().getTime();
   const localUid = useLocalUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
@@ -82,15 +83,28 @@ const RtmConfigure = (props: any) => {
   }, [renderList]);
 
   React.useEffect(() => {
-    const handBrowserClose = () => {
+    const handBrowserClose = (ev) => {
+      ev.preventDefault();
+      return (ev.returnValue = 'Are you sure you want to exit?');
+    };
+    const logoutRtm = () => {
       engine.current.leaveChannel(rtcProps.channel);
     };
 
     if (!isWebInternal()) return;
-    window.addEventListener('beforeunload', handBrowserClose);
+    window.addEventListener(
+      'beforeunload',
+      isWeb() ? handBrowserClose : () => {},
+    );
+
+    window.addEventListener('pagehide', logoutRtm);
     // cleanup this component
     return () => {
-      window.removeEventListener('beforeunload', handBrowserClose);
+      window.removeEventListener(
+        'beforeunload',
+        isWeb() ? handBrowserClose : () => {},
+      );
+      window.removeEventListener('pagehide', logoutRtm);
     };
   }, []);
 
@@ -196,6 +210,9 @@ const RtmConfigure = (props: any) => {
                   screenUid: screenUid,
                   //below thing for livestreaming
                   type: 'rtc',
+                  uid,
+                  offline: false,
+                  lastMessageTimeStamp: 0,
                 };
                 updateRenderListState(uid, userData);
                 //end- updating user data in rtc
@@ -203,6 +220,7 @@ const RtmConfigure = (props: any) => {
                 //start - updating screenshare data in rtc
                 const screenShareUser = {
                   type: UserType.ScreenShare,
+                  parentUid: uid,
                 };
                 updateRenderListState(screenUid, screenShareUser);
                 //end - updating screenshare data in rtc
@@ -286,6 +304,9 @@ const RtmConfigure = (props: any) => {
             screenUid: screenUid,
             //below thing for livestreaming
             type: 'rtc',
+            uid,
+            offline: false,
+            lastMessageTimeStamp: 0,
           };
           updateRenderListState(uid, userData);
           //end- updating user data in rtc
@@ -293,6 +314,7 @@ const RtmConfigure = (props: any) => {
           //start - updating screenshare data in rtc
           const screenShareUser = {
             type: UserType.ScreenShare,
+            parentUid: uid,
           };
           updateRenderListState(screenUid, screenShareUser);
           //end - updating screenshare data in rtc
@@ -418,6 +440,7 @@ const RtmConfigure = (props: any) => {
   return (
     <ChatContext.Provider
       value={{
+        rtmInitTimstamp,
         hasUserJoinedRTM,
         engine: engine.current,
         localUid: localUid,

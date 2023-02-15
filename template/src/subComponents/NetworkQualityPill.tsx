@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, {useContext, useState} from 'react';
 import {
   View,
@@ -12,10 +11,15 @@ import {
 } from 'react-native';
 import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
-import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
-import {isWebInternal} from '../utils/common';
+//import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
+import {isMobileUA, isWebInternal} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
 import {RenderInterface, UidType} from '../../agora-rn-uikit';
+import ThemeConfig from '../theme';
+import ImageIcon from '../atoms/ImageIcon';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {useLayout, useRender} from 'customization-api';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 
 /**
  *
@@ -29,31 +33,28 @@ import {RenderInterface, UidType} from '../../agora-rn-uikit';
  */
 interface NetworkQualityPillProps {
   user: RenderInterface;
-  primaryColor: any;
-  small?: boolean;
-  rootStyle?: StyleProp<ViewStyle>;
 }
 const NetworkQualityPill = (props: NetworkQualityPillProps) => {
-  const {user, primaryColor, small, rootStyle} = props;
+  const {user} = props;
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   //commented for v1 release
   //const getLabel = useString<NetworkQualities>('networkQualityLabel');
   const getLabel = (quality: string) => {
     switch (quality) {
       case 'unknown':
-        return 'Unknown';
+        return 'Network Unsupported';
       case 'excellent':
-        return 'Excellent';
+        return 'Excellent Network';
       case 'good':
-        return 'Good';
+        return 'Good Network';
       case 'bad':
-        return 'Bad';
+        return 'Bad Network';
       case 'veryBad':
-        return 'Very Bad';
+        return 'Very Bad Network';
       case 'unpublished':
-        return 'Unpublished';
+        return 'Network Unpublished';
       case 'loading':
-        return 'Loading';
+        return 'Network Loading';
       default:
         return 'Loading';
     }
@@ -64,41 +65,48 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
     : user.audio || user.video
     ? 8
     : 7;
-
+  const {activeUids} = useRender();
+  const {currentLayout} = useLayout();
+  const reduceSpace =
+    isMobileUA() &&
+    activeUids.length > 4 &&
+    currentLayout === getGridLayoutName();
   return (
     <View
+      testID="videocall-networkpill"
       style={[
         style.networkPill,
+        style.rootStyle,
         {
-          opacity: networkTextVisible ? 1 : 0.8,
+          backgroundColor: networkTextVisible
+            ? networkIconsObject[networkStat].tint +
+              hexadecimalTransparency['50%']
+            : $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['10%'],
         },
-        rootStyle,
+        reduceSpace ? {top: 2, right: 2} : {},
       ]}>
-      <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
-        <View style={[style.networkIndicatorBackdrop]}>
-          <Image
-            source={{
-              uri: networkIconsObject[networkStat].icon,
-            }}
-            style={[
-              style.networkIcon,
-              {
-                tintColor:
-                  networkIconsObject[networkStat].tint === 'primary'
-                    ? primaryColor
-                    : networkIconsObject[networkStat].tint,
-              },
-            ]}
-            resizeMode={'contain'}
+      <PlatformSpecificWrapper
+        {...{
+          networkTextVisible,
+          setNetworkTextVisible,
+          reduceSpace,
+          activeUids,
+        }}>
+        <View>
+          <ImageIcon
+            iconType="plain"
+            tintColor={
+              networkTextVisible
+                ? $config.PRIMARY_ACTION_TEXT_COLOR
+                : networkIconsObject[networkStat].tint +
+                  hexadecimalTransparency['30%']
+            }
+            name={networkIconsObject[networkStat].icon}
+            iconSize={16}
           />
         </View>
         {networkTextVisible && (
-          <Text
-            textBreakStrategy={'simple'}
-            style={[
-              style.networkPillText,
-              {fontSize: small ? 14 : 15, userSelect: 'none'},
-            ]}>
+          <Text textBreakStrategy={'simple'} style={style.networkPillText}>
             {getLabel(networkIconsObject[networkStat].text)}
           </Text>
         )}
@@ -111,6 +119,8 @@ const PlatformSpecificWrapper = ({
   networkTextVisible,
   setNetworkTextVisible,
   children,
+  reduceSpace,
+  activeUids,
 }: any) => {
   return !isWebInternal() ? (
     <Pressable
@@ -119,6 +129,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
@@ -132,6 +143,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
       }}
       onClick={(e) => {
         e.preventDefault();
@@ -150,12 +162,13 @@ const PlatformSpecificWrapper = ({
 
 const style = StyleSheet.create({
   networkPill: {
-    height: 30,
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'bb',
     position: 'absolute',
     zIndex: 2,
-    paddingHorizontal: 0,
-    borderRadius: 15,
+    borderRadius: 50,
+  },
+  rootStyle: {
+    top: 8,
+    right: 8,
   },
   networkPillContent: {
     display: 'flex',
@@ -163,27 +176,11 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   networkPillText: {
-    color: $config.PRIMARY_FONT_COLOR,
-    lineHeight: 30,
-    fontSize: 15,
+    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+    fontSize: ThemeConfig.FontSize.small,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    marginLeft: 5,
-    marginRight: 15,
-  },
-  networkIcon: {
-    width: '80%',
-    height: '80%',
-    alignSelf: 'center',
-  },
-  networkIndicatorBackdrop: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignSelf: 'center',
-    marginLeft: 5,
-    marginRight: 5,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    justifyContent: 'center',
+    marginLeft: 8,
   },
 });
 

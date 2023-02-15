@@ -9,19 +9,22 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import ThemeConfig from '../theme';
 import {isWebInternal} from '../utils/common';
 
 const styles = {
   temp: {
     width: '100%',
     height: '100%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    borderRadius: 15,
+    borderRadius: 0,
+    borderWidth: 0,
   },
   bottomBar: {
     flex: isWebInternal() ? 1.3 : 1.6,
     paddingHorizontal: isWebInternal() ? '20%' : '1%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 80,
+    backgroundColor:
+      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -29,21 +32,30 @@ const styles = {
     bottom: 0,
   },
   localButton: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
-    borderRadius: 23,
-    borderColor: $config.PRIMARY_COLOR,
-    borderWidth: 0,
-    width: 40,
-    height: 40,
-    padding: 3,
     display: 'flex',
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  actionSheetButton: {
+    width: 25,
+    height: 25,
+  },
+  localButtonSmall: {
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  localButtonText: {
+    fontFamily: 'Source Sans Pro',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '400',
+  },
   localButtonWithoutBG: {
     borderRadius: 23,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderWidth: 0,
     width: 40,
     height: 40,
@@ -59,15 +71,24 @@ const styles = {
     resizeMode: 'contain',
   },
   endCall: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
-    borderRadius: 23,
-    borderColor: $config.PRIMARY_COLOR,
-    borderWidth: 0,
-    width: 40,
-    height: 40,
-    alignSelf: 'center',
-    alignItems: 'center',
+    width: 20,
+    height: 20,
+  },
+  endCallContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: $config.SEMANTIC_ERROR,
+    borderRadius: 8,
+  },
+  endCallText: {
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: 12,
+    marginLeft: 8,
+    fontWeight: '700',
   },
   remoteButton: {
     width: 25,
@@ -80,7 +101,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR, //'#fff',
+    backgroundColor: $config.SECONDARY_ACTION_COLOR, //'#fff',
   },
   liveStreamHostControlBtns: {
     width: 20,
@@ -93,7 +114,7 @@ const styles = {
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.SECONDARY_ACTION_COLOR,
   },
   minCloseBtn: {
     alignItems: 'center',

@@ -10,6 +10,7 @@ import LiveStreamContext, {
 } from './LiveStreamContext';
 
 export {
+  LiveStreamContext,
   LiveStreamContextProvider,
   LiveStreamControlMessageEnum,
   requestStatus,

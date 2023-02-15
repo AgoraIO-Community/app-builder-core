@@ -16,6 +16,7 @@ export interface raiseHandItemInterface {
   role: ClientRole;
   raised: RaiseHandValue;
   ts: number;
+  isProcessed: boolean;
 }
 
 import {UidType} from '../../../agora-rn-uikit';
@@ -42,23 +43,45 @@ export enum LiveStreamControlMessageEnum {
   notifyAllRequestApproved = 'NOTIFY_REQUEST_APPROVED',
   notifyAllRequestRejected = 'NOTIFY_REQUEST_REJECTED',
   notifyHostsInChannel = 'NOTIFY_HOSTS_IN_CHANNEL',
+  promoteAsCoHost = 'PROMOTE_AS_CO_HOST',
+  coHostJoined = 'CO_HOST_JOINED',
+  coHostRemoved = 'CO_HOST_REMOVED',
 }
 
 export const LSNotificationObject = {
-  [LiveStreamControlMessageEnum.raiseHandRequest]:
-    'You have raised your hand. Request sent to host for approval',
-  [LiveStreamControlMessageEnum.raiseHandRequestReceived]:
-    'has raised their hand',
-  [LiveStreamControlMessageEnum.raiseHandRequestAccepted]:
-    'Your request was approved, unmute to start talking',
-  [LiveStreamControlMessageEnum.raiseHandRequestRejected]:
-    'Your request was rejected by the host',
-  [LiveStreamControlMessageEnum.raiseHandRequestRecall]:
-    'has lowered their hand',
-  [LiveStreamControlMessageEnum.raiseHandRequestRecallLocal]:
-    'You have lowered your hand',
-  [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]:
-    'The host has revoked streaming permissions',
+  [LiveStreamControlMessageEnum.raiseHandRequest]: {
+    text1: 'You’ve raised your hand.',
+    text2: 'Waiting for host to approve the request',
+  },
+  [LiveStreamControlMessageEnum.raiseHandRequestReceived]: {
+    text1: 'has raised their hand to be a Presenter',
+    text2:
+      'Once approved they will be able to speak, share their video and present during this call.',
+  },
+  [LiveStreamControlMessageEnum.raiseHandRequestAccepted]: {
+    text1: 'Host has approved your request.',
+    text2: 'You are now a Presenter',
+  },
+  [LiveStreamControlMessageEnum.raiseHandRequestRejected]: {
+    text1: 'Your request was rejected by the host',
+    text2: null,
+  },
+  [LiveStreamControlMessageEnum.raiseHandRequestRecall]: {
+    text1: 'has lowered their hand',
+    text2: null,
+  },
+  [LiveStreamControlMessageEnum.raiseHandRequestRecallLocal]: {
+    text1: 'You’ve lowered your hand.',
+    text2: null,
+  },
+  [LiveStreamControlMessageEnum.raiseHandApprovedRequestRecall]: {
+    text1: 'Host has revoked streaming permissions.',
+    text2: null,
+  },
+  [LiveStreamControlMessageEnum.promoteAsCoHost]: {
+    text1: 'Host promoted you as a Presenter',
+    text2: null,
+  },
 };
 
 export interface liveStreamPropsInterface {
@@ -74,6 +97,8 @@ export interface liveStreamContext {
   hostRejectsRequestOfUID: (uid: number) => void;
   audienceSendsRequest: () => void;
   audienceRecallsRequest: () => void;
+  promoteAudienceAsCoHost: (uid: UidType) => void;
+  coHostUids: UidType[];
 }
 
 export interface requestInterface {

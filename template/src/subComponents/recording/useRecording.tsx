@@ -15,6 +15,7 @@ import React, {
   useContext,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import {gql, useMutation} from '@apollo/client';
 import {useParams} from '../../components/Router';
@@ -27,17 +28,21 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import {useRender} from 'customization-api';
+import {trimText} from '../../utils/common';
 
 export interface RecordingContextInterface {
   startRecording: () => void;
   stopRecording: () => void;
   isRecordingActive: boolean;
+  inProgress: boolean;
 }
 
 const RecordingContext = createContext<RecordingContextInterface>({
   startRecording: () => {},
   stopRecording: () => {},
   isRecordingActive: false,
+  inProgress: false,
 });
 
 const START_RECORDING = gql`
@@ -82,6 +87,9 @@ interface RecordingProviderProps {
 const RecordingProvider = (props: RecordingProviderProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setRecordingActive, isRecordingActive} = props?.value;
+  const [inProgress, setInProgress] = useState(false);
+  const [uidWhoStarted, setUidWhoStarted] = useState(0);
+  const {renderList, activeUids} = useRender();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -101,13 +109,16 @@ const RecordingProvider = (props: RecordingProviderProps) => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
-
       switch (action) {
         case EventActions.RECORDING_STARTED:
+          setUidWhoStarted(parseInt(value));
           setRecordingActive(true);
           break;
         case EventActions.RECORDING_STOPPED:
           setRecordingActive(false);
+          break;
+        case EventActions.RECORDING_STOP_REQUEST:
+          stopRecording();
           break;
         default:
           break;
@@ -128,14 +139,22 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     if (prevRecordingState) {
       if (prevRecordingState?.isRecordingActive === isRecordingActive) return;
       Toast.show({
-        type: 'success',
+        type: 'info',
         text1: recordingStartedText(isRecordingActive),
-        visibilityTime: 1000,
+        text2: isRecordingActive
+          ? `This meeting is being recorded by ${
+              trimText(renderList[uidWhoStarted]?.name) || 'user'
+            }`
+          : '',
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
     }
   }, [isRecordingActive]);
 
   const startRecording = () => {
+    setInProgress(true);
     // If recording is not going on, start the recording by executing the graphql query
     startRecordingQuery({
       variables: {
@@ -148,6 +167,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
     })
       .then((res) => {
         console.log(res.data);
+        setInProgress(false);
         if (res.data.startRecordingSession === 'success') {
           /**
            * 1. Once the backend sucessfuly starts recording, send message
@@ -162,6 +182,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
             EventPersistLevel.LEVEL3,
           );
           // 2. set the local recording state to true to update the UI
+          setUidWhoStarted(localUid);
           setRecordingActive(true);
           // 3. set the presenter mode if screen share is active
           // 3.a Get the most recent screenshare uid
@@ -182,40 +203,71 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         }
       })
       .catch((err) => {
+        setInProgress(false);
         console.log(err);
       });
   };
 
   const stopRecording = () => {
-    // If recording is already going on, stop the recording by executing the graphql query.
-    stopRecordingQuery({variables: {passphrase: phrase}})
-      .then((res) => {
-        console.log(res.data);
-        if (res.data.stopRecordingSession === 'success') {
-          /**
-           * 1. Once the backend sucessfuly starts recording, send message
-           * in the channel indicating that cloud recording is now inactive.
-           */
-          events.send(
-            EventNames.RECORDING_ATTRIBUTE,
-            JSON.stringify({
-              action: EventActions.RECORDING_STOPPED,
-              value: '',
-            }),
-            EventPersistLevel.LEVEL3,
-          );
-          // 2. set the local recording state to false to update the UI
-          setRecordingActive(false);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    /**
+     * if condition added for below issue
+     *
+     * user 1 and user 2 in the call
+     * user 1 start the recording
+     * user 2 stops the recording
+     * user 2 join the call getting stop recording notification which is not needed
+     *
+     * solution
+     * case 1 - if recording is not started by the host then we will send level1 message to host who started the recording
+     * case 2 - if person who started the recording no longer available in the call then will stop the recording
+     */
+    if (
+      localUid === uidWhoStarted ||
+      activeUids.indexOf(uidWhoStarted) === -1
+    ) {
+      setInProgress(true);
+      // If recording is already going on, stop the recording by executing the graphql query.
+      stopRecordingQuery({variables: {passphrase: phrase}})
+        .then((res) => {
+          console.log(res.data);
+          setInProgress(false);
+          if (res.data.stopRecordingSession === 'success') {
+            /**
+             * 1. Once the backend sucessfuly starts recording, send message
+             * in the channel indicating that cloud recording is now inactive.
+             */
+            events.send(
+              EventNames.RECORDING_ATTRIBUTE,
+              JSON.stringify({
+                action: EventActions.RECORDING_STOPPED,
+                value: '',
+              }),
+              EventPersistLevel.LEVEL3,
+            );
+            // 2. set the local recording state to false to update the UI
+            setRecordingActive(false);
+          }
+        })
+        .catch((err) => {
+          setInProgress(false);
+          console.log(err);
+        });
+    } else {
+      events.send(
+        EventNames.RECORDING_ATTRIBUTE,
+        JSON.stringify({
+          action: EventActions.RECORDING_STOP_REQUEST,
+          value: '',
+        }),
+        EventPersistLevel.LEVEL1,
+      );
+    }
   };
 
   return (
     <RecordingContext.Provider
       value={{
+        inProgress,
         startRecording,
         stopRecording,
         isRecordingActive,

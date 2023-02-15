@@ -9,51 +9,76 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {
-  Pressable,
-  PressableProps,
-  StyleProp,
+  TouchableOpacityProps,
   StyleSheet,
   Text,
   TextStyle,
+  View,
+  ViewStyle,
+  TouchableOpacity,
 } from 'react-native';
+import ThemeConfig from '../theme';
 import {primaryButton, primaryButtonText} from '../../theme.json';
-import ColorContext from '../components/ColorContext';
+import {IconsInterface} from '../atoms/CustomIcon';
+import ImageIcon from '../atoms/ImageIcon';
 
-export interface PrimaryButtonProps extends PressableProps {
+export interface PrimaryButtonProps extends TouchableOpacityProps {
   text?: string;
+  iconName?: keyof IconsInterface;
+  containerStyle?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
-  const {primaryColor} = useContext(ColorContext);
-  const {children, ...otherProps} = props;
+  const {children, iconName, textStyle, containerStyle, ...otherProps} = props;
   return (
-    <Pressable
+    <TouchableOpacity
       style={[
-        styles.primaryButton,
-        {backgroundColor: props.disabled ? primaryColor + '80' : primaryColor},
+        styles.container,
+        props?.disabled
+          ? {backgroundColor: $config.SEMANTIC_NEUTRAL}
+          : {backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR},
+        containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      <>
-        {props.text ? (
-          <Text
-            style={[
-              styles.primaryButtonText as StyleProp<TextStyle>,
-              {color: '#fff'},
-            ]}>
-            {props.text}
-          </Text>
-        ) : (
-          <></>
-        )}
-        {children}
-      </>
-    </Pressable>
+      {iconName && (
+        <View style={{marginRight: 8}}>
+          <ImageIcon
+            iconType="plain"
+            name={iconName}
+            tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          />
+        </View>
+      )}
+      {props.text && (
+        <Text style={[styles.text, textStyle ? textStyle : {}]}>
+          {props.text}
+        </Text>
+      )}
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   primaryButton,
   primaryButtonText,
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 52,
+    paddingVertical: 18,
+    borderRadius: ThemeConfig.BorderRadius.large,
+    minWidth: 250,
+  },
+  text: {
+    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    fontSize: ThemeConfig.FontSize.medium,
+    fontWeight: '700',
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    //paddingLeft: 8,
+    textTransform: 'uppercase',
+  },
 });

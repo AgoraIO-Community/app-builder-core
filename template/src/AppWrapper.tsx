@@ -15,20 +15,52 @@ import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
 import GraphQLProvider from './components/GraphQLProvider';
 import {SessionProvider} from './components/SessionContext';
-import {ImageBackground, SafeAreaView, StatusBar, Platform} from 'react-native';
+import {
+  ImageBackground,
+  SafeAreaView,
+  StatusBar,
+  Platform,
+  View,
+} from 'react-native';
 import ColorConfigure from './components/ColorConfigure';
-import Toast from '../react-native-toast-message';
-import ToastConfig from './subComponents/ToastConfig';
 import {isValidReactComponent} from './utils/common';
 import DimensionProvider from './components/dimension/DimensionProvider';
 import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
+import {PropsConsumer} from 'agora-rn-uikit';
+import ToastComponent from './components/ToastComponent';
+import {ToastContext, ToastProvider} from './components/useToast';
 
 interface AppWrapperProps {
   children: React.ReactNode;
 }
+
+const ImageBackgroundComp = (props: {
+  bg?: string;
+  color?: string;
+  children?: React.ReactNode;
+}) => {
+  if (props?.bg) {
+    return (
+      <ImageBackground
+        source={{uri: props.bg}}
+        style={{flex: 1}}
+        resizeMode={'cover'}>
+        {props.children}
+      </ImageBackground>
+    );
+  } else if (props?.color) {
+    return (
+      <View style={{flex: 1, backgroundColor: props.color}}>
+        {props.children}
+      </View>
+    );
+  } else {
+    return <>{props.children}</>;
+  }
+};
 
 const AppWrapper = (props: AppWrapperProps) => {
   const AppRoot = useCustomization((data) => {
@@ -43,36 +75,39 @@ const AppWrapper = (props: AppWrapperProps) => {
 
   return (
     <AppRoot>
-      <ImageBackground
-        source={{uri: $config.BG}}
-        style={{flex: 1}}
-        resizeMode={'cover'}>
+      <ImageBackgroundComp bg={$config.BG} color={$config.BACKGROUND_COLOR}>
         <SafeAreaView
           // @ts-ignore textAlign not supported by TS definitions but is applied to web regardless
           style={[{flex: 1}, Platform.select({web: {textAlign: 'left'}})]}>
           <StatusBar hidden={true} />
-          <Toast ref={(ref) => Toast.setRef(ref)} config={ToastConfig} />
-          <StorageProvider>
-            <GraphQLProvider>
-              <Router>
-                <SessionProvider>
-                  <ColorConfigure>
-                    <DimensionProvider>
-                      <LanguageProvider>
-                        <ErrorProvider>
-                          <Error />
-                          <Navigation />
-                          {props.children}
-                        </ErrorProvider>
-                      </LanguageProvider>
-                    </DimensionProvider>
-                  </ColorConfigure>
-                </SessionProvider>
-              </Router>
-            </GraphQLProvider>
-          </StorageProvider>
+          <ToastProvider>
+            <ToastContext.Consumer>
+              {({isActionSheetVisible}) => {
+                return !isActionSheetVisible ? <ToastComponent /> : null;
+              }}
+            </ToastContext.Consumer>
+            <StorageProvider>
+              <GraphQLProvider>
+                <Router>
+                  <SessionProvider>
+                    <ColorConfigure>
+                      <DimensionProvider>
+                        <LanguageProvider>
+                          <ErrorProvider>
+                            <Error />
+                            <Navigation />
+                            {props.children}
+                          </ErrorProvider>
+                        </LanguageProvider>
+                      </DimensionProvider>
+                    </ColorConfigure>
+                  </SessionProvider>
+                </Router>
+              </GraphQLProvider>
+            </StorageProvider>
+          </ToastProvider>
         </SafeAreaView>
-      </ImageBackground>
+      </ImageBackgroundComp>
     </AppRoot>
   );
   // return <div> hello world</div>; {/* isn't join:phrase redundant now, also can we remove joinStore */}

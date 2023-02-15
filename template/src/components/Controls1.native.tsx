@@ -30,6 +30,7 @@ import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 import LocalSwitchCamera, {
   LocalSwitchCameraProps,
 } from '../subComponents/LocalSwitchCamera';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 const Controls = () => {
   const {
@@ -100,7 +101,8 @@ const style = StyleSheet.create({
   bottomBar: {
     flex: 1,
     paddingHorizontal: '1%',
-    backgroundColor: $config.SECONDARY_FONT_COLOR + '80',
+    backgroundColor:
+      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'relative',
@@ -109,9 +111,9 @@ const style = StyleSheet.create({
     bottom: 0,
   },
   localButton: {
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 2,
-    borderColor: $config.PRIMARY_COLOR,
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     width: 40,
     height: 40,
     display: 'flex',
@@ -122,7 +124,7 @@ const style = StyleSheet.create({
   buttonIcon: {
     width: 35,
     height: 35,
-    tintColor: $config.PRIMARY_COLOR,
+    tintColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
 });
 

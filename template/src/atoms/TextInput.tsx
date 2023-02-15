@@ -13,28 +13,26 @@ import React, {useContext} from 'react';
 import {TextInputProps, StyleSheet, TextInput, Platform} from 'react-native';
 import {isWebInternal} from '../utils/common';
 import {textInput} from '../../theme.json';
-import ColorContext from '../components/ColorContext';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
-const PrimaryButton = (props: TextInputProps) => {
-  const {primaryColor} = useContext(ColorContext);
-  const {style, ...otherProps} = props;
+interface TextInputCustomProps extends TextInputProps {
+  setRef?: (ref: any) => void;
+}
+
+const TextInputCustom = (props: TextInputCustomProps) => {
+  const {style, setRef, ...otherProps} = props;
   return (
     <TextInput
-      style={[
-        styles.textInput,
-        styles.textWrapFix,
-        style,
-        styles.noOutline,
-        {borderColor: primaryColor, color: $config.PRIMARY_FONT_COLOR},
-      ]}
-      placeholderTextColor={$config.PRIMARY_FONT_COLOR + '70'}
-      {...otherProps}
+      ref={(ref) => props?.setRef && props.setRef(ref)}
+      style={[styles.textInput, styles.textWrapFix, styles.noOutline, style]}
+      placeholderTextColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
       autoCorrect={false}
+      {...otherProps}
     />
   );
 };
 
-export default PrimaryButton;
+export default TextInputCustom;
 
 const styles = StyleSheet.create({
   textInput,

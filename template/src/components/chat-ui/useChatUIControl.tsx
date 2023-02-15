@@ -17,9 +17,11 @@ export interface ChatUIControlInterface {
   groupActive: boolean;
   privateActive: boolean;
   selectedChatUserId: UidType;
+  inputActive?: boolean;
   setGroupActive: React.Dispatch<SetStateAction<boolean>>;
   setPrivateActive: React.Dispatch<SetStateAction<boolean>>;
   setSelectedChatUserId: React.Dispatch<SetStateAction<UidType>>;
+  setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
 }
@@ -33,6 +35,8 @@ const ChatUIControlContext = React.createContext<ChatUIControlInterface>({
   setPrivateActive: () => {},
   setSelectedChatUserId: () => {},
   setMessage: () => {},
+  inputActive: false,
+  setInputActive: () => {},
 });
 
 interface ChatUIControlProviderProps {
@@ -42,6 +46,7 @@ interface ChatUIControlProviderProps {
 const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
   const [groupActive, setGroupActive] = useState(false);
   const [privateActive, setPrivateActive] = useState(false);
+  const [inputActive, setInputActive] = useState(false);
   const [selectedChatUserId, setSelectedChatUserId] = useState<UidType>(0);
   const [message, setMessage] = useState('');
   return (
@@ -55,6 +60,8 @@ const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
         setSelectedChatUserId,
         message,
         setMessage,
+        inputActive,
+        setInputActive,
       }}>
       {props.children}
     </ChatUIControlContext.Provider>
