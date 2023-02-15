@@ -12,7 +12,12 @@
 import React, {useState, useEffect, useContext} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useCustomization} from 'customization-implementation';
-import {isAndroid, isIOS, isValidReactComponent} from '../../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isMobileUA,
+  isValidReactComponent,
+} from '../../utils/common';
 import LocalVideoMute, {
   LocalVideoMuteProps,
 } from '../../subComponents/LocalVideoMute';
@@ -99,7 +104,7 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
       <View style={{width: 52, height: 52}}>
         <AudioMute
           isMobileView={isMobileView}
-          showLabel={!isMobileView}
+          showLabel={isMobileUA() ? !isMobileView : $config.ICON_TEXT}
           showToolTip={true}
         />
       </View>
@@ -114,7 +119,7 @@ const PreCallLocalMute = (props: {isMobileView?: boolean}) => {
             }}>
             <VideoMute
               isMobileView={isMobileView}
-              showLabel={!isMobileView}
+              showLabel={isMobileUA() ? !isMobileView : $config.ICON_TEXT}
               showToolTip={true}
             />
           </View>
