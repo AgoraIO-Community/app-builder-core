@@ -13,11 +13,11 @@ import {createContext} from 'react';
 
 interface DeviceContext {
   selectedCam: string;
-  setSelectedCam: (cam: string) => void;
+  setSelectedCam: (cam: string) => Promise<any>;
   selectedMic: string;
-  setSelectedMic: (mic: string) => void;
+  setSelectedMic: (mic: string) => Promise<any>;
   selectedSpeaker: string;
-  setSelectedSpeaker: (speaker: string) => void;
+  setSelectedSpeaker: (speaker: string) => Promise<any>;
   deviceList: MediaDeviceInfo[];
   setDeviceList: (devices: MediaDeviceInfo[]) => void;
 }
@@ -27,9 +27,9 @@ const DeviceContext = createContext<DeviceContext>({
   selectedMic: '',
   selectedSpeaker: '',
   deviceList: [],
-  setSelectedCam: () => {},
-  setSelectedMic: () => {},
-  setSelectedSpeaker: () => {},
+  setSelectedCam: async () => {},
+  setSelectedMic: async () => {},
+  setSelectedSpeaker: async () => {},
   setDeviceList: () => {},
 });
 export default DeviceContext;

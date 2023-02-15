@@ -80,7 +80,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
   const local = useContext(LocalContext);
 
   const data = useMemo(() => {
@@ -107,7 +107,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && setIsPendingUpdate(true);
+      !selectedDeviceExists && data && data.length && setIsPendingUpdate(true);
     }
   }, [selectedCam, deviceList]);
 
@@ -133,7 +133,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
             ? 'No Camera Detected'
             : isPendingUpdate
             ? 'Updating'
-            : ''
+            : 'No Camera Selected'
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
@@ -194,7 +194,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && setIsPendingUpdate(true);
+      !selectedDeviceExists && data && data.length && setIsPendingUpdate(true);
     }
   }, [selectedMic, deviceList]);
 
@@ -221,7 +221,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
             ? 'No Microphone Detected'
             : isPendingUpdate
             ? 'Updating'
-            : ''
+            : 'No Microphone Selected'
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
