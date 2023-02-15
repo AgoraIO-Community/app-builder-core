@@ -180,7 +180,7 @@ const SettingsIcon = (props: SettingsIconProps) => {
       <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
         <ImageIcon
           name={'settings'}
-          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          tintColor={$config.SECONDARY_ACTION_COLOR}
         />
       </TouchableOpacity>
       {$config.ICON_TEXT && <Text style={styles.iconText}>Settings</Text>}
