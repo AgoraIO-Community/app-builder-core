@@ -107,9 +107,9 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && setIsPendingUpdate(true);
+      !selectedDeviceExists && data?.length && setIsPendingUpdate(true);
     }
-  }, [selectedCam, deviceList]);
+  }, [selectedCam, data]);
 
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
@@ -121,7 +121,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
       <Text style={style.label}>Camera</Text>
       <Dropdown
         icon={
-          isPendingUpdate
+          isPendingUpdate && isPermissionGranted
             ? 'connection-loading'
             : props?.isIconDropdown
             ? 'video-on'
@@ -133,7 +133,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
             ? 'No Camera Detected'
             : isPendingUpdate
             ? 'Updating'
-            : ''
+            : 'No Camera Selected'
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
@@ -194,9 +194,9 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && setIsPendingUpdate(true);
+      !selectedDeviceExists && data?.length && setIsPendingUpdate(true);
     }
-  }, [selectedMic, deviceList]);
+  }, [selectedMic, data]);
 
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
@@ -208,7 +208,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       <Text style={style.label}>Microphone</Text>
       <Dropdown
         icon={
-          isPendingUpdate
+          isPendingUpdate && isPermissionGranted
             ? 'connection-loading'
             : props?.isIconDropdown
             ? 'mic-on'
@@ -221,7 +221,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
             ? 'No Microphone Detected'
             : isPendingUpdate
             ? 'Updating'
-            : ''
+            : 'No Microphone Selected'
         }
         data={isPermissionGranted ? data : []}
         onSelect={({label, value}) => {
@@ -283,9 +283,9 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && setIsPendingUpdate(true);
+      !selectedDeviceExists && data?.length && setIsPendingUpdate(true);
     }
-  }, [selectedSpeaker, deviceList]);
+  }, [selectedSpeaker, data]);
 
   return props?.render ? (
     props.render(

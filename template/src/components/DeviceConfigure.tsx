@@ -239,7 +239,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     const logTag = 'useEffect[rtc,store]';
 
-    if (activeDeviceId) {
+    if (activeDeviceId && deviceList.length > 0) {
       // If stream exists and selected devices are empty, check for devices again
       if (!selectedCam || selectedCam.trim().length == 0) {
         log(logTag, 'cam: Device list populated but No selected cam');
@@ -416,7 +416,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         () => {
           syncSelectedDeviceUi('audioinput');
           updateActiveDeviceId('audioinput', deviceId);
-          res();
+          res(null);
         },
         (e: any) => {
           console.error('DeviceConfigure: Error setting mic', e);
@@ -434,7 +434,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         () => {
           syncSelectedDeviceUi('videoinput');
           updateActiveDeviceId('videoinput', deviceId);
-          res();
+          res(null);
         },
         (e: any) => {
           console.error('Device Configure: Error setting webcam', e);
@@ -452,7 +452,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         () => {
           setUiSelectedSpeaker(deviceId);
           updateActiveDeviceId('audiooutput', deviceId);
-          res();
+          res(null);
         },
         (e: any) => {
           console.error('Device Configure: Error setting speaker', e);

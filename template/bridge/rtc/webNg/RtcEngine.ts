@@ -192,8 +192,8 @@ export default class RtcEngine {
   private inScreenshare: Boolean = false;
   private videoProfile: VideoProfile = '480p_9';
   private isPublished = false;
-  private isAudioEnabled = true;
-  private isVideoEnabled = true;
+  private isAudioEnabled = false;
+  private isVideoEnabled = false;
   private isAudioPublished = false;
   private isVideoPublished = false;
   private isJoined = false;
@@ -229,6 +229,10 @@ export default class RtcEngine {
     try {
       let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
       this.localStream.audio = localAudio;
+      this.audioDeviceId = localAudio
+        ?.getMediaStreamTrack()
+        .getSettings().deviceId;
+      this.isAudioEnabled = true;
     } catch (e) {
       let audioError = e;
       e.status = {audioError};
@@ -262,6 +266,14 @@ export default class RtcEngine {
         );
       this.localStream.audio = localAudio;
       this.localStream.video = localVideo;
+      this.audioDeviceId = localAudio
+        ?.getMediaStreamTrack()
+        .getSettings().deviceId;
+      this.videoDeviceId = localVideo
+        ?.getMediaStreamTrack()
+        .getSettings().deviceId;
+      this.isVideoEnabled = true;
+      this.isAudioEnabled = true;
     } catch (e) {
       let audioError = false;
       let videoError = false;
@@ -269,12 +281,20 @@ export default class RtcEngine {
         let localAudio = await AgoraRTC.createMicrophoneAudioTrack(audioConfig);
 
         this.localStream.audio = localAudio;
+        this.audioDeviceId = localAudio
+          ?.getMediaStreamTrack()
+          .getSettings().deviceId;
+        this.isAudioEnabled = true;
       } catch (error) {
         audioError = error;
       }
       try {
         let localVideo = await AgoraRTC.createCameraVideoTrack(videoConfig);
         this.localStream.video = localVideo;
+        this.videoDeviceId = localVideo
+          ?.getMediaStreamTrack()
+          .getSettings().deviceId;
+        this.isVideoEnabled = true;
       } catch (error) {
         videoError = error;
       }

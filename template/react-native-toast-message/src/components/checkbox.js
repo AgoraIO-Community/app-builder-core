@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, Pressable } from 'react-native';
 import PropTypes from 'prop-types';
 import { stylePropType } from '../utils/prop-types';
@@ -115,6 +115,7 @@ function BaseToast({
                 {...primaryBtn}
                 onPress={(e) => {
                   primaryBtn.onPress(checked, e);
+                  setChecked(false);
                 }}
               />
             )}
@@ -127,6 +128,10 @@ function BaseToast({
                   paddingVertical: 0
                 }}
                 {...secondaryBtn}
+                onPress={(e) => {
+                  secondaryBtn.onPress(checked, e);
+                  setChecked(false);
+                }}
               />
             )}
           </View>
@@ -144,7 +149,7 @@ BaseToast.propTypes = {
   leadingIcon: PropTypes.node,
   trailingIcon: PropTypes.node,
   text1: PropTypes.string,
-  text2: PropTypes.string || PropTypes.element,
+  text2: PropTypes.string || PropTypes.element || PropTypes.any,
   onPress: PropTypes.func,
   style: stylePropType,
   contentContainerStyle: stylePropType,
