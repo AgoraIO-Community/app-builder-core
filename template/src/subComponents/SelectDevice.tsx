@@ -191,12 +191,6 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     const selectedDeviceExists = Boolean(
       data.find((device) => device.value === selectedMic),
     );
-    console.log(
-      '!!!!!!!!! selectedDeviceExists',
-      selectedDeviceExists,
-      isPendingUpdate,
-      data
-    );
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
