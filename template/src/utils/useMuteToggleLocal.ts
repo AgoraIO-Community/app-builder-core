@@ -13,7 +13,7 @@ import {useLocalUserInfo, useRtc} from 'customization-api';
 import {useContext, useEffect, useRef, useState} from 'react';
 
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import {isWebInternal} from './common';
+import {isMobileUA, isWebInternal} from './common';
 import {AppState} from 'react-native';
 
 export enum MUTE_LOCAL_TYPE {
@@ -32,7 +32,7 @@ function useMuteToggleLocal() {
   const isCamON = useRef(local.video);
 
   useEffect(() => {
-    if ($config.AUDIO_ROOM) return;
+    if ($config.AUDIO_ROOM || !isMobileUA()) return;
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       appState.current = nextAppState;
       setAppStateVisible(appState.current);
