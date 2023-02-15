@@ -107,9 +107,9 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && data && data.length && setIsPendingUpdate(true);
+      !selectedDeviceExists && data?.length && setIsPendingUpdate(true);
     }
-  }, [selectedCam, deviceList]);
+  }, [selectedCam, data]);
 
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
@@ -168,7 +168,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = useState(false);
   const local = useContext(LocalContext);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
 
   const data = useMemo(() => {
     return deviceList
@@ -191,12 +191,18 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
     const selectedDeviceExists = Boolean(
       data.find((device) => device.value === selectedMic),
     );
+    console.log(
+      '!!!!!!!!! selectedDeviceExists',
+      selectedDeviceExists,
+      isPendingUpdate,
+      data
+    );
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && data && data.length && setIsPendingUpdate(true);
+      !selectedDeviceExists && data?.length && setIsPendingUpdate(true);
     }
-  }, [selectedMic, deviceList]);
+  }, [selectedMic, data]);
 
   const isPermissionGranted =
     local.permissionStatus === PermissionState.GRANTED_FOR_CAM_AND_MIC ||
@@ -256,7 +262,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
 
   const data = useMemo(() => {
@@ -283,9 +289,9 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && setIsPendingUpdate(true);
+      !selectedDeviceExists && data && setIsPendingUpdate(true);
     }
-  }, [selectedSpeaker, deviceList]);
+  }, [selectedSpeaker, data]);
 
   return props?.render ? (
     props.render(
