@@ -121,7 +121,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
       <Text style={style.label}>Camera</Text>
       <Dropdown
         icon={
-          isPendingUpdate
+          isPendingUpdate && isPermissionGranted
             ? 'connection-loading'
             : props?.isIconDropdown
             ? 'video-on'
@@ -208,7 +208,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
       <Text style={style.label}>Microphone</Text>
       <Dropdown
         icon={
-          isPendingUpdate
+          isPendingUpdate && isPermissionGranted
             ? 'connection-loading'
             : props?.isIconDropdown
             ? 'mic-on'
