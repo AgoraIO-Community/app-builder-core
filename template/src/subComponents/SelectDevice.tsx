@@ -80,7 +80,7 @@ const SelectVideoDevice = (props: SelectVideoDeviceProps) => {
   const {selectedCam, setSelectedCam, deviceList} = useContext(DeviceContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const local = useContext(LocalContext);
 
   const data = useMemo(() => {
@@ -168,7 +168,7 @@ const SelectAudioDevice = (props: SelectAudioDeviceProps) => {
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = useState(false);
   const local = useContext(LocalContext);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
 
   const data = useMemo(() => {
     return deviceList
@@ -256,7 +256,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
   const local = useContext(LocalContext);
   const [isPickerDisabled, btnTheme] = useSelectDevice();
   const [isFocussed, setIsFocussed] = React.useState(false);
-  const [isPendingUpdate, setIsPendingUpdate] = useState(false);
+  const [isPendingUpdate, setIsPendingUpdate] = useState(isPickerDisabled);
   const newRandomDeviceId = randomNameGenerator(64).toUpperCase();
 
   const data = useMemo(() => {
@@ -283,7 +283,7 @@ const SelectSpeakerDevice = (props: SelectSpeakerDeviceProps) => {
     if (isPendingUpdate) {
       selectedDeviceExists && setIsPendingUpdate(false);
     } else {
-      !selectedDeviceExists && data && setIsPendingUpdate(true);
+      !selectedDeviceExists && data?.length && setIsPendingUpdate(true);
     }
   }, [selectedSpeaker, data]);
 
