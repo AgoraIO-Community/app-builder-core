@@ -468,7 +468,7 @@ export default class RtcEngine {
         null,
       );
       const activeSpeakerUid =
-        highestvolumeObj && highestvolumeObj?.level > 0 && highestvolumeObj?.uid
+        highestvolumeObj && highestvolumeObj?.level > 5 && highestvolumeObj?.uid
           ? highestvolumeObj.uid
           : undefined;
 
