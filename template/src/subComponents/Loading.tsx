@@ -18,7 +18,7 @@ const Loading = (props: {text: string}) => {
   return (
     <View style={styles.overlay}>
       <Text style={styles.loadingText}>{text}</Text>
-      <ActivityIndicator size="large" color={$config.SECONDARY_FONT_COLOR} />
+      <ActivityIndicator size="large" color={$config.SECONDARY_ACTION_COLOR} />
     </View>
   );
 };
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   loadingText: {
     alignSelf: 'center',
     fontSize: 18,
-    color: $config.SECONDARY_FONT_COLOR,
+    color: $config.SECONDARY_ACTION_COLOR,
     marginBottom: 10,
   },
 });

@@ -14,7 +14,9 @@ export default function Login() {
           justifyContent: 'center',
           marginTop: 50,
         }}>
-        <Text>You have been logged out. Please login again.</Text>
+        <Text style={{color: $config.SECONDARY_ACTION_COLOR}}>
+          You have been logged out. Please login again.
+        </Text>
       </View>
       <TouchableOpacity style={styles.loginBtn} onPress={authLogin}>
         <Text style={styles.loginText}>LOGIN</Text>

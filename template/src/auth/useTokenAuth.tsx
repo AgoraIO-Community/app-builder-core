@@ -1,5 +1,5 @@
 import React, {useEffect, useContext} from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'; //'@react-native-community/async-storage';
 import jwt_decode from 'jwt-decode';
 import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
