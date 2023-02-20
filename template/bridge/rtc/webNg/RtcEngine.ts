@@ -485,7 +485,9 @@ export default class RtcEngine {
       //To avoid infinite calling dispatch checking if condition.
       if (this.activeSpeakerUid !== activeSpeakerUid) {
         this.isSpeakerChanged = true;
-        printArray.push(`[VolumeIndicator] activeSpeakerUid`, activeSpeakerUid);
+        printArray.push(
+          `[VolumeIndicator] activeSpeakerUid ` + activeSpeakerUid,
+        );
         this.activeSpeakerUid = activeSpeakerUid;
         const activeSpeakerCallBack = this.eventsMap.get(
           'ActiveSpeaker',
