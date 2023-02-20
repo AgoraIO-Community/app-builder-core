@@ -172,6 +172,7 @@ if ($config.LOG_ENABLED) {
 
 export default class RtcEngine {
   private activeSpeakerUid: number;
+  private isSpeakerChanged: boolean;
   public appId: string;
   // public AgoraRTC: any;
   public client: any | IAgoraRTCClient;
@@ -453,32 +454,52 @@ export default class RtcEngine {
     });
 
     this.client.on('volume-indicator', (volumes) => {
-      const highestvolumeObj = volumes.reduce(
-        (highestVolume, volume, index) => {
-          if (highestVolume === null) {
-            return volume;
-          } else {
-            if (volume.level > highestVolume.level) {
-              return volume;
-            }
-            return highestVolume;
+      const sortedVolumes = volumes.sort((a, b) => {
+        return b.level - a.level;
+      });
+      const printArray = [];
+      //log
+      if (sortedVolumes.length) {
+        printArray.push(`[VolumeIndicator]`);
+        printArray.push(
+          `[VolumeIndicator] start - ` + new Date().toLocaleString(),
+        );
+        sortedVolumes.forEach((i, index) => {
+          if (index <= 2) {
+            printArray.push(
+              `[VolumeIndicator] ${index + 1} -> ${i.uid} -> ${i.level} `,
+            );
           }
-          // console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
-        },
-        null,
-      );
-      const activeSpeakerUid =
-        highestvolumeObj && highestvolumeObj?.level > 0 && highestvolumeObj?.uid
-          ? highestvolumeObj.uid
-          : undefined;
+        });
+      }
 
+      let activeSpeakerUid = undefined;
+      if (
+        sortedVolumes &&
+        sortedVolumes?.length &&
+        sortedVolumes[0]?.level > 0 &&
+        sortedVolumes[0]?.uid
+      ) {
+        activeSpeakerUid = sortedVolumes[0]?.uid;
+      }
       //To avoid infinite calling dispatch checking if condition.
       if (this.activeSpeakerUid !== activeSpeakerUid) {
+        this.isSpeakerChanged = true;
+        printArray.push(`[VolumeIndicator] activeSpeakerUid`, activeSpeakerUid);
+        this.activeSpeakerUid = activeSpeakerUid;
         const activeSpeakerCallBack = this.eventsMap.get(
           'ActiveSpeaker',
         ) as callbackType;
         activeSpeakerCallBack(activeSpeakerUid);
-        this.activeSpeakerUid = activeSpeakerUid;
+      } else {
+        printArray.push(`[VolumeIndicator] no update`);
+        this.isSpeakerChanged = false;
+      }
+      printArray.push(`[VolumeIndicator] end`);
+      printArray.push(`[VolumeIndicator]`);
+
+      if (this.isSpeakerChanged) {
+        printArray.forEach((i) => console.log(i));
       }
     });
 
