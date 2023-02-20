@@ -37,13 +37,13 @@ const OpenInNativeButton = () => {
 
 const style = StyleSheet.create({
   btn: {
-    backgroundColor: $config.PRIMARY_COLOR,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     // width: 110,
     flex: 1,
     paddingHorizontal: 10,
     height: 30,
     // borderWidth: 1,
-    // borderColor: $config.PRIMARY_COLOR,
+    // borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
     borderRadius: 100,
     // marginTop: 5,
     // marginRight: 10,
@@ -53,7 +53,7 @@ const style = StyleSheet.create({
     lineHeight: 29,
     // fontWeight: '500',
     textAlign: 'center',
-    color: $config.SECONDARY_FONT_COLOR,
+    color: $config.SECONDARY_ACTION_COLOR,
   },
 });
 

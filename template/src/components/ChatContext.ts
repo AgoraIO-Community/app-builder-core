@@ -21,6 +21,7 @@ export interface ChatBubbleProps {
   uid: UidType;
   msgId: string;
   isDeleted: boolean;
+  isSameUser: boolean;
   render?: (
     isLocal: boolean,
     message: string,
@@ -28,7 +29,8 @@ export interface ChatBubbleProps {
     uid: UidType,
     msgId: string,
     isDeleted: boolean,
-    updatedTimestamp?: string,
+    updatedTimestamp: string,
+    isSameUser: boolean,
   ) => JSX.Element;
 }
 
@@ -46,6 +48,7 @@ export enum messageActionType {
 
 export interface chatContext {
   hasUserJoinedRTM: boolean;
+  rtmInitTimstamp: number;
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
@@ -57,6 +60,10 @@ export enum controlMessageEnum {
   muteSingleVideo = '3',
   muteSingleAudio = '4',
   kickUser = '5',
+  requestVideo = '6',
+  requestAudio = '7',
+  //newUserJoined = '8',
+  kickScreenshare = '9',
 }
 
 const ChatContext = createContext(null as unknown as chatContext);

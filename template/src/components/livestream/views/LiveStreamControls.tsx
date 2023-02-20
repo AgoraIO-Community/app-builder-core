@@ -15,16 +15,24 @@ import {LocalRaiseHand} from '../../../subComponents/livestream';
 
 export interface LiveStreamControlsProps {
   showControls: boolean;
+  isDesktop: boolean;
+  showLabel?: boolean;
 }
 
 const LiveStreamControls = (props: LiveStreamControlsProps) => {
-  const {showControls} = props;
+  const {showControls, isDesktop, showLabel = $config.ICON_TEXT} = props;
   if (!$config.RAISE_HAND) return <></>;
   if (!showControls) return <></>;
   return (
-    <View style={{alignSelf: 'center'}}>
-      <LocalRaiseHand />
-    </View>
+    <>
+      <View
+        style={{
+          alignSelf: 'center',
+          marginHorizontal: 10,
+        }}>
+        <LocalRaiseHand showLabel={showLabel} />
+      </View>
+    </>
   );
 };
 

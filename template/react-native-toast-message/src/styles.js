@@ -1,12 +1,11 @@
-import { StyleSheet } from 'react-native';
+import isMobileOrTablet from '../../src/utils/isMobileOrTablet';
+import { StyleSheet, Dimensions } from 'react-native';
 
 export default StyleSheet.create({
   base: {
     position: 'absolute',
     alignItems: 'center',
-    justifyContent: 'center',
-    left: 0,
-    right: 0
+    justifyContent: 'center'
   },
   top: {
     top: 0

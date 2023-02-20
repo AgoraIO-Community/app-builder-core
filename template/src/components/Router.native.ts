@@ -19,4 +19,5 @@ export {
   useParams,
   BackButton,
   useLocation,
+  Prompt,
 } from 'react-router-native';

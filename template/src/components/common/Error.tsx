@@ -10,7 +10,8 @@
 *********************************************
 */
 
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import Toast from '../../../react-native-toast-message';
 import Error from '../../subComponents/Error';
 type ErrorType = {
   name: string;
@@ -44,11 +45,24 @@ const ErrorProvider = (props: {children: React.ReactNode}) => {
 
 const CommonError: React.FC = () => {
   const {error} = useContext(ErrorContext);
-  return error && (error.name || error.message) ? (
-    <Error error={error} showBack={true} />
-  ) : (
-    <></>
-  );
+  useEffect(() => {
+    if (error?.name || error?.message) {
+      Toast.show({
+        type: 'error',
+        text1: error.name,
+        text2: error.message,
+        visibilityTime: 1000 * 10,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+    }
+  }, [error]);
+  return <></>;
+  // return error && (error.name || error.message) ? (
+  //    <Error error={error} showBack={true} />
+  // ) : (
+  //   <></>
+  // );
 };
 export {ErrorContext, ErrorProvider};
 export default CommonError;

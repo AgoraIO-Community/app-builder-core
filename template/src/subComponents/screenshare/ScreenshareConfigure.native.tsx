@@ -27,7 +27,7 @@ import {filterObject} from '../../utils';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useRtc();
-  const {renderList, activeUids, lastJoinedUid} = useRender();
+  const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
   const isPinned = useRef(0);
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
@@ -40,6 +40,12 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {currentLayout} = useLayout();
   const renderListRef = useRef({renderList: renderList});
   const currentLayoutRef = useRef({currentLayout: currentLayout});
+
+  const pinnedUidRef = useRef({pinnedUid: pinnedUid});
+
+  useEffect(() => {
+    pinnedUidRef.current.pinnedUid = pinnedUid;
+  }, [pinnedUid]);
 
   useEffect(() => {
     renderListRef.current.renderList = renderList;
@@ -119,7 +125,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             };
           });
           //if remote user started/stopped the screenshare then change the layout to pinned/grid
-          triggerChangeLayout(false);
+          //if user pinned somebody then don't triggerlayout change
+          if (!pinnedUidRef.current.pinnedUid) {
+            triggerChangeLayout(false);
+          }
           break;
         default:
           break;

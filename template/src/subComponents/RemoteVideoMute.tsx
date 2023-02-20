@@ -9,11 +9,15 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {StyleSheet} from 'react-native';
-import {BtnTemplate, UidType} from '../../agora-rn-uikit';
+import React, {useState, useRef} from 'react';
+import {useWindowDimensions} from 'react-native';
+import {UidType} from '../../agora-rn-uikit';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../utils/useRemoteMute';
-
+import IconButton from '../atoms/IconButton';
+import RemoteMutePopup from './RemoteMutePopup';
+import {useRender} from 'customization-api';
+import {calculatePosition} from '../utils/common';
+import useRemoteRequest, {REQUEST_REMOTE_TYPE} from '../utils/useRemoteRequest';
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
@@ -23,30 +27,79 @@ export interface RemoteVideoMuteProps {
   uid: UidType;
   video: boolean;
   isHost: boolean;
+  userContainerRef: any;
 }
 const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
-  const {isHost = false} = props;
+  const btnRef = useRef(null);
+  const {isHost = false, userContainerRef} = props;
   const muteRemoteVideo = useRemoteMute();
-
+  const requestRemoteVideo = useRemoteRequest();
+  const [showModal, setShowModal] = useState(false);
+  const [pos, setPos] = useState({});
+  const {renderList} = useRender();
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const onPress = () => {
+    props?.video
+      ? muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid)
+      : requestRemoteVideo(REQUEST_REMOTE_TYPE.video, props.uid);
+    setShowModal(false);
+  };
   return String(props.uid)[0] !== '1' ? (
-    <BtnTemplate
-      disabled={!isHost}
-      onPress={() => {
-        muteRemoteVideo(MUTE_REMOTE_TYPE.video, props.uid);
-      }}
-      style={style.buttonIconCam}
-      name={props.video ? 'videocam' : 'videocamOff'}
-    />
+    <>
+      <RemoteMutePopup
+        action={props?.video ? 'mute' : 'request'}
+        type="video"
+        actionMenuVisible={showModal}
+        setActionMenuVisible={setShowModal}
+        name={renderList[props.uid]?.name}
+        modalPosition={pos}
+        onMutePress={onPress}
+      />
+      <IconButton
+        hoverEffect={true}
+        hoverEffectStyle={{
+          backgroundColor: $config.ICON_BG_COLOR,
+          borderRadius: 20,
+        }}
+        setRef={(ref) => (btnRef.current = ref)}
+        disabled={!isHost}
+        onPress={() => {
+          btnRef?.current?.measure(
+            (
+              _fx: number,
+              _fy: number,
+              localWidth: number,
+              localHeight: number,
+              px: number,
+              py: number,
+            ) => {
+              const data = calculatePosition({
+                px,
+                py,
+                localHeight,
+                localWidth,
+                globalHeight,
+                globalWidth,
+              });
+              setPos(data);
+              setShowModal(true);
+            },
+          );
+        }}
+        iconProps={{
+          iconContainerStyle: {padding: 8},
+          name: props?.video ? 'video-on' : 'video-off',
+          iconSize: 20,
+          iconType: 'plain',
+          tintColor: props.video
+            ? $config.PRIMARY_ACTION_BRAND_COLOR
+            : $config.SEMANTIC_NEUTRAL,
+        }}
+      />
+    </>
   ) : (
     <></>
   );
 };
-
-const style = StyleSheet.create({
-  buttonIconCam: {
-    width: 25,
-    height: 25,
-  },
-});
 
 export default RemoteVideoMute;

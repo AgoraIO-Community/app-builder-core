@@ -1,55 +1,91 @@
-import React, {useContext} from 'react';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
-import {BtnTemplate, BtnTemplateInterface} from '../../agora-rn-uikit';
-import Styles from '../components/styles';
-import {useString} from '../utils/useString';
+import React, {useContext, useState} from 'react';
 import {useRtc} from 'customization-api';
 import {useAuth} from '../auth/AuthProvider';
 
+import EndcallPopup from './EndcallPopup';
+import StorageContext from '../components/StorageContext';
+import {Prompt, useParams} from '../components/Router';
+import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import ReactNativeForegroundService from '@supersami/rn-foreground-service';
+import {Platform} from 'react-native';
 export interface LocalEndcallProps {
-  buttonTemplateName?: ButtonTemplateName;
-  render?: (
-    onPress: () => void,
-    buttonTemplateName?: ButtonTemplateName,
-  ) => JSX.Element;
+  showLabel?: boolean;
+  isOnActionSheet?: boolean;
+  render?: (onPress: () => void) => JSX.Element;
 }
+
+/* For android only, bg audio */
+const stopForegroundService = () => {
+  if (Platform.OS === 'android') {
+    ReactNativeForegroundService.stop();
+    console.log('stopping foreground service');
+  }
+};
 
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useRtc();
   const {authLogout} = useAuth();
+  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
-  const endCallLabel = 'Hang Up';
-  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
-  const {buttonTemplateName = defaultTemplateValue} = props;
+  const endCallLabel = 'Leave';
+  const {setStore} = useContext(StorageContext);
+  const [endcallVisible, setEndcallVisible] = useState(false);
+  const {phrase} = useParams<{phrase: string}>();
   const onPress = () => {
-    try {
+    setEndcallVisible(true);
+  };
+
+  const endCall = async () => {
+    setTimeout(() => {
       dispatch({
         type: 'EndCall',
         value: [],
       });
-      authLogout();
-    } catch (error) {}
-  };
-  let btnTemplateProps: BtnTemplateInterface = {
-    name: 'callEnd',
-    color: '#FD0845',
-    onPress: onPress,
+    });
+    authLogout();
+    // stopping foreground servie on end call
+    stopForegroundService();
   };
 
-  if (buttonTemplateName === ButtonTemplateName.topBar) {
-    btnTemplateProps.style = Styles.fullWidthButton as Object;
-  } else {
-    btnTemplateProps.btnText = endCallLabel;
-    btnTemplateProps.style = Styles.endCall as Object;
-  }
+  let iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: 'end-call',
+      tintColor: $config.PRIMARY_ACTION_TEXT_COLOR,
+      iconBackgroundColor: $config.SEMANTIC_ERROR,
+      iconContainerStyle: !isOnActionSheet && {
+        width: 72,
+        height: 52,
+      },
+    },
+    onPress,
+    btnTextProps: {
+      text: showLabel ? endCallLabel : '',
+      textColor: $config.FONT_COLOR,
+    },
+  };
+
   return props?.render ? (
-    props.render(onPress, buttonTemplateName)
+    props.render(onPress)
   ) : (
-    <BtnTemplate {...btnTemplateProps} />
+    <>
+      <Prompt
+        when={true}
+        message={(location, action) => {
+          if (action === 'POP') {
+            onPress();
+            return false;
+          }
+          return true;
+        }}
+      />
+      <EndcallPopup
+        endCall={endCall}
+        setModalVisible={setEndcallVisible}
+        modalVisible={endcallVisible}
+      />
+      <IconButton {...iconButtonProps} />
+    </>
   );
 };
 export default LocalEndcall;

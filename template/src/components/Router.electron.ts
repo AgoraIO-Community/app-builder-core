@@ -18,4 +18,5 @@ export {
   useHistory,
   useParams,
   useLocation,
+  Prompt,
 } from 'react-router-dom';

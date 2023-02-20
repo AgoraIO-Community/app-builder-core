@@ -10,11 +10,21 @@
 *********************************************
 */
 import React from 'react';
-import {Platform as ReactNativePlatform} from 'react-native';
+import {
+  Platform as ReactNativePlatform,
+  useWindowDimensions,
+} from 'react-native';
 import Platform from '../subComponents/Platform';
 
 import * as ReactIs from 'react-is';
 
+const trimText = (text: string, length: number = 25) => {
+  if (!text) {
+    return '';
+  }
+  return text?.substring(0, length) + (text?.length > length ? '...' : '');
+};
+const maxInputLimit = 60;
 const isValidReactComponent = <T,>(Component?: React.ComponentType<T>) =>
   Component && ReactIs.isValidElementType(Component) ? true : false;
 
@@ -54,10 +64,150 @@ const isIOS = () => Platform === 'native' && ReactNativePlatform.OS === 'ios';
 //@ts-ignore
 const isDesktop = () => Platform === 'electron';
 
+/**
+ * Checks whether the application is running on mobile device (user agent) and returns true/false.
+ * @returns function
+ */
+//@ts-ignore
+const isMobileUA = () => {
+  let check = false;
+  (function (a) {
+    if (
+      /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
+        a,
+      ) ||
+      isAndroid() ||
+      isIOS()
+    )
+      check = true;
+  })(navigator?.userAgent || navigator?.vendor || window?.opera);
+  return check;
+};
+
 const isArray = (data: any[]) =>
   data && Array.isArray(data) && data.length ? true : false ? true : false;
+
+interface calculatedPositionProps {
+  px: number;
+  py: number;
+  localWidth: number;
+  localHeight: number;
+  globalWidth: number;
+  globalHeight: number;
+  extra?: {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+  popupWidth?: number;
+}
+const calculatePosition = (params: calculatedPositionProps) => {
+  const {
+    px,
+    py,
+    localWidth,
+    localHeight,
+    globalWidth,
+    globalHeight,
+    extra: {top = 0, bottom = 0, left = 0, right = 0} = {},
+    popupWidth = 220,
+  } = params;
+  //right hand side
+  if (px > globalWidth / 2) {
+    // if actionmenu overflow - horizontal
+    const w = globalWidth - px + popupWidth;
+    let minus = 0;
+    if (w > globalWidth) {
+      minus = w - globalWidth + 10;
+    }
+    //right bottom
+    if (py > globalHeight / 2) {
+      return {
+        bottom: globalHeight - py + bottom,
+        right: globalWidth - px - minus + right,
+      };
+    }
+    //right top
+    else {
+      return {
+        top: py + localHeight + top,
+        right: globalWidth - px - minus + right,
+      };
+    }
+  }
+  //left hand side
+  else {
+    // if actionmenu overflow - horizontal
+    const w = px + localWidth + popupWidth;
+    let minus = 0;
+    if (w > globalWidth) {
+      minus = w - globalWidth + 10;
+    }
+    //left bottom
+    if (py > globalHeight / 2) {
+      return {
+        bottom: globalHeight - py + bottom,
+        left: px + localWidth - minus + left,
+      };
+    }
+    //left top
+    else {
+      return {
+        top: py + localHeight + top + top,
+        left: px + localWidth - minus + left,
+      };
+    }
+  }
+};
+
+const BREAKPOINTS = {
+  xs: 360,
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1330,
+  xxl: 1400,
+};
+
+const useIsDesktop = () => {
+  const {width, height} = useWindowDimensions();
+  return (from: 'default' | 'toolbar' | 'popup' = 'default') => {
+    if (from === 'default') {
+      return width > height ? true : false;
+    } else if (from === 'toolbar') {
+      return width > BREAKPOINTS.xl;
+    } else if (from === 'popup') {
+      return width > BREAKPOINTS.md;
+    }
+    return width >= BREAKPOINTS.xl;
+  };
+};
+const useIsSmall = () => {
+  const {width} = useWindowDimensions();
+  return (number = BREAKPOINTS.sm) => {
+    return width < number;
+  };
+};
+
+const useResponsive = () => {
+  const {width} = useWindowDimensions();
+  return (input: number) => {
+    if (width < BREAKPOINTS.xs) {
+      return input / 3;
+    } else if (width < BREAKPOINTS.md) {
+      return input / 2;
+    } else {
+      return input;
+    }
+  };
+};
 export {
+  useIsDesktop,
+  useIsSmall,
+  BREAKPOINTS,
   useHasBrandLogo,
+  isMobileUA,
   isAndroid,
   isIOS,
   isWebInternal,
@@ -66,4 +216,8 @@ export {
   shouldAuthenticate,
   isArray,
   isValidReactComponent,
+  maxInputLimit,
+  trimText,
+  calculatePosition,
+  useResponsive,
 };

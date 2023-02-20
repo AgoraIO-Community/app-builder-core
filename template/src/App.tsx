@@ -36,6 +36,7 @@ declare module 'agora-rn-uikit' {
     name: string;
     screenUid: number;
     offline: boolean;
+    lastMessageTimeStamp: number;
   }
   interface RtcPropsInterface {
     screenShareUid: number;

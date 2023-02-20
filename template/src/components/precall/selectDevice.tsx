@@ -20,27 +20,7 @@ const selectDevice: React.FC = () => {
   //commented for v1 release
   //const selectInputDeviceLabel = useString('selectInputDeviceLabel')();
   const selectInputDeviceLabel = 'Select Input Device';
-  return (
-    <>
-      <Text style={style.subHeading}>{selectInputDeviceLabel}</Text>
-      <View
-        style={{
-          flex: 1,
-          maxWidth: isWebInternal() ? '25vw' : 'auto',
-          marginVertical: 30,
-        }}>
-        <SelectDevice />
-      </View>
-    </>
-  );
+  return <SelectDevice />;
 };
 
 export default selectDevice;
-
-const style = StyleSheet.create({
-  subHeading: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-});

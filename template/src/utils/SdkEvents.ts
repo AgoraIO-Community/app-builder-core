@@ -20,6 +20,7 @@ interface eventsMapInterface extends userEventsMapInterface {
   appInit?: callBackType;
   addFpe?: callBackType;
   addFpeInit?: () => void;
+  joinInit?: () => void;
   joinMeetingWithPhrase?: (
     phrase: string,
     resolve: () => void,

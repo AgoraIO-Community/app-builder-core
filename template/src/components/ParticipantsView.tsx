@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
 import ParticipantSectionTitle from './participants/ParticipantSectionTitle';
@@ -18,43 +18,77 @@ import AllHostParticipants from './participants/AllHostParticipants';
 import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
-import {isWebInternal} from '../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
-const ParticipantView = () => {
+import {numFormatter} from '../utils';
+import ChatContext from './ChatContext';
+import {useSidePanel} from '../utils/useSidePanel';
+import {SidePanelType} from '../subComponents/SidePanelEnum';
+import TertiaryButton from '../atoms/TertiaryButton';
+import HostControlView from './HostControlView';
+import {ButtonTemplateName} from '../utils/useButtonTemplate';
+import Spacer from '../atoms/Spacer';
+import IconButton from '../atoms/IconButton';
+import ThemeConfig from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import CommonStyles from './CommonStyles';
+import SidePanelHeader, {
+  SidePanelStyles,
+} from '../subComponents/SidePanelHeader';
+import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
+import {useLayout, useRender} from 'customization-api';
+import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
+import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
+
+const ParticipantView = (props) => {
+  const {activeUids} = useRender();
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
+  const {
+    attendeeUids: attendeeUidsVideoMeeting,
+    hostUids: hostUidsVideoMeeting,
+  } = useVideoMeetingData();
+  const {onlineUsersCount} = useContext(ChatContext);
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {rtcProps} = useContext(PropsContext);
+  const {showHeader = true} = props;
   //commented for v1 release
   // const hostLabel = useString('hostLabel')();
   // const audienceLabel = useString('audienceLabel')();
   // const participantsLabel = useString('participantsLabel')();
   const hostLabel = 'Host';
   const audienceLabel = 'Audience';
-  const participantsLabel = 'Participants';
+  const attendeeLabel = 'Attendee';
+  const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
   const {
     data: {isHost},
   } = useMeetingInfo();
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  const isSmall = dim[0] < 700;
+  const isSmall = useIsSmall();
+  //video meeting
+  const [showHostSection, setShowHostSection] = useState(true);
+  const [showParticipantSection, setShowParticipantSection] = useState(true);
+  //live streaming
+  const [showTempHostSection, setShowTempHostSection] = useState(true);
+  const [showAudienceSection, setShowAudienceSection] = useState(true);
+  const {currentLayout} = useLayout();
   return (
     <View
-      style={
-        isWebInternal()
-          ? isSmall
-            ? style.participantViewNative
-            : style.participantView
-          : style.participantViewNative
-      }>
-      <View style={[style.padding10]}>
-        <View style={style.lineUnderHeading}>
-          <Text style={style.mainHeading}>{participantsLabel}</Text>
-        </View>
-      </View>
-      <ScrollView style={[style.bodyContainer, style.padding10]}>
+      testID="videocall-participants"
+      style={[
+        isMobileUA()
+          ? //mobile and mobile web
+            CommonStyles.sidePanelContainerNative
+          : isSmall()
+          ? // desktop minimized
+            CommonStyles.sidePanelContainerWebMinimzed
+          : // desktop maximized
+            CommonStyles.sidePanelContainerWeb,
+        isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
+          ? {marginVertical: 4}
+          : {},
+      ]}>
+      {showHeader && <PeopleHeader />}
+      <ScrollView style={[style.bodyContainer]}>
         {$config.EVENT_MODE ? (
           <>
             {
@@ -69,38 +103,51 @@ const ParticipantView = () => {
                    */
                   <>
                     {/* a) Live streaming view */}
-                    <View style={style.participantsection}>
-                      <CurrentLiveStreamRequestsView
-                        p_style={style}
-                        userList={liveStreamData}
-                      />
-                    </View>
+                    <CurrentLiveStreamRequestsView userList={liveStreamData} />
                     {/* b) Host view with remote controls*/}
-                    <View style={style.participantsection}>
-                      <ParticipantSectionTitle
-                        title={hostLabel}
-                        count={hostUids.length}
+                    <ParticipantSectionTitle
+                      title={hostLabel}
+                      count={hostUids.length}
+                      isOpen={showHostSection}
+                      onPress={() => setShowHostSection(!showHostSection)}
+                    />
+                    {showHostSection ? (
+                      <AllHostParticipants
+                        emptyMessage={'No Host has joined yet.'}
+                        uids={hostUids}
+                        isMobile={isSmall()}
+                        updateActionSheet={props.updateActionSheet}
+                        handleClose={props.handleClose}
                       />
-                      <View style={style.participantContainer}>
-                        <AllHostParticipants p_style={style} isHost={isHost} />
-                      </View>
-                    </View>
+                    ) : (
+                      <Spacer size={1} />
+                    )}
                   </>
                 ) : (
                   /** New Host ( earlier was 'audience' and now is host )
                    *  a) Can view all hosts without remote controls
                    */
-                  <View style={style.participantsection}>
+                  <>
                     <ParticipantSectionTitle
                       title={hostLabel}
                       count={hostUids.length}
+                      isOpen={showTempHostSection}
+                      onPress={() =>
+                        setShowTempHostSection(!showTempHostSection)
+                      }
                     />
-                    <AllAudienceParticipants
-                      uids={hostUids}
-                      p_style={style}
-                      isHost={isHost}
-                    />
-                  </View>
+                    {showTempHostSection ? (
+                      <AllAudienceParticipants
+                        emptyMessage={'No Host has joined yet.'}
+                        uids={hostUids}
+                        isMobile={isSmall()}
+                        updateActionSheet={props.updateActionSheet}
+                        handleClose={props.handleClose}
+                      />
+                    ) : (
+                      <Spacer size={1} />
+                    )}
+                  </>
                 ))
             }
             {
@@ -108,143 +155,119 @@ const ParticipantView = () => {
                *  Audience views all hosts without remote controls
                */
               rtcProps?.role == ClientRole.Audience && (
-                <View style={style.participantsection}>
+                <>
                   <ParticipantSectionTitle
                     title={hostLabel}
                     count={hostUids.length}
+                    isOpen={showHostSection}
+                    onPress={() => setShowHostSection(!showHostSection)}
                   />
-                  <AllAudienceParticipants
-                    uids={hostUids}
-                    p_style={style}
-                    isHost={isHost}
-                  />
-                </View>
+                  {showHostSection ? (
+                    <AllAudienceParticipants
+                      emptyMessage={'No Host has joined yet.'}
+                      uids={hostUids}
+                      isMobile={isSmall()}
+                      updateActionSheet={props.updateActionSheet}
+                      handleClose={props.handleClose}
+                    />
+                  ) : (
+                    <Spacer size={1} />
+                  )}
+                </>
               )
             }
             {
               /* Everyone can see audience */
-              <View style={style.participantsection}>
+              <>
                 <ParticipantSectionTitle
                   title={audienceLabel}
                   count={audienceUids.length}
+                  isOpen={showAudienceSection}
+                  onPress={() => setShowAudienceSection(!showAudienceSection)}
                 />
-                <AllAudienceParticipants
-                  uids={audienceUids}
-                  p_style={style}
-                  isHost={isHost}
-                />
-              </View>
+                {showAudienceSection ? (
+                  <AllAudienceParticipants
+                    emptyMessage={'No Audience has joined yet.'}
+                    uids={audienceUids}
+                    isMobile={isSmall()}
+                    updateActionSheet={props.updateActionSheet}
+                    handleClose={props.handleClose}
+                  />
+                ) : (
+                  <></>
+                )}
+              </>
             }
           </>
         ) : (
-          <View style={style.participantsection}>
-            <View style={style.participantContainer}>
-              <AllHostParticipants p_style={style} isHost={isHost} />
-            </View>
-          </View>
+          <>
+            <AllHostParticipants
+              emptyMessage={'No Users has joined yet'}
+              uids={activeUids}
+              isMobile={isSmall()}
+              updateActionSheet={props.updateActionSheet}
+              handleClose={props.handleClose}
+            />
+            {/* <ParticipantSectionTitle
+              title={hostLabel}
+              count={hostUidsVideoMeeting.length}
+              isOpen={showHostSection}
+              onPress={() => setShowHostSection(!showHostSection)}
+            /> */}
+            {/* {showHostSection ? (
+              <AllHostParticipants
+                emptyMessage={'No Host has joined yet'}
+                uids={hostUidsVideoMeeting}
+                isMobile={isSmall()}
+                updateActionSheet={props.updateActionSheet}
+                handleClose={props.handleClose}
+              />
+            ) : (
+              <Spacer size={1} />
+            )} */}
+            {/* <ParticipantSectionTitle
+              title={attendeeLabel}
+              count={attendeeUidsVideoMeeting.length}
+              isOpen={showParticipantSection}
+              onPress={() => setShowParticipantSection(!showParticipantSection)}
+            /> */}
+            {/* {showParticipantSection ? (
+              <AllHostParticipants
+                emptyMessage={'No Attendee has joined yet'}
+                uids={attendeeUidsVideoMeeting}
+                isMobile={isSmall()}
+                updateActionSheet={props.updateActionSheet}
+                handleClose={props.handleClose}
+              />
+            ) : (
+              <></>
+            )} */}
+          </>
         )}
       </ScrollView>
 
-      <View
-        style={{
-          width: '100%',
-          height: 50,
-          alignSelf: 'flex-end',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <CopyJoinInfo showText={true} />
-      </View>
+      {isHost && (
+        <View style={style.footer}>
+          {/*  <CopyJoinInfo showTeritaryButton /> */}
+          <HostControlView />
+        </View>
+      )}
     </View>
   );
 };
 
 const style = StyleSheet.create({
-  padding10: {
-    padding: 10,
-  },
-  lineUnderHeading: {
-    borderBottomWidth: 2,
-    borderBottomColor: $config.PRIMARY_COLOR,
-  },
-  participantView: {
-    width: '20%',
-    minWidth: 200,
-    maxWidth: 300,
-    flex: 1,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
-    shadowColor: $config.PRIMARY_FONT_COLOR + '80',
-    shadowOpacity: 0.5,
-    shadowOffset: {width: -2, height: 0},
-    shadowRadius: 3,
-  },
-  participantViewNative: {
-    position: 'absolute',
-    zIndex: 5,
+  footer: {
     width: '100%',
-    height: '100%',
-    right: 0,
-    top: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    padding: 12,
+    height: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: $config.CARD_LAYER_2_COLOR,
   },
   bodyContainer: {
     flex: 1,
-  },
-  participantsection: {
-    marginBottom: 25,
-  },
-  mainHeading: {
-    fontSize: 20,
-    letterSpacing: 0.8,
-    lineHeight: 30,
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  infoText: {
-    fontSize: 12,
-    letterSpacing: 0.8,
-    fontStyle: 'italic',
-    color: $config.PRIMARY_FONT_COLOR,
-  },
-  participantContainer: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  participantRow: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  participantActionContainer: {
-    flexDirection: 'row',
-    paddingRight: 5,
-    justifyContent: 'flex-end',
-  },
-  actionBtnIcon: {
-    width: 25,
-    height: 25,
-  },
-  participantText: {
-    lineHeight: 24,
-    fontSize: isWebInternal() ? 18 : 16,
-    flexDirection: 'row',
-    letterSpacing: 0.3,
-    color: $config.PRIMARY_FONT_COLOR,
-    fontWeight: '300',
-  },
-  participantTextSmall: {
-    fontSize: isWebInternal() ? 14 : 12,
-  },
-  dummyView: {
-    flex: 0.5,
-    opacity: 0,
-    marginHorizontal: 5,
   },
 });
 

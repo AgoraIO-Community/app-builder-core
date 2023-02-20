@@ -11,7 +11,8 @@
 */
 import React from 'react';
 import {StyleSheet} from 'react-native';
-import {BtnTemplate, UidType} from '../../agora-rn-uikit';
+import IconButton from '../atoms/IconButton';
+import {UidType} from '../../agora-rn-uikit';
 import useRemoteEndCall from '../utils/useRemoteEndCall';
 
 export interface RemoteEndCallProps {
@@ -21,13 +22,15 @@ export interface RemoteEndCallProps {
 const RemoteEndCall = (props: RemoteEndCallProps) => {
   const endRemoteCall = useRemoteEndCall();
   return props.isHost && String(props.uid)[0] !== '1' ? (
-    <BtnTemplate
+    <IconButton
       style={style.remoteButton}
+      iconProps={{
+        name: 'remove',
+        tintColor: '#FD0845',
+      }}
       onPress={() => {
         endRemoteCall(props.uid);
       }}
-      color="#FD0845"
-      name={'remoteEndCall'} // earlier was endCall, added remoteEndCall
     />
   ) : (
     <></>
@@ -46,7 +49,7 @@ const style = StyleSheet.create({
     borderRightWidth: 0,
     borderLeftWidth: 0,
     marginHorizontal: 0,
-    backgroundColor: $config.SECONDARY_FONT_COLOR,
+    backgroundColor: $config.SECONDARY_ACTION_COLOR,
   },
 });
 

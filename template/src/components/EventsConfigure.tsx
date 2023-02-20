@@ -9,26 +9,76 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
+import {StyleSheet} from 'react-native';
+import PrimaryButton from '../atoms/PrimaryButton';
 import {RtcContext} from '../../agora-rn-uikit';
 import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
+import Toast from '../../react-native-toast-message';
+import TertiaryButton from '../atoms/TertiaryButton';
+import {useRender} from 'customization-api';
+import {useParams} from '../components/Router';
+import StorageContext from './StorageContext';
+import {isWebInternal, trimText} from '../utils/common';
 
 interface Props {
   children: React.ReactNode;
 }
 
 const EventsConfigure: React.FC<Props> = (props) => {
+  const {setStore} = useContext(StorageContext);
   const {RtcEngine, dispatch} = useContext(RtcContext);
+  const {renderList} = useRender();
+  const renderListRef = useRef({renderList});
+  const {phrase} = useParams<{phrase: string}>();
   useEffect(() => {
-    events.on(controlMessageEnum.muteVideo, () => {
-      RtcEngine.muteLocalVideoStream(true);
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
+  useEffect(() => {
+    //user joined event listener
+    // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
+    //   const data = JSON.parse(payload);
+    //   if (data?.name) {
+    //     Toast.show({
+    //       text1: `${trimText(data.name)} has joined the call`,
+    //       visibilityTime: 3000,
+    //       type: 'info',
+    //       primaryBtn: null,
+    //       secondaryBtn: null,
+    //     });
+    //   }
+    // });
+    events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
+      Toast.show({
+        type: 'info',
+        // text1: `${
+        //   renderListRef.current.renderList[sender].name || 'The host'
+        // } muted you.`,
+        text1: 'The host has muted your video.',
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      isWebInternal()
+        ? await RtcEngine.muteLocalVideoStream(true)
+        : await RtcEngine.enableLocalVideo(false);
       dispatch({
         type: 'LocalMuteVideo',
         value: [0],
       });
     });
-    events.on(controlMessageEnum.muteAudio, () => {
+    events.on(controlMessageEnum.muteAudio, ({sender}) => {
+      Toast.show({
+        type: 'info',
+        // text1: `${
+        //   renderListRef.current.renderList[sender].name || 'The host'
+        // } muted you.`,
+        text1: 'The host has muted your audio.',
+        visibilityTime: 3000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
       RtcEngine.muteLocalAudioStream(true);
       dispatch({
         type: 'LocalMuteAudio',
@@ -36,12 +86,73 @@ const EventsConfigure: React.FC<Props> = (props) => {
       });
     });
     events.on(controlMessageEnum.kickUser, () => {
-      dispatch({
-        type: 'EndCall',
-        value: [],
+      Toast.show({
+        type: 'info',
+        text1: 'The host has removed you from the meeting.',
+        visibilityTime: 5000,
+        primaryBtn: null,
+        secondaryBtn: null,
+      });
+      setTimeout(() => {
+        dispatch({
+          type: 'EndCall',
+          value: [],
+        });
+      }, 5000);
+    });
+    events.on(controlMessageEnum.requestAudio, () => {
+      Toast.show({
+        type: 'info',
+        text1: 'The host has requested you to speak',
+        visibilityTime: 3000,
+        primaryBtn: (
+          <PrimaryButton
+            containerStyle={style.primaryBtn}
+            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
+            text="UNMUTE"
+            onPress={() => {
+              RtcEngine.muteLocalAudioStream(false);
+              dispatch({
+                type: 'LocalMuteAudio',
+                value: [1],
+              });
+              Toast.hide();
+            }}
+          />
+        ),
+        secondaryBtn: SecondaryBtn,
       });
     });
+    events.on(controlMessageEnum.requestVideo, () => {
+      Toast.show({
+        type: 'info',
+        text1: 'The host has asked you to start your video.',
+        visibilityTime: 3000,
+        primaryBtn: (
+          <PrimaryButton
+            containerStyle={style.primaryBtn}
+            textStyle={style.primaryBtnText}
+            text="UNMUTE"
+            onPress={async () => {
+              isWebInternal()
+                ? await RtcEngine.muteLocalVideoStream(false)
+                : await RtcEngine.enableLocalVideo(true);
+              dispatch({
+                type: 'LocalMuteVideo',
+                value: [1],
+              });
+              Toast.hide();
+            }}
+          />
+        ),
+        secondaryBtn: SecondaryBtn,
+      });
+    });
+
     return () => {
+      //events.off(controlMessageEnum.newUserJoined);
+      events.off(controlMessageEnum.requestAudio);
+      events.off(controlMessageEnum.requestVideo);
       events.off(controlMessageEnum.muteVideo);
       events.off(controlMessageEnum.muteAudio);
       events.off(controlMessageEnum.kickUser);
@@ -52,3 +163,29 @@ const EventsConfigure: React.FC<Props> = (props) => {
 };
 
 export default EventsConfigure;
+
+const style = StyleSheet.create({
+  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  primaryBtn: {
+    maxWidth: 109,
+    minWidth: 109,
+    height: 40,
+    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+  },
+  primaryBtnText: {
+    fontWeight: '600',
+    fontSize: 16,
+    paddingLeft: 0,
+  },
+});
+const SecondaryBtn = (
+  <TertiaryButton
+    containerStyle={style.secondaryBtn}
+    text="LATER"
+    onPress={() => {
+      Toast.hide();
+    }}
+  />
+);

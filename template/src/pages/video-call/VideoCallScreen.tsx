@@ -1,13 +1,24 @@
-import React, {useContext, useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  useWindowDimensions,
+  Text,
+  Platform,
+} from 'react-native';
 import {useCustomization} from 'customization-implementation';
 import Navbar from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
 import Controls from '../../components/Controls';
-import Chat from '../../components/Chat';
+import Chat, {ChatProps} from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {isValidReactComponent, isWebInternal} from '../../utils/common';
+import {
+  isMobileUA,
+  isValidReactComponent,
+  isWebInternal,
+  useIsDesktop,
+} from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
@@ -17,10 +28,13 @@ import {
 } from '../../utils/useButtonTemplate';
 import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import {useRtc} from 'customization-api';
+import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+import VideoCallMobileView from './VideoCallMobileView';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
+  const [name] = useUserName();
   const rtc = useRtc();
   const {
     data: {meetingTitle, isHost},
@@ -37,7 +51,7 @@ const VideoCallScreen = () => {
   } = useCustomization((data) => {
     let components: {
       VideocallComponent?: React.ComponentType;
-      ChatComponent: React.ComponentType;
+      ChatComponent: React.ComponentType<ChatProps>;
       BottombarComponent: React.ComponentType;
       ParticipantsComponent: React.ComponentType;
       SettingsComponent: React.ComponentType;
@@ -129,6 +143,14 @@ const VideoCallScreen = () => {
   });
 
   useEffect(() => {
+    // setTimeout(() => {
+    //   events.send(
+    //     controlMessageEnum.newUserJoined,
+    //     JSON.stringify({name}),
+    //     EventPersistLevel.LEVEL1,
+    //   );
+    // }, 1000);
+
     /**
      * OLD: Commenting this code as getDevices API is web only
      * The below code fails on native app
@@ -136,6 +158,7 @@ const VideoCallScreen = () => {
      */
     if (isWebInternal()) {
       new Promise((res) =>
+        //@ts-ignore
         rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
         }),
@@ -146,9 +169,16 @@ const VideoCallScreen = () => {
     }
   }, []);
 
+  const isDesktop = useIsDesktop();
+
   return VideocallComponent ? (
     <VideocallComponent />
+  ) : // ) : !isDesktop ? (
+  isMobileUA() ? (
+    // Mobile View
+    <VideoCallMobileView />
   ) : (
+    // Desktop View
     <>
       <VideocallBeforeView />
       <View style={style.full}>
@@ -156,7 +186,11 @@ const VideoCallScreen = () => {
           value={{buttonTemplateName: ButtonTemplateName.topBar}}>
           <TopbarComponent />
         </ButtonTemplateProvider>
-        <View style={[style.videoView, {backgroundColor: '#ffffff00'}]}>
+        <View
+          style={[
+            style.videoView,
+            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
+          ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
             <ParticipantsComponent />
@@ -195,6 +229,8 @@ const style = StyleSheet.create({
     flexDirection: 'column',
     overflow: 'hidden',
   },
-  //@ts-ignore
-  videoView: videoView,
+  videoView: {
+    flex: 12,
+    flexDirection: 'row',
+  },
 });
