@@ -4,60 +4,45 @@ import {
   customizationConfig,
   CustomizationProvider,
 } from 'customization-implementation';
-import SDKEvents from './utils/SdkEvents';
+import SDKEvents, {userEventsMapInterface} from './utils/SdkEvents';
+import SDKMethodEventsManager from './utils/SdkMethodEvents';
 import {Unsubscribe} from 'nanoevents';
 import App from './App';
 
-export interface userEventsMapInterface {
-  leave: () => void;
-  create: (
-    hostPhrase: string,
-    attendeePhrase?: string,
-    pstnNumer?: {
-      number: string;
-      pin: string;
-    },
-  ) => void;
-  'ready-to-join': (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
-  join: (
-    meetingTitle: string,
-    devices: MediaDeviceInfo[],
-    isHost: boolean,
-  ) => void;
-}
+type makeAsync<T extends (...p: any) => void> = (
+  ...p: Parameters<T>
+) => PromiseLike<ReturnType<T>>;
 
-export interface AppBuilderSdkApiInterface {
+export interface SdkMethodEvents {
   customize: (customization: CustomizationApiInterface) => void;
-  createCustomization: (
-    customization: CustomizationApiInterface,
-  ) => CustomizationApiInterface;
-  join: (roomid: string) => Promise<void>;
-  on: <T extends keyof userEventsMapInterface>(
-    userEventName: T,
-    callBack: userEventsMapInterface[T],
-  ) => Unsubscribe;
+  join: (roomid: string) => void;
 }
 
-let joinInit = false;
+type AppBuilderSdkEventMethods = {
+  [K in keyof SdkMethodEvents]: makeAsync<
+    SdkMethodEvents[K]
+  >;
+};
+
+type AppBuilderSdkApiInterface =
+  | {
+      createCustomization: (
+        customization: CustomizationApiInterface,
+      ) => CustomizationApiInterface;
+      on: <T extends keyof userEventsMapInterface>(
+        userEventName: T,
+        callBack: userEventsMapInterface[T],
+      ) => Unsubscribe;
+    }
+  | AppBuilderSdkEventMethods;
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
-  customize: (customization: CustomizationApiInterface) => {
-    SDKEvents.emit('addFpe', customization);
+  customize: async (customization: CustomizationApiInterface) => {
+    return await SDKMethodEventsManager.emit('customize', customization);
   },
-  join: (roomid: string) =>
-    new Promise((resolve, reject) => {
-      if (joinInit) {
-        console.log('[SDKEvents] Join listener emitted preemptive');
-        SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
-      }
-      SDKEvents.on('joinInit', () => {
-        if (!joinInit) {
-          console.log('[SDKEvents] Join listener emitted');
-          SDKEvents.emit('joinMeetingWithPhrase', roomid, resolve, reject);
-          joinInit = true;
-        }
-      });
-    }),
+  join: async (roomid: string) => {
+    return await SDKMethodEventsManager.emit('join', roomid);
+  },
   createCustomization: customize,
   on: (userEventName, cb) => {
     console.log('SDKEvents: Event Registered', userEventName);
@@ -68,12 +53,10 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
 const SDKAppWrapper = () => {
   const [fpe, setFpe] = useState(customizationConfig);
   useEffect(() => {
-    SDKEvents.on('addFpe', (sdkFpeConfig) => {
-      console.log('SDKEvents: addFpe event called');
+    SDKMethodEventsManager.on('customize', (res, rej, sdkFpeConfig) => {
       setFpe(sdkFpeConfig);
+      res();
     });
-    SDKEvents.emit('addFpeInit');
-    // Join event consumed in Create.tsx
   }, []);
   return (
     <>

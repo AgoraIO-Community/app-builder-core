@@ -28,7 +28,7 @@ import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import SDKEvents from '../utils/SdkEvents';
+import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import Input from '../atoms/Input';
@@ -121,9 +121,9 @@ const Create = () => {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
-    const unbind = SDKEvents.on(
-      'joinMeetingWithPhrase',
-      (phrase, resolve, reject) => {
+    const unbind = SDKMethodEventsManager.on(
+      'join',
+      (resolve, reject, phrase) => {
         console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
         try {
           setMeetingInfo(MeetingInfoDefaultValue);
@@ -134,7 +134,6 @@ const Create = () => {
         }
       },
     );
-    SDKEvents.emit('joinInit');
     return () => {
       unbind();
     };

@@ -9,24 +9,27 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-/**
- * @format
- */
-type callBackType = (...args: any[]) => void;
-import {userEventsMapInterface} from '../SDKAppWrapper';
+
 import {createNanoEvents} from 'nanoevents';
 
-interface eventsMapInterface extends userEventsMapInterface {
-  addFpe?: callBackType;
-  addFpeInit?: () => void;
-  joinInit?: () => void;
-  joinMeetingWithPhrase?: (
-    phrase: string,
-    resolve: () => void,
-    reject: (e: Error) => void,
+export interface userEventsMapInterface {
+  leave: () => void;
+  create: (
+    hostPhrase: string,
+    attendeePhrase?: string,
+    pstnNumer?: {
+      number: string;
+      pin: string;
+    },
+  ) => void;
+  'ready-to-join': (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
+  join: (
+    meetingTitle: string,
+    devices: MediaDeviceInfo[],
+    isHost: boolean,
   ) => void;
 }
 
-const SDKEvents = createNanoEvents<eventsMapInterface>();
+const SDKEvents = createNanoEvents<userEventsMapInterface>();
 
 export default SDKEvents;
