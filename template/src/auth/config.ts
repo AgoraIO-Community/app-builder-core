@@ -5,7 +5,7 @@ export const getPlatformId = (): string => {
   let platformID = 'turnkey_web';
   // Turnkey
   isWebInternal() && (platformID = 'turnkey_web');
-  isAndroid() || (isIOS() && (platformID = 'turnkey_native'));
+  (isAndroid() || isIOS()) && (platformID = 'turnkey_native');
   // SDKs
   isSDK() && isWebInternal() && (platformID = 'sdk_web');
   isSDK() && isAndroid() && (platformID = 'sdk_android');

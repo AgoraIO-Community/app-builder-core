@@ -15,6 +15,7 @@ import Toast from '../../react-native-toast-message';
 import {getRequestHeaders, GET_UNAUTH_FLOW_API_ENDPOINT} from './config';
 import isSDK from '../utils/isSDK';
 import {Linking} from 'react-native';
+import {isAndroid, isIOS} from '../utils/common';
 
 const GET_USER = gql`
   query getUser {
@@ -129,7 +130,8 @@ const AuthProvider = (props: AuthProviderProps) => {
       })
         .then((response) => response.json())
         .then((response) => {
-          if (isSDK()) {
+          //rsdk,websdk,android,ios
+          if (isSDK() || isAndroid() || isIOS()) {
             console.log('supriya enable UNAUTH in SDK');
             if (!response.token) {
               throw new Error('Token not received');
@@ -146,14 +148,20 @@ const AuthProvider = (props: AuthProviderProps) => {
                     setAuthError(error);
                   }
                   setIsAuthenticated(false);
+                  //TODO fallback
                   history.push('/login');
                 });
             }
-          } else {
-            console.log('supriya enable UNAUTH in IDP', response);
+          }
+          //web/mweb/desktop
+          else {
             if (response && response.Code == 0) {
               setIsAuthenticated(true);
               history.push(location.pathname);
+            } else {
+              setIsAuthenticated(false);
+              //TODO fallback
+              history.push('/login');
             }
           }
         })
