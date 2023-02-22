@@ -18,6 +18,7 @@ import AuthRoute from './auth/AuthRoute';
 import StoreToken from './components/StoreToken';
 import {IDPAuth} from './auth/IDPAuth';
 import Login from './pages/Login';
+import {Text} from 'react-native';
 
 function AppRoutes() {
   return (
@@ -44,7 +45,7 @@ function AppRoutes() {
         <VideoCall />
       </AuthRoute>
       <Route path="*">
-        <p>Page not found</p>
+        <Text>Page not found</Text>
       </Route>
     </Switch>
   );

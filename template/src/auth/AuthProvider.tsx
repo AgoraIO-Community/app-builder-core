@@ -81,12 +81,19 @@ const AuthProvider = (props: AuthProviderProps) => {
     getUserDetails()
       .then((_) => {
         setIsAuthenticated(true);
-        history.push(location.pathname);
+        authLogin();
+        //history.push(location.pathname);
       })
       .catch((err) => {
-        setAuthError('Your session has expird. Kindly login again');
-        setIsAuthenticated(false);
-        history.push(`/login`);
+        //if authentication is disabled no need to set session expired,
+        //internally refresh the token and set it
+        if (!enableAuth) {
+          authLogin();
+        } else {
+          setAuthError('Your session has expird. Kindly login again');
+          setIsAuthenticated(false);
+          history.push(`/login`);
+        }
       });
   }, []);
 
@@ -143,10 +150,10 @@ const AuthProvider = (props: AuthProviderProps) => {
                 });
             }
           } else {
-            console.log('supriya enable UNAUTH in IDP');
+            console.log('supriya enable UNAUTH in IDP', response);
             if (response && response.Code == 0) {
               setIsAuthenticated(true);
-              history.push('/create');
+              history.push(location.pathname);
             }
           }
         })
@@ -180,18 +187,23 @@ const AuthProvider = (props: AuthProviderProps) => {
         });
     } else {
       console.log('supriya logout AUTH/UNAUTH');
-      tokenLogout()
-        .then((res) => {
-          console.log('user successfully logged out');
-        })
-        .catch(() => {
-          console.error('user logout failed');
-          setAuthError('user logout failed');
-        })
-        .finally(() => {
-          setIsAuthenticated(false);
-          history.push('/login');
-        });
+      if (!enableAuth) {
+        //no need to logout because we need to token to see the create screen
+        history.push('/create');
+      } else {
+        tokenLogout()
+          .then((res) => {
+            console.log('user successfully logged out');
+          })
+          .catch(() => {
+            console.error('user logout failed');
+            setAuthError('user logout failed');
+          })
+          .finally(() => {
+            setIsAuthenticated(false);
+            history.push('/login');
+          });
+      }
     }
   };
 
@@ -203,7 +215,11 @@ const AuthProvider = (props: AuthProviderProps) => {
         authLogin,
         authLogout,
       }}>
-      {loading ? <Loading text={'Loading..'} /> : props.children}
+      {loading || (!authenticated && !enableAuth) ? (
+        <Loading text={'Loading..'} />
+      ) : (
+        props.children
+      )}
     </AuthContext.Provider>
   );
 };
