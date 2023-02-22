@@ -26,6 +26,7 @@ type SdkApiContextInterface = {
       rej: Parameters<_InternalSDKMethodEventsMap['customize']>[1];
     };
   };
+  clearState: (key: keyof _InternalSDKMethodEventsMap) => void;
 };
 
 const SdkApiInitState: SdkApiContextInterface = {
@@ -34,6 +35,7 @@ const SdkApiInitState: SdkApiContextInterface = {
     skipPrecall: false,
   },
   customize: {},
+  clearState: () => {},
 };
 
 export const SDK_MEETING_TAG = 'sdk-initiated-meeting';
@@ -104,6 +106,16 @@ const SdkApiContextProvider: React.FC = (props) => {
     SdkApiInitState.customize,
   );
 
+  const clearState: SdkApiContextInterface['clearState'] = (key) => {
+    switch (key) {
+      case 'join':
+        setJoinState(SdkApiInitState.join);
+        return;
+      case 'customize':
+        setUserCustomization(SdkApiInitState.customize);
+    }
+  };
+
   useEffect(() => {
     deRegisterListener();
     console.log('[SDKContext] join state is ', joinState);
@@ -127,6 +139,7 @@ const SdkApiContextProvider: React.FC = (props) => {
       value={{
         join: joinState,
         customize: userCustomization,
+        clearState,
       }}>
       {props.children}
     </SdkApiContext.Provider>

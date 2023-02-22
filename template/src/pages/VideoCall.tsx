@@ -129,7 +129,7 @@ const VideoCall: React.FC = () => {
     audioRoom: $config.AUDIO_ROOM,
   });
 
-  const {join: SdkJoinState} = useContext(SdkApiContext);
+  const {join: SdkJoinState, clearState} = useContext(SdkApiContext);
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
 
@@ -140,6 +140,7 @@ const VideoCall: React.FC = () => {
   React.useEffect(() => {
     return () => {
       console.log('Videocall unmounted');
+      clearState('join');
       if (awake) {
         release();
       }
@@ -197,7 +198,8 @@ const VideoCall: React.FC = () => {
         };
       });
       resolveJoinPromise(sdkMeetingDetails);
-    } if (sdkMeetingPhrase) {
+    }
+    if (sdkMeetingPhrase) {
       if (
         currentMeetingPhrase.current !== sdkMeetingPath ||
         !isJoinDataFetched
@@ -253,11 +255,13 @@ const VideoCall: React.FC = () => {
   }, [isJoinDataFetched, data]);
 
   const callbacks = {
-    EndCall: () =>
+    EndCall: () => {
+      clearState('join');
       setTimeout(() => {
         SDKEvents.emit('leave');
         history.push('/');
-      }, 0),
+      }, 0);
+    },
   };
   const [isCameraAvailable, setCameraAvailable] = useState(false);
   const [isMicAvailable, setMicAvailable] = useState(false);
