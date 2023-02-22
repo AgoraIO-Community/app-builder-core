@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {CustomizationApiInterface, customize} from 'customization-api';
 import {
-  customizationConfig,
   CustomizationProvider,
 } from 'customization-implementation';
 import SDKEvents, {userEventsMapInterface} from './utils/SdkEvents';

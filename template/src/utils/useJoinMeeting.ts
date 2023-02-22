@@ -121,6 +121,7 @@ export default function useJoinMeeting() {
               },
             };
           });
+          return meetingInfo;
         } else {
           throw new Error('An error occurred in parsing the channel data.');
         }
