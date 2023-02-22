@@ -17,7 +17,7 @@ type injectAsync<T extends (...p: any) => any> = (
   ...params: Parameters<T>
 ) => void;
 
-type _InternalSDKMethodEventsMap = {
+export type _InternalSDKMethodEventsMap = {
   [K in EventKeyNameHelper]: injectAsync<SdkMethodEvents[K]>;
 };
 

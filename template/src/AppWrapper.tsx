@@ -75,7 +75,7 @@ const AppWrapper = (props: AppWrapperProps) => {
     return React.Fragment;
   });
 
-  const {SdkJoinState} = useContext(SdkApiContext);
+  const {join: SdkJoinState} = useContext(SdkApiContext);
 
   return (
     <AppRoot>

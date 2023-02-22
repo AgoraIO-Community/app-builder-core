@@ -15,7 +15,7 @@ import {useHistory} from './Router';
 import isSDK from '../utils/isSDK';
 
 const Navigation = () => {
-  const {SdkJoinState} = useContext(SdkApiContext);
+  const {join: SdkJoinState} = useContext(SdkApiContext);
 
   const history = useHistory();
 

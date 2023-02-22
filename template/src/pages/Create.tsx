@@ -40,7 +40,6 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
-import {SdkApiContext} from '../components/SdkApiContext';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 const Create = () => {
@@ -74,7 +73,6 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
-  const {SdkJoinState} = useContext(SdkApiContext);
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
   // const hostControlsToggle = useString<boolean>('hostControlsToggle');

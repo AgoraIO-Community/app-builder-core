@@ -1,13 +1,39 @@
 import React, {createContext, useState, useEffect} from 'react';
-import SDKMethodEventsManager from '../utils/SdkMethodEvents';
-import {validateMeetingInfoData} from './meeting-info/useMeetingInfo';
+import SDKMethodEventsManager, {
+  _InternalSDKMethodEventsMap,
+} from '../utils/SdkMethodEvents';
+import {
+  validateMeetingInfoData,
+  MeetingInfoContextInterface,
+} from './meeting-info/useMeetingInfo';
+import {CustomizationApiInterface} from 'customization-api';
+import {Unsubscribe} from 'nanoevents';
 
-const SdkApiInitState = {
-  SdkJoinState: {
+type SdkApiContextInterface = {
+  join: {
+    phrase: string;
+    meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
+    skipPrecall: boolean;
+    promise?: {
+      res: Parameters<_InternalSDKMethodEventsMap['join']>[0];
+      rej: Parameters<_InternalSDKMethodEventsMap['join']>[1];
+    };
+  };
+  customize: {
+    customization?: CustomizationApiInterface;
+    promise?: {
+      res: Parameters<_InternalSDKMethodEventsMap['customize']>[0];
+      rej: Parameters<_InternalSDKMethodEventsMap['customize']>[1];
+    };
+  };
+};
+
+const SdkApiInitState: SdkApiContextInterface = {
+  join: {
     phrase: '',
-    meetingDetails: {},
+    skipPrecall: false,
   },
-  SdkUserCustomization: {},
+  customize: {},
 };
 
 export const SDK_MEETING_TAG = 'sdk-initiated-meeting';
@@ -16,31 +42,54 @@ export const SdkApiContext = createContext(SdkApiInitState);
 
 let moduleEventsUnsub: any[] = [];
 
+type commonEventHandlers = {
+  [K in keyof _InternalSDKMethodEventsMap]?: (
+    setter: (p: SdkApiContextInterface[K]) => void,
+  ) => Unsubscribe;
+};
+
+const commonEventHandlers: commonEventHandlers = {
+  join: (setter) => {
+    return SDKMethodEventsManager.on(
+      'join',
+      (res, rej, roomDetail, skipPrecall) => {
+        if (typeof roomDetail === 'object') {
+          if (!validateMeetingInfoData(roomDetail)) {
+            rej(new Error('Invalid meeting details'));
+          }
+          setter({
+            phrase: SDK_MEETING_TAG,
+            meetingDetails: roomDetail,
+            skipPrecall,
+            promise: {res, rej},
+          });
+        } else {
+          setter({
+            phrase: roomDetail,
+            skipPrecall,
+            promise: {res, rej},
+          });
+        }
+      },
+    );
+  },
+  customize: (setter) => {
+    return SDKMethodEventsManager.on('customize', (res, rej, customization) => {
+      setter({
+        customization: customization,
+      });
+      res();
+    });
+  },
+};
+
 const registerListener = () => {
   moduleEventsUnsub = [
-    SDKMethodEventsManager.on('customize', (res, rej, customization) => {
-      SdkApiInitState.SdkUserCustomization = {
-        customization: customization,
-        promise: {res, rej},
-      };
+    commonEventHandlers.customize((state) => {
+      SdkApiInitState.customize = state;
     }),
-    SDKMethodEventsManager.on('join', (res, rej, roomDetail) => {
-      console.log('[SDKContext] join state set');
-      if (typeof roomDetail === 'object') {
-        if (!validateMeetingInfoData(roomDetail)) {
-          rej(new Error('Invalid meeting details'));
-        }
-        SdkApiInitState.SdkJoinState = {
-          phrase: SDK_MEETING_TAG,
-          meetingDetails: roomDetail,
-          promise: {res, rej},
-        };
-      } else {
-        SdkApiInitState.SdkJoinState = {
-          phrase: roomDetail,
-          promise: {res, rej},
-        };
-      }
+    commonEventHandlers.join((state) => {
+      SdkApiInitState.join = state;
     }),
   ];
 };
@@ -50,41 +99,20 @@ const deRegisterListener = () => {
 };
 
 const SdkApiContextProvider: React.FC = (props) => {
-  const [joinState, setJoinState] = useState(SdkApiInitState.SdkJoinState);
+  const [joinState, setJoinState] = useState(SdkApiInitState.join);
   const [userCustomization, setUserCustomization] = useState(
-    SdkApiInitState.SdkUserCustomization,
+    SdkApiInitState.customize,
   );
 
   useEffect(() => {
     deRegisterListener();
     console.log('[SDKContext] join state is ', joinState);
     const unsub = [
-      SDKMethodEventsManager.on('customize', (res, rej, customization) => {
-        setUserCustomization({
-          customization: customization,
-          promise: {res, rej},
-        });
+      commonEventHandlers.customize((state) => {
+        setUserCustomization(state);
       }),
-      SDKMethodEventsManager.on('join', (res, rej, roomDetail) => {
-        console.log('[SDKContext] setting join in component ', roomDetail);
-        if (
-          typeof roomDetail === 'object' &&
-          validateMeetingInfoData(roomDetail)
-        ) {
-          setJoinState({
-            phrase: SDK_MEETING_TAG,
-            meetingDetails: roomDetail,
-            promise: {res, rej},
-          });
-        } else if (typeof roomDetail === 'string' && roomDetail !== '') {
-          setJoinState({
-            phrase: roomDetail,
-            promise: {res, rej},
-          });
-        } else {
-          rej(new Error('Invalid meeting details'));
-          return;
-        }
+      commonEventHandlers.join((state) => {
+        setJoinState(state);
       }),
     ];
 
@@ -97,8 +125,8 @@ const SdkApiContextProvider: React.FC = (props) => {
   return (
     <SdkApiContext.Provider
       value={{
-        SdkJoinState: joinState,
-        SdkUserCustomization: userCustomization,
+        join: joinState,
+        customize: userCustomization,
       }}>
       {props.children}
     </SdkApiContext.Provider>

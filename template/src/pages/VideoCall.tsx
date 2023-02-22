@@ -129,7 +129,7 @@ const VideoCall: React.FC = () => {
     audioRoom: $config.AUDIO_ROOM,
   });
 
-  const {SdkJoinState} = useContext(SdkApiContext);
+  const {join: SdkJoinState} = useContext(SdkApiContext);
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
 
@@ -164,9 +164,27 @@ const VideoCall: React.FC = () => {
     const {
       phrase: sdkMeetingPhrase,
       meetingDetails: sdkMeetingDetails,
+      skipPrecall,
       promise,
     } = SdkJoinState;
+
     const sdkMeetingPath = `/${sdkMeetingPhrase}`;
+
+    const resolveJoinPromise = (meetingData: MeetingInfoContextInterface) => {
+      if (skipPrecall) {
+        promise.res(meetingData);
+      } else {
+        promise.res([
+          meetingData,
+          () => {
+            setCallActive(true);
+          },
+        ]);
+      }
+    };
+
+    setCallActive(skipPrecall);
+
     if (sdkMeetingDetails) {
       setQueryComplete(false);
       setMeetingInfo((meetingInfo) => {
@@ -178,8 +196,8 @@ const VideoCall: React.FC = () => {
           },
         };
       });
-      promise.res(sdkMeetingDetails);
-    } else if (sdkMeetingPhrase) {
+      resolveJoinPromise(sdkMeetingDetails);
+    } if (sdkMeetingPhrase) {
       if (
         currentMeetingPhrase.current !== sdkMeetingPath ||
         !isJoinDataFetched
@@ -188,7 +206,7 @@ const VideoCall: React.FC = () => {
         currentMeetingPhrase.current = sdkMeetingPath;
         useJoin(sdkMeetingPhrase)
           .then((fetchedMeetingInfo) => {
-            promise.res(fetchedMeetingInfo);
+            resolveJoinPromise(fetchedMeetingInfo);
           })
           .catch((error) => {
             setGlobalErrorMessage(error);
@@ -197,7 +215,7 @@ const VideoCall: React.FC = () => {
             promise.rej(error);
           });
       } else {
-        promise.res(data);
+        resolveJoinPromise(data);
       }
     }
   }, [SdkJoinState]);

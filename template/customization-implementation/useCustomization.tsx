@@ -19,10 +19,10 @@ const CustomizationContext: React.Context<CustomizationApiInterface> =
   React.createContext(customizationConfig);
 
 const CustomizationProvider: React.FC = (props) => {
-  const {SdkUserCustomization: userCustomization} = useContext(SdkApiContext);
+  const {customize: userCustomization} = useContext(SdkApiContext);
 
   return (
-    <CustomizationContext.Provider value={userCustomization}>
+    <CustomizationContext.Provider value={userCustomization.customization}>
       {props.children}
     </CustomizationContext.Provider>
   );
