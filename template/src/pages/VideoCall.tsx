@@ -10,7 +10,7 @@
 *********************************************
 */
 // @ts-nocheck
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, Text, useWindowDimensions} from 'react-native';
 import {
   RtcConfigure,
@@ -57,6 +57,9 @@ import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
 import {currentFocus, FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
+import {SdkApiContext} from '../components/SdkApiContext';
+import isSDK from '../utils/isSDK';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 enum RnEncryptionEnum {
   /**
@@ -126,6 +129,10 @@ const VideoCall: React.FC = () => {
     audioRoom: $config.AUDIO_ROOM,
   });
 
+  const {SdkJoinState} = useContext(SdkApiContext);
+  const history = useHistory();
+  const currentMeetingPhrase = useRef(history.location.pathname);
+
   const useJoin = useJoinMeeting();
 
   React.useEffect(() => {
@@ -145,6 +152,15 @@ const VideoCall: React.FC = () => {
         history.push('/');
       });
   }, []);
+
+  useEffect(() => {
+    const sdkMeetingPath = `/${SdkJoinState.phrase}`;
+    if (isSDK() && currentMeetingPhrase.current !== sdkMeetingPath) {
+      setQueryComplete(false);
+      currentMeetingPhrase.current = sdkMeetingPath;
+      useJoin(SdkJoinState.phrase);
+    }
+  }, [SdkJoinState]);
 
   const {isJoinDataFetched, data} = useMeetingInfo();
 
@@ -178,9 +194,8 @@ const VideoCall: React.FC = () => {
       // }
       queryComplete ? {} : setQueryComplete(isJoinDataFetched);
     }
-  }, [isJoinDataFetched]);
+  }, [isJoinDataFetched, data]);
 
-  const history = useHistory();
   const callbacks = {
     EndCall: () =>
       setTimeout(() => {

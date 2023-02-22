@@ -9,22 +9,20 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useState, useContext} from 'react';
 import {CustomizationApiInterface} from 'customization-api';
 import customizationConfig from 'customization';
 import createHook from './createHook';
+import {SdkApiContext} from '../src/components/SdkApiContext';
 
 const CustomizationContext: React.Context<CustomizationApiInterface> =
   React.createContext(customizationConfig);
 
-export interface CustomizationProviderProps {
-  children: React.ReactNode;
-  value: CustomizationApiInterface;
-}
+const CustomizationProvider: React.FC = (props) => {
+  const {SdkUserCustomization: userCustomization} = useContext(SdkApiContext);
 
-const CustomizationProvider = (props: CustomizationProviderProps) => {
   return (
-    <CustomizationContext.Provider value={props.value}>
+    <CustomizationContext.Provider value={userCustomization}>
       {props.children}
     </CustomizationContext.Provider>
   );

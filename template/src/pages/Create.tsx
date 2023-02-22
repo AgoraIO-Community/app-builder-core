@@ -28,9 +28,7 @@ import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -42,6 +40,8 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
+import {SdkApiContext} from '../components/SdkApiContext';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -74,6 +74,7 @@ const Create = () => {
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateMeeting();
   const {setMeetingInfo} = useSetMeetingInfo();
+  const {SdkJoinState} = useContext(SdkApiContext);
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
   // const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -121,22 +122,7 @@ const Create = () => {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
-    const unbind = SDKMethodEventsManager.on(
-      'join',
-      (resolve, reject, phrase) => {
-        console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
-        try {
-          setMeetingInfo(MeetingInfoDefaultValue);
-          history.push(phrase);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      },
-    );
-    return () => {
-      unbind();
-    };
+    return () => {};
   }, []);
 
   const showShareScreen = () => {

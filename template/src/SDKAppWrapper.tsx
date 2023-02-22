@@ -8,6 +8,7 @@ import SDKEvents, {userEventsMapInterface} from './utils/SdkEvents';
 import SDKMethodEventsManager from './utils/SdkMethodEvents';
 import {Unsubscribe} from 'nanoevents';
 import App from './App';
+import SdkApiContextProvider from './components/SdkApiContext';
 
 type makeAsync<T extends (...p: any) => void> = (
   ...p: Parameters<T>
@@ -19,9 +20,7 @@ export interface SdkMethodEvents {
 }
 
 type AppBuilderSdkEventMethods = {
-  [K in keyof SdkMethodEvents]: makeAsync<
-    SdkMethodEvents[K]
-  >;
+  [K in keyof SdkMethodEvents]: makeAsync<SdkMethodEvents[K]>;
 };
 
 type AppBuilderSdkApiInterface =
@@ -51,19 +50,12 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
 };
 
 const SDKAppWrapper = () => {
-  const [fpe, setFpe] = useState(customizationConfig);
-  useEffect(() => {
-    SDKMethodEventsManager.on('customize', (res, rej, sdkFpeConfig) => {
-      setFpe(sdkFpeConfig);
-      res();
-    });
-  }, []);
   return (
-    <>
-      <CustomizationProvider value={fpe}>
+    <SdkApiContextProvider>
+      <CustomizationProvider>
         <App />
       </CustomizationProvider>
-    </>
+    </SdkApiContextProvider>
   );
 };
 
