@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {createContext, ReactChildren, useEffect, useState} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import useMount from './useMount';
 
 type rememberedDevicesListEntries = Record<

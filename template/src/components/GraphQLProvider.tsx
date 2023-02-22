@@ -21,7 +21,7 @@ import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
 import React, {createContext, useContext, useRef} from 'react';
 import StorageContext from './StorageContext';
-import AsyncStorage from '@react-native-async-storage/async-storage'; //'@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const GraphQLContext = createContext<{
   client: ApolloClient<NormalizedCacheObject>;
@@ -29,7 +29,7 @@ export const GraphQLContext = createContext<{
 
 const GraphQLProvider = (props: {children: React.ReactNode}) => {
   const httpLink = createHttpLink({
-    uri: `${$config.BACKEND_ENDPOINT}/query`,
+    uri: `${$config.BACKEND_ENDPOINT}/v1/query`,
     credentials: 'include',
   });
   const {store} = useContext(StorageContext);

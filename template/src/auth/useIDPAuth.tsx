@@ -3,7 +3,7 @@ import {useLocation} from '../components/Router';
 import {Linking} from 'react-native';
 import {getIDPAuthRedirectURL, getOriginURL, getPlatformId} from './config';
 
-const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/idp/login`;
+const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
 
 export const useIDPAuth = () => {
   const enableIDPAuth = () => {
@@ -17,7 +17,7 @@ export const useIDPAuth = () => {
   const idpLogout = () => {
     return new Promise((resolve, reject) => {
       try {
-        fetch(`${$config.BACKEND_ENDPOINT}/logout`, {
+        fetch(`${$config.BACKEND_ENDPOINT}/v1/logout`, {
           credentials: 'include',
         })
           .then((response) => response.text())

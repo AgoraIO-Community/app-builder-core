@@ -7,7 +7,7 @@ import {
 import SDKEvents from './utils/SdkEvents';
 import {Unsubscribe} from 'nanoevents';
 import App from './App';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loading from './subComponents/Loading';
 
 export interface userEventsMapInterface {

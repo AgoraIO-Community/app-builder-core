@@ -7,8 +7,8 @@ import {GraphQLContext} from '../components/GraphQLProvider';
 import useGetName from './useGetName';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
-  query JoinChannel($passphrase: String!, $userName: String!) {
-    joinChannel(passphrase: $passphrase, userName: $userName) {
+  query JoinChannel($passphrase: String!) {
+    joinChannel(passphrase: $passphrase) {
       channel
       title
       isHost
@@ -32,8 +32,8 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
 `;
 
 const JOIN_CHANNEL_PHRASE = gql`
-  query JoinChannel($passphrase: String!, $userName: String!) {
-    joinChannel(passphrase: $passphrase, userName: $userName) {
+  query JoinChannel($passphrase: String!) {
+    joinChannel(passphrase: $passphrase) {
       channel
       title
       isHost
@@ -75,7 +75,7 @@ export default function useJoinMeeting() {
             : JOIN_CHANNEL_PHRASE_AND_GET_USER,
         variables: {
           passphrase: phrase,
-          userName: username,
+          //userName: username,
         },
       });
       if (response.error) {

@@ -1,5 +1,5 @@
 import React, {useEffect, useContext} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage'; //'@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwt_decode from 'jwt-decode';
 import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
@@ -31,7 +31,7 @@ const useTokenAuth = () => {
   };
 
   const getRefreshToken = async () => {
-    await fetch(`${$config.BACKEND_ENDPOINT}/token/refresh`, {
+    await fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ const useTokenAuth = () => {
   const tokenLogout = () => {
     return new Promise((resolve, reject) => {
       try {
-        fetch(`${$config.BACKEND_ENDPOINT}/logout`, {
+        fetch(`${$config.BACKEND_ENDPOINT}/v1/logout`, {
           headers: {
             authorization: serverToken ? `Bearer ${serverToken}` : '',
           },
