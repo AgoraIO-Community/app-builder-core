@@ -111,14 +111,19 @@ export default function useJoinMeeting() {
           // if (data?.getUser?.name) {
           //   meetingInfo.username = data.getUser.name;
           // }
+          console.log('!!!!!Meetinginfo', {
+            meetingInfo,
+            response: response.data,
+          });
           setMeetingInfo((prevState) => {
+            let compiledMeetingInfo = {
+              ...prevState.data,
+              ...meetingInfo,
+            };
             return {
               ...prevState,
               isJoinDataFetched: true,
-              data: {
-                ...prevState.data,
-                ...meetingInfo,
-              },
+              data: compiledMeetingInfo,
             };
           });
           return meetingInfo;

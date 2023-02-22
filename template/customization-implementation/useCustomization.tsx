@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useState, useContext} from 'react';
+import React, {useContext} from 'react';
 import {CustomizationApiInterface} from 'customization-api';
 import customizationConfig from 'customization';
 import createHook from './createHook';

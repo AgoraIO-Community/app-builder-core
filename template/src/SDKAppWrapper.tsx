@@ -1,8 +1,10 @@
 import React from 'react';
-import {CustomizationApiInterface, customize} from 'customization-api';
 import {
-  CustomizationProvider,
-} from 'customization-implementation';
+  CustomizationApiInterface,
+  customize,
+  MeetingInfoContextInterface,
+} from 'customization-api';
+import {CustomizationProvider} from 'customization-implementation';
 import SDKEvents, {userEventsMapInterface} from './utils/SdkEvents';
 import SDKMethodEventsManager from './utils/SdkMethodEvents';
 import {Unsubscribe} from 'nanoevents';
@@ -15,7 +17,7 @@ type makeAsync<T extends (...p: any) => void> = (
 
 export interface SdkMethodEvents {
   customize: (customization: CustomizationApiInterface) => void;
-  join: (roomid: string) => void;
+  join: (roomid: string | Partial<MeetingInfoContextInterface['data']>) => void;
 }
 
 type AppBuilderSdkEventMethods = {
@@ -35,10 +37,10 @@ type AppBuilderSdkApiInterface =
   | AppBuilderSdkEventMethods;
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
-  customize: async (customization: CustomizationApiInterface) => {
+  customize: async (customization) => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
-  join: async (roomid: string) => {
+  join: async (roomid) => {
     return await SDKMethodEventsManager.emit('join', roomid);
   },
   createCustomization: customize,

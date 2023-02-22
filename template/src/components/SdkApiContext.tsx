@@ -1,12 +1,16 @@
 import React, {createContext, useState, useEffect} from 'react';
 import SDKMethodEventsManager from '../utils/SdkMethodEvents';
+import {validateMeetingInfoData} from './meeting-info/useMeetingInfo';
 
 const SdkApiInitState = {
   SdkJoinState: {
     phrase: '',
+    meetingDetails: {},
   },
   SdkUserCustomization: {},
 };
+
+export const SDK_MEETING_TAG = 'sdk-initiated-meeting';
 
 export const SdkApiContext = createContext(SdkApiInitState);
 
@@ -20,12 +24,23 @@ const registerListener = () => {
         promise: {res, rej},
       };
     }),
-    SDKMethodEventsManager.on('join', (res, rej, roomid) => {
+    SDKMethodEventsManager.on('join', (res, rej, roomDetail) => {
       console.log('[SDKContext] join state set');
-      SdkApiInitState.SdkJoinState = {
-        phrase: roomid,
-        promise: {res, rej},
-      };
+      if (typeof roomDetail === 'object') {
+        if (!validateMeetingInfoData(roomDetail)) {
+          rej(new Error('Invalid meeting details'));
+        }
+        SdkApiInitState.SdkJoinState = {
+          phrase: SDK_MEETING_TAG,
+          meetingDetails: roomDetail,
+          promise: {res, rej},
+        };
+      } else {
+        SdkApiInitState.SdkJoinState = {
+          phrase: roomDetail,
+          promise: {res, rej},
+        };
+      }
     }),
   ];
 };
@@ -50,12 +65,26 @@ const SdkApiContextProvider: React.FC = (props) => {
           promise: {res, rej},
         });
       }),
-      SDKMethodEventsManager.on('join', (res, rej, roomid) => {
-        console.log('[SDKContext] setting join in component ', roomid);
-        setJoinState({
-          phrase: roomid,
-          promise: {res, rej},
-        });
+      SDKMethodEventsManager.on('join', (res, rej, roomDetail) => {
+        console.log('[SDKContext] setting join in component ', roomDetail);
+        if (
+          typeof roomDetail === 'object' &&
+          validateMeetingInfoData(roomDetail)
+        ) {
+          setJoinState({
+            phrase: SDK_MEETING_TAG,
+            meetingDetails: roomDetail,
+            promise: {res, rej},
+          });
+        } else if (typeof roomDetail === 'string' && roomDetail !== '') {
+          setJoinState({
+            phrase: roomDetail,
+            promise: {res, rej},
+          });
+        } else {
+          rej(new Error('Invalid meeting details'));
+          return;
+        }
       }),
     ];
 

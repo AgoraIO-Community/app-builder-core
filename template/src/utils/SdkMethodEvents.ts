@@ -50,7 +50,15 @@ class SDKMethodEvents {
     const result = await new Promise<EventReturnTypeHelper<T>>((res, rej) => {
       this.emitCache[event] = [res, rej, ...params] as any;
       this.emitter.emit(event, res, rej, ...params);
-    });
+    })
+      .then((res) => {
+        delete this.emitCache[event];
+        return res;
+      })
+      .catch((e) => {
+        delete this.emitCache[event];
+        throw e;
+      });
 
     return result;
   }

@@ -57,7 +57,7 @@ import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
 import {currentFocus, FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
-import {SdkApiContext} from '../components/SdkApiContext';
+import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
@@ -134,6 +134,8 @@ const VideoCall: React.FC = () => {
   const currentMeetingPhrase = useRef(history.location.pathname);
 
   const useJoin = useJoinMeeting();
+  const {setMeetingInfo} = useSetMeetingInfo();
+  const {isJoinDataFetched, data} = useMeetingInfo();
 
   React.useEffect(() => {
     return () => {
@@ -145,24 +147,60 @@ const VideoCall: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    useJoin(phrase)
-      .then(() => {})
-      .catch((error) => {
-        setGlobalErrorMessage(error);
-        history.push('/');
-      });
+    if (!SdkJoinState.phrase) {
+      useJoin(phrase)
+        .then(() => {})
+        .catch((error) => {
+          setGlobalErrorMessage(error);
+          history.push('/');
+        });
+    }
   }, []);
 
   useEffect(() => {
-    const sdkMeetingPath = `/${SdkJoinState.phrase}`;
-    if (isSDK() && currentMeetingPhrase.current !== sdkMeetingPath) {
+    if (!isSDK()) {
+      return;
+    }
+    const {
+      phrase: sdkMeetingPhrase,
+      meetingDetails: sdkMeetingDetails,
+      promise,
+    } = SdkJoinState;
+    const sdkMeetingPath = `/${sdkMeetingPhrase}`;
+    if (sdkMeetingDetails) {
       setQueryComplete(false);
-      currentMeetingPhrase.current = sdkMeetingPath;
-      useJoin(SdkJoinState.phrase);
+      setMeetingInfo((meetingInfo) => {
+        return {
+          isJoinDataFetched: true,
+          data: {
+            ...meetingInfo.data,
+            ...sdkMeetingDetails,
+          },
+        };
+      });
+      promise.res(sdkMeetingDetails);
+    } else if (sdkMeetingPhrase) {
+      if (
+        currentMeetingPhrase.current !== sdkMeetingPath ||
+        !isJoinDataFetched
+      ) {
+        setQueryComplete(false);
+        currentMeetingPhrase.current = sdkMeetingPath;
+        useJoin(sdkMeetingPhrase)
+          .then((fetchedMeetingInfo) => {
+            promise.res(fetchedMeetingInfo);
+          })
+          .catch((error) => {
+            setGlobalErrorMessage(error);
+            history.push('/');
+            currentMeetingPhrase.current = '';
+            promise.rej(error);
+          });
+      } else {
+        promise.res(data);
+      }
     }
   }, [SdkJoinState]);
-
-  const {isJoinDataFetched, data} = useMeetingInfo();
 
   React.useEffect(() => {
     if (isJoinDataFetched === true) {
