@@ -163,7 +163,7 @@ const VideoCall: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isSDK()) {
+    if (!isSDK() || !SdkJoinState.initialized) {
       return;
     }
     const {

@@ -49,8 +49,8 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const {deviceList} = useContext(DeviceContext);
 
   useEffect(() => {
-    if (join.phrase) {
-      join.promise?.res(meetingInfo.data);
+    if (join.initialized && join.phrase) {
+      join.promise.res(meetingInfo.data);
     }
     SDKEvents.emit(
       'join',

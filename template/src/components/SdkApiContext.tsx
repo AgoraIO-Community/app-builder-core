@@ -10,15 +10,20 @@ import {CustomizationApiInterface} from 'customization-api';
 import {Unsubscribe} from 'nanoevents';
 
 type SdkApiContextInterface = {
-  join: {
-    phrase: string;
-    meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
-    skipPrecall: boolean;
-    promise?: {
-      res: Parameters<_InternalSDKMethodEventsMap['join']>[0];
-      rej: Parameters<_InternalSDKMethodEventsMap['join']>[1];
-    };
-  };
+  join:
+    | {
+        initialized: true;
+        phrase: string;
+        meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
+        skipPrecall: boolean;
+        promise: {
+          res: Parameters<_InternalSDKMethodEventsMap['join']>[0];
+          rej: Parameters<_InternalSDKMethodEventsMap['join']>[1];
+        };
+      }
+    | {
+        initialized: false;
+      };
   customize: {
     customization?: CustomizationApiInterface;
     promise?: {
@@ -31,8 +36,7 @@ type SdkApiContextInterface = {
 
 const SdkApiInitState: SdkApiContextInterface = {
   join: {
-    phrase: '',
-    skipPrecall: false,
+    initialized: false,
   },
   customize: {},
   clearState: () => {},
@@ -61,6 +65,7 @@ const commonEventHandlers: commonEventHandlers = {
             return;
           }
           setter({
+            initialized: true,
             phrase: SDK_MEETING_TAG,
             meetingDetails: roomDetail,
             skipPrecall,
@@ -71,6 +76,7 @@ const commonEventHandlers: commonEventHandlers = {
           roomDetail.trim().length > 0
         ) {
           setter({
+            initialized: true,
             phrase: roomDetail,
             skipPrecall,
             promise: {res, rej},

@@ -20,7 +20,7 @@ const Navigation = () => {
   const history = useHistory();
 
   useEffect(() => {
-    if (isSDK()) {
+    if (isSDK() && SdkJoinState.initialized) {
       if (SdkJoinState.phrase) {
         history.push(`/${SdkJoinState.phrase}`);
       }

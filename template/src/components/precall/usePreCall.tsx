@@ -15,7 +15,6 @@ import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
 import {
   useMeetingInfo,
-  MeetingInfoContextInterface,
 } from '../meeting-info/useMeetingInfo';
 import SDKEvents from '../../utils/SdkEvents';
 import DeviceContext from '../DeviceContext';
