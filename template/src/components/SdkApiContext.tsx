@@ -66,12 +66,17 @@ const commonEventHandlers: commonEventHandlers = {
             skipPrecall,
             promise: {res, rej},
           });
-        } else {
+        } else if (
+          typeof roomDetail === 'string' &&
+          roomDetail.trim().length > 0
+        ) {
           setter({
             phrase: roomDetail,
             skipPrecall,
             promise: {res, rej},
           });
+        } else {
+          rej(new Error('Invalid room detail'));
         }
       },
     );
