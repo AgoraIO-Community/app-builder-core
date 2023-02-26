@@ -165,6 +165,7 @@ class Events {
       if (!this._validateEvt(eventName) || !this._validateListener(listener))
         return;
       EventUtils.addListener(eventName, listener, this.source);
+      console.log('CUSTOM_EVENT_API event listener registered', eventName);
       return () => {
         EventUtils.removeListener(eventName, listener, this.source);
       };
