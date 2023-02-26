@@ -38,7 +38,11 @@ import {useString} from '../utils/useString';
 import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {
+  useMeetingInfo,
+  MeetingInfoDefaultValue,
+  validateMeetingInfoData,
+} from '../components/meeting-info/useMeetingInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
@@ -140,7 +144,7 @@ const VideoCall: React.FC = () => {
   React.useEffect(() => {
     return () => {
       console.log('Videocall unmounted');
-      clearState('join');
+      setMeetingInfo(MeetingInfoDefaultValue);
       if (awake) {
         release();
       }
@@ -173,14 +177,14 @@ const VideoCall: React.FC = () => {
 
     const resolveJoinPromise = (meetingData: MeetingInfoContextInterface) => {
       if (skipPrecall) {
-        promise.res(meetingData);
+        // promise.res(meetingData);
       } else {
-        promise.res([
-          meetingData,
-          () => {
-            setCallActive(true);
-          },
-        ]);
+        // promise.res([
+        //   meetingData,
+        //   () => {
+        //     setCallActive(true);
+        //   },
+        // ]);
       }
     };
 
@@ -198,32 +202,24 @@ const VideoCall: React.FC = () => {
         };
       });
       resolveJoinPromise(sdkMeetingDetails);
-    }
-    if (sdkMeetingPhrase) {
-      if (
-        currentMeetingPhrase.current !== sdkMeetingPath ||
-        !isJoinDataFetched
-      ) {
-        setQueryComplete(false);
-        currentMeetingPhrase.current = sdkMeetingPath;
-        useJoin(sdkMeetingPhrase)
-          .then((fetchedMeetingInfo) => {
-            resolveJoinPromise(fetchedMeetingInfo);
-          })
-          .catch((error) => {
-            setGlobalErrorMessage(error);
-            history.push('/');
-            currentMeetingPhrase.current = '';
-            promise.rej(error);
-          });
-      } else {
-        resolveJoinPromise(data);
-      }
+    } else if (sdkMeetingPhrase) {
+      setQueryComplete(false);
+      currentMeetingPhrase.current = sdkMeetingPath;
+      useJoin(sdkMeetingPhrase)
+        .then((fetchedMeetingInfo) => {
+          resolveJoinPromise(fetchedMeetingInfo);
+        })
+        .catch((error) => {
+          setGlobalErrorMessage(error);
+          history.push('/');
+          currentMeetingPhrase.current = '';
+          promise.rej(error);
+        });
     }
   }, [SdkJoinState]);
 
   React.useEffect(() => {
-    if (isJoinDataFetched === true) {
+    if (isJoinDataFetched === true && !queryComplete) {
       setRtcProps({
         appId: $config.APP_ID,
         channel: data.channel,
@@ -250,11 +246,17 @@ const VideoCall: React.FC = () => {
       // if (data.username) {
       //   setUsername(data.username);
       // }
-      queryComplete ? {} : setQueryComplete(isJoinDataFetched);
+      setQueryComplete(true);
     }
-  }, [isJoinDataFetched, data]);
+  }, [isJoinDataFetched, data, queryComplete]);
 
   const callbacks = {
+    // RtcLeft: () => {},
+    // RtcJoined: () => {
+    //   if (SdkJoinState.phrase && SdkJoinState.skipPrecall) {
+    //     SdkJoinState.promise?.res();
+    //   }
+    // },
     EndCall: () => {
       clearState('join');
       setTimeout(() => {

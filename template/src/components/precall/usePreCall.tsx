@@ -9,9 +9,11 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {createContext} from 'react';
+import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
+import {SdkApiContext} from '../SdkApiContext';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 
 export interface PreCallContextInterface {
   callActive: boolean;
@@ -46,6 +48,20 @@ interface PreCallProviderProps {
 }
 
 const PreCallProvider = (props: PreCallProviderProps) => {
+  const {join} = useContext(SdkApiContext);
+  const meetingInfo = useMeetingInfo();
+
+  useEffect(() => {
+    if (join.phrase) {
+      join.promise?.res([
+        meetingInfo,
+        () => {
+          props.value.setCallActive(true);
+        },
+      ]);
+    }
+  }, []);
+
   return (
     <PreCallContext.Provider value={{...props.value}}>
       {props.children}

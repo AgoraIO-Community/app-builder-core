@@ -58,6 +58,7 @@ const commonEventHandlers: commonEventHandlers = {
         if (typeof roomDetail === 'object') {
           if (!validateMeetingInfoData(roomDetail)) {
             rej(new Error('Invalid meeting details'));
+            return;
           }
           setter({
             phrase: SDK_MEETING_TAG,

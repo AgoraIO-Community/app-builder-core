@@ -10,10 +10,12 @@
 *********************************************
 */
 
-import React, {SetStateAction, useState} from 'react';
+import React, {SetStateAction, useState, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
+import {SdkApiContext} from './SdkApiContext';
+import {useRtc} from 'customization-api';
 
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
@@ -40,6 +42,16 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
+  const {join} = useContext(SdkApiContext);
+  const rtc = useRtc();
+
+  useEffect(() => {
+    //@ts-ignore
+    console.log('!!!!!I have been called bruh', rtc.RtcEngine.isJoined);
+    if (join.phrase) {
+      join.promise?.res();
+    }
+  }, []);
   return (
     <VideoCallContext.Provider
       value={{
