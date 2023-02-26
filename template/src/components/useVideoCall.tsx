@@ -15,7 +15,9 @@ import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
 import {SdkApiContext} from './SdkApiContext';
-import {useRtc} from 'customization-api';
+import {useRtc, useMeetingInfo} from 'customization-api';
+import SDKEvents from '../utils/SdkEvents';
+import DeviceContext from './DeviceContext';
 
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
@@ -43,14 +45,19 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
   const {join} = useContext(SdkApiContext);
-  const rtc = useRtc();
+  const meetingInfo = useMeetingInfo();
+  const {deviceList} = useContext(DeviceContext);
 
   useEffect(() => {
-    //@ts-ignore
-    console.log('!!!!!I have been called bruh', rtc.RtcEngine.isJoined);
     if (join.phrase) {
-      join.promise?.res();
+      join.promise?.res(meetingInfo.data);
     }
+    SDKEvents.emit(
+      'join',
+      meetingInfo.data.meetingTitle,
+      deviceList,
+      meetingInfo.data.isHost,
+    );
   }, []);
   return (
     <VideoCallContext.Provider

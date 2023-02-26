@@ -175,19 +175,6 @@ const VideoCall: React.FC = () => {
 
     const sdkMeetingPath = `/${sdkMeetingPhrase}`;
 
-    const resolveJoinPromise = (meetingData: MeetingInfoContextInterface) => {
-      if (skipPrecall) {
-        // promise.res(meetingData);
-      } else {
-        // promise.res([
-        //   meetingData,
-        //   () => {
-        //     setCallActive(true);
-        //   },
-        // ]);
-      }
-    };
-
     setCallActive(skipPrecall);
 
     if (sdkMeetingDetails) {
@@ -201,20 +188,15 @@ const VideoCall: React.FC = () => {
           },
         };
       });
-      resolveJoinPromise(sdkMeetingDetails);
     } else if (sdkMeetingPhrase) {
       setQueryComplete(false);
       currentMeetingPhrase.current = sdkMeetingPath;
-      useJoin(sdkMeetingPhrase)
-        .then((fetchedMeetingInfo) => {
-          resolveJoinPromise(fetchedMeetingInfo);
-        })
-        .catch((error) => {
-          setGlobalErrorMessage(error);
-          history.push('/');
-          currentMeetingPhrase.current = '';
-          promise.rej(error);
-        });
+      useJoin(sdkMeetingPhrase).catch((error) => {
+        setGlobalErrorMessage(error);
+        history.push('/');
+        currentMeetingPhrase.current = '';
+        promise.rej(error);
+      });
     }
   }, [SdkJoinState]);
 

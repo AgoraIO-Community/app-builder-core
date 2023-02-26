@@ -13,7 +13,12 @@ import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {
+  useMeetingInfo,
+  MeetingInfoContextInterface,
+} from '../meeting-info/useMeetingInfo';
+import SDKEvents from '../../utils/SdkEvents';
+import DeviceContext from '../DeviceContext';
 
 export interface PreCallContextInterface {
   callActive: boolean;
@@ -50,16 +55,20 @@ interface PreCallProviderProps {
 const PreCallProvider = (props: PreCallProviderProps) => {
   const {join} = useContext(SdkApiContext);
   const meetingInfo = useMeetingInfo();
+  const {deviceList} = useContext(DeviceContext);
 
   useEffect(() => {
     if (join.phrase) {
-      join.promise?.res([
-        meetingInfo,
+      //@ts-ignore
+      join?.promise?.res([
+        meetingInfo.data,
         () => {
           props.value.setCallActive(true);
         },
       ]);
     }
+
+    SDKEvents.emit('ready-to-join', meetingInfo.data.meetingTitle, deviceList);
   }, []);
 
   return (
