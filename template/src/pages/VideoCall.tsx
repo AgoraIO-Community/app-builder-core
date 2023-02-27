@@ -134,6 +134,7 @@ const VideoCall: React.FC = () => {
     role: ClientRole.Broadcaster,
     geoFencing: $config.GEO_FENCING,
     audioRoom: $config.AUDIO_ROOM,
+    activeSpeaker: $config.ACTIVE_SPEAKER,
   });
 
   const {join: SdkJoinState, clearState} = useContext(SdkApiContext);
@@ -225,6 +226,7 @@ const VideoCall: React.FC = () => {
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
         geoFencing: $config.GEO_FENCING,
         audioRoom: $config.AUDIO_ROOM,
+        activeSpeaker: $config.ACTIVE_SPEAKER,
       });
 
       // 1. Store the display name from API

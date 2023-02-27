@@ -97,6 +97,7 @@ interface ConfigInterface {
   ICON_TEXT: boolean;
   ICON_BG_COLOR: string;
   TOOLBAR_COLOR: string;
+  ACTIVE_SPEAKER: boolean;
 }
 declare var $config: ConfigInterface;
 declare module 'customization' {
