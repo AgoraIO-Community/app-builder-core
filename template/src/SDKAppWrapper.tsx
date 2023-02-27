@@ -46,6 +46,9 @@ export const AppBuilderSdkApi = {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
   customEvents: customEvents,
+  join: async (roomDetails: string) => {
+    await SDKMethodEventsManager.emit('join', roomDetails, false);
+  },
   joinRoom: async (
     roomDetails: string | Partial<MeetingInfoContextInterface['data']>,
   ) => {
