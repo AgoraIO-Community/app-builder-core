@@ -79,21 +79,22 @@ const AuthProvider = (props: AuthProviderProps) => {
   }
 
   useEffect(() => {
+    //fetch user details
     getUserDetails()
       .then((_) => {
         setIsAuthenticated(true);
-        authLogin();
-        //history.push(location.pathname);
       })
       .catch((err) => {
-        //if authentication is disabled no need to set session expired,
+        //if authentication is disabled no need to show session expired,
         //internally refresh the token and set it
         if (!enableAuth) {
+          setIsAuthenticated(false);
           authLogin();
         } else {
           setAuthError('Your session has expird. Kindly login again');
           setIsAuthenticated(false);
-          history.push(`/login`);
+          // history.push(location.pathname);
+          authLogin();
         }
       });
   }, []);

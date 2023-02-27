@@ -36,25 +36,34 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
     didMountRef.current = true;
   }, [authenticated]);
 
-  return (
-    <Route
-      {...props}
-      render={({location}) => {
-        return authenticated ? (
-          props.children
-        ) : (
-          <Redirect
-            to={{
-              pathname: '/login',
-              state: {
-                from: location,
-              },
-            }}
-          />
-        );
+  return authenticated ? (
+    <Route {...props} />
+  ) : (
+    <Redirect
+      to={{
+        pathname: '/login',
       }}
     />
   );
+  // return (
+  //   <Route
+  //     {...props}
+  //     render={({location}) => {
+  //       return authenticated ? (
+  //         props.children
+  //       ) : (
+  //         <Redirect
+  //           to={{
+  //             pathname: '/login',
+  //             state: {
+  //               from: location,
+  //             },
+  //           }}
+  //         />
+  //       );
+  //     }}
+  //   />
+  // );
 };
 
 export default AuthRoute;

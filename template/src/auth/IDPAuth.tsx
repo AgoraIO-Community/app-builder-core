@@ -9,7 +9,7 @@ export const IDPAuth = () => {
 
   useEffect(() => {
     setIsAuthenticated(true);
-    history.push('/create');
+    history.push('/');
   }, []);
 
   return <Loading text={'Authorizing app...'} />;
