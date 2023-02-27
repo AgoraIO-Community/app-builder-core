@@ -3,6 +3,7 @@ import {
   CustomizationApiInterface,
   customize,
   MeetingInfoContextInterface,
+  customEvents,
 } from 'customization-api';
 import {CustomizationProvider} from 'customization-implementation';
 import SDKEvents, {userEventsMapInterface} from './utils/SdkEvents';
@@ -44,6 +45,7 @@ export const AppBuilderSdkApi = {
   customize: async (customization: CustomizationApiInterface) => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
+  customEvents: customEvents,
   joinRoom: async (
     roomDetails: string | Partial<MeetingInfoContextInterface['data']>,
   ) => {

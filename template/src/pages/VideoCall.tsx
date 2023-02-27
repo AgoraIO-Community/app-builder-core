@@ -18,6 +18,9 @@ import {
   ClientRole,
   ChannelProfile,
   LocalUserContext,
+  UidType,
+  CallbacksInterface,
+  ToggleState,
 } from '../../agora-rn-uikit';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
@@ -232,7 +235,7 @@ const VideoCall: React.FC = () => {
     }
   }, [isJoinDataFetched, data, queryComplete]);
 
-  const callbacks = {
+  const callbacks: CallbacksInterface = {
     // RtcLeft: () => {},
     // RtcJoined: () => {
     //   if (SdkJoinState.phrase && SdkJoinState.skipPrecall) {
@@ -245,6 +248,30 @@ const VideoCall: React.FC = () => {
         SDKEvents.emit('leave');
         history.push('/');
       }, 0);
+    },
+    UserJoined: (uid: UidType) => {
+      console.log("UIKIT Callback: UserJoined", uid)
+      SDKEvents.emit('rtc-user-joined', uid);
+    },
+    UserOffline: (uid: UidType) => {
+      console.log("UIKIT Callback: UserOffline", uid)
+      SDKEvents.emit('rtc-user-joined', uid);
+    },
+    RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
+      console.log("UIKIT Callback: RemoteAudioStateChanged", uid, status)
+      if (status === 0) {
+        SDKEvents.emit('rtc-user-unpublished', uid, 'audio');
+      } else {
+        SDKEvents.emit('rtc-user-published', uid, 'audio');
+      }
+    },
+    RemoteVideoStateChanged: (uid: UidType, status: 0 | 2) => {
+      console.log("UIKIT Callback: RemoteVideoStateChanged", uid, status)
+      if (status === 0) {
+        SDKEvents.emit('rtc-user-unpublished', uid, 'video');
+      } else {
+        SDKEvents.emit('rtc-user-published', uid, 'video');
+      }
     },
   };
   const [isCameraAvailable, setCameraAvailable] = useState(false);

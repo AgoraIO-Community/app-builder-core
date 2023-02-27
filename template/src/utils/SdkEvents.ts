@@ -11,6 +11,8 @@
 */
 
 import {createNanoEvents} from 'nanoevents';
+import {UidType} from 'agora-rn-uikit';
+import {IRemoteTrack} from 'agora-rtc-sdk-ng';
 
 export interface userEventsMapInterface {
   leave: () => void;
@@ -28,6 +30,10 @@ export interface userEventsMapInterface {
     devices: MediaDeviceInfo[],
     isHost: boolean,
   ) => void;
+  'rtc-user-published': (uid: UidType, trackType: 'audio' | 'video') => void;
+  'rtc-user-unpublished': (uid: UidType, trackType: 'audio' | 'video') => void;
+  'rtc-user-joined': (uid: UidType) => void;
+  'rtc-user-left': (uid: UidType) => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();
