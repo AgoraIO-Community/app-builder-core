@@ -85,16 +85,13 @@ const AuthProvider = (props: AuthProviderProps) => {
         setIsAuthenticated(true);
       })
       .catch((err) => {
-        //if authentication is disabled no need to show session expired,
-        //internally refresh the token and set it
-        if (!enableAuth) {
-          setIsAuthenticated(false);
-          authLogin();
-        } else {
+        setIsAuthenticated(false);
+        authLogin();
+        if (!isSDK() && enableAuth) {
+          //show session expired notification
+          //only on auth enabled and non sdk
           setAuthError('Your session has expird. Kindly login again');
-          setIsAuthenticated(false);
-          // history.push(location.pathname);
-          authLogin();
+          //todo SDK handle session expire
         }
       });
   }, []);
@@ -196,8 +193,8 @@ const AuthProvider = (props: AuthProviderProps) => {
         });
     } else {
       console.log('supriya logout AUTH/UNAUTH');
-      if (!enableAuth) {
-        //no need to logout because we need to token to see the create screen
+      if (!enableAuth || isSDK()) {
+        //no need to logout because we need token to see the create screen
         history.push('/create');
       } else {
         tokenLogout()
