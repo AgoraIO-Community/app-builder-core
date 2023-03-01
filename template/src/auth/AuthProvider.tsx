@@ -83,6 +83,8 @@ const AuthProvider = (props: AuthProviderProps) => {
     getUserDetails()
       .then((_) => {
         setIsAuthenticated(true);
+        //sdk redirect todo check in other platfrom
+        history.push(location.pathname);
       })
       .catch((err) => {
         setIsAuthenticated(false);
