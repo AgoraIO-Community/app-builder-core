@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
+import React, {useContext} from 'react';
 import {Router} from './components/Router';
 import Navigation from './components/Navigation';
 import {StorageProvider} from './components/StorageContext';
@@ -32,6 +32,8 @@ import {LanguageProvider} from './language/useLanguage';
 import {PropsConsumer} from 'agora-rn-uikit';
 import ToastComponent from './components/ToastComponent';
 import {ToastContext, ToastProvider} from './components/useToast';
+import {SdkApiContext} from './components/SdkApiContext';
+import isSDK from './utils/isSDK';
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -73,6 +75,8 @@ const AppWrapper = (props: AppWrapperProps) => {
     return React.Fragment;
   });
 
+  const {join: SdkJoinState} = useContext(SdkApiContext);
+
   return (
     <AppRoot>
       <ImageBackgroundComp bg={$config.BG} color={$config.BACKGROUND_COLOR}>
@@ -88,7 +92,13 @@ const AppWrapper = (props: AppWrapperProps) => {
             </ToastContext.Consumer>
             <StorageProvider>
               <GraphQLProvider>
-                <Router>
+                <Router
+                  /*@ts-ignore Router will be memory Router in sdk*/
+                  initialEntries={[
+                    isSDK && SdkJoinState.phrase
+                      ? `/${SdkJoinState.phrase}`
+                      : '',
+                  ]}>
                   <SessionProvider>
                     <ColorConfigure>
                       <DimensionProvider>
