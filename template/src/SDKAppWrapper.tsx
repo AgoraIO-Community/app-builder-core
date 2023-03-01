@@ -106,9 +106,13 @@ const SDKAppWrapper = () => {
     // Join event consumed in Create.tsx
   }, []);
 
+  /**
+   * if token auth disabled then user don't need to call the initialize method
+   * internally call unauth flow login and generate token
+   * */
   return (
     <>
-      {initialized ? (
+      {initialized || !$config.ENABLE_TOKEN_AUTH ? (
         <CustomizationProvider value={fpe}>
           <App />
         </CustomizationProvider>
