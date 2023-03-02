@@ -9,25 +9,33 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-/**
- * @format
- */
-type callBackType = (...args: any[]) => void;
-import {userEventsMapInterface} from '../SDKAppWrapper';
-import {createNanoEvents} from 'nanoevents';
 
-interface eventsMapInterface extends userEventsMapInterface {
-  appInit?: callBackType;
-  addFpe?: callBackType;
-  addFpeInit?: () => void;
-  joinInit?: () => void;
-  joinMeetingWithPhrase?: (
-    phrase: string,
-    resolve: () => void,
-    reject: (e: Error) => void,
+import {createNanoEvents} from 'nanoevents';
+import {UidType} from 'agora-rn-uikit';
+import {IRemoteTrack} from 'agora-rtc-sdk-ng';
+
+export interface userEventsMapInterface {
+  leave: () => void;
+  create: (
+    hostPhrase: string,
+    attendeePhrase?: string,
+    pstnNumer?: {
+      number: string;
+      pin: string;
+    },
   ) => void;
+  'ready-to-join': (meetingTitle: string, devices: MediaDeviceInfo[]) => void;
+  join: (
+    meetingTitle: string,
+    devices: MediaDeviceInfo[],
+    isHost: boolean,
+  ) => void;
+  'rtc-user-published': (uid: UidType, trackType: 'audio' | 'video') => void;
+  'rtc-user-unpublished': (uid: UidType, trackType: 'audio' | 'video') => void;
+  'rtc-user-joined': (uid: UidType) => void;
+  'rtc-user-left': (uid: UidType) => void;
 }
 
-const SDKEvents = createNanoEvents<eventsMapInterface>();
+const SDKEvents = createNanoEvents<userEventsMapInterface>();
 
 export default SDKEvents;

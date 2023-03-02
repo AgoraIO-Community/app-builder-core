@@ -28,9 +28,7 @@ import {useString} from '../utils/useString';
 import useCreateMeeting from '../utils/useCreateMeeting';
 import {CreateProvider} from './create/useCreate';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import SDKEvents from '../utils/SdkEvents';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -42,6 +40,7 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -121,23 +120,7 @@ const Create = () => {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
-    const unbind = SDKEvents.on(
-      'joinMeetingWithPhrase',
-      (phrase, resolve, reject) => {
-        console.log('SDKEvents: joinMeetingWithPhrase event called', phrase);
-        try {
-          setMeetingInfo(MeetingInfoDefaultValue);
-          history.push(phrase);
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      },
-    );
-    SDKEvents.emit('joinInit');
-    return () => {
-      unbind();
-    };
+    return () => {};
   }, []);
 
   const showShareScreen = () => {

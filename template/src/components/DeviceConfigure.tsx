@@ -398,14 +398,23 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   useEffect(() => {
     log('previous devicelist updated', deviceList);
     AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
+    return () => {
+      AgoraRTC.onMicrophoneChanged = null;
+    };
   }, [selectedMic, deviceList]);
 
   useEffect(() => {
     AgoraRTC.onPlaybackDeviceChanged = commonOnChangedEvent;
+    return () => {
+      AgoraRTC.onPlaybackDeviceChanged = null;
+    };
   }, [selectedSpeaker, deviceList]);
 
   useEffect(() => {
     AgoraRTC.onCameraChanged = commonOnChangedEvent;
+    return () => {
+      AgoraRTC.onCameraChanged = null;
+    };
   }, [selectedCam, deviceList]);
 
   const setSelectedMic = (deviceId: deviceId) => {
