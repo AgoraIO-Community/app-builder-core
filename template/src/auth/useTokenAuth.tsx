@@ -1,9 +1,9 @@
-import React, {useEffect, useContext} from 'react';
+import React, {useEffect, useContext, useRef} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwt_decode from 'jwt-decode';
 import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
-
+import SdkEvents from '../utils/SdkEvents';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
@@ -24,9 +24,11 @@ const useTokenAuth = () => {
       const decoded = jwt_decode(token);
       const expiresAt = decoded?.exp * 1000;
       if (Date.now() >= expiresAt) {
+        SdkEvents.emit('did-token-expire');
         throw 'Token expired. Pass a new token';
       }
     } else {
+      SdkEvents.emit('token-not-found');
       throw 'Token is missing in the options';
     }
     return true;
@@ -60,6 +62,7 @@ const useTokenAuth = () => {
 
       if (diffInSeconds < REFRESH_TOKEN_DURATION_IN_SEC) {
         try {
+          SdkEvents.emit('will-token-expire');
           getRefreshToken();
           clearInterval(timer);
         } catch (error) {
@@ -82,6 +85,7 @@ const useTokenAuth = () => {
       const decoded = jwt_decode(serverToken);
       const expiresAt = decoded?.exp * 1000;
       if (Date.now() >= expiresAt) {
+        SdkEvents.emit('did-token-expire');
         throw 'Token expired. Pass a new token';
       } else {
         setTokenExpiresAt(expiresAt);
@@ -104,9 +108,11 @@ const useTokenAuth = () => {
             storeToken(token);
             resolve(true);
           } else {
+            SdkEvents.emit('did-token-expire');
             throw new Error('Token expired');
           }
         } else {
+          SdkEvents.emit('token-not-found');
           throw new Error('Token not found');
         }
       } catch (error) {

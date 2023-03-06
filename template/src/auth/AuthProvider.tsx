@@ -113,13 +113,19 @@ const AuthProvider = (props: AuthProviderProps) => {
             history.push('/create');
           })
           .catch((error) => {
-            if (error instanceof Error) {
-              setAuthError(error.message);
-            } else {
-              setAuthError(error);
+            //don't show token expire/not found toast in the sdk
+            //we have event emitter to inform the customer application
+            //they have to listen for those events
+            if (!isSDK()) {
+              if (error instanceof Error) {
+                setAuthError(error.message);
+              } else {
+                setAuthError(error);
+              }
             }
             setIsAuthenticated(false);
-            history.push('/login');
+            //sdk there is no fallback page
+            history.push('/create');
           });
       }
     } else {
@@ -142,10 +148,15 @@ const AuthProvider = (props: AuthProviderProps) => {
                   history.push('/create');
                 })
                 .catch((error) => {
-                  if (error instanceof Error) {
-                    setAuthError(error.message);
-                  } else {
-                    setAuthError(error);
+                  //don't show token expire/not found toast in the sdk
+                  //we have event emitter to inform the customer application
+                  //they have to listen for those events
+                  if (!isSDK()) {
+                    if (error instanceof Error) {
+                      setAuthError(error.message);
+                    } else {
+                      setAuthError(error);
+                    }
                   }
                   setIsAuthenticated(false);
                   //TODO fallback

@@ -15,6 +15,7 @@ import Toast from '../../react-native-toast-message';
 
 import type {RouteProps} from 'react-router';
 import {useAuth} from './AuthProvider';
+import isSDK from '../utils/isSDK';
 
 interface PrivateRouteProps extends RouteProps {
   children: React.ReactNode;
@@ -35,6 +36,12 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
     }
     didMountRef.current = true;
   }, [authenticated]);
+
+  //on SDK no fallback so even though authentication failed we will still show the routes
+  //when user try to perform any operation it will get failed and throw regular error message
+  if (isSDK()) {
+    return <Route {...props} />;
+  }
 
   return authenticated ? (
     <Route {...props} />
