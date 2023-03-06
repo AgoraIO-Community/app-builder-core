@@ -14,6 +14,8 @@ const useTokenAuth = () => {
 
   const storeToken = (token: string) => {
     setStore && setStore((store) => ({...store, token}));
+    //updated the sdk token in localstorage if appbuilder refreshed then will get the refreshed token
+    AsyncStorage.setItem('SDK_TOKEN', token);
     setServerToken(token);
   };
 
