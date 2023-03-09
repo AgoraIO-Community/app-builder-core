@@ -12,12 +12,19 @@ export * from 'customization-implementation';
 
 interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {}
 
+const clearEvent = {
+  clear: () => {},
+};
+
 const AppBuilderWebSdkApi: AppBuilderWebSdkInterface = {
   ...AppBuilderSdkApi,
   // Override customize function for web-sdk
   customize: (customization) => {
-    SDKEvents.on('addFpeInit', () => {
+    SDKEvents.emit('addFpe', customization);
+    clearEvent.clear = SDKEvents.on('addFpeInit', () => {
+      console.log('addFpeInit called');
       SDKEvents.emit('addFpe', customization);
+      clearEvent.clear();
     });
   },
 };

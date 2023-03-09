@@ -10,7 +10,7 @@
 *********************************************
 */
 // @ts-nocheck
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {View, StyleSheet, Text, useWindowDimensions} from 'react-native';
 import {
   RtcConfigure,
@@ -18,6 +18,9 @@ import {
   ClientRole,
   ChannelProfile,
   LocalUserContext,
+  UidType,
+  CallbacksInterface,
+  ToggleState,
 } from '../../agora-rn-uikit';
 import styles from '../components/styles';
 import {useParams, useHistory} from '../components/Router';
@@ -38,7 +41,11 @@ import {useString} from '../utils/useString';
 import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinMeeting from '../utils/useJoinMeeting';
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {
+  useMeetingInfo,
+  MeetingInfoDefaultValue,
+  validateMeetingInfoData,
+} from '../components/meeting-info/useMeetingInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
@@ -57,6 +64,9 @@ import EventsConfigure from '../components/EventsConfigure';
 import PermissionHelper from '../components/precall/PermissionHelper';
 import {currentFocus, FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
+import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
+import isSDK from '../utils/isSDK';
+import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 
 enum RnEncryptionEnum {
   /**
@@ -127,11 +137,18 @@ const VideoCall: React.FC = () => {
     activeSpeaker: $config.ACTIVE_SPEAKER,
   });
 
+  const {join: SdkJoinState, clearState} = useContext(SdkApiContext);
+  const history = useHistory();
+  const currentMeetingPhrase = useRef(history.location.pathname);
+
   const useJoin = useJoinMeeting();
+  const {setMeetingInfo} = useSetMeetingInfo();
+  const {isJoinDataFetched, data} = useMeetingInfo();
 
   React.useEffect(() => {
     return () => {
       console.log('Videocall unmounted');
+      setMeetingInfo(MeetingInfoDefaultValue);
       if (awake) {
         release();
       }
@@ -139,18 +156,56 @@ const VideoCall: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    useJoin(phrase)
-      .then(() => {})
-      .catch((error) => {
-        setGlobalErrorMessage(error);
-        history.push('/');
-      });
+    if (!SdkJoinState.phrase) {
+      useJoin(phrase)
+        .then(() => {})
+        .catch((error) => {
+          setGlobalErrorMessage(error);
+          history.push('/');
+        });
+    }
   }, []);
 
-  const {isJoinDataFetched, data} = useMeetingInfo();
+  useEffect(() => {
+    if (!isSDK() || !SdkJoinState.initialized) {
+      return;
+    }
+    const {
+      phrase: sdkMeetingPhrase,
+      meetingDetails: sdkMeetingDetails,
+      skipPrecall,
+      promise,
+    } = SdkJoinState;
+
+    const sdkMeetingPath = `/${sdkMeetingPhrase}`;
+
+    setCallActive(skipPrecall);
+
+    if (sdkMeetingDetails) {
+      setQueryComplete(false);
+      setMeetingInfo((meetingInfo) => {
+        return {
+          isJoinDataFetched: true,
+          data: {
+            ...meetingInfo.data,
+            ...sdkMeetingDetails,
+          },
+        };
+      });
+    } else if (sdkMeetingPhrase) {
+      setQueryComplete(false);
+      currentMeetingPhrase.current = sdkMeetingPath;
+      useJoin(sdkMeetingPhrase).catch((error) => {
+        setGlobalErrorMessage(error);
+        history.push('/');
+        currentMeetingPhrase.current = '';
+        promise.rej(error);
+      });
+    }
+  }, [SdkJoinState]);
 
   React.useEffect(() => {
-    if (isJoinDataFetched === true) {
+    if (isJoinDataFetched === true && !queryComplete) {
       setRtcProps({
         appId: $config.APP_ID,
         channel: data.channel,
@@ -178,17 +233,48 @@ const VideoCall: React.FC = () => {
       // if (data.username) {
       //   setUsername(data.username);
       // }
-      queryComplete ? {} : setQueryComplete(isJoinDataFetched);
+      setQueryComplete(true);
     }
-  }, [isJoinDataFetched]);
+  }, [isJoinDataFetched, data, queryComplete]);
 
-  const history = useHistory();
-  const callbacks = {
-    EndCall: () =>
+  const callbacks: CallbacksInterface = {
+    // RtcLeft: () => {},
+    // RtcJoined: () => {
+    //   if (SdkJoinState.phrase && SdkJoinState.skipPrecall) {
+    //     SdkJoinState.promise?.res();
+    //   }
+    // },
+    EndCall: () => {
+      clearState('join');
       setTimeout(() => {
         SDKEvents.emit('leave');
         history.push('/');
-      }, 0),
+      }, 0);
+    },
+    UserJoined: (uid: UidType) => {
+      console.log("UIKIT Callback: UserJoined", uid)
+      SDKEvents.emit('rtc-user-joined', uid);
+    },
+    UserOffline: (uid: UidType) => {
+      console.log("UIKIT Callback: UserOffline", uid)
+      SDKEvents.emit('rtc-user-joined', uid);
+    },
+    RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
+      console.log("UIKIT Callback: RemoteAudioStateChanged", uid, status)
+      if (status === 0) {
+        SDKEvents.emit('rtc-user-unpublished', uid, 'audio');
+      } else {
+        SDKEvents.emit('rtc-user-published', uid, 'audio');
+      }
+    },
+    RemoteVideoStateChanged: (uid: UidType, status: 0 | 2) => {
+      console.log("UIKIT Callback: RemoteVideoStateChanged", uid, status)
+      if (status === 0) {
+        SDKEvents.emit('rtc-user-unpublished', uid, 'video');
+      } else {
+        SDKEvents.emit('rtc-user-published', uid, 'video');
+      }
+    },
   };
   const [isCameraAvailable, setCameraAvailable] = useState(false);
   const [isMicAvailable, setMicAvailable] = useState(false);

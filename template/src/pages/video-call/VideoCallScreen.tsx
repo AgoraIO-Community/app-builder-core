@@ -142,33 +142,6 @@ const VideoCallScreen = () => {
     return components;
   });
 
-  useEffect(() => {
-    // setTimeout(() => {
-    //   events.send(
-    //     controlMessageEnum.newUserJoined,
-    //     JSON.stringify({name}),
-    //     EventPersistLevel.LEVEL1,
-    //   );
-    // }, 1000);
-
-    /**
-     * OLD: Commenting this code as getDevices API is web only
-     * The below code fails on native app
-     * RESPONSE: Added isWebInternal check to restrict execution only on web.
-     */
-    if (isWebInternal()) {
-      new Promise((res) =>
-        //@ts-ignore
-        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
-          res(devices);
-        }),
-      ).then((devices: MediaDeviceInfo[]) => {
-        SDKEvents.emit('join', meetingTitle, devices, isHost);
-        console.log('SDKEvents: Event Called join');
-      });
-    }
-  }, []);
-
   const isDesktop = useIsDesktop();
 
   return VideocallComponent ? (

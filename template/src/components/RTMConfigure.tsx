@@ -114,6 +114,7 @@ const RtmConfigure = (props: any) => {
         uid: localUid.toString(),
         token: rtcProps.rtm,
       });
+      RTMEngine.getInstance().setLocalUID(localUid.toString());
       timerValueRef.current = 5;
       setAttribute();
     } catch (error) {
@@ -144,7 +145,12 @@ const RtmConfigure = (props: any) => {
 
   const joinChannel = async () => {
     try {
-      await engine.current.joinChannel(rtcProps.channel);
+      if (RTMEngine.getInstance().channelUid !== rtcProps.channel) {
+        await engine.current.joinChannel(rtcProps.channel);
+        RTMEngine.getInstance().setChannelId(rtcProps.channel);
+      } else {
+        console.log('RTM already joined channel skipping');
+      }
       timerValueRef.current = 5;
       await getMembers();
     } catch (error) {
@@ -260,7 +266,7 @@ const RtmConfigure = (props: any) => {
 
   const init = async () => {
     engine.current = RTMEngine.getInstance().engine;
-    RTMEngine.getInstance().setLoginInfo(localUid.toString(), rtcProps.channel);
+    RTMEngine.getInstance();
 
     engine.current.on('connectionStateChanged', (evt: any) => {
       //console.log(evt);
@@ -414,6 +420,17 @@ const RtmConfigure = (props: any) => {
       const {payload, persistLevel, source} = JSON.parse(value);
       console.log('CUSTOM_EVENT_API:  emiting event..: ');
       EventUtils.emitEvent(evt, source, {payload, persistLevel, sender, ts});
+      // Because async gets evaluated in a different order when in an sdk
+      if (evt === 'name') {
+        setTimeout(() => {
+          EventUtils.emitEvent(evt, source, {
+            payload,
+            persistLevel,
+            sender,
+            ts,
+          });
+        }, 200);
+      }
     } catch (error) {
       console.log('CUSTOM_EVENT_API: error while emiting event: ', error);
     }

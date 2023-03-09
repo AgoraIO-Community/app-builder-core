@@ -47,6 +47,12 @@ class RTMEngine {
 
     return RTMEngine._instance;
   }
+  setLocalUID(localUID: string) {
+    this.localUID = localUID;
+  }
+  setChannelId(channelID: string) {
+    this.channelId = channelID;
+  }
 
   setLoginInfo(localUID: string, channelID: string) {
     this.localUID = localUID;
@@ -62,6 +68,8 @@ class RTMEngine {
     try {
       this.destroyClientInstance();
       RTMEngine._instance = null;
+      this.localUID = '';
+      this.channelId = '';
     } catch (error) {
       console.log('Error destroying instance error: ', error);
     }
