@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "b8c2ef0f986541a8992451c07d30fb4b",
   "FRONTEND_ENDPOINT": "",
-  "BACKEND_ENDPOINT": "https://cryptic-dawn-34132.herokuapp.com",
+  "BACKEND_ENDPOINT": "https://managedservices-staging.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
   "CHAT": true,
@@ -53,5 +53,8 @@
   "ICON_TEXT": true,
   "ICON_BG_COLOR": "#242529",
   "TOOLBAR_COLOR": "#111111",
-  "ACTIVE_SPEAKER": true
+  "ACTIVE_SPEAKER": true,
+  "ENABLE_TOKEN_AUTH": false,
+  "ENABLE_IDP_AUTH": false,
+  "PROJECT_ID": ""
 }
