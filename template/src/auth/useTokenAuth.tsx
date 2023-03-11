@@ -121,8 +121,9 @@ const useTokenAuth = () => {
     });
   };
 
-  const tokenLogout = () => {
-    return new Promise((resolve, reject) => {
+  const tokenLogout = async () => {
+    const serverToken = await AsyncStorage.getItem('SDK_TOKEN');
+    return new Promise((resolve, reject) => {      
       try {
         fetch(`${$config.BACKEND_ENDPOINT}/v1/logout`, {
           headers: {

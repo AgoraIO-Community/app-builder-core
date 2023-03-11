@@ -16,6 +16,8 @@ import {getRequestHeaders, GET_UNAUTH_FLOW_API_ENDPOINT} from './config';
 import isSDK from '../utils/isSDK';
 import {Linking} from 'react-native';
 import {isAndroid, isIOS} from '../utils/common';
+import SDKMethodEventsManager from '../utils/SdkMethodEvents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const GET_USER = gql`
   query getUser {
@@ -54,6 +56,26 @@ const AuthProvider = (props: AuthProviderProps) => {
   const apolloClient = useApolloClient();
 
   const enableAuth = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
+
+  useEffect(()=>{
+    SDKMethodEventsManager.on('login',async(res,rej,token)=>{
+      try {
+        await AsyncStorage.setItem('SDK_TOKEN', token);
+        await enableTokenAuth()
+        res()  
+      } catch (error) {
+        rej('SDK Login failed'+JSON.stringify(error))
+      }      
+    })
+    SDKMethodEventsManager.on('logout',async(res,rej)=>{
+      try {
+        await tokenLogout()
+        res()  
+      } catch (error) {
+        rej('SDK Logout failed'+JSON.stringify(error))
+      }      
+    })
+  },[])
 
   useEffect(() => {
     if (!authenticated && authError) {
