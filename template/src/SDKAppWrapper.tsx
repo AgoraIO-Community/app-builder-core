@@ -11,7 +11,7 @@ import SDKMethodEventsManager from './utils/SdkMethodEvents';
 import App from './App';
 import SdkApiContextProvider from './components/SdkApiContext';
 import {Unsubscribe} from 'nanoevents';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // type makeAsync<T extends (...p: any) => void> = (
 //   ...p: Parameters<T>
 // ) => PromiseLike<ReturnType<T>>;
@@ -26,6 +26,8 @@ export interface SdkMethodEvents {
     roomid: string | Partial<MeetingInfoContextInterface['data']>,
     skipPrecall?: boolean,
   ): MeetingInfoContextInterface['data'];
+  'login':(token:string) => Promise<void>
+  'logout':() => Promise<void>
 }
 
 // interface AppBuilderSdkApiInterface {
@@ -41,23 +43,13 @@ export interface SdkMethodEvents {
 //   ) => Unsubscribe;
 // }
 
-const setAppBuilerToken = (token: string) => {
-  return new Promise((resolve, reject) => {
-    if ($config.ENABLE_TOKEN_AUTH) {
-      try {
-        AsyncStorage.setItem('SDK_TOKEN', token);
-        return resolve(true);
-      } catch (error) {
-        return reject(error);
-      }
-    } else {
-      return reject('ERROR: TOKEN AUTH IS NOT ENABLED');
-    }
-  });
-};
-
 export const AppBuilderSdkApi = {
-  setAppBuilerToken,
+  login: async (token: string) => {
+    return await SDKMethodEventsManager.emit('login', token);
+  },
+  logout: async () => {
+    return await SDKMethodEventsManager.emit('logout');
+  },
   customize: async (customization: CustomizationApiInterface) => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },

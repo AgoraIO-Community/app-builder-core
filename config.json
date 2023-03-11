@@ -5,7 +5,7 @@
   "ICON": "logoSquare.png",
   "APP_ID": "b8c2ef0f986541a8992451c07d30fb4b",
   "FRONTEND_ENDPOINT": "",
-  "BACKEND_ENDPOINT": "https://managedservices-dev.rteappbuilder.com",
+  "BACKEND_ENDPOINT": "https://managedservices-staging.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
   "CHAT": true,
@@ -55,6 +55,6 @@
   "TOOLBAR_COLOR": "#111111",
   "ACTIVE_SPEAKER": true,
   "ENABLE_TOKEN_AUTH": false,
-  "ENABLE_IDP_AUTH": true,
-  "PROJECT_ID": "f797ba7d46c1e31f72bd"
+  "ENABLE_IDP_AUTH": false,
+  "PROJECT_ID": ""
 }
