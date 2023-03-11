@@ -1,4 +1,4 @@
-import {isWebInternal, isAndroid, isIOS} from '../utils/common';
+import {isWebInternal, isAndroid, isIOS, isWeb} from '../utils/common';
 import isSDK from '../utils/isSDK';
 
 export const getPlatformId = (): string => {
@@ -19,24 +19,20 @@ export const getRequestHeaders = () => {
     'X-Platform-ID': getPlatformId(),
   };
 };
-
 export const getIDPAuthRedirectURL = () => {
-  return isWebInternal()
+  return isWeb()
     ? `${window.location.origin}/authorize`
     : `${$config.FRONTEND_ENDPOINT}/authorize`;
 };
 
 export const getUnauthLoginRedirectURL = () => {
-  // return 'https://conferencing.agora.io';
   return isWebInternal()
     ? `${window.location.origin}/create`
     : `${$config.FRONTEND_ENDPOINT}/create`;
 };
 
 export const getOriginURL = () => {
-  return isWebInternal()
-    ? `${window.location.origin}`
-    : `${$config.FRONTEND_ENDPOINT}`;
+  return isWeb() ? `${window.location.origin}` : `${$config.FRONTEND_ENDPOINT}`;
 };
 
 export const GET_UNAUTH_FLOW_API_ENDPOINT = () =>

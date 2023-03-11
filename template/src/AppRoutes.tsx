@@ -23,16 +23,16 @@ import {Text} from 'react-native';
 function AppRoutes() {
   return (
     <Switch>
-      <Route exact path={'/login'}>
+      {/* <Route exact path={'/login'}>
         <Login />
-      </Route>
+      </Route> */}
       <Route exact path={'/'}>
         <Redirect to={'/create'} />
       </Route>
       {/* <Route exact path={'/authorize/:token'}>
         <StoreToken />
       </Route> */}
-      <Route exact path={'/authorize'}>
+      <Route exact path={'/authorize/:token?'}>
         <IDPAuth />
       </Route>
       <AuthRoute exact path={'/join'}>

@@ -1,28 +1,42 @@
-import {useState, useEffect} from 'react';
-import {useLocation} from '../components/Router';
 import {Linking} from 'react-native';
-import {getIDPAuthRedirectURL, getOriginURL, getPlatformId} from './config';
-
-const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import {enableIDPAuth} from './openIDPURL';
 
 export const useIDPAuth = () => {
-  const enableIDPAuth = () => {
-    Linking.openURL(
-      `${AUTH_ENDPOINT_URL}?project_id=${
-        $config.PROJECT_ID
-      }&redirect_url=${getIDPAuthRedirectURL()}&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`,
-    );
-  };
-
   const idpLogout = () => {
     return new Promise((resolve, reject) => {
       try {
-        fetch(`${$config.BACKEND_ENDPOINT}/v1/logout`, {
+        //v1/idp/logout -> will generate and return URL for IDP logout(frontend need to call this)
+        fetch(`${$config.BACKEND_ENDPOINT}/v1/idp/logout`, {
           credentials: 'include',
         })
-          .then((response) => response.text())
-          .then((_) => {
-            resolve(true);
+          .then((response) => response.json())
+          .then((res: any) => {
+            if (res && res?.url) {
+              //Storing the URL in the local variable
+              const IDPAuthLogoutURL =
+                res?.url + `&returnTo=${window.location.origin}`;
+              //manage backend logout
+              //it will invalid the user session from the manage backend
+              fetch(`${$config.BACKEND_ENDPOINT}/v1/logout`, {
+                credentials: 'include',
+              })
+                .then(() => {
+                  //call IDP logout url
+                  if (InAppBrowser.isAvailable()) {
+                    InAppBrowser.close();
+                    InAppBrowser.open(IDPAuthLogoutURL);
+                  } else {
+                    Linking.openURL(IDPAuthLogoutURL);
+                  }
+                  resolve(true);
+                })
+                .catch(() => {
+                  reject(false);
+                });
+            } else {
+              reject(false);
+            }
           })
           .catch((_) => {
             reject(false);

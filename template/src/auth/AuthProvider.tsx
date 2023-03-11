@@ -36,6 +36,7 @@ interface AuthContextInterface {
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
   authLogin: () => void;
   authLogout: () => void;
+  meetingId: string;
 }
 
 const AuthContext = createContext<AuthContextInterface | null>(null);
@@ -44,6 +45,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   const [authenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [meetingId, setMeetingId] = useState('');
   // auth hooks
   const {enableIDPAuth, idpLogout} = useIDPAuth();
   const {enableTokenAuth, tokenLogout} = useTokenAuth();
@@ -54,6 +56,35 @@ const AuthProvider = (props: AuthProviderProps) => {
   const apolloClient = useApolloClient();
 
   const enableAuth = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
+
+  const processUrl = (url: string): string => {
+    return url
+      .replace(`${$config.PRODUCT_ID.toLowerCase()}://my-host`, '')
+      .replace($config.FRONTEND_ENDPOINT, '');
+  };
+  useEffect(() => {
+    //if authetication is not abled then only redirect the user to videocall screen
+    //authentication enabled case handle in the authprovider
+    if ($config.ENABLE_IDP_AUTH && (isIOS() || isAndroid)) {
+      const deepLinkUrl = (link: string | null) => {
+        console.log('Deep-linking url: ', link);
+        if (link !== null) {
+          const url = processUrl(link);
+          if (url?.indexOf('authorize') === -1) {
+            setMeetingId(url);
+          } else {
+            history.push(url);
+          }
+        }
+      };
+      const deepLink = async () => {
+        const initialUrl = await Linking.getInitialURL();
+        Linking.addEventListener('url', (e) => deepLinkUrl(e.url));
+        deepLinkUrl(initialUrl);
+      };
+      deepLink();
+    }
+  }, [history]);
 
   useEffect(() => {
     if (!authenticated && authError) {
@@ -160,7 +191,7 @@ const AuthProvider = (props: AuthProviderProps) => {
                   }
                   setIsAuthenticated(false);
                   //TODO fallback
-                  history.push('/login');
+                  //history.push('/login');
                 });
             }
           }
@@ -172,7 +203,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             } else {
               setIsAuthenticated(false);
               //TODO fallback
-              history.push('/login');
+              //history.push('/login');
             }
           }
         })
@@ -183,7 +214,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             setAuthError(error);
           }
           setIsAuthenticated(false);
-          history.push('/login');
+          //history.push('/login');
         });
     }
   };
@@ -202,7 +233,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         })
         .finally(() => {
           setIsAuthenticated(false);
-          history.push('/login');
+          //history.push('/login');
         });
     } else {
       console.log('supriya logout AUTH/UNAUTH');
@@ -220,7 +251,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           })
           .finally(() => {
             setIsAuthenticated(false);
-            history.push('/login');
+            //history.push('/login');
           });
       }
     }
@@ -233,6 +264,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         authenticated,
         authLogin,
         authLogout,
+        meetingId,
       }}>
       {loading || (!authenticated && !enableAuth) ? (
         <Loading text={'Loading..'} />

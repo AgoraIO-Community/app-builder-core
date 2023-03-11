@@ -16,6 +16,8 @@ import Toast from '../../react-native-toast-message';
 import type {RouteProps} from 'react-router';
 import {useAuth} from './AuthProvider';
 import isSDK from '../utils/isSDK';
+import Loading from '../subComponents/Loading';
+import IDPLogoutComponent from './IDPLogoutComponent';
 
 interface PrivateRouteProps extends RouteProps {
   children: React.ReactNode;
@@ -44,13 +46,17 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
   }
 
   return authenticated ? (
-    <Route {...props} />
+    <>
+      <IDPLogoutComponent />
+      <Route {...props} />
+    </>
   ) : (
-    <Redirect
-      to={{
-        pathname: '/login',
-      }}
-    />
+    <Loading text={'No Fallback..'} />
+    // <Redirect
+    //   to={{
+    //     pathname: '/login',
+    //   }}
+    // />
   );
   // return (
   //   <Route
