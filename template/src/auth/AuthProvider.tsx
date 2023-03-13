@@ -87,6 +87,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       deepLink();
     }
   }, [history]);
+
   useEffect(() => {
     SDKMethodEventsManager.on('login', async (res, rej, token) => {
       try {
@@ -152,13 +153,10 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogin = () => {
     if (enableAuth) {
-      console.log('supriya enable AUTH FLOW');
       // Authenticated login flow
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
-        console.log('supriya enable AUTH IDP');
         enableIDPAuth();
       } else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
-        console.log('supriya enable AUTH SDK');
         enableTokenAuth()
           .then((res) => {
             setIsAuthenticated(true);
@@ -182,7 +180,6 @@ const AuthProvider = (props: AuthProviderProps) => {
       }
     } else {
       // Unauthenticated login flow
-      console.log('supriya enable UNAUTH FLOW');
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
       })
@@ -190,7 +187,6 @@ const AuthProvider = (props: AuthProviderProps) => {
         .then((response) => {
           //rsdk,websdk,android,ios
           if (isSDK() || isAndroid() || isIOS()) {
-            console.log('supriya enable UNAUTH in SDK');
             if (!response.token) {
               throw new Error('Token not received');
             } else {
@@ -241,9 +237,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   };
 
   const authLogout = () => {
-    console.log('supriya logout user');
     if (enableAuth && $config.ENABLE_IDP_AUTH && !isSDK()) {
-      console.log('supriya logout AUTH IDP');
       idpLogout()
         .then((res) => {
           console.log('user successfully logged out');
@@ -257,7 +251,6 @@ const AuthProvider = (props: AuthProviderProps) => {
           //history.push('/login');
         });
     } else {
-      console.log('supriya logout AUTH/UNAUTH');
       if (!enableAuth || isSDK()) {
         //no need to logout because we need token to see the create screen
         history.push('/create');
