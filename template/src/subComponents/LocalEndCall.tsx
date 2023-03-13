@@ -1,6 +1,5 @@
 import React, {useContext, useState} from 'react';
 import {useRtc} from 'customization-api';
-import {useAuth} from '../auth/AuthProvider';
 
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
@@ -24,7 +23,6 @@ const stopForegroundService = () => {
 
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useRtc();
-  const {authLogout} = useAuth();
   const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
@@ -43,7 +41,6 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         value: [],
       });
     });
-    authLogout();
     // stopping foreground servie on end call
     stopForegroundService();
   };
