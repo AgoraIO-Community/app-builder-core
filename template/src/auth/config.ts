@@ -1,10 +1,19 @@
-import {isWebInternal, isAndroid, isIOS, isWeb} from '../utils/common';
+import {
+  isWebInternal,
+  isAndroid,
+  isIOS,
+  isWeb,
+  isDesktop,
+} from '../utils/common';
 import isSDK from '../utils/isSDK';
+
+export const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
 
 export const getPlatformId = (): string => {
   let platformID = 'turnkey_web';
   // Turnkey
-  isWebInternal() && (platformID = 'turnkey_web');
+  isWeb() && (platformID = 'turnkey_web');
+  isDesktop() && (platformID = 'turnkey_desktop');
   (isAndroid() || isIOS()) && (platformID = 'turnkey_native');
   // SDKs
   isSDK() && isWebInternal() && (platformID = 'sdk_web');

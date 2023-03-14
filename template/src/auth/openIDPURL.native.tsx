@@ -1,28 +1,30 @@
 import {Linking, Platform} from 'react-native';
-import {getIDPAuthRedirectURL, getOriginURL, getPlatformId} from './config';
-const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
 import InAppBrowser from 'react-native-inappbrowser-reborn';
+import {getOriginURL, getPlatformId, AUTH_ENDPOINT_URL} from './config';
 
-export const getDeepLink = (path = '') => {
+export const getDeepLinkURI = (path = '') => {
   const scheme = $config.PRODUCT_ID?.toLowerCase();
   const prefix =
     Platform.OS === 'android' ? `${scheme}://my-host/` : `${scheme}://`;
   return prefix + path;
 };
 
+export const getIDPAuthLoginURL = () => {
+  return `${AUTH_ENDPOINT_URL}?project_id=${
+    $config.PROJECT_ID
+  }&redirect_url=${encodeURIComponent(
+    getDeepLinkURI('authorize'),
+  )}&origin_url=${encodeURIComponent(
+    getOriginURL(),
+  )}&platform_id=${getPlatformId()}`;
+};
+
 export const enableIDPAuth = async () => {
   try {
-    const URL = `${AUTH_ENDPOINT_URL}?project_id=${
-      $config.PROJECT_ID
-    }&redirect_url=${encodeURIComponent(
-      getDeepLink('authorize'),
-    )}&origin_url=${encodeURIComponent(
-      getOriginURL(),
-    )}&platform_id=${getPlatformId()}`;
-
+    const URL = getIDPAuthLoginURL();
     if (await InAppBrowser.isAvailable()) {
       await InAppBrowser.close();
-      await InAppBrowser.openAuth(URL, encodeURIComponent(getDeepLink()));
+      await InAppBrowser.openAuth(URL, encodeURIComponent(getDeepLinkURI()));
     } else {
       Linking.openURL(URL);
     }

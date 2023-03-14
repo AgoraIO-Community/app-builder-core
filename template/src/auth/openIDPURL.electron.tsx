@@ -1,17 +1,26 @@
-import {getIDPAuthRedirectURL, getOriginURL, getPlatformId} from './config';
-const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
-export const enableIDPAuth = () => {
+import {getOriginURL, getPlatformId, AUTH_ENDPOINT_URL} from './config';
+
+export const getIDPAuthLoginURL = () => {
+  //redirect URL not require for electron
+  return `${AUTH_ENDPOINT_URL}?project_id=${
+    $config.PROJECT_ID
+  }&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
+};
+
+export const addEventListenerForToken = (history) => {
   window.addEventListener(
     'message',
     ({data, origin}: {data: {token: string}; origin: string}) => {
-      if (data.token) {
-        console.log('debugging token electron', data, origin);
+      if (data?.token) {
+        history.push(`/authorize/${data.token}`);
       }
     },
     false,
   );
-  const URL = `${AUTH_ENDPOINT_URL}?project_id=${
-    $config.PROJECT_ID
-  }&redirect_url=${getIDPAuthRedirectURL()}&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
-  window.open(URL, 'modal');
+};
+
+export const enableIDPAuth = (history) => {
+  addEventListenerForToken(history);
+  //open the auth login in the popup
+  window.open(getIDPAuthLoginURL(), 'modal');
 };

@@ -1,11 +1,18 @@
 import {Linking} from 'react-native';
-import {getIDPAuthRedirectURL, getOriginURL, getPlatformId} from './config';
+import {
+  getIDPAuthRedirectURL,
+  getOriginURL,
+  getPlatformId,
+  AUTH_ENDPOINT_URL,
+} from './config';
 
-const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
-
-export const enableIDPAuth = () => {
-  const URL = `${AUTH_ENDPOINT_URL}?project_id=${
+export const getIDPAuthLoginURL = (returnTo?: string) => {
+  const finalRedirectURL = getIDPAuthRedirectURL() + returnTo;
+  return `${AUTH_ENDPOINT_URL}?project_id=${
     $config.PROJECT_ID
-  }&redirect_url=${getIDPAuthRedirectURL()}&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
-  Linking.openURL(URL);
+  }&redirect_url=${finalRedirectURL}&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
+};
+
+export const enableIDPAuth = (returnTo?: string) => {
+  Linking.openURL(getIDPAuthLoginURL(returnTo));
 };

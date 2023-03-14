@@ -4,16 +4,27 @@ import {useHistory, useParams} from '../components/Router';
 import Loading from '../subComponents/Loading';
 
 export const IDPAuth = () => {
-  const {setIsAuthenticated, meetingId} = useAuth();
+  const {setIsAuthenticated} = useAuth();
   const history = useHistory();
-  //todo
-  //for electron show authetication success and open application
   const {token}: {token: string} = useParams();
+  //web token set in the cookies, using this route redirect user to origin url
+  //token used as path
+
+  // const getSearchParamFromURL = (url, param) => {
+  //   const include = url.includes(param);
+
+  //   if (!include) return null;
+
+  //   const params = url.split(/([&,?,=])/);
+  //   const index = params.indexOf(param);
+  //   const value = params[index + 2];
+  //   return value;
+  // };
+
   useEffect(() => {
-    //todo store token
     setIsAuthenticated(true);
-    if (meetingId) {
-      history.push(meetingId);
+    if (token) {
+      history.push('/' + token);
     } else {
       history.push('/');
     }
