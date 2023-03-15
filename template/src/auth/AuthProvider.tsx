@@ -64,48 +64,49 @@ const AuthProvider = (props: AuthProviderProps) => {
   const apolloClient = useApolloClient();
   const enableAuth = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
 
+  const deepLinkUrl = (link: string | null) => {
+    console.log('debugging Deep-linking url: ', link);
+    if (link !== null) {
+      const url = processDeepLinkURI(link);
+      console.log('debugging Deep-linking processed url', url);
+      try {
+        if (url?.indexOf('authorize') !== -1) {
+          const token = getParamFromURL(url, 'token');
+          if (token) {
+            console.log('debugging deep-linking got token');
+            enableTokenAuth(token)
+              .then(() => {
+                setIsAuthenticated(true);
+                if (returnTo) {
+                  history.push(returnTo);
+                } else {
+                  history.push('/');
+                }
+              })
+              .catch(() => {
+                setIsAuthenticated(false);
+                console.log('debugging error on IDP token setting');
+              });
+          } else {
+            console.log('debugging deep-linking token is empty');
+            history.push('/');
+          }
+        } else if (url?.indexOf('authorize') === -1) {
+          console.log('debugging deep-linking setting return to');
+          setReturnTo(url);
+        } else {
+          history.push(url);
+        }
+      } catch (error) {
+        console.log('debugging deep-linking error catch');
+        history.push('/');
+      }
+    }
+  };
+
   useEffect(() => {
     //handling the deeplink for native
     if ($config.ENABLE_IDP_AUTH && (isIOS() || isAndroid())) {
-      const deepLinkUrl = (link: string | null) => {
-        console.log('debugging Deep-linking url: ', link);
-        if (link !== null) {
-          const url = processDeepLinkURI(link);
-          console.log('debugging Deep-linking processed url', url);
-          try {
-            if (url?.indexOf('authorize') !== -1) {
-              const token = getParamFromURL(url, 'token');
-              if (token) {
-                console.log('debugging deep-linking got token');
-                enableTokenAuth(token)
-                  .then(() => {
-                    setIsAuthenticated(true);
-                    if (returnTo) {
-                      history.push(returnTo);
-                    } else {
-                      history.push('/');
-                    }
-                  })
-                  .catch(() => {
-                    setIsAuthenticated(false);
-                    console.log('debugging error on IDP token setting');
-                  });
-              } else {
-                console.log('debugging deep-linking token is empty');
-                history.push('/');
-              }
-            } else if (url?.indexOf('authorize') === -1) {
-              console.log('debugging deep-linking setting return to');
-              setReturnTo(url);
-            } else {
-              history.push(url);
-            }
-          } catch (error) {
-            console.log('debugging deep-linking error catch');
-            history.push('/');
-          }
-        }
-      };
       const deepLink = async () => {
         const initialUrl = await Linking.getInitialURL();
         console.log('debugging getting initialUrl', initialUrl);
@@ -184,9 +185,17 @@ const AuthProvider = (props: AuthProviderProps) => {
     if (enableAuth) {
       //AUTH -> IDP -> NATIVE and WEB and DESKTOP
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
-        //@ts-ignore
         //it will open external web link and post authentication it will redirect to application
-        enableIDPAuth(isWeb() ? location.pathname : isDesktop() ? history : '');
+        //@ts-ignore
+        enableIDPAuth(
+          isWeb()
+            ? location.pathname
+            : isDesktop()
+            ? history
+            : isIOS() || isAndroid()
+            ? deepLinkUrl
+            : '',
+        );
       }
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {

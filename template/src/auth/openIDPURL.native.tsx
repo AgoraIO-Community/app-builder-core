@@ -19,12 +19,18 @@ export const getIDPAuthLoginURL = () => {
   )}&platform_id=${getPlatformId()}`;
 };
 
-export const enableIDPAuth = async () => {
+export const enableIDPAuth = async (openDeepLink) => {
   try {
     const URL = getIDPAuthLoginURL();
     if (await InAppBrowser.isAvailable()) {
       await InAppBrowser.close();
-      await InAppBrowser.openAuth(URL, encodeURIComponent(getDeepLinkURI()));
+      const result = await InAppBrowser.openAuth(
+        URL,
+        encodeURIComponent(getDeepLinkURI()),
+      );
+      if (result && result?.type === 'success') {
+        openDeepLink && openDeepLink(result?.url);
+      }
     } else {
       Linking.openURL(URL);
     }
