@@ -12,12 +12,10 @@
 import React, {useEffect, useRef} from 'react';
 import {Route, Redirect} from '../components/Router';
 import Toast from '../../react-native-toast-message';
-
 import type {RouteProps} from 'react-router';
 import {useAuth} from './AuthProvider';
 import isSDK from '../utils/isSDK';
 import Loading from '../subComponents/Loading';
-import IDPLogoutComponent from './IDPLogoutComponent';
 
 interface PrivateRouteProps extends RouteProps {
   children: React.ReactNode;
@@ -47,7 +45,6 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
 
   return authenticated ? (
     <>
-      <IDPLogoutComponent />
       <Route {...props} />
     </>
   ) : (
