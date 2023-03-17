@@ -16,6 +16,8 @@ import type {RouteProps} from 'react-router';
 import {useAuth} from './AuthProvider';
 import isSDK from '../utils/isSDK';
 import Loading from '../subComponents/Loading';
+import Login from '../pages/Login';
+import {isAndroid, isIOS} from '../utils/common';
 
 interface PrivateRouteProps extends RouteProps {
   children: React.ReactNode;
@@ -47,14 +49,17 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
     <>
       <Route {...props} />
     </>
+  ) : isAndroid() || isIOS() ? (
+    //if user closes inapp browser then show login/signup button
+    <Login />
   ) : (
     <Loading text={'No Fallback..'} />
-    // <Redirect
-    //   to={{
-    //     pathname: '/login',
-    //   }}
-    // />
   );
+  // <Redirect
+  //   to={{
+  //     pathname: '/login',
+  //   }}
+  // />
   // return (
   //   <Route
   //     {...props}
