@@ -53,7 +53,7 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
     //if user closes inapp browser then show login/signup button
     <Login />
   ) : (
-    <Loading text={'No Fallback..'} />
+    <Loading text={'Loading...'} />
   );
   // <Redirect
   //   to={{

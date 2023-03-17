@@ -332,7 +332,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         returnTo,
       }}>
       {(!authenticated && !ENABLE_AUTH) || (ENABLE_AUTH && loading) ? (
-        <Loading text={'Loading..'} />
+        <Loading text={'Loading...'} />
       ) : (
         props.children
       )}
