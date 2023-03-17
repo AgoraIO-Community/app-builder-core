@@ -9,6 +9,8 @@ import isSDK from '../utils/isSDK';
 
 export const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
 
+export const ENABLE_AUTH = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
+
 export const getPlatformId = (): string => {
   let platformID = 'turnkey_web';
   // Turnkey

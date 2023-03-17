@@ -120,6 +120,7 @@ const IDPLogoutComponent = (props?: IDPLogoutComponentProps) => {
     <View
       style={[
         {
+          zIndex: 999,
           maxWidth: 80,
           marginTop: isMobileUA() ? 16 : 32,
           marginRight: isMobileUA() ? 16 : 32,

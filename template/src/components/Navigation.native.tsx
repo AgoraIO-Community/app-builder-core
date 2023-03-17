@@ -21,27 +21,7 @@ const processUrl = (url: string): string => {
 };
 
 const Navigation = () => {
-  const history = useHistory();
-  useEffect(() => {
-    //if authetication is not enabled then handle deeplink here
-    //if authentication is enabled -> deeplink handled in the authprovider
-    if (!$config.ENABLE_IDP_AUTH) {
-      const deepLinkUrl = (link: string | null) => {
-        console.log('Deep-linking url: ', link);
-        if (link !== null) {
-          console.log('debugging path', processUrl(link));
-          const url = processUrl(link);
-          history.push(url);
-        }
-      };
-      const deepLink = async () => {
-        const initialUrl = await Linking.getInitialURL();
-        Linking.addEventListener('url', (e) => deepLinkUrl(e.url));
-        deepLinkUrl(initialUrl);
-      };
-      deepLink();
-    }
-  }, [history]);
+  //moved deeplink handling into AuthProvider
   return (
     <>
       <BackButton />

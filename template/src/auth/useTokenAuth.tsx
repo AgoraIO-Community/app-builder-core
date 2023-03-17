@@ -7,15 +7,11 @@ import isSDK from '../utils/isSDK';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
-  const {setStore} = useContext(StorageContext);
-  const [serverToken, setServerToken] = React.useState(null);
+  const {setStore, store} = useContext(StorageContext);
   const [tokenExpiresAt, setTokenExpiresAt] = React.useState(0);
 
-  const storeToken = (token: string) => {
+  const updateToken = (token: string) => {
     setStore && setStore((store) => ({...store, token}));
-    //updated the sdk token in localstorage if appbuilder refreshed then will get the refreshed token
-    AsyncStorage.setItem('SDK_TOKEN', token);
-    setServerToken(token);
   };
 
   const validateToken = (token: string) => {
@@ -42,13 +38,13 @@ const useTokenAuth = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        authorization: serverToken ? `Bearer ${serverToken}` : '',
+        authorization: store?.token ? `Bearer ${store.token}` : '',
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.token) {
-          storeToken(data.token);
+        if (data?.token) {
+          updateToken(data.token);
         }
       });
   };
@@ -86,8 +82,8 @@ const useTokenAuth = () => {
 
   useEffect(() => {
     const syncToken = async () => {
-      if (!serverToken) return;
-      const decoded = jwt_decode(serverToken);
+      if (!store?.token) return;
+      const decoded = jwt_decode(store.token);
       const expiresAt = decoded?.exp * 1000;
       if (Date.now() >= expiresAt) {
         if (isSDK()) {
@@ -99,21 +95,27 @@ const useTokenAuth = () => {
       }
     };
     syncToken();
-  }, [serverToken]);
+  }, [store?.token]);
 
   const enableTokenAuth = async (tokenparam?: string) => {
     return new Promise(async (resolve, reject) => {
       let token = '';
+      let updateTokenInStore = false;
       try {
         if (tokenparam) {
           token = tokenparam;
+          updateTokenInStore = true;
         } else {
-          token = await AsyncStorage.getItem('SDK_TOKEN');
+          token = store?.token;
         }
         if (token) {
           if (validateToken(token)) {
-            storeToken(token);
-            resolve(true);
+            if (updateTokenInStore) {
+              updateToken(token);
+            }
+            setTimeout(() => {
+              resolve(true);
+            });
           } else {
             if (isSDK()) {
               SdkEvents.emit('did-token-expire');
@@ -133,7 +135,6 @@ const useTokenAuth = () => {
   };
 
   const tokenLogout = async (cookieLogout: boolean = false) => {
-    const serverToken = await AsyncStorage.getItem('SDK_TOKEN');
     return new Promise((resolve, reject) => {
       try {
         fetch(
@@ -142,14 +143,14 @@ const useTokenAuth = () => {
             ? {credentials: 'include'}
             : {
                 headers: {
-                  authorization: serverToken ? `Bearer ${serverToken}` : '',
+                  authorization: store?.token ? `Bearer ${store.token}` : '',
                 },
               },
         )
           .then((response) => response.text())
           .then((_) => {
             resolve(true);
-            storeToken(null);
+            updateToken(null);
           })
           .catch((_) => {
             reject(false);

@@ -19,7 +19,7 @@ import {
 } from '@apollo/client';
 import {setContext} from '@apollo/client/link/context';
 // import useMount from './useMount';
-import React, {createContext, useContext, useRef} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 import StorageContext from './StorageContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -27,31 +27,45 @@ export const GraphQLContext = createContext<{
   client: ApolloClient<NormalizedCacheObject>;
 }>({client: {}});
 
-const GraphQLProvider = (props: {children: React.ReactNode}) => {
-  const httpLink = createHttpLink({
-    uri: `${$config.BACKEND_ENDPOINT}/v1/query`,
-    credentials: 'include',
-  });
-  const {store} = useContext(StorageContext);
-  const authLink = setContext(async (_, {headers}) => {
+const httpLink = createHttpLink({
+  uri: `${$config.BACKEND_ENDPOINT}/v1/query`,
+  credentials: 'include',
+});
+
+const authLink = (token: string) =>
+  setContext(async (_, {headers}) => {
     // get the authentication token from local storage if it exists
     // return the headers to the context so httpLink can read them
-    const storeString = await AsyncStorage.getItem('store');
-    let token;
-    if (storeString) {
-      token = JSON.parse(storeString).token;
-    }
-
-    console.log('link module token', storeString);
     return {
       headers: {
         ...headers,
         'X-Project-ID': $config.PROJECT_ID,
         'X-Platform-ID': 'turnkey_web',
-        ...(token && {authorization: token ? `Bearer ${token}` : ''}),
+        ...(token && {
+          authorization: token ? `Bearer ${token}` : '',
+        }),
       },
     };
   });
+
+const GraphQLProvider = (props: {children: React.ReactNode}) => {
+  const {store} = useContext(StorageContext);
+  const [client, setClient] = useState(
+    new ApolloClient({
+      link: authLink(store?.token).concat(httpLink),
+      cache: new InMemoryCache(),
+    }),
+  );
+
+  useEffect(() => {
+    console.log('debugging GRAPHQL token changed', store.token);
+    setClient(
+      new ApolloClient({
+        link: authLink(store?.token).concat(httpLink),
+        cache: new InMemoryCache(),
+      }),
+    );
+  }, [store?.token]);
 
   // const errorLink = onError(
   //   ({graphQLErrors, networkError, operation, forward}) => {
@@ -79,26 +93,9 @@ const GraphQLProvider = (props: {children: React.ReactNode}) => {
   //   },
   // );
 
-  const client = useRef(
-    new ApolloClient({
-      link: authLink.concat(httpLink),
-      // link: from([authLink, errorLink, httpLink]),
-      cache: new InMemoryCache(),
-    }),
-  );
-
-  // useEffect(() => {
-  //   console.log("store changed", store)
-  //   client.current = new ApolloClient({
-  //     link: authLink.concat(httpLink),
-  //     cache: new InMemoryCache(),
-  //   });
-  // }, [authLink, httpLink, store]);
-  console.log('GraphQL render triggered', store);
-
   return (
-    <GraphQLContext.Provider value={{client: client.current}}>
-      <ApolloProvider client={client.current}>{props.children}</ApolloProvider>
+    <GraphQLContext.Provider value={{client: client}}>
+      <ApolloProvider client={client}>{props.children}</ApolloProvider>
     </GraphQLContext.Provider>
   );
 };
