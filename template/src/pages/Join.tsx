@@ -38,6 +38,7 @@ import Toast from '../../react-native-toast-message';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ThemeConfig from '../theme';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
 const isLiveStream = $config.EVENT_MODE;
 const mobileOrTablet = isMobileOrTablet();
@@ -108,11 +109,30 @@ const Join = () => {
     <JoinComponent />
   ) : (
     <View style={style.root}>
+      {!isMobileUA() ? (
+        <IDPLogoutComponent containerStyle={{marginBottom: -100}} />
+      ) : (
+        <></>
+      )}
       <ScrollView contentContainerStyle={style.main}>
         {error ? <Error error={error} /> : <></>}
         <Card>
           <View>
-            <Logo />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Logo />
+              {isMobileUA() ? (
+                <IDPLogoutComponent
+                  containerStyle={{marginTop: 0, marginRight: 0}}
+                />
+              ) : (
+                <></>
+              )}
+            </View>
             <Spacer size={20} />
             <Text style={style.heading}>
               {isLiveStream ? 'Join a Stream' : 'Join a Meeting'}

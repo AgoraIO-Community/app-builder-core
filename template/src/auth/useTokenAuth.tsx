@@ -1,22 +1,17 @@
-import React, {useEffect, useContext, useRef} from 'react';
+import React, {useEffect, useContext} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwt_decode from 'jwt-decode';
-import {useHistory} from '../components/Router';
 import StorageContext from '../components/StorageContext';
 import SdkEvents from '../utils/SdkEvents';
+import isSDK from '../utils/isSDK';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
-  const {setStore} = useContext(StorageContext);
-  const [serverToken, setServerToken] = React.useState(null);
+  const {setStore, store} = useContext(StorageContext);
   const [tokenExpiresAt, setTokenExpiresAt] = React.useState(0);
-  const history = useHistory();
 
-  const storeToken = (token: string) => {
+  const updateToken = (token: string) => {
     setStore && setStore((store) => ({...store, token}));
-    //updated the sdk token in localstorage if appbuilder refreshed then will get the refreshed token
-    AsyncStorage.setItem('SDK_TOKEN', token);
-    setServerToken(token);
   };
 
   const validateToken = (token: string) => {
@@ -24,11 +19,15 @@ const useTokenAuth = () => {
       const decoded = jwt_decode(token);
       const expiresAt = decoded?.exp * 1000;
       if (Date.now() >= expiresAt) {
-        SdkEvents.emit('did-token-expire');
+        if (isSDK()) {
+          SdkEvents.emit('did-token-expire');
+        }
         throw 'Token expired. Pass a new token';
       }
     } else {
-      SdkEvents.emit('token-not-found');
+      if (isSDK()) {
+        SdkEvents.emit('token-not-found');
+      }
       throw 'Token is missing in the options';
     }
     return true;
@@ -39,13 +38,13 @@ const useTokenAuth = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        authorization: serverToken ? `Bearer ${serverToken}` : '',
+        authorization: store?.token ? `Bearer ${store.token}` : '',
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.token) {
-          storeToken(data.token);
+        if (data?.token) {
+          updateToken(data.token);
         }
       });
   };
@@ -62,7 +61,9 @@ const useTokenAuth = () => {
 
       if (diffInSeconds < REFRESH_TOKEN_DURATION_IN_SEC) {
         try {
-          SdkEvents.emit('will-token-expire');
+          if (isSDK()) {
+            SdkEvents.emit('will-token-expire');
+          }
           getRefreshToken();
           clearInterval(timer);
         } catch (error) {
@@ -81,38 +82,50 @@ const useTokenAuth = () => {
 
   useEffect(() => {
     const syncToken = async () => {
-      if (!serverToken) return;
-      const decoded = jwt_decode(serverToken);
+      if (!store?.token) return;
+      const decoded = jwt_decode(store.token);
       const expiresAt = decoded?.exp * 1000;
       if (Date.now() >= expiresAt) {
-        SdkEvents.emit('did-token-expire');
+        if (isSDK()) {
+          SdkEvents.emit('did-token-expire');
+        }
         throw 'Token expired. Pass a new token';
       } else {
         setTokenExpiresAt(expiresAt);
       }
     };
     syncToken();
-  }, [serverToken]);
+  }, [store?.token]);
 
   const enableTokenAuth = async (tokenparam?: string) => {
     return new Promise(async (resolve, reject) => {
       let token = '';
+      let updateTokenInStore = false;
       try {
         if (tokenparam) {
           token = tokenparam;
+          updateTokenInStore = true;
         } else {
-          token = await AsyncStorage.getItem('SDK_TOKEN');
+          token = store?.token;
         }
         if (token) {
           if (validateToken(token)) {
-            storeToken(token);
-            resolve(true);
+            if (updateTokenInStore) {
+              updateToken(token);
+            }
+            setTimeout(() => {
+              resolve(true);
+            });
           } else {
-            SdkEvents.emit('did-token-expire');
+            if (isSDK()) {
+              SdkEvents.emit('did-token-expire');
+            }
             throw new Error('Token expired');
           }
         } else {
-          SdkEvents.emit('token-not-found');
+          if (isSDK()) {
+            SdkEvents.emit('token-not-found');
+          }
           throw new Error('Token not found');
         }
       } catch (error) {
@@ -121,19 +134,23 @@ const useTokenAuth = () => {
     });
   };
 
-  const tokenLogout = async () => {
-    const serverToken = await AsyncStorage.getItem('SDK_TOKEN');
-    return new Promise((resolve, reject) => {      
+  const tokenLogout = async (cookieLogout: boolean = false) => {
+    return new Promise((resolve, reject) => {
       try {
-        fetch(`${$config.BACKEND_ENDPOINT}/v1/logout`, {
-          headers: {
-            authorization: serverToken ? `Bearer ${serverToken}` : '',
-          },
-        })
+        fetch(
+          `${$config.BACKEND_ENDPOINT}/v1/logout`,
+          cookieLogout
+            ? {credentials: 'include'}
+            : {
+                headers: {
+                  authorization: store?.token ? `Bearer ${store.token}` : '',
+                },
+              },
+        )
           .then((response) => response.text())
           .then((_) => {
             resolve(true);
-            storeToken(null);
+            updateToken(null);
           })
           .catch((_) => {
             reject(false);

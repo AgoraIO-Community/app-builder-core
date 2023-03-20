@@ -1,39 +1,46 @@
+import {useContext} from 'react';
 import {Linking} from 'react-native';
-import {useLocation} from '../components/Router';
-import {enableIDPAuth, getIDPAuthLoginURL} from './openIDPURL';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
+import {
+  enableIDPAuth,
+  getDeepLinkURI,
+  getIDPAuthLoginURL,
+} from './openIDPURL.native';
+import StorageContext from '../components/StorageContext';
 import useTokenAuth from './useTokenAuth';
 
 export const useIDPAuth = () => {
-  const location = useLocation();
+  const {store, setStore} = useContext(StorageContext);
   const {tokenLogout} = useTokenAuth();
   const idpLogout = () => {
     return new Promise((resolve, reject) => {
       try {
         //v1/idp/logout -> will generate and return URL for IDP logout(frontend need to call this)
         fetch(`${$config.BACKEND_ENDPOINT}/v1/idp/logout`, {
-          credentials: 'include',
+          headers: {
+            authorization: store?.token ? `Bearer ${store?.token}` : '',
+          },
         })
           .then((response) => response.json())
           .then((res: any) => {
             if (res && res?.url) {
               //Storing the URL in the local variable
-              // const IDPAuthLogoutURL =
-              //   res?.url + `&returnTo=${window.location.origin}`;
               const IDPAuthLogoutURL =
                 res?.url +
-                `&returnTo=${encodeURIComponent(
-                  getIDPAuthLoginURL(location.pathname),
-                )}`;
-              console.log(
-                'debugging non native IDPAuthLogoutURL',
-                IDPAuthLogoutURL,
-              );
+                `&returnTo=${encodeURIComponent(getIDPAuthLoginURL())}`;
               //manage backend logout
               //it will invalid the user session from the manage backend
-              tokenLogout(true)
+              tokenLogout()
                 .then(() => {
-                  //open idp logout url
-                  Linking.openURL(IDPAuthLogoutURL);
+                  //call IDP logout url
+                  if (InAppBrowser.isAvailable()) {
+                    InAppBrowser.openAuth(
+                      IDPAuthLogoutURL,
+                      encodeURIComponent(getIDPAuthLoginURL()),
+                    );
+                  } else {
+                    Linking.openURL(IDPAuthLogoutURL);
+                  }
                   resolve(true);
                 })
                 .catch(() => {

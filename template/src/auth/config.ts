@@ -1,10 +1,21 @@
-import {isWebInternal, isAndroid, isIOS} from '../utils/common';
+import {
+  isWebInternal,
+  isAndroid,
+  isIOS,
+  isWeb,
+  isDesktop,
+} from '../utils/common';
 import isSDK from '../utils/isSDK';
+
+export const AUTH_ENDPOINT_URL = `${$config.BACKEND_ENDPOINT}/v1/idp/login`;
+
+export const ENABLE_AUTH = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
 
 export const getPlatformId = (): string => {
   let platformID = 'turnkey_web';
   // Turnkey
-  isWebInternal() && (platformID = 'turnkey_web');
+  isWeb() && (platformID = 'turnkey_web');
+  isDesktop() && (platformID = 'turnkey_desktop');
   (isAndroid() || isIOS()) && (platformID = 'turnkey_native');
   // SDKs
   isSDK() && isWebInternal() && (platformID = 'sdk_web');
@@ -19,24 +30,20 @@ export const getRequestHeaders = () => {
     'X-Platform-ID': getPlatformId(),
   };
 };
-
 export const getIDPAuthRedirectURL = () => {
-  return isWebInternal()
+  return isWeb()
     ? `${window.location.origin}/authorize`
     : `${$config.FRONTEND_ENDPOINT}/authorize`;
 };
 
 export const getUnauthLoginRedirectURL = () => {
-  // return 'https://conferencing.agora.io';
   return isWebInternal()
     ? `${window.location.origin}/create`
     : `${$config.FRONTEND_ENDPOINT}/create`;
 };
 
 export const getOriginURL = () => {
-  return isWebInternal()
-    ? `${window.location.origin}`
-    : `${$config.FRONTEND_ENDPOINT}`;
+  return isWeb() ? `${window.location.origin}` : `${$config.FRONTEND_ENDPOINT}`;
 };
 
 export const GET_UNAUTH_FLOW_API_ENDPOINT = () =>

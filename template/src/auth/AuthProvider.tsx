@@ -4,7 +4,7 @@ import React, {
   useEffect,
   Dispatch,
   SetStateAction,
-  useRef,
+  useContext,
 } from 'react';
 import {useHistory, useLocation} from '../components/Router';
 import {gql, useApolloClient} from '@apollo/client';
@@ -12,12 +12,19 @@ import {useIDPAuth} from './useIDPAuth';
 import Loading from '../subComponents/Loading';
 import useTokenAuth from './useTokenAuth';
 import Toast from '../../react-native-toast-message';
-import {getRequestHeaders, GET_UNAUTH_FLOW_API_ENDPOINT} from './config';
+import {ENABLE_AUTH, GET_UNAUTH_FLOW_API_ENDPOINT} from './config';
 import isSDK from '../utils/isSDK';
 import {Linking} from 'react-native';
-import {isAndroid, isIOS} from '../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isWeb,
+  isDesktop,
+  processDeepLinkURI,
+  getParamFromURL,
+} from '../utils/common';
 import SDKMethodEventsManager from '../utils/SdkMethodEvents';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import StorageContext from '../components/StorageContext';
 
 const GET_USER = gql`
   query getUser {
@@ -38,14 +45,17 @@ interface AuthContextInterface {
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
   authLogin: () => void;
   authLogout: () => void;
+  returnTo: string;
 }
 
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const {setStore, store} = useContext(StorageContext);
   const [authenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [returnTo, setReturnTo] = useState('');
   // auth hooks
   const {enableIDPAuth, idpLogout} = useIDPAuth();
   const {enableTokenAuth, tokenLogout} = useTokenAuth();
@@ -55,26 +65,106 @@ const AuthProvider = (props: AuthProviderProps) => {
   // client
   const apolloClient = useApolloClient();
 
-  const enableAuth = $config.ENABLE_IDP_AUTH || $config.ENABLE_TOKEN_AUTH;
+  useEffect(() => {
+    if (!ENABLE_AUTH && !authenticated && store.token) {
+      setIsAuthenticated(true);
+      if (isAndroid() || isIOS()) {
+        if (returnTo) {
+          history.push(returnTo);
+        }
+      }
+    }
+  }, [store?.token]);
+
+  const deepLinkUrl = (link: string | null) => {
+    console.log('debugging Deep-linking url: ', link);
+
+    if (link !== null) {
+      //deeplinking handling with authentication enabled
+      if ($config.ENABLE_IDP_AUTH) {
+        const url = processDeepLinkURI(link);
+        console.log('debugging Deep-linking processed url', url);
+        try {
+          if (url?.indexOf('authorize') !== -1) {
+            const token = getParamFromURL(url, 'token');
+            if (token) {
+              console.log('debugging deep-linking got token');
+              enableTokenAuth(token)
+                .then(() => {
+                  setIsAuthenticated(true);
+                  if (returnTo) {
+                    history.push(returnTo);
+                  } else {
+                    history.push('/');
+                  }
+                })
+                .catch(() => {
+                  setIsAuthenticated(false);
+                  console.log('debugging error on IDP token setting');
+                });
+            } else {
+              console.log('debugging deep-linking token is empty');
+              history.push('/');
+            }
+          } else if (url?.indexOf('authorize') === -1) {
+            console.log('debugging deep-linking setting return to');
+            setReturnTo(url);
+          } else {
+            history.push(url);
+          }
+        } catch (error) {
+          console.log('debugging deep-linking error catch');
+          history.push('/');
+        }
+      } else {
+        //deeplinking handling with authentication enabled
+        console.log('debugging path', processDeepLinkURI(link));
+        const url = processDeepLinkURI(link);
+        setReturnTo(url);
+      }
+    }
+  };
 
   useEffect(() => {
-    SDKMethodEventsManager.on('login', async (res, rej, token) => {
-      try {
-        await AsyncStorage.setItem('SDK_TOKEN', token);
-        await enableTokenAuth();
-        res();
-      } catch (error) {
-        rej('SDK Login failed' + JSON.stringify(error));
-      }
-    });
-    SDKMethodEventsManager.on('logout', async (res, rej) => {
-      try {
-        await tokenLogout();
-        res();
-      } catch (error) {
-        rej('SDK Logout failed' + JSON.stringify(error));
-      }
-    });
+    //handling the deeplink for native
+    if (isIOS() || isAndroid()) {
+      const deepLink = async () => {
+        const initialUrl = await Linking.getInitialURL();
+        console.log('debugging getting initialUrl', initialUrl);
+        Linking.addEventListener('url', (e) => {
+          console.log('debugging url from listener', e.url);
+          deepLinkUrl(e.url);
+        });
+        deepLinkUrl(initialUrl);
+      };
+      deepLink();
+    }
+  }, [history]);
+
+  useEffect(() => {
+    if (isSDK()) {
+      SDKMethodEventsManager.on('login', async (res, rej, token) => {
+        try {
+          setStore((prevState) => {
+            return {...prevState, token};
+          });
+          setTimeout(async () => {
+            await enableTokenAuth(token);
+            res();
+          });
+        } catch (error) {
+          rej('SDK Login failed' + JSON.stringify(error));
+        }
+      });
+      SDKMethodEventsManager.on('logout', async (res, rej) => {
+        try {
+          await tokenLogout();
+          res();
+        } catch (error) {
+          rej('SDK Logout failed' + JSON.stringify(error));
+        }
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -105,27 +195,35 @@ const AuthProvider = (props: AuthProviderProps) => {
     getUserDetails()
       .then((_) => {
         setIsAuthenticated(true);
-        //sdk redirect todo check in other platfrom
-        history.push(location.pathname);
+        if (isSDK()) {
+          history.push(location.pathname);
+        }
       })
-      .catch((err) => {
+      .catch(() => {
         setIsAuthenticated(false);
         authLogin();
-        if (!isSDK() && enableAuth) {
-          //show session expired notification
-          //only on auth enabled and non sdk
-          setAuthError('Your session has expird. Kindly login again');
-          //todo SDK handle session expire
-        }
       });
   }, []);
 
   const authLogin = () => {
-    if (enableAuth) {
-      // Authenticated login flow
+    // Authenticated login flow
+    if (ENABLE_AUTH) {
+      //AUTH -> IDP -> NATIVE and WEB and DESKTOP
       if ($config.ENABLE_IDP_AUTH && !isSDK()) {
-        enableIDPAuth();
-      } else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
+        //it will open external web link and post authentication it will redirect to application
+        //@ts-ignore
+        enableIDPAuth(
+          isWeb()
+            ? location.pathname
+            : isDesktop()
+            ? history
+            : isIOS() || isAndroid()
+            ? deepLinkUrl
+            : '',
+        );
+      }
+      //AUTH -> IDP -> SDK ONLY
+      else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
         enableTokenAuth()
           .then((res) => {
             setIsAuthenticated(true);
@@ -147,50 +245,37 @@ const AuthProvider = (props: AuthProviderProps) => {
             history.push('/create');
           });
       }
-    } else {
-      // Unauthenticated login flow
+    }
+    // Unauthenticated login flow
+    else {
       fetch(GET_UNAUTH_FLOW_API_ENDPOINT(), {
         credentials: 'include',
       })
         .then((response) => response.json())
         .then((response) => {
-          //rsdk,websdk,android,ios
-          if (isSDK() || isAndroid() || isIOS()) {
-            if (!response.token) {
-              throw new Error('Token not received');
-            } else {
-              enableTokenAuth(response.token)
-                .then((res) => {
-                  setIsAuthenticated(true);
-                  history.push('/create');
-                })
-                .catch((error) => {
-                  //don't show token expire/not found toast in the sdk
-                  //we have event emitter to inform the customer application
-                  //they have to listen for those events
-                  if (!isSDK()) {
-                    if (error instanceof Error) {
-                      setAuthError(error.message);
-                    } else {
-                      setAuthError(error);
-                    }
+          // unauthenticated flow all platform we will have to handle the token manually
+          // we need to store token manually
+          if (!response.token) {
+            throw new Error('Token not received');
+          } else {
+            enableTokenAuth(response.token)
+              .then(() => {
+                console.log('debugging token auth enabled');
+                //set auth enabled on useEffect
+              })
+              .catch((error) => {
+                //we don't need to show token expire/not found toast in the sdk
+                //we have event emitter to inform the customer application
+                //they have to listen for those events
+                if (!isSDK()) {
+                  if (error instanceof Error) {
+                    setAuthError(error.message);
+                  } else {
+                    setAuthError(error);
                   }
-                  setIsAuthenticated(false);
-                  //TODO fallback
-                  history.push('/login');
-                });
-            }
-          }
-          //web/mweb/desktop
-          else {
-            if (response && response.Code == 0) {
-              setIsAuthenticated(true);
-              history.push(location.pathname);
-            } else {
-              setIsAuthenticated(false);
-              //TODO fallback
-              history.push('/login');
-            }
+                }
+                setIsAuthenticated(false);
+              });
           }
         })
         .catch((error) => {
@@ -200,28 +285,26 @@ const AuthProvider = (props: AuthProviderProps) => {
             setAuthError(error);
           }
           setIsAuthenticated(false);
-          history.push('/login');
         });
     }
   };
 
   const authLogout = () => {
-    if (enableAuth && $config.ENABLE_IDP_AUTH && !isSDK()) {
+    if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
       idpLogout()
         .then((res) => {
           console.log('user successfully logged out');
+          setIsAuthenticated(false);
         })
         .catch(() => {
           console.error('user logout failed');
           setAuthError('user logout failed');
-        })
-        .finally(() => {
-          setIsAuthenticated(false);
-          history.push('/login');
         });
     } else {
-      if (!enableAuth || isSDK()) {
+      if (!ENABLE_AUTH || isSDK()) {
         //no need to logout because we need token to see the create screen
+        //unauth flow no logout
+        //sdk with auth flow will use sdk api for logout
         history.push('/create');
       } else {
         tokenLogout()
@@ -234,7 +317,6 @@ const AuthProvider = (props: AuthProviderProps) => {
           })
           .finally(() => {
             setIsAuthenticated(false);
-            history.push('/login');
           });
       }
     }
@@ -247,9 +329,10 @@ const AuthProvider = (props: AuthProviderProps) => {
         authenticated,
         authLogin,
         authLogout,
+        returnTo,
       }}>
-      {loading || (!authenticated && !enableAuth) ? (
-        <Loading text={'Loading..'} />
+      {(!authenticated && !ENABLE_AUTH) || (ENABLE_AUTH && loading) ? (
+        <Loading text={'Loading...'} />
       ) : (
         props.children
       )}

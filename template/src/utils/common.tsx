@@ -202,6 +202,24 @@ const useResponsive = () => {
     }
   };
 };
+
+const processDeepLinkURI = (url: string): string => {
+  return url
+    .replace(`${$config.PRODUCT_ID.toLowerCase()}://my-host`, '')
+    .replace($config.FRONTEND_ENDPOINT, '');
+};
+
+const getParamFromURL = (url, param) => {
+  const include = url.includes(param);
+
+  if (!include) return null;
+
+  const params = url.split(/([&,?,=])/);
+  const index = params.indexOf(param);
+  const value = params[index + 2];
+  return value;
+};
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -220,4 +238,6 @@ export {
   trimText,
   calculatePosition,
   useResponsive,
+  processDeepLinkURI,
+  getParamFromURL,
 };
