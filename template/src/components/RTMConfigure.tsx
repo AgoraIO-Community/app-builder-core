@@ -31,6 +31,7 @@ import {EventUtils, EventsQueue} from '../rtm-events';
 import {EventPersistLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
+import SDKEvents from '../utils/SdkEvents';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -148,6 +149,8 @@ const RtmConfigure = (props: any) => {
       if (RTMEngine.getInstance().channelUid !== rtcProps.channel) {
         await engine.current.joinChannel(rtcProps.channel);
         RTMEngine.getInstance().setChannelId(rtcProps.channel);
+        console.log('Emitting rtm joined');
+        SDKEvents.emit('_rtm-joined', rtcProps.channel);
       } else {
         console.log('RTM already joined channel skipping');
       }
