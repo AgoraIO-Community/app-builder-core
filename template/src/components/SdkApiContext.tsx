@@ -31,11 +31,23 @@ type SdkApiContextInterface = {
     customization?: CustomizationApiInterface;
     promise?: extractPromises<_InternalSDKMethodEventsMap['customize']>;
   };
-  mediaDevice: {
-    [k in MediaDeviceInfo['kind']]?: {
-      deviceId: string;
-      promise?: extractPromises<_InternalSDKMethodEventsMap['mediaDevice']>;
-    };
+  // mediaDevice: {
+  //   [k in MediaDeviceInfo['kind']]?: {
+  //     deviceId: string;
+  //     promise?: extractPromises<_InternalSDKMethodEventsMap['mediaDevice']>;
+  //   };
+  // };
+  microphoneDevice: {
+    deviceId?: string;
+    promise?: extractPromises<_InternalSDKMethodEventsMap['microphoneDevice']>;
+  };
+  speakerDevice: {
+    deviceId?: string;
+    promise?: extractPromises<_InternalSDKMethodEventsMap['speakerDevice']>;
+  };
+  cameraDevice: {
+    deviceId?: string;
+    promise?: extractPromises<_InternalSDKMethodEventsMap['cameraDevice']>;
   };
   clearState: (key: keyof _InternalSDKMethodEventsMap, param?: any) => void;
 };
@@ -45,7 +57,10 @@ const SdkApiInitState: SdkApiContextInterface = {
     initialized: false,
   },
   customize: {},
-  mediaDevice: {},
+  // mediaDevice: {},
+  microphoneDevice: {},
+  speakerDevice: {},
+  cameraDevice: {},
   clearState: () => {},
 };
 
@@ -102,18 +117,45 @@ const commonEventHandlers: commonEventHandlers = {
       res();
     });
   },
-  mediaDevice: (setter) => {
+  // mediaDevice: (setter) => {
+  //   return SDKMethodEventsManager.on(
+  //     'mediaDevice',
+  //     (res, rej, deviceId, kind) => {
+  //       setter({
+  //         [kind]: {
+  //           deviceId,
+  //           promise: {res, rej},
+  //         },
+  //       });
+  //     },
+  //   );
+  // },
+  microphoneDevice: (setter) => {
     return SDKMethodEventsManager.on(
-      'mediaDevice',
-      (res, rej, deviceId, kind) => {
+      'microphoneDevice',
+      (res, rej, deviceId) => {
         setter({
-          [kind]: {
-            deviceId,
-            promise: {res, rej},
-          },
+          deviceId,
+          promise: {res, rej},
         });
       },
     );
+  },
+  speakerDevice: (setter) => {
+    return SDKMethodEventsManager.on('speakerDevice', (res, rej, deviceId) => {
+      setter({
+        deviceId,
+        promise: {res, rej},
+      });
+    });
+  },
+  cameraDevice: (setter) => {
+    return SDKMethodEventsManager.on('cameraDevice', (res, rej, deviceId) => {
+      setter({
+        deviceId,
+        promise: {res, rej},
+      });
+    });
   },
 };
 
@@ -125,11 +167,20 @@ const registerListener = () => {
     commonEventHandlers.join((state) => {
       SdkApiInitState.join = state;
     }),
-    commonEventHandlers.mediaDevice((state) => {
-      SdkApiInitState.mediaDevice = {
-        ...SdkApiInitState.mediaDevice,
-        ...state,
-      };
+    // commonEventHandlers.mediaDevice((state) => {
+    //   SdkApiInitState.mediaDevice = {
+    //     ...SdkApiInitState.mediaDevice,
+    //     ...state,
+    //   };
+    // }),
+    commonEventHandlers.microphoneDevice((state) => {
+      SdkApiInitState.microphoneDevice = state;
+    }),
+    commonEventHandlers.speakerDevice((state) => {
+      SdkApiInitState.speakerDevice = state;
+    }),
+    commonEventHandlers.cameraDevice((state) => {
+      SdkApiInitState.cameraDevice = state;
     }),
   ];
 };
@@ -143,8 +194,17 @@ const SdkApiContextProvider: React.FC = (props) => {
   const [userCustomization, setUserCustomization] = useState(
     SdkApiInitState.customize,
   );
-  const [mediaDeviceState, setMediaDeviceState] = useState(
-    SdkApiInitState.mediaDevice,
+  // const [mediaDeviceState, setMediaDeviceState] = useState(
+  //   SdkApiInitState.setCamera,
+  // );
+  const [microphoneDeviceState, setMicrophoneDeviceState] = useState(
+    SdkApiInitState.microphoneDevice,
+  );
+  const [speakerDeviceState, setSpeakerDeviceState] = useState(
+    SdkApiInitState.speakerDevice,
+  );
+  const [cameraDeviceState, setCameraDeviceState] = useState(
+    SdkApiInitState.cameraDevice,
   );
 
   const clearState: SdkApiContextInterface['clearState'] = (key, param) => {
@@ -155,42 +215,48 @@ const SdkApiContextProvider: React.FC = (props) => {
       case 'customize':
         setUserCustomization(SdkApiInitState.customize);
         return;
-      case 'mediaDevice':
-        setMediaDeviceState((currentState) => {
-          currentState[param] = undefined;
-          return currentState;
-        });
+      case 'microphoneDevice':
+        setMicrophoneDeviceState({});
+      case 'speakerDevice':
+        setSpeakerDeviceState({});
+      case 'cameraDevice':
+        setCameraDeviceState({});
+      // case 'mediaDevice':
+      //   setMediaDeviceState((currentState) => {
+      //     currentState[param] = undefined;
+      //     return currentState;
+      //   });
     }
   };
 
   useEffect(() => {
     deRegisterListener();
 
-    const applyPromiseWrapper = (
-      state: SdkApiContextInterface['mediaDevice'],
-      kind: MediaDeviceInfo['kind'],
-    ) => {
-      if (state[kind]) {
-        state[kind].promise.res = () => {
-          const resolve = state[kind].promise.res;
-          clearState('mediaDevice', kind);
-          resolve();
-        };
-        state[kind].promise.rej = (reason?: any) => {
-          const reject = state[kind].promise.rej;
-          clearState('mediaDevice', kind);
-          reject(reason);
-        };
-      }
-    };
+    // const applyPromiseWrapper = (
+    //   state: SdkApiContextInterface['mediaDevice'],
+    //   kind: MediaDeviceInfo['kind'],
+    // ) => {
+    //   if (state[kind]) {
+    //     state[kind].promise.res = () => {
+    //       const resolve = state[kind].promise.res;
+    //       clearState('mediaDevice', kind);
+    //       resolve();
+    //     };
+    //     state[kind].promise.rej = (reason?: any) => {
+    //       const reject = state[kind].promise.rej;
+    //       clearState('mediaDevice', kind);
+    //       reject(reason);
+    //     };
+    //   }
+    // };
 
-    setMediaDeviceState((currentState) => {
-      // applyPromiseWrapper(currentState, 'audiooutput');
-      // applyPromiseWrapper(currentState, 'audioinput');
-      // applyPromiseWrapper(currentState, 'videoinput');
-
-      return currentState;
-    });
+    // setMediaDeviceState((currentState) => {
+    //   // applyPromiseWrapper(currentState, 'audiooutput');
+    //   // applyPromiseWrapper(currentState, 'audioinput');
+    //   // applyPromiseWrapper(currentState, 'videoinput');
+    //
+    //   return currentState;
+    // });
 
     const unsub = [
       commonEventHandlers.customize((state) => {
@@ -199,18 +265,27 @@ const SdkApiContextProvider: React.FC = (props) => {
       commonEventHandlers.join((state) => {
         setJoinState(state);
       }),
-      commonEventHandlers.mediaDevice((state) => {
-        // applyPromiseWrapper(state, 'audioinput');
-        // applyPromiseWrapper(state, 'audiooutput');
-        // applyPromiseWrapper(state, 'videoinput');
-
-        setMediaDeviceState((currentState) => {
-          return {
-            ...currentState,
-            ...state,
-          };
-        });
+      commonEventHandlers.microphoneDevice((state) => {
+        setMicrophoneDeviceState(state);
       }),
+      commonEventHandlers.speakerDevice((state) => {
+        setSpeakerDeviceState(state);
+      }),
+      commonEventHandlers.cameraDevice((state) => {
+        setCameraDeviceState(state);
+      }),
+      // commonEventHandlers.mediaDevice((state) => {
+      //   // applyPromiseWrapper(state, 'audioinput');
+      //   // applyPromiseWrapper(state, 'audiooutput');
+      //   // applyPromiseWrapper(state, 'videoinput');
+      //
+      //   setMediaDeviceState((currentState) => {
+      //     return {
+      //       ...currentState,
+      //       ...state,
+      //     };
+      //   });
+      // }),
     ];
 
     return () => {
@@ -224,7 +299,9 @@ const SdkApiContextProvider: React.FC = (props) => {
       value={{
         join: joinState,
         customize: userCustomization,
-        mediaDevice: mediaDeviceState,
+        microphoneDevice: microphoneDeviceState,
+        speakerDevice: speakerDeviceState,
+        cameraDevice: cameraDeviceState,
         clearState,
       }}>
       {props.children}

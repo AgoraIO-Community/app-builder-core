@@ -20,13 +20,18 @@ import {Unsubscribe} from 'nanoevents';
 //   p: Parameters<T>[0],
 // ) => ReturnType<T>;
 
+type deviceId = MediaDeviceInfo['deviceId'];
+
 export interface SdkMethodEvents {
   customize: (customization: CustomizationApiInterface) => void;
   join(
     roomid: string | Partial<MeetingInfoContextInterface['data']>,
     skipPrecall?: boolean,
   ): MeetingInfoContextInterface['data'];
-  mediaDevice: (deviceId: string, kind: MediaDeviceInfo['kind']) => void;
+  // mediaDevice: (deviceId: string, kind: MediaDeviceInfo['kind']) => void;
+  microphoneDevice: (deviceId: deviceId) => void;
+  speakerDevice: (deviceId: deviceId) => void;
+  cameraDevice: (deviceId: deviceId) => void;
 }
 
 // interface AppBuilderSdkApiInterface {
@@ -61,12 +66,21 @@ export const AppBuilderSdkApi = {
     const t = await SDKMethodEventsManager.emit('join', roomDetails);
     return t as unknown as [MeetingInfoContextInterface['data'], () => {}];
   },
-  setMediaDevice: async (device: MediaDeviceInfo) => {
-    return await SDKMethodEventsManager.emit(
-      'mediaDevice',
-      device.deviceId,
-      device.kind,
-    );
+  // setMediaDevice: async (device: MediaDeviceInfo) => {
+  //   return await SDKMethodEventsManager.emit(
+  //     'mediaDevice',
+  //     device.deviceId,
+  //     device.kind,
+  //   );
+  // },
+  setMicrophone: async (deviceId: MediaDeviceInfo['deviceId']) => {
+    return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
+  },
+  setSpeaker: async (deviceId: MediaDeviceInfo['deviceId']) => {
+    return await SDKMethodEventsManager.emit('speakerDevice', deviceId);
+  },
+  setCamera: async (deviceId: MediaDeviceInfo['deviceId']) => {
+    return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
   },
   createCustomization: customize,
   on: <T extends keyof userEventsMapInterface>(
