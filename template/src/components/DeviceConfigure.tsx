@@ -203,18 +203,19 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     switch (kind) {
       case 'audioinput':
         let micId = getAgoraTrackDeviceId('audio');
-        SDKEvents.emit('devices-selected-microphone-changed', micId);
+        micId && SDKEvents.emit('devices-selected-microphone-changed', micId);
         setUiSelectedMic(micId);
         break;
       case 'videoinput':
         let camId = getAgoraTrackDeviceId('video');
-        SDKEvents.emit('devices-selected-camera-changed', camId);
+        camId && SDKEvents.emit('devices-selected-camera-changed', camId);
         setUiSelectedCam(camId);
         break;
       case 'audiooutput':
         //@ts-ignore
         const speakerId = RtcEngine.speakerDeviceId;
-        SDKEvents.emit('devices-selected-camera-changed', speakerId);
+        speakerId &&
+          SDKEvents.emit('devices-selected-speaker-changed', speakerId);
         setUiSelectedSpeaker(speakerId);
         break;
       default:
@@ -223,13 +224,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         //@ts-ignore
         speakerId = RtcEngine.speakerDeviceId;
 
-        SDKEvents.emit('devices-selected-microphone-changed', micId);
+        micId && SDKEvents.emit('devices-selected-microphone-changed', micId);
         setUiSelectedMic(micId);
 
-        SDKEvents.emit('devices-selected-camera-changed', camId);
+        camId && SDKEvents.emit('devices-selected-camera-changed', camId);
         setUiSelectedCam(camId);
 
-        SDKEvents.emit('devices-selected-speaker-changed', speakerId);
+        speakerId &&
+          SDKEvents.emit('devices-selected-speaker-changed', speakerId);
         setUiSelectedSpeaker(speakerId);
     }
   };
