@@ -9,6 +9,12 @@ import {
 import {CustomizationApiInterface} from 'customization-api';
 import {Unsubscribe} from 'nanoevents';
 
+type extractPromises<T extends (...p: any) => any> = {
+  res: Parameters<T>[0];
+  rej: Parameters<T>[1];
+};
+
+// Should correspond to the same SdkMethodEvent name
 type SdkApiContextInterface = {
   join:
     | {
@@ -16,22 +22,22 @@ type SdkApiContextInterface = {
         phrase: string;
         meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
         skipPrecall: boolean;
-        promise: {
-          res: Parameters<_InternalSDKMethodEventsMap['join']>[0];
-          rej: Parameters<_InternalSDKMethodEventsMap['join']>[1];
-        };
+        promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
     | {
         initialized: false;
       };
   customize: {
     customization?: CustomizationApiInterface;
-    promise?: {
-      res: Parameters<_InternalSDKMethodEventsMap['customize']>[0];
-      rej: Parameters<_InternalSDKMethodEventsMap['customize']>[1];
+    promise?: extractPromises<_InternalSDKMethodEventsMap['customize']>;
+  };
+  mediaDevice: {
+    [k in MediaDeviceInfo['kind']]?: {
+      deviceId: string;
+      promise?: extractPromises<_InternalSDKMethodEventsMap['mediaDevice']>;
     };
   };
-  clearState: (key: keyof _InternalSDKMethodEventsMap) => void;
+  clearState: (key: keyof _InternalSDKMethodEventsMap, param?: any) => void;
 };
 
 const SdkApiInitState: SdkApiContextInterface = {
@@ -39,6 +45,7 @@ const SdkApiInitState: SdkApiContextInterface = {
     initialized: false,
   },
   customize: {},
+  mediaDevice: {},
   clearState: () => {},
 };
 
@@ -95,6 +102,19 @@ const commonEventHandlers: commonEventHandlers = {
       res();
     });
   },
+  mediaDevice: (setter) => {
+    return SDKMethodEventsManager.on(
+      'mediaDevice',
+      (res, rej, deviceId, kind) => {
+        setter({
+          [kind]: {
+            deviceId,
+            promise: {res, rej},
+          },
+        });
+      },
+    );
+  },
 };
 
 const registerListener = () => {
@@ -104,6 +124,12 @@ const registerListener = () => {
     }),
     commonEventHandlers.join((state) => {
       SdkApiInitState.join = state;
+    }),
+    commonEventHandlers.mediaDevice((state) => {
+      SdkApiInitState.mediaDevice = {
+        ...SdkApiInitState.mediaDevice,
+        ...state,
+      };
     }),
   ];
 };
@@ -117,26 +143,73 @@ const SdkApiContextProvider: React.FC = (props) => {
   const [userCustomization, setUserCustomization] = useState(
     SdkApiInitState.customize,
   );
+  const [mediaDeviceState, setMediaDeviceState] = useState(
+    SdkApiInitState.mediaDevice,
+  );
 
-  const clearState: SdkApiContextInterface['clearState'] = (key) => {
+  const clearState: SdkApiContextInterface['clearState'] = (key, param) => {
     switch (key) {
       case 'join':
         setJoinState(SdkApiInitState.join);
         return;
       case 'customize':
         setUserCustomization(SdkApiInitState.customize);
+        return;
+      case 'mediaDevice':
+        setMediaDeviceState((currentState) => {
+          currentState[param] = undefined;
+          return currentState;
+        });
     }
   };
 
   useEffect(() => {
     deRegisterListener();
-    console.log('[SDKContext] join state is ', joinState);
+
+    const applyPromiseWrapper = (
+      state: SdkApiContextInterface['mediaDevice'],
+      kind: MediaDeviceInfo['kind'],
+    ) => {
+      if (state[kind]) {
+        state[kind].promise.res = () => {
+          const resolve = state[kind].promise.res;
+          clearState('mediaDevice', kind);
+          resolve();
+        };
+        state[kind].promise.rej = (reason?: any) => {
+          const reject = state[kind].promise.rej;
+          clearState('mediaDevice', kind);
+          reject(reason);
+        };
+      }
+    };
+
+    setMediaDeviceState((currentState) => {
+      // applyPromiseWrapper(currentState, 'audiooutput');
+      // applyPromiseWrapper(currentState, 'audioinput');
+      // applyPromiseWrapper(currentState, 'videoinput');
+
+      return currentState;
+    });
+
     const unsub = [
       commonEventHandlers.customize((state) => {
         setUserCustomization(state);
       }),
       commonEventHandlers.join((state) => {
         setJoinState(state);
+      }),
+      commonEventHandlers.mediaDevice((state) => {
+        // applyPromiseWrapper(state, 'audioinput');
+        // applyPromiseWrapper(state, 'audiooutput');
+        // applyPromiseWrapper(state, 'videoinput');
+
+        setMediaDeviceState((currentState) => {
+          return {
+            ...currentState,
+            ...state,
+          };
+        });
       }),
     ];
 
@@ -151,6 +224,7 @@ const SdkApiContextProvider: React.FC = (props) => {
       value={{
         join: joinState,
         customize: userCustomization,
+        mediaDevice: mediaDeviceState,
         clearState,
       }}>
       {props.children}

@@ -26,6 +26,7 @@ export interface SdkMethodEvents {
     roomid: string | Partial<MeetingInfoContextInterface['data']>,
     skipPrecall?: boolean,
   ): MeetingInfoContextInterface['data'];
+  mediaDevice: (deviceId: string, kind: MediaDeviceInfo['kind']) => void;
 }
 
 // interface AppBuilderSdkApiInterface {
@@ -59,6 +60,13 @@ export const AppBuilderSdkApi = {
   ) => {
     const t = await SDKMethodEventsManager.emit('join', roomDetails);
     return t as unknown as [MeetingInfoContextInterface['data'], () => {}];
+  },
+  setMediaDevice: async (device: MediaDeviceInfo) => {
+    return await SDKMethodEventsManager.emit(
+      'mediaDevice',
+      device.deviceId,
+      device.kind,
+    );
   },
   createCustomization: customize,
   on: <T extends keyof userEventsMapInterface>(

@@ -29,6 +29,9 @@ import StorageContext from './StorageContext';
 
 import type RtcEngine from '../../bridge/rtc/webNg/';
 import ColorContext from './ColorContext';
+import {SdkApiContext} from './SdkApiContext';
+import SDKMethodEventsManager from '../utils/SdkMethodEvents';
+import SDKEvents from '../utils/SdkEvents';
 
 const log = (...args) => {
   console.log('[DeviceConfigure] ', ...args);
@@ -51,12 +54,20 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const [deviceList, setDeviceList] = useState<deviceInfo[]>([]);
 
   const micSelectInProgress = useRef(false);
+  const micSelectQueue = useRef([]);
+
   const camSelectInProgress = useRef(false);
+  const camSelectQueue = useRef([]);
+
   const speakerSelectInProgress = useRef(false);
+  const speakerSelectQueue = useRef([]);
 
   const {primaryColor} = useContext(ColorContext);
+
   const {store, setStore} = useContext(StorageContext);
   const {rememberedDevicesList, activeDeviceId} = store;
+
+  const {mediaDevice: sdkMediaDevice} = useContext(SdkApiContext);
 
   const isChrome = useMemo(() => {
     return (
@@ -177,16 +188,35 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     log('Refreshing', kind ?? 'all');
     switch (kind) {
       case 'audioinput':
-        setUiSelectedMic(getAgoraTrackDeviceId('audio'));
+        let micId = getAgoraTrackDeviceId('audio');
+        SDKEvents.emit('devices-selected-microphone-changed', micId);
+        setUiSelectedMic(micId);
         break;
       case 'videoinput':
-        setUiSelectedCam(getAgoraTrackDeviceId('video'));
+        let camId = getAgoraTrackDeviceId('video');
+        SDKEvents.emit('devices-selected-camera-changed', camId);
+        setUiSelectedCam(camId);
         break;
       case 'audiooutput':
+        //@ts-ignore
+        const speakerId = RtcEngine.speakerDeviceId;
+        SDKEvents.emit('devices-selected-camera-changed', speakerId);
+        setUiSelectedSpeaker(speakerId);
         break;
       default:
-        setUiSelectedMic(getAgoraTrackDeviceId('audio'));
-        setUiSelectedCam(getAgoraTrackDeviceId('video'));
+        micId = getAgoraTrackDeviceId('audio');
+        camId = getAgoraTrackDeviceId('video');
+        //@ts-ignore
+        speakerId = RtcEngine.speakerDeviceId;
+
+        SDKEvents.emit('devices-selected-camera-changed', camId);
+        setUiSelectedMic(micId);
+
+        SDKEvents.emit('devices-selected-microphone-changed', micId);
+        setUiSelectedCam(camId);
+
+        SDKEvents.emit('devices-selected-camera-changed', speakerId);
+        setUiSelectedSpeaker(speakerId);
     }
   };
 
@@ -228,6 +258,47 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }
   };
 
+  const checkDeviceExists = (
+    deviceId: deviceId,
+    deviceList: MediaDeviceInfo[],
+  ) => {
+    return deviceList.find((device) => device.deviceId === deviceId)
+      ? true
+      : false;
+  };
+
+  const applySdkDeviceChangeRequest = (kind: deviceKind) => {
+    const {deviceId, promise} = sdkMediaDevice[kind];
+    const queuedSetWrapper = (deviceId: deviceId) =>
+      setDeviceQueued(deviceId, kind);
+
+    const {setMethod} = {
+      audiooutput: {
+        setMethod: speakerSelectInProgress.current
+          ? queuedSetWrapper
+          : setSelectedSpeaker,
+      },
+      audioinput: {
+        setMethod: micSelectInProgress.current
+          ? queuedSetWrapper
+          : setSelectedMic,
+      },
+      videoinput: {
+        setMethod: camSelectInProgress.current
+          ? queuedSetWrapper
+          : setSelectedCam,
+      },
+    }[kind];
+
+    setMethod(deviceId)
+      .then(() => {
+        promise.res();
+      })
+      .catch((e) => {
+        promise.rej(e);
+      });
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       navigator.mediaDevices.enumerateDevices();
@@ -238,74 +309,111 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   }, []);
 
   useEffect(() => {
+    if (sdkMediaDevice.videoinput) {
+      applySdkDeviceChangeRequest('videoinput');
+    }
+    if (sdkMediaDevice.audioinput) {
+      applySdkDeviceChangeRequest('audioinput');
+    }
+    if (sdkMediaDevice.audiooutput) {
+      applySdkDeviceChangeRequest('audiooutput');
+    }
+  }, [sdkMediaDevice]);
+
+  useEffect(() => {
     // Labels are empty in firefox when permission is granted first time
     // refresh device list if labels are empty
 
     const logTag = 'useEffect[rtc,store]';
 
     if (activeDeviceId && deviceList.length > 0) {
-      // If stream exists and selected devices are empty, check for devices again
-      if (!uiSelectedCam || uiSelectedCam.trim().length == 0) {
-        log(logTag, 'cam: Device list populated but No selected cam');
-        const currentVideoDevice = getAgoraTrackDeviceId('video');
-        const {videoinput: storedVideoInput} = activeDeviceId;
+      const initializeDevice = (kind: deviceKind) => {
+        const {uiSelectedState} = {
+          videoinput: {
+            uiSelectedState: uiSelectedCam,
+          },
+          audioinput: {
+            uiSelectedState: uiSelectedCam,
+          },
+          audiooutput: {
+            uiSelectedState: uiSelectedSpeaker,
+          },
+        }[kind];
 
-        if (
-          storedVideoInput &&
-          currentVideoDevice &&
-          currentVideoDevice !== storedVideoInput &&
-          deviceList.find((device) => device.deviceId === storedVideoInput)
-        ) {
-          log(logTag, 'cam: Setting cam to active id', storedVideoInput);
-          setSelectedCam(storedVideoInput);
-        } else {
-          setUiSelectedCam(currentVideoDevice);
+        if (uiSelectedState && uiSelectedState.trim().length != 0) {
+          return;
         }
-      }
 
-      if (!uiSelectedMic || uiSelectedMic.trim().length == 0) {
-        log(logTag, 'mic: Device list populated but No selected mic');
-        const currentAudioDevice = getAgoraTrackDeviceId('audio');
-        const {audioinput: storedAudioInput} = activeDeviceId;
-
-        if (
-          storedAudioInput &&
-          currentAudioDevice &&
-          currentAudioDevice !== storedAudioInput &&
-          deviceList.find((device) => device.deviceId === storedAudioInput)
-        ) {
-          log(logTag, 'mic: Setting mic to active id', storedAudioInput);
-          setSelectedMic(storedAudioInput);
-        } else {
-          setUiSelectedMic(currentAudioDevice);
-        }
-      }
-
-      if (!uiSelectedSpeaker || uiSelectedSpeaker.trim().length == 0) {
-        log(logTag, 'speaker: Device list populated but No selected speaker');
-        const {audiooutput: storedAudioOutput} = activeDeviceId;
         const defaultSpeaker = deviceList.find(
           (device) =>
             device.deviceId === 'default' &&
             (isChrome ? device.deviceId === 'default' : true),
         )?.deviceId;
 
-        if (
-          defaultSpeaker &&
-          storedAudioOutput &&
-          defaultSpeaker !== storedAudioOutput &&
-          deviceList.find((device) => device.deviceId === storedAudioOutput)
+        const storedDevice = activeDeviceId[kind];
+        const sdkDevice = sdkMediaDevice[kind];
+        const {
+          currentDevice,
+          deviceLogTag,
+          setDevice,
+          setDeviceUi,
+          eventEmitter,
+        } = {
+          videoinput: {
+            currentDevice: getAgoraTrackDeviceId('video'),
+            deviceLogTag: 'cam:',
+            setDevice: setSelectedCam,
+            setDeviceUi: setUiSelectedCam,
+            eventEmitter: (deviceId: deviceId) => {
+              SDKEvents.emit('devices-selected-camera-changed', deviceId);
+            },
+          },
+          audioinput: {
+            currentDevice: getAgoraTrackDeviceId('audio'),
+            deviceLogTag: 'mic:',
+            setDevice: setSelectedMic,
+            setDeviceUi: setUiSelectedMic,
+            eventEmitter: (deviceId: deviceId) => {
+              SDKEvents.emit('devices-selected-microphone-changed', deviceId);
+            },
+          },
+          audiooutput: {
+            currentDevice: defaultSpeaker,
+            deviceLogTag: 'speaker:',
+            setDevice: setSelectedSpeaker,
+            setDeviceUi: setUiSelectedSpeaker,
+            eventEmitter: (deviceId: deviceId) => {
+              SDKEvents.emit('devices-selected-speaker-changed', deviceId);
+            },
+          },
+        }[kind];
+
+        log(logTag, deviceLogTag, 'Device list populated but none selected');
+
+        if (sdkDevice && currentDevice) {
+          if (checkDeviceExists(sdkDevice.deviceId, deviceList)) {
+            applySdkDeviceChangeRequest(kind);
+          } else {
+            sdkDevice.promise.rej(new Error('Provided device not detected'));
+          }
+        } else if (
+          storedDevice &&
+          currentDevice &&
+          currentDevice !== storedDevice &&
+          checkDeviceExists(storedDevice, deviceList)
         ) {
-          log(
-            logTag,
-            'speaker: Setting speaker to active id',
-            storedAudioOutput,
-          );
-          setSelectedSpeaker(storedAudioOutput);
+          log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
+          setDevice(storedDevice);
         } else {
-          setUiSelectedSpeaker(defaultSpeaker);
+          eventEmitter(currentDevice);
+          setDeviceUi(currentDevice);
         }
-      }
+      };
+
+      // If stream exists and selected devices are empty, check for devices again
+      initializeDevice('videoinput');
+      initializeDevice('audioinput');
+      initializeDevice('audiooutput');
     }
 
     if (
@@ -421,85 +529,99 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     };
   }, [uiSelectedCam, deviceList]);
 
-  const setSelectedMic = (deviceId: deviceId) => {
-    log('mic: setting to', deviceId);
+  const setDeviceQueued = async (deviceId: deviceId, kind: deviceId) => {
+    const {queue} = {
+      audiooutput: {
+        queue: speakerSelectQueue.current,
+      },
+      audioinput: {
+        queue: micSelectQueue.current,
+      },
+      videoinput: {
+        queue: camSelectQueue.current,
+      },
+    }[kind];
+
     return new Promise((res, rej) => {
-      if (micSelectInProgress.current) {
-        const e = new Error('Change already in progress');
-        console.error('DeviceConfigure: Error setting mic', e);
+      queue.push({
+        deviceId,
+        resolveQueued: res,
+        rejectQueued: rej,
+      });
+    });
+  };
+
+  const setDeviceCommon = (deviceId: deviceId, kind: deviceKind) => {
+    const {mutexRef, queueRef, setMethod, logtag} = {
+      audioinput: {
+        mutexRef: micSelectInProgress,
+        queueRef: micSelectQueue,
+        setMethod: 'changeMic',
+        logtag: 'setMic:',
+      },
+      audiooutput: {
+        mutexRef: speakerSelectInProgress,
+        queueRef: speakerSelectQueue,
+        setMethod: 'changeSpeaker',
+        logtag: 'setCam:',
+      },
+      videoinput: {
+        mutexRef: camSelectInProgress,
+        queueRef: camSelectQueue,
+        setMethod: 'changeCamera',
+        logtag: 'setSpeaker:',
+      },
+    }[kind];
+
+    log(logtag, kind, 'setting to', deviceId);
+
+    const handleQueue = () => {
+      if (queueRef.current.length > 0) {
+        const queueItem = queueRef.current.shift();
+        setDeviceCommon(queueItem.deviceId, kind)
+          .then(() => {
+            queueItem.resolveQueued();
+          })
+          .catch((e) => queueItem.rejectQueued(e));
+      }
+    };
+    return new Promise<void>((res, rej) => {
+      if (mutexRef.current) {
+        const e = new Error(logtag + ' Change already in progress');
+        console.error('DeviceConfigure:', logtag, 'Error setting', kind, e);
         rej(e);
         return;
       }
-      micSelectInProgress.current = true;
-      RtcEngine.changeMic(
+      mutexRef.current = true;
+      RtcEngine[setMethod](
         deviceId,
         () => {
-          syncSelectedDeviceUi('audioinput');
-          updateActiveDeviceId('audioinput', deviceId);
-          micSelectInProgress.current = false;
+          syncSelectedDeviceUi(kind);
+          updateActiveDeviceId(kind, deviceId);
+          mutexRef.current = false;
           res(null);
+          handleQueue();
         },
         (e: any) => {
-          micSelectInProgress.current = false;
-          console.error('DeviceConfigure: Error setting mic', e);
+          mutexRef.current = false;
+          console.error('DeviceConfigure:', logtag, 'Error setting', kind, e);
           rej(e);
+          handleQueue();
         },
       );
     });
+  };
+
+  const setSelectedMic = (deviceId: deviceId) => {
+    return setDeviceCommon(deviceId, 'audioinput');
   };
 
   const setSelectedCam = (deviceId: deviceId) => {
-    log('cam: setting  to', deviceId);
-    return new Promise((res, rej) => {
-      if (camSelectInProgress.current) {
-        const e = new Error('Change already in progress');
-        console.error('DeviceConfigure: Error setting webcam', e);
-        rej(e);
-        return;
-      }
-      camSelectInProgress.current = true;
-      RtcEngine.changeCamera(
-        deviceId,
-        () => {
-          syncSelectedDeviceUi('videoinput');
-          updateActiveDeviceId('videoinput', deviceId);
-          camSelectInProgress.current = false;
-          res(null);
-        },
-        (e: any) => {
-          camSelectInProgress.current = false;
-          console.error('Device Configure: Error setting webcam', e);
-          rej(e);
-        },
-      );
-    });
+    return setDeviceCommon(deviceId, 'videoinput');
   };
 
   const setSelectedSpeaker = (deviceId: deviceId) => {
-    log('speaker: setting to', deviceId);
-    return new Promise((res, rej) => {
-      if (speakerSelectInProgress.current) {
-        const e = new Error('Change already in progress');
-        console.error('DeviceConfigure: Error setting speaker', e);
-        rej(e);
-        return;
-      }
-      speakerSelectInProgress.current = true;
-      RtcEngine.changeSpeaker(
-        deviceId,
-        () => {
-          setUiSelectedSpeaker(deviceId);
-          updateActiveDeviceId('audiooutput', deviceId);
-          speakerSelectInProgress.current = false;
-          res(null);
-        },
-        (e: any) => {
-          speakerSelectInProgress.current = false;
-          console.error('Device Configure: Error setting speaker', e);
-          rej(uiSelectedSpeaker);
-        },
-      );
-    });
+    return setDeviceCommon(deviceId, 'audiooutput');
   };
 
   const showNewDeviceDetectedToast = (device: MediaDeviceInfo) => {

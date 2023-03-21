@@ -34,6 +34,19 @@ export interface userEventsMapInterface {
   'rtc-user-unpublished': (uid: UidType, trackType: 'audio' | 'video') => void;
   'rtc-user-joined': (uid: UidType) => void;
   'rtc-user-left': (uid: UidType) => void;
+  '_rtm-joined': (uid: UidType) => void;
+  'devices-selected-microphone-changed': (
+    deviceId: MediaDeviceInfo['deviceId'],
+  ) => void;
+  'devices-selected-camera-changed': (
+    deviceId: MediaDeviceInfo['deviceId'],
+  ) => void;
+  'devices-selected-speaker-changed': (
+    deviceId: MediaDeviceInfo['deviceId'],
+  ) => void;
+  'devices-device-list-updated': (
+    deviceId: MediaDeviceInfo['deviceId'],
+  ) => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();
