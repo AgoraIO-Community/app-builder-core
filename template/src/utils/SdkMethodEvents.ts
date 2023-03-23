@@ -3,7 +3,7 @@ import {
   CustomizationApiInterface,
   MeetingInfoContextInterface,
 } from 'customization-api';
-import {deviceId} from 'src/components/DeviceConfigure';
+import {deviceId} from '../components/DeviceConfigure';
 
 type EventParameterHelper<T extends keyof SdkMethodEvents> = Parameters<
   SdkMethodEvents[T]
