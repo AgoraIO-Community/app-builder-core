@@ -11,41 +11,7 @@ import SDKMethodEventsManager from './utils/SdkMethodEvents';
 import App from './App';
 import SdkApiContextProvider from './components/SdkApiContext';
 import {Unsubscribe} from 'nanoevents';
-
-// type makeAsync<T extends (...p: any) => void> = (
-//   ...p: Parameters<T>
-// ) => PromiseLike<ReturnType<T>>;
-//
-// type takeOnlyFirstParam<T extends (...p: any) => void> = (
-//   p: Parameters<T>[0],
-// ) => ReturnType<T>;
-
-type deviceId = MediaDeviceInfo['deviceId'];
-
-export interface SdkMethodEvents {
-  customize: (customization: CustomizationApiInterface) => void;
-  join(
-    roomid: string | Partial<MeetingInfoContextInterface['data']>,
-    skipPrecall?: boolean,
-  ): MeetingInfoContextInterface['data'];
-  // mediaDevice: (deviceId: string, kind: MediaDeviceInfo['kind']) => void;
-  microphoneDevice: (deviceId: deviceId) => void;
-  speakerDevice: (deviceId: deviceId) => void;
-  cameraDevice: (deviceId: deviceId) => void;
-}
-
-// interface AppBuilderSdkApiInterface {
-//   customize: makeAsync<SdkMethodEvents['customize']>;
-//   joinRoom: makeAsync<takeOnlyFirstParam<SdkMethodEvents['join']>>;
-//   joinPrecall: makeAsync<takeOnlyFirstParam<SdkMethodEvents['join']>>;
-//   createCustomization: (
-//     customization: CustomizationApiInterface,
-//   ) => CustomizationApiInterface;
-//   on: <T extends keyof userEventsMapInterface>(
-//     userEventName: T,
-//     callBack: userEventsMapInterface[T],
-//   ) => Unsubscribe;
-// }
+import {deviceId} from './components/DeviceConfigure';
 
 export const AppBuilderSdkApi = {
   customize: async (customization: CustomizationApiInterface) => {
@@ -66,20 +32,13 @@ export const AppBuilderSdkApi = {
     const t = await SDKMethodEventsManager.emit('join', roomDetails);
     return t as unknown as [MeetingInfoContextInterface['data'], () => {}];
   },
-  // setMediaDevice: async (device: MediaDeviceInfo) => {
-  //   return await SDKMethodEventsManager.emit(
-  //     'mediaDevice',
-  //     device.deviceId,
-  //     device.kind,
-  //   );
-  // },
-  setMicrophone: async (deviceId: MediaDeviceInfo['deviceId']) => {
+  setMicrophone: async (deviceId: deviceId) => {
     return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
   },
-  setSpeaker: async (deviceId: MediaDeviceInfo['deviceId']) => {
+  setSpeaker: async (deviceId: deviceId) => {
     return await SDKMethodEventsManager.emit('speakerDevice', deviceId);
   },
-  setCamera: async (deviceId: MediaDeviceInfo['deviceId']) => {
+  setCamera: async (deviceId: deviceId) => {
     return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
   },
   createCustomization: customize,

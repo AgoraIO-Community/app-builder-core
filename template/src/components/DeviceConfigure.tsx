@@ -20,20 +20,17 @@ import React, {
 import {ClientRole} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
-import {useRtc, PrimaryButton} from 'customization-api';
+import {useRtc} from 'customization-api';
 import Toast from '../../react-native-toast-message';
-import TertiaryButton from '../atoms/TertiaryButton';
-import {StyleSheet, Text} from 'react-native';
-import CustomIcon from '../atoms/CustomIcon';
+import {Text} from 'react-native';
 import StorageContext from './StorageContext';
 
 import type RtcEngine from '../../bridge/rtc/webNg/';
 import ColorContext from './ColorContext';
 import {SdkApiContext} from './SdkApiContext';
-import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import SDKEvents from '../utils/SdkEvents';
 
-const log = (...args) => {
+const log = (...args: any[]) => {
   console.log('[DeviceConfigure] ', ...args);
 };
 
@@ -42,9 +39,9 @@ type WebRtcEngineInstance = InstanceType<typeof RtcEngine>;
 interface Props {
   userRole: ClientRole;
 }
-type deviceInfo = MediaDeviceInfo;
-type deviceId = deviceInfo['deviceId'];
-type deviceKind = deviceInfo['kind'];
+export type deviceInfo = MediaDeviceInfo;
+export type deviceId = deviceInfo['deviceId'];
+export type deviceKind = deviceInfo['kind'];
 
 const DeviceConfigure: React.FC<Props> = (props: any) => {
   const rtc = useRtc();

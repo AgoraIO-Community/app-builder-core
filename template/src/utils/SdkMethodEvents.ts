@@ -1,5 +1,9 @@
-import {SdkMethodEvents} from '../SDKAppWrapper';
 import {createNanoEvents, Emitter} from 'nanoevents';
+import {
+  CustomizationApiInterface,
+  MeetingInfoContextInterface,
+} from 'customization-api';
+import {deviceId} from 'src/components/DeviceConfigure';
 
 type EventParameterHelper<T extends keyof SdkMethodEvents> = Parameters<
   SdkMethodEvents[T]
@@ -28,6 +32,18 @@ type emitCacheType = {
 type emitCacheEnabledType = {
   [K in EventKeyNameHelper]?: boolean;
 };
+
+export interface SdkMethodEvents {
+  customize: (customization: CustomizationApiInterface) => void;
+  join(
+    roomid: string | Partial<MeetingInfoContextInterface['data']>,
+    skipPrecall?: boolean,
+  ): MeetingInfoContextInterface['data'];
+  // mediaDevice: (deviceId: string, kind: MediaDeviceInfo['kind']) => void;
+  microphoneDevice: (deviceId: deviceId) => void;
+  speakerDevice: (deviceId: deviceId) => void;
+  cameraDevice: (deviceId: deviceId) => void;
+}
 
 class SDKMethodEvents {
   constructor() {
