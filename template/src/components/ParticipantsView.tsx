@@ -163,7 +163,7 @@ const ParticipantView = (props) => {
                     onPress={() => setShowHostSection(!showHostSection)}
                   />
                   {showHostSection ? (
-                    <AllAudienceParticipants
+                    <AllHostParticipants
                       emptyMessage={'No Host has joined yet.'}
                       uids={hostUids}
                       isMobile={isSmall()}
