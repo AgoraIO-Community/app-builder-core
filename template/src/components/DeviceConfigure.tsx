@@ -210,7 +210,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         break;
       case 'audiooutput':
         //@ts-ignore
-        const speakerId = RtcEngine.speakerDeviceId;
+        let speakerId = RtcEngine.speakerDeviceId;
         speakerId &&
           SDKEvents.emit('devices-selected-speaker-changed', speakerId);
         setUiSelectedSpeaker(speakerId);
