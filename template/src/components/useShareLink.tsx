@@ -177,10 +177,10 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   };
 
   const getBaseURL = () => {
-    let baseURL =
-      platform === 'web' && !isSDK
-        ? $config.FRONTEND_ENDPOINT || window.location.origin
-        : undefined;
+    let baseURL = !isSDK
+      ? $config.FRONTEND_ENDPOINT ||
+        (platform === 'web' && window.location.origin)
+      : undefined;
     return baseURL;
   };
 
