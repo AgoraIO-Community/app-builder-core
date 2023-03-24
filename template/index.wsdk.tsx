@@ -1,32 +1,13 @@
 import {AppRegistry} from 'react-native';
-import SDKAppWrapper, {
-  AppBuilderSdkApi,
-  AppBuilderSdkApiInterface,
-} from './src/SDKAppWrapper';
-import SDKEvents from './src/utils/SdkEvents';
+import SDKAppWrapper, {AppBuilderSdkApi} from './src/SDKAppWrapper';
 import React from 'react';
 import * as RN from 'react-native-web';
 import './src/assets/font-styles.css';
 export * from 'customization-api';
 export * from 'customization-implementation';
 
-interface AppBuilderWebSdkInterface extends AppBuilderSdkApiInterface {}
-
-const clearEvent = {
-  clear: () => {},
-};
-
-const AppBuilderWebSdkApi: AppBuilderWebSdkInterface = {
+const AppBuilderWebSdkApi = {
   ...AppBuilderSdkApi,
-  // Override customize function for web-sdk
-  customize: (customization) => {
-    SDKEvents.emit('addFpe', customization);
-    clearEvent.clear = SDKEvents.on('addFpeInit', () => {
-      console.log('addFpeInit called');
-      SDKEvents.emit('addFpe', customization);
-      clearEvent.clear();
-    });
-  },
 };
 
 // init code
