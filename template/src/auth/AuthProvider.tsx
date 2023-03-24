@@ -191,18 +191,41 @@ const AuthProvider = (props: AuthProviderProps) => {
   }
 
   useEffect(() => {
-    //fetch user details
-    getUserDetails()
-      .then((_) => {
-        setIsAuthenticated(true);
-        if (isSDK()) {
-          history.push(location.pathname);
-        }
-      })
-      .catch(() => {
-        setIsAuthenticated(false);
-        authLogin();
-      });
+    //if application in authorization state then don't call authlogin
+    if (
+      //to check authoriztion
+      location?.pathname?.indexOf('authorize') === -1 &&
+      //to check login link expiry
+      location?.search?.indexOf('msg') === -1
+    ) {
+      //fetch user details
+      getUserDetails()
+        .then((_) => {
+          setIsAuthenticated(true);
+          if (isSDK()) {
+            history.push(location.pathname);
+          }
+        })
+        .catch(() => {
+          setIsAuthenticated(false);
+          authLogin();
+        });
+    } else {
+      if (location?.search?.indexOf('msg') !== -1) {
+        //manage backend login failed. show error message and redirect to login again
+        Toast.show({
+          type: 'error',
+          text1: 'Login session expired, Please login again.',
+          visibilityTime: 3000,
+        });
+        setTimeout(() => {
+          authLogin();
+        }, 3000);
+      } else {
+        //it will render the children
+        setLoading(false);
+      }
+    }
   }, []);
 
   const authLogin = () => {
