@@ -49,10 +49,12 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
     <>
       <Route {...props} />
     </>
-  ) : isAndroid() || isIOS() ? (
-    //if user closes inapp browser then show login/signup button
-    <Login />
   ) : (
+    //if user closes the inapp browser then we are showing the loginpopup
+    //: isAndroid() || isIOS() ? (
+    //if user closes inapp browser then show login/signup button
+    //  <Login />
+    //)
     <Loading text={'Loading...'} />
   );
   // <Redirect

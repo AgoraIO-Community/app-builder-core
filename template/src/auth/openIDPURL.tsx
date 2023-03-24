@@ -13,6 +13,8 @@ export const getIDPAuthLoginURL = (returnTo?: any) => {
   }&redirect_url=${finalRedirectURL}&origin_url=${getOriginURL()}&platform_id=${getPlatformId()}`;
 };
 
-export const enableIDPAuth = (returnTo?: any) => {
+export const enableIDPAuth = async (returnTo?: any) => {
   Linking.openURL(getIDPAuthLoginURL(returnTo));
 };
+
+export const exitApp = () => {};

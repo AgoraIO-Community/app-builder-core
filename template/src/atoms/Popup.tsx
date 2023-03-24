@@ -21,6 +21,7 @@ interface PopupProps extends ModalProps {
   children: React.ReactNode;
   contentContainerStyle?: ViewStyle;
   containerStyle?: ViewStyle;
+  cancelable?: boolean;
 }
 const Popup = (props: PopupProps) => {
   const {
@@ -29,6 +30,7 @@ const Popup = (props: PopupProps) => {
     setModalVisible,
     children,
     showCloseIcon,
+    cancelable = true,
     ...otherProps
   } = props;
 
@@ -51,7 +53,7 @@ const Popup = (props: PopupProps) => {
         ]}>
         <TouchableWithoutFeedback
           onPress={() => {
-            setModalVisible(false);
+            cancelable && setModalVisible(false);
           }}>
           <View style={styles.backDrop} />
         </TouchableWithoutFeedback>

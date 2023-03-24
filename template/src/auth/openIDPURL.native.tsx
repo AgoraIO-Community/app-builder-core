@@ -1,6 +1,7 @@
 import {Linking, Platform} from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {getOriginURL, getPlatformId, AUTH_ENDPOINT_URL} from './config';
+import RNExitApp from 'react-native-exit-app';
 
 export const getDeepLinkURI = (path = '') => {
   const scheme = $config.PRODUCT_ID?.toLowerCase();
@@ -15,7 +16,7 @@ export const getIDPAuthLoginURL = () => {
   }&redirect_url=${encodeURIComponent(
     getDeepLinkURI('authorize'),
   )}&origin_url=${encodeURIComponent(
-    getOriginURL(),
+    getDeepLinkURI(),
   )}&platform_id=${getPlatformId()}`;
 };
 
@@ -30,11 +31,21 @@ export const enableIDPAuth = async (openDeepLink) => {
       );
       if (result && result?.type === 'success') {
         openDeepLink && openDeepLink(result?.url);
+      } else if (result && result?.type === 'cancel') {
+        return {showNativePopup: true};
       }
     } else {
       Linking.openURL(URL);
     }
   } catch (error) {
     console.log(error.message);
+  }
+};
+
+export const exitApp = () => {
+  try {
+    RNExitApp.exitApp();
+  } catch (error) {
+    console.log('Error on closing the app', error);
   }
 };

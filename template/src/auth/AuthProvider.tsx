@@ -25,6 +25,8 @@ import {
 } from '../utils/common';
 import SDKMethodEventsManager from '../utils/SdkMethodEvents';
 import StorageContext from '../components/StorageContext';
+import UserCancelPopup from './UserCancelPopup';
+import {exitApp} from './openIDPURL';
 
 const GET_USER = gql`
   query getUser {
@@ -51,6 +53,7 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const [showNativePopup, setShowNativePopup] = useState(false);
   const {setStore, store} = useContext(StorageContext);
   const [authenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -85,7 +88,18 @@ const AuthProvider = (props: AuthProviderProps) => {
         const url = processDeepLinkURI(link);
         console.log('debugging Deep-linking processed url', url);
         try {
-          if (url?.indexOf('authorize') !== -1) {
+          //login link expiry fix
+          if (url?.indexOf('msg') !== -1) {
+            //adding time delay to open in app browser
+            Toast.show({
+              type: 'error',
+              text1: 'Login session expired, Please login again.',
+              visibilityTime: 3000,
+            });
+            setTimeout(() => {
+              authLogin();
+            }, 3000);
+          } else if (url?.indexOf('authorize') !== -1) {
             const token = getParamFromURL(url, 'token');
             if (token) {
               console.log('debugging deep-linking got token');
@@ -196,6 +210,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       //to check authoriztion
       location?.pathname?.indexOf('authorize') === -1 &&
       //to check login link expiry
+      //login link expiry fix
       location?.search?.indexOf('msg') === -1
     ) {
       //fetch user details
@@ -212,7 +227,10 @@ const AuthProvider = (props: AuthProviderProps) => {
         });
     } else {
       if (location?.search?.indexOf('msg') !== -1) {
-        //manage backend login failed. show error message and redirect to login again
+        //old : manage backend login failed. show error message and redirect to login again
+        //new : IDP login already success, so don't need to show the error message
+        //we will redirect use to IDP login
+        //old code
         Toast.show({
           type: 'error',
           text1: 'Login session expired, Please login again.',
@@ -221,6 +239,8 @@ const AuthProvider = (props: AuthProviderProps) => {
         setTimeout(() => {
           authLogin();
         }, 3000);
+        //new code
+        //authLogin();
       } else {
         //it will render the children
         setLoading(false);
@@ -243,7 +263,15 @@ const AuthProvider = (props: AuthProviderProps) => {
             : isIOS() || isAndroid()
             ? deepLinkUrl
             : '',
-        );
+        )?.then((response: any) => {
+          if (isAndroid() || isIOS()) {
+            if (response && response?.showNativePopup) {
+              setShowNativePopup(true);
+            } else {
+              setShowNativePopup(false);
+            }
+          }
+        });
       }
       //AUTH -> IDP -> SDK ONLY
       else if ($config.ENABLE_TOKEN_AUTH && isSDK()) {
@@ -314,7 +342,7 @@ const AuthProvider = (props: AuthProviderProps) => {
 
   const authLogout = () => {
     if (ENABLE_AUTH && $config.ENABLE_IDP_AUTH && !isSDK()) {
-      idpLogout()
+      idpLogout(isAndroid() || isIOS() ? setShowNativePopup : {})
         .then((res) => {
           console.log('user successfully logged out');
           setIsAuthenticated(false);
@@ -354,6 +382,22 @@ const AuthProvider = (props: AuthProviderProps) => {
         authLogout,
         returnTo,
       }}>
+      {showNativePopup ? (
+        <UserCancelPopup
+          login={() => {
+            setShowNativePopup(false);
+            authLogin();
+          }}
+          exitApp={() => {
+            setShowNativePopup(false);
+            exitApp();
+          }}
+          modalVisible={showNativePopup}
+          setModalVisible={setShowNativePopup}
+        />
+      ) : (
+        <></>
+      )}
       {(!authenticated && !ENABLE_AUTH) || (ENABLE_AUTH && loading) ? (
         <Loading text={'Loading...'} />
       ) : (

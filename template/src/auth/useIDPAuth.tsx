@@ -6,7 +6,7 @@ import useTokenAuth from './useTokenAuth';
 export const useIDPAuth = () => {
   const location = useLocation();
   const {tokenLogout} = useTokenAuth();
-  const idpLogout = () => {
+  const idpLogout = (dummy: any) => {
     return new Promise((resolve, reject) => {
       try {
         //v1/idp/logout -> will generate and return URL for IDP logout(frontend need to call this)

@@ -12,7 +12,7 @@ import useTokenAuth from './useTokenAuth';
 export const useIDPAuth = () => {
   const {store, setStore} = useContext(StorageContext);
   const {tokenLogout} = useTokenAuth();
-  const idpLogout = () => {
+  const idpLogout = (setShowNativePopup: (val: boolean) => void) => {
     return new Promise((resolve, reject) => {
       try {
         //v1/idp/logout -> will generate and return URL for IDP logout(frontend need to call this)
@@ -37,7 +37,11 @@ export const useIDPAuth = () => {
                     InAppBrowser.openAuth(
                       IDPAuthLogoutURL,
                       encodeURIComponent(getIDPAuthLoginURL()),
-                    );
+                    ).then((res) => {
+                      if (res && res?.type === 'cancel') {
+                        setShowNativePopup && setShowNativePopup(true);
+                      }
+                    });
                   } else {
                     Linking.openURL(IDPAuthLogoutURL);
                   }

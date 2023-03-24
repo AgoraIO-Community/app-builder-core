@@ -19,8 +19,9 @@ export const addEventListenerForToken = (history) => {
   );
 };
 
-export const enableIDPAuth = (history) => {
+export const enableIDPAuth = async (history) => {
   addEventListenerForToken(history);
   //open the auth login in the popup
   window.open(getIDPAuthLoginURL(), 'modal');
 };
+export const exitApp = () => {};
