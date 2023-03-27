@@ -28,7 +28,7 @@ import StorageContext from '../components/StorageContext';
 import UserCancelPopup from './UserCancelPopup';
 import {exitApp} from './openIDPURL';
 
-const GET_USER = gql`
+export const GET_USER = gql`
   query getUser {
     getUser {
       name
