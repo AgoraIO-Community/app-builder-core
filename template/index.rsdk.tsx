@@ -14,6 +14,7 @@
  */
 import SDKAppWrapper, {
   AppBuilderSdkApi,
+  AppBuilderSdkApiInterface,
 } from './src/SDKAppWrapper';
 import React from 'react';
 import * as RN from 'react-native-web';
@@ -22,7 +23,11 @@ import './src/assets/font-styles.css';
 export * from 'customization-api';
 export * from 'customization-implementation';
 
-const AppBuilderReactSdkApi = {
+interface AppBuilderReactSdkInterface extends AppBuilderSdkApiInterface {
+  View: React.FC;
+}
+
+const AppBuilderReactSdkApi: AppBuilderReactSdkInterface = {
   ...AppBuilderSdkApi,
   View: SDKAppWrapper,
 };

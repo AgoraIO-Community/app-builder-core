@@ -460,11 +460,11 @@ module.exports.androidWin = series(
 );
 
 module.exports.test = series(
-  general.generateNpmPackage,
-  // general.typescript,
-  // general.typescriptFix,
-  // reactSdk.typescript,
-  // reactSdk.typescriptFix,
-  // webSdk.typescript,
-  // webSdk.typescriptFix,
+  general.createBuildDirectory,
+  general.generateApiTypedefs,
+  general.bundleApiTypedefs,
+  webSdk.generateSdkTypedefs,
+  webSdk.bundleSdkTypedefs,
+  general.cleanTempFiles,
+  general.genTsDefs,
 );
