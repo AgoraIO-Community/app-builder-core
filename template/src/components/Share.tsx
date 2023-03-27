@@ -213,7 +213,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
       ) : (
         <></>
       )}
-      {pstn ? (
+      {$config.PSTN && pstn ? (
         <>
           <Text style={style.urlTitle}>{pstnLabel}</Text>
           <Spacer size={11} />
