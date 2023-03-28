@@ -15,23 +15,15 @@ import VideoCall from './pages/VideoCall';
 import Create from './pages/Create';
 import {Route, Switch, Redirect} from './components/Router';
 import AuthRoute from './auth/AuthRoute';
-import StoreToken from './components/StoreToken';
 import {IDPAuth} from './auth/IDPAuth';
-import Login from './pages/Login';
 import {Text} from 'react-native';
 
 function AppRoutes() {
   return (
     <Switch>
-      {/* <Route exact path={'/login'}>
-        <Login />
-      </Route> */}
       <Route exact path={'/'}>
         <Redirect to={'/create'} />
       </Route>
-      {/* <Route exact path={'/authorize/:token'}>
-        <StoreToken />
-      </Route> */}
       <Route exact path={'/authorize/:token?'}>
         <IDPAuth />
       </Route>
