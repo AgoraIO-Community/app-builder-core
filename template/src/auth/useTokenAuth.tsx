@@ -6,6 +6,7 @@ import isSDK from '../utils/isSDK';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
+  const tokenRef = useRef(null);
   const {setStore, store} = useContext(StorageContext);
   const [tokenExpiresAt, setTokenExpiresAt] = React.useState(0);
   const timerRef = useRef(null);
@@ -107,6 +108,7 @@ const useTokenAuth = () => {
         }
       }
     };
+    tokenRef.current = store.token;
     syncToken();
   }, [store?.token]);
 
@@ -159,7 +161,9 @@ const useTokenAuth = () => {
             ? {credentials: 'include'}
             : {
                 headers: {
-                  authorization: store?.token ? `Bearer ${store.token}` : '',
+                  authorization: tokenRef.current
+                    ? `Bearer ${tokenRef.current}`
+                    : '',
                 },
               },
         )
