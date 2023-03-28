@@ -93,7 +93,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             //adding time delay to open in app browser
             Toast.show({
               type: 'error',
-              text1: 'Login session expired, Please login again.',
+              text1: 'Your session has timed out, Retrying.',
               visibilityTime: 3000,
             });
             setTimeout(() => {
@@ -227,13 +227,9 @@ const AuthProvider = (props: AuthProviderProps) => {
         });
     } else {
       if (location?.search?.indexOf('msg') !== -1) {
-        //old : manage backend login failed. show error message and redirect to login again
-        //new : IDP login already success, so don't need to show the error message
-        //we will redirect use to IDP login
-        //old code
         Toast.show({
           type: 'error',
-          text1: 'Login session expired, Please login again.',
+          text1: 'Your session has timed out, Retrying.',
           visibilityTime: 3000,
         });
         setTimeout(() => {
