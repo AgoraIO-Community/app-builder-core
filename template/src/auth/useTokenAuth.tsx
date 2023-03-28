@@ -45,6 +45,9 @@ const useTokenAuth = () => {
       .then((data) => {
         if (data?.token) {
           updateToken(data.token);
+          if (isSDK()) {
+            SdkEvents.emit('token-refreshed');
+          }
         }
       });
   };
@@ -89,7 +92,7 @@ const useTokenAuth = () => {
         if (isSDK()) {
           SdkEvents.emit('did-token-expire');
         }
-        throw 'Token expired. Pass a new token';
+        console.log('token expired');
       } else {
         setTokenExpiresAt(expiresAt);
       }
@@ -109,24 +112,27 @@ const useTokenAuth = () => {
           token = store?.token;
         }
         if (token) {
-          if (validateToken(token)) {
-            if (updateTokenInStore) {
-              updateToken(token);
+          try {
+            if (validateToken(token)) {
+              if (updateTokenInStore) {
+                updateToken(token);
+              }
+              setTimeout(() => {
+                resolve(true);
+              });
+            } else {
+              if (isSDK()) {
+                SdkEvents.emit('did-token-expire');
+              }
             }
-            setTimeout(() => {
-              resolve(true);
-            });
-          } else {
-            if (isSDK()) {
-              SdkEvents.emit('did-token-expire');
-            }
-            throw new Error('Token expired');
+          } catch (e) {
+            reject('Token expired');
           }
         } else {
           if (isSDK()) {
             SdkEvents.emit('token-not-found');
           }
-          throw new Error('Token not found');
+          reject('Token not found');
         }
       } catch (error) {
         reject(error);

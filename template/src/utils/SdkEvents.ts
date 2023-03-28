@@ -37,6 +37,7 @@ export interface userEventsMapInterface {
   'token-not-found': () => void;
   'will-token-expire': () => void;
   'did-token-expire': () => void;
+  'token-refreshed': () => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();
