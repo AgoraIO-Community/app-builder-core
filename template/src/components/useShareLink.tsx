@@ -212,6 +212,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getPstn = () => {
     let stringToCopy = '';
+    //sometimes backend pin value is zero and so removed the check
     if (pstn && pstn?.number) {
       stringToCopy += `${PSTNNumberText}: ${pstn.number} ${PSTNPinText}: ${pstn.pin}`;
     }
