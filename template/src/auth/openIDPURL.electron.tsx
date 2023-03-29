@@ -1,4 +1,5 @@
 import {getOriginURL, getPlatformId, AUTH_ENDPOINT_URL} from './config';
+import Toast from '../../react-native-toast-message';
 
 export const getIDPAuthLoginURL = () => {
   //redirect URL not require for electron
@@ -10,9 +11,19 @@ export const getIDPAuthLoginURL = () => {
 export const addEventListenerForToken = (history) => {
   window.addEventListener(
     'message',
-    ({data, origin}: {data: {token: string}; origin: string}) => {
+    ({data, origin}: {data: {token: string; msg: string}; origin: string}) => {
       if (data?.token) {
         history.push(`/authorize/${data.token}`);
+      } else if (data?.msg && data?.msg === 'login_link_expired') {
+        Toast.show({
+          type: 'error',
+          text1: 'Your session has timed out, Retrying.',
+          visibilityTime: 3000,
+        });
+        setTimeout(() => {
+          //open auth login again
+          window.open(getIDPAuthLoginURL(), 'modal');
+        }, 3000);
       }
     },
     false,
