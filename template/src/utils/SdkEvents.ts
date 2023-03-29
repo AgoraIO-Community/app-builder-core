@@ -44,9 +44,6 @@ export interface userEventsMapInterface {
   'devices-selected-speaker-changed': (
     deviceId: MediaDeviceInfo['deviceId'],
   ) => void;
-  'devices-device-list-updated': (
-    deviceId: MediaDeviceInfo['deviceId'],
-  ) => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();

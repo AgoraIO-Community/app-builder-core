@@ -15,6 +15,7 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import {isMobileUA, isWebInternal} from './common';
 import {AppState} from 'react-native';
+import {SdkApiContext} from 'src/components/SdkApiContext';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -31,45 +32,9 @@ function useMuteToggleLocal() {
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const isCamON = useRef(local.video);
 
-  useEffect(() => {
-    if ($config.AUDIO_ROOM || !isMobileUA()) return;
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      appState.current = nextAppState;
-      setAppStateVisible(appState.current);
-    });
+  const {muteVideoListener} = useContext(SdkApiContext);
 
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
-    if (appStateVisible === 'background') {
-      isCamON.current = local.video;
-      if (isCamON.current) {
-        isWebInternal()
-          ? RtcEngine.muteLocalVideoStream(true)
-          : RtcEngine.enableLocalVideo(false);
-
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [0],
-        });
-      }
-    }
-    if (appStateVisible === 'active' && isCamON.current) {
-      isWebInternal()
-        ? RtcEngine.muteLocalVideoStream(false)
-        : RtcEngine.enableLocalVideo(true);
-      dispatch({
-        type: 'LocalMuteVideo',
-        value: [1],
-      });
-    }
-  }, [appStateVisible]);
-
-  return async (type: MUTE_LOCAL_TYPE) => {
+  const muteToggleLocal = async (type: MUTE_LOCAL_TYPE) => {
     switch (type) {
       case MUTE_LOCAL_TYPE.audio:
         let localAudioState = local.audio;
@@ -102,11 +67,11 @@ function useMuteToggleLocal() {
               ],
             });
           } catch (e) {
-            console.error(e);
             dispatch({
               type: 'LocalMuteAudio',
               value: [localAudioState],
             });
+            throw e;
           }
         }
         break;
@@ -147,14 +112,77 @@ function useMuteToggleLocal() {
               ],
             });
           } catch (e) {
-            console.log('error while dispatching');
             dispatch({
               type: 'LocalMuteVideo',
               value: [localVideoState],
             });
+            throw e;
           }
         }
         break;
+    }
+  };
+
+  useEffect(() => {
+    if ($config.AUDIO_ROOM || !isMobileUA()) return;
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+    });
+
+    muteVideoListener(async (res, rej, state) => {
+      try {
+        if (
+          (state && local.video === ToggleState.enabled) ||
+          (!state && local.video === ToggleState.disabled)
+        ) {
+          await muteToggleLocal(MUTE_LOCAL_TYPE.audio);
+          res();
+        } else {
+          rej(new Error('Mute in progress'));
+        }
+      } catch (e) {
+        rej();
+      }
+    });
+
+    return () => {
+      subscription?.remove();
+      muteVideoListener((_, rej) => rej());
+    };
+  }, []);
+
+  useEffect(() => {
+    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
+    if (appStateVisible === 'background') {
+      isCamON.current = local.video;
+      if (isCamON.current) {
+        isWebInternal()
+          ? RtcEngine.muteLocalVideoStream(true)
+          : RtcEngine.enableLocalVideo(false);
+
+        dispatch({
+          type: 'LocalMuteVideo',
+          value: [0],
+        });
+      }
+    }
+    if (appStateVisible === 'active' && isCamON.current) {
+      isWebInternal()
+        ? RtcEngine.muteLocalVideoStream(false)
+        : RtcEngine.enableLocalVideo(true);
+      dispatch({
+        type: 'LocalMuteVideo',
+        value: [1],
+      });
+    }
+  }, [appStateVisible]);
+
+  return async (type: MUTE_LOCAL_TYPE) => {
+    try {
+      muteToggleLocal(type);
+    } catch (e) {
+      console.error('Error in toggling mutestate', type);
     }
   };
 }

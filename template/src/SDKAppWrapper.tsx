@@ -25,6 +25,8 @@ export interface AppBuilderSdkApiInterface {
   setMicrophone: (deviceId: deviceId) => Promise<void>;
   setCamera: (deviceId: deviceId) => Promise<void>;
   setSpeaker: (deviceId: deviceId) => Promise<void>;
+  muteAudio: (state: boolean) => Promise<void>;
+  muteVideo: (state: boolean) => Promise<void>;
   createCustomization: (
     customization: CustomizationApiInterface,
   ) => CustomizationApiInterface;
@@ -55,6 +57,12 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   },
   setCamera: async (deviceId) => {
     return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
+  },
+  muteAudio: async (state) => {
+    return await SDKMethodEventsManager.emit('muteAudio', state);
+  },
+  muteVideo: async (state) => {
+    return await SDKMethodEventsManager.emit('muteVideo', state);
   },
   createCustomization: customize,
   on: (userEventName, cb) => {

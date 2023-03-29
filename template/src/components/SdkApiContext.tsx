@@ -1,4 +1,4 @@
-import React, {createContext, useState, useEffect} from 'react';
+import React, {createContext, useState, useEffect, useRef} from 'react';
 import SDKMethodEventsManager, {
   _InternalSDKMethodEventsMap,
 } from '../utils/SdkMethodEvents';
@@ -31,12 +31,6 @@ type SdkApiContextInterface = {
     customization?: CustomizationApiInterface;
     promise?: extractPromises<_InternalSDKMethodEventsMap['customize']>;
   };
-  // mediaDevice: {
-  //   [k in MediaDeviceInfo['kind']]?: {
-  //     deviceId: string;
-  //     promise?: extractPromises<_InternalSDKMethodEventsMap['mediaDevice']>;
-  //   };
-  // };
   microphoneDevice: {
     deviceId?: string;
     promise?: extractPromises<_InternalSDKMethodEventsMap['microphoneDevice']>;
@@ -49,6 +43,10 @@ type SdkApiContextInterface = {
     deviceId?: string;
     promise?: extractPromises<_InternalSDKMethodEventsMap['cameraDevice']>;
   };
+  muteAudio: {
+    callback: _InternalSDKMethodEventsMap['muteAudio'];
+  };
+  muteVideo: _InternalSDKMethodEventsMap['muteAudio'];
   clearState: (key: keyof _InternalSDKMethodEventsMap, param?: any) => void;
 };
 
@@ -61,12 +59,29 @@ const SdkApiInitState: SdkApiContextInterface = {
   microphoneDevice: {},
   speakerDevice: {},
   cameraDevice: {},
+  muteVideo: (res, rej) => {
+    rej(
+      new Error(
+        "Video call not initialized, call this method on 'join' or 'ready-to-join' event listener callback",
+      ),
+    );
+  },
+  muteAudio: {
+    callback: (res, rej) => {
+      rej(
+        new Error(
+          "Video call not initialized, call this method on 'join' or 'ready-to-join' event listener callback",
+        ),
+      );
+    },
+  },
   clearState: () => {},
 };
 
 export const SDK_MEETING_TAG = 'sdk-initiated-meeting';
 
-export const SdkApiContext = createContext(SdkApiInitState);
+export const SdkApiContext =
+  createContext<SdkApiContextInterface>(SdkApiInitState);
 
 let moduleEventsUnsub: any[] = [];
 
@@ -117,19 +132,6 @@ const commonEventHandlers: commonEventHandlers = {
       res();
     });
   },
-  // mediaDevice: (setter) => {
-  //   return SDKMethodEventsManager.on(
-  //     'mediaDevice',
-  //     (res, rej, deviceId, kind) => {
-  //       setter({
-  //         [kind]: {
-  //           deviceId,
-  //           promise: {res, rej},
-  //         },
-  //       });
-  //     },
-  //   );
-  // },
   microphoneDevice: (setter) => {
     return SDKMethodEventsManager.on(
       'microphoneDevice',
@@ -167,12 +169,6 @@ const registerListener = () => {
     commonEventHandlers.join((state) => {
       SdkApiInitState.join = state;
     }),
-    // commonEventHandlers.mediaDevice((state) => {
-    //   SdkApiInitState.mediaDevice = {
-    //     ...SdkApiInitState.mediaDevice,
-    //     ...state,
-    //   };
-    // }),
     commonEventHandlers.microphoneDevice((state) => {
       SdkApiInitState.microphoneDevice = state;
     }),
@@ -194,9 +190,6 @@ const SdkApiContextProvider: React.FC = (props) => {
   const [userCustomization, setUserCustomization] = useState(
     SdkApiInitState.customize,
   );
-  // const [mediaDeviceState, setMediaDeviceState] = useState(
-  //   SdkApiInitState.setCamera,
-  // );
   const [microphoneDeviceState, setMicrophoneDeviceState] = useState(
     SdkApiInitState.microphoneDevice,
   );
@@ -206,6 +199,12 @@ const SdkApiContextProvider: React.FC = (props) => {
   const [cameraDeviceState, setCameraDeviceState] = useState(
     SdkApiInitState.cameraDevice,
   );
+
+  const muteVideoListener = useRef(SdkApiInitState.muteVideo);
+
+  const setMuteVideoListener = (value: SdkApiContextInterface['muteVideo']) => {
+    muteVideoListener.current = value;
+  };
 
   const clearState: SdkApiContextInterface['clearState'] = (key, param) => {
     switch (key) {
@@ -221,42 +220,11 @@ const SdkApiContextProvider: React.FC = (props) => {
         setSpeakerDeviceState({});
       case 'cameraDevice':
         setCameraDeviceState({});
-      // case 'mediaDevice':
-      //   setMediaDeviceState((currentState) => {
-      //     currentState[param] = undefined;
-      //     return currentState;
-      //   });
     }
   };
 
   useEffect(() => {
     deRegisterListener();
-
-    // const applyPromiseWrapper = (
-    //   state: SdkApiContextInterface['mediaDevice'],
-    //   kind: MediaDeviceInfo['kind'],
-    // ) => {
-    //   if (state[kind]) {
-    //     state[kind].promise.res = () => {
-    //       const resolve = state[kind].promise.res;
-    //       clearState('mediaDevice', kind);
-    //       resolve();
-    //     };
-    //     state[kind].promise.rej = (reason?: any) => {
-    //       const reject = state[kind].promise.rej;
-    //       clearState('mediaDevice', kind);
-    //       reject(reason);
-    //     };
-    //   }
-    // };
-
-    // setMediaDeviceState((currentState) => {
-    //   // applyPromiseWrapper(currentState, 'audiooutput');
-    //   // applyPromiseWrapper(currentState, 'audioinput');
-    //   // applyPromiseWrapper(currentState, 'videoinput');
-    //
-    //   return currentState;
-    // });
 
     const unsub = [
       commonEventHandlers.customize((state) => {
@@ -274,18 +242,6 @@ const SdkApiContextProvider: React.FC = (props) => {
       commonEventHandlers.cameraDevice((state) => {
         setCameraDeviceState(state);
       }),
-      // commonEventHandlers.mediaDevice((state) => {
-      //   // applyPromiseWrapper(state, 'audioinput');
-      //   // applyPromiseWrapper(state, 'audiooutput');
-      //   // applyPromiseWrapper(state, 'videoinput');
-      //
-      //   setMediaDeviceState((currentState) => {
-      //     return {
-      //       ...currentState,
-      //       ...state,
-      //     };
-      //   });
-      // }),
     ];
 
     return () => {
@@ -302,6 +258,7 @@ const SdkApiContextProvider: React.FC = (props) => {
         microphoneDevice: microphoneDeviceState,
         speakerDevice: speakerDeviceState,
         cameraDevice: cameraDeviceState,
+        muteVideoListener: setMuteVideoListener,
         clearState,
       }}>
       {props.children}
