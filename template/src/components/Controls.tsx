@@ -55,6 +55,7 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
+import {CaptionButton} from '../subComponents/caption';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -306,6 +307,9 @@ const Controls = () => {
           </View>
           <View testID="invite-btn" style={{marginHorizontal: 10}}>
             <CopyJoinInfo />
+          </View>
+          <View testID="invite-btn" style={{marginHorizontal: 10}}>
+            <CaptionButton />
           </View>
         </View>
       )}

@@ -513,6 +513,12 @@ export default class RtcEngine {
       },
     );
 
+    /* Recieve Captions  */
+    this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
+      console.log('stt messages', payload);
+      debugger;
+    });
+
     await this.client.join(
       this.appId,
       channelName,
