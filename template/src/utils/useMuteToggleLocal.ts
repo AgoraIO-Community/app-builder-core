@@ -15,7 +15,7 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import {isMobileUA, isWebInternal} from './common';
 import {AppState} from 'react-native';
-import {SdkApiContext} from 'src/components/SdkApiContext';
+import {SdkApiContext} from '../components/SdkApiContext';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
