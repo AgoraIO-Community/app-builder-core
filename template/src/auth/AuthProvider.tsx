@@ -163,8 +163,13 @@ const AuthProvider = (props: AuthProviderProps) => {
             return {...prevState, token};
           });
           setTimeout(async () => {
-            await enableTokenAuth(token);
-            res();
+            enableTokenAuth(token)
+              .then(() => {
+                res();
+              })
+              .catch((error) => {
+                rej('SDK Login failed' + JSON.stringify(error));
+              });
           });
         } catch (error) {
           rej('SDK Login failed' + JSON.stringify(error));
