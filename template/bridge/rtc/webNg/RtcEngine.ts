@@ -519,6 +519,10 @@ export default class RtcEngine {
       debugger;
     });
 
+    console.log('---app ID', this.appId);
+    console.log('---channelName', channelName);
+    console.log('---token', token);
+
     await this.client.join(
       this.appId,
       channelName,
