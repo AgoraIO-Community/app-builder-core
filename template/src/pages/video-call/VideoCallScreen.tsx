@@ -31,6 +31,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -186,6 +187,7 @@ const VideoCallScreen = () => {
         ) : (
           <ButtonTemplateProvider
             value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
+            <CaptionContainer />
             <BottombarComponent />
           </ButtonTemplateProvider>
         )}

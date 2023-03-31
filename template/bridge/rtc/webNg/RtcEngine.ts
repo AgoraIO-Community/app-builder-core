@@ -185,6 +185,7 @@ export default class RtcEngine {
     ['RemoteVideoStateChanged', () => null],
     ['NetworkQuality', () => null],
     ['ActiveSpeaker', () => null],
+    ['StreamMessageRecieved', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -515,13 +516,12 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
-      console.log('stt messages', payload);
-      debugger;
+      // UID is of bot
+      (this.eventsMap.get('StreamMessageRecieved') as callbackType)(
+        uid,
+        payload,
+      );
     });
-
-    console.log('---app ID', this.appId);
-    console.log('---channelName', channelName);
-    console.log('---token', token);
 
     await this.client.join(
       this.appId,
@@ -557,7 +557,8 @@ export default class RtcEngine {
       event === 'RemoteAudioStateChanged' ||
       event === 'RemoteVideoStateChanged' ||
       event === 'NetworkQuality' ||
-      event === 'ActiveSpeaker'
+      event === 'ActiveSpeaker' ||
+      event === 'StreamMessageRecieved'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }

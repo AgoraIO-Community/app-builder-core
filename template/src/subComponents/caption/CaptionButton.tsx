@@ -1,6 +1,6 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import TertiaryButton from '../../atoms/TertiaryButton';
+import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import StorageContext from '../../components/StorageContext';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
@@ -44,7 +44,6 @@ const CaptionButton = () => {
       const oldToken =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGlvbl90eXBlIjoxLCJhcHBfaWQiOiI2NWExMTAwMmY3MGM0MTdmYWRhMDg3MzJlMTVkYWUzNyIsInVzZXJfaWQiOiJjLTYxZmQzMzY3LTQ4NmUtNDNlMi1iN2M1LWI5MDM2NDBhNGVhMyIsInByb2plY3RfaWQiOiI2OTQwZmUzOTI2ZDdhOWQxZjBkMiIsImV4cCI6MTY3OTkwMTAyNH0.lMnw-w93FAQl7lA4GKZh2_ZUThkn6uxnP3MKBduXBvA';
       const isTokenValid = validateToken(store?.token);
-      debugger;
       const res = await startStopSTT(
         isCaptionON,
         store?.token || '',
@@ -59,29 +58,32 @@ const CaptionButton = () => {
   };
 
   return (
-    <View style={{flexDirection: 'row'}}>
-      <TertiaryButton
+    <View style={{flexDirection: 'row', width: 100}}>
+      <PrimaryButton
         containerStyle={{
           width: '100%',
+          minWidth: 50,
           height: 48,
           paddingVertical: 12,
           paddingHorizontal: 12,
           borderRadius: ThemeConfig.BorderRadius.medium,
         }}
         text={`Start CC`}
+        disabled={isCaptionON}
         textStyle={styles.btnText}
         onPress={() => handleClick('start')}
       />
       <Spacer size={10} horizontal />
-      <TertiaryButton
+      <PrimaryButton
         containerStyle={{
-          width: '100%',
+          minWidth: 50,
           height: 48,
           paddingVertical: 12,
           paddingHorizontal: 12,
           borderRadius: ThemeConfig.BorderRadius.medium,
         }}
         text={`Stop CC`}
+        disabled={!isCaptionON}
         textStyle={styles.btnText}
         onPress={() => handleClick('stop')}
       />
