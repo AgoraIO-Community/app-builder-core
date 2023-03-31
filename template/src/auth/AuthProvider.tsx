@@ -5,6 +5,7 @@ import React, {
   Dispatch,
   SetStateAction,
   useContext,
+  useRef,
 } from 'react';
 import {useHistory, useLocation} from '../components/Router';
 import {gql, useApolloClient} from '@apollo/client';
@@ -53,6 +54,7 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
   const {setStore, store} = useContext(StorageContext);
   const [authenticated, setIsAuthenticated] = useState(false);
@@ -67,6 +69,54 @@ const AuthProvider = (props: AuthProviderProps) => {
   const location = useLocation();
   // client
   const apolloClient = useApolloClient();
+
+  const indexesOf = (arr, item) =>
+    arr.reduce((acc, v, i) => (v === item && acc.push(i), acc), []);
+  const nonprodenv = ['dev', 'staging', 'preprod', 'test'];
+  const timeout = indexesOf(nonprodenv, $config.BACKEND_ENDPOINT)
+    ? 240600
+    : 3540600;
+
+  const tokenRefreshWeb = () => {
+    //cookie token expiry in staging - 5min and production - 1hr
+    //since we can't read the cookies and its expiry details in the frontend
+    //manully calling refresh before 59 sec
+    //NOTE - IMP - if we call the refresh before or after 59 sec it won't work
+    //staging - 4min 1 sec
+    //production - 59min 1 sec
+    if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
+      refreshTimeoutWeb.current = setTimeout(() => {
+        console.log('debugging calling refresh');
+        fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'X-Platform-ID': 'turnkey_web',
+          },
+        })
+          .then((data) => {
+            clearTimeout(refreshTimeoutWeb.current);
+            tokenRefreshWeb();
+            console.log('debugging cookie set');
+          })
+          .catch((error) => {
+            console.log('debugging error', error);
+          });
+      }, timeout);
+    } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
+      //not authenticated
+      if (refreshTimeoutWeb.current) {
+        console.log('debugging clearing the interval');
+        clearTimeout(refreshTimeoutWeb.current);
+      } else {
+        console.log('debugging no interval to clear');
+      }
+    }
+  };
+
+  useEffect(() => {
+    tokenRefreshWeb();
+  }, [authenticated]);
 
   useEffect(() => {
     if (!ENABLE_AUTH && !authenticated && store.token) {
@@ -221,9 +271,17 @@ const AuthProvider = (props: AuthProviderProps) => {
       //fetch user details
       getUserDetails()
         .then((_) => {
-          setIsAuthenticated(true);
-          if (isSDK()) {
-            history.push(location.pathname);
+          //Each time user refresh the page we have to redirect the user to IDP login.then only we can able to refresh the token
+          //because we can't read the cookie so we don't know expirytime.
+          //so each time page refresh will get new token
+          //then only
+          if (isWeb() && $config.ENABLE_IDP_AUTH) {
+            authLogin();
+          } else {
+            setIsAuthenticated(true);
+            if (isSDK()) {
+              history.push(location.pathname);
+            }
           }
         })
         .catch(() => {
