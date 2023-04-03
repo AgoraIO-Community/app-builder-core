@@ -67,6 +67,7 @@ import {VideoCallProvider} from '../components/useVideoCall';
 import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
 
 enum RnEncryptionEnum {
   /**
@@ -252,15 +253,15 @@ const VideoCall: React.FC = () => {
       }, 0);
     },
     UserJoined: (uid: UidType) => {
-      console.log("UIKIT Callback: UserJoined", uid)
+      console.log('UIKIT Callback: UserJoined', uid);
       SDKEvents.emit('rtc-user-joined', uid);
     },
     UserOffline: (uid: UidType) => {
-      console.log("UIKIT Callback: UserOffline", uid)
+      console.log('UIKIT Callback: UserOffline', uid);
       SDKEvents.emit('rtc-user-joined', uid);
     },
     RemoteAudioStateChanged: (uid: UidType, status: 0 | 2) => {
-      console.log("UIKIT Callback: RemoteAudioStateChanged", uid, status)
+      console.log('UIKIT Callback: RemoteAudioStateChanged', uid, status);
       if (status === 0) {
         SDKEvents.emit('rtc-user-unpublished', uid, 'audio');
       } else {
@@ -268,7 +269,7 @@ const VideoCall: React.FC = () => {
       }
     },
     RemoteVideoStateChanged: (uid: UidType, status: 0 | 2) => {
-      console.log("UIKIT Callback: RemoteVideoStateChanged", uid, status)
+      console.log('UIKIT Callback: RemoteVideoStateChanged', uid, status);
       if (status === 0) {
         SDKEvents.emit('rtc-user-unpublished', uid, 'video');
       } else {
@@ -342,31 +343,33 @@ const VideoCall: React.FC = () => {
                                                       {!isMobileUA() && (
                                                         <PermissionHelper />
                                                       )}
-                                                      {callActive ? (
-                                                        <VideoMeetingDataProvider>
-                                                          <VideoCallProvider>
-                                                            <VideoCallScreen />
-                                                          </VideoCallProvider>
-                                                        </VideoMeetingDataProvider>
-                                                      ) : $config.PRECALL ? (
-                                                        <PreCallProvider
-                                                          value={{
-                                                            callActive,
-                                                            setCallActive,
-                                                            isCameraAvailable,
-                                                            isMicAvailable,
-                                                            setCameraAvailable,
-                                                            setMicAvailable,
-                                                            isPermissionRequested,
-                                                            setIsPermissionRequested,
-                                                            isSpeakerAvailable,
-                                                            setSpeakerAvailable,
-                                                          }}>
-                                                          <Precall />
-                                                        </PreCallProvider>
-                                                      ) : (
-                                                        <></>
-                                                      )}
+                                                      <SdkMuteToggleListener>
+                                                        {callActive ? (
+                                                          <VideoMeetingDataProvider>
+                                                            <VideoCallProvider>
+                                                              <VideoCallScreen />
+                                                            </VideoCallProvider>
+                                                          </VideoMeetingDataProvider>
+                                                        ) : $config.PRECALL ? (
+                                                          <PreCallProvider
+                                                            value={{
+                                                              callActive,
+                                                              setCallActive,
+                                                              isCameraAvailable,
+                                                              isMicAvailable,
+                                                              setCameraAvailable,
+                                                              setMicAvailable,
+                                                              isPermissionRequested,
+                                                              setIsPermissionRequested,
+                                                              isSpeakerAvailable,
+                                                              setSpeakerAvailable,
+                                                            }}>
+                                                            <Precall />
+                                                          </PreCallProvider>
+                                                        ) : (
+                                                          <></>
+                                                        )}
+                                                      </SdkMuteToggleListener>
                                                     </NetworkQualityProvider>
                                                   </CustomUserContextHolder>
                                                 </LocalUserContext>

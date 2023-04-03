@@ -43,12 +43,18 @@ type SdkApiContextInterface = {
     deviceId?: string;
     promise?: extractPromises<_InternalSDKMethodEventsMap['cameraDevice']>;
   };
-  muteAudio: {
-    callback: _InternalSDKMethodEventsMap['muteAudio'];
-  };
-  muteVideo: _InternalSDKMethodEventsMap['muteAudio'];
+  onMuteAudio: (callback: _InternalSDKMethodEventsMap['muteAudio']) => void;
+  onMuteVideo: (callback: _InternalSDKMethodEventsMap['muteVideo']) => void;
   clearState: (key: keyof _InternalSDKMethodEventsMap, param?: any) => void;
 };
+
+const defaultMuteListener = ((_, rej) => {
+  rej(
+    new Error(
+      "Video call not initialized, call this method on 'join' or 'ready-to-join' event listener callback",
+    ),
+  );
+}) as _InternalSDKMethodEventsMap['muteVideo'];
 
 const SdkApiInitState: SdkApiContextInterface = {
   join: {
@@ -59,22 +65,8 @@ const SdkApiInitState: SdkApiContextInterface = {
   microphoneDevice: {},
   speakerDevice: {},
   cameraDevice: {},
-  muteVideo: (res, rej) => {
-    rej(
-      new Error(
-        "Video call not initialized, call this method on 'join' or 'ready-to-join' event listener callback",
-      ),
-    );
-  },
-  muteAudio: {
-    callback: (res, rej) => {
-      rej(
-        new Error(
-          "Video call not initialized, call this method on 'join' or 'ready-to-join' event listener callback",
-        ),
-      );
-    },
-  },
+  onMuteVideo: (_) => {},
+  onMuteAudio: (_) => {},
   clearState: () => {},
 };
 
@@ -86,7 +78,7 @@ export const SdkApiContext =
 let moduleEventsUnsub: any[] = [];
 
 type commonEventHandlers = {
-  [K in keyof _InternalSDKMethodEventsMap]?: (
+  [K in keyof Omit<_InternalSDKMethodEventsMap, 'muteVideo' | 'muteAudio'>]?: (
     setter: (p: SdkApiContextInterface[K]) => void,
   ) => Unsubscribe;
 };
@@ -178,6 +170,8 @@ const registerListener = () => {
     commonEventHandlers.cameraDevice((state) => {
       SdkApiInitState.cameraDevice = state;
     }),
+    SDKMethodEventsManager.on('muteVideo', defaultMuteListener),
+    SDKMethodEventsManager.on('muteAudio', defaultMuteListener),
   ];
 };
 
@@ -200,26 +194,44 @@ const SdkApiContextProvider: React.FC = (props) => {
     SdkApiInitState.cameraDevice,
   );
 
-  const muteVideoListener = useRef(SdkApiInitState.muteVideo);
+  const muteVideoListener = useRef(defaultMuteListener);
+  const muteAudioListener = useRef(defaultMuteListener);
 
-  const setMuteVideoListener = (value: SdkApiContextInterface['muteVideo']) => {
+  const setMuteVideoListener = (
+    value: _InternalSDKMethodEventsMap['muteVideo'],
+  ) => {
     muteVideoListener.current = value;
   };
 
-  const clearState: SdkApiContextInterface['clearState'] = (key, param) => {
+  const setMuteAudioListener = (
+    value: _InternalSDKMethodEventsMap['muteAudio'],
+  ) => {
+    muteAudioListener.current = value;
+  };
+
+  const clearState: SdkApiContextInterface['clearState'] = (key) => {
     switch (key) {
       case 'join':
         setJoinState(SdkApiInitState.join);
-        return;
+        break;
       case 'customize':
         setUserCustomization(SdkApiInitState.customize);
-        return;
+        break;
       case 'microphoneDevice':
         setMicrophoneDeviceState({});
+        break;
       case 'speakerDevice':
         setSpeakerDeviceState({});
+        break;
       case 'cameraDevice':
         setCameraDeviceState({});
+        break;
+      case 'muteVideo':
+        setMuteVideoListener(defaultMuteListener);
+        break;
+      case 'muteAudio':
+        setMuteVideoListener(defaultMuteListener);
+        break;
     }
   };
 
@@ -242,6 +254,12 @@ const SdkApiContextProvider: React.FC = (props) => {
       commonEventHandlers.cameraDevice((state) => {
         setCameraDeviceState(state);
       }),
+      SDKMethodEventsManager.on('muteVideo', (...args) => {
+        muteVideoListener.current(...args);
+      }),
+      SDKMethodEventsManager.on('muteAudio', (...args) => {
+        muteAudioListener.current(...args);
+      }),
     ];
 
     return () => {
@@ -258,7 +276,8 @@ const SdkApiContextProvider: React.FC = (props) => {
         microphoneDevice: microphoneDeviceState,
         speakerDevice: speakerDeviceState,
         cameraDevice: cameraDeviceState,
-        muteVideoListener: setMuteVideoListener,
+        onMuteAudio: setMuteAudioListener,
+        onMuteVideo: setMuteVideoListener,
         clearState,
       }}>
       {props.children}
