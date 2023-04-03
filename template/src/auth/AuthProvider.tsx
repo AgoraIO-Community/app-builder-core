@@ -13,7 +13,11 @@ import {useIDPAuth} from './useIDPAuth';
 import Loading from '../subComponents/Loading';
 import useTokenAuth from './useTokenAuth';
 import Toast from '../../react-native-toast-message';
-import {ENABLE_AUTH, GET_UNAUTH_FLOW_API_ENDPOINT} from './config';
+import {
+  ENABLE_AUTH,
+  getPlatformId,
+  GET_UNAUTH_FLOW_API_ENDPOINT,
+} from './config';
 import isSDK from '../utils/isSDK';
 import {Linking} from 'react-native';
 import {
@@ -91,7 +95,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           method: 'POST',
           credentials: 'include',
           headers: {
-            'X-Platform-ID': 'turnkey_web',
+            'X-Platform-ID': getPlatformId(),
           },
         })
           .then((data) => {

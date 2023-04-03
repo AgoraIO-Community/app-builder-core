@@ -3,6 +3,7 @@ import jwt_decode from 'jwt-decode';
 import StorageContext from '../components/StorageContext';
 import SdkEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
+import {getPlatformId} from './config';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
@@ -40,6 +41,7 @@ const useTokenAuth = () => {
         headers: {
           'Content-Type': 'application/json',
           authorization: store?.token ? `Bearer ${store.token}` : '',
+          'X-Platform-ID': getPlatformId(),
         },
       })
         .then((response) => response.json())
