@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, createContext, useRef} from 'react';
-import {SdkApiContext} from './SdkApiContext';
+import React, { useContext, useEffect, createContext, useRef } from 'react';
+import { SdkApiContext } from './SdkApiContext';
 import {
   useMuteToggleLocal,
   useLocalUserInfo,
@@ -8,8 +8,8 @@ import {
 } from 'customization-api';
 
 export const SdkMuteQueueContext = createContext({
-  videoMuteQueue: {current: []},
-  audioMuteQueue: {current: []},
+  videoMuteQueue: { current: [] },
+  audioMuteQueue: { current: [] },
 });
 
 const SdkMuteToggleListener = (props) => {
@@ -27,7 +27,13 @@ const SdkMuteToggleListener = (props) => {
   const queuedToggleMute = (type, status) => {
     const localstatus =
       local[type === MUTE_LOCAL_TYPE.video ? 'video' : 'audio'];
-    if ([ToggleState.enabling, ToggleState.disabling].includes(localstatus)) {
+
+    // if ([ToggleState.enabling, ToggleState.disabling].includes(localstatus)) {
+    // if ({[ToggleState.enabling]: true, [ToggleState.disabling]: true}[localstatus]) {
+    if (
+      ToggleState.enabling === localstatus ||
+      ToggleState.disabling === localstatus
+    ) {
       return new Promise((res, rej) => {
         if (type === MUTE_LOCAL_TYPE.video) {
           videoMuteQueue.current.push({
@@ -77,7 +83,7 @@ const SdkMuteToggleListener = (props) => {
   }, [local]);
 
   return (
-    <SdkMuteQueueContext.Provider value={{videoMuteQueue, audioMuteQueue}}>
+    <SdkMuteQueueContext.Provider value={{ videoMuteQueue, audioMuteQueue }}>
       {props.children}
     </SdkMuteQueueContext.Provider>
   );
