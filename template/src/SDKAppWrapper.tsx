@@ -25,8 +25,12 @@ export interface AppBuilderSdkApiInterface {
   setMicrophone: (deviceId: deviceId) => Promise<void>;
   setCamera: (deviceId: deviceId) => Promise<void>;
   setSpeaker: (deviceId: deviceId) => Promise<void>;
-  muteAudio: (state: boolean) => Promise<void>;
-  muteVideo: (state: boolean) => Promise<void>;
+  muteAudio: (
+    mute: boolean | ((currentMute: boolean) => boolean),
+  ) => Promise<void>;
+  muteVideo: (
+    mute: boolean | ((currentMute: boolean) => boolean),
+  ) => Promise<void>;
   createCustomization: (
     customization: CustomizationApiInterface,
   ) => CustomizationApiInterface;
