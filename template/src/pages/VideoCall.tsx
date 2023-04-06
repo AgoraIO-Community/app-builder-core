@@ -279,7 +279,8 @@ const VideoCall: React.FC = () => {
       }
     },
     StreamMessageRecieved: (uid: UidType, payload: UInt8Array) => {
-      console.log('UIKIT Callback: StreamMessageRecieved', uid, payload);
+      // console.log('UIKIT Callback: StreamMessageRecieved', uid, payload);
+      console.log('stram:videocall callback');
       //TODO use events api to send the payload for stt
     },
   };

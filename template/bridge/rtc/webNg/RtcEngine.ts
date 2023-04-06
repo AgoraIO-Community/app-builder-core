@@ -516,6 +516,9 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
+      const obj = {uid, msgs: payload};
+      console.log('stream: event', obj);
+
       // UID is of bot
       (this.eventsMap.get('StreamMessageRecieved') as callbackType)(
         uid,

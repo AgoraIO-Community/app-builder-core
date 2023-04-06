@@ -34,7 +34,6 @@ const useTokenAuth = () => {
   };
 
   const getRefreshToken = async () => {
-    debugger;
     await fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
       method: 'POST',
       headers: {

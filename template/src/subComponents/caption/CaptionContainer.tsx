@@ -1,15 +1,15 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {useRender} from 'customization-api';
+
+import Caption from './Caption';
 
 const CaptionContainer = () => {
-  const {caption, renderList} = useRender();
-  console.log('captionuse', caption);
-  console.log('caption Container');
+  const [captions, setCaptions] = React.useState([]); // to hold records of captions for transcript purposes.
 
   return (
     <View style={styles.container}>
       <Text style={{color: '#fff'}}>captions will come here ...</Text>
+      <Caption />
     </View>
   );
 };
