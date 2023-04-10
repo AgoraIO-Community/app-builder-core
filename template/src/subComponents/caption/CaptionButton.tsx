@@ -6,6 +6,7 @@ import StorageContext from '../../components/StorageContext';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import useTokenAuth from '../../auth/useTokenAuth';
 import Spacer from '../../atoms/Spacer';
+import events, {EventPersistLevel} from '../../rtm-events-api';
 
 const startStopSTT = async (
   isCaptionON: boolean,
@@ -51,11 +52,24 @@ const CaptionButton = () => {
         method,
       );
       console.log('response after start/stop stt', res);
+
       setIsCaptionON((prev) => !prev);
+      events.send(
+        'handleCaption',
+        JSON.stringify({active: !isCaptionON}),
+        EventPersistLevel.LEVEL2,
+      );
     } catch (error) {
       console.log(error);
     }
   };
+
+  React.useEffect(() => {
+    events.on('handleCaption', (data) => {
+      const payload = JSON.parse(data?.payload);
+      setIsCaptionON(payload.active);
+    });
+  }, []);
 
   return (
     <View style={{flexDirection: 'row', width: 100}}>
