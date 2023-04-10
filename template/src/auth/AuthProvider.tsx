@@ -147,7 +147,7 @@ const AuthProvider = (props: AuthProviderProps) => {
             //adding time delay to open in app browser
             Toast.show({
               type: 'error',
-              text1: 'Your session has timed out, Retrying.',
+              text1: 'Your session has timed out, Retrying...',
               visibilityTime: 3000,
             });
             setTimeout(() => {
@@ -238,6 +238,23 @@ const AuthProvider = (props: AuthProviderProps) => {
         }
       });
     }
+
+    if (!isSDK() && $config.ENABLE_TOKEN_AUTH) {
+      Toast.show({
+        type: 'error',
+        text1: 'Token Server Authentication only supports SDK integration',
+        text2: 'Please use Auth0 Authentication.',
+        visibilityTime: 1000 * 60,
+      });
+    }
+    if (isSDK() && $config.ENABLE_IDP_AUTH) {
+      Toast.show({
+        type: 'error',
+        text1: 'Auth0 Authentication does not support SDK integration',
+        text2: 'Please use Token Server Authentication.',
+        visibilityTime: 1000 * 60,
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -296,7 +313,7 @@ const AuthProvider = (props: AuthProviderProps) => {
       if (location?.search?.indexOf('msg') !== -1) {
         Toast.show({
           type: 'error',
-          text1: 'Your session has timed out, Retrying.',
+          text1: 'Your session has timed out, Retrying...',
           visibilityTime: 3000,
         });
         setTimeout(() => {
@@ -411,8 +428,12 @@ const AuthProvider = (props: AuthProviderProps) => {
           setIsAuthenticated(false);
         })
         .catch(() => {
+          setIsAuthenticated(false);
           console.error('user logout failed');
-          setAuthError('user logout failed');
+          setAuthError('Error occured on Logout, please try again.');
+          setTimeout(() => {
+            authLogin();
+          }, 3000);
         });
     } else {
       if (!ENABLE_AUTH || isSDK()) {
@@ -427,7 +448,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           })
           .catch(() => {
             console.error('user logout failed');
-            setAuthError('user logout failed');
+            setAuthError('Error occured on Logout, please try again.');
           })
           .finally(() => {
             setIsAuthenticated(false);

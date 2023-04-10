@@ -17,7 +17,7 @@ export const addEventListenerForToken = (history) => {
       } else if (data?.msg && data?.msg === 'login_link_expired') {
         Toast.show({
           type: 'error',
-          text1: 'Your session has timed out, Retrying.',
+          text1: 'Your session has timed out, Retrying...',
           visibilityTime: 3000,
         });
         setTimeout(() => {
