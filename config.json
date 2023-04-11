@@ -53,5 +53,6 @@
   "ICON_TEXT": true,
   "ICON_BG_COLOR": "#242529",
   "TOOLBAR_COLOR": "#111111",
-  "ACTIVE_SPEAKER": true
+  "ACTIVE_SPEAKER": true,
+  "TOAST_NOTIFICATIONS": false
 }
