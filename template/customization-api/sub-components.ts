@@ -1,7 +1,4 @@
 //Common components
-export {default as HorizontalRule} from '../src/atoms/HorizontalRule';
-export {default as PrimaryButton} from '../src/atoms/PrimaryButton';
-export {default as SecondaryButton} from '../src/atoms/SecondaryButton';
 export {default as TextInput} from '../src/atoms/TextInput';
 //Icons
 export {Icons} from '../agora-rn-uikit';
@@ -53,10 +50,7 @@ export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScree
 //Sidepanel buttons
 export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
 export {
-  ImageIcon as UiKitImageIcon,
   MaxVideoView as UiKitMaxVideoView,
-  BtnTemplate as UiKitBtnTemplate,
   ClientRole as UikitClientRole,
   ChannelProfile as UikitChannelProfile,
 } from '../agora-rn-uikit';
-export type {BtnTemplateInterface as UikitBtnTemplateInterface} from '../agora-rn-uikit';
