@@ -1,14 +1,14 @@
-import {UidType} from '../../../agora-rn-uikit';
+import {DispatchContext, UidType} from '../../../agora-rn-uikit';
 import React, {
   createContext,
   Dispatch,
   SetStateAction,
+  useContext,
   useEffect,
   useState,
 } from 'react';
 import {createHook} from 'customization-implementation';
 import {filterObject} from '../../utils/index';
-import {useRtc} from 'customization-api';
 
 export interface WhiteboardObjectInterface {
   [key: number]: {
@@ -32,7 +32,7 @@ interface WhiteboardProviderProps {
 const WhiteboardProvider = (props: WhiteboardProviderProps) => {
   const [whiteboardData, setWhiteboardData] =
     useState<WhiteboardObjectInterface>({});
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
 
   useEffect(() => {
     const activeData = filterObject(

@@ -17,10 +17,9 @@ import React, {
   useRef,
   useContext,
 } from 'react';
-import {ClientRole} from '../../agora-rn-uikit';
+import {ClientRole, RtcContext} from '../../agora-rn-uikit';
 import DeviceContext from './DeviceContext';
 import AgoraRTC, {DeviceInfo} from 'agora-rtc-sdk-ng';
-import {useRtc, PrimaryButton} from 'customization-api';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
 import {StyleSheet, Text} from 'react-native';
@@ -44,7 +43,7 @@ type deviceId = deviceInfo['deviceId'];
 type deviceKind = deviceInfo['kind'];
 
 const DeviceConfigure: React.FC<Props> = (props: any) => {
-  const rtc = useRtc();
+  const rtc = useContext(RtcContext);
   const [uiSelectedCam, setUiSelectedCam] = useState('');
   const [uiSelectedMic, setUiSelectedMic] = useState('');
   const [uiSelectedSpeaker, setUiSelectedSpeaker] = useState('');
@@ -111,12 +110,14 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     }));
   };
 
-  const {RtcEngine} = rtc as unknown as {RtcEngine: WebRtcEngineInstance};
-  const {localStream} = RtcEngine;
+  const {RtcEngineUnsafe} = rtc as unknown as {
+    RtcEngineUnsafe: WebRtcEngineInstance;
+  };
+  const {localStream} = RtcEngineUnsafe;
 
   const refreshDeviceList = useCallback(async () => {
     let updatedDeviceList: MediaDeviceInfo[];
-    await RtcEngine.getDevices(function (devices: deviceInfo[]) {
+    await RtcEngineUnsafe.getDevices(function (devices: deviceInfo[]) {
       log('Fetching all devices: ', devices);
       /**
        * Some browsers list the same microphone twice with different Id's,
@@ -149,14 +150,18 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const getAgoraTrackDeviceId = (type: 'audio' | 'video') => {
     const mutedState =
       //@ts-ignore
-      type === 'audio' ? !RtcEngine.isAudioEnabled : !RtcEngine.isVideoEnabled;
+      type === 'audio'
+        ? !RtcEngineUnsafe.isAudioEnabled
+        : !RtcEngineUnsafe.isVideoEnabled;
 
     let currentDevice: string;
 
     if (mutedState) {
       currentDevice =
         //@ts-ignore
-        type === 'audio' ? RtcEngine.audioDeviceId : RtcEngine.videoDeviceId;
+        type === 'audio'
+          ? RtcEngineUnsafe.audioDeviceId
+          : RtcEngineUnsafe.videoDeviceId;
       log(`Agora ${type} Engine is using`, currentDevice);
     } else {
       currentDevice = localStream[type]
@@ -431,7 +436,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         return;
       }
       micSelectInProgress.current = true;
-      RtcEngine.changeMic(
+      RtcEngineUnsafe.changeMic(
         deviceId,
         () => {
           syncSelectedDeviceUi('audioinput');
@@ -458,7 +463,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         return;
       }
       camSelectInProgress.current = true;
-      RtcEngine.changeCamera(
+      RtcEngineUnsafe.changeCamera(
         deviceId,
         () => {
           syncSelectedDeviceUi('videoinput');
@@ -485,7 +490,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
         return;
       }
       speakerSelectInProgress.current = true;
-      RtcEngine.changeSpeaker(
+      RtcEngineUnsafe.changeSpeaker(
         deviceId,
         () => {
           setUiSelectedSpeaker(deviceId);

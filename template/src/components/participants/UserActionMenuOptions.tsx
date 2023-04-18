@@ -1,14 +1,12 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
+import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 import {
-  MUTE_REMOTE_TYPE,
   RenderInterface,
   SidePanelType,
   useLayout,
   useLocalUid,
   useMeetingInfo,
-  useRemoteMute,
   useRender,
-  useRtc,
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
@@ -20,7 +18,7 @@ import {useChatMessages} from '../chat-messages/useChatMessages';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import LiveStreamContext from '../livestream/LiveStreamContext';
-import {ClientRole, UidType} from '../../../agora-rn-uikit';
+import {ClientRole, DispatchContext, UidType} from '../../../agora-rn-uikit';
 import {useWindowDimensions} from 'react-native';
 import {
   LiveStreamControlMessageEnum,
@@ -58,7 +56,7 @@ export default function UserActionMenuOptionsOptions(
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
   const {pinnedUid, activeUids} = useRender();
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
   const {openPrivateChat} = useChatMessages();

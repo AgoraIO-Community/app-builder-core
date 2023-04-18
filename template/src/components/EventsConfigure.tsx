@@ -21,6 +21,7 @@ import {useRender} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
 import {isWebInternal, trimText} from '../utils/common';
+import {DispatchContext} from '../../agora-rn-uikit';
 
 interface Props {
   children: React.ReactNode;
@@ -28,7 +29,8 @@ interface Props {
 
 const EventsConfigure: React.FC<Props> = (props) => {
   const {setStore} = useContext(StorageContext);
-  const {RtcEngine, dispatch} = useContext(RtcContext);
+  const {RtcEngineUnsafe} = useContext(RtcContext);
+  const {dispatch} = useContext(DispatchContext);
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
   const {phrase} = useParams<{phrase: string}>();
@@ -61,8 +63,8 @@ const EventsConfigure: React.FC<Props> = (props) => {
         secondaryBtn: null,
       });
       isWebInternal()
-        ? await RtcEngine.muteLocalVideoStream(true)
-        : await RtcEngine.enableLocalVideo(false);
+        ? await RtcEngineUnsafe.muteLocalVideoStream(true)
+        : await RtcEngineUnsafe.enableLocalVideo(false);
       dispatch({
         type: 'LocalMuteVideo',
         value: [0],
@@ -79,7 +81,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         primaryBtn: null,
         secondaryBtn: null,
       });
-      RtcEngine.muteLocalAudioStream(true);
+      RtcEngineUnsafe.muteLocalAudioStream(true);
       dispatch({
         type: 'LocalMuteAudio',
         value: [0],
@@ -111,7 +113,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
             textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
             text="UNMUTE"
             onPress={() => {
-              RtcEngine.muteLocalAudioStream(false);
+              RtcEngineUnsafe.muteLocalAudioStream(false);
               dispatch({
                 type: 'LocalMuteAudio',
                 value: [1],
@@ -135,8 +137,8 @@ const EventsConfigure: React.FC<Props> = (props) => {
             text="UNMUTE"
             onPress={async () => {
               isWebInternal()
-                ? await RtcEngine.muteLocalVideoStream(false)
-                : await RtcEngine.enableLocalVideo(true);
+                ? await RtcEngineUnsafe.muteLocalVideoStream(false)
+                : await RtcEngineUnsafe.enableLocalVideo(true);
               dispatch({
                 type: 'LocalMuteVideo',
                 value: [1],

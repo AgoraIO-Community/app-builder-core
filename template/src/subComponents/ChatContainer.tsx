@@ -9,7 +9,13 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   ScrollView,
@@ -22,13 +28,17 @@ import {
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
 import {ChatBubbleProps} from '../components/ChatContext';
-import {RenderInterface, useLocalUid} from '../../agora-rn-uikit';
+import {
+  DispatchContext,
+  RenderInterface,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent, isWebInternal} from '../utils/common';
 import {useString} from '../utils/useString';
 import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
-import {useRender, useRtc} from 'customization-api';
+import {useRender} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
@@ -45,7 +55,7 @@ const ChatContainer = (props?: {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
 }) => {
   const [scrollToEnd, setScrollToEnd] = useState(false);
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
   const {renderList} = useRender();

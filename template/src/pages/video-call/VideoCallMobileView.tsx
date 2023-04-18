@@ -11,7 +11,7 @@ import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
 import {isAndroid, isWebInternal, trimText} from '../../utils/common';
-import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
+import {ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
 
 const VideoCallMobileView = () => {
@@ -23,7 +23,6 @@ const VideoCallMobileView = () => {
 
   const appState = useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
-  const {RtcEngine, dispatch} = useContext(RtcContext);
   const local = useLocalUserInfo();
 
   const isCamON = useRef(local.video);
@@ -38,12 +37,12 @@ const VideoCallMobileView = () => {
   //         // check if cam was on before app goes to background
   //         isCamON.current = isAndroid()
   //           ? local.video === ToggleState.enabled
-  //           : RtcEngine?.isVideoEnabled;
+  //           : RtcEngineUnsafe?.isVideoEnabled;
 
   //         if (isCamON.current || 1) {
   //           isWebInternal()
-  //             ? await RtcEngine.muteLocalVideoStream(true)
-  //             : await RtcEngine.enableLocalVideo(false);
+  //             ? await RtcEngineUnsafe.muteLocalVideoStream(true)
+  //             : await RtcEngineUnsafe.enableLocalVideo(false);
 
   //           // dispatch({
   //           //   type: 'LocalMuteVideo',
@@ -56,8 +55,8 @@ const VideoCallMobileView = () => {
   //         console.log('active state 111111 ==>', isCamON.current);
   //         if (local.video) {
   //           isWebInternal()
-  //             ? await RtcEngine.muteLocalVideoStream(false)
-  //             : await RtcEngine.enableLocalVideo(true);
+  //             ? await RtcEngineUnsafe.muteLocalVideoStream(false)
+  //             : await RtcEngineUnsafe.enableLocalVideo(true);
   //           dispatch({
   //             type: 'LocalMuteVideo',
   //             value: [1],

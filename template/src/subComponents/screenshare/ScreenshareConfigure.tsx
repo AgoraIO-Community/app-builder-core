@@ -10,7 +10,7 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {PropsContext, UidType} from '../../../agora-rn-uikit';
+import {DispatchContext, PropsContext, UidType} from '../../../agora-rn-uikit';
 import {ScreenshareContext} from './useScreenshare';
 import {
   getGridLayoutName,
@@ -38,8 +38,8 @@ export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const {dispatch} = useContext(DispatchContext);
   const rtc = useRtc();
-  const {dispatch} = rtc;
   const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
   const isPinned = useRef(0);
   const {isRecordingActive} = useRecording();
@@ -122,7 +122,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     events.on(controlMessageEnum.kickScreenshare, () => {
       //if screenscreen already active. then below method will stop the screen share
       // @ts-ignore
-      rtc.RtcEngine.startScreenshare();
+      rtc.RtcEngineUnsafe.startScreenshare();
     });
 
     events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
@@ -170,7 +170,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   useEffect(() => {
     // @ts-ignore
-    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
+    rtc.RtcEngineUnsafe.addListener('ScreenshareStopped', () => {
       setScreenshareActive(false);
       console.log('STOPPED SHARING');
       executeNormalQuery();
@@ -227,13 +227,13 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     console.log('screenshare query executed');
     try {
       // @ts-ignore
-      await rtc.RtcEngine.startScreenshare(
+      await rtc.RtcEngineUnsafe.startScreenshare(
         screenShareToken,
         channel,
         null,
         screenShareUid,
         appId,
-        rtc.RtcEngine as unknown as IAgoraRTC,
+        rtc.RtcEngineUnsafe as unknown as IAgoraRTC,
         encryption as unknown as any,
       );
       isActive && setScreenshareActive(true);

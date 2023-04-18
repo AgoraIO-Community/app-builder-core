@@ -102,7 +102,7 @@ export const NetworkQualityProvider: React.FC = (props: {
     useState<NetworkQualityStatsInterface>({
       [localUid]: 0,
     });
-  const {RtcEngine} = useRtc();
+  const {RtcEngineUnsafe} = useRtc();
 
   useMount(() => {
     function handleNetworkQuality(
@@ -131,7 +131,7 @@ export const NetworkQualityProvider: React.FC = (props: {
       });
     }
 
-    RtcEngine.addListener('NetworkQuality', handleNetworkQuality);
+    RtcEngineUnsafe.addListener('NetworkQuality', handleNetworkQuality);
   });
 
   return (

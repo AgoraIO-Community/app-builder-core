@@ -15,7 +15,7 @@ import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
 import {SdkApiContext} from './SdkApiContext';
-import {useRtc, useMeetingInfo} from 'customization-api';
+import {useMeetingInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 

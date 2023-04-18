@@ -10,10 +10,15 @@
 *********************************************
 */
 import {createHook} from 'customization-implementation';
-import React, {useState, useEffect, useRef} from 'react';
-import {useRender, useRtc} from 'customization-api';
+import React, {useState, useEffect, useRef, useContext} from 'react';
+import {useRender} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useLocalUid, UidType, RenderInterface} from '../../../agora-rn-uikit';
+import {
+  useLocalUid,
+  UidType,
+  RenderInterface,
+  DispatchContext,
+} from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {useChatUIControl} from '../chat-ui/useChatUIControl';
@@ -63,7 +68,7 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 });
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const {renderList} = useRender();
   const localUid = useLocalUid();
   const {setSidePanel} = useSidePanel();

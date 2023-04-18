@@ -12,14 +12,13 @@
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
-import {PropsContext, useLocalUid} from '../../agora-rn-uikit';
+import {DispatchContext, PropsContext, useLocalUid} from '../../agora-rn-uikit';
 import ChatContext from './ChatContext';
-import {RtcContext} from '../../agora-rn-uikit';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb, isWebInternal} from '../utils/common';
-import {useRender, useRtc} from 'customization-api';
+import {useRender} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -41,7 +40,7 @@ const RtmConfigure = (props: any) => {
   const localUid = useLocalUid();
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
-  const {RtcEngine, dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const {renderList, activeUids} = useRender();
   const renderListRef = useRef({renderList: renderList});
   const activeUidsRef = useRef({activeUids: activeUids});

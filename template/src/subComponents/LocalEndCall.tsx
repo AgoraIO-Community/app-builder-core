@@ -1,11 +1,11 @@
 import React, {useContext, useState} from 'react';
-import {useRtc} from 'customization-api';
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
 import {Prompt, useParams} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {Platform} from 'react-native';
+import {DispatchContext} from '../../agora-rn-uikit';
 export interface LocalEndcallProps {
   showLabel?: boolean;
   isOnActionSheet?: boolean;
@@ -21,7 +21,7 @@ const stopForegroundService = () => {
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();

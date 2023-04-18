@@ -13,7 +13,7 @@ export interface LocalSwitchCameraProps {
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const {callbacks} = useContext(PropsContext);
-  const {RtcEngine} = useRtc();
+  const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
   const {showLabel = $config.ICON_TEXT, disabled = false} = props;
   //commented for v1 release
@@ -21,7 +21,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
   const switchCameraButtonText = 'Switch';
 
   const onPress = () => {
-    RtcEngine.switchCamera();
+    RtcEngineUnsafe.switchCamera();
     callbacks?.SwitchCamera && callbacks.SwitchCamera();
   };
   const isVideoEnabled = local.video === ToggleState.enabled;

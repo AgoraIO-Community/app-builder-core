@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   ScrollView,
   View,
@@ -19,16 +19,12 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {
-  layoutComponent,
-  useLocalUid,
-  useRender,
-  useRtc,
-} from 'customization-api';
+import {layoutComponent, useLocalUid, useRender} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
+import {DispatchContext} from '../../agora-rn-uikit';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
@@ -39,7 +35,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
   const isDesktop = width > BREAKPOINTS.xl;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
   //const [maxUid, ...minUids] = renderData;
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const [uids, setUids] = useState(renderData);
 
   const [screenShareOn, setScreenShareOn] = useState(false);

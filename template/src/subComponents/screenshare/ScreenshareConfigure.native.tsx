@@ -9,9 +9,9 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import KeepAwake from 'react-native-keep-awake';
-import {UidType} from '../../../agora-rn-uikit';
+import {DispatchContext, UidType} from '../../../agora-rn-uikit';
 import {
   getGridLayoutName,
   getPinnedLayoutName,
@@ -22,11 +22,11 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useLayout, useRender, useRtc} from 'customization-api';
+import {useLayout, useRender} from 'customization-api';
 import {filterObject} from '../../utils';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
   const isPinned = useRef(0);
   const {setScreenShareData, screenShareData} = useScreenContext();

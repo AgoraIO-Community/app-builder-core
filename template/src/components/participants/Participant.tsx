@@ -43,7 +43,6 @@ import {
   SidePanelType,
   useLayout,
   useRender,
-  useRtc,
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';

@@ -15,6 +15,7 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 import {isMobileUA, isWebInternal} from './common';
 import {AppState} from 'react-native';
+import {DispatchContext} from '../../agora-rn-uikit';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -24,7 +25,8 @@ export enum MUTE_LOCAL_TYPE {
  * Returns an asynchronous function to toggle muted state of the given track type for the local user.
  */
 function useMuteToggleLocal() {
-  const {RtcEngine, dispatch} = useRtc();
+  const {RtcEngineUnsafe} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const local = useLocalUserInfo();
 
   const appState = useRef(AppState.currentState);
@@ -49,8 +51,8 @@ function useMuteToggleLocal() {
       isCamON.current = local.video;
       if (isCamON.current) {
         isWebInternal()
-          ? RtcEngine.muteLocalVideoStream(true)
-          : RtcEngine.enableLocalVideo(false);
+          ? RtcEngineUnsafe.muteLocalVideoStream(true)
+          : RtcEngineUnsafe.enableLocalVideo(false);
 
         dispatch({
           type: 'LocalMuteVideo',
@@ -60,8 +62,8 @@ function useMuteToggleLocal() {
     }
     if (appStateVisible === 'active' && isCamON.current) {
       isWebInternal()
-        ? RtcEngine.muteLocalVideoStream(false)
-        : RtcEngine.enableLocalVideo(true);
+        ? RtcEngineUnsafe.muteLocalVideoStream(false)
+        : RtcEngineUnsafe.enableLocalVideo(true);
       dispatch({
         type: 'LocalMuteVideo',
         value: [1],
@@ -89,7 +91,7 @@ function useMuteToggleLocal() {
           });
 
           try {
-            await RtcEngine.muteLocalAudioStream(
+            await RtcEngineUnsafe.muteLocalAudioStream(
               localAudioState === ToggleState.enabled,
             );
             // Enable UI
@@ -130,10 +132,10 @@ function useMuteToggleLocal() {
           try {
             //enableLocalVideo not available on web
             isWebInternal()
-              ? await RtcEngine.muteLocalVideoStream(
+              ? await RtcEngineUnsafe.muteLocalVideoStream(
                   localVideoState === ToggleState.enabled ? true : false,
                 )
-              : await RtcEngine.enableLocalVideo(
+              : await RtcEngineUnsafe.enableLocalVideo(
                   localVideoState === ToggleState.enabled ? false : true,
                 );
 

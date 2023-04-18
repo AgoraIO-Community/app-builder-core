@@ -19,7 +19,7 @@ import {ImageIcon as UiKitImageIcon} from '../../../agora-rn-uikit';
 
 const VideoPreview: React.FC = () => {
   const rtc = useRtc();
-  rtc?.RtcEngine?.startPreview();
+  rtc?.RtcEngineUnsafe?.startPreview();
 
   const {renderList, activeUids} = useRender();
   const [maxUid] = activeUids;

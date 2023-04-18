@@ -278,7 +278,7 @@ const Precall = (props: any) => {
     if (isJoinDataFetched) {
       new Promise((res) =>
         // @ts-ignore
-        rtc.RtcEngine.getDevices(function (devices: MediaDeviceInfo[]) {
+        rtc.RtcEngineUnsafe.getDevices(function (devices: MediaDeviceInfo[]) {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {

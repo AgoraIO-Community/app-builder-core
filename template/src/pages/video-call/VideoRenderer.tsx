@@ -1,13 +1,18 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
 import {View, StyleSheet, Platform} from 'react-native';
-import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
+import {
+  DispatchContext,
+  PropsContext,
+  RenderInterface,
+  UidType,
+} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {useLayout, useRender, useRtc} from 'customization-api';
+import {useLayout, useRender} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
@@ -19,7 +24,7 @@ interface VideoRendererProps {
   isMax?: boolean;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
-  const {dispatch} = useRtc();
+  const {dispatch} = useContext(DispatchContext);
   const isActiveSpeaker = useIsActiveSpeaker();
   const {pinnedUid, activeUids} = useRender();
   const activeSpeaker = isActiveSpeaker(user.uid);
