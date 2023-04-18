@@ -1,7 +1,7 @@
 import {controlMessageEnum} from '../components/ChatContext';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import {UidType} from '../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 
 /**
  * Returns a function to end the screenshare for a remote user with the given uid.
@@ -15,7 +15,7 @@ const useRemoteEndScreenshare = () => {
       events.send(
         controlMessageEnum.kickScreenshare,
         '',
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
         uid,
       );
     } else {

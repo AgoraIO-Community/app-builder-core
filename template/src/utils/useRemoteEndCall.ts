@@ -2,7 +2,7 @@ import {controlMessageEnum} from '../components/ChatContext';
 import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
 import useIsPSTN from './useIsPSTN';
 import {UidType} from '../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 
 /**
  * Returns a function to end the call for a remote user with the given uid.
@@ -19,7 +19,7 @@ const useRemoteEndCall = () => {
         events.send(
           controlMessageEnum.kickUser,
           '',
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
           uid,
         );
       }

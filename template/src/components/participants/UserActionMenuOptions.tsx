@@ -26,7 +26,7 @@ import {
   LiveStreamControlMessageEnum,
   RaiseHandValue,
 } from '../livestream/Types';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import RemoveScreensharePopup from '../../subComponents/RemoveScreensharePopup';
 import useRemoteEndScreenshare from '../../utils/useRemoteEndScreenshare';
@@ -216,7 +216,7 @@ export default function UserActionMenuOptionsOptions(
                 events.send(
                   LiveStreamControlMessageEnum.raiseHandRequestRejected,
                   '',
-                  EventPersistLevel.LEVEL1,
+                  PersistanceLevel.None,
                   user.uid,
                 );
               },

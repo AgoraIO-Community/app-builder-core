@@ -14,7 +14,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {useRender, useRtc} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useLocalUid, UidType, RenderInterface} from '../../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {useChatUIControl} from '../chat-ui/useChatUIControl';
 import {useChatNotification} from '../chat-notification/useChatNotification';
@@ -403,7 +403,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           value: messageData,
           action: ChatMessageActionEnum.Create,
         }),
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
         toUid,
       );
       addMessageToPrivateStore(toUid, messageData, true);
@@ -420,7 +420,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           value: messageData,
           action: ChatMessageActionEnum.Create,
         }),
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
       );
       addMessageToStore(localUid, messageData);
     }
@@ -440,7 +440,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...editMsgData},
             action: ChatMessageActionEnum.Update,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
           toUid,
         );
         setPrivateMessageStore((prevState) => {
@@ -471,7 +471,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...editMsgData},
             action: ChatMessageActionEnum.Update,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
         );
         setMessageStore((prevState) => {
           const newState = prevState.map((item) => {
@@ -502,7 +502,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...deleteMsgData},
             action: ChatMessageActionEnum.Delete,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
           toUid,
         );
         setPrivateMessageStore((prevState) => {
@@ -533,7 +533,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
             value: {msgId, ...deleteMsgData},
             action: ChatMessageActionEnum.Delete,
           }),
-          EventPersistLevel.LEVEL1,
+          PersistanceLevel.None,
         );
         setMessageStore((prevState) => {
           const newState = prevState.map((item) => {

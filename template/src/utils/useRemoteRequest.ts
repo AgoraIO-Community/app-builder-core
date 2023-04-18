@@ -14,7 +14,7 @@ import {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
 import {UidType} from '../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 
 export enum REQUEST_REMOTE_TYPE {
   audio,
@@ -41,7 +41,7 @@ function useRemoteRequest() {
               events.send(
                 controlMessageEnum.requestAudio,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -50,7 +50,7 @@ function useRemoteRequest() {
             events.send(
               controlMessageEnum.requestAudio,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;
@@ -61,7 +61,7 @@ function useRemoteRequest() {
               events.send(
                 controlMessageEnum.requestVideo,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -70,7 +70,7 @@ function useRemoteRequest() {
             events.send(
               controlMessageEnum.requestVideo,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;

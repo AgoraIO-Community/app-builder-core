@@ -29,7 +29,7 @@ import {
 import SDKEvents from '../../utils/SdkEvents';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 
 const VideoCallScreen = () => {

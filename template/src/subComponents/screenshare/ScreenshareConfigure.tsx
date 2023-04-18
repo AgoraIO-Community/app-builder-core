@@ -20,7 +20,7 @@ import {
 } from '../../pages/video-call/DefaultLayouts';
 import {useRecording} from '../recording/useRecording';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import {IAgoraRTC} from 'agora-rtc-sdk-ng';
 import useRecordingLayoutQuery from '../recording/useRecordingLayoutQuery';
@@ -180,7 +180,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           action: EventActions.SCREENSHARE_STOPPED,
           value: 0,
         }),
-        EventPersistLevel.LEVEL2,
+        PersistanceLevel.Sender,
       );
       setScreenShareData((prevState) => {
         return {
@@ -257,7 +257,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             action: EventActions.SCREENSHARE_STARTED,
             value: timeNow(),
           }),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
       }
     } catch (e) {

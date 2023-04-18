@@ -30,7 +30,7 @@ import {
   LiveStreamContext,
   LiveStreamControlMessageEnum,
 } from '../livestream';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import IconButton from '../../atoms/IconButton';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';

@@ -14,7 +14,7 @@ import {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
 import {UidType} from '../../agora-rn-uikit';
-import events, {EventPersistLevel} from '../rtm-events-api';
+import events, {PersistanceLevel} from '../rtm-events-api';
 
 export enum MUTE_REMOTE_TYPE {
   audio,
@@ -46,7 +46,7 @@ function useRemoteMute() {
               events.send(
                 controlMessageEnum.muteAudio,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -55,7 +55,7 @@ function useRemoteMute() {
             events.send(
               controlMessageEnum.muteAudio,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;
@@ -66,7 +66,7 @@ function useRemoteMute() {
               events.send(
                 controlMessageEnum.muteVideo,
                 '',
-                EventPersistLevel.LEVEL1,
+                PersistanceLevel.None,
                 uid,
               );
             }
@@ -75,7 +75,7 @@ function useRemoteMute() {
             events.send(
               controlMessageEnum.muteVideo,
               '',
-              EventPersistLevel.LEVEL1,
+              PersistanceLevel.None,
             );
           }
           break;

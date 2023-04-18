@@ -15,7 +15,7 @@ import {ClientRole, useLocalUid, UidType} from '../../../agora-rn-uikit';
 import {filterObject, isEmptyObject} from '../../utils';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
-import events, {EventPersistLevel} from '../../rtm-events-api';
+import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {SidePanelType, useRender, useSidePanel} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
@@ -215,7 +215,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             ts: new Date().getTime(),
             isProcessed: true,
           }),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
         //update local cohost state
         setCoHostUids((prevState) => {
@@ -227,7 +227,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         events.send(
           LiveStreamControlMessageEnum.coHostRemoved,
           JSON.stringify({uid: localUidRef.current}),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
         break;
       case ClientRole.Broadcaster:
@@ -246,7 +246,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
             ts: new Date().getTime(),
             isProcessed: true,
           }),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
         //update local cohost state
         setCoHostUids((prevState) => {
@@ -256,7 +256,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         events.send(
           LiveStreamControlMessageEnum.coHostJoined,
           JSON.stringify({uid: localUidRef.current}),
-          EventPersistLevel.LEVEL2,
+          PersistanceLevel.Sender,
         );
       default:
         break;
@@ -322,7 +322,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       JSON.stringify(
         rtcProps.role in ClientRole ? rtcProps.role : ClientRole.Audience,
       ),
-      EventPersistLevel.LEVEL2,
+      PersistanceLevel.Sender,
     );
     setRaiseHandList((prevState) => {
       return {
@@ -534,7 +534,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       events.send(
         LiveStreamControlMessageEnum.raiseHandRequestAccepted,
         '',
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
         uid,
       );
     } else {
@@ -555,7 +555,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
       events.send(
         LiveStreamControlMessageEnum.raiseHandRequestRejected,
         '',
-        EventPersistLevel.LEVEL1,
+        PersistanceLevel.None,
         uid,
       );
     } else {
@@ -571,7 +571,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     events.send(
       LiveStreamControlMessageEnum.promoteAsCoHost,
       '',
-      EventPersistLevel.LEVEL1,
+      PersistanceLevel.None,
       uid,
     );
   };
@@ -601,7 +601,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         ts: new Date().getTime(),
         isProcessed: false,
       }),
-      EventPersistLevel.LEVEL2,
+      PersistanceLevel.Sender,
     );
     // Update local state
     addOrUpdateLiveStreamRequest(localUidRef.current, {
@@ -635,7 +635,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
         ts: new Date().getTime(),
         isProcessed: true,
       }),
-      EventPersistLevel.LEVEL2,
+      PersistanceLevel.Sender,
     );
     UpdtLocStateAndBCastAttr(ClientRole.Audience, new Date().getTime());
     showToast(

@@ -28,7 +28,7 @@ import {
   get32BitUid,
 } from '../rtm/utils';
 import {EventUtils, EventsQueue} from '../rtm-events';
-import {EventPersistLevel} from '../rtm-events-api';
+import {PersistanceLevel} from '../rtm-events-api';
 import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 
@@ -411,7 +411,7 @@ const RtmConfigure = (props: any) => {
     console.log('CUSTOM_EVENT_API: inside eventDispatcher ', data);
     const {evt, value} = data;
     // Step 1: Set local attributes
-    if (value?.persistLevel === EventPersistLevel.LEVEL3) {
+    if (value?.persistLevel === PersistanceLevel.Session) {
       const rtmAttribute = {key: evt, value: value};
       await engine.current.addOrUpdateLocalUserAttributes([rtmAttribute]);
     }
