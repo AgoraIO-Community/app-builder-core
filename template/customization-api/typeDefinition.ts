@@ -54,15 +54,6 @@ export interface ChatCmpInterface {
   chatSendButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
-export interface renderComponentInterface {
-  user: RenderInterface;
-  isMax?: boolean;
-}
-
-export interface renderComponentObjectInterface {
-  [key: string]: React.ComponentType<renderComponentInterface>;
-}
-
 export type layoutComponent = React.ComponentType<{
   renderData: RenderStateInterface['activeUids'];
 }>;
@@ -90,9 +81,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
   chat?: ChatCmpInterface;
-  customContent?: renderComponentObjectInterface;
   customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
-  useUserContext?: () => void;
 }
 
 export type ComponentsInterface = {

@@ -32,7 +32,6 @@ export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';
 export {default as VideoComponent} from '../src/pages/video-call/VideoComponent';
 export {default as MaxVideoView} from '../src/pages/video-call/VideoRenderer';
-export {default as RenderComponent} from '../src/pages/video-call/RenderComponent';
 export {default as NameWithMicIcon} from '../src/pages/video-call/NameWithMicIcon';
 export {default as NetworkQualityPill} from '../src/subComponents/NetworkQualityPill';
 //videocall screen
