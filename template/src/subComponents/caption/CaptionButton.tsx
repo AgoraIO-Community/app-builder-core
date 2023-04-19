@@ -35,16 +35,12 @@ const startStopSTT = async (
 const CaptionButton = () => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const {store, setStore} = React.useContext(StorageContext);
-  const {validateToken} = useTokenAuth();
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
 
   const handleClick = async (method) => {
     try {
-      const oldToken =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGlvbl90eXBlIjoxLCJhcHBfaWQiOiI2NWExMTAwMmY3MGM0MTdmYWRhMDg3MzJlMTVkYWUzNyIsInVzZXJfaWQiOiJjLTYxZmQzMzY3LTQ4NmUtNDNlMi1iN2M1LWI5MDM2NDBhNGVhMyIsInByb2plY3RfaWQiOiI2OTQwZmUzOTI2ZDdhOWQxZjBkMiIsImV4cCI6MTY3OTkwMTAyNH0.lMnw-w93FAQl7lA4GKZh2_ZUThkn6uxnP3MKBduXBvA';
-      const isTokenValid = validateToken(store?.token);
       const res = await startStopSTT(
         isCaptionON,
         store?.token || '',

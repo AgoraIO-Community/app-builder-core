@@ -13,6 +13,7 @@ import RecordingInfo from '../../atoms/RecordingInfo';
 import {isAndroid, isWebInternal, trimText} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 
 const VideoCallMobileView = () => {
   const {
@@ -103,6 +104,7 @@ const VideoCallMobileView = () => {
       <View style={styles.videoView}>
         <VideoComponent />
       </View>
+      <CaptionContainer />
       <ActionSheet />
     </View>
   );

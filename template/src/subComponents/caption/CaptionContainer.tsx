@@ -8,7 +8,6 @@ const CaptionContainer = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={{color: '#fff'}}>captions will come here ...</Text>
       <Caption />
     </View>
   );

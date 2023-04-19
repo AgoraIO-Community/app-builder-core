@@ -164,7 +164,6 @@ const useTokenAuth = () => {
   return {
     enableTokenAuth,
     tokenLogout,
-    validateToken,
   };
 };
 
