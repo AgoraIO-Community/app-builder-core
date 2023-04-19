@@ -18,6 +18,7 @@ import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ThemeConfig from '../../theme';
+import {createHook} from 'customization-implementation';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -98,11 +99,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             }}
             key={user.uid}
           />
-          <NameWithMicIcon
-            videoTileWidth={videoTileWidth}
-            user={user}
-            isMax={isMax}
-          />
+          <VideoContainerProvider value={{videoTileWidth}}>
+            <NameWithMicIcon name={user.name} muted={user.audio} />
+          </VideoContainerProvider>
           {user.uid !== rtcProps?.screenShareUid &&
           (isHovered || actionMenuVisible || isMobileUA()) ? (
             <MoreMenu
@@ -245,5 +244,9 @@ const maxStyle = StyleSheet.create({
     borderColor: 'transparent',
   },
 });
+
+const VideoContainerContext = React.createContext({videoTileWidth: 0});
+const VideoContainerProvider = VideoContainerContext.Provider;
+export const useVideoContainer = createHook(VideoContainerContext);
 
 export default VideoRenderer;
