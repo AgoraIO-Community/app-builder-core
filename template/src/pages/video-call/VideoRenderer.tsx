@@ -78,7 +78,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
-          <NetworkQualityPill user={user} />
+          <NetworkQualityPill uid={user.uid} />
           <MaxVideoView
             fallback={() => {
               return FallbackLogo(

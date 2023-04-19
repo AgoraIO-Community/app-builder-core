@@ -32,10 +32,11 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
  *
  */
 interface NetworkQualityPillProps {
-  user: RenderInterface;
+  uid: UidType;
 }
 const NetworkQualityPill = (props: NetworkQualityPillProps) => {
-  const {user} = props;
+  const {uid} = props;
+  const {renderList} = useRender();
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   //commented for v1 release
   //const getLabel = useString<NetworkQualities>('networkQualityLabel');
@@ -60,9 +61,9 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
     }
   };
   const networkQualityStat = useContext(NetworkQualityContext);
-  const networkStat = networkQualityStat[user.uid]
-    ? networkQualityStat[user.uid]
-    : user.audio || user.video
+  const networkStat = networkQualityStat[uid]
+    ? networkQualityStat[uid]
+    : renderList[uid]?.audio || renderList[uid]?.video
     ? 8
     : 7;
   const {activeUids} = useRender();
