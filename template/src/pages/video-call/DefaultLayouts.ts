@@ -1,10 +1,10 @@
-import {layoutObjectType} from 'customization-api';
+import {layoutItem} from 'customization-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
 import useLayoutsData from './useLayoutsData';
 import {useLayout} from '../../utils/useLayout';
 
-export const DefaultLayouts: layoutObjectType[] = [
+export const DefaultLayouts: layoutItem[] = [
   {
     name: 'grid',
     label: 'Grid',

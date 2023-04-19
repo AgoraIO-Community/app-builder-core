@@ -58,21 +58,13 @@ export type layoutComponent = React.ComponentType<{
   renderData: RenderStateInterface['activeUids'];
 }>;
 
-export interface layoutObjectBase {
+export interface layoutItem {
   name: string;
   label: string;
+  //todo: hari change iconName into icon and refactor icon lib
+  iconName: keyof IconsInterface;
   component: layoutComponent;
 }
-
-export interface layoutObjectWithIcon extends layoutObjectBase {
-  icon: string;
-  iconName?: never;
-}
-export interface layoutObjectWithIconName extends layoutObjectBase {
-  icon?: never;
-  iconName: keyof IconsInterface;
-}
-export type layoutObjectType = layoutObjectWithIcon | layoutObjectWithIconName;
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
@@ -81,7 +73,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   participantsPanel?: React.ComponentType;
   bottomBar?: React.ComponentType;
   chat?: ChatCmpInterface;
-  customLayout?: (layouts: layoutObjectType[]) => layoutObjectType[];
+  customLayout?: (layouts: layoutItem[]) => layoutItem[];
 }
 
 export type ComponentsInterface = {
