@@ -455,7 +455,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       log(logTag, 'Empty device list');
       refreshDeviceList();
     }
-  }, [rtc, store]);
+  }, [rtc, store, deviceList]);
 
   const commonOnChangedEvent = async (changedDeviceData: DeviceInfo) => {
     // Extracted devicelist because we want to perform fallback with
@@ -620,7 +620,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     return new Promise<void>((res, rej) => {
       if (mutexRef.current) {
         const e = new Error(logtag + ' Change already in progress');
-        console.error('DeviceConfigure:', logtag, 'Error setting', kind, e);
+        log('DeviceConfigure:', logtag, 'Error setting', kind, e);
         rej(e);
         return;
       }
