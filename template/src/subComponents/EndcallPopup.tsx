@@ -14,9 +14,9 @@ interface EndcallPopupProps {
 }
 const EndcallPopup = (props: EndcallPopupProps) => {
   const isDesktop = useIsDesktop()('popup');
-  const leaveMeetingLabelHeading = 'Leave Meeting?';
+  const leaveMeetingLabelHeading = 'Leave Room?';
   const leaveMeetingLabelSubHeading =
-    'Are you sure you want to leave this meeting?';
+    'Are you sure you want to leave this room?';
 
   const stayBtnLabel = 'CANCEL';
   const leaveBtnLabel = 'LEAVE';

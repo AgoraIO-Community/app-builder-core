@@ -99,13 +99,13 @@ const Create = () => {
       if ($config.EVENT_MODE) {
         return 'CREATE A STREAM';
       } else {
-        return 'CREATE A MEETING';
+        return 'CREATE A ROOM';
       }
     }
   };
 
   const createMeetingButton = btnLabel();
-  const haveMeetingID = 'Join with a meeting ID';
+  const haveMeetingID = 'Join with a room ID';
 
   const isDesktop = !isMobileUA();
   useEffect(() => {
@@ -141,7 +141,7 @@ const Create = () => {
         Toast.show({
           type: 'success',
           text1: trimText(roomTitle) + createdText,
-          text2: 'Your New meeting is now live',
+          text2: 'Your New room is now live',
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
@@ -182,7 +182,7 @@ const Create = () => {
       if ($config.EVENT_MODE) {
         return 'Create a Livestream';
       } else {
-        return 'Create a Meeting';
+        return 'Create a Room';
       }
     }
   };
@@ -198,7 +198,7 @@ const Create = () => {
       if ($config.EVENT_MODE) {
         return 'Stream Name';
       } else {
-        return 'Meeting Name';
+        return 'Room Name';
       }
     }
   };
@@ -273,7 +273,7 @@ const Create = () => {
                         <Tooltip
                           activeBgStyle={style.tooltipActiveBgStyle}
                           defaultBgStyle={style.tooltipDefaultBgStyle}
-                          toolTipMessage="Turning on will give everyone the control of this meeting"
+                          toolTipMessage="Turning on will give everyone the control of this room"
                           renderContent={(
                             isToolTipVisible,
                             setToolTipVisible,

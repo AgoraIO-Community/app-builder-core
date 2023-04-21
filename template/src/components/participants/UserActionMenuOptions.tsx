@@ -226,7 +226,7 @@ export default function UserActionMenuOptionsOptions(
           icon: 'remove-meeting',
           iconColor: $config.SEMANTIC_ERROR,
           textColor: $config.SEMANTIC_ERROR,
-          title: 'Remove From Meeting',
+          title: 'Remove From Room',
           callback: () => {
             setActionMenuVisible(false);
             setRemoveMeetingPopupVisible(true);

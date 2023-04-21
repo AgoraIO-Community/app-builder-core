@@ -12,8 +12,8 @@ import React from 'react';
 import IconButton from './IconButton';
 
 const InviteInfo = () => {
-  const meetingUrlText = 'Meeting Link';
-  const meetingIdText = 'Meeting ID';
+  const meetingUrlText = 'Room Link';
+  const meetingIdText = 'Room ID';
   const hostIdText = 'Host ID';
   const attendeeUrlLabel = 'Attendee Link';
   const attendeeIdLabel = 'Attendee ID';

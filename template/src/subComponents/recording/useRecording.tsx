@@ -142,7 +142,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         type: 'info',
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
-          ? `This meeting is being recorded by ${
+          ? `This room is being recorded by ${
               trimText(renderList[uidWhoStarted]?.name) || 'user'
             }`
           : '',

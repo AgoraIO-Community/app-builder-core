@@ -62,8 +62,8 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   //   'enterMeetingAfterCreateButton',
   // )();
   // const copyInviteButton = useString('copyInviteButton')();
-  const meetingUrlText = 'Meeting Link';
-  const meetingIdText = 'Meeting ID';
+  const meetingUrlText = 'Room Link';
+  const meetingIdText = 'Room ID';
   const hostIdText = 'Host ID';
   const attendeeUrlLabel = 'Attendee Link';
   const attendeeIdLabel = 'Attendee ID';
@@ -73,7 +73,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
   const pinLabel = 'Pin';
   const enterMeetingAfterCreateButton = isLiveStream
     ? 'Start Stream (as host)'
-    : 'Start Meeting (as host)';
+    : 'Start Room (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
   const history = useHistory();
   const enterMeeting = () => {
@@ -276,7 +276,7 @@ const Share = () => {
 
   const enterMeetingAfterCreateButton = isLiveStream
     ? 'Start Stream (as host)'
-    : 'Start Meeting (as host)';
+    : 'Start Room (as host)';
   const copyInviteButton = 'Copy invite to clipboard';
   const history = useHistory();
   const enterMeeting = () => {

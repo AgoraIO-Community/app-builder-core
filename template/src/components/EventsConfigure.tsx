@@ -90,7 +90,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     events.on(controlMessageEnum.kickUser, () => {
       Toast.show({
         type: 'info',
-        text1: 'The host has removed you from the meeting.',
+        text1: 'The host has removed you from the room.',
         visibilityTime: 5000,
         primaryBtn: null,
         secondaryBtn: null,

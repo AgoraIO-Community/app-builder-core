@@ -106,7 +106,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   // const meetingInviteText =
   //   useString<MeetingInviteInterface>('meetingInviteText');
   const copiedToClipboardText = 'Copied to Clipboard';
-  const meetingIdText = 'Meeting ID';
+  const meetingIdText = 'Room ID';
   const PSTNNumberText = 'PSTN Number';
   const PSTNPinText = 'PSTN Pin';
   const meetingInviteText = ({
@@ -123,26 +123,26 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
       if (isHost) {
         if (isSeparateHostLink) {
           //seperate link for host and attendee
-          inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}\n\nHost Link:\n${url?.host}`;
         } else {
           //single link for everyone
-          inviteContent += `Meeting: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nMeeting Link:\n${url?.host}`;
         }
       }
       //for attendee
       else {
-        inviteContent += `Meeting: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
+        inviteContent += `Room: ${meetingName}\n\nAttendee Link:\n${url?.attendee}`;
       }
     } else {
       if (isHost) {
         if (isSeparateHostLink) {
-          inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}\n\nHost Meeting ID:\n${id?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}\n\nHost Room ID:\n${id?.host}`;
         } else {
-          inviteContent += `Meeting: ${meetingName}\n\nMeeting ID:\n${id?.host}`;
+          inviteContent += `Room: ${meetingName}\n\nRoom ID:\n${id?.host}`;
         }
       } else {
         //copy this label on videocall screen
-        inviteContent += `Meeting: ${meetingName}\n\nAttendee Meeting ID:\n${id?.attendee}`;
+        inviteContent += `Room: ${meetingName}\n\nAttendee Room ID:\n${id?.attendee}`;
       }
     }
     // Adding pstn data into meeting data if present
