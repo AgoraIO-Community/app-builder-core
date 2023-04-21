@@ -30,7 +30,7 @@ const CREATE_CHANNEL = gql`
 /**
  * Returns an asynchronous function to create a meeting with the given options.
  */
-export default function useCreateMeeting() {
+export default function useCreateRoom() {
   const [createChannel, {error}] = useMutation(CREATE_CHANNEL);
   const {setMeetingInfo} = useSetMeetingInfo();
   return async (

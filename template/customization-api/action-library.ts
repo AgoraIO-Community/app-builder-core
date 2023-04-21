@@ -1,5 +1,5 @@
 //hooks used for create/join meeting
-export {default as useCreateMeeting} from '../src/utils/useCreateMeeting';
+export {default as useCreateRoom} from '../src/utils/useCreateRoom';
 export {default as useJoinMeeting} from '../src/utils/useJoinMeeting';
 
 //remove remote user from the call

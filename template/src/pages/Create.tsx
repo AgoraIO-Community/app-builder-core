@@ -25,7 +25,7 @@ import {
 } from '../utils/common';
 import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
-import useCreateMeeting from '../utils/useCreateMeeting';
+import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
 import useJoinMeeting from '../utils/useJoinMeeting';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
@@ -71,7 +71,7 @@ const Create = () => {
   const [pstnToggle, setPstnToggle] = useState(false);
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
-  const createRoomFun = useCreateMeeting();
+  const createRoomFun = useCreateRoom();
   const {setMeetingInfo} = useSetMeetingInfo();
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
