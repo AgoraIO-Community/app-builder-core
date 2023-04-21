@@ -53,7 +53,7 @@ const JOIN_CHANNEL_PHRASE = gql`
 /**
  * Returns an asynchronous function to join a meeting with the given phrase.
  */
-export default function useJoinMeeting() {
+export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
   const {setMeetingInfo} = useSetMeetingInfo();
   const {client} = useContext(GraphQLContext);

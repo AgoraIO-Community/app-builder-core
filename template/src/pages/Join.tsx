@@ -35,7 +35,7 @@ import Card from '../atoms/Card';
 import Input from '../atoms/Input';
 import LinkButton from '../atoms/LinkButton';
 import Toast from '../../react-native-toast-message';
-import useJoinMeeting from '../utils/useJoinMeeting';
+import useJoinRoom from '../utils/useJoinRoom';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import ThemeConfig from '../theme';
 
@@ -61,7 +61,7 @@ const Join = () => {
     null,
   );
 
-  const useJoin = useJoinMeeting();
+  const useJoin = useJoinRoom();
   const {setMeetingInfo} = useSetMeetingInfo();
   const createMeeting = () => {
     history.push('/create');

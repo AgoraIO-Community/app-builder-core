@@ -27,7 +27,7 @@ import {useCustomization} from 'customization-implementation';
 import {useString} from '../utils/useString';
 import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
-import useJoinMeeting from '../utils/useJoinMeeting';
+import useJoinRoom from '../utils/useJoinRoom';
 import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
@@ -61,7 +61,7 @@ const Create = () => {
     return components;
   });
 
-  const useJoin = useJoinMeeting();
+  const useJoin = useJoinRoom();
   const {setStore} = useContext(StorageContext);
   const {setGlobalErrorMessage} = useContext(ErrorContext);
   const history = useHistory();

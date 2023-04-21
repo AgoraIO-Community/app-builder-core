@@ -40,7 +40,7 @@ import Precall from '../components/Precall';
 import {useString} from '../utils/useString';
 import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
-import useJoinMeeting from '../utils/useJoinMeeting';
+import useJoinRoom from '../utils/useJoinRoom';
 import {
   useMeetingInfo,
   MeetingInfoDefaultValue,
@@ -140,7 +140,7 @@ const VideoCall: React.FC = () => {
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
 
-  const useJoin = useJoinMeeting();
+  const useJoin = useJoinRoom();
   const {setMeetingInfo} = useSetMeetingInfo();
   const {isJoinDataFetched, data} = useMeetingInfo();
 
