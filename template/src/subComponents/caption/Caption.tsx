@@ -3,6 +3,7 @@ import React from 'react';
 import {isWeb, useRender, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
 import ThemeConfig from '../../../src/theme';
+import {useCaptionToggle} from './useCaptionToggle';
 
 const Caption = () => {
   const {renderList} = useRender();
@@ -12,15 +13,11 @@ const Caption = () => {
   const lastSeqRef = React.useRef<number>(-1); // stores last seg to verify we get new seq on each pass
   const finalList = React.useRef<Object>({}); // holds transcript of final words of all users
   const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
-  const outputStreamFinal = React.useRef<string>(''); // store in localStorage to access previous captions
+  const outputStreamFinal = React.useRef<Object>({}); // store in localStorage to access previous captions
 
-  // Determines if a word returned from the service is a sentence boundary.
-  const isSentenceBoundaryWord = (word) => {
-    return word == '.' || word == '?';
-  };
-
-  const handleStreamMessageCallback = (args) => {
+  const handleStreamMessageCallback = (...args) => {
     console.group('StreamMessage Callback');
+
     console.warn(`Recived data stream for Platform : ${Platform.OS}`, args);
     const uid = args[0];
     const payload = args[1];
@@ -63,8 +60,14 @@ const Caption = () => {
 
       if (text1.length) {
         // storing for transcript
-        outputStreamFinal.current +=
-          userName + ':' + new Date().toLocaleString() + ' => ' + text1 + '\n';
+        // outputStreamFinal.current +=
+        //   userName + ':' + new Date().toLocaleString() + ' => ' + text1 + '\n';
+        const key = userName + ':' + new Date().toLocaleString();
+        outputStreamFinal.current[key] = text1;
+        localStorage.setItem(
+          'fullTranscript',
+          JSON.stringify(outputStreamFinal.current),
+        );
       }
 
       console.log('Full Transcript : \n', outputStreamFinal.current);
@@ -77,9 +80,9 @@ const Caption = () => {
   };
 
   React.useEffect(() => {
-    RtcEngine.addListener('StreamMessage', (...args) => {
-      handleStreamMessageCallback(args);
-    });
+    RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+    return () =>
+      RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback);
   }, []);
 
   React.useEffect(() => {

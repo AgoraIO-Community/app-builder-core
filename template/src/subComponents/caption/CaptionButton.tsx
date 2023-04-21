@@ -7,6 +7,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import useTokenAuth from '../../auth/useTokenAuth';
 import Spacer from '../../atoms/Spacer';
 import events, {EventPersistLevel} from '../../rtm-events-api';
+import {useCaptionToggle} from './useCaptionToggle';
 
 const startStopSTT = async (
   isCaptionON: boolean,
@@ -33,28 +34,36 @@ const startStopSTT = async (
 };
 
 const CaptionButton = () => {
-  const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
+  // const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const {store, setStore} = React.useContext(StorageContext);
+  const {isCaptionON, setIsCaptionON} = useCaptionToggle();
+  const [isSTTActive, setIsSTTActive] = React.useState(false); // need to load initial value from query api
+  //local state for isactive
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
 
   const handleClick = async (method) => {
-    try {
-      const res = await startStopSTT(
-        isCaptionON,
-        store?.token || '',
-        roomId.host ? roomId.host : '',
-        method,
-      );
-      console.log('response after start/stop stt', res);
+    setIsCaptionON((prev) => !prev);
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
 
-      setIsCaptionON((prev) => !prev);
+    try {
+      if (!(method === 'start' && isSTTActive === true)) {
+        const res = await startStopSTT(
+          isCaptionON,
+          store?.token || '',
+          roomId.host ? roomId.host : '',
+          method,
+        );
+        console.log('response after start/stop stt', res);
+      }
+
       events.send(
         'handleCaption',
         JSON.stringify({active: !isCaptionON}),
         EventPersistLevel.LEVEL2,
       );
+      setIsSTTActive(!isCaptionON);
     } catch (error) {
       console.log(error);
     }
@@ -63,7 +72,8 @@ const CaptionButton = () => {
   React.useEffect(() => {
     events.on('handleCaption', (data) => {
       const payload = JSON.parse(data?.payload);
-      setIsCaptionON(payload.active);
+      //setIsCaptionON(payload.active);
+      setIsSTTActive(payload.active);
     });
   }, []);
 
