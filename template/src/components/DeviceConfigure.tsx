@@ -162,7 +162,9 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
       );
 
       log('Setting unique devices', updatedDeviceList);
-      setDeviceList(updatedDeviceList);
+      if (updatedDeviceList.length > 0) {
+        setDeviceList(updatedDeviceList);
+      }
     });
 
     return updatedDeviceList;
