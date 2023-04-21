@@ -100,7 +100,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             key={user.uid}
           />
           <VideoContainerProvider value={{videoTileWidth}}>
-            <NameWithMicIcon name={user.name} muted={user.audio} />
+            <NameWithMicIcon name={user.name} muted={!user.audio} />
           </VideoContainerProvider>
           {user.uid !== rtcProps?.screenShareUid &&
           (isHovered || actionMenuVisible || isMobileUA()) ? (
