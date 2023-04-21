@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import ChatContext from '../ChatContext';
@@ -29,7 +29,7 @@ interface VideoMeetingDataProviderProps {
 const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {activeUids} = useRender();
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const localUid = useLocalUid();

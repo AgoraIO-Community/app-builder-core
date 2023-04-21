@@ -14,7 +14,7 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {useString} from '../utils/useString';
 import isSDKCheck from '../utils/isSDK';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import platform from '../subComponents/Platform';
 import {MeetingInviteInterface} from '../language/default-labels/videoCallScreenLabels';
 import Clipboard from '../subComponents/Clipboard';
@@ -94,7 +94,7 @@ interface ShareLinkProvideProps {
 const ShareLinkProvider = (props: ShareLinkProvideProps) => {
   const {
     data: {meetingTitle, roomId, pstn, isSeparateHostLink, isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   //commmented for v1 release
   // const copiedToClipboardText = useString(

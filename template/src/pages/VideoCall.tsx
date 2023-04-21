@@ -42,10 +42,10 @@ import useLayoutsData from './video-call/useLayoutsData';
 import {RecordingProvider} from '../subComponents/recording/useRecording';
 import useJoinRoom from '../utils/useJoinRoom';
 import {
-  useMeetingInfo,
-  MeetingInfoDefaultValue,
+  useRoomInfo,
+  RoomInfoDefaultValue,
   validateMeetingInfoData,
-} from '../components/meeting-info/useMeetingInfo';
+} from '../components/room-info/useRoomInfo';
 import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
@@ -65,7 +65,7 @@ import {currentFocus, FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
 import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 
 enum RnEncryptionEnum {
   /**
@@ -141,13 +141,13 @@ const VideoCall: React.FC = () => {
   const currentMeetingPhrase = useRef(history.location.pathname);
 
   const useJoin = useJoinRoom();
-  const {setMeetingInfo} = useSetMeetingInfo();
-  const {isJoinDataFetched, data} = useMeetingInfo();
+  const {setRoomInfo} = useSetRoomInfo();
+  const {isJoinDataFetched, data} = useRoomInfo();
 
   React.useEffect(() => {
     return () => {
       console.log('Videocall unmounted');
-      setMeetingInfo(MeetingInfoDefaultValue);
+      setRoomInfo(RoomInfoDefaultValue);
       if (awake) {
         release();
       }
@@ -182,11 +182,11 @@ const VideoCall: React.FC = () => {
 
     if (sdkMeetingDetails) {
       setQueryComplete(false);
-      setMeetingInfo((meetingInfo) => {
+      setRoomInfo((roomInfo) => {
         return {
           isJoinDataFetched: true,
           data: {
-            ...meetingInfo.data,
+            ...roomInfo.data,
             ...sdkMeetingDetails,
           },
         };

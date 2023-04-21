@@ -17,7 +17,7 @@ import {useString} from '../../utils/useString';
 import {useScreenshare} from './useScreenshare';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
-import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
+import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import useIsHandRaised from '../../utils/useIsHandRaised';
 /**
  * A component to start and stop screen sharing on web clients.
@@ -33,7 +33,7 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const {isScreenshareActive, startUserScreenshare, stopUserScreenShare} =

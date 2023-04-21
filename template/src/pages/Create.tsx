@@ -28,7 +28,7 @@ import {useString} from '../utils/useString';
 import useCreateRoom from '../utils/useCreateRoom';
 import {CreateProvider} from './create/useCreate';
 import useJoinRoom from '../utils/useJoinRoom';
-import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+import {RoomInfoDefaultValue} from '../components/room-info/useRoomInfo';
 import Input from '../atoms/Input';
 import Toggle from '../atoms/Toggle';
 import Card from '../atoms/Card';
@@ -40,7 +40,7 @@ import Tooltip from '../atoms/Tooltip';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -72,7 +72,7 @@ const Create = () => {
   const [coHostToggle, setCoHostToggle] = useState(false);
   const [roomCreated, setRoomCreated] = useState(false);
   const createRoomFun = useCreateRoom();
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const {setRoomInfo} = useSetRoomInfo();
   //commented for v1 release
   // const createdText = useString('meetingCreatedNotificationLabel')();
   // const hostControlsToggle = useString<boolean>('hostControlsToggle');
@@ -135,7 +135,7 @@ const Create = () => {
     if (roomTitle !== '') {
       setLoading(true);
       try {
-        setMeetingInfo(MeetingInfoDefaultValue);
+        setRoomInfo(RoomInfoDefaultValue);
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({

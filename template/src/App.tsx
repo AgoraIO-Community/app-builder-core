@@ -25,11 +25,11 @@ import KeyboardManager from 'react-native-keyboard-manager';
 //import {useCustomization} from 'customization-implementation';
 import AppWrapper from './AppWrapper';
 import {
-  MeetingInfoContextInterface,
-  MeetingInfoDefaultValue,
-  MeetingInfoProvider,
-} from './components/meeting-info/useMeetingInfo';
-import {SetMeetingInfoProvider} from './components/meeting-info/useSetMeetingInfo';
+  RoomInfoContextInterface,
+  RoomInfoDefaultValue,
+  RoomInfoProvider,
+} from './components/room-info/useRoomInfo';
+import {SetRoomInfoProvider} from './components/room-info/useSetRoomInfo';
 import {ShareLinkProvider} from './components/useShareLink';
 import Endcall from './pages/Endcall';
 
@@ -85,14 +85,13 @@ const App: React.FC = () => {
   //     return null;
   //   }
   // };
-  const [meetingInfo, setMeetingInfo] = useState<MeetingInfoContextInterface>(
-    MeetingInfoDefaultValue,
-  );
+  const [roomInfo, setRoomInfo] =
+    useState<RoomInfoContextInterface>(RoomInfoDefaultValue);
 
   return (
     <AppWrapper>
-      <SetMeetingInfoProvider value={{setMeetingInfo}}>
-        <MeetingInfoProvider value={{...meetingInfo}}>
+      <SetRoomInfoProvider value={{setRoomInfo}}>
+        <RoomInfoProvider value={{...roomInfo}}>
           <ShareLinkProvider>
             <Switch>
               {/* commented for v1 release */}
@@ -129,8 +128,8 @@ const App: React.FC = () => {
               </Route>
             </Switch>
           </ShareLinkProvider>
-        </MeetingInfoProvider>
-      </SetMeetingInfoProvider>
+        </RoomInfoProvider>
+      </SetRoomInfoProvider>
     </AppWrapper>
   );
 };

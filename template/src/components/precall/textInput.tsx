@@ -14,7 +14,7 @@ import React from 'react';
 import {TextStyle} from 'react-native';
 import TextInput from '../../atoms/TextInput';
 import {useString} from '../../utils/useString';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import useSetName from '../../utils/useSetName';
 import useGetName from '../../utils/useGetName';
 import Input from '../../atoms/Input';
@@ -34,7 +34,7 @@ const PreCallTextInput: React.FC = (props?: PreCallTextInputProps) => {
   const fetchingNamePlaceholder = 'Getting name...';
   const username = useGetName();
   const setUsername = useSetName();
-  const {isJoinDataFetched} = useMeetingInfo();
+  const {isJoinDataFetched} = useRoomInfo();
   const {isDesktop = false} = props;
 
   return (

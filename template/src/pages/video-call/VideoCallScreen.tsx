@@ -27,7 +27,7 @@ import {
   ButtonTemplateName,
 } from '../../utils/useButtonTemplate';
 import SDKEvents from '../../utils/SdkEvents';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {controlMessageEnum, useUserName} from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
@@ -37,7 +37,7 @@ const VideoCallScreen = () => {
   const [name] = useUserName();
   const {
     data: {meetingTitle, isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {
     ChatComponent,
     VideocallComponent,

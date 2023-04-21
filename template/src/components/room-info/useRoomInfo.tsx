@@ -12,7 +12,7 @@
 import React, {createContext} from 'react';
 import {createHook} from 'customization-implementation';
 import {UidType} from '../../../agora-rn-uikit';
-export interface MeetingInfoContextInterface {
+export interface RoomInfoContextInterface {
   isJoinDataFetched?: boolean;
   data?: {
     isHost: boolean;
@@ -37,7 +37,7 @@ export interface MeetingInfoContextInterface {
 }
 
 export const validateMeetingInfoData = (
-  meetingInfo: Partial<MeetingInfoContextInterface['data']>,
+  roomInfo: Partial<RoomInfoContextInterface['data']>,
 ) => {
   const {
     channel,
@@ -47,7 +47,7 @@ export const validateMeetingInfoData = (
     screenShareUid,
     token,
     uid,
-  } = meetingInfo;
+  } = roomInfo;
   if ($config.ENCRYPTION_ENABLED && !encryptionSecret) {
     return false;
   }
@@ -60,7 +60,7 @@ export const validateMeetingInfoData = (
   return true;
 };
 
-export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
+export const RoomInfoDefaultValue: RoomInfoContextInterface = {
   isJoinDataFetched: false,
   data: {
     isHost: false,
@@ -72,23 +72,23 @@ export const MeetingInfoDefaultValue: MeetingInfoContextInterface = {
   },
 };
 
-const MeetingInfoContext = createContext(MeetingInfoDefaultValue);
+const RoomInfoContext = createContext(RoomInfoDefaultValue);
 
-interface MeetingInfoProviderProps {
+interface RoomInfoProviderProps {
   children: React.ReactNode;
-  value: MeetingInfoContextInterface;
+  value: RoomInfoContextInterface;
 }
 
-const MeetingInfoProvider = (props: MeetingInfoProviderProps) => {
+const RoomInfoProvider = (props: RoomInfoProviderProps) => {
   return (
-    <MeetingInfoContext.Provider value={{...props.value}}>
+    <RoomInfoContext.Provider value={{...props.value}}>
       {props.children}
-    </MeetingInfoContext.Provider>
+    </RoomInfoContext.Provider>
   );
 };
 /**
  * The MeetingInfo app state contains information about the active meeting.
  */
-const useMeetingInfo = createHook(MeetingInfoContext);
+const useRoomInfo = createHook(RoomInfoContext);
 
-export {MeetingInfoProvider, useMeetingInfo};
+export {RoomInfoProvider, useRoomInfo};

@@ -5,7 +5,7 @@ import {useString} from '../../utils/useString';
 import {
   RenderInterface,
   UidType,
-  useMeetingInfo,
+  useRoomInfo,
   useRender,
 } from 'customization-api';
 import Participant from './Participant';
@@ -33,7 +33,7 @@ const AllAudienceParticipants = (props: any) => {
   };
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {hostUids} = useLiveStreamDataContext();
 
   const renderScreenShare = (user: RenderInterface) => {

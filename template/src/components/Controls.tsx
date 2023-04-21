@@ -36,7 +36,7 @@ import {
   isWebInternal,
   useIsDesktop,
 } from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
 import Spacer from '../atoms/Spacer';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
@@ -69,7 +69,7 @@ const MoreButton = () => {
   const {setSidePanel, sidePanel} = useSidePanel();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {
     showLayoutOption,
     setShowInvitePopup,
@@ -279,7 +279,7 @@ const Controls = () => {
   const isDesktop = useIsDesktop();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {width} = useWindowDimensions();
 
   return (

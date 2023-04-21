@@ -5,7 +5,7 @@ import {
   SidePanelType,
   useLayout,
   useLocalUid,
-  useMeetingInfo,
+  useRoomInfo,
   useRender,
   useSidePanel,
 } from 'customization-api';
@@ -63,7 +63,7 @@ export default function UserActionMenuOptionsOptions(
   const {hostUids, audienceUids} = useLiveStreamDataContext();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const remoteRequest = useRemoteRequest();
   const remoteMute = useRemoteMute();
   const endRemoteCall = useRemoteEndCall();

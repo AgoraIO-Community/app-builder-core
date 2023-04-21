@@ -14,7 +14,7 @@ import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {PropsContext, ClientRole} from '../../agora-rn-uikit';
 import {isValidReactComponent, isWebInternal, trimText} from '../utils/common';
 import ColorContext from './ColorContext';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import PreCallLogo from './common/Logo';
 import {useCustomization} from 'customization-implementation';
 import PreCallLocalMute from './precall/LocalMute';
@@ -258,7 +258,7 @@ const Precall = (props: any) => {
   const {
     isJoinDataFetched,
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 

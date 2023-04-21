@@ -24,7 +24,7 @@ import LocalVideoMute from '../../subComponents/LocalVideoMute';
 import {ButtonTemplateName} from '../../utils/useButtonTemplate';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import {
   RaiseHandValue,
   LiveStreamContext,
@@ -78,7 +78,7 @@ const Participant = (props: ParticipantInterface) => {
   } = props;
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const showModal = () => {
     setActionMenuVisible((state) => !state);

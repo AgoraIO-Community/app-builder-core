@@ -21,7 +21,7 @@ import useLayoutsData from '../../pages/video-call/useLayoutsData';
 import {useChangeDefaultLayout} from '../../pages/video-call/DefaultLayouts';
 import {PropsContext, ToggleState} from '../../../agora-rn-uikit';
 import {ClientRole} from '../../../agora-rn-uikit';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import LiveStreamControls from '../../components/livestream/views/LiveStreamControls';
 import LiveStreamContext, {RaiseHandValue} from '../../components/livestream';
 import {
@@ -302,7 +302,7 @@ const ActionSheetContent = (props) => {
   const {sidePanel, setSidePanel} = useSidePanel();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();

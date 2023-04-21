@@ -4,7 +4,7 @@ import VideoComponent from './VideoComponent';
 import ActionSheet from './ActionSheet';
 import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
-import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 
 import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -17,7 +17,7 @@ import {useLocalUserInfo, useRender} from 'customization-api';
 const VideoCallMobileView = () => {
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {isRecordingActive} = useRecording();
   const recordingLabel = 'Recording';
 

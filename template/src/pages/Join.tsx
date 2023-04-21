@@ -29,8 +29,8 @@ import TextInput from '../atoms/TextInput';
 import Error from '../subComponents/Error';
 import {useString} from '../utils/useString';
 import {useCustomization} from 'customization-implementation';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
-import {MeetingInfoDefaultValue} from '../components/meeting-info/useMeetingInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
+import {RoomInfoDefaultValue} from '../components/room-info/useRoomInfo';
 import Card from '../atoms/Card';
 import Input from '../atoms/Input';
 import LinkButton from '../atoms/LinkButton';
@@ -62,7 +62,7 @@ const Join = () => {
   );
 
   const useJoin = useJoinRoom();
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const {setRoomInfo} = useSetRoomInfo();
   const createMeeting = () => {
     history.push('/create');
   };
@@ -70,7 +70,7 @@ const Join = () => {
   const startCall = async () => {
     useJoin(phrase)
       .then(() => {
-        setMeetingInfo(MeetingInfoDefaultValue);
+        setRoomInfo(RoomInfoDefaultValue);
         history.push(phrase);
       })
 

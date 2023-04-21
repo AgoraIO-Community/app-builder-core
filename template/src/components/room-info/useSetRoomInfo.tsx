@@ -11,28 +11,28 @@
 */
 import React, {createContext, SetStateAction} from 'react';
 import {createHook} from 'customization-implementation';
-import {MeetingInfoContextInterface} from './useMeetingInfo';
+import {RoomInfoContextInterface} from './useRoomInfo';
 
-export interface SetMeetingInfoContextInterface {
-  setMeetingInfo: React.Dispatch<SetStateAction<MeetingInfoContextInterface>>;
+export interface SetRoomInfoContextInterface {
+  setRoomInfo: React.Dispatch<SetStateAction<RoomInfoContextInterface>>;
 }
 
-const SetMeetingInfoContext = createContext<SetMeetingInfoContextInterface>({
-  setMeetingInfo: () => {},
+const SetRoomInfoContext = createContext<SetRoomInfoContextInterface>({
+  setRoomInfo: () => {},
 });
 
-interface SetMeetingInfoProviderProps {
+interface SetRoomInfoProviderProps {
   children: React.ReactNode;
-  value: SetMeetingInfoContextInterface;
+  value: SetRoomInfoContextInterface;
 }
 
-const SetMeetingInfoProvider = (props: SetMeetingInfoProviderProps) => {
+const SetRoomInfoProvider = (props: SetRoomInfoProviderProps) => {
   return (
-    <SetMeetingInfoContext.Provider value={{...props.value}}>
+    <SetRoomInfoContext.Provider value={{...props.value}}>
       {props.children}
-    </SetMeetingInfoContext.Provider>
+    </SetRoomInfoContext.Provider>
   );
 };
-const useSetMeetingInfo = createHook(SetMeetingInfoContext);
+const useSetRoomInfo = createHook(SetRoomInfoContext);
 
-export {SetMeetingInfoProvider, useSetMeetingInfo};
+export {SetRoomInfoProvider, useSetRoomInfo};

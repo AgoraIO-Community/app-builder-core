@@ -15,7 +15,7 @@ import {createHook} from 'customization-implementation';
 import InvitePopup from './popups/InvitePopup';
 import StopRecordingPopup from './popups/StopRecordingPopup';
 import {SdkApiContext} from './SdkApiContext';
-import {useMeetingInfo} from 'customization-api';
+import {useRoomInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
 
@@ -45,18 +45,18 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
   const {join} = useContext(SdkApiContext);
-  const meetingInfo = useMeetingInfo();
+  const roomInfo = useRoomInfo();
   const {deviceList} = useContext(DeviceContext);
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
-      join.promise.res(meetingInfo.data);
+      join.promise.res(roomInfo.data);
     }
     SDKEvents.emit(
       'join',
-      meetingInfo.data.meetingTitle,
+      roomInfo.data.meetingTitle,
       deviceList,
-      meetingInfo.data.isHost,
+      roomInfo.data.isHost,
     );
   }, []);
   return (

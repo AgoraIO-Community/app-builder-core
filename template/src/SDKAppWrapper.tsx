@@ -2,7 +2,7 @@ import React from 'react';
 import {
   CustomizationApiInterface,
   customize,
-  MeetingInfoContextInterface,
+  RoomInfoContextInterface,
   customEvents,
 } from 'customization-api';
 import {CustomizationProvider} from 'customization-implementation';
@@ -23,9 +23,9 @@ import {Unsubscribe} from 'nanoevents';
 export interface SdkMethodEvents {
   customize: (customization: CustomizationApiInterface) => void;
   join(
-    roomid: string | Partial<MeetingInfoContextInterface['data']>,
+    roomid: string | Partial<RoomInfoContextInterface['data']>,
     skipPrecall?: boolean,
-  ): MeetingInfoContextInterface['data'];
+  ): RoomInfoContextInterface['data'];
 }
 
 // interface AppBuilderSdkApiInterface {
@@ -50,15 +50,15 @@ export const AppBuilderSdkApi = {
     await SDKMethodEventsManager.emit('join', roomDetails, false);
   },
   joinRoom: async (
-    roomDetails: string | Partial<MeetingInfoContextInterface['data']>,
+    roomDetails: string | Partial<RoomInfoContextInterface['data']>,
   ) => {
     return await SDKMethodEventsManager.emit('join', roomDetails, true);
   },
   joinPrecall: async (
-    roomDetails: string | Partial<MeetingInfoContextInterface['data']>,
+    roomDetails: string | Partial<RoomInfoContextInterface['data']>,
   ) => {
     const t = await SDKMethodEventsManager.emit('join', roomDetails);
-    return t as unknown as [MeetingInfoContextInterface['data'], () => {}];
+    return t as unknown as [RoomInfoContextInterface['data'], () => {}];
   },
   createCustomization: customize,
   on: <T extends keyof userEventsMapInterface>(

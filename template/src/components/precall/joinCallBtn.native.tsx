@@ -16,7 +16,7 @@ import {usePreCall} from '../../components/precall/usePreCall';
 import {useString} from '../../utils/useString';
 import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
-import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../room-info/useRoomInfo';
 import useGetName from '../../utils/useGetName';
 
 export interface PreCallJoinCallBtnProps {
@@ -31,7 +31,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {setCallActive} = usePreCall();
   const username = useGetName();
-  const {isJoinDataFetched} = useMeetingInfo();
+  const {isJoinDataFetched} = useRoomInfo();
   const joinRoomButton =
     useString<JoinRoomButtonTextInterface>('joinRoomButton');
 

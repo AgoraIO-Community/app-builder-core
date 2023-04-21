@@ -44,7 +44,7 @@ import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
 import {useRecording} from '../subComponents/recording/useRecording';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import {useString} from '../utils/useString';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {useChatUIControl} from './chat-ui/useChatUIControl';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
@@ -323,7 +323,7 @@ const Navbar = () => {
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
 
   const {isRecordingActive} = useRecording();
   const {onlineUsersCount} = useContext(ChatContext);

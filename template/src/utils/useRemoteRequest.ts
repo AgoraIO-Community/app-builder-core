@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {controlMessageEnum} from '../components/ChatContext';
 import useIsPSTN from './useIsPSTN';
 import useMutePSTN from './useMutePSTN';
@@ -26,7 +26,7 @@ export enum REQUEST_REMOTE_TYPE {
 function useRemoteRequest() {
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const isPSTN = useIsPSTN();
 
   return async (type: REQUEST_REMOTE_TYPE, uid?: UidType) => {

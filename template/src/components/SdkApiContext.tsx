@@ -4,8 +4,8 @@ import SDKMethodEventsManager, {
 } from '../utils/SdkMethodEvents';
 import {
   validateMeetingInfoData,
-  MeetingInfoContextInterface,
-} from './meeting-info/useMeetingInfo';
+  RoomInfoContextInterface,
+} from './room-info/useRoomInfo';
 import {CustomizationApiInterface} from 'customization-api';
 import {Unsubscribe} from 'nanoevents';
 
@@ -14,7 +14,7 @@ type SdkApiContextInterface = {
     | {
         initialized: true;
         phrase: string;
-        meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
+        meetingDetails?: Partial<RoomInfoContextInterface['data']>;
         skipPrecall: boolean;
         promise: {
           res: Parameters<_InternalSDKMethodEventsMap['join']>[0];

@@ -20,7 +20,7 @@ import {
 import useMuteToggleLocal, {MUTE_LOCAL_TYPE} from '../utils/useMuteToggleLocal';
 import Styles from '../components/styles';
 import {useString} from '../utils/useString';
-import {useLocalUserInfo, useMeetingInfo} from 'customization-api';
+import {useLocalUserInfo, useRoomInfo} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
@@ -47,7 +47,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const {rtcProps} = useContext(PropsContext);
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();

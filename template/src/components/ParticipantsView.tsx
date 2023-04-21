@@ -19,7 +19,7 @@ import AllAudienceParticipants from './participants/AllAudienceParticipants';
 import CurrentLiveStreamRequestsView from '../subComponents/livestream/CurrentLiveStreamRequestsView';
 import {useString} from '../utils/useString';
 import {isMobileUA, isWebInternal, useIsSmall} from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import {numFormatter} from '../utils';
 import ChatContext from './ChatContext';
@@ -62,7 +62,7 @@ const ParticipantView = (props) => {
   const participantsLabel = `People (${numFormatter(onlineUsersCount)})`;
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const isSmall = useIsSmall();
   //video meeting
   const [showHostSection, setShowHostSection] = useState(true);

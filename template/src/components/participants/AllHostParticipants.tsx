@@ -4,7 +4,7 @@ import ScreenshareParticipants from './ScreenshareParticipants';
 import Participant from './Participant';
 import {useString} from '../../utils/useString';
 import {RenderInterface, UidType, useLocalUid} from '../../../agora-rn-uikit';
-import {useMeetingInfo, useRender} from 'customization-api';
+import {useRoomInfo, useRender} from 'customization-api';
 import Spacer from '../../atoms/Spacer';
 import {useVideoMeetingData} from '../contexts/VideoMeetingDataContext';
 import {useScreenContext} from '../contexts/ScreenShareContext';
@@ -23,7 +23,7 @@ export default function AllHostParticipants(props: any) {
   const {hostUids} = useVideoMeetingData();
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const {
     isMobile = false,
     handleClose,

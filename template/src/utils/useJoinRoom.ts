@@ -1,8 +1,8 @@
 import {useContext} from 'react';
 import {gql} from '@apollo/client';
 import StorageContext from '../components/StorageContext';
-import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
-import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
+import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {GraphQLContext} from '../components/GraphQLProvider';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
@@ -55,10 +55,10 @@ const JOIN_CHANNEL_PHRASE = gql`
  */
 export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
-  const {setMeetingInfo} = useSetMeetingInfo();
+  const {setRoomInfo} = useSetRoomInfo();
   const {client} = useContext(GraphQLContext);
   return async (phrase: string) => {
-    setMeetingInfo((prevState) => {
+    setRoomInfo((prevState) => {
       return {
         ...prevState,
         isJoinDataFetched: false,
@@ -79,46 +79,46 @@ export default function useJoinRoom() {
       } else {
         if (response && response.data) {
           let data = response.data;
-          let meetingInfo: Partial<MeetingInfoContextInterface['data']> = {};
+          let roomInfo: Partial<RoomInfoContextInterface['data']> = {};
           if (data?.joinChannel?.channel) {
-            meetingInfo.channel = data.joinChannel.channel;
+            roomInfo.channel = data.joinChannel.channel;
           }
           if (data?.joinChannel?.mainUser?.uid) {
-            meetingInfo.uid = data.joinChannel.mainUser.uid;
+            roomInfo.uid = data.joinChannel.mainUser.uid;
           }
           if (data?.joinChannel?.mainUser?.rtc) {
-            meetingInfo.token = data.joinChannel.mainUser.rtc;
+            roomInfo.token = data.joinChannel.mainUser.rtc;
           }
           if (data?.joinChannel?.mainUser?.rtm) {
-            meetingInfo.rtmToken = data.joinChannel.mainUser.rtm;
+            roomInfo.rtmToken = data.joinChannel.mainUser.rtm;
           }
           if (data?.joinChannel?.secret) {
-            meetingInfo.encryptionSecret = data.joinChannel.secret;
+            roomInfo.encryptionSecret = data.joinChannel.secret;
           }
           if (data?.joinChannel?.screenShare?.uid) {
-            meetingInfo.screenShareUid = data.joinChannel.screenShare.uid;
+            roomInfo.screenShareUid = data.joinChannel.screenShare.uid;
           }
           if (data?.joinChannel?.screenShare?.rtc) {
-            meetingInfo.screenShareToken = data.joinChannel.screenShare.rtc;
+            roomInfo.screenShareToken = data.joinChannel.screenShare.rtc;
           }
           if (data?.joinChannel?.isHost) {
-            meetingInfo.isHost = data.joinChannel.isHost;
+            roomInfo.isHost = data.joinChannel.isHost;
           }
           if (data?.joinChannel?.title) {
-            meetingInfo.meetingTitle = data.joinChannel.title;
+            roomInfo.meetingTitle = data.joinChannel.title;
           }
           //getUser is not available from backend
           // if (data?.getUser?.name) {
-          //   meetingInfo.username = data.getUser.name;
+          //   roomInfo.username = data.getUser.name;
           // }
           console.log('!!!!!Meetinginfo', {
-            meetingInfo,
+            roomInfo,
             response: response.data,
           });
-          setMeetingInfo((prevState) => {
+          setRoomInfo((prevState) => {
             let compiledMeetingInfo = {
               ...prevState.data,
-              ...meetingInfo,
+              ...roomInfo,
             };
             return {
               ...prevState,
@@ -126,7 +126,7 @@ export default function useJoinRoom() {
               data: compiledMeetingInfo,
             };
           });
-          return meetingInfo;
+          return roomInfo;
         } else {
           throw new Error('An error occurred in parsing the channel data.');
         }

@@ -1,5 +1,5 @@
 import {controlMessageEnum} from '../components/ChatContext';
-import {useMeetingInfo} from '../components/meeting-info/useMeetingInfo';
+import {useRoomInfo} from '../components/room-info/useRoomInfo';
 import {UidType} from '../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../rtm-events-api';
 
@@ -9,7 +9,7 @@ import events, {PersistanceLevel} from '../rtm-events-api';
 const useRemoteEndScreenshare = () => {
   const {
     data: {isHost},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   return (uid: UidType) => {
     if (isHost && uid) {
       events.send(

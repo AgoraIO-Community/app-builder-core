@@ -20,7 +20,7 @@ import {
   useIsDesktop,
   useResponsive,
 } from '../utils/common';
-import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useRoomInfo} from './room-info/useRoomInfo';
 import {useCustomization} from 'customization-implementation';
 import {
   PreCallJoinBtn,
@@ -256,7 +256,7 @@ const Precall = () => {
   const {
     isJoinDataFetched,
     data: {meetingTitle},
-  } = useMeetingInfo();
+  } = useRoomInfo();
   const rtc = useRtc();
   const isSDK = isSDKCheck();
 
