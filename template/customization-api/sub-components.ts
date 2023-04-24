@@ -23,8 +23,7 @@ export {
   Navbar,
   NavBarComponentsArray,
   ChatBubble,
-  ChatSendButton,
-  ChatTextInput,
+  ChatInput,
   Chat,
   SettingsView,
 } from '../src/pages/video-call/index';

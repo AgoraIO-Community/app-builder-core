@@ -4,7 +4,7 @@ import Navbar, {NavBarComponentsArray} from '../../components/Navbar';
 import SettingsView from '../../components/SettingsView';
 import Controls, {ControlsComponentsArray} from '../../components/Controls';
 import ChatBubble from '../../subComponents/ChatBubble';
-import {ChatTextInput, ChatSendButton} from '../../subComponents/ChatInput';
+import {ChatInput} from '../../subComponents/ChatInput';
 
 export {
   ParticipantsView,
@@ -15,6 +15,5 @@ export {
   Controls,
   ControlsComponentsArray,
   ChatBubble,
-  ChatTextInput,
-  ChatSendButton,
+  ChatInput,
 };

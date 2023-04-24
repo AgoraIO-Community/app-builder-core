@@ -148,69 +148,12 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
 /**
  * Input component for the Chat interface
  */
-const ChatInput = (props: {
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
-}) => {
-  const {primaryColor} = useContext(ColorContext);
-  const {ChatInputComponent, ChatSendButtonComponent} = useCustomization(
-    (data) => {
-      let components: {
-        ChatInputComponent: React.ComponentType<ChatTextInputProps>;
-        ChatSendButtonComponent: React.ComponentType<ChatSendButtonProps>;
-      } = {
-        ChatInputComponent: ChatTextInput,
-        ChatSendButtonComponent: ChatSendButton,
-      };
-      if (
-        data?.components?.videoCall &&
-        typeof data?.components?.videoCall === 'object'
-      ) {
-        if (
-          data?.components?.videoCall?.chat &&
-          typeof data?.components?.videoCall?.chat === 'object'
-        ) {
-          if (
-            data?.components?.videoCall?.chat?.chatInput &&
-            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
-            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
-          ) {
-            components.ChatInputComponent =
-              data?.components?.videoCall?.chat?.chatInput;
-          }
-          if (
-            data?.components?.videoCall?.chat?.chatSendButton &&
-            typeof data?.components?.videoCall?.chat?.chatSendButton !==
-              'object' &&
-            isValidReactComponent(
-              data?.components?.videoCall?.chat?.chatSendButton,
-            )
-          ) {
-            components.ChatSendButtonComponent =
-              data?.components?.videoCall?.chat?.chatSendButton;
-          }
-        }
-      } else {
-        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
-          components.ChatInputComponent = props.chatInput;
-        }
-        if (
-          props?.chatSendButton &&
-          isValidReactComponent(props.chatSendButton)
-        ) {
-          components.ChatSendButtonComponent = props.chatSendButton;
-        }
-      }
-      return components;
-    },
-  );
-
+export const ChatInput = () => {
   const {inputActive} = useChatUIControl();
-
   return (
     <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
-      <ChatInputComponent />
-      <ChatSendButtonComponent />
+      <ChatTextInput />
+      <ChatSendButton />
     </View>
   );
 };

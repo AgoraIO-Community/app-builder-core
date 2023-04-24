@@ -28,10 +28,7 @@ import {useChatUIControl} from './chat-ui/useChatUIControl';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
-import {
-  ChatTextInputProps,
-  ChatSendButtonProps,
-} from '../subComponents/ChatInput';
+import {ChatTextInputProps} from '../subComponents/ChatInput';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';
@@ -45,8 +42,7 @@ import {ChatHeader} from '../pages/video-call/SidePanelHeader';
 
 export interface ChatProps {
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
+  chatInput?: React.ComponentType;
   showHeader?: boolean;
 }
 
@@ -105,39 +101,60 @@ const Chat = (props?: ChatProps) => {
     // );
   };
 
-  const {ChatAfterView, ChatBeforeView} = useCustomization((data) => {
-    let components: {
-      ChatAfterView: React.ComponentType;
-      ChatBeforeView: React.ComponentType;
-    } = {
-      ChatAfterView: React.Fragment,
-      ChatBeforeView: React.Fragment,
-    };
-    if (
-      data?.components?.videoCall &&
-      typeof data?.components?.videoCall === 'object'
-    ) {
-      // commented for v1 release
-      // if (
-      //   data?.components?.videoCall?.chat &&
-      //   typeof data?.components?.videoCall?.chat === 'object'
-      // ) {
-      //   if (
-      //     data?.components?.videoCall?.chat?.after &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
-      //   ) {
-      //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
-      //   }
-      //   if (
-      //     data?.components?.videoCall?.chat?.before &&
-      //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
-      //   ) {
-      //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
-      //   }
-      // }
-    }
-    return components;
-  });
+  const {ChatAfterView, ChatBeforeView, ChatInputComponent} = useCustomization(
+    (data) => {
+      let components: {
+        ChatAfterView: React.ComponentType;
+        ChatBeforeView: React.ComponentType;
+        ChatInputComponent: React.ComponentType;
+      } = {
+        ChatAfterView: React.Fragment,
+        ChatBeforeView: React.Fragment,
+        ChatInputComponent: ChatInput,
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall?.chat &&
+          typeof data?.components?.videoCall?.chat === 'object'
+        ) {
+          if (
+            data?.components?.videoCall?.chat?.chatInput &&
+            typeof data?.components?.videoCall?.chat?.chatInput !== 'object' &&
+            isValidReactComponent(data?.components?.videoCall?.chat?.chatInput)
+          ) {
+            components.ChatInputComponent =
+              data?.components?.videoCall?.chat?.chatInput;
+          }
+        }
+        // commented for v1 release
+        // if (
+        //   data?.components?.videoCall?.chat &&
+        //   typeof data?.components?.videoCall?.chat === 'object'
+        // ) {
+        //   if (
+        //     data?.components?.videoCall?.chat?.after &&
+        //     isValidReactComponent(data?.components?.videoCall?.chat?.after)
+        //   ) {
+        //     components.ChatAfterView = data?.components?.videoCall?.chat?.after;
+        //   }
+        //   if (
+        //     data?.components?.videoCall?.chat?.before &&
+        //     isValidReactComponent(data?.components?.videoCall?.chat?.before)
+        //   ) {
+        //     components.ChatBeforeView = data?.components?.videoCall?.chat?.before;
+        //   }
+        // }
+      } else {
+        if (props?.chatInput && isValidReactComponent(props.chatInput)) {
+          components.ChatInputComponent = props.chatInput;
+        }
+      }
+      return components;
+    },
+  );
   const {currentLayout} = useLayout();
   return (
     <>
@@ -164,7 +181,7 @@ const Chat = (props?: ChatProps) => {
           <>
             <ChatContainer {...props} />
             <View style={style.chatInputContainer}>
-              <ChatInput {...props} />
+              <ChatInputComponent />
             </View>
           </>
         ) : (
@@ -176,7 +193,7 @@ const Chat = (props?: ChatProps) => {
                 <ChatContainer {...props} />
                 <View>
                   <View style={style.chatInputContainer}>
-                    <ChatInput {...props} />
+                    <ChatInputComponent />
                   </View>
                 </View>
               </>

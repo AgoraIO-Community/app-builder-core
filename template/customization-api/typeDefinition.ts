@@ -20,14 +20,8 @@ import {
 import {I18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../src/atoms/CustomIcon';
 export type {RenderInterface, RenderStateInterface, UidType};
-export type {
-  ChatTextInputProps,
-  ChatSendButtonProps,
-} from '../src/subComponents/ChatInput';
-import {
-  ChatTextInputProps,
-  ChatSendButtonProps,
-} from '../src/subComponents/ChatInput';
+export type {ChatTextInputProps} from '../src/subComponents/ChatInput';
+import {ChatTextInputProps} from '../src/subComponents/ChatInput';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -51,7 +45,6 @@ export interface ChatCmpInterface {
   //extends BeforeAndAfterInterface
   chatBubble?: React.ComponentType<ChatBubbleProps>;
   chatInput?: React.ComponentType<ChatTextInputProps>;
-  chatSendButton?: React.ComponentType<ChatSendButtonProps>;
 }
 
 export type layoutComponent = React.ComponentType<{
