@@ -13,9 +13,7 @@ import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
-import {
-  useMeetingInfo,
-} from '../meeting-info/useMeetingInfo';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import SDKEvents from '../../utils/SdkEvents';
 import DeviceContext from '../DeviceContext';
 
@@ -52,7 +50,7 @@ interface PreCallProviderProps {
 }
 
 const PreCallProvider = (props: PreCallProviderProps) => {
-  const {join} = useContext(SdkApiContext);
+  const {join, enterRoom} = useContext(SdkApiContext);
   const meetingInfo = useMeetingInfo();
   const {deviceList} = useContext(DeviceContext);
 
@@ -62,7 +60,10 @@ const PreCallProvider = (props: PreCallProviderProps) => {
       join?.promise?.res([
         meetingInfo.data,
         () => {
-          props.value.setCallActive(true);
+          return new Promise((res, rej) => {
+            enterRoom.set({res, rej});
+            props.value.setCallActive(true);
+          });
         },
       ]);
     }

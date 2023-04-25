@@ -16,6 +16,10 @@ type extractPromises<T extends (...p: any) => any> = {
 
 // Should correspond to the same SdkMethodEvent name
 type SdkApiContextInterface = {
+  enterRoom: {
+    set: (p: extractPromises<_InternalSDKMethodEventsMap['join']>) => void;
+    promise?: extractPromises<_InternalSDKMethodEventsMap['join']>;
+  };
   join:
     | {
         initialized: true;
@@ -45,7 +49,10 @@ type SdkApiContextInterface = {
   };
   onMuteAudio: (callback: _InternalSDKMethodEventsMap['muteAudio']) => void;
   onMuteVideo: (callback: _InternalSDKMethodEventsMap['muteVideo']) => void;
-  clearState: (key: keyof _InternalSDKMethodEventsMap, param?: any) => void;
+  clearState: (
+    key: keyof _InternalSDKMethodEventsMap | 'enterRoom',
+    param?: any,
+  ) => void;
 };
 
 const defaultMuteListener = ((_, rej) => {
@@ -57,6 +64,9 @@ const defaultMuteListener = ((_, rej) => {
 }) as _InternalSDKMethodEventsMap['muteVideo'];
 
 const SdkApiInitState: SdkApiContextInterface = {
+  enterRoom: {
+    set: () => {},
+  },
   join: {
     initialized: false,
   },
@@ -181,6 +191,8 @@ const deRegisterListener = () => {
 
 const SdkApiContextProvider: React.FC = (props) => {
   const [joinState, setJoinState] = useState(SdkApiInitState.join);
+  const [enterRoom, setEnterRoom] =
+    useState<extractPromises<_InternalSDKMethodEventsMap['join']>>();
   const [userCustomization, setUserCustomization] = useState(
     SdkApiInitState.customize,
   );
@@ -213,6 +225,9 @@ const SdkApiContextProvider: React.FC = (props) => {
     switch (key) {
       case 'join':
         setJoinState(SdkApiInitState.join);
+        break;
+      case 'enterRoom':
+        setEnterRoom(null);
         break;
       case 'customize':
         setUserCustomization(SdkApiInitState.customize);
@@ -271,6 +286,10 @@ const SdkApiContextProvider: React.FC = (props) => {
   return (
     <SdkApiContext.Provider
       value={{
+        enterRoom: {
+          set: setEnterRoom,
+          promise: enterRoom,
+        },
         join: joinState,
         customize: userCustomization,
         microphoneDevice: microphoneDeviceState,

@@ -44,13 +44,16 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const [showLayoutOption, setShowLayoutOption] = useState(false);
   const [showInvitePopup, setShowInvitePopup] = useState(false);
   const [showStopRecordingPopup, setShowStopRecordingPopup] = useState(false);
-  const {join} = useContext(SdkApiContext);
+  const {join, enterRoom} = useContext(SdkApiContext);
   const meetingInfo = useMeetingInfo();
   const {deviceList} = useContext(DeviceContext);
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
       join.promise.res(meetingInfo.data);
+    }
+    if (enterRoom.promise) {
+      enterRoom.promise.res(meetingInfo.data);
     }
     SDKEvents.emit(
       'join',
