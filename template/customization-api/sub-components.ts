@@ -35,6 +35,7 @@ export {default as NameWithMicIcon} from '../src/pages/video-call/NameWithMicIco
 export {default as NetworkQualityPill} from '../src/subComponents/NetworkQualityPill';
 //videocall screen
 export {default as VideocallScreen} from '../src/pages/video-call/VideoCallScreen';
+export {default as PrecallScreen} from '../src/components/Precall';
 
 // commented for v1 release
 //Settings screen
