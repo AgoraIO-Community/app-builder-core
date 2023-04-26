@@ -47,7 +47,6 @@ const PermissionHelper = () => {
       })
       .catch((e) => {
         // Firefox
-        console.log('!!Promise rejected with, ', e);
         setTimeout(() => {
           setShowPopup(true);
         }, 1000);
