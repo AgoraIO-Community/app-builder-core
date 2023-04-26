@@ -13,64 +13,64 @@ import {createHook} from 'customization-implementation';
 import React, {SetStateAction, useState} from 'react';
 import {UidType} from '../../../agora-rn-uikit';
 
-export interface ChatUIControlInterface {
-  groupActive: boolean;
-  privateActive: boolean;
-  selectedChatUserId: UidType;
+export enum ChatType {
+  Group,
+  //todo confirm memberlist with vineeth
+  MemberList,
+  Private,
+}
+
+export interface ChatUIControlsInterface {
+  chatType: ChatType;
+  privateChatUser: UidType;
   inputActive?: boolean;
-  setGroupActive: React.Dispatch<SetStateAction<boolean>>;
-  setPrivateActive: React.Dispatch<SetStateAction<boolean>>;
-  setSelectedChatUserId: React.Dispatch<SetStateAction<UidType>>;
+  setChatType: (chatType: ChatType) => void;
+  setPrivateChatUser: React.Dispatch<SetStateAction<UidType>>;
   setInputActive: React.Dispatch<SetStateAction<boolean>>;
   message: string;
   setMessage: React.Dispatch<SetStateAction<string>>;
 }
 
-const ChatUIControlContext = React.createContext<ChatUIControlInterface>({
-  groupActive: false,
-  privateActive: false,
-  selectedChatUserId: 0,
+const ChatUIControlsContext = React.createContext<ChatUIControlsInterface>({
+  chatType: ChatType.Group,
+  privateChatUser: 0,
   message: '',
-  setGroupActive: () => {},
-  setPrivateActive: () => {},
-  setSelectedChatUserId: () => {},
+  setChatType: () => {},
+  setPrivateChatUser: () => {},
   setMessage: () => {},
   inputActive: false,
   setInputActive: () => {},
 });
 
-interface ChatUIControlProviderProps {
+interface ChatUIControlsProviderProps {
   children: React.ReactNode;
 }
 
-const ChatUIControlProvider = (props: ChatUIControlProviderProps) => {
-  const [groupActive, setGroupActive] = useState(false);
-  const [privateActive, setPrivateActive] = useState(false);
+const ChatUIControlsProvider = (props: ChatUIControlsProviderProps) => {
+  const [chatType, setChatType] = useState<ChatType>(ChatType.Group);
   const [inputActive, setInputActive] = useState(false);
-  const [selectedChatUserId, setSelectedChatUserId] = useState<UidType>(0);
+  const [privateChatUser, setPrivateChatUser] = useState<UidType>(0);
   const [message, setMessage] = useState('');
   return (
-    <ChatUIControlContext.Provider
+    <ChatUIControlsContext.Provider
       value={{
-        groupActive,
-        privateActive,
-        selectedChatUserId,
-        setGroupActive,
-        setPrivateActive,
-        setSelectedChatUserId,
+        chatType,
+        setChatType,
+        privateChatUser,
+        setPrivateChatUser,
         message,
         setMessage,
         inputActive,
         setInputActive,
       }}>
       {props.children}
-    </ChatUIControlContext.Provider>
+    </ChatUIControlsContext.Provider>
   );
 };
 
 /**
  * The ChatUIControl app state governs the chat ui.
  */
-const useChatUIControl = createHook(ChatUIControlContext);
+const useChatUIControls = createHook(ChatUIControlsContext);
 
-export {ChatUIControlProvider, useChatUIControl};
+export {ChatUIControlsProvider, useChatUIControls};

@@ -42,8 +42,6 @@ export {useRecording} from '../src/subComponents/recording/useRecording';
 export type {RecordingContextInterface} from '../src/subComponents/recording/useRecording';
 export {useRoomInfo} from '../src/components/room-info/useRoomInfo';
 export type {RoomInfoContextInterface} from '../src/components/room-info/useRoomInfo';
-export {useChatUIControl} from '../src/components/chat-ui/useChatUIControl';
-export type {ChatUIControlInterface} from '../src/components/chat-ui/useChatUIControl';
 export {useMessages} from '../src/app-state/useMessages';
 export type {messageInterface} from '../src/app-state/useMessages';
 export {SidePanelType} from '../src/subComponents/SidePanelEnum';

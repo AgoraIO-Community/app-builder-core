@@ -24,7 +24,7 @@ import {
   isWebInternal,
   useIsSmall,
 } from '../utils/common';
-import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
@@ -58,13 +58,7 @@ const Chat = (props?: ChatProps) => {
   const {setSidePanel} = useSidePanel();
   const {showHeader = true} = props;
 
-  const {
-    groupActive,
-    setGroupActive,
-    privateActive,
-    setPrivateActive,
-    setSelectedChatUserId: setSelectedUser,
-  } = useChatUIControl();
+  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
   const {
     unreadGroupMessageCount,
@@ -80,15 +74,14 @@ const Chat = (props?: ChatProps) => {
   React.useEffect(() => {
     return () => {
       // reset both the active tabs
-      setGroupActive(false);
-      setPrivateActive(false);
-      setSelectedUser(0);
+      setChatType(ChatType.Group);
+      setPrivateChatUser(0);
     };
   }, []);
 
   const selectUser = (userUID: UidType) => {
-    setSelectedUser(userUID);
-    setPrivateActive(true);
+    setPrivateChatUser(userUID);
+    setChatType(ChatType.Private);
     //move this logic into ChatContainer
     // setUnreadIndividualMessageCount((prevState) => {
     //   return {
@@ -177,7 +170,7 @@ const Chat = (props?: ChatProps) => {
          */}
         <ChatBeforeView />
         {showHeader && <ChatHeader />}
-        {groupActive ? (
+        {chatType === ChatType.Group ? (
           <>
             <ChatContainer {...props} />
             <View style={style.chatInputContainer}>
@@ -185,20 +178,24 @@ const Chat = (props?: ChatProps) => {
             </View>
           </>
         ) : (
+          <></>
+        )}
+        {chatType === ChatType.MemberList ? (
+          <ChatParticipants selectUser={selectUser} />
+        ) : (
+          <></>
+        )}
+        {chatType === ChatType.Private ? (
           <>
-            {!privateActive ? (
-              <ChatParticipants selectUser={selectUser} />
-            ) : (
-              <>
-                <ChatContainer {...props} />
-                <View>
-                  <View style={style.chatInputContainer}>
-                    <ChatInputComponent />
-                  </View>
-                </View>
-              </>
-            )}
+            <ChatContainer {...props} />
+            <View>
+              <View style={style.chatInputContainer}>
+                <ChatInputComponent />
+              </View>
+            </View>
           </>
+        ) : (
+          <></>
         )}
         <ChatAfterView />
       </View>

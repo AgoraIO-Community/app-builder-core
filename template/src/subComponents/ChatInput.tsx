@@ -17,7 +17,10 @@ import {useString} from '../utils/useString';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import {isValidReactComponent, isWebInternal} from '../utils/common';
 import {useCustomization} from 'customization-implementation';
-import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../components/chat-ui/useChatUIControls';
 import {useRender, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
@@ -28,11 +31,11 @@ export interface ChatSendButtonProps {
 
 export const ChatSendButton = (props: ChatSendButtonProps) => {
   const {
-    selectedChatUserId: selectedUserId,
+    privateChatUser: selectedUserId,
     message,
     setMessage,
     inputActive,
-  } = useChatUIControl();
+  } = useChatUIControls();
   const {sendChatMessage} = useChatMessages();
   const onPress = () => {
     if (!selectedUserId) {
@@ -69,13 +72,8 @@ export interface ChatTextInputProps {
 }
 export const ChatTextInput = (props: ChatTextInputProps) => {
   let chatInputRef = useRef(null);
-  const {
-    selectedChatUserId: selectedUserId,
-    message,
-    setMessage,
-    inputActive,
-    privateActive,
-  } = useChatUIControl();
+  const {privateChatUser, message, setMessage, inputActive, chatType} =
+    useChatUIControls();
   const {sendChatMessage} = useChatMessages();
   const {renderList} = useRender();
   //commented for v1 release
@@ -83,20 +81,21 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   //   'chatMessageInputPlaceholder',
   // )();
   const [name] = useUserName();
-  const chatMessageInputPlaceholder = privateActive
-    ? `Private Message to ${renderList[selectedUserId].name}`
-    : `Chat publicly as ${name}...`;
+  const chatMessageInputPlaceholder =
+    chatType === ChatType.Private
+      ? `Private Message to ${renderList[privateChatUser].name}`
+      : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
-    if (!selectedUserId) {
+    if (!privateChatUser) {
       sendChatMessage(message);
       setMessage('');
     } else {
-      sendChatMessage(message, selectedUserId);
+      sendChatMessage(message, privateChatUser);
       setMessage('');
     }
   };
-  const {setInputActive} = useChatUIControl();
+  const {setInputActive} = useChatUIControls();
 
   useEffect(() => {
     setTimeout(() => {
@@ -149,7 +148,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
  * Input component for the Chat interface
  */
 export const ChatInput = () => {
-  const {inputActive} = useChatUIControl();
+  const {inputActive} = useChatUIControls();
   return (
     <View style={[style.inputView, inputActive ? style.inputActiveView : {}]}>
       <ChatTextInput />

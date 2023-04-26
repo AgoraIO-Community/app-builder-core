@@ -21,7 +21,7 @@ import {
 } from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {useChatUIControl} from '../chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from '../chat-ui/useChatUIControls';
 import {useChatNotification} from '../chat-notification/useChatNotification';
 import Toast from '../../../react-native-toast-message';
 import {timeNow} from '../../rtm/utils';
@@ -72,13 +72,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {renderList} = useRender();
   const localUid = useLocalUid();
   const {setSidePanel} = useSidePanel();
-  const {
-    groupActive,
-    selectedChatUserId,
-    setGroupActive,
-    setPrivateActive,
-    setSelectedChatUserId,
-  } = useChatUIControl();
+  const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
+    useChatUIControls();
   const {
     setUnreadGroupMessageCount,
     setUnreadIndividualMessageCount,
@@ -104,12 +99,12 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }, [renderList]);
 
   useEffect(() => {
-    groupActiveRef.current = groupActive;
-  }, [groupActive]);
+    groupActiveRef.current = chatType === ChatType.Group;
+  }, [chatType]);
 
   useEffect(() => {
-    individualActiveRef.current = selectedChatUserId;
-  }, [selectedChatUserId]);
+    individualActiveRef.current = privateChatUser;
+  }, [privateChatUser]);
 
   const openPrivateChat = (uidAsNumber) => {
     //move this logic into ChatContainer
@@ -123,9 +118,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     //     [uidAsNumber]: 0,
     //   };
     // });
-    setGroupActive(false);
-    setSelectedChatUserId(uidAsNumber);
-    setPrivateActive(true);
+
+    setPrivateChatUser(uidAsNumber);
+    setChatType(ChatType.Private);
     setSidePanel(SidePanelType.Chat);
   };
 
@@ -174,9 +169,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           } else {
             //move this logic into ChatContainer
             // setUnreadGroupMessageCount(0);
-            setPrivateActive(false);
-            setSelectedChatUserId(0);
-            setGroupActive(true);
+            setPrivateChatUser(0);
+            setChatType(ChatType.Group);
             setSidePanel(SidePanelType.Chat);
           }
         },

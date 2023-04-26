@@ -46,7 +46,7 @@ import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import {useString} from '../utils/useString';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
-import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import {
   ButtonTemplateName,
@@ -204,8 +204,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     isOnActionSheet = false,
   } = props;
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
-  const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
-    useChatUIControl();
+  const {setChatType, setPrivateChatUser} = useChatUIControls();
 
   //commented for v1 release
   //const chatLabel = useString('chatLabel')();
@@ -215,13 +214,12 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
     {
       if (isPanelActive) {
         setSidePanel(SidePanelType.None);
-        setGroupActive(false);
-        setPrivateActive(false);
-        setSelectedChatUserId(0);
+        setChatType(ChatType.Group);
+        setPrivateChatUser(0);
       } else {
         //move this logic into ChatContainer
         //setUnreadGroupMessageCount(0);
-        setGroupActive(true);
+        setChatType(ChatType.Group);
         setSidePanel(SidePanelType.Chat);
       }
     }

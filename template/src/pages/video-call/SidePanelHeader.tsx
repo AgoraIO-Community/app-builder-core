@@ -8,7 +8,10 @@ import ThemeConfig from '../../theme';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {useSidePanel} from '../../utils/useSidePanel';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
-import {useChatUIControl} from '../../components/chat-ui/useChatUIControl';
+import {
+  ChatType,
+  useChatUIControls,
+} from '../../components/chat-ui/useChatUIControls';
 import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
 
@@ -60,36 +63,29 @@ export const ChatHeader = () => {
   const groupChatLabel = 'Group';
   const privateChatLabel = 'Private';
 
-  const {
-    groupActive,
-    setGroupActive,
-    privateActive,
-    setPrivateActive,
-    setSelectedChatUserId: setSelectedUser,
-  } = useChatUIControl();
+  const {chatType, setChatType, setPrivateChatUser} = useChatUIControls();
 
   const selectGroup = () => {
-    setPrivateActive(false);
-    setGroupActive(true);
+    setChatType(ChatType.Group);
     //move this logic into ChatContainer
     //setUnreadGroupMessageCount(0);
-    setSelectedUser(0);
+    setPrivateChatUser(0);
   };
   const selectPrivate = () => {
-    setGroupActive(false);
-    setSelectedUser(0);
-    setPrivateActive(false);
+    setPrivateChatUser(0);
+    setChatType(ChatType.MemberList);
   };
-
+  const isPrivateActive = chatType === ChatType.Private;
+  const isGroupActive = chatType === ChatType.Group;
   return (
     <SidePanelHeader
       isChat={true}
-      leadingIconName={privateActive ? 'back-btn' : null}
+      leadingIconName={isPrivateActive ? 'back-btn' : null}
       leadingIconOnPress={
-        privateActive
+        isPrivateActive
           ? () => {
-              setSelectedUser(0);
-              setPrivateActive(false);
+              setPrivateChatUser(0);
+              setChatType(ChatType.MemberList);
             }
           : () => {}
       }
@@ -98,20 +94,20 @@ export const ChatHeader = () => {
           <TouchableOpacity
             onPress={selectGroup}
             style={
-              groupActive ? styles.activeContainer : styles.nonActiveContainer
+              isGroupActive ? styles.activeContainer : styles.nonActiveContainer
             }>
             {unreadGroupMessageCount !== 0 ? (
               <View style={styles.chatNotification} />
             ) : null}
             <Text
-              style={groupActive ? styles.activeText : styles.nonActiveText}>
+              style={isGroupActive ? styles.activeText : styles.nonActiveText}>
               {groupChatLabel}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={selectPrivate}
             style={
-              !groupActive
+              !isGroupActive
                 ? [styles.activeContainer]
                 : [styles.nonActiveContainer]
             }>
@@ -119,7 +115,7 @@ export const ChatHeader = () => {
               <View style={styles.chatNotification} />
             ) : null}
             <Text
-              style={!groupActive ? styles.activeText : styles.nonActiveText}>
+              style={!isGroupActive ? styles.activeText : styles.nonActiveText}>
               {privateChatLabel}
             </Text>
           </TouchableOpacity>

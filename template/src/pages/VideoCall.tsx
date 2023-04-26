@@ -50,7 +50,7 @@ import {SidePanelProvider} from '../utils/useSidePanel';
 import VideoCallScreen from './video-call/VideoCallScreen';
 import {NetworkQualityProvider} from '../components/NetworkQualityContext';
 import {ChatNotificationProvider} from '../components/chat-notification/useChatNotification';
-import {ChatUIControlProvider} from '../components/chat-ui/useChatUIControl';
+import {ChatUIControlsProvider} from '../components/chat-ui/useChatUIControls';
 import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
@@ -300,7 +300,7 @@ const VideoCall: React.FC = () => {
               }}>
               <RtcConfigure>
                 <DeviceConfigure>
-                  <ChatUIControlProvider>
+                  <ChatUIControlsProvider>
                     <ChatNotificationProvider>
                       <LayoutProvider
                         value={{
@@ -381,7 +381,7 @@ const VideoCall: React.FC = () => {
                         </FocusProvider>
                       </LayoutProvider>
                     </ChatNotificationProvider>
-                  </ChatUIControlProvider>
+                  </ChatUIControlsProvider>
                 </DeviceConfigure>
               </RtcConfigure>
             </PropsProvider>
