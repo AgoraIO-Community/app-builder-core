@@ -136,6 +136,8 @@ const Create = () => {
       setLoading(true);
       try {
         setRoomInfo(RoomInfoDefaultValue);
+        //@ts-ignore
+        //isSeparateHostLink will be for internal usage since backend integration is not there
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({

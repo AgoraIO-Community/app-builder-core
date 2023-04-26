@@ -30,12 +30,17 @@ const CREATE_CHANNEL = gql`
 /**
  * Returns an asynchronous function to create a meeting with the given options.
  */
-export default function useCreateRoom() {
+export type createRoomFun = (
+  roomTitle: string,
+  enablePSTN?: boolean,
+) => Promise<void>;
+export default function useCreateRoom(): createRoomFun {
   const [createChannel, {error}] = useMutation(CREATE_CHANNEL);
   const {setRoomInfo} = useSetRoomInfo();
   return async (
     roomTitle: string,
     enablePSTN?: boolean,
+    //isSeparateHostLink will be for internal usage since backend integration is not there
     isSeparateHostLink?: boolean,
   ) => {
     const res = await createChannel({
