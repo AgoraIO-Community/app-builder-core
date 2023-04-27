@@ -154,10 +154,7 @@ const VideoCallScreen = () => {
     <>
       <VideocallBeforeView />
       <View style={style.full}>
-        <ButtonTemplateProvider
-          value={{buttonTemplateName: ButtonTemplateName.topBar}}>
-          <TopbarComponent />
-        </ButtonTemplateProvider>
+        <TopbarComponent />
         <View
           style={[
             style.videoView,
@@ -183,10 +180,7 @@ const VideoCallScreen = () => {
         {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
           <></>
         ) : (
-          <ButtonTemplateProvider
-            value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
-            <BottombarComponent />
-          </ButtonTemplateProvider>
+          <BottombarComponent />
         )}
       </View>
       <VideocallAfterView />
