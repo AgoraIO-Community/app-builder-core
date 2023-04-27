@@ -7,7 +7,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import useTokenAuth from '../../auth/useTokenAuth';
 import Spacer from '../../atoms/Spacer';
 import events, {EventPersistLevel} from '../../rtm-events-api';
-import {useCaptionToggle} from './useCaptionToggle';
+import {useCaption} from './useCaption';
 import {SidePanelType, useSidePanel} from 'customization-api';
 
 const startStopSTT = async (
@@ -35,9 +35,8 @@ const startStopSTT = async (
 };
 
 const CaptionButton = () => {
-  // const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const {store, setStore} = React.useContext(StorageContext);
-  const {isCaptionON, setIsCaptionON} = useCaptionToggle();
+  const {isCaptionON, setIsCaptionON} = useCaption();
   const [isSTTActive, setIsSTTActive] = React.useState(false); // TODO: need to load initial value from query api
   //local state for isactive
   const {

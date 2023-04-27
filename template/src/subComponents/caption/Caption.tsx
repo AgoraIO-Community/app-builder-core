@@ -4,7 +4,7 @@ import {isWeb, useRender, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
 import ThemeConfig from '../../../src/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useCaptionToggle} from './useCaptionToggle';
+import {useCaption} from './useCaption';
 import Transcript from './Transcript';
 import {TranscriptText} from './TranscriptText';
 
@@ -17,7 +17,7 @@ const Caption = () => {
   const finalList = React.useRef<Object>({}); // holds transcript of final words of all users
   const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
   const outputStreamFinal = React.useRef<Object>({}); // store in localStorage to access previous captions
-  const {setTranscript} = useCaptionToggle();
+  const {setTranscript} = useCaption();
 
   const updateInStorage = async (obj) => {
     try {

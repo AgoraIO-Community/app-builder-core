@@ -68,7 +68,7 @@ import {VideoCallProvider} from '../components/useVideoCall';
 import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
-import {CaptionToggleProvider} from '../subComponents/caption/useCaptionToggle';
+import {CaptionProvider} from '../subComponents/caption/useCaption';
 
 enum RnEncryptionEnum {
   /**
@@ -349,9 +349,9 @@ const VideoCall: React.FC = () => {
                                                       {callActive ? (
                                                         <VideoMeetingDataProvider>
                                                           <VideoCallProvider>
-                                                            <CaptionToggleProvider>
+                                                            <CaptionProvider>
                                                               <VideoCallScreen />
-                                                            </CaptionToggleProvider>
+                                                            </CaptionProvider>
                                                           </VideoCallProvider>
                                                         </VideoMeetingDataProvider>
                                                       ) : $config.PRECALL ? (

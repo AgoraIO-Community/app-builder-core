@@ -1,14 +1,21 @@
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, ViewStyle} from 'react-native';
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
+
+interface TranscriptTextProps {
+  user: string;
+  value: string;
+  containerStyle?: ViewStyle;
+  nameContainerStyle?: ViewStyle;
+}
 
 export const TranscriptText = ({
   user,
   value,
   containerStyle = {},
   nameContainerStyle = {},
-}) => {
+}: TranscriptTextProps) => {
   const name = user?.split(':')[0] || '';
   return (
     <View key={user} style={[styles.textContainer, containerStyle]}>

@@ -2,13 +2,11 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
 import Caption from './Caption';
-import {useCaptionToggle} from './useCaptionToggle';
+import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 
 const CaptionContainer = () => {
-  const [captions, setCaptions] = React.useState([]); // to hold records of captions for transcript purposes.
-  const {isCaptionON} = useCaptionToggle();
-
+  const {isCaptionON} = useCaption();
   return isCaptionON ? (
     <View style={styles.container}>
       <Caption />

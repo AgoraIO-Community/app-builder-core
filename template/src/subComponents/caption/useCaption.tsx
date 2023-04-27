@@ -5,7 +5,7 @@ interface Transcript {
   [key: string]: string;
 }
 
-export const CaptionToggleContext = React.createContext<{
+export const CaptionContext = React.createContext<{
   isCaptionON: boolean;
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
   transcript: Transcript;
@@ -17,18 +17,18 @@ export const CaptionToggleContext = React.createContext<{
   setTranscript: () => {},
 });
 
-const CaptionToggleProvider = ({children}) => {
+const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [transcript, setTranscript] = React.useState<Transcript>({}); // to hold current caption
 
   return (
-    <CaptionToggleContext.Provider
+    <CaptionContext.Provider
       value={{isCaptionON, setIsCaptionON, transcript, setTranscript}}>
       {children}
-    </CaptionToggleContext.Provider>
+    </CaptionContext.Provider>
   );
 };
 
-const useCaptionToggle = createHook(CaptionToggleContext);
+const useCaption = createHook(CaptionContext);
 
-export {CaptionToggleProvider, useCaptionToggle};
+export {CaptionProvider, useCaption};

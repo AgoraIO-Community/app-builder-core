@@ -11,7 +11,7 @@ import {
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useCaptionToggle} from './useCaptionToggle';
+import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {TranscriptText} from './TranscriptText';
 
@@ -19,11 +19,14 @@ type Transcript = {
   [key: string]: string;
 };
 
-const Transcript = (props) => {
+interface TranscriptProps {
+  showHeader?: boolean;
+}
+const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
-  const {transcript} = useCaptionToggle();
+  const {transcript} = useCaption();
 
   const [fullTranscript, setFullTranscript] = React.useState<Transcript>({});
 
