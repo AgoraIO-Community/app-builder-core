@@ -8,6 +8,7 @@ import useTokenAuth from '../../auth/useTokenAuth';
 import Spacer from '../../atoms/Spacer';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {useCaptionToggle} from './useCaptionToggle';
+import {SidePanelType, useSidePanel} from 'customization-api';
 
 const startStopSTT = async (
   isCaptionON: boolean,
@@ -37,11 +38,13 @@ const CaptionButton = () => {
   // const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const {store, setStore} = React.useContext(StorageContext);
   const {isCaptionON, setIsCaptionON} = useCaptionToggle();
-  const [isSTTActive, setIsSTTActive] = React.useState(false); // need to load initial value from query api
+  const [isSTTActive, setIsSTTActive] = React.useState(false); // TODO: need to load initial value from query api
   //local state for isactive
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
+
+  const {setSidePanel, sidePanel} = useSidePanel();
 
   const handleClick = async (method) => {
     setIsCaptionON((prev) => !prev);
@@ -76,6 +79,13 @@ const CaptionButton = () => {
       setIsSTTActive(payload.active);
     });
   }, []);
+  const isPanelActive = sidePanel === SidePanelType.Transcript;
+
+  const handleTranscriptClick = () => {
+    isPanelActive
+      ? setSidePanel(SidePanelType.None)
+      : setSidePanel(SidePanelType.Transcript);
+  };
 
   return (
     <View style={{flexDirection: 'row', width: 100}}>
@@ -106,6 +116,20 @@ const CaptionButton = () => {
         disabled={!isCaptionON}
         textStyle={styles.btnText}
         onPress={() => handleClick('stop')}
+      />
+      <Spacer size={10} horizontal />
+      <PrimaryButton
+        containerStyle={{
+          width: '100%',
+          minWidth: 80,
+          height: 48,
+          paddingVertical: 12,
+          paddingHorizontal: 12,
+          borderRadius: ThemeConfig.BorderRadius.medium,
+        }}
+        text={isPanelActive ? 'Hide Transcript' : 'Show Transcript'}
+        textStyle={styles.btnText}
+        onPress={handleTranscriptClick}
       />
     </View>
   );

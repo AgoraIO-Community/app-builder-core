@@ -7,6 +7,7 @@ import {Prompt, useParams} from '../components/Router';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {Platform} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export interface LocalEndcallProps {
   showLabel?: boolean;
   isOnActionSheet?: boolean;
@@ -18,6 +19,15 @@ const stopForegroundService = () => {
   if (Platform.OS === 'android') {
     ReactNativeForegroundService.stop();
     console.log('stopping foreground service');
+  }
+};
+
+const removeTranscript = async () => {
+  // remove transcript recorded during the call
+  try {
+    await AsyncStorage.removeItem('fullTranscript');
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -43,6 +53,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     });
     // stopping foreground servie on end call
     stopForegroundService();
+    removeTranscript();
   };
 
   let iconButtonProps: IconButtonProps = {

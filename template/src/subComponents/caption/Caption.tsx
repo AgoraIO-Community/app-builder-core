@@ -3,7 +3,10 @@ import React from 'react';
 import {isWeb, useRender, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
 import ThemeConfig from '../../../src/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useCaptionToggle} from './useCaptionToggle';
+import Transcript from './Transcript';
+import {TranscriptText} from './TranscriptText';
 
 const Caption = () => {
   const {renderList} = useRender();
@@ -14,10 +17,18 @@ const Caption = () => {
   const finalList = React.useRef<Object>({}); // holds transcript of final words of all users
   const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
   const outputStreamFinal = React.useRef<Object>({}); // store in localStorage to access previous captions
+  const {setTranscript} = useCaptionToggle();
+
+  const updateInStorage = async (obj) => {
+    try {
+      await AsyncStorage.setItem('fullTranscript', JSON.stringify(obj));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleStreamMessageCallback = (...args) => {
     console.group('StreamMessage Callback');
-
     console.warn(`Recived data stream for Platform : ${Platform.OS}`, args);
     const uid = args[0];
     const payload = args[1];
@@ -32,10 +43,10 @@ const Caption = () => {
       const userName =
         renderListRef.current.renderList[textstream.uid]?.name || 'User';
 
-      if (textstream.seqnum === lastSeqRef.current) {
-        return;
-      }
-      lastSeqRef.current = textstream.seqnum;
+      // if (textstream.seqnum === lastSeqRef.current) {
+      //   return;
+      // }
+      // lastSeqRef.current = textstream.seqnum;
 
       //check if final & nonfinal list exists for the current user
       if (!finalList.current[textstream.uid]) {
@@ -62,12 +73,15 @@ const Caption = () => {
         // storing for transcript
         // outputStreamFinal.current +=
         //   userName + ':' + new Date().toLocaleString() + ' => ' + text1 + '\n';
-        const key = userName + ':' + new Date().toLocaleString();
+        //const key = userName + ':' + new Date().toLocaleString();
+        const key = userName + ':' + new Date().getTime();
         outputStreamFinal.current[key] = text1;
-        localStorage.setItem(
-          'fullTranscript',
-          JSON.stringify(outputStreamFinal.current),
-        );
+        setTranscript({[key]: text1});
+        updateInStorage(outputStreamFinal.current);
+        //   localStorage.setItem(
+        //     'fullTranscript',
+        //     JSON.stringify(outputStreamFinal.current),
+        //   );
       }
 
       console.log('Full Transcript : \n', outputStreamFinal.current);
@@ -81,8 +95,9 @@ const Caption = () => {
 
   React.useEffect(() => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
-    return () =>
-      RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback);
+    // below does not removes
+    // return () =>
+    //   RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback);
   }, []);
 
   React.useEffect(() => {
@@ -92,7 +107,12 @@ const Caption = () => {
   // console.log('stream: decoded', textstream);
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>{text}</Text>
+      <TranscriptText
+        user={text.split(':')[0]}
+        value={text.split(':')[1]}
+        containerStyle={styles.captionContainer}
+        nameContainerStyle={styles.nameContainer}
+      />
     </View>
   );
 };
@@ -106,6 +126,17 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
   },
   container: {
-    minHeight: ThemeConfig.FontSize.medium,
+    // minHeight: ThemeConfig.FontSize.medium,
+    marginLeft: 260,
+    maxWidth: 1000,
+    alignSelf: 'flex-start',
+  },
+  captionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nameContainer: {
+    marginRight: 10,
+    marginBottom: 0,
   },
 });

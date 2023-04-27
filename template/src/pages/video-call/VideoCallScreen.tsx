@@ -32,6 +32,7 @@ import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import Transcript from '../../subComponents/caption/Transcript';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -181,6 +182,7 @@ const VideoCallScreen = () => {
             <></>
           )}
           {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
+          {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
         </View>
         {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
           <></>

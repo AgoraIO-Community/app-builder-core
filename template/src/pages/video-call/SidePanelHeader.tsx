@@ -133,6 +133,21 @@ export const ChatHeader = () => {
   );
 };
 
+export const TranscriptHeader = (props) => {
+  const {setSidePanel} = useSidePanel();
+  const label = 'Meeting Transcript';
+  return (
+    <SidePanelHeader
+      centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
+      trailingIconName="close"
+      trailingIconOnPress={() => {
+        props.handleClose && props.handleClose();
+        setSidePanel(SidePanelType.None);
+      }}
+    />
+  );
+};
+
 const styles = StyleSheet.create({
   buttonHolder: {
     backgroundColor:
