@@ -21,7 +21,9 @@ export interface AppBuilderSdkApiInterface {
   joinRoom: (roomDetails: string | meetingData) => Promise<meetingData>;
   joinPrecall: (
     roomDetails: string | meetingData,
-  ) => Promise<[meetingData, () => void]>;
+  ) => Promise<
+    [meetingData, () => Promise<MeetingInfoContextInterface['data']>]
+  >;
   setMicrophone: (deviceId: deviceId) => Promise<void>;
   setCamera: (deviceId: deviceId) => Promise<void>;
   setSpeaker: (deviceId: deviceId) => Promise<void>;
@@ -50,8 +52,13 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     return await SDKMethodEventsManager.emit('join', roomDetails, true);
   },
   joinPrecall: async (roomDetails) => {
+    if (!$config.PRECALL)
+      throw new Error('Precall disabled in config, cant join precall');
     const t = await SDKMethodEventsManager.emit('join', roomDetails);
-    return t as unknown as [MeetingInfoContextInterface['data'], () => {}];
+    return t as unknown as [
+      MeetingInfoContextInterface['data'],
+      () => Promise<MeetingInfoContextInterface['data']>,
+    ];
   },
   setMicrophone: async (deviceId) => {
     return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
