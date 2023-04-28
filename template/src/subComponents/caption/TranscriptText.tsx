@@ -10,18 +10,32 @@ interface TranscriptTextProps {
   nameContainerStyle?: ViewStyle;
 }
 
+function formatTime(timestamp: number): string {
+  const d = new Date(timestamp);
+  const h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, '0');
+  const suffix = h >= 12 ? 'PM' : 'AM';
+  const H = h % 12 || 12;
+  return `${H}:${m} ${suffix}`;
+}
+
 export const TranscriptText = ({
   user,
   value,
   containerStyle = {},
   nameContainerStyle = {},
 }: TranscriptTextProps) => {
-  const name = user?.split(':')[0] || '';
+  const [name, time] = (user || '').split(':');
+  const t = formatTime(Number(time));
+
   return (
     <View key={user} style={[styles.textContainer, containerStyle]}>
       {name ? (
         <View style={[styles.nameContainer, nameContainerStyle]}>
-          <Text style={styles.name}> {name} :</Text>
+          <Text style={styles.name}>
+            {' '}
+            {name} : {time && t}
+          </Text>
         </View>
       ) : (
         <></>

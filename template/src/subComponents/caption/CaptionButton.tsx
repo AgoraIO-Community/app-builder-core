@@ -4,24 +4,24 @@ import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import StorageContext from '../../components/StorageContext';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
-import useTokenAuth from '../../auth/useTokenAuth';
 import Spacer from '../../atoms/Spacer';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {useCaption} from './useCaption';
 import {SidePanelType, useSidePanel} from 'customization-api';
 
+const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
+
 const startStopSTT = async (
-  isCaptionON: boolean,
   token: string,
   roomId: string,
   method: string,
-) => {
-  const response = await fetch(`${$config.BACKEND_ENDPOINT}/v1/stt/${method}`, {
+): Promise<string> => {
+  const response = await fetch(`${STT_API_URL}/${method}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-API-KEY': 'ACoac4ccff5c1ea40d29a97fb5b5bd63d78',
-      'X-Project-ID': $config.PROJECT_ID, // to be fetched from config
+      'X-Project-ID': $config.PROJECT_ID,
       authorization: token ? `Bearer ${token}` : '',
     },
     body: JSON.stringify({passphrase: roomId}),
@@ -36,8 +36,9 @@ const startStopSTT = async (
 
 const CaptionButton = () => {
   const {store, setStore} = React.useContext(StorageContext);
-  const {isCaptionON, setIsCaptionON} = useCaption();
-  const [isSTTActive, setIsSTTActive] = React.useState(false); // TODO: need to load initial value from query api
+  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive} =
+    useCaption();
+
   //local state for isactive
   const {
     data: {roomId, isHost},
@@ -46,26 +47,25 @@ const CaptionButton = () => {
   const {setSidePanel, sidePanel} = useSidePanel();
 
   const handleClick = async (method) => {
+    // handleSTT
     setIsCaptionON((prev) => !prev);
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
 
     try {
-      if (!(method === 'start' && isSTTActive === true)) {
-        const res = await startStopSTT(
-          isCaptionON,
-          store?.token || '',
-          roomId.host ? roomId.host : '',
-          method,
-        );
-        console.log('response after start/stop stt', res);
-      }
-
+      const res = await startStopSTT(
+        store?.token || '',
+        roomId.host ? roomId.host : '',
+        method,
+      );
+      console.log('response after start/stop stt', res); //TODO: log username of who started stt
+      // once STT is active in the channel , notify others so that they dont' trigger start again
       events.send(
         'handleCaption',
-        JSON.stringify({active: !isCaptionON}),
+        JSON.stringify({active: true}),
         EventPersistLevel.LEVEL2,
       );
-      setIsSTTActive(!isCaptionON);
+      setIsSTTActive(true);
     } catch (error) {
       console.log(error);
     }
@@ -74,7 +74,6 @@ const CaptionButton = () => {
   React.useEffect(() => {
     events.on('handleCaption', (data) => {
       const payload = JSON.parse(data?.payload);
-      //setIsCaptionON(payload.active);
       setIsSTTActive(payload.active);
     });
   }, []);

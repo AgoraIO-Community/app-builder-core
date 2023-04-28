@@ -3,19 +3,13 @@ import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
-import {
-  isMobileUA,
-  isWebInternal,
-  maxInputLimit,
-  useIsSmall,
-} from '../../utils/common';
+import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useCaption} from './useCaption';
-import ThemeConfig from '../../../src/theme';
 import {TranscriptText} from './TranscriptText';
 
-type Transcript = {
+export type Transcript = {
   [key: string]: string;
 };
 
@@ -28,38 +22,19 @@ const Transcript = (props: TranscriptProps) => {
   const {showHeader = true} = props;
   const {transcript} = useCaption();
 
-  const [fullTranscript, setFullTranscript] = React.useState<Transcript>({});
-
-  React.useEffect(() => {
-    const loadTranscript = async () => {
-      try {
-        const fullTranscript = await AsyncStorage.getItem('fullTranscript');
-        if (fullTranscript !== null) {
-          setFullTranscript(JSON.parse(fullTranscript));
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    loadTranscript();
-  }, []);
-
-  React.useEffect(() => {
-    const updateTranscript = async () => {
-      const newTranscript = {...fullTranscript, ...transcript};
-      setFullTranscript(newTranscript);
-    };
-    updateTranscript();
-  }, [transcript]);
-
+  // if we want to make transcript persistant after user refreshes
   // React.useEffect(() => {
-  //   const handleStorage = (e: StorageEvent) => {
-  //     if (e.key === 'fullTranscript') {
-  //       setTranscript(JSON.parse(e.newValue as string));
+  //   const loadTranscript = async () => {
+  //     try {
+  //       const fullTranscript = await AsyncStorage.getItem('fullTranscript');
+  //       if (fullTranscript !== null) {
+  //         setFullTranscript(JSON.parse(fullTranscript));
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
   //     }
   //   };
-  //   window.addEventListener('storage', handleStorage);
-  //   return () => window.removeEventListener('storage', handleStorage);
+  //   loadTranscript();
   // }, []);
 
   return (
@@ -79,7 +54,7 @@ const Transcript = (props: TranscriptProps) => {
       ]}>
       {showHeader && <TranscriptHeader />}
       <ScrollView style={styles.contentContainer}>
-        {Object.entries(fullTranscript).map(([key, value]) => (
+        {Object.entries(transcript).map(([key, value]) => (
           <TranscriptText user={key} value={value} />
         ))}
       </ScrollView>

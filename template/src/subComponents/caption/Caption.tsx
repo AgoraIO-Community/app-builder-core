@@ -12,13 +12,13 @@ const Caption = () => {
   const {renderList} = useRender();
   const {RtcEngine} = useRtc();
   const renderListRef = React.useRef({renderList});
-  const [text, setText] = React.useState(''); // state for current caption
-  const lastSeqRef = React.useRef<number>(-1); // stores last seg to verify we get new seq on each pass
+  const [text, setText] = React.useState(''); // state for current live caption
   const finalList = React.useRef<Object>({}); // holds transcript of final words of all users
   const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
   const outputStreamFinal = React.useRef<Object>({}); // store in localStorage to access previous captions
   const {setTranscript} = useCaption();
 
+  // if want to persist chat script after user refreshes the page
   const updateInStorage = async (obj) => {
     try {
       await AsyncStorage.setItem('fullTranscript', JSON.stringify(obj));
@@ -30,64 +30,53 @@ const Caption = () => {
   const handleStreamMessageCallback = (...args) => {
     console.group('StreamMessage Callback');
     console.warn(`Recived data stream for Platform : ${Platform.OS}`, args);
-    const uid = args[0];
-    const payload = args[1];
+    const [uid, payload] = args;
     //TODO: on native getting illegal buffer error , need to check RN SDK datastream api
     if (isWeb) {
-      let text1 = ''; // holds current caption
+      let currentCaption = ''; // holds current caption
       const textstream = protoRoot
         .lookupType('Text')
-        .decode(payload as unknown as Uint8Array) as any;
-      console.log('Decoded stream:', textstream);
+        .decode(payload as Uint8Array) as any;
+
       const words = textstream.words;
       const userName =
-        renderListRef.current.renderList[textstream.uid]?.name || 'User';
+        renderListRef.current.renderList[textstream.uid]?.name || 'Speaker';
+      console.log(
+        `Decoded stream for ${userName} (${textstream.uid}) :`,
+        textstream,
+      );
 
-      // if (textstream.seqnum === lastSeqRef.current) {
-      //   return;
+      //check if we can use the nonfinal words to show live caption and when final words is there we compare and update that
+      // if (!finalList.current[textstream.uid]) {
+      //   finalList.current[textstream.uid] = [];
       // }
-      // lastSeqRef.current = textstream.seqnum;
+      // if (!nonfinalList.current[textstream.uid]) {
+      //   nonfinalList.current[textstream.uid] = [];
+      // }
 
-      //check if final & nonfinal list exists for the current user
-      if (!finalList.current[textstream.uid]) {
-        finalList.current[textstream.uid] = [];
-      }
-      if (!nonfinalList.current[textstream.uid]) {
-        nonfinalList.current[textstream.uid] = [];
-      }
-
-      // categorize words into final & nonFinal objects
+      // categorize words into final & nonFinal objects per uid
       words.map((word) => {
         if (word.isFinal) {
-          finalList.current[textstream.uid].push(word.text);
-          // if (isSentenceBoundaryWord(word.text)) {
-          //   finalList.current[textstream.uid] = [];
-          // }
-          text1 = word.text;
+          //    finalList.current[textstream.uid].push(word.text);
+          currentCaption = word.text;
         } else {
-          nonfinalList.current[textstream.uid].push(word.text);
+          //   nonfinalList.current[textstream.uid].push(word.text);
+          // verify if we can use the nonfinalList to update the live caption text of a particular user so that there is less latency
         }
       });
 
-      if (text1.length) {
-        // storing for transcript
-        // outputStreamFinal.current +=
-        //   userName + ':' + new Date().toLocaleString() + ' => ' + text1 + '\n';
-        //const key = userName + ':' + new Date().toLocaleString();
+      if (currentCaption.length) {
+        setText(`${userName} : ${currentCaption}`);
         const key = userName + ':' + new Date().getTime();
-        outputStreamFinal.current[key] = text1;
-        setTranscript({[key]: text1});
-        updateInStorage(outputStreamFinal.current);
-        //   localStorage.setItem(
-        //     'fullTranscript',
-        //     JSON.stringify(outputStreamFinal.current),
-        //   );
-      }
+        //outputStreamFinal.current[key] = currentCaption;
+        setTranscript((prevTranscript) => {
+          return {
+            ...prevTranscript,
+            [key]: currentCaption,
+          };
+        });
 
-      console.log('Full Transcript : \n', outputStreamFinal.current);
-
-      if (text1) {
-        setText(`${userName} : ${text1}`);
+        // updateInStorage(outputStreamFinal.current);
       }
     }
     console.groupEnd();
@@ -95,16 +84,12 @@ const Caption = () => {
 
   React.useEffect(() => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
-    // below does not removes
-    // return () =>
-    //   RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback);
   }, []);
 
   React.useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
 
-  // console.log('stream: decoded', textstream);
   return (
     <View style={styles.container}>
       <TranscriptText
