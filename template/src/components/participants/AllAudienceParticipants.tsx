@@ -3,10 +3,10 @@ import {Text} from 'react-native';
 import chatContext from '../ChatContext';
 import {useString} from '../../utils/useString';
 import {
-  RenderInterface,
+  ContentInterface,
   UidType,
   useRoomInfo,
-  useRender,
+  useContent,
 } from 'customization-api';
 import Participant from './Participant';
 import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
@@ -23,24 +23,24 @@ const AllAudienceParticipants = (props: any) => {
     updateActionSheet,
     emptyMessage,
   } = props;
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {localUid} = useContext(chatContext);
   //commented for v1 release
   //const participantListPlaceholder = useString('participantListPlaceholder')();
   const remoteUserDefaultLabel = 'User';
   const getParticipantName = (uid: UidType) => {
-    return renderList[uid]?.name || remoteUserDefaultLabel;
+    return defaultContent[uid]?.name || remoteUserDefaultLabel;
   };
   const {
     data: {isHost},
   } = useRoomInfo();
   const {hostUids} = useLiveStreamDataContext();
 
-  const renderScreenShare = (user: RenderInterface) => {
+  const renderScreenShare = (user: ContentInterface) => {
     if (screenShareData[user.screenUid]?.isActive) {
       return (
         <ScreenshareParticipants
-          user={renderList[user.screenUid]}
+          user={defaultContent[user.screenUid]}
           key={user.screenUid}
         />
       );
@@ -75,15 +75,15 @@ const AllAudienceParticipants = (props: any) => {
               <Participant
                 isLocal={true}
                 name={getParticipantName(localUid)}
-                user={renderList[localUid]}
+                user={defaultContent[localUid]}
                 isAudienceUser={
                   $config.EVENT_MODE && hostUids.indexOf(localUid) !== -1
                     ? false
                     : true
                 }
                 showControls={
-                  (renderList[localUid]?.type === 'rtc' && isHost) ||
-                  (renderList[localUid]?.type === 'rtc' &&
+                  (defaultContent[localUid]?.type === 'rtc' && isHost) ||
+                  (defaultContent[localUid]?.type === 'rtc' &&
                     $config.EVENT_MODE &&
                     hostUids.indexOf(localUid) !== -1)
                     ? true
@@ -95,7 +95,7 @@ const AllAudienceParticipants = (props: any) => {
                 handleClose={handleClose}
                 updateActionSheet={updateActionSheet}
               />
-              {renderScreenShare(renderList[localUid])}
+              {renderScreenShare(defaultContent[localUid])}
             </>
           ) : (
             <></>
@@ -108,8 +108,8 @@ const AllAudienceParticipants = (props: any) => {
                 <Participant
                   isLocal={false}
                   name={getParticipantName(uid)}
-                  user={renderList[uid]}
-                  showControls={renderList[uid]?.type === 'rtc' && isHost}
+                  user={defaultContent[uid]}
+                  showControls={defaultContent[uid]?.type === 'rtc' && isHost}
                   isAudienceUser={true}
                   isHostUser={false}
                   key={uid}
@@ -117,7 +117,7 @@ const AllAudienceParticipants = (props: any) => {
                   handleClose={handleClose}
                   updateActionSheet={updateActionSheet}
                 />
-                {renderScreenShare(renderList[uid])}
+                {renderScreenShare(defaultContent[uid])}
               </>
             ))}
         </>

@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
 
 /**
@@ -17,9 +17,9 @@ import {UidType} from '../../agora-rn-uikit';
  * @returns function
  */
 function useIsActiveSpeaker() {
-  const {activeSpeaker, renderList} = useRender();
+  const {activeSpeaker, defaultContent} = useContent();
   const isActiveSpeaker = (uid: UidType) => {
-    return renderList[uid].audio && activeSpeaker === uid;
+    return defaultContent[uid].audio && activeSpeaker === uid;
   };
   return isActiveSpeaker;
 }

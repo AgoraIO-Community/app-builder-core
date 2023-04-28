@@ -12,7 +12,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {
   DispatchContext,
-  RenderInterface,
+  ContentInterface,
   useLocalUid,
 } from '../../agora-rn-uikit';
 import {useString} from '../utils/useString';
@@ -108,7 +108,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };

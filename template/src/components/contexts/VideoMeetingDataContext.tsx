@@ -12,7 +12,7 @@ import {useRoomInfo} from '../room-info/useRoomInfo';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import ChatContext from '../ChatContext';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 
 export interface VideoMeetingDataInterface {
   hostUids: UidType[];
@@ -30,7 +30,7 @@ const VideoMeetingDataProvider = (props: VideoMeetingDataProviderProps) => {
   const {
     data: {isHost},
   } = useRoomInfo();
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {hasUserJoinedRTM} = useContext(ChatContext);
   const localUid = useLocalUid();
   const [hostUids, setHostUids] = useState<UidType[]>([]);

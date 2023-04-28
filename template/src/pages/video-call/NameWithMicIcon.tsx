@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import ThemeConfig from '../../theme';
 import ImageIcon from '../../atoms/ImageIcon';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {isMobileUA, isWeb, useIsSmall} from '../../utils/common';
 import {getGridLayoutName} from './DefaultLayouts';
 import {useVideoContainer} from './VideoRenderer';
@@ -13,7 +13,7 @@ export interface NameWithMicIconProps {
 }
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {videoTileWidth} = useVideoContainer();
   const {currentLayout} = useLayout();
   const reduceSpace =

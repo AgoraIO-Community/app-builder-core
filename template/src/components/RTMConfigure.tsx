@@ -12,13 +12,18 @@
 // @ts-nocheck
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import RtmEngine from 'agora-react-native-rtm';
-import {DispatchContext, PropsContext, useLocalUid} from '../../agora-rn-uikit';
+import {
+  ContentInterface,
+  DispatchContext,
+  PropsContext,
+  useLocalUid,
+} from '../../agora-rn-uikit';
 import ChatContext from './ChatContext';
 import {Platform} from 'react-native';
 import {backOff} from 'exponential-backoff';
 import {useString} from '../utils/useString';
 import {isAndroid, isWeb, isWebInternal} from '../utils/common';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {
   safeJsonParse,
   timeNow,
@@ -41,8 +46,8 @@ const RtmConfigure = (props: any) => {
   const {callActive} = props;
   const {rtcProps} = useContext(PropsContext);
   const {dispatch} = useContext(DispatchContext);
-  const {renderList, activeUids} = useRender();
-  const renderListRef = useRef({renderList: renderList});
+  const {defaultContent, activeUids} = useContent();
+  const defaultContentRef = useRef({defaultContent: defaultContent});
   const activeUidsRef = useRef({activeUids: activeUids});
 
   /**
@@ -54,8 +59,8 @@ const RtmConfigure = (props: any) => {
   }, [activeUids]);
 
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   const [login, setLogin] = useState<boolean>(false);
 
@@ -76,10 +81,13 @@ const RtmConfigure = (props: any) => {
   React.useEffect(() => {
     setTotalOnlineUsers(
       Object.keys(
-        filterObject(renderList, ([k, v]) => v?.type === 'rtc' && !v.offline),
+        filterObject(
+          defaultContent,
+          ([k, v]) => v?.type === 'rtc' && !v.offline,
+        ),
       ).length,
     );
-  }, [renderList]);
+  }, [defaultContent]);
 
   React.useEffect(() => {
     const handBrowserClose = (ev) => {
@@ -162,7 +170,7 @@ const RtmConfigure = (props: any) => {
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };

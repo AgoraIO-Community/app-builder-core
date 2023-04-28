@@ -14,11 +14,11 @@ import {networkIconsObject} from '../components/NetworkQualityContext';
 //import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
 import {isMobileUA, isWebInternal} from '../utils/common';
 import NetworkQualityContext from '../components/NetworkQualityContext';
-import {RenderInterface, UidType} from '../../agora-rn-uikit';
+import {ContentInterface, UidType} from '../../agora-rn-uikit';
 import ThemeConfig from '../theme';
 import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 
 /**
@@ -36,7 +36,7 @@ interface NetworkQualityPillProps {
 }
 const NetworkQualityPill = (props: NetworkQualityPillProps) => {
   const {uid} = props;
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
   //commented for v1 release
   //const getLabel = useString<NetworkQualities>('networkQualityLabel');
@@ -63,10 +63,10 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
   const networkQualityStat = useContext(NetworkQualityContext);
   const networkStat = networkQualityStat[uid]
     ? networkQualityStat[uid]
-    : renderList[uid]?.audio || renderList[uid]?.video
+    : defaultContent[uid]?.audio || defaultContent[uid]?.video
     ? 8
     : 7;
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {currentLayout} = useLayout();
   const reduceSpace =
     isMobileUA() &&

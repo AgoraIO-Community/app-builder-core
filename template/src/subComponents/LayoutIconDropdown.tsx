@@ -7,7 +7,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import Spacer from '../atoms/Spacer';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {getPinnedLayoutName} from '../pages/video-call/DefaultLayouts';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 
 interface LayoutIconDropdownProps {
@@ -35,7 +35,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
     modalPosition = {top: 0, left: 0},
     onHoverPlaceHolder = 'horizontal',
   } = props;
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();
   const isMobileView = isMobileUA();

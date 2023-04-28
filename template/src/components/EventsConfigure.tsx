@@ -17,7 +17,7 @@ import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
 import TertiaryButton from '../atoms/TertiaryButton';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
 import {isWebInternal, trimText} from '../utils/common';
@@ -31,12 +31,12 @@ const EventsConfigure: React.FC<Props> = (props) => {
   const {setStore} = useContext(StorageContext);
   const {RtcEngineUnsafe} = useContext(RtcContext);
   const {dispatch} = useContext(DispatchContext);
-  const {renderList} = useRender();
-  const renderListRef = useRef({renderList});
+  const {defaultContent} = useContent();
+  const defaultContentRef = useRef({defaultContent});
   const {phrase} = useParams<{phrase: string}>();
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
   useEffect(() => {
     //user joined event listener
     // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
@@ -55,7 +55,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
       Toast.show({
         type: 'info',
         // text1: `${
-        //   renderListRef.current.renderList[sender].name || 'The host'
+        //   defaultContentRef.current.defaultContent[sender].name || 'The host'
         // } muted you.`,
         text1: 'The host has muted your video.',
         visibilityTime: 3000,
@@ -74,7 +74,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
       Toast.show({
         type: 'info',
         // text1: `${
-        //   renderListRef.current.renderList[sender].name || 'The host'
+        //   defaultContentRef.current.defaultContent[sender].name || 'The host'
         // } muted you.`,
         text1: 'The host has muted your audio.',
         visibilityTime: 3000,

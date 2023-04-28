@@ -30,7 +30,7 @@ import ChatBubble from './ChatBubble';
 import {ChatBubbleProps} from '../components/ChatContext';
 import {
   DispatchContext,
-  RenderInterface,
+  ContentInterface,
   useLocalUid,
 } from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
@@ -41,7 +41,7 @@ import {
   ChatType,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {useChatMessages} from '../components/chat-messages/useChatMessages';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import ThemeConfig from '../theme';
@@ -61,7 +61,7 @@ const ChatContainer = (props?: {
   const {dispatch} = useContext(DispatchContext);
   const [grpUnreadCount, setGrpUnreadCount] = useState(0);
   const [privateUnreadCount, setPrivateUnreadCount] = useState(0);
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {messageStore, privateMessageStore} = useChatMessages();
   const messageStoreLengthRef = useRef(messageStore.length);
   const {height, width} = useWindowDimensions();
@@ -106,7 +106,7 @@ const ChatContainer = (props?: {
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
@@ -181,14 +181,14 @@ const ChatContainer = (props?: {
           <View style={style.participantContainer}>
             <View style={style.bgContainerStyle}>
               <UserAvatar
-                name={renderList[privateChatUser].name}
+                name={defaultContent[privateChatUser].name}
                 containerStyle={style.userAvatarContainer}
                 textStyle={style.userAvatarText}
               />
             </View>
             <View style={style.participantTextContainer}>
               <Text style={[style.participantText]} numberOfLines={1}>
-                {renderList[privateChatUser].name}
+                {defaultContent[privateChatUser].name}
               </Text>
             </View>
           </View>
@@ -298,7 +298,7 @@ const ChatContainer = (props?: {
         ) : (
           <></>
         )}
-        {renderList[privateChatUser]?.offline && (
+        {defaultContent[privateChatUser]?.offline && (
           <View style={style.infoTextView}>
             <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>

@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import useLayoutsData from './useLayoutsData';
 import {isArray, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
 
@@ -11,7 +11,7 @@ const VideoComponent = () => {
   const [layout, setLayoutIndex] = useState(0);
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
-  const {activeUids, pinnedUid} = useRender();
+  const {activeUids, pinnedUid} = useContent();
 
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {

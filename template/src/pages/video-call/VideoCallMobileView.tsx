@@ -12,7 +12,7 @@ import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
 import {isAndroid, isWebInternal, trimText} from '../../utils/common';
 import {ToggleState, useLocalUid} from '../../../agora-rn-uikit';
-import {useLocalUserInfo, useRender} from 'customization-api';
+import {useLocalUserInfo, useContent} from 'customization-api';
 
 const VideoCallMobileView = () => {
   const {

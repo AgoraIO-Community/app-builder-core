@@ -3,7 +3,7 @@ import {View, StyleSheet, Platform} from 'react-native';
 import {
   DispatchContext,
   PropsContext,
-  RenderInterface,
+  ContentInterface,
   UidType,
 } from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
@@ -12,7 +12,7 @@ import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
 import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
@@ -21,13 +21,13 @@ import ThemeConfig from '../../theme';
 import {createHook} from 'customization-implementation';
 
 interface VideoRendererProps {
-  user: RenderInterface;
+  user: ContentInterface;
   isMax?: boolean;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {dispatch} = useContext(DispatchContext);
   const isActiveSpeaker = useIsActiveSpeaker();
-  const {pinnedUid, activeUids} = useRender();
+  const {pinnedUid, activeUids} = useContent();
   const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
@@ -147,7 +147,7 @@ interface MoreMenuProps {
   videoMoreMenuRef: any;
 }
 const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {currentLayout} = useLayout();
   const reduceSpace =
     isMobileUA() &&

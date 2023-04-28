@@ -13,13 +13,13 @@ import React from 'react';
 export type {ChatBubbleProps} from '../src/components/ChatContext';
 import {ChatBubbleProps} from '../src/components/ChatContext';
 import {
-  RenderInterface,
-  RenderStateInterface,
+  ContentInterface,
+  ContentStateInterface,
   UidType,
 } from '../agora-rn-uikit';
 import {I18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../src/atoms/CustomIcon';
-export type {RenderInterface, RenderStateInterface, UidType};
+export type {ContentInterface, ContentStateInterface, UidType};
 export type {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {ChatTextInputProps} from '../src/subComponents/ChatInput';
 
@@ -48,7 +48,7 @@ export interface ChatCmpInterface {
 }
 
 export type layoutComponent = React.ComponentType<{
-  renderData: RenderStateInterface['activeUids'];
+  renderData: ContentStateInterface['activeUids'];
 }>;
 
 export interface layoutItem {

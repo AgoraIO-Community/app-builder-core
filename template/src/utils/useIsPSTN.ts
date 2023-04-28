@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {UidType} from '../../agora-rn-uikit';
 
 /**
@@ -17,14 +17,14 @@ import {UidType} from '../../agora-rn-uikit';
  * @returns function
  */
 function useIsPSTN() {
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   /**
    *
    * @param uid number
    * @returns boolean
    */
   const isPSTN = (uid: UidType) =>
-    !renderList[uid] && String(uid)[0] === '1' ? true : false;
+    !defaultContent[uid] && String(uid)[0] === '1' ? true : false;
   return isPSTN;
 }
 

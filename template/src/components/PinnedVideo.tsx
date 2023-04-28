@@ -19,7 +19,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {layoutComponent, useLocalUid, useRender} from 'customization-api';
+import {layoutComponent, useLocalUid, useContent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -28,7 +28,7 @@ import {DispatchContext} from '../../agora-rn-uikit';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid, activeUids, renderList, activeSpeaker} = useRender();
+  const {pinnedUid, activeUids, defaultContent, activeSpeaker} = useContent();
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
   const {width, height} = useWindowDimensions();
@@ -49,15 +49,15 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
 
     const remoteScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
       return (
-        renderList[uid].type === 'screenshare' &&
-        renderList[uid].parentUid !== localUid
+        defaultContent[uid].type === 'screenshare' &&
+        defaultContent[uid].parentUid !== localUid
       );
     });
 
     const localScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
       return (
-        renderList[uid].type === 'screenshare' &&
-        renderList[uid].parentUid === localUid
+        defaultContent[uid].type === 'screenshare' &&
+        defaultContent[uid].parentUid === localUid
       );
     });
     if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
@@ -65,7 +65,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
     }
 
     const restOfTheUids = nonActiveSpeakerUids.filter(
-      (uid) => renderList[uid].type !== 'screenshare',
+      (uid) => defaultContent[uid].type !== 'screenshare',
     );
 
     /**
@@ -88,7 +88,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
     ].filter((uid) => uid !== undefined && uid !== 0);
 
     setUids(updatedOrder);
-  }, [activeUids, renderList, activeSpeaker, pinnedUid]);
+  }, [activeUids, defaultContent, activeSpeaker, pinnedUid]);
 
   return (
     <View

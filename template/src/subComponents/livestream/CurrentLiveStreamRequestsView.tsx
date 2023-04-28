@@ -7,7 +7,7 @@ import {filterObject} from '../../utils/index';
 import ParticipantSectionTitle from '../../components/participants/ParticipantSectionTitle';
 import {useString} from '../../utils/useString';
 import {ClientRole} from '../../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import Spacer from '../../atoms/Spacer';
 
@@ -23,7 +23,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
   const remoteUserDefaultLabel = 'User';
   const noUserFoundLabel = 'User not found';
   const raisedHandsListTitleLabel = 'Streaming Request';
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const {raiseHandList, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
   const [activeLiveStreamRequests, setActiveLiveStreamRequests] =
@@ -73,11 +73,11 @@ const CurrentLiveStreamRequestsView = (props: any) => {
           {showRequestSection ? (
             Object.keys(activeLiveStreamRequests).map(
               (userUID: any, index: number) =>
-                renderList[userUID] ? (
+                defaultContent[userUID] ? (
                   <View style={styles.container}>
                     <View style={styles.userInfoContainer}>
                       <UserAvatar
-                        name={renderList[userUID].name}
+                        name={defaultContent[userUID].name}
                         containerStyle={containerStyle}
                         textStyle={textStyle}
                       />
@@ -85,7 +85,7 @@ const CurrentLiveStreamRequestsView = (props: any) => {
                         <Text
                           style={styles.participantNameText}
                           numberOfLines={1}>
-                          {renderList[userUID].name}
+                          {defaultContent[userUID].name}
                         </Text>
                       </View>
                     </View>

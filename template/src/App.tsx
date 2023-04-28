@@ -43,7 +43,7 @@ if (Platform.OS === 'ios') {
 
 //Extending the UI Kit Type defintion to add custom attribute to render interface
 declare module 'agora-rn-uikit' {
-  interface DefaultRenderInterface {
+  interface DefaultContentInterface {
     name: string;
     screenUid: number;
     offline: boolean;

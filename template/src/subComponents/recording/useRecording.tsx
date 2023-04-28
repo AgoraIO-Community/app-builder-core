@@ -28,7 +28,7 @@ import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventActions, EventNames} from '../../rtm-events';
 import useRecordingLayoutQuery from './useRecordingLayoutQuery';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {trimText} from '../../utils/common';
 
 export interface RecordingContextInterface {
@@ -89,7 +89,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
   const {setRecordingActive, isRecordingActive} = props?.value;
   const [inProgress, setInProgress] = useState(false);
   const [uidWhoStarted, setUidWhoStarted] = useState(0);
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids} = useContent();
   const {phrase} = useParams<{phrase: string}>();
   const [startRecordingQuery] = useMutation(START_RECORDING);
   const [stopRecordingQuery] = useMutation(STOP_RECORDING);
@@ -143,7 +143,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         text1: recordingStartedText(isRecordingActive),
         text2: isRecordingActive
           ? `This room is being recorded by ${
-              trimText(renderList[uidWhoStarted]?.name) || 'user'
+              trimText(defaultContent[uidWhoStarted]?.name) || 'user'
             }`
           : '',
         visibilityTime: 3000,

@@ -22,12 +22,12 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import {useString} from '../../utils/useString';
 import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {filterObject} from '../../utils';
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch} = useContext(DispatchContext);
-  const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
+  const {defaultContent, activeUids, lastJoinedUid, pinnedUid} = useContent();
   const isPinned = useRef(0);
   const {setScreenShareData, screenShareData} = useScreenContext();
   // commented for v1 release
@@ -38,7 +38,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const setPinnedLayout = useSetPinnedLayout();
   const changeLayout = useChangeDefaultLayout();
   const {currentLayout} = useLayout();
-  const renderListRef = useRef({renderList: renderList});
+  const defaultContentRef = useRef({defaultContent: defaultContent});
   const currentLayoutRef = useRef({currentLayout: currentLayout});
 
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
@@ -48,8 +48,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   }, [pinnedUid]);
 
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   useEffect(() => {
     currentLayoutRef.current.currentLayout = currentLayout;
@@ -99,14 +99,15 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       const value = payload.value;
 
       const screenUidOfUser =
-        renderListRef.current.renderList[data.sender].screenUid;
+        defaultContentRef.current.defaultContent[data.sender].screenUid;
       switch (action) {
         case EventActions.SCREENSHARE_STARTED:
           setScreenShareData((prevState) => {
             return {
               ...prevState,
               [screenUidOfUser]: {
-                name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                name: defaultContentRef.current.defaultContent[screenUidOfUser]
+                  ?.name,
                 isActive: true,
                 ts: value || 0,
               },
@@ -118,7 +119,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             return {
               ...prevState,
               [screenUidOfUser]: {
-                name: renderListRef.current.renderList[screenUidOfUser]?.name,
+                name: defaultContentRef.current.defaultContent[screenUidOfUser]
+                  ?.name,
                 isActive: false,
                 ts: value || 0,
               },

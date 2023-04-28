@@ -1,12 +1,12 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import useRemoteMute, {MUTE_REMOTE_TYPE} from '../../utils/useRemoteMute';
 import {
-  RenderInterface,
+  ContentInterface,
   SidePanelType,
   useLayout,
   useLocalUid,
   useRoomInfo,
-  useRender,
+  useContent,
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
@@ -35,7 +35,7 @@ import RemoteMutePopup from '../../subComponents/RemoteMutePopup';
 import {calculatePosition, trimText} from '../../utils/common';
 
 interface UserActionMenuOptionsOptionsProps {
-  user: RenderInterface;
+  user: ContentInterface;
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: any;
@@ -55,7 +55,7 @@ export default function UserActionMenuOptionsOptions(
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
-  const {pinnedUid, activeUids} = useRender();
+  const {pinnedUid, activeUids} = useContent();
   const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
   const localuid = useLocalUid();

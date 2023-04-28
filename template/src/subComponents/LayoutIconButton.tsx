@@ -8,7 +8,7 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {isMobileUA} from '../utils/common';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {useWindowDimensions} from 'react-native';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 
 interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
@@ -16,7 +16,7 @@ interface LayoutIconButtonInterface {
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();

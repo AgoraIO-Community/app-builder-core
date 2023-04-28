@@ -14,7 +14,7 @@ import {isIOS, isMobileUA, isWebInternal} from '../../utils/common';
 import {useChatNotification} from '../../components/chat-notification/useChatNotification';
 import {UidType, useLocalUid} from '../../../agora-rn-uikit';
 import ImageIcon from '../../atoms/ImageIcon';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import UserAvatar from '../../atoms/UserAvatar';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
@@ -35,7 +35,7 @@ const ChatParticipants = (props: any) => {
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
-  const {renderList, activeUids} = useRender();
+  const {defaultContent, activeUids} = useContent();
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isMobile = isMobileUA();
@@ -50,7 +50,7 @@ const ChatParticipants = (props: any) => {
       ) : (
         <></>
       )}
-      {Object.keys(renderList)
+      {Object.keys(defaultContent)
         .map((i) => parseInt(i))
         .filter((i) => {
           try {
@@ -58,7 +58,7 @@ const ChatParticipants = (props: any) => {
               return false;
             } else {
               const userId = i;
-              const userInfo = renderList[userId];
+              const userInfo = defaultContent[userId];
               return (
                 userId !== localUid && //user can't chat with own user
                 // @ts-ignore
@@ -73,14 +73,14 @@ const ChatParticipants = (props: any) => {
         })
         .sort((a, b) => {
           return (
-            renderList[b]?.lastMessageTimeStamp -
-            renderList[a]?.lastMessageTimeStamp
+            defaultContent[b]?.lastMessageTimeStamp -
+            defaultContent[a]?.lastMessageTimeStamp
           );
         })
         .map((uid) => {
           const uidAsNumber = uid;
-          const name = renderList[uidAsNumber]
-            ? renderList[uidAsNumber].name + ''
+          const name = defaultContent[uidAsNumber]
+            ? defaultContent[uidAsNumber].name + ''
             : remoteUserDefaultLabel;
           return (
             <PlatformWrapper key={'chat-participant' + uid}>

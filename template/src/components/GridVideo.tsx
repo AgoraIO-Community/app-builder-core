@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import {layoutComponent, useRender} from 'customization-api';
+import {layoutComponent, useContent} from 'customization-api';
 import React, {useContext, useMemo, useState} from 'react';
 import {View, StyleSheet, Pressable, Text} from 'react-native';
 import {isWebInternal, useIsDesktop} from '../utils/common';
@@ -37,7 +37,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
 const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(

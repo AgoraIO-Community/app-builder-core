@@ -37,12 +37,12 @@ import SidePanelHeader, {
   SidePanelStyles,
 } from '../subComponents/SidePanelHeader';
 import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
-import {useLayout, useRender} from 'customization-api';
+import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
 
 const ParticipantView = (props) => {
-  const {activeUids} = useRender();
+  const {activeUids} = useContent();
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     attendeeUids: attendeeUidsVideoMeeting,

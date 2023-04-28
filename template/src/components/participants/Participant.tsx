@@ -13,7 +13,7 @@ import React, {useContext, useRef, useState} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import RemoteAudioMute from '../../subComponents/RemoteAudioMute';
 import RemoteVideoMute from '../../subComponents/RemoteVideoMute';
-import {ClientRole, RenderInterface} from '../../../agora-rn-uikit';
+import {ClientRole, ContentInterface} from '../../../agora-rn-uikit';
 import UserAvatar from '../../atoms/UserAvatar';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
@@ -42,7 +42,7 @@ import {useLiveStreamDataContext} from '../contexts/LiveStreamDataContext';
 import {
   SidePanelType,
   useLayout,
-  useRender,
+  useContent,
   useSidePanel,
 } from 'customization-api';
 import {getPinnedLayoutName} from '../../pages/video-call/DefaultLayouts';
@@ -50,7 +50,7 @@ import UserActionMenuOptionsOptions from './UserActionMenuOptions';
 interface ParticipantInterface {
   isLocal: boolean;
   name: string;
-  user: RenderInterface;
+  user: ContentInterface;
   showControls: boolean;
   isHostUser: boolean;
   isAudienceUser: boolean;

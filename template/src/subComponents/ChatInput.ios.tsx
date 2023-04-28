@@ -21,7 +21,7 @@ import {
   ChatType,
   useChatUIControls,
 } from '../components/chat-ui/useChatUIControls';
-import {useRender, useUserName} from 'customization-api';
+import {useContent, useUserName} from 'customization-api';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import {BottomSheetTextInput} from '@gorhom/bottom-sheet';
@@ -72,7 +72,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const {privateChatUser, message, setMessage, chatType, inputActive} =
     useChatUIControls();
   const {sendChatMessage} = useChatMessages();
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   //commented for v1 release
   // const chatMessageInputPlaceholder = useString(
   //   'chatMessageInputPlaceholder',
@@ -80,7 +80,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   const [name] = useUserName();
   const chatMessageInputPlaceholder =
     chatType === ChatType.Private
-      ? `Private Message to ${renderList[privateChatUser].name}`
+      ? `Private Message to ${defaultContent[privateChatUser].name}`
       : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import VideoRenderer from './VideoRenderer';
 import {UidType} from '../../../agora-rn-uikit';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {useCustomization} from 'customization-implementation';
 import {isValidReactComponent} from '../../utils/common';
 
@@ -16,10 +16,10 @@ interface RenderComponentProps {
   isMax?: boolean;
 }
 const RenderComponent = ({uid, isMax = false}: RenderComponentProps) => {
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const RenderComp = DefaultRenderComponent['rtc'];
 
-  return <RenderComp user={renderList[uid]} isMax={isMax} />;
+  return <RenderComp user={defaultContent[uid]} isMax={isMax} />;
 };
 
 export default RenderComponent;

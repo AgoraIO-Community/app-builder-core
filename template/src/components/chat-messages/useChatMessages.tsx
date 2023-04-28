@@ -11,12 +11,12 @@
 */
 import {createHook} from 'customization-implementation';
 import React, {useState, useEffect, useRef, useContext} from 'react';
-import {useRender} from 'customization-api';
+import {useContent} from 'customization-api';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {
   useLocalUid,
   UidType,
-  RenderInterface,
+  ContentInterface,
   DispatchContext,
 } from '../../../agora-rn-uikit';
 import events, {PersistanceLevel} from '../../rtm-events-api';
@@ -69,7 +69,7 @@ const ChatMessagesContext = React.createContext<ChatMessagesInterface>({
 
 const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {dispatch} = useContext(DispatchContext);
-  const {renderList} = useRender();
+  const {defaultContent} = useContent();
   const localUid = useLocalUid();
   const {setSidePanel} = useSidePanel();
   const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
@@ -86,7 +86,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
     [key: string]: messageStoreInterface[];
   }>({});
 
-  const renderListRef = useRef({renderList: renderList});
+  const defaultContentRef = useRef({defaultContent: defaultContent});
   const groupActiveRef = useRef<boolean>();
   const individualActiveRef = useRef<string | number>();
 
@@ -95,8 +95,8 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const fromText = (name: string) => `${name} commented in the public chat`;
   const privateMessageLabel = 'You’ve received a private message';
   useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+    defaultContentRef.current.defaultContent = defaultContent;
+  }, [defaultContent]);
 
   useEffect(() => {
     groupActiveRef.current = chatType === ChatType.Group;
@@ -126,7 +126,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
 
   const updateRenderListState = (
     uid: number,
-    data: Partial<RenderInterface>,
+    data: Partial<ContentInterface>,
   ) => {
     dispatch({type: 'UpdateRenderList', value: [uid, data]});
   };
@@ -152,9 +152,11 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
         type: 'info',
         text1: isPrivateMessage
           ? privateMessageLabel
-          : renderListRef.current.renderList[uidAsNumber]?.name
+          : defaultContentRef.current.defaultContent[uidAsNumber]?.name
           ? fromText(
-              trimText(renderListRef.current.renderList[uidAsNumber]?.name),
+              trimText(
+                defaultContentRef.current.defaultContent[uidAsNumber]?.name,
+              ),
             )
           : '',
         text2: isPrivateMessage

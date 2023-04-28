@@ -17,7 +17,7 @@ import {useRoomInfo} from '../room-info/useRoomInfo';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {SidePanelType, useRender, useSidePanel} from 'customization-api';
+import {SidePanelType, useContent, useSidePanel} from 'customization-api';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import {trimText} from '../../utils/common';
@@ -33,9 +33,9 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   const screenshareContextInstanceRef = useRef<any>();
   screenshareContextInstanceRef.current = screenshareContextInstance;
 
-  const {renderList} = useRender();
-  const renderListRef = useRef<any>();
-  renderListRef.current = renderList;
+  const {defaultContent} = useContent();
+  const defaultContentRef = useRef<any>();
+  defaultContentRef.current = defaultContent;
 
   const [raiseHandList, setRaiseHandList] = useState<raiseHandListInterface>(
     {},
@@ -56,8 +56,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   }, [sidePanel]);
 
   React.useEffect(() => {
-    renderListRef.current = renderList;
-  }, [renderList]);
+    defaultContentRef.current = defaultContent;
+  }, [defaultContent]);
 
   React.useEffect(() => {
     raiseHandListRef.current = raiseHandList;
@@ -75,7 +75,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     let newRaiseHandList = raiseHandList;
     const data = Object.keys(
       filterObject(
-        renderList,
+        defaultContent,
         ([k, v]) => v?.type === 'rtc' && v.offline === true,
       ),
     );
@@ -91,7 +91,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
           setRaiseHandList(newRaiseHandList);
         }
       });
-  }, [renderList]);
+  }, [defaultContent]);
 
   const localUid = useLocalUid();
   const localUidRef = useRef<any>();
@@ -168,8 +168,8 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
   };
 
   const getAttendeeName = (uid: number | string) => {
-    return renderListRef.current?.[uid]?.name
-      ? renderListRef.current[uid].name
+    return defaultContentRef.current?.[uid]?.name
+      ? defaultContentRef.current[uid].name
       : 'user';
   };
 
