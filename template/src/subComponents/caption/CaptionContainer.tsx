@@ -4,11 +4,12 @@ import React from 'react';
 import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
+import {isMobileUA} from '../../utils/common';
 
 const CaptionContainer = () => {
   const {isCaptionON} = useCaption();
   return isCaptionON ? (
-    <View style={styles.container}>
+    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
       <Caption />
     </View>
   ) : null;
@@ -25,5 +26,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
+    paddingLeft: 260,
+  },
+  mobileContainer: {
+    marginHorizontal: 0,
+    padding: 16,
   },
 });

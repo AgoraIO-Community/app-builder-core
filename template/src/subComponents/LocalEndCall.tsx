@@ -22,15 +22,6 @@ const stopForegroundService = () => {
   }
 };
 
-const removeTranscript = async () => {
-  // remove transcript recorded during the call
-  try {
-    await AsyncStorage.removeItem('fullTranscript');
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {dispatch} = useRtc();
   const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
@@ -53,7 +44,6 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     });
     // stopping foreground servie on end call
     stopForegroundService();
-    removeTranscript();
   };
 
   let iconButtonProps: IconButtonProps = {

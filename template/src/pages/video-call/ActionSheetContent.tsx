@@ -35,6 +35,8 @@ import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
 import {useLocalUserInfo} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
+import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
+import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -264,6 +266,38 @@ const LayoutIcon = (props: LayoutIconProps) => {
   );
 };
 
+interface CaptionIconBtnProps {
+  showLabel?: boolean;
+}
+
+const CaptionIconBtn = (props: CaptionIconBtnProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <CaptionIcon isOnActionSheet={true} />
+      </View>
+      {showLabel && <Text style={styles.iconText}>Caption</Text>}
+    </View>
+  );
+};
+
+interface TranscriptIconProps {
+  showLabel?: boolean;
+}
+
+const TranscriptIconBtn = (props: TranscriptIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <TranscriptIcon isOnActionSheet={true} />
+      </View>
+      {showLabel && <Text style={styles.iconText}>Transcript</Text>}
+    </View>
+  );
+};
+
 type ActionSheetComponentsProps = [
   (props: AudioIconProps) => JSX.Element,
   (props: CamIconProps) => JSX.Element,
@@ -427,6 +461,11 @@ const ActionSheetContent = (props) => {
 
         {/* invite */}
         <ShareIcon />
+
+        {/* caption  */}
+        <CaptionIconBtn />
+        {/* Transcript */}
+        <TranscriptIconBtn />
       </View>
     </View>
   );

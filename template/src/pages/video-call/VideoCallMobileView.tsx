@@ -103,8 +103,8 @@ const VideoCallMobileView = () => {
       <Spacer size={16} />
       <View style={styles.videoView}>
         <VideoComponent />
+        <CaptionContainer />
       </View>
-      <CaptionContainer />
       <ActionSheet />
     </View>
   );

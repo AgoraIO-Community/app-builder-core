@@ -112,7 +112,6 @@ const styles = StyleSheet.create({
   },
   container: {
     // minHeight: ThemeConfig.FontSize.medium,
-    marginLeft: 260,
     maxWidth: 1000,
     alignSelf: 'flex-start',
   },
