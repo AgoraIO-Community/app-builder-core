@@ -389,26 +389,6 @@ const Controls = () => {
   );
 };
 
-type ControlsComponentsArrayProps = [
-  (props: LocalAudioMuteProps) => JSX.Element,
-  (props: LocalVideoMuteProps) => JSX.Element,
-  (props: LocalSwitchCameraProps) => JSX.Element,
-  (props: ScreenshareButtonProps) => JSX.Element,
-  (props: RecordingButtonProps) => JSX.Element,
-  (props: LocalEndcallProps) => JSX.Element,
-  (props: LiveStreamControlsProps) => JSX.Element,
-];
-
-export const ControlsComponentsArray: ControlsComponentsArrayProps = [
-  LocalAudioMute,
-  LocalVideoMute,
-  LocalSwitchCamera,
-  ScreenshareButton,
-  Recording,
-  LocalEndcall,
-  LiveStreamControls,
-];
-
 const style = StyleSheet.create({
   container: {
     flexDirection: 'row',

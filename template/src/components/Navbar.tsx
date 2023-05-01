@@ -89,7 +89,7 @@ export const ParticipantsCountView = ({
   );
 };
 
-interface ParticipantsIconButtonProps {
+export interface ParticipantsIconButtonProps {
   liveStreamingRequestAlertIconPosition?: {
     top?: number;
     right?: number;
@@ -169,7 +169,7 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
   );
 };
 
-interface ChatIconButtonProps {
+export interface ChatIconButtonProps {
   badgeContainerPosition?: {
     top?: number;
     right?: number;
@@ -306,7 +306,7 @@ interface LayoutIconButtonProps {
   render?: (onPress: () => void) => JSX.Element;
 }
 
-const SettingsIconButton = (props: SettingsIconButtonProps) => {
+export const SettingsIconButton = (props: SettingsIconButtonProps) => {
   return <Settings {...props} />;
 };
 const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
@@ -376,22 +376,6 @@ const Navbar = () => {
     </View>
   );
 };
-type NavBarComponentsArrayProps = [
-  (props: CopyJoinInfoProps) => JSX.Element,
-  () => JSX.Element,
-  (props: ParticipantsIconButtonProps) => JSX.Element,
-  (props: ChatIconButtonProps) => JSX.Element,
-  (props: LayoutIconButtonProps) => JSX.Element,
-  (props: SettingsIconButtonProps) => JSX.Element,
-];
-export const NavBarComponentsArray: NavBarComponentsArrayProps = [
-  CopyJoinInfo,
-  ParticipantsCountView,
-  ParticipantsIconButton,
-  ChatIconButton,
-  LayoutIconButton,
-  SettingsIconButton,
-];
 
 const style = StyleSheet.create({
   participantCountView: {

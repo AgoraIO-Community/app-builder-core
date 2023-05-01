@@ -19,13 +19,12 @@ export {Icons} from '../agora-rn-uikit';
 export {
   ParticipantsView,
   Controls,
-  ControlsComponentsArray,
   Navbar,
-  NavBarComponentsArray,
   ChatBubble,
   ChatInput,
   Chat,
   SettingsView,
+  ToolbarComponents,
 } from '../src/pages/video-call/index';
 export {default as GridLayout} from '../src/components/GridVideo';
 export {default as PinnedLayout} from '../src/components/PinnedVideo';

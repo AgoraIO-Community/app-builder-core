@@ -10,7 +10,7 @@ import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {useWindowDimensions} from 'react-native';
 import {useContent} from 'customization-api';
 
-interface LayoutIconButtonInterface {
+export interface LayoutIconButtonInterface {
   render?: (onPress: () => void) => JSX.Element;
   showLabel?: boolean;
 }
