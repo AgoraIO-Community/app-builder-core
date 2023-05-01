@@ -23,7 +23,7 @@ import {useSidePanel} from '../../utils/useSidePanel';
 import {isIOS} from '../../utils/common';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
-import Transcript from 'src/subComponents/caption/Transcript';
+import Transcript from '../../subComponents/caption/Transcript';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -61,7 +61,7 @@ const ActionSheet = () => {
         settingsSheetRef?.current.present();
         break;
       }
-      case SidePanelType.Settings: {
+      case SidePanelType.Transcript: {
         transcriptSheetRef?.current.present();
         break;
       }

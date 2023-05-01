@@ -28,7 +28,6 @@ const Caption = () => {
   };
 
   const handleStreamMessageCallback = (...args) => {
-    console.group('StreamMessage Callback');
     console.warn(`Recived data stream for Platform : ${Platform.OS}`, args);
     const [uid, payload] = args;
     //TODO: on native getting illegal buffer error , need to check RN SDK datastream api
@@ -79,7 +78,6 @@ const Caption = () => {
         // updateInStorage(outputStreamFinal.current);
       }
     }
-    console.groupEnd();
   };
 
   React.useEffect(() => {
