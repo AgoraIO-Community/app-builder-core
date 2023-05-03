@@ -17,6 +17,7 @@ const Caption = () => {
   const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
   const outputStreamFinal = React.useRef<Object>({}); // store in localStorage to access previous captions
   const {setTranscript} = useCaption();
+  const startTimeRef = React.useRef(0);
 
   // if want to persist chat script after user refreshes the page
   const updateInStorage = async (obj) => {
@@ -58,9 +59,17 @@ const Caption = () => {
       if (word.isFinal) {
         //    finalList.current[textstream.uid].push(word.text);
         currentCaption = word.text;
+        const duration = performance.now() - startTimeRef.current;
+        console.log(
+          `Time taken to finalize caption ${currentCaption}: ${duration}ms`,
+        );
+        startTimeRef.current = null; // Reset start time
       } else {
         //   nonfinalList.current[textstream.uid].push(word.text);
         // verify if we can use the nonfinalList to update the live caption text of a particular user so that there is less latency
+        if (!startTimeRef.current) {
+          startTimeRef.current = performance.now();
+        }
       }
     });
 
@@ -68,6 +77,7 @@ const Caption = () => {
       setText(`${userName} : ${currentCaption}`);
       const key = userName + ':' + new Date().getTime();
       //outputStreamFinal.current[key] = currentCaption;
+
       setTranscript((prevTranscript) => {
         return {
           ...prevTranscript,
