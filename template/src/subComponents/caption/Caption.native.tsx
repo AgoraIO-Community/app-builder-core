@@ -28,14 +28,20 @@ const Caption = () => {
   };
 
   const handleStreamMessageCallback = (...args) => {
-    console.warn(`Recived data stream for Web : ${Platform.OS}`, args);
-    const [uid, payload] = args;
-    //TODO: on native getting illegal buffer error , need to check RN SDK datastream api
+    console.warn(`Recived data stream for Native  : ${Platform.OS}`, args);
+    const [uid, streamID, payload] = args;
 
     let currentCaption = ''; // holds current caption
+    let bytes;
+    //TODO: on native getting illegal buffer error , need to check RN SDK datastream api
+    if (typeof payload === 'string') {
+      bytes = new Uint8Array(payload.split(',').map(Number));
+    } else {
+      bytes = payload;
+    }
     const textstream = protoRoot
       .lookupType('Text')
-      .decode(payload as Uint8Array) as any;
+      .decode(bytes as Uint8Array) as any;
 
     const words = textstream.words;
     const userName =
@@ -79,8 +85,14 @@ const Caption = () => {
     }
   };
 
+  const handleStreamError = (...args) => {
+    console.warn('error stream', args);
+  };
+
   React.useEffect(() => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+    RtcEngine.addListener('StreamMessageError', handleStreamError);
+    // try sending the sample message, above causing illelgal buffer
   }, []);
 
   React.useEffect(() => {
