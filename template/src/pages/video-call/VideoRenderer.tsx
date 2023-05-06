@@ -11,7 +11,7 @@ import {MaxVideoView} from '../../../agora-rn-uikit';
 import FallbackLogo from '../../subComponents/FallbackLogo';
 import NetworkQualityPill from '../../subComponents/NetworkQualityPill';
 import NameWithMicIcon from './NameWithMicIcon';
-import useIsActiveSpeaker from '../../utils/useIsActiveSpeaker';
+import useActiveSpeaker from '../../utils/useActiveSpeaker';
 import {useLayout, useContent} from 'customization-api';
 import {getGridLayoutName, getPinnedLayoutName} from './DefaultLayouts';
 import IconButton from '../../atoms/IconButton';
@@ -26,9 +26,9 @@ interface VideoRendererProps {
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {dispatch} = useContext(DispatchContext);
-  const isActiveSpeaker = useIsActiveSpeaker();
+  const activeSpeaker = useActiveSpeaker();
   const {pinnedUid, activeUids} = useContent();
-  const activeSpeaker = isActiveSpeaker(user.uid);
+  const isActiveSpeaker = activeSpeaker === user.uid;
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -70,7 +70,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           }}
           style={[
             maxStyle.container,
-            activeSpeaker
+            isActiveSpeaker
               ? maxStyle.activeContainerStyle
               : user.video
               ? maxStyle.noVideoStyle
@@ -84,7 +84,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             fallback={() => {
               return FallbackLogo(
                 user?.name,
-                activeSpeaker,
+                isActiveSpeaker,
                 (showReplacePin || showPinForMe) && !isMobileUA()
                   ? true
                   : false,

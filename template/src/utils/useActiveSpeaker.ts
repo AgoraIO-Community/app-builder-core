@@ -10,18 +10,33 @@
 *********************************************
 */
 import {useContent} from 'customization-api';
-import {UidType} from '../../agora-rn-uikit';
+import {useEffect, useState} from 'react';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 /**
  * Returns a function that checks whether the given uid is a active speaker and returns true/false
  * @returns function
  */
-function useIsActiveSpeaker() {
-  const {activeSpeaker, defaultContent} = useContent();
-  const isActiveSpeaker = (uid: UidType) => {
-    return defaultContent[uid].audio && activeSpeaker === uid;
-  };
-  return isActiveSpeaker;
+function useActiveSpeaker() {
+  const [activeSpeaker, setActiveSpeaker] = useState(undefined);
+  const {defaultContent} = useContent();
+  useEffect(() => {
+    const listenActiveSpeaker = (data) => {
+      setActiveSpeaker(data);
+    };
+    LocalEventEmitter.on(LocalEventsEnum.ACTIVE_SPEAKER, listenActiveSpeaker);
+    return () => {
+      LocalEventEmitter.off(
+        LocalEventsEnum.ACTIVE_SPEAKER,
+        listenActiveSpeaker,
+      );
+    };
+  }, []);
+  return activeSpeaker && defaultContent[activeSpeaker].audio
+    ? activeSpeaker
+    : undefined;
 }
 
-export default useIsActiveSpeaker;
+export default useActiveSpeaker;

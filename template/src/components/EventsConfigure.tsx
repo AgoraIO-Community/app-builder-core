@@ -12,7 +12,12 @@
 import React, {useContext, useEffect, useRef} from 'react';
 import {StyleSheet} from 'react-native';
 import PrimaryButton from '../atoms/PrimaryButton';
-import {RtcContext} from '../../agora-rn-uikit';
+import {
+  RtcContext,
+  UidType,
+  useLocalUid,
+  DispatchContext,
+} from '../../agora-rn-uikit';
 import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
 import Toast from '../../react-native-toast-message';
@@ -20,8 +25,10 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import {useContent} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
-import {isWebInternal, trimText} from '../utils/common';
-import {DispatchContext} from '../../agora-rn-uikit';
+import {isWebInternal} from '../utils/common';
+import LocalEventEmitter, {
+  LocalEventsEnum,
+} from '../rtm-events-api/LocalEvents';
 
 interface Props {
   children: React.ReactNode;
@@ -34,10 +41,46 @@ const EventsConfigure: React.FC<Props> = (props) => {
   const {defaultContent} = useContent();
   const defaultContentRef = useRef({defaultContent});
   const {phrase} = useParams<{phrase: string}>();
+  const localUid = useLocalUid();
+  const activeSpeakerUid = useRef(undefined);
   useEffect(() => {
     defaultContentRef.current.defaultContent = defaultContent;
   }, [defaultContent]);
+
+  const emitActiveSpeaker = (uid: UidType) => {
+    if (uid !== activeSpeakerUid.current) {
+      activeSpeakerUid.current = uid;
+      LocalEventEmitter.emit(LocalEventsEnum.ACTIVE_SPEAKER, uid);
+    }
+  };
+
   useEffect(() => {
+    RtcEngineUnsafe.addListener('AudioVolumeIndication', (...args) => {
+      // console.log('-- AudioVolumeCallback', args);
+      const [speakers, totalVolume] = args;
+      if (speakers[0]?.uid === 0) {
+        //callback for local user
+        const isLocalUserSpeaking = speakers[0].vad; //1-speaking ,  0-not speaking
+        const localUserVolumeLevel = speakers[0].volume;
+        // vad value is not consistent while speaking so using volume level
+        if (localUserVolumeLevel > 0) {
+          emitActiveSpeaker(localUid);
+        } else {
+          //undefined
+          emitActiveSpeaker(undefined);
+        }
+      } else {
+        // remote users callback, this will be handeled in ActiveSpeaker callback(367)
+        // const highestvolumeObj = speakers.reduce(function (prev, current) {
+        //   return prev.volume > current.volume ? prev : current;
+        // }, null);
+      }
+    });
+
+    RtcEngineUnsafe.addListener('ActiveSpeaker', (...args) => {
+      // used as a callback from the web bridge as well remote users
+      emitActiveSpeaker(args[0]);
+    });
     //user joined event listener
     // events.on(controlMessageEnum.newUserJoined, ({payload}) => {
     //   const data = JSON.parse(payload);

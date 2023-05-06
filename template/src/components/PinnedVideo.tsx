@@ -25,10 +25,12 @@ import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
 import {DispatchContext} from '../../agora-rn-uikit';
+import useActiveSpeaker from '../utils/useActiveSpeaker';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid, activeUids, defaultContent, activeSpeaker} = useContent();
+  const {pinnedUid, activeUids, defaultContent} = useContent();
+  const activeSpeaker = useActiveSpeaker();
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
   const {width, height} = useWindowDimensions();
