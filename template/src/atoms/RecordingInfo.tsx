@@ -7,7 +7,11 @@ const RecordingInfo = ({recordingLabel = ''}) => {
   return (
     <View style={[styles.recordingView]}>
       <View style={[styles.recordingStatus]} />
-      <Text style={styles.recordingText}>{recordingLabel}</Text>
+      {recordingLabel ? (
+        <Text style={styles.recordingText}>{recordingLabel}</Text>
+      ) : (
+        <></>
+      )}
     </View>
   );
 };
@@ -24,7 +28,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 24,
     backgroundColor: $config.ICON_BG_COLOR,
-    marginLeft: 8,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
     shadowColor: $config.HARD_CODED_BLACK_COLOR,
@@ -38,12 +41,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Source Sans Pro',
     color: $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+    marginLeft: 8,
   },
   recordingStatus: {
     width: 12,
     height: 12,
     borderRadius: 6,
     backgroundColor: $config.SEMANTIC_ERROR,
-    marginRight: 8,
   },
 });

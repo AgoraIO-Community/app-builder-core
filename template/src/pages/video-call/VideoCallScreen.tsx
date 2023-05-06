@@ -22,10 +22,7 @@ import {
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
 import {videoView} from '../../../theme.json';
-import {
-  ButtonTemplateProvider,
-  ButtonTemplateName,
-} from '../../utils/useButtonTemplate';
+import {ToolbarProvider, ToolbarPosition} from '../../utils/useToolbar';
 import SDKEvents from '../../utils/SdkEvents';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {controlMessageEnum, useUserName} from 'customization-api';
@@ -47,6 +44,8 @@ const VideoCallScreen = () => {
     TopbarComponent,
     VideocallBeforeView,
     VideocallAfterView,
+    LeftbarComponent,
+    RightbarComponent,
   } = useCustomization((data) => {
     let components: {
       VideocallComponent?: React.ComponentType;
@@ -57,6 +56,8 @@ const VideoCallScreen = () => {
       TopbarComponent: React.ComponentType;
       VideocallBeforeView: React.ComponentType;
       VideocallAfterView: React.ComponentType;
+      LeftbarComponent: React.ComponentType;
+      RightbarComponent: React.ComponentType;
     } = {
       BottombarComponent: Controls,
       TopbarComponent: Navbar,
@@ -65,6 +66,8 @@ const VideoCallScreen = () => {
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
+      LeftbarComponent: React.Fragment,
+      RightbarComponent: React.Fragment,
     };
     if (
       data?.components?.videoCall &&
@@ -103,19 +106,36 @@ const VideoCallScreen = () => {
       // }
 
       if (
-        data?.components?.videoCall.bottomBar &&
-        typeof data?.components?.videoCall.bottomBar !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.bottomBar)
+        data?.components?.videoCall.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.bottomToolBar)
       ) {
-        components.BottombarComponent = data?.components?.videoCall.bottomBar;
+        components.BottombarComponent =
+          data?.components?.videoCall.bottomToolBar;
       }
 
       if (
-        data?.components?.videoCall.topBar &&
-        typeof data?.components?.videoCall.topBar !== 'object' &&
-        isValidReactComponent(data?.components?.videoCall.topBar)
+        data?.components?.videoCall.topToolBar &&
+        typeof data?.components?.videoCall.topToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.topToolBar)
       ) {
-        components.TopbarComponent = data?.components?.videoCall.topBar;
+        components.TopbarComponent = data?.components?.videoCall.topToolBar;
+      }
+
+      if (
+        data?.components?.videoCall.leftToolBar &&
+        typeof data?.components?.videoCall.leftToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.leftToolBar)
+      ) {
+        components.LeftbarComponent = data?.components?.videoCall.leftToolBar;
+      }
+
+      if (
+        data?.components?.videoCall.rightToolBar &&
+        typeof data?.components?.videoCall.rightToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.rightToolBar)
+      ) {
+        components.RightbarComponent = data?.components?.videoCall.rightToolBar;
       }
 
       if (
@@ -153,35 +173,51 @@ const VideoCallScreen = () => {
     // Desktop View
     <>
       <VideocallBeforeView />
-      <View style={style.full}>
-        <TopbarComponent />
-        <View
-          style={[
-            style.videoView,
-            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
-          ]}>
-          <VideoComponent />
-          {sidePanel === SidePanelType.Participants ? (
-            <ParticipantsComponent />
-          ) : (
-            <></>
-          )}
-          {sidePanel === SidePanelType.Chat ? (
-            $config.CHAT ? (
-              <ChatComponent />
+      <View style={style.fullRow}>
+        <ToolbarProvider value={{position: ToolbarPosition.left}}>
+          <LeftbarComponent />
+        </ToolbarProvider>
+        <View style={style.full}>
+          <ToolbarProvider value={{position: ToolbarPosition.top}}>
+            <TopbarComponent />
+          </ToolbarProvider>
+          <View
+            style={[
+              style.videoView,
+              {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
+            ]}>
+            <VideoComponent />
+            {sidePanel === SidePanelType.Participants ? (
+              <ParticipantsComponent />
             ) : (
               <></>
-            )
-          ) : (
+            )}
+            {sidePanel === SidePanelType.Chat ? (
+              $config.CHAT ? (
+                <ChatComponent />
+              ) : (
+                <></>
+              )
+            ) : (
+              <></>
+            )}
+            {sidePanel === SidePanelType.Settings ? (
+              <SettingsComponent />
+            ) : (
+              <></>
+            )}
+          </View>
+          {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
             <></>
+          ) : (
+            <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+              <BottombarComponent />
+            </ToolbarProvider>
           )}
-          {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
         </View>
-        {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
-          <></>
-        ) : (
-          <BottombarComponent />
-        )}
+        <ToolbarProvider value={{position: ToolbarPosition.right}}>
+          <RightbarComponent />
+        </ToolbarProvider>
       </View>
       <VideocallAfterView />
     </>
@@ -193,6 +229,11 @@ const style = StyleSheet.create({
   full: {
     flex: 1,
     flexDirection: 'column',
+    overflow: 'hidden',
+  },
+  fullRow: {
+    flex: 1,
+    flexDirection: 'row',
     overflow: 'hidden',
   },
   videoView: {

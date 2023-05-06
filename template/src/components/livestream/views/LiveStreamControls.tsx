@@ -12,6 +12,7 @@
 import React from 'react';
 import {View} from 'react-native';
 import {LocalRaiseHand} from '../../../subComponents/livestream';
+import ToolbarItem from '../../../atoms/ToolbarItem';
 
 export interface LiveStreamControlsProps {
   showControls: boolean;
@@ -25,13 +26,9 @@ const LiveStreamControls = (props: LiveStreamControlsProps) => {
   if (!showControls) return <></>;
   return (
     <>
-      <View
-        style={{
-          alignSelf: 'center',
-          marginHorizontal: 10,
-        }}>
+      <ToolbarItem>
         <LocalRaiseHand showLabel={showLabel} />
-      </View>
+      </ToolbarItem>
     </>
   );
 };

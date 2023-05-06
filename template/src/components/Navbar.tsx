@@ -48,10 +48,7 @@ import {useRoomInfo} from './room-info/useRoomInfo';
 import {useSidePanel} from '../utils/useSidePanel';
 import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
-import {
-  ButtonTemplateName,
-  useButtonTemplate,
-} from '../utils/useButtonTemplate';
+import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
 import Styles from './styles';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
@@ -61,6 +58,8 @@ import {useLiveStreamDataContext} from './contexts/LiveStreamDataContext';
 import ParticipantsCount from '../atoms/ParticipantsCount';
 import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
+import Toolbar from '../atoms/Toolbar';
+import ToolbarItem from '../atoms/ToolbarItem';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -316,8 +315,8 @@ const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
 const Navbar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
+  const {isHorizontal} = useToolbar();
   const recordingLabel = 'Recording';
-  const isDesktop = useIsDesktop();
   const {audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     data: {meetingTitle},
@@ -327,53 +326,63 @@ const Navbar = () => {
   const {onlineUsersCount} = useContext(ChatContext);
   const {width} = useWindowDimensions();
   return (
-    <View
-      testID="videocall-topbar"
-      style={[
-        isWebInternal() ? style.navHolder : style.navHolderNative,
-        {
-          paddingHorizontal: isDesktop('toolbar') ? 32 : 10,
-          zIndex: 999,
-        },
-      ]}>
-      <View style={style.titleContainer}>
-        <Text
-          style={style.roomNameText}
-          testID="videocall-meetingName"
-          numberOfLines={1}
-          ellipsizeMode="tail">
-          {trimText(meetingTitle)}
-        </Text>
-        <Spacer size={8} horizontal={true} />
-        <View style={style.countContainer}>
+    <Toolbar>
+      <View
+        style={[
+          isHorizontal
+            ? {flexDirection: 'row'}
+            : {flexDirection: 'column', justifyContent: 'center'},
+        ]}>
+        <ToolbarItem>
+          <Text
+            style={style.roomNameText}
+            testID="videocall-meetingName"
+            numberOfLines={1}
+            ellipsizeMode="tail">
+            {trimText(meetingTitle)}
+          </Text>
+        </ToolbarItem>
+        {/* <Spacer size={8} horizontal={isHorizontal ? true : false} /> */}
+        <ToolbarItem>
           <ParticipantsCount />
-          {isRecordingActive ? (
-            <RecordingInfo recordingLabel={recordingLabel} />
-          ) : (
-            <></>
-          )}
-        </View>
+        </ToolbarItem>
+        {!isRecordingActive ? (
+          <ToolbarItem>
+            <RecordingInfo
+              recordingLabel={isHorizontal ? recordingLabel : ''}
+            />
+          </ToolbarItem>
+        ) : (
+          <></>
+        )}
       </View>
       {width > BREAKPOINTS.sm || isMobileUA() ? (
-        <View style={style.navControlBar} testID="videocall-navcontrols">
-          <View testID="videocall-participantsicon" style={{marginRight: 10}}>
+        <View
+          style={[
+            style.navControlBar,
+            isHorizontal
+              ? {flexDirection: 'row', width: '50%'}
+              : {flexDirection: 'column'},
+          ]}
+          testID="videocall-navcontrols">
+          <ToolbarItem testID="videocall-participantsicon">
             <ParticipantsIconButton />
-          </View>
+          </ToolbarItem>
           {$config.CHAT && (
             <>
-              <View testID="videocall-chaticon" style={{marginHorizontal: 10}}>
+              <ToolbarItem testID="videocall-chaticon">
                 <ChatIconButton />
-              </View>
+              </ToolbarItem>
             </>
           )}
-          <View testID="videocall-settingsicon" style={{marginLeft: 10}}>
+          <ToolbarItem testID="videocall-settingsicon">
             <SettingsIconButtonWithWrapper />
-          </View>
+          </ToolbarItem>
         </View>
       ) : (
         <></>
       )}
-    </View>
+    </Toolbar>
   );
 };
 
@@ -389,29 +398,6 @@ const style = StyleSheet.create({
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 20,
-  },
-  countContainer: {
-    flexDirection: 'row',
-  },
-  navHolder: {
-    backgroundColor: $config.TOOLBAR_COLOR,
-    width: '100%',
-    paddingTop: 8,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  navHolderNative: {
-    position: 'relative',
-    width: '100%',
-    height: '8%',
-    backgroundColor:
-      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    justifyContent: 'space-between',
   },
   btnHolder: {
     marginHorizontal: isMobileOrTablet() ? 2 : 0,
@@ -430,9 +416,7 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  titleContainer: {
-    flexDirection: 'row',
-  },
+
   roomNameText: {
     alignSelf: 'center',
     fontSize: ThemeConfig.FontSize.normal,
@@ -457,8 +441,6 @@ const style = StyleSheet.create({
     color: $config.SECONDARY_ACTION_COLOR,
   },
   navControlBar: {
-    width: '50%',
-    flexDirection: 'row',
     justifyContent: 'flex-end',
     zIndex: 9,
   },

@@ -56,6 +56,9 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
+import Toolbar from '../atoms/Toolbar';
+import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
+import ToolbarItem from '../atoms/ToolbarItem';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -281,36 +284,34 @@ const Controls = () => {
   const {
     data: {isHost},
   } = useRoomInfo();
+  const {isHorizontal} = useToolbar();
   const {width} = useWindowDimensions();
-
   return (
-    <View
-      testID="videocall-controls"
-      style={[
-        style.container,
-        {
-          paddingHorizontal: isDesktop('toolbar') ? 32 : 16,
-        },
-      ]}>
+    <Toolbar>
       {width >= BREAKPOINTS.md && (
-        <View style={style.leftContent}>
-          <View
-            testID="layout-btn"
-            style={{marginRight: 10}}
-            collapsable={false}>
+        <View
+          style={[
+            style.leftContent,
+            isHorizontal ? {flexDirection: 'row'} : {flexDirection: 'column'},
+          ]}>
+          <ToolbarItem testID="layout-btn" collapsable={false}>
             {/**
              * .measure returns undefined on Android unless collapsable=false or onLayout are specified
              * so added collapsable property
              * https://github.com/facebook/react-native/issues/29712
              * */}
             <LayoutIconButton />
-          </View>
-          <View testID="invite-btn" style={{marginHorizontal: 10}}>
+          </ToolbarItem>
+          <ToolbarItem testID="invite-btn">
             <CopyJoinInfo />
-          </View>
+          </ToolbarItem>
         </View>
       )}
-      <View style={style.centerContent}>
+      <View
+        style={[
+          style.centerContent,
+          isHorizontal ? {flexDirection: 'row'} : {flexDirection: 'column'},
+        ]}>
         {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
           <LiveStreamControls
             showControls={true}
@@ -333,80 +334,56 @@ const Controls = () => {
           ) : (
             <></>
           )}
-          <View testID="localAudio-btn" style={{marginHorizontal: 10}}>
+          <ToolbarItem testID="localAudio-btn">
             <LocalAudioMute showToolTip={true} />
-          </View>
+          </ToolbarItem>
           {!$config.AUDIO_ROOM && (
-            <View
-              testID="localVideo-btn"
-              style={{
-                marginHorizontal: 10,
-              }}>
+            <ToolbarItem testID="localVideo-btn">
               <LocalVideoMute showToolTip={true} />
-            </View>
+            </ToolbarItem>
           )}
           {!$config.AUDIO_ROOM && isMobileOrTablet() && (
-            <View
-              testID="switchCamera-btn"
-              style={{
-                marginHorizontal: 10,
-              }}>
+            <ToolbarItem testID="switchCamera-btn">
               <LocalSwitchCamera />
-            </View>
+            </ToolbarItem>
           )}
           {width > BREAKPOINTS.sm &&
             $config.SCREEN_SHARING &&
             !isMobileOrTablet() && (
-              <View
-                testID="screenShare-btn"
-                style={{
-                  marginHorizontal: 10,
-                }}>
+              <ToolbarItem testID="screenShare-btn">
                 <ScreenshareButton />
-              </View>
+              </ToolbarItem>
             )}
           {width > BREAKPOINTS.sm && isHost && $config.CLOUD_RECORDING && (
-            <View
-              testID="recording-btn"
-              style={{
-                marginHorizontal: 10,
-              }}>
+            <ToolbarItem testID="recording-btn">
               <Recording />
-            </View>
+            </ToolbarItem>
           )}
         </>
         {width < BREAKPOINTS.md && (
-          <View testID="more-btn" style={{marginHorizontal: 10}}>
+          <ToolbarItem testID="more-btn">
             <MoreButton />
-          </View>
+          </ToolbarItem>
         )}
-        <View testID="endCall-btn" style={{marginHorizontal: 10}}>
+        <ToolbarItem testID="endCall-btn">
           <LocalEndcall />
-        </View>
+        </ToolbarItem>
       </View>
       {width >= BREAKPOINTS.md && <View style={style.rightContent}></View>}
-    </View>
+    </Toolbar>
   );
 };
 
 const style = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 10,
-    paddingBottom: 16,
-    backgroundColor: $config.TOOLBAR_COLOR,
-  },
   leftContent: {
     flex: 1,
-    flexDirection: 'row',
+
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
   centerContent: {
     zIndex: 2,
     flex: 1,
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },

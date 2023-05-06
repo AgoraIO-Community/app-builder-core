@@ -21,7 +21,6 @@ import Spacer from '../../atoms/Spacer';
 import useRemoteEndCall from '../../utils/useRemoteEndCall';
 import {useChatMessages} from '../chat-messages/useChatMessages';
 import LocalVideoMute from '../../subComponents/LocalVideoMute';
-import {ButtonTemplateName} from '../../utils/useButtonTemplate';
 import LocalAudioMute from '../../subComponents/LocalAudioMute';
 import RemoveMeetingPopup from '../../subComponents/RemoveMeetingPopup';
 import {useRoomInfo} from '../room-info/useRoomInfo';

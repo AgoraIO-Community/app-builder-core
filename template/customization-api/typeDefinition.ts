@@ -61,10 +61,12 @@ export interface layoutItem {
 
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
-  topBar?: React.ComponentType;
+  topToolBar?: React.ComponentType;
+  bottomToolBar?: React.ComponentType;
+  leftToolBar?: React.ComponentType;
+  rightToolBar?: React.ComponentType;
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
-  bottomBar?: React.ComponentType;
   chat?: ChatCmpInterface;
   customLayout?: (layouts: layoutItem[]) => layoutItem[];
 }
