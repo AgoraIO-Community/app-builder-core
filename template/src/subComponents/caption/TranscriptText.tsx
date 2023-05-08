@@ -2,71 +2,119 @@ import {Text, View, StyleSheet, ViewStyle} from 'react-native';
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
+import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 
 interface TranscriptTextProps {
   user: string;
   value: string;
-  containerStyle?: ViewStyle;
-  nameContainerStyle?: ViewStyle;
 }
 
 function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
   const h = d.getHours();
   const m = d.getMinutes().toString().padStart(2, '0');
+  const s = d.getSeconds().toString().padStart(2, '0');
   const suffix = h >= 12 ? 'PM' : 'AM';
   const H = h % 12 || 12;
-  return `${H}:${m} ${suffix}`;
+  return `${H}:${m}:${s} ${suffix}`;
 }
 
-export const TranscriptText = ({
-  user,
-  value,
-  containerStyle = {},
-  nameContainerStyle = {},
-}: TranscriptTextProps) => {
+export const TranscriptText = ({user, value}: TranscriptTextProps) => {
   const [name, time] = (user || '').split(':');
-  const t = formatTime(Number(time));
+  const t = time ? formatTime(Number(time)) : '';
+  const isTranscriptTxt = t.length > 0;
 
   return (
-    <View key={user} style={[styles.textContainer, containerStyle]}>
+    <View
+      key={user}
+      style={
+        isTranscriptTxt ? styles.transciptContainer : styles.captionContainer
+      }>
       {name ? (
-        <View style={[styles.nameContainer, nameContainerStyle]}>
-          <Text style={styles.name}>
-            {' '}
-            {name} : {time && t}
+        <Text
+          style={[
+            styles.name,
+            isTranscriptTxt ? styles.transcriptName : styles.captionName,
+          ]}>
+          {name} {!isTranscriptTxt && ':'}{' '}
+          {time && <Text style={styles.timestamp}>{t}</Text>}
+        </Text>
+      ) : (
+        <></>
+      )}
+      {value ? (
+        <View style={!isTranscriptTxt ? styles.captionTextContainerStyle : {}}>
+          <Text
+            style={[
+              styles.text,
+              isTranscriptTxt ? styles.transciptText : styles.captionText,
+            ]}>
+            {value}
           </Text>
         </View>
       ) : (
         <></>
       )}
-      {value ? <Text style={styles.text}>{value}</Text> : <></>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  nameContainer: {
-    padding: 4,
-    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
-    borderRadius: ThemeConfig.BorderRadius.medium,
-    marginBottom: 8,
+  captionContainer: {
+    flexDirection: 'row',
     alignSelf: 'flex-start',
+  },
+
+  captionTextContainerStyle: {
+    overflow: 'hidden',
+    maxWidth: 1000,
+    width: 1000,
+    height: 80,
+    lineHeight: 18,
+    position: 'relative',
+    textAlign: 'left',
+  },
+  captionText: {
+    fontSize: 18,
+    lineHeight: 24,
+    position: 'absolute',
+    bottom: 0,
+    minHeight: 80,
+  },
+  transciptContainer: {
+    alignItems: 'flex-start',
+    marginBottom: 20,
+  },
+
+  transciptText: {
+    fontSize: 16,
+    lineHeight: 22,
   },
   name: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: ThemeConfig.FontSize.medium,
+    color: $config.FONT_COLOR,
+  },
+  transcriptName: {
+    fontSize: 16,
+    lineHeight: 19,
     fontWeight: '600',
-    color: $config.HARD_CODED_BLACK_COLOR,
+  },
+  captionName: {
+    fontSize: 20,
+    lineHeight: 22,
+    fontWeight: '700',
+    marginRight: 8,
   },
   text: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: 18,
-    lineHeight: 24,
     fontWeight: '400',
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
   },
-  textContainer: {
-    marginVertical: 5,
+  timestamp: {
+    fontSize: 12,
+    lineHeight: 16,
+    color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
   },
 });

@@ -8,16 +8,19 @@ import {useCaption} from './useCaption';
 import Transcript from './Transcript';
 import {TranscriptText} from './TranscriptText';
 
-const Caption = () => {
+const Caption2 = () => {
   const {renderList} = useRender();
   const {RtcEngine} = useRtc();
   const renderListRef = React.useRef({renderList});
   const [text, setText] = React.useState(''); // state for current live caption
   const finalList = React.useRef<Object>({}); // holds transcript of final words of all users
   const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
-  const outputStreamFinal = React.useRef<Object>({}); // store in localStorage to access previous captions
+  const outputStreamFinal = React.useRef<string>(''); // store in localStorage to access previous captions
+  const outputStreamNonFinal = React.useRef<string>('');
   const {setTranscript} = useCaption();
-  const startTimeRef = React.useRef(0);
+  const startTimeRef = React.useRef<number>(0);
+  const simpleText = React.useRef<string>('');
+  const lastSeqnum = React.useRef<number>(-1);
 
   // if want to persist chat script after user refreshes the page
   const updateInStorage = async (obj) => {
@@ -28,15 +31,32 @@ const Caption = () => {
     }
   };
 
+  const isSentenceBoundaryWord = (word) => {
+    return word == '.' || word == '?';
+  };
+
+  const isPunctuationWord = (word) => {
+    return word == '.' || word == '?' || word == ',';
+  };
+
   const handleStreamMessageCallback = (...args) => {
     console.warn(`Recived data stream for Web : ${Platform.OS}`, args);
     const [uid, payload] = args;
-    //TODO: on native getting illegal buffer error , need to check RN SDK datastream api
+    let simpleText = '';
+    let finalList = {};
 
     let currentCaption = ''; // holds current caption
     const textstream = protoRoot
       .lookupType('Text')
       .decode(payload as Uint8Array) as any;
+
+    // if (textstream.seqnum === lastSeqnum.current) {
+    //   return;
+    // } else {
+    //   lastSeqnum.current = textstream.seqnum;
+    // }
+
+    // check how many participants are allowed Hots:4 Audience: 5
 
     const words = textstream.words;
     const userName =
@@ -47,17 +67,31 @@ const Caption = () => {
     );
 
     //check if we can use the nonfinal words to show live caption and when final words is there we compare and update that
-    // if (!finalList.current[textstream.uid]) {
-    //   finalList.current[textstream.uid] = [];
-    // }
-    // if (!nonfinalList.current[textstream.uid]) {
-    //   nonfinalList.current[textstream.uid] = [];
-    // }
+    if (!finalList[textstream.uid]) {
+      finalList[textstream.uid] = [];
+    }
+    if (!nonfinalList.current[textstream.uid]) {
+      nonfinalList.current[textstream.uid] = [];
+    }
+
+    let nonFinalList = [];
+    let text1 = '';
+    let text2 = '';
 
     // categorize words into final & nonFinal objects per uid
     words.map((word) => {
       if (word.isFinal) {
-        //    finalList.current[textstream.uid].push(word.text);
+        finalList[textstream.uid].push(word.text);
+        // for boundary word clear the finallist for the uid
+        if (isSentenceBoundaryWord(word.text)) {
+          finalList[textstream.uid] = [];
+        }
+        text1 += `${userName}:${word.text}`;
+        if (simpleText.length > 0 && !isPunctuationWord(word.text)) {
+          simpleText += '';
+        }
+        simpleText += word.text;
+
         currentCaption = word.text;
         const duration = performance.now() - startTimeRef.current;
         console.log(
@@ -65,19 +99,65 @@ const Caption = () => {
         );
         startTimeRef.current = null; // Reset start time
       } else {
-        //   nonfinalList.current[textstream.uid].push(word.text);
-        // verify if we can use the nonfinalList to update the live caption text of a particular user so that there is less latency
+        text2 += `${userName}:${word.text}`;
+        nonFinalList.push(word.text);
+
         if (!startTimeRef.current) {
           startTimeRef.current = performance.now();
         }
       }
     });
 
-    if (currentCaption.length) {
-      setText(`${userName} : ${currentCaption}`);
-      const key = userName + ':' + new Date().getTime();
-      //outputStreamFinal.current[key] = currentCaption;
+    //TBD : localstorage
+    if (text1.length) {
+      outputStreamFinal.current +=
+        new Date().toLocaleString() + ' ' + text1 + '\n';
+    }
+    if (text2.length) {
+      outputStreamNonFinal.current +=
+        new Date().toLocaleString() + ' ' + text2 + '\n';
+    }
 
+    let stringBuilder = '';
+    finalList[textstream.uid].forEach((item) => {
+      if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
+        stringBuilder += ' ';
+      }
+      stringBuilder += item;
+      if (isSentenceBoundaryWord(item)) {
+        stringBuilder += '\n';
+      }
+    });
+
+    nonFinalList.forEach((item) => {
+      if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
+        stringBuilder += ' ';
+      }
+      stringBuilder += item;
+      if (isSentenceBoundaryWord(item)) {
+        stringBuilder += '\n';
+      }
+    });
+    console.group('STT-logs');
+    console.log('stt-finalList =>', finalList);
+    console.log('stt-nonFinalList =>', nonFinalList);
+    console.log('stt-outputStreamNonFinal =>', outputStreamNonFinal.current);
+    console.log('stt-outputStreamFinal =>', outputStreamFinal.current);
+    console.log('stt-stringBuilder =>', stringBuilder);
+    console.log('stt-simpleText =>', simpleText);
+    console.groupEnd();
+
+    //setText(stringBuilder);
+    if (stringBuilder) {
+      setText(`${userName} : ${stringBuilder}`);
+    }
+
+    if (currentCaption.length) {
+      // setText(`${userName} : ${currentCaption}`);
+      // setText(`${userName} : ${stringBuilder}`);
+
+      //outputStreamFinal.current[key] = currentCaption;
+      const key = userName + ':' + new Date().getTime();
       setTranscript((prevTranscript) => {
         return {
           ...prevTranscript,
@@ -104,7 +184,7 @@ const Caption = () => {
   );
 };
 
-export default Caption;
+export default Caption2;
 
 const styles = StyleSheet.create({
   text: {

@@ -5,12 +5,22 @@ import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {isMobileUA} from '../../utils/common';
+import Caption2 from './Caption2';
+import Caption3 from './Caption3';
 
 const CaptionContainer = () => {
-  const {isCaptionON} = useCaption();
+  const {isCaptionON, isCaptionON2, isCaptionON3} = useCaption();
   return isCaptionON ? (
     <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
       <Caption />
+    </View>
+  ) : isCaptionON2 ? (
+    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
+      <Caption2 />
+    </View>
+  ) : isCaptionON3 ? (
+    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
+      <Caption3 />
     </View>
   ) : null;
 };
@@ -20,13 +30,16 @@ export default CaptionContainer;
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 20,
-    minHeight: 80,
+    height: 132,
+    overflow: 'scroll',
     marginHorizontal: 32,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     paddingLeft: 260,
+    borderColor: 'blue',
+    borderWidth: 1,
   },
   mobileContainer: {
     marginHorizontal: 0,

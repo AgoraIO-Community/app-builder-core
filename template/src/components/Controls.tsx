@@ -57,6 +57,8 @@ import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import TranscriptIcon from '../../src/subComponents/caption/TranscriptIcon';
 import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
+import CaptionIcon2 from '../../src/subComponents/caption/CaptionIcon2';
+import CaptionIcon3 from '../../src/subComponents/caption/CaptionIcon3';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -313,6 +315,16 @@ const Controls = () => {
           <View testID="caption-btn" style={{marginHorizontal: 10}}>
             <CaptionIcon />
           </View>
+          {/* TODO:to be removed */}
+          <View testID="caption-btn" style={{marginHorizontal: 10}}>
+            <CaptionIcon2 />
+          </View>
+
+          {/* TODO:to be removed */}
+          <View testID="caption-btn" style={{marginHorizontal: 10}}>
+            <CaptionIcon3 />
+          </View>
+
           <View testID="transcript-btn" style={{marginHorizontal: 10}}>
             <TranscriptIcon />
           </View>

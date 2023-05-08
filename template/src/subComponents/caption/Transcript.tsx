@@ -68,4 +68,7 @@ export const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
   },
+  container: {
+    alignItems: 'flex-start',
+  },
 });

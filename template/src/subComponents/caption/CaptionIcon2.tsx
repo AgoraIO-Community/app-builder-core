@@ -41,7 +41,7 @@ const startStopSTT = async (
   return res;
 };
 
-const CaptionIcon = (props: CaptionIconProps) => {
+const CaptionIcon2 = (props: CaptionIconProps) => {
   const {
     showToolTip = false,
     showLabel = $config.ICON_TEXT,
@@ -50,14 +50,14 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isMobileView = false,
   } = props;
   const {
-    isCaptionON,
-    setIsCaptionON,
+    isCaptionON2,
+    setIsCaptionON2,
     isSTTActive,
     setIsSTTActive,
-    isCaptionON2,
-    isCaptionON3,
-    setIsCaptionON2,
+    setIsCaptionON,
     setIsCaptionON3,
+    isCaptionON,
+    isCaptionON3,
     setTranscript,
   } = useCaption();
   const {store} = React.useContext(StorageContext);
@@ -67,14 +67,12 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const toggleSTT = async (method: string) => {
     // handleSTT
-    //TODO : remove code related to caption2 & caption3 and clearing transcript when some other icon is clicked
-    if (isCaptionON2 || isCaptionON3) {
+    if (isCaptionON || isCaptionON3) {
       setTranscript({});
     }
-    setIsCaptionON2(false);
+    setIsCaptionON(false);
     setIsCaptionON3(false);
-    setIsCaptionON((prev) => !prev);
-
+    setIsCaptionON2((prev) => !prev);
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
 
@@ -97,15 +95,15 @@ const CaptionIcon = (props: CaptionIconProps) => {
     }
   };
 
-  const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
+  const label = isCaptionON2 ? 'Hide Live Caption' : 'Show Live Caption';
   const iconButtonProps: IconButtonProps = {
-    onPress: () => toggleSTT(isCaptionON ? 'stop' : 'start'),
+    onPress: () => toggleSTT(isCaptionON2 ? 'stop' : 'start'),
     iconProps: {
-      name: isCaptionON ? 'chat-filled' : 'chat-outlined',
-      iconBackgroundColor: isCaptionON
+      name: isCaptionON2 ? 'chat-filled' : 'chat-outlined',
+      iconBackgroundColor: isCaptionON2
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isCaptionON
+      tintColor: isCaptionON2
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
@@ -126,6 +124,6 @@ const CaptionIcon = (props: CaptionIconProps) => {
   );
 };
 
-export default CaptionIcon;
+export default CaptionIcon2;
 
 const styles = StyleSheet.create({});
