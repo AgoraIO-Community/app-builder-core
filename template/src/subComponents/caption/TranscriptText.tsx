@@ -1,4 +1,4 @@
-import {Text, View, StyleSheet, ViewStyle} from 'react-native';
+import {Text, View, StyleSheet, ViewStyle, TextStyle} from 'react-native';
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
@@ -7,6 +7,8 @@ import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency'
 interface TranscriptTextProps {
   user: string;
   value: string;
+  captionContainerStyle?: ViewStyle;
+  captionStyle?: TextStyle;
 }
 
 function formatTime(timestamp: number): string {
@@ -19,7 +21,12 @@ function formatTime(timestamp: number): string {
   return `${H}:${m}:${s} ${suffix}`;
 }
 
-export const TranscriptText = ({user, value}: TranscriptTextProps) => {
+export const TranscriptText = ({
+  user,
+  value,
+  captionContainerStyle = {},
+  captionStyle = {},
+}: TranscriptTextProps) => {
   const [name, time] = (user || '').split(':');
   const t = time ? formatTime(Number(time)) : '';
   const isTranscriptTxt = t.length > 0;
@@ -43,11 +50,18 @@ export const TranscriptText = ({user, value}: TranscriptTextProps) => {
         <></>
       )}
       {value ? (
-        <View style={!isTranscriptTxt ? styles.captionTextContainerStyle : {}}>
+        <View
+          style={
+            !isTranscriptTxt
+              ? [styles.captionTextContainerStyle, captionContainerStyle]
+              : {}
+          }>
           <Text
             style={[
               styles.text,
-              isTranscriptTxt ? styles.transciptText : styles.captionText,
+              isTranscriptTxt
+                ? styles.transciptText
+                : [styles.captionText, captionStyle],
             ]}>
             {value}
           </Text>
@@ -76,7 +90,7 @@ const styles = StyleSheet.create({
   },
   captionText: {
     fontSize: 18,
-    lineHeight: 24,
+    lineHeight: 22,
     position: 'absolute',
     bottom: 0,
     minHeight: 80,

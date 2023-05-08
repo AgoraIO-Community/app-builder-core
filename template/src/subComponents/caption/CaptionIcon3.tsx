@@ -56,6 +56,7 @@ const CaptionIcon3 = (props: CaptionIconProps) => {
     setIsSTTActive,
     setIsCaptionON,
     setIsCaptionON2,
+    setIsCaptionON4,
     isCaptionON,
     isCaptionON2,
     setTranscript,
@@ -72,6 +73,7 @@ const CaptionIcon3 = (props: CaptionIconProps) => {
     }
     setIsCaptionON(false);
     setIsCaptionON2(false);
+    setIsCaptionON4(false);
     setIsCaptionON3((prev) => !prev);
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel

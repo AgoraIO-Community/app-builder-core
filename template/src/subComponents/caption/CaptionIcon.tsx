@@ -58,6 +58,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isCaptionON3,
     setIsCaptionON2,
     setIsCaptionON3,
+    setIsCaptionON4,
     setTranscript,
   } = useCaption();
   const {store} = React.useContext(StorageContext);
@@ -73,6 +74,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     }
     setIsCaptionON2(false);
     setIsCaptionON3(false);
+    setIsCaptionON4(false);
     setIsCaptionON((prev) => !prev);
 
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
