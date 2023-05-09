@@ -37,7 +37,7 @@ export const TranscriptText = ({
       style={
         isTranscriptTxt ? styles.transciptContainer : styles.captionContainer
       }>
-      {name ? (
+      {name && value ? (
         <Text
           style={[
             styles.name,

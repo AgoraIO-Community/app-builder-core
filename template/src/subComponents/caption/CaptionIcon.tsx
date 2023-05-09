@@ -54,11 +54,6 @@ const CaptionIcon = (props: CaptionIconProps) => {
     setIsCaptionON,
     isSTTActive,
     setIsSTTActive,
-    isCaptionON2,
-    isCaptionON3,
-    setIsCaptionON2,
-    setIsCaptionON3,
-    setIsCaptionON4,
     setTranscript,
   } = useCaption();
   const {store} = React.useContext(StorageContext);
@@ -68,13 +63,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const toggleSTT = async (method: string) => {
     // handleSTT
-    //TODO : remove code related to caption2 & caption3 and clearing transcript when some other icon is clicked
-    if (isCaptionON2 || isCaptionON3) {
-      setTranscript({});
-    }
-    setIsCaptionON2(false);
-    setIsCaptionON3(false);
-    setIsCaptionON4(false);
+
     setIsCaptionON((prev) => !prev);
 
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel

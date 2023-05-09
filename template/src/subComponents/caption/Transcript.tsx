@@ -20,7 +20,7 @@ const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
-  const {transcript} = useCaption();
+  const {transcript, meetingTranscript} = useCaption();
 
   // if we want to make transcript persistant after user refreshes
   // React.useEffect(() => {
@@ -36,6 +36,10 @@ const Transcript = (props: TranscriptProps) => {
   //   };
   //   loadTranscript();
   // }, []);
+
+  React.useEffect(() => {
+    console.log('new item pushed', meetingTranscript);
+  }, [meetingTranscript]);
 
   return (
     <View

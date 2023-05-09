@@ -5,27 +5,12 @@ import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {isMobileUA} from '../../utils/common';
-import Caption2 from './Caption2';
-import Caption3 from './Caption3';
-import Caption4 from './Caption4';
 
 const CaptionContainer = () => {
   const {isCaptionON, isCaptionON2, isCaptionON3, isCaptionON4} = useCaption();
   return isCaptionON ? (
     <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
       <Caption />
-    </View>
-  ) : isCaptionON2 ? (
-    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
-      <Caption2 />
-    </View>
-  ) : isCaptionON3 ? (
-    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
-      <Caption3 />
-    </View>
-  ) : isCaptionON4 ? (
-    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
-      <Caption4 />
     </View>
   ) : null;
 };
