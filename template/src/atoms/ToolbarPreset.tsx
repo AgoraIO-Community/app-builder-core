@@ -1,3 +1,4 @@
+import Navbar from '../components/Navbar';
 import Controls from '../components/Controls';
 import React from 'react';
 
@@ -18,7 +19,7 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
   if (align === 'left' || align === 'right') {
     //process custom items and show
   } else if (align === 'top') {
-    //todo topbar
+    return <Navbar customItems={props.customItems} />;
   } else if (align === 'bottom') {
     return <Controls customItems={props.customItems} />;
   } else {

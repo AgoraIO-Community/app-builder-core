@@ -461,7 +461,7 @@ const defaultCenterItems: ToolbarCustomItem[] = [
 const defaultEndItems: ToolbarCustomItem[] = [];
 
 interface ControlsProps {
-  customItems: Array<ToolbarCustomItem>;
+  customItems?: ToolbarCustomItem[];
 }
 const Controls = (props: ControlsProps) => {
   const {customItems = []} = props;
