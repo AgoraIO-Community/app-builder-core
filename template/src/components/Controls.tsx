@@ -10,38 +10,21 @@
 *********************************************
 */
 import React, {useState, useContext, useEffect, useRef} from 'react';
-import {View, StyleSheet, Text, useWindowDimensions} from 'react-native';
+import {View, StyleSheet, useWindowDimensions} from 'react-native';
 import {PropsContext} from '../../agora-rn-uikit';
-import LocalAudioMute, {
-  LocalAudioMuteProps,
-} from '../subComponents/LocalAudioMute';
-import LocalVideoMute, {
-  LocalVideoMuteProps,
-} from '../subComponents/LocalVideoMute';
-import Recording, {RecordingButtonProps} from '../subComponents/Recording';
-import LocalSwitchCamera, {
-  LocalSwitchCameraProps,
-} from '../subComponents/LocalSwitchCamera';
-import ScreenshareButton, {
-  ScreenshareButtonProps,
-} from '../subComponents/screenshare/ScreenshareButton';
+import LocalAudioMute from '../subComponents/LocalAudioMute';
+import LocalVideoMute from '../subComponents/LocalVideoMute';
+import Recording from '../subComponents/Recording';
+import LocalSwitchCamera from '../subComponents/LocalSwitchCamera';
+import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
-import LiveStreamControls, {
-  LiveStreamControlsProps,
-} from './livestream/views/LiveStreamControls';
-import {
-  BREAKPOINTS,
-  calculatePosition,
-  isWebInternal,
-  useIsDesktop,
-} from '../utils/common';
+import LiveStreamControls from './livestream/views/LiveStreamControls';
+import {BREAKPOINTS, useIsDesktop} from '../utils/common';
 import {useRoomInfo} from './room-info/useRoomInfo';
-import LocalEndcall, {LocalEndcallProps} from '../subComponents/LocalEndCall';
-import Spacer from '../atoms/Spacer';
+import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
 import CopyJoinInfo from '../subComponents/CopyJoinInfo';
-import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import IconButton from '../atoms/IconButton';
 import ActionMenu, {ActionMenuItem} from '../atoms/ActionMenu';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
@@ -57,8 +40,8 @@ import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import Toolbar from '../atoms/Toolbar';
-import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
+import {ToolbarCustomItem} from 'src/atoms/ToolbarPreset';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -278,117 +261,274 @@ const MoreButton = () => {
     </>
   );
 };
-const Controls = () => {
+const LayoutToolbarItem = () => (
+  <ToolbarItem testID="layout-btn" collapsable={false}>
+    {/**
+     * .measure returns undefined on Android unless collapsable=false or onLayout are specified
+     * so added collapsable property
+     * https://github.com/facebook/react-native/issues/29712
+     * */}
+    <LayoutIconButton />
+  </ToolbarItem>
+);
+const InviteToolbarItem = () => {
+  return (
+    <ToolbarItem testID="invite-btn">
+      <CopyJoinInfo />
+    </ToolbarItem>
+  );
+};
+const defaultStartItems: Array<ToolbarCustomItem> = [
+  {
+    align: 'start',
+    component: LayoutToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: InviteToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+];
+
+const LiveStreamingHostToolbarItem = () => {
+  const {rtcProps} = useContext(PropsContext);
+  const isDesktop = useIsDesktop();
+  return $config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
+    <LiveStreamControls showControls={true} isDesktop={isDesktop('toolbar')} />
+  ) : (
+    <></>
+  );
+};
+
+const LiveStreamingAttendeeToolbarItem = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
   const {
     data: {isHost},
   } = useRoomInfo();
-  const {isHorizontal} = useToolbar();
+  return (
+    /**
+     * In event mode when raise hand feature is active
+     * and audience is promoted to host, the audience can also
+     * demote himself
+     */
+    $config.EVENT_MODE ? (
+      <LiveStreamControls
+        isDesktop={isDesktop('toolbar')}
+        showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+      />
+    ) : (
+      <></>
+    )
+  );
+};
+
+const LocalAudioToolbarItem = () => {
+  return (
+    <ToolbarItem testID="localAudio-btn">
+      <LocalAudioMute showToolTip={true} />
+    </ToolbarItem>
+  );
+};
+
+const LocalVideoToolbarItem = () => {
+  return (
+    !$config.AUDIO_ROOM && (
+      <ToolbarItem testID="localVideo-btn">
+        <LocalVideoMute showToolTip={true} />
+      </ToolbarItem>
+    )
+  );
+};
+
+const SwitchCameraToolbarItem = () => {
+  return (
+    !$config.AUDIO_ROOM &&
+    isMobileOrTablet() && (
+      <ToolbarItem testID="switchCamera-btn">
+        <LocalSwitchCamera />
+      </ToolbarItem>
+    )
+  );
+};
+
+const ScreenShareToolbarItem = () => {
   const {width} = useWindowDimensions();
+  return (
+    width > BREAKPOINTS.sm &&
+    $config.SCREEN_SHARING &&
+    !isMobileOrTablet() && (
+      <ToolbarItem testID="screenShare-btn">
+        <ScreenshareButton />
+      </ToolbarItem>
+    )
+  );
+};
+const RecordingToolbarItem = () => {
+  const {width} = useWindowDimensions();
+  const {
+    data: {isHost},
+  } = useRoomInfo();
+  return (
+    width > BREAKPOINTS.sm &&
+    isHost &&
+    $config.CLOUD_RECORDING && (
+      <ToolbarItem testID="recording-btn">
+        <Recording />
+      </ToolbarItem>
+    )
+  );
+};
+
+const MoreButtonToolbarItem = () => {
+  const {width} = useWindowDimensions();
+  return (
+    width < BREAKPOINTS.md && (
+      <ToolbarItem testID="more-btn">
+        <MoreButton />
+      </ToolbarItem>
+    )
+  );
+};
+const LocalEndcallToolbarItem = () => {
+  return (
+    <ToolbarItem testID="endCall-btn">
+      <LocalEndcall />
+    </ToolbarItem>
+  );
+};
+
+const defaultCenterItems: ToolbarCustomItem[] = [
+  {
+    align: 'start',
+    component: LiveStreamingHostToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: LiveStreamingAttendeeToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: LocalAudioToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: LocalVideoToolbarItem,
+    order: 2,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: SwitchCameraToolbarItem,
+    order: 3,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: ScreenShareToolbarItem,
+    order: 4,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: RecordingToolbarItem,
+    order: 5,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: MoreButtonToolbarItem,
+    order: 6,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: LocalEndcallToolbarItem,
+    order: 7,
+    hide: 'no',
+  },
+];
+
+const defaultEndItems: ToolbarCustomItem[] = [];
+
+interface ControlsProps {
+  customItems: Array<ToolbarCustomItem>;
+}
+const Controls = (props: ControlsProps) => {
+  const {customItems = []} = props;
+  const {width} = useWindowDimensions();
+
+  const customStartItems = customItems
+    ?.filter((i) => i.align === 'start')
+    ?.concat(defaultStartItems)
+    ?.sort((a, b) => a.order - b.order);
+
+  const customCenterItems = customItems
+    ?.filter((i) => i.align === 'center')
+    ?.concat(defaultCenterItems)
+    ?.sort((a, b) => a.order - b.order);
+
+  const customEndItems = customItems
+    ?.filter((i) => i.align === 'end')
+    ?.concat(defaultEndItems)
+    ?.sort((a, b) => a.order - b.order);
+
+  const renderContent = (
+    items: ToolbarCustomItem[],
+    type: 'start' | 'center' | 'end',
+  ) => {
+    return items.map((item, index) => {
+      const ToolbarItem = item.component;
+      return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+    });
+  };
   return (
     <Toolbar>
       {width >= BREAKPOINTS.md && (
-        <View
-          style={[
-            style.leftContent,
-            isHorizontal ? {flexDirection: 'row'} : {flexDirection: 'column'},
-          ]}>
-          <ToolbarItem testID="layout-btn" collapsable={false}>
-            {/**
-             * .measure returns undefined on Android unless collapsable=false or onLayout are specified
-             * so added collapsable property
-             * https://github.com/facebook/react-native/issues/29712
-             * */}
-            <LayoutIconButton />
-          </ToolbarItem>
-          <ToolbarItem testID="invite-btn">
-            <CopyJoinInfo />
-          </ToolbarItem>
+        <View style={[style.startContent]}>
+          {renderContent(customStartItems, 'start')}
         </View>
       )}
-      <View
-        style={[
-          style.centerContent,
-          isHorizontal ? {flexDirection: 'row'} : {flexDirection: 'column'},
-        ]}>
-        {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-          <LiveStreamControls
-            showControls={true}
-            isDesktop={isDesktop('toolbar')}
-          />
-        ) : (
-          <></>
-        )}
-        <>
-          {/**
-           * In event mode when raise hand feature is active
-           * and audience is promoted to host, the audience can also
-           * demote himself
-           */}
-          {$config.EVENT_MODE ? (
-            <LiveStreamControls
-              isDesktop={isDesktop('toolbar')}
-              showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
-            />
-          ) : (
-            <></>
-          )}
-          <ToolbarItem testID="localAudio-btn">
-            <LocalAudioMute showToolTip={true} />
-          </ToolbarItem>
-          {!$config.AUDIO_ROOM && (
-            <ToolbarItem testID="localVideo-btn">
-              <LocalVideoMute showToolTip={true} />
-            </ToolbarItem>
-          )}
-          {!$config.AUDIO_ROOM && isMobileOrTablet() && (
-            <ToolbarItem testID="switchCamera-btn">
-              <LocalSwitchCamera />
-            </ToolbarItem>
-          )}
-          {width > BREAKPOINTS.sm &&
-            $config.SCREEN_SHARING &&
-            !isMobileOrTablet() && (
-              <ToolbarItem testID="screenShare-btn">
-                <ScreenshareButton />
-              </ToolbarItem>
-            )}
-          {width > BREAKPOINTS.sm && isHost && $config.CLOUD_RECORDING && (
-            <ToolbarItem testID="recording-btn">
-              <Recording />
-            </ToolbarItem>
-          )}
-        </>
-        {width < BREAKPOINTS.md && (
-          <ToolbarItem testID="more-btn">
-            <MoreButton />
-          </ToolbarItem>
-        )}
-        <ToolbarItem testID="endCall-btn">
-          <LocalEndcall />
-        </ToolbarItem>
+      <View style={[style.centerContent]}>
+        {renderContent(customCenterItems, 'center')}
       </View>
-      {width >= BREAKPOINTS.md && <View style={style.rightContent}></View>}
+      {width >= BREAKPOINTS.md && (
+        <View style={style.endContent}>
+          {renderContent(customEndItems, 'end')}
+        </View>
+      )}
     </Toolbar>
   );
 };
 
 const style = StyleSheet.create({
-  leftContent: {
+  startContent: {
     flex: 1,
-
+    flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
   centerContent: {
     zIndex: 2,
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  rightContent: {
+  endContent: {
     flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
 });
 
