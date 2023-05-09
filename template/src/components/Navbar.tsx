@@ -346,7 +346,7 @@ const Navbar = () => {
         <ToolbarItem>
           <ParticipantsCount />
         </ToolbarItem>
-        {!isRecordingActive ? (
+        {isRecordingActive ? (
           <ToolbarItem>
             <RecordingInfo
               recordingLabel={isHorizontal ? recordingLabel : ''}
