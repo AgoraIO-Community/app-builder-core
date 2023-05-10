@@ -487,8 +487,12 @@ const Controls = (props: ControlsProps) => {
     type: 'start' | 'center' | 'end',
   ) => {
     return items.map((item, index) => {
-      const ToolbarItem = item.component;
-      return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+      const ToolbarItem = item?.component;
+      if (ToolbarItem) {
+        return <ToolbarItem key={`bottom-toolbar-${type}` + index} />;
+      } else {
+        return null;
+      }
     });
   };
   return (
