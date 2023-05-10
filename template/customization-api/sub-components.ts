@@ -50,6 +50,7 @@ export {
   ClientRole as UikitClientRole,
   ChannelProfile as UikitChannelProfile,
 } from '../agora-rn-uikit';
+export {default as Toolbar} from '../src/atoms/Toolbar';
 export {default as ToolbarItem} from '../src/atoms/ToolbarItem';
 export {default as ToolbarPreset} from '../src/atoms/ToolbarPreset';
 export type {
