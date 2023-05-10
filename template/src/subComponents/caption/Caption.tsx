@@ -8,31 +8,21 @@ import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import Spacer from '../../../src/atoms/Spacer';
 
-const Caption4 = () => {
+const Caption = () => {
   const {renderList} = useRender();
   const {RtcEngine} = useRtc();
   const renderListRef = React.useRef({renderList});
   const [text, setText] = React.useState(''); // state for current live caption
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
-  const finalList = React.useRef<Object>({}); // holds transcript of final words of all users
-  const nonfinalList = React.useRef<Object>({}); // holds transcript of intermediate words for each pass of all users
+  const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
   const outputStreamFinal = React.useRef<string>(''); // store in localStorage to access previous captions
-  //const outputStreamNonFinal = React.useRef<string>('');
+
   const {setTranscript, setMeetingTranscript, meetingTranscript} = useCaption();
   const startTimeRef = React.useRef<number>(0);
   const simpleTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
-  const lastSeqnum = React.useRef<number>(-1);
+
   const captionsRef = React.useRef<Object>({});
   const simpletextMettingRef = React.useRef([]);
-
-  // if want to persist chat script after user refreshes the page
-  const updateInStorage = async (obj) => {
-    try {
-      await AsyncStorage.setItem('fullTranscript', JSON.stringify(obj));
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const isSentenceBoundaryWord = (word) => {
     return word == '.' || word == '?';
@@ -43,42 +33,26 @@ const Caption4 = () => {
   };
 
   const handleStreamMessageCallback = (...args) => {
-    console.warn(`Recived data stream for Web : ${Platform.OS}`, args);
-    const [uid, payload] = args;
-
+    const [uid, payload] = args; // uid is of the bot which sends the stream messages in the channel
     let currentCaption = ''; // holds current caption
     const textstream = protoRoot
       .lookupType('Text')
       .decode(payload as Uint8Array) as any;
+    console.log('STT - Parsed Textstream : ', textstream);
 
-    // if (textstream.seqnum === lastSeqnum.current) {
-    //   return;
-    // } else {
-    //   lastSeqnum.current = textstream.seqnum;
-    // }
-
-    // check how many participants are allowed Hots:4 Audience: 5
-
-    const words = textstream.words;
     const userName =
-      renderListRef.current.renderList[textstream.uid]?.name || 'Speaker';
-    console.log(
-      `Decoded stream for ${userName} (${textstream.uid}) :`,
-      textstream,
-    );
+      renderListRef.current.renderList[textstream.uid]?.name || 'Speaker'; // identifying speaker of caption
 
-    //check if we can use the nonfinal words to show live caption and when final words is there we compare and update that
+    // creating [] for each user to store thier complete transcripts
     if (!finalList.current[textstream.uid]) {
       finalList.current[textstream.uid] = [];
-    }
-    if (!nonfinalList.current[textstream.uid]) {
-      nonfinalList.current[textstream.uid] = [];
     }
 
     let nonFinalList = [];
     let text1 = ''; // final name:text
     let text2 = '';
     let text3 = ''; // text
+    const words = textstream.words;
 
     // categorize words into final & nonFinal objects per uid
     words.map((word) => {
@@ -112,15 +86,10 @@ const Caption4 = () => {
       }
     });
 
-    //TBD : localstorage
     if (text1.length) {
       outputStreamFinal.current +=
         new Date().toLocaleString() + ' ' + text1 + '\n';
     }
-    // if (text2.length) {
-    //   outputStreamNonFinal.current +=
-    //     new Date().toLocaleString() + ' ' + text2 + '\n';
-    // }
 
     if (text3.length) {
       let flag = false;
@@ -176,31 +145,41 @@ const Caption4 = () => {
       // });
     }
 
-    let stringBuilder = '';
-    finalList.current[textstream.uid].forEach((item) => {
-      if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
-        stringBuilder += ' ';
-      }
-      stringBuilder += item;
-      if (isSentenceBoundaryWord(item)) {
-        stringBuilder += '\n';
-      }
-    });
+    // including prev references of the caption
+    let stringBuilder = finalList.current[textstream.uid].join(' ');
+    stringBuilder += stringBuilder.length > 0 ? ' ' : '';
+    stringBuilder += nonFinalList.join(' ');
 
-    nonFinalList.forEach((item) => {
-      if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
-        stringBuilder += ' ';
-      }
-      stringBuilder += item;
-      if (isSentenceBoundaryWord(item)) {
-        stringBuilder += '\n';
-      }
-    });
+    // check for adding only current caption
+    let stringBuilder1 = '';
+    stringBuilder1 += nonFinalList.join(' ');
+    stringBuilder1 += ' ' + currentCaption;
+
+    // adding prev final words
+
+    // finalList.current[textstream.uid].forEach((item) => {
+    //   if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
+    //     stringBuilder += ' ';
+    //   }
+    //   stringBuilder += item;
+    //   if (isSentenceBoundaryWord(item)) {
+    //     stringBuilder += '\n';
+    //   }
+    // });
+
+    // nonFinalList.forEach((item) => {
+    //   if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
+    //     stringBuilder += ' ';
+    //   }
+    //   stringBuilder += item;
+    //   if (isSentenceBoundaryWord(item)) {
+    //     stringBuilder += '\n';
+    //   }
+    // });
 
     if (textstream.words.length === 0) stringBuilder = '';
     console.group('STT-logs');
     console.log('stt-finalList =>', finalList);
-    console.log('stt-nonFinalList =>', nonFinalList);
     console.log('stt - simpleText =>', simpleTextRef.current);
     console.log('stt - text3 =>', text3);
     console.groupEnd();
@@ -223,8 +202,6 @@ const Caption4 = () => {
           [key]: currentCaption,
         };
       });
-
-      // updateInStorage(outputStreamFinal.current);
     }
   };
 
@@ -239,17 +216,27 @@ const Caption4 = () => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
 
+  const speakers = Object.entries(textObj);
+
   return (
     <ScrollView>
-      {Object.entries(textObj).map(([key, value]) => (
+      {speakers.map(([key, value]) => (
         <TranscriptText
           key={key}
           user={
             renderListRef.current.renderList[Number(key)]?.name || 'Speaker'
           }
-          value={value}
-          captionContainerStyle={styles.captionContainerStyle}
-          captionStyle={styles.captionStyle}
+          value={value.trim()}
+          captionContainerStyle={
+            speakers.length === 1
+              ? styles.singleCaptionContainerStyle
+              : styles.captionContainerStyle
+          }
+          captionStyle={
+            speakers.length === 1
+              ? styles.singleCaptionStyle
+              : styles.captionStyle
+          }
         />
       ))}
     </ScrollView>
@@ -260,10 +247,16 @@ const styles = StyleSheet.create({
   captionStyle: {
     minHeight: 40,
   },
+  singleCaptionStyle: {
+    minHeight: 80,
+  },
   captionContainerStyle: {
     height: 40,
     marginBottom: 8,
   },
+  singleCaptionContainerStyle: {
+    height: 80,
+  },
 });
 
-export default Caption4;
+export default Caption;
