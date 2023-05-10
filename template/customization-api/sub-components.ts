@@ -18,8 +18,6 @@ export {Icons} from '../agora-rn-uikit';
 //video call components
 export {
   ParticipantsView,
-  Controls,
-  Navbar,
   ChatBubble,
   ChatInput,
   Chat,
@@ -52,3 +50,9 @@ export {
   ClientRole as UikitClientRole,
   ChannelProfile as UikitChannelProfile,
 } from '../agora-rn-uikit';
+export {default as ToolbarItem} from '../src/atoms/ToolbarItem';
+export {default as ToolbarPreset} from '../src/atoms/ToolbarPreset';
+export type {
+  ToolbarCustomItem,
+  ToolbarPresetProps,
+} from '../src/atoms/ToolbarPreset';

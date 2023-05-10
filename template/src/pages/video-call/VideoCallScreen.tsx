@@ -7,10 +7,10 @@ import {
   Platform,
 } from 'react-native';
 import {useCustomization} from 'customization-implementation';
-import Navbar from '../../components/Navbar';
+import Navbar, {NavbarProps} from '../../components/Navbar';
 import ParticipantsView from '../../components/ParticipantsView';
 import SettingsView from '../../components/SettingsView';
-import Controls from '../../components/Controls';
+import Controls, {ControlsProps} from '../../components/Controls';
 import Chat, {ChatProps} from '../../components/Chat';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {
@@ -28,6 +28,8 @@ import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {controlMessageEnum, useUserName} from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
+import Leftbar, {LeftbarProps} from '../../components/Leftbar';
+import Rightbar, {RightbarProps} from '../../components/Rightbar';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -50,14 +52,14 @@ const VideoCallScreen = () => {
     let components: {
       VideocallComponent?: React.ComponentType;
       ChatComponent: React.ComponentType<ChatProps>;
-      BottombarComponent: React.ComponentType;
+      BottombarComponent: React.ComponentType<ControlsProps>;
       ParticipantsComponent: React.ComponentType;
       SettingsComponent: React.ComponentType;
-      TopbarComponent: React.ComponentType;
+      TopbarComponent: React.ComponentType<NavbarProps>;
       VideocallBeforeView: React.ComponentType;
       VideocallAfterView: React.ComponentType;
-      LeftbarComponent: React.ComponentType;
-      RightbarComponent: React.ComponentType;
+      LeftbarComponent: React.ComponentType<LeftbarProps>;
+      RightbarComponent: React.ComponentType<RightbarProps>;
     } = {
       BottombarComponent: Controls,
       TopbarComponent: Navbar,
@@ -66,8 +68,8 @@ const VideoCallScreen = () => {
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
-      LeftbarComponent: React.Fragment,
-      RightbarComponent: React.Fragment,
+      LeftbarComponent: Leftbar,
+      RightbarComponent: Rightbar,
     };
     if (
       data?.components?.videoCall &&
