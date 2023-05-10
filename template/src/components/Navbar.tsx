@@ -417,7 +417,7 @@ const defaultEndItems: ToolbarCustomItem[] = [
   },
 ];
 
-interface NavbarProps {
+export interface NavbarProps {
   customItems?: ToolbarCustomItem[];
 }
 const Navbar = (props: NavbarProps) => {
