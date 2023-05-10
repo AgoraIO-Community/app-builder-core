@@ -23,27 +23,29 @@ export interface LeftbarProps {
 }
 const Leftbar = (props: LeftbarProps) => {
   const {customItems = []} = props;
-
+  const isHidden = (i) => {
+    return i?.hide === 'yes';
+  };
   const customStartItems = customItems
-    ?.filter((i) => i.align === 'start')
+    ?.filter((i) => i?.align === 'start' && !isHidden(i))
     ?.concat(defaultStartItems)
-    ?.sort((a, b) => a.order - b.order);
+    ?.sort((a, b) => a?.order - b?.order);
 
   const customCenterItems = customItems
-    ?.filter((i) => i.align === 'center')
+    ?.filter((i) => i?.align === 'center' && !isHidden(i))
     ?.concat(defaultCenterItems)
-    ?.sort((a, b) => a.order - b.order);
+    ?.sort((a, b) => a?.order - b?.order);
 
   const customEndItems = customItems
-    ?.filter((i) => i.align === 'end')
+    ?.filter((i) => i?.align === 'end' && !isHidden(i))
     ?.concat(defaultEndItems)
-    ?.sort((a, b) => a.order - b.order);
+    ?.sort((a, b) => a?.order - b?.order);
 
   const renderContent = (
     items: ToolbarCustomItem[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items.map((item, index) => {
+    return items?.map((item, index) => {
       const ToolbarItem = item?.component;
       if (ToolbarItem) {
         return <ToolbarItem key={`left-toolbar-${type}` + index} />;

@@ -8,7 +8,7 @@ export interface ToolbarCustomItem {
   component: () => JSX.Element;
   align: 'start' | 'center' | 'end';
   hide: 'yes' | 'no' | 'never';
-  order: number;
+  order?: number;
 }
 
 export interface ToolbarPresetProps {

@@ -426,26 +426,30 @@ const Navbar = (props: NavbarProps) => {
   const {customItems = []} = props;
   const {width} = useWindowDimensions();
 
+  const isHidden = (i) => {
+    return i?.hide === 'yes';
+  };
+
   const customStartItems = customItems
-    ?.filter((i) => i.align === 'start')
+    ?.filter((i) => i.align === 'start' && !isHidden(i))
     ?.concat(defaultStartItems)
-    ?.sort((a, b) => a.order - b.order);
+    ?.sort((a, b) => a?.order - b?.order);
 
   const customCenterItems = customItems
-    ?.filter((i) => i.align === 'center')
+    ?.filter((i) => i.align === 'center' && !isHidden(i))
     ?.concat(defaultCenterItems)
-    ?.sort((a, b) => a.order - b.order);
+    ?.sort((a, b) => a?.order - b?.order);
 
   const customEndItems = customItems
-    ?.filter((i) => i.align === 'end')
+    ?.filter((i) => i.align === 'end' && !isHidden(i))
     ?.concat(defaultEndItems)
-    ?.sort((a, b) => a.order - b.order);
+    ?.sort((a, b) => a?.order - b?.order);
 
   const renderContent = (
     items: ToolbarCustomItem[],
     type: 'start' | 'center' | 'end',
   ) => {
-    return items.map((item, index) => {
+    return items?.map((item, index) => {
       const ToolbarItem = item?.component;
       if (ToolbarItem) {
         return <ToolbarItem key={`top-toolbar-${type}` + index} />;
@@ -463,7 +467,7 @@ const Navbar = (props: NavbarProps) => {
         {renderContent(customCenterItems, 'center')}
       </View>
       {width > BREAKPOINTS.sm || isMobileUA() ? (
-        <View style={[style.endContent]} testID="videocall-navcontrols">
+        <View style={style.endContent}>
           {renderContent(customEndItems, 'end')}
         </View>
       ) : (
