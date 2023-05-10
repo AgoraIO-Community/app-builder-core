@@ -36,7 +36,7 @@
   "LOGO": "https://dbudicf5k4as1.cloudfront.net/2/5TWpUqsdC0BH6lPJ.jpeg",
   "ICON": "",
   "PRIMARY_COLOR": "#00AEFC",
-  "FRONTEND_ENDPOINT": "bd14cff8cb21c0cd64c7-bhupendra1011.vercel.app",
+  "FRONTEND_ENDPOINT": "",
   "BACKEND_ENDPOINT": "https://managedservices-dev.rteappbuilder.com",
   "PSTN": false,
   "PRECALL": true,
