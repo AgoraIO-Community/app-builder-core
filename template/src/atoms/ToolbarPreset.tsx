@@ -1,8 +1,8 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Controls from '../components/Controls';
-import Leftbar from '../components/LeftBar';
-import Rightbar from '../components/RightBar';
+import Leftbar from '../components/Leftbar';
+import Rightbar from '../components/Rightbar';
 
 export interface ToolbarCustomItem {
   component: () => JSX.Element;

@@ -28,8 +28,8 @@ import {useRoomInfo} from '../../components/room-info/useRoomInfo';
 import {controlMessageEnum, useUserName} from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
-import Leftbar, {LeftbarProps} from '../../components/LeftBar';
-import Rightbar, {RightbarProps} from '../../components/RightBar';
+import Leftbar, {LeftbarProps} from '../../components/Leftbar';
+import Rightbar, {RightbarProps} from '../../components/Rightbar';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
