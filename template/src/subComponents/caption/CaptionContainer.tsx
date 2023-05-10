@@ -1,18 +1,153 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, useWindowDimensions, View} from 'react-native';
 import React from 'react';
 
 import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
-import {isMobileUA} from '../../utils/common';
+import {calculatePosition, isMobileUA} from '../../utils/common';
+import IconButton from '../../../src/atoms/IconButton';
+import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
+import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
+import {SidePanelType, useSidePanel} from 'customization-api';
 
 const CaptionContainer = () => {
-  const {isCaptionON, isCaptionON2, isCaptionON3, isCaptionON4} = useCaption();
+  const {isCaptionON, setIsCaptionON} = useCaption();
+  const moreIconRef = React.useRef<View>(null);
+  const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+
   return isCaptionON ? (
     <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
+      <CaptionsActionMenu
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        btnRef={moreIconRef}
+        from="captions"
+      />
+      <MoreMenu ref={moreIconRef} setActionMenuVisible={setActionMenuVisible} />
       <Caption />
     </View>
   ) : null;
+};
+
+interface MoreMenuProps {
+  setActionMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
+  const {setActionMenuVisible} = props;
+  return (
+    <View
+      ref={ref}
+      collapsable={false}
+      style={{
+        width: 32,
+        height: 32,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        position: 'absolute',
+        right: 12,
+        top: 12,
+      }}>
+      <IconButton
+        hoverEffect={true}
+        hoverEffectStyle={{
+          backgroundColor:
+            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+          borderRadius: 20,
+          padding: 6,
+        }}
+        iconProps={{
+          iconType: 'plain',
+          name: 'more-menu',
+          iconSize: 18,
+          tintColor: $config.SECONDARY_ACTION_COLOR,
+        }}
+        onPress={() => {
+          setActionMenuVisible(true);
+        }}
+      />
+    </View>
+  );
+});
+
+interface CaptionsActionMenuProps {
+  actionMenuVisible: boolean;
+  setActionMenuVisible: (actionMenuVisible: boolean) => void;
+  btnRef: React.RefObject<View>;
+  from: string;
+}
+
+const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
+  const {actionMenuVisible, setActionMenuVisible, btnRef, from} = props;
+  const {setSidePanel} = useSidePanel();
+  const {setIsCaptionON} = useCaption();
+  const actionMenuitems: ActionMenuItem[] = [];
+  const [modalPosition, setModalPosition] = React.useState({});
+  const [isPosCalculated, setIsPosCalculated] = React.useState(false);
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+
+  actionMenuitems.push({
+    isBase64Icon: true,
+    icon: 'profile', //TODO: update show transcript icon
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Show Transcript',
+    callback: () => {
+      setActionMenuVisible(false);
+      setIsCaptionON(false);
+      setSidePanel(SidePanelType.Transcript);
+    },
+  });
+  actionMenuitems.push({
+    isBase64Icon: true,
+    icon: 'turn-off-stt',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Turn Off Speech to text ',
+    callback: () => {
+      setActionMenuVisible(false);
+      setIsCaptionON(false);
+    },
+  });
+
+  React.useEffect(() => {
+    if (actionMenuVisible) {
+      //getting btnRef x,y
+      props.btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          const data = calculatePosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          setModalPosition(data);
+          setIsPosCalculated(true);
+        },
+      );
+    }
+  }, [actionMenuVisible]);
+  return (
+    <ActionMenu
+      from={'caption'}
+      actionMenuVisible={actionMenuVisible && isPosCalculated}
+      setActionMenuVisible={setActionMenuVisible}
+      modalPosition={modalPosition}
+      items={actionMenuitems}
+    />
+  );
 };
 
 export default CaptionContainer;
@@ -28,8 +163,6 @@ const styles = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     paddingLeft: 260,
-    borderColor: 'blue',
-    borderWidth: 1,
   },
   mobileContainer: {
     marginHorizontal: 0,

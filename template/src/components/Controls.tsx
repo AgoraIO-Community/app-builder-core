@@ -314,10 +314,6 @@ const Controls = () => {
           <View testID="caption-btn" style={{marginHorizontal: 10}}>
             <CaptionIcon />
           </View>
-
-          <View testID="transcript-btn" style={{marginHorizontal: 10}}>
-            <TranscriptIcon />
-          </View>
         </View>
       )}
       <View style={style.centerContent}>
