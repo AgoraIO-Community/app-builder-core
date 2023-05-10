@@ -261,7 +261,7 @@ const MoreButton = () => {
     </>
   );
 };
-const LayoutToolbarItem = () => (
+export const LayoutToolbarItem = () => (
   <ToolbarItem testID="layout-btn" collapsable={false}>
     {/**
      * .measure returns undefined on Android unless collapsable=false or onLayout are specified
@@ -271,7 +271,7 @@ const LayoutToolbarItem = () => (
     <LayoutIconButton />
   </ToolbarItem>
 );
-const InviteToolbarItem = () => {
+export const InviteToolbarItem = () => {
   return (
     <ToolbarItem testID="invite-btn">
       <CopyJoinInfo />
@@ -293,40 +293,37 @@ const defaultStartItems: Array<ToolbarCustomItem> = [
   },
 ];
 
-const LiveStreamingHostToolbarItem = () => {
-  const {rtcProps} = useContext(PropsContext);
-  const isDesktop = useIsDesktop();
-  return $config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
-    <LiveStreamControls showControls={true} isDesktop={isDesktop('toolbar')} />
-  ) : (
-    <></>
-  );
-};
-
-const LiveStreamingAttendeeToolbarItem = () => {
+export const RaiseHandToolbarItem = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
   const {
     data: {isHost},
   } = useRoomInfo();
-  return (
-    /**
-     * In event mode when raise hand feature is active
-     * and audience is promoted to host, the audience can also
-     * demote himself
-     */
-    $config.EVENT_MODE ? (
+  return $config.EVENT_MODE ? (
+    rtcProps.role == ClientRole.Audience ? (
+      <LiveStreamControls
+        showControls={true}
+        isDesktop={isDesktop('toolbar')}
+      />
+    ) : rtcProps?.role == ClientRole.Broadcaster ? (
+      /**
+       * In event mode when raise hand feature is active
+       * and audience is promoted to host, the audience can also
+       * demote himself
+       */
       <LiveStreamControls
         isDesktop={isDesktop('toolbar')}
-        showControls={rtcProps?.role == ClientRole.Broadcaster && !isHost}
+        showControls={!isHost}
       />
     ) : (
       <></>
     )
+  ) : (
+    <></>
   );
 };
 
-const LocalAudioToolbarItem = () => {
+export const LocalAudioToolbarItem = () => {
   return (
     <ToolbarItem testID="localAudio-btn">
       <LocalAudioMute showToolTip={true} />
@@ -334,7 +331,7 @@ const LocalAudioToolbarItem = () => {
   );
 };
 
-const LocalVideoToolbarItem = () => {
+export const LocalVideoToolbarItem = () => {
   return (
     !$config.AUDIO_ROOM && (
       <ToolbarItem testID="localVideo-btn">
@@ -344,7 +341,7 @@ const LocalVideoToolbarItem = () => {
   );
 };
 
-const SwitchCameraToolbarItem = () => {
+export const SwitchCameraToolbarItem = () => {
   return (
     !$config.AUDIO_ROOM &&
     isMobileOrTablet() && (
@@ -355,7 +352,7 @@ const SwitchCameraToolbarItem = () => {
   );
 };
 
-const ScreenShareToolbarItem = () => {
+export const ScreenShareToolbarItem = () => {
   const {width} = useWindowDimensions();
   return (
     width > BREAKPOINTS.sm &&
@@ -367,7 +364,7 @@ const ScreenShareToolbarItem = () => {
     )
   );
 };
-const RecordingToolbarItem = () => {
+export const RecordingToolbarItem = () => {
   const {width} = useWindowDimensions();
   const {
     data: {isHost},
@@ -383,7 +380,7 @@ const RecordingToolbarItem = () => {
   );
 };
 
-const MoreButtonToolbarItem = () => {
+export const MoreButtonToolbarItem = () => {
   const {width} = useWindowDimensions();
   return (
     width < BREAKPOINTS.md && (
@@ -393,7 +390,7 @@ const MoreButtonToolbarItem = () => {
     )
   );
 };
-const LocalEndcallToolbarItem = () => {
+export const LocalEndcallToolbarItem = () => {
   return (
     <ToolbarItem testID="endCall-btn">
       <LocalEndcall />
@@ -404,13 +401,7 @@ const LocalEndcallToolbarItem = () => {
 const defaultCenterItems: ToolbarCustomItem[] = [
   {
     align: 'start',
-    component: LiveStreamingHostToolbarItem,
-    order: 0,
-    hide: 'no',
-  },
-  {
-    align: 'start',
-    component: LiveStreamingAttendeeToolbarItem,
+    component: RaiseHandToolbarItem,
     order: 0,
     hide: 'no',
   },

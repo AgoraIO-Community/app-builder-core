@@ -313,7 +313,7 @@ const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
   return <SettingsWithViewWrapper {...props} />;
 };
 
-const MeetingTitleToolbarItem = () => {
+export const MeetingTitleToolbarItem = () => {
   const {
     data: {meetingTitle},
   } = useRoomInfo();
@@ -329,14 +329,14 @@ const MeetingTitleToolbarItem = () => {
     </ToolbarItem>
   );
 };
-const ParticipantCountToolbarItem = () => {
+export const ParticipantCountToolbarItem = () => {
   return (
     <ToolbarItem>
       <ParticipantsCount />
     </ToolbarItem>
   );
 };
-const RecordingStatusToolbarItem = () => {
+export const RecordingStatusToolbarItem = () => {
   const recordingLabel = 'Recording';
   const {isRecordingActive} = useRecording();
   return isRecordingActive ? (
@@ -369,7 +369,7 @@ const defaultStartItems: ToolbarCustomItem[] = [
 ];
 const defaultCenterItems: ToolbarCustomItem[] = [];
 
-const ParticipantToolbarItem = () => {
+export const ParticipantToolbarItem = () => {
   return (
     <ToolbarItem testID="videocall-participantsicon">
       <ParticipantsIconButton />
@@ -377,7 +377,7 @@ const ParticipantToolbarItem = () => {
   );
 };
 
-const ChatToolbarItem = () => {
+export const ChatToolbarItem = () => {
   return (
     $config.CHAT && (
       <>
@@ -388,7 +388,7 @@ const ChatToolbarItem = () => {
     )
   );
 };
-const SettingsToobarItem = () => {
+export const SettingsToobarItem = () => {
   return (
     <ToolbarItem testID="videocall-settingsicon">
       <SettingsIconButtonWithWrapper />
