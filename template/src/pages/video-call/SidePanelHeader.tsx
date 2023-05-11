@@ -1,4 +1,10 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import React, {useContext} from 'react';
 import SidePanelHeader, {
   SidePanelStyles,
@@ -11,6 +17,9 @@ import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useChatUIControl} from '../../components/chat-ui/useChatUIControl';
 import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
+import {useCaption} from '../../subComponents/caption/useCaption';
+import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
+import {calculatePosition} from '../../utils/common';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -135,15 +144,101 @@ export const ChatHeader = () => {
 
 export const TranscriptHeader = (props) => {
   const {setSidePanel} = useSidePanel();
+  const moreIconRef = React.useRef<View>(null);
+  const [actionMenuVisible, setActionMenuVisible] =
+    React.useState<boolean>(false);
+
   const label = 'Meeting Transcript';
+
   return (
     <SidePanelHeader
       centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
-      trailingIconName="close"
+      trailingIconName="more-menu"
+      ref={moreIconRef}
       trailingIconOnPress={() => {
-        props.handleClose && props.handleClose();
-        setSidePanel(SidePanelType.None);
-      }}
+        setActionMenuVisible(true);
+      }}>
+      <TranscriptHeaderActionMenu
+        actionMenuVisible={actionMenuVisible}
+        setActionMenuVisible={setActionMenuVisible}
+        btnRef={moreIconRef}
+      />
+    </SidePanelHeader>
+  );
+};
+
+interface TranscriptHeaderActionMenuProps {
+  actionMenuVisible: boolean;
+  setActionMenuVisible: (actionMenuVisible: boolean) => void;
+  btnRef: React.RefObject<View>;
+}
+
+const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
+  const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
+  const {setSidePanel} = useSidePanel();
+  const {setIsCaptionON} = useCaption();
+  const actionMenuitems: ActionMenuItem[] = [];
+
+  const [modalPosition, setModalPosition] = React.useState({});
+  const [isPosCalculated, setIsPosCalculated] = React.useState(false);
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+
+  actionMenuitems.push({
+    isBase64Icon: true,
+    icon: 'live-caption-mode',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Live Captions Mode',
+    callback: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.None);
+      setIsCaptionON(true);
+    },
+  });
+  actionMenuitems.push({
+    isBase64Icon: true,
+    icon: 'turn-off-stt',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Turn Off Speech to text ',
+    callback: () => {
+      setActionMenuVisible(false);
+      setSidePanel(SidePanelType.None);
+    },
+  });
+  React.useEffect(() => {
+    if (actionMenuVisible) {
+      //getting btnRef x,y
+      btnRef?.current?.measure(
+        (
+          _fx: number,
+          _fy: number,
+          localWidth: number,
+          localHeight: number,
+          px: number,
+          py: number,
+        ) => {
+          const data = calculatePosition({
+            px,
+            py,
+            localWidth,
+            localHeight,
+            globalHeight,
+            globalWidth,
+          });
+          setModalPosition(data);
+          setIsPosCalculated(true);
+        },
+      );
+    }
+  }, [actionMenuVisible]);
+  return (
+    <ActionMenu
+      from={'transcript-header'}
+      actionMenuVisible={actionMenuVisible}
+      setActionMenuVisible={setActionMenuVisible}
+      modalPosition={modalPosition}
+      items={actionMenuitems}
     />
   );
 };

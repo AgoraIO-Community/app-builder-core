@@ -86,4 +86,5 @@ export interface IconsInterface {
   'video-off-filled': string;
   'video-off-outlined': string;
   'turn-off-stt': string;
+  'live-caption-mode': string;
 }

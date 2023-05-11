@@ -22,7 +22,6 @@ const CaptionContainer = () => {
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
         btnRef={moreIconRef}
-        from="captions"
       />
       <MoreMenu ref={moreIconRef} setActionMenuVisible={setActionMenuVisible} />
       <Caption />
@@ -77,11 +76,10 @@ interface CaptionsActionMenuProps {
   actionMenuVisible: boolean;
   setActionMenuVisible: (actionMenuVisible: boolean) => void;
   btnRef: React.RefObject<View>;
-  from: string;
 }
 
 const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
-  const {actionMenuVisible, setActionMenuVisible, btnRef, from} = props;
+  const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
   const {setIsCaptionON} = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
@@ -116,7 +114,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   React.useEffect(() => {
     if (actionMenuVisible) {
       //getting btnRef x,y
-      props.btnRef?.current?.measure(
+      btnRef?.current?.measure(
         (
           _fx: number,
           _fy: number,
