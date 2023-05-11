@@ -150,7 +150,7 @@ export default CaptionContainer;
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 20,
+    paddingVertical: 15,
     height: 132,
     overflow: 'scroll',
     marginHorizontal: 32,

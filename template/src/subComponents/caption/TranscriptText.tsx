@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   captionText: {
     fontSize: 18,
-    lineHeight: 22,
+    lineHeight: 23,
     position: 'absolute',
     bottom: 0,
     minHeight: 80,
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   captionName: {
-    fontSize: 20,
-    lineHeight: 22,
+    fontSize: 18,
+    lineHeight: 26,
     fontWeight: '700',
     marginRight: 8,
   },

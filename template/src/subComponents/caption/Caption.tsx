@@ -134,26 +134,27 @@ const Caption = () => {
         });
       }
       console.log('simple meeting --', simpletextMettingRef.current);
+    }
 
-      // updating for transcript
-      // const key = userName + ':' + new Date().getTime();
-      // setTranscript((prevTranscript) => {
-      //   return {
-      //     ...prevTranscript,
-      //     [key]: currentCaption,
-      //   };
-      // });
+    if (textstream.words.length === 0) {
+      const captionTxt = finalList.current[textstream.uid].join(' ');
+      if (captionTxt) {
+        const key = userName + ':' + new Date().getTime();
+        setTranscript((prevTranscript) => {
+          return {
+            ...prevTranscript,
+            [key]: captionTxt,
+          };
+        });
+      }
+      // clearing prev sel when empty words
+      finalList.current[textstream.uid] = [];
     }
 
     // including prev references of the caption
-    let stringBuilder = finalList.current[textstream.uid].join(' ');
-    stringBuilder += stringBuilder.length > 0 ? ' ' : '';
-    stringBuilder += nonFinalList.join(' ');
-
-    // check for adding only current caption
-    let stringBuilder1 = '';
-    stringBuilder1 += nonFinalList.join(' ');
-    stringBuilder1 += ' ' + currentCaption;
+    let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
+    stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
+    stringBuilder += nonFinalList?.join(' ');
 
     // adding prev final words
 
@@ -184,7 +185,7 @@ const Caption = () => {
     console.log('stt - text3 =>', text3);
     console.groupEnd();
 
-    if (stringBuilder) {
+    if (1 || stringBuilder) {
       //setText(`${userName} : ${stringBuilder}`);
 
       setTextObj((prevState) => ({
@@ -193,16 +194,16 @@ const Caption = () => {
       }));
     }
 
-    if (currentCaption.length) {
-      // updating for transcript
-      const key = userName + ':' + new Date().getTime();
-      setTranscript((prevTranscript) => {
-        return {
-          ...prevTranscript,
-          [key]: currentCaption,
-        };
-      });
-    }
+    // if (currentCaption.length) {
+    //   // updating for transcript
+    //   const key = userName + ':' + new Date().getTime();
+    //   setTranscript((prevTranscript) => {
+    //     return {
+    //       ...prevTranscript,
+    //       [key]: currentCaption,
+    //     };
+    //   });
+    // }
   };
 
   const handleVolumeIndicator = () => {};
@@ -217,27 +218,31 @@ const Caption = () => {
   }, [renderList]);
 
   const speakers = Object.entries(textObj);
+  const activeSpeakers = speakers.filter((item) => item[1] !== '');
 
   return (
     <ScrollView>
-      {speakers.map(([key, value]) => (
-        <TranscriptText
-          key={key}
-          user={
-            renderListRef.current.renderList[Number(key)]?.name || 'Speaker'
-          }
-          value={value.trim()}
-          captionContainerStyle={
-            speakers.length === 1
-              ? styles.singleCaptionContainerStyle
-              : styles.captionContainerStyle
-          }
-          captionStyle={
-            speakers.length === 1
-              ? styles.singleCaptionStyle
-              : styles.captionStyle
-          }
-        />
+      {speakers.map(([key, value], index) => (
+        <>
+          <TranscriptText
+            key={key}
+            user={
+              renderListRef.current.renderList[Number(key)]?.name || 'Speaker'
+            }
+            value={value.trim()}
+            captionContainerStyle={
+              activeSpeakers.length === 1
+                ? styles.singleCaptionContainerStyle
+                : styles.captionContainerStyle
+            }
+            captionStyle={
+              activeSpeakers.length === 1
+                ? styles.singleCaptionStyle
+                : styles.captionStyle
+            }
+          />
+          {index !== speakers.length - 1 && <Spacer size={10} />}
+        </>
       ))}
     </ScrollView>
   );
@@ -245,17 +250,16 @@ const Caption = () => {
 
 const styles = StyleSheet.create({
   captionStyle: {
-    minHeight: 40,
+    minHeight: 45,
   },
   singleCaptionStyle: {
-    minHeight: 80,
+    minHeight: 90,
   },
   captionContainerStyle: {
-    height: 40,
-    marginBottom: 8,
+    height: 45,
   },
   singleCaptionContainerStyle: {
-    height: 80,
+    height: 90,
   },
 });
 
