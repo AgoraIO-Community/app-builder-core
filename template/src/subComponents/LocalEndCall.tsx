@@ -6,6 +6,9 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ReactNativeForegroundService from '@supersami/rn-foreground-service';
 import {Platform} from 'react-native';
 import {DispatchContext} from '../../agora-rn-uikit';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+
 export interface LocalEndcallProps {
   showLabel?: boolean;
   isOnActionSheet?: boolean;
@@ -21,6 +24,7 @@ const stopForegroundService = () => {
 };
 
 const LocalEndcall = (props: LocalEndcallProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {dispatch} = useContext(DispatchContext);
   const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
   //commented for v1 release
@@ -80,7 +84,11 @@ const LocalEndcall = (props: LocalEndcallProps) => {
         setModalVisible={setEndcallVisible}
         modalVisible={endcallVisible}
       />
-      <IconButton {...iconButtonProps} />
+      {isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
+      ) : (
+        <IconButton {...iconButtonProps} />
+      )}
     </>
   );
 };

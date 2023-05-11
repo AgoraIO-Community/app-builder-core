@@ -41,7 +41,7 @@ import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
-import {ToolbarCustomItem} from 'src/atoms/ToolbarPreset';
+import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);

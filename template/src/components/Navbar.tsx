@@ -61,6 +61,8 @@ import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -100,6 +102,7 @@ export interface ParticipantsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     liveStreamingRequestAlertIconPosition = {
       top: 0,
@@ -148,22 +151,30 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     props.render(onPress, isPanelActive)
   ) : (
     <>
-      <View>
-        <IconButton {...iconButtonProps} />
-      </View>
-      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
-        <View
-          style={{
-            position: 'absolute',
-            top: liveStreamingRequestAlertIconPosition.top,
-            bottom: liveStreamingRequestAlertIconPosition.bottom,
-            right: liveStreamingRequestAlertIconPosition.right,
-            left: liveStreamingRequestAlertIconPosition.left,
-            backgroundColor: $config.SEMANTIC_ERROR,
-            width: 12,
-            height: 12,
-            borderRadius: 10,
-          }}></View>
+      {isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
+      ) : (
+        <>
+          <View>
+            <IconButton {...iconButtonProps} />
+          </View>
+          {$config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            isPendingRequestToReview && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: liveStreamingRequestAlertIconPosition.top,
+                  bottom: liveStreamingRequestAlertIconPosition.bottom,
+                  right: liveStreamingRequestAlertIconPosition.right,
+                  left: liveStreamingRequestAlertIconPosition.left,
+                  backgroundColor: $config.SEMANTIC_ERROR,
+                  width: 12,
+                  height: 12,
+                  borderRadius: 10,
+                }}></View>
+            )}
+        </>
       )}
     </>
   );
@@ -188,6 +199,7 @@ export interface ChatIconButtonProps {
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     badgeContainerPosition = {
       top: 0,
@@ -288,8 +300,14 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   ) : (
     <>
       <View>
-        <IconButton {...iconButtonProps} />
-        {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
+        {isToolbarMenuItem ? (
+          <ToolbarMenuItem {...iconButtonProps} />
+        ) : (
+          <>
+            <IconButton {...iconButtonProps} />
+            {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
+          </>
+        )}
       </View>
     </>
   );

@@ -15,6 +15,8 @@ import useGetMeetingPhrase from '../utils/useGetMeetingPhrase';
 import TertiaryButton from '../atoms/TertiaryButton';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useVideoCall} from '../components/useVideoCall';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 
 export interface CopyJoinInfoProps {
   showLabel?: boolean;
@@ -24,6 +26,7 @@ export interface CopyJoinInfoProps {
 }
 
 const CopyJoinInfo = (props: CopyJoinInfoProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     showLabel = $config.ICON_TEXT || false,
     showTeritaryButton = false,
@@ -57,6 +60,8 @@ const CopyJoinInfo = (props: CopyJoinInfoProps) => {
     <>
       {showTeritaryButton ? (
         <TertiaryButton text="Invite" onPress={onPress} />
+      ) : isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
       ) : (
         <IconButton {...iconButtonProps} />
       )}

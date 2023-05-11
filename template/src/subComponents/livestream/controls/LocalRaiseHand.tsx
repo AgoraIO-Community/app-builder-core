@@ -21,11 +21,15 @@ import ThemeConfig from '../../../theme';
 import {ClientRole, PropsContext} from '../../../../agora-rn-uikit';
 import {useContent} from 'customization-api';
 import {isMobileUA} from '../../../utils/common';
+import {IconButtonProps} from '../../../atoms/IconButton';
+import {useToolbarMenu} from '../../../utils/useMenu';
+import ToolbarMenuItem from '../../../atoms/ToolbarMenuItem';
 
 interface LocalRaiseHandProps {
   showLabel?: boolean;
 }
 const LocalRaiseHand = (props: LocalRaiseHandProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
     useContext(LiveStreamContext);
   const {rtcProps} = useContext(PropsContext);
@@ -37,30 +41,33 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const handStatusText = (toggle: boolean) =>
     toggle ? 'Lower hand' : 'Raise Hand';
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
-  return (
-    <IconButton
-      iconProps={{
-        name: isHandRasied ? 'lower-hand' : 'raise-hand',
-        tintColor: isHandRasied
-          ? $config.PRIMARY_ACTION_TEXT_COLOR
-          : $config.SECONDARY_ACTION_COLOR,
-        iconBackgroundColor: isHandRasied
-          ? $config.PRIMARY_ACTION_BRAND_COLOR
-          : '',
-        base64: isMobileUA() ? true : false,
-      }}
-      btnTextProps={{
-        text: showLabel ? handStatusText(isHandRasied) : '',
-        textColor: $config.FONT_COLOR,
-      }}
-      onPress={() => {
-        if (isHandRasied) {
-          audienceRecallsRequest();
-        } else {
-          audienceSendsRequest();
-        }
-      }}
-    />
+  const iconButtonProps: IconButtonProps = {
+    iconProps: {
+      name: isHandRasied ? 'lower-hand' : 'raise-hand',
+      tintColor: isHandRasied
+        ? $config.PRIMARY_ACTION_TEXT_COLOR
+        : $config.SECONDARY_ACTION_COLOR,
+      iconBackgroundColor: isHandRasied
+        ? $config.PRIMARY_ACTION_BRAND_COLOR
+        : '',
+      base64: isMobileUA() ? true : false,
+    },
+    btnTextProps: {
+      text: showLabel ? handStatusText(isHandRasied) : '',
+      textColor: $config.FONT_COLOR,
+    },
+    onPress: () => {
+      if (isHandRasied) {
+        audienceRecallsRequest();
+      } else {
+        audienceSendsRequest();
+      }
+    },
+  };
+  return isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
+  ) : (
+    <IconButton {...iconButtonProps} />
   );
 };
 
