@@ -240,7 +240,7 @@ export default class RtcEngine {
     }
   }
 
-  async enableVideo(): Promise<void> {
+  async enableVideo(preferredCameraId?: string): Promise<void> {
     /**
      * Issue: Backgrounding the browser or app causes the audio streaming to be cut off.
      * Impact: All browsers and apps that use WKWebView on iOS 15.x, such as Safari and Chrome.
@@ -258,6 +258,10 @@ export default class RtcEngine {
       encoderConfig: this.videoProfile,
       // cameraId: this.videoDeviceId,
     };
+    //todo need to validate if preferredCameraId is valid data from the device list
+    if (preferredCameraId) {
+      videoConfig.cameraId = preferredCameraId;
+    }
     try {
       let [localAudio, localVideo] =
         await AgoraRTC.createMicrophoneAndCameraTracks(

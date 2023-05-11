@@ -68,7 +68,7 @@ import {SdkApiContext, SDK_MEETING_TAG} from '../components/SdkApiContext';
 import isSDK from '../utils/isSDK';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import SdkMuteToggleListener from '../components/SdkMuteToggleListener';
-
+import StorageContext from '../components/StorageContext';
 enum RnEncryptionEnum {
   /**
    * @deprecated
@@ -281,6 +281,7 @@ const VideoCall: React.FC = () => {
   const [isMicAvailable, setMicAvailable] = useState(false);
   const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
   const [isPermissionRequested, setIsPermissionRequested] = useState(false);
+  const {store} = useContext(StorageContext);
   return (
     <>
       {queryComplete ? (
@@ -291,6 +292,7 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
+                  preferredCameraId: store?.activeDeviceId?.videoinput,
                   // commented for v1 release
                   //lifecycle,
                 },
