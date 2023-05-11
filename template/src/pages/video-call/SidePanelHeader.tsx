@@ -184,8 +184,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
   actionMenuitems.push({
-    isBase64Icon: true,
-    icon: 'live-caption-mode',
+    icon: 'caption-mode',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Live Captions Mode',
@@ -196,8 +195,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
   actionMenuitems.push({
-    isBase64Icon: true,
-    icon: 'turn-off-stt',
+    icon: 'stt',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Turn Off Speech to text ',

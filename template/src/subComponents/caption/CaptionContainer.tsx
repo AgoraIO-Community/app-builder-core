@@ -88,8 +88,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
   actionMenuitems.push({
-    isBase64Icon: true,
-    icon: 'profile', //TODO: update show transcript icon
+    icon: 'transcript-mode', //TODO: update show transcript icon
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Show Transcript',
@@ -100,8 +99,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
   actionMenuitems.push({
-    isBase64Icon: true,
-    icon: 'turn-off-stt',
+    icon: 'stt',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Turn Off Speech to text ',

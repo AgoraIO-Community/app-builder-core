@@ -92,7 +92,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const iconButtonProps: IconButtonProps = {
     onPress: () => toggleSTT(isCaptionON ? 'stop' : 'start'),
     iconProps: {
-      name: isCaptionON ? 'chat-filled' : 'chat-outlined',
+      name: 'caption-mode',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',

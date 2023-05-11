@@ -33,7 +33,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   const iconButtonProps: IconButtonProps = {
     onPress,
     iconProps: {
-      name: isTranscriptON ? 'pencil-filled' : 'pencil-outlined',
+      name: 'transcript-mode',
       iconBackgroundColor: isTranscriptON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
