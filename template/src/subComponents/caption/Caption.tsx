@@ -1,9 +1,8 @@
-import {Platform, StyleSheet, Text, View, ScrollView} from 'react-native';
+import {StyleSheet, ScrollView} from 'react-native';
 import React from 'react';
-import {isWeb, useRender, useRtc} from 'customization-api';
+import {useRender, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
-import ThemeConfig from '../../theme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import Spacer from '../../../src/atoms/Spacer';
@@ -17,12 +16,11 @@ const Caption = () => {
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
   const outputStreamFinal = React.useRef<string>(''); // store in localStorage to access previous captions
 
-  const {setTranscript, setMeetingTranscript, meetingTranscript} = useCaption();
+  const {setTranscript, setMeetingTranscript} = useCaption();
   const startTimeRef = React.useRef<number>(0);
-  const simpleTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
+  const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
 
-  const captionsRef = React.useRef<Object>({});
-  const simpletextMettingRef = React.useRef([]);
+  const meetingTranscriptRef = React.useRef([]);
 
   const isSentenceBoundaryWord = (word) => {
     return word == '.' || word == '?';
@@ -63,12 +61,15 @@ const Caption = () => {
           finalList.current[textstream.uid] = [];
         }
         text1 += `${userName}:${word.text}`;
-        if (simpleTextRef.current.length > 0 && !isPunctuationWord(word.text)) {
-          simpleTextRef.current += ' ';
+        if (
+          meetingTextRef.current.length > 0 &&
+          !isPunctuationWord(word.text)
+        ) {
+          meetingTextRef.current += ' ';
           text3 += ' ';
         }
         text3 += word.text;
-        simpleTextRef.current += word.text;
+        meetingTextRef.current += word.text;
 
         currentCaption = word.text;
         const duration = performance.now() - startTimeRef.current;
@@ -93,39 +94,29 @@ const Caption = () => {
 
     if (text3.length) {
       let flag = false;
-      // this.simpletextMetting += this.allData[textstream.uid].name + '</>' + textstream.uid + '</>' + textstream.time + '</>' + text3 + '</br>';
-      simpletextMettingRef.current.forEach((item) => {
-        if (item.uid == textstream.uid && textstream.time - item.time < 60000) {
+      meetingTranscriptRef.current.forEach((item) => {
+        if (item.uid == textstream.uid && textstream.time - item.time < 30000) {
           item.text += text3;
           flag = true;
-        } else {
-          console.log('ready to push');
-          console.log(item.name, item.text);
+          // update existing transcript for uid & time
         }
       });
-      meetingTranscript.forEach((item) => {
-        if (item.uid == textstream.uid && textstream.time - item.time < 60000) {
-          item.text += text3;
-          flag = true;
-        } else {
-          console.log('ready to push');
-          console.log(item.name, item.text);
-        }
-      });
+
       if (!flag) {
         // update with prev history
-        simpletextMettingRef.current.push({
+        meetingTranscriptRef.current.push({
           name: userName,
           uid: textstream.uid,
           time: textstream.time,
           text: text3,
         });
-
+        const key = userName + ':' + textstream.time;
+        // new transcript is pushed
         setMeetingTranscript((prev) => {
           return [
             ...prev,
             {
-              name: userName,
+              name: key,
               uid: textstream.uid,
               time: textstream.time,
               text: text3,
@@ -133,12 +124,12 @@ const Caption = () => {
           ];
         });
       }
-      console.log('simple meeting --', simpletextMettingRef.current);
     }
 
     if (textstream.words.length === 0) {
       const captionTxt = finalList.current[textstream.uid].join(' ');
       if (captionTxt) {
+        // updating for Transcript
         const key = userName + ':' + new Date().getTime();
         setTranscript((prevTranscript) => {
           return {
@@ -181,29 +172,16 @@ const Caption = () => {
     if (textstream.words.length === 0) stringBuilder = '';
     console.group('STT-logs');
     console.log('stt-finalList =>', finalList);
-    console.log('stt - simpleText =>', simpleTextRef.current);
-    console.log('stt - text3 =>', text3);
+    console.log('stt - meeting transcript =>', meetingTranscriptRef);
     console.groupEnd();
 
     if (1 || stringBuilder) {
       //setText(`${userName} : ${stringBuilder}`);
-
       setTextObj((prevState) => ({
         ...prevState,
         [textstream.uid]: stringBuilder,
       }));
     }
-
-    // if (currentCaption.length) {
-    //   // updating for transcript
-    //   const key = userName + ':' + new Date().getTime();
-    //   setTranscript((prevTranscript) => {
-    //     return {
-    //       ...prevTranscript,
-    //       [key]: currentCaption,
-    //     };
-    //   });
-    // }
   };
 
   const handleVolumeIndicator = () => {};
