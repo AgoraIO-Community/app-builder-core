@@ -25,7 +25,11 @@ import {videoView} from '../../../theme.json';
 import {ToolbarProvider, ToolbarPosition} from '../../utils/useToolbar';
 import SDKEvents from '../../utils/SdkEvents';
 import {useRoomInfo} from '../../components/room-info/useRoomInfo';
-import {controlMessageEnum, useUserName} from 'customization-api';
+import {
+  ToolbarCustomItem,
+  controlMessageEnum,
+  useUserName,
+} from 'customization-api';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
@@ -48,6 +52,10 @@ const VideoCallScreen = () => {
     VideocallAfterView,
     LeftbarComponent,
     RightbarComponent,
+    BottombarProps,
+    TopbarProps,
+    LeftbarProps,
+    RightbarProps,
   } = useCustomization((data) => {
     let components: {
       VideocallComponent?: React.ComponentType;
@@ -60,6 +68,10 @@ const VideoCallScreen = () => {
       VideocallAfterView: React.ComponentType;
       LeftbarComponent: React.ComponentType<LeftbarProps>;
       RightbarComponent: React.ComponentType<RightbarProps>;
+      BottombarProps?: ToolbarCustomItem[];
+      TopbarProps?: ToolbarCustomItem[];
+      LeftbarProps?: ToolbarCustomItem[];
+      RightbarProps?: ToolbarCustomItem[];
     } = {
       BottombarComponent: Controls,
       TopbarComponent: Navbar,
@@ -70,6 +82,10 @@ const VideoCallScreen = () => {
       VideocallBeforeView: React.Fragment,
       LeftbarComponent: Leftbar,
       RightbarComponent: Rightbar,
+      BottombarProps: [],
+      TopbarProps: [],
+      LeftbarProps: [],
+      RightbarProps: [],
     };
     if (
       data?.components?.videoCall &&
@@ -141,6 +157,35 @@ const VideoCallScreen = () => {
       }
 
       if (
+        data?.components?.videoCall.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar === 'object' &&
+        data?.components?.videoCall.bottomToolBar.length
+      ) {
+        components.BottombarProps = data?.components?.videoCall.bottomToolBar;
+      }
+      if (
+        data?.components?.videoCall.topToolBar &&
+        typeof data?.components?.videoCall.topToolBar === 'object' &&
+        data?.components?.videoCall.topToolBar.length
+      ) {
+        components.TopbarProps = data?.components?.videoCall.topToolBar;
+      }
+      if (
+        data?.components?.videoCall.rightToolBar &&
+        typeof data?.components?.videoCall.rightToolBar === 'object' &&
+        data?.components?.videoCall.rightToolBar.length
+      ) {
+        components.RightbarProps = data?.components?.videoCall.rightToolBar;
+      }
+      if (
+        data?.components?.videoCall.leftToolBar &&
+        typeof data?.components?.videoCall.leftToolBar === 'object' &&
+        data?.components?.videoCall.leftToolBar.length
+      ) {
+        components.LeftbarProps = data?.components?.videoCall.leftToolBar;
+      }
+
+      if (
         data?.components?.videoCall.participantsPanel &&
         typeof data?.components?.videoCall.participantsPanel !== 'object' &&
         isValidReactComponent(data?.components?.videoCall.participantsPanel)
@@ -177,11 +222,11 @@ const VideoCallScreen = () => {
       <VideocallBeforeView />
       <View style={style.fullRow}>
         <ToolbarProvider value={{position: ToolbarPosition.left}}>
-          <LeftbarComponent />
+          <LeftbarComponent customItems={LeftbarProps} />
         </ToolbarProvider>
         <View style={style.full}>
           <ToolbarProvider value={{position: ToolbarPosition.top}}>
-            <TopbarComponent />
+            <TopbarComponent customItems={TopbarProps} />
           </ToolbarProvider>
           <View
             style={[
@@ -213,12 +258,12 @@ const VideoCallScreen = () => {
             <></>
           ) : (
             <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-              <BottombarComponent />
+              <BottombarComponent customItems={BottombarProps} />
             </ToolbarProvider>
           )}
         </View>
         <ToolbarProvider value={{position: ToolbarPosition.right}}>
-          <RightbarComponent />
+          <RightbarComponent customItems={RightbarProps} />
         </ToolbarProvider>
       </View>
       <VideocallAfterView />

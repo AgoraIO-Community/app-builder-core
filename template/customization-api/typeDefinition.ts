@@ -22,6 +22,7 @@ import {IconsInterface} from '../src/atoms/CustomIcon';
 export type {ContentInterface, ContentStateInterface, UidType};
 export type {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {ChatTextInputProps} from '../src/subComponents/ChatInput';
+import {ToolbarCustomItem} from './sub-components';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
 
@@ -59,12 +60,13 @@ export interface layoutItem {
   component: layoutComponent;
 }
 
+export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
 export interface VideoCallInterface extends BeforeAndAfterInterface {
   // commented for v1 release
-  topToolBar?: React.ComponentType;
-  bottomToolBar?: React.ComponentType;
-  leftToolBar?: React.ComponentType;
-  rightToolBar?: React.ComponentType;
+  topToolBar?: ToolbarType;
+  bottomToolBar?: ToolbarType;
+  leftToolBar?: ToolbarType;
+  rightToolBar?: ToolbarType;
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   chat?: ChatCmpInterface;
