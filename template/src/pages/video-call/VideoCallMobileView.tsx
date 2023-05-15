@@ -10,9 +10,22 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
-import {isAndroid, isWebInternal, trimText} from '../../utils/common';
+import {
+  isAndroid,
+  isValidReactComponent,
+  isWebInternal,
+  trimText,
+} from '../../utils/common';
 import {ToggleState, useLocalUid} from '../../../agora-rn-uikit';
-import {useLocalUserInfo, useContent} from 'customization-api';
+import {
+  useLocalUserInfo,
+  useContent,
+  ToolbarCustomItem,
+} from 'customization-api';
+import NavbarMobile, {NavbarProps} from '../../components/NavbarMobile';
+import {useCustomization} from 'customization-implementation';
+import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
+import {ControlsProps} from 'src/components/Controls';
 
 const VideoCallMobileView = () => {
   const {
@@ -72,9 +85,72 @@ const VideoCallMobileView = () => {
   //   };
   // }, []);
 
+  const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
+    useCustomization((data) => {
+      let components: {
+        BottombarComponent: React.ComponentType<ControlsProps>;
+        BottombarProps?: ToolbarCustomItem[];
+        TopbarComponent: React.ComponentType<NavbarProps>;
+        TopbarProps?: ToolbarCustomItem[];
+      } = {
+        BottombarComponent: ActionSheet,
+        BottombarProps: [],
+        TopbarComponent: NavbarMobile,
+        TopbarProps: [],
+      };
+      if (
+        data?.components?.videoCall &&
+        typeof data?.components?.videoCall === 'object'
+      ) {
+        if (
+          data?.components?.videoCall.bottomToolBar &&
+          typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall.bottomToolBar)
+        ) {
+          components.BottombarComponent =
+            data?.components?.videoCall.bottomToolBar;
+        }
+        if (
+          data?.components?.videoCall.bottomToolBar &&
+          typeof data?.components?.videoCall.bottomToolBar === 'object' &&
+          data?.components?.videoCall.bottomToolBar.length
+        ) {
+          components.BottombarProps = data?.components?.videoCall.bottomToolBar;
+        }
+
+        if (
+          data?.components?.videoCall.topToolBar &&
+          typeof data?.components?.videoCall.topToolBar !== 'object' &&
+          isValidReactComponent(data?.components?.videoCall.topToolBar)
+        ) {
+          components.TopbarComponent = data?.components?.videoCall.topToolBar;
+        }
+
+        if (
+          data?.components?.videoCall.topToolBar &&
+          typeof data?.components?.videoCall.topToolBar === 'object' &&
+          data?.components?.videoCall.topToolBar.length
+        ) {
+          components.TopbarProps = data?.components?.videoCall.topToolBar;
+        }
+      }
+
+      return components;
+    });
+
   return (
     <View style={styles.container}>
-      <View style={styles.titleBar}>
+      <ToolbarProvider value={{position: ToolbarPosition.top}}>
+        {TopbarProps?.length ? (
+          <TopbarComponent
+            customItems={TopbarProps}
+            includeDefaultItems={false}
+          />
+        ) : (
+          <TopbarComponent />
+        )}
+      </ToolbarProvider>
+      {/* <View style={styles.titleBar}>
         <Text style={styles.title}>{trimText(meetingTitle)}</Text>
         <Spacer size={8} horizontal={false} />
         <View style={styles.countView}>
@@ -97,12 +173,21 @@ const VideoCallMobileView = () => {
             <></>
           )}
         </View>
-      </View>
-      <Spacer size={16} />
+      </View> */}
+      {/* <Spacer size={16} /> */}
       <View style={styles.videoView}>
         <VideoComponent />
       </View>
-      <ActionSheet />
+      <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+        {BottombarProps?.length ? (
+          <BottombarComponent
+            customItems={BottombarProps}
+            includeDefaultItems={false}
+          />
+        ) : (
+          <BottombarComponent />
+        )}
+      </ToolbarProvider>
     </View>
   );
 };

@@ -453,9 +453,10 @@ const defaultEndItems: ToolbarCustomItem[] = [];
 
 export interface ControlsProps {
   customItems?: ToolbarCustomItem[];
+  includeDefaultItems?: boolean;
 }
 const Controls = (props: ControlsProps) => {
-  const {customItems = []} = props;
+  const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
 
   const isHidden = (i) => {
@@ -463,17 +464,17 @@ const Controls = (props: ControlsProps) => {
   };
   const customStartItems = customItems
     ?.filter((i) => i?.align === 'start' && !isHidden(i))
-    ?.concat(defaultStartItems)
+    ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort((a, b) => a?.order - b?.order);
 
   const customCenterItems = customItems
     ?.filter((i) => i?.align === 'center' && !isHidden(i))
-    ?.concat(defaultCenterItems)
+    ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort((a, b) => a?.order - b?.order);
 
   const customEndItems = customItems
     ?.filter((i) => i?.align === 'end' && !isHidden(i))
-    ?.concat(defaultEndItems)
+    ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort((a, b) => a?.order - b?.order);
 
   const renderContent = (

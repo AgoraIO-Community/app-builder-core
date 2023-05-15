@@ -16,7 +16,7 @@ import {useToast} from '../../components/useToast';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
 
-const ActionSheet = () => {
+const ActionSheet = (props) => {
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -152,6 +152,7 @@ const ActionSheet = () => {
           }
           blocking={false}>
           <ActionSheetContent
+            {...props}
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
           />

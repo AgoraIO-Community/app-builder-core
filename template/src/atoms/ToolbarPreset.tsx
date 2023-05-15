@@ -3,6 +3,9 @@ import Navbar from '../components/Navbar';
 import Controls from '../components/Controls';
 import Leftbar from '../components/Leftbar';
 import Rightbar from '../components/Rightbar';
+import {isMobileUA} from '../utils/common';
+import NavbarMobile from '../components/NavbarMobile';
+import ActionSheet from '../pages/video-call/ActionSheet';
 
 export interface ToolbarCustomItem {
   component: () => JSX.Element;
@@ -25,13 +28,31 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
     return null;
   }
   if (align === 'left') {
-    return <Leftbar customItems={props?.customItems} />;
+    return (
+      <Leftbar customItems={props?.customItems} includeDefaultItems={true} />
+    );
   } else if (align === 'right') {
-    return <Rightbar customItems={props?.customItems} />;
+    return (
+      <Rightbar customItems={props?.customItems} includeDefaultItems={true} />
+    );
   } else if (align === 'top') {
-    return <Navbar customItems={props?.customItems} />;
+    return isMobileUA() ? (
+      <NavbarMobile
+        customItems={props?.customItems}
+        includeDefaultItems={true}
+      />
+    ) : (
+      <Navbar customItems={props?.customItems} includeDefaultItems={true} />
+    );
   } else if (align === 'bottom') {
-    return <Controls customItems={props?.customItems} />;
+    return isMobileUA() ? (
+      <ActionSheet
+        customItems={props?.customItems}
+        includeDefaultItems={true}
+      />
+    ) : (
+      <Controls customItems={props?.customItems} includeDefaultItems={true} />
+    );
   } else {
     return null;
   }

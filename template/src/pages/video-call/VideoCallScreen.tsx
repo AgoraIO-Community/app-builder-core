@@ -222,11 +222,25 @@ const VideoCallScreen = () => {
       <VideocallBeforeView />
       <View style={style.fullRow}>
         <ToolbarProvider value={{position: ToolbarPosition.left}}>
-          <LeftbarComponent customItems={LeftbarProps} />
+          {LeftbarProps?.length ? (
+            <LeftbarComponent
+              customItems={LeftbarProps}
+              includeDefaultItems={false}
+            />
+          ) : (
+            <LeftbarComponent />
+          )}
         </ToolbarProvider>
         <View style={style.full}>
           <ToolbarProvider value={{position: ToolbarPosition.top}}>
-            <TopbarComponent customItems={TopbarProps} />
+            {TopbarProps?.length ? (
+              <TopbarComponent
+                customItems={TopbarProps}
+                includeDefaultItems={false}
+              />
+            ) : (
+              <TopbarComponent />
+            )}
           </ToolbarProvider>
           <View
             style={[
@@ -258,12 +272,26 @@ const VideoCallScreen = () => {
             <></>
           ) : (
             <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-              <BottombarComponent customItems={BottombarProps} />
+              {BottombarProps?.length ? (
+                <BottombarComponent
+                  customItems={BottombarProps}
+                  includeDefaultItems={false}
+                />
+              ) : (
+                <BottombarComponent />
+              )}
             </ToolbarProvider>
           )}
         </View>
         <ToolbarProvider value={{position: ToolbarPosition.right}}>
-          <RightbarComponent customItems={RightbarProps} />
+          {RightbarProps?.length ? (
+            <RightbarComponent
+              customItems={RightbarProps}
+              includeDefaultItems={false}
+            />
+          ) : (
+            <RightbarComponent />
+          )}
         </ToolbarProvider>
       </View>
       <VideocallAfterView />

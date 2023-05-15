@@ -20,9 +20,10 @@ const defaultEndItems: ToolbarCustomItem[] = [];
 
 export interface RightbarProps {
   customItems?: ToolbarCustomItem[];
+  includeDefaultItems?: boolean;
 }
 const Rightbar = (props: RightbarProps) => {
-  const {customItems = []} = props;
+  const {customItems = [], includeDefaultItems = true} = props;
 
   const isHidden = (i) => {
     return i?.hide === 'yes';
@@ -30,17 +31,17 @@ const Rightbar = (props: RightbarProps) => {
 
   const customStartItems = customItems
     ?.filter((i) => i?.align === 'start' && !isHidden(i))
-    ?.concat(defaultStartItems)
+    ?.concat(includeDefaultItems ? defaultStartItems : [])
     ?.sort((a, b) => a?.order - b?.order);
 
   const customCenterItems = customItems
     ?.filter((i) => i?.align === 'center' && !isHidden(i))
-    ?.concat(defaultCenterItems)
+    ?.concat(includeDefaultItems ? defaultCenterItems : [])
     ?.sort((a, b) => a?.order - b?.order);
 
   const customEndItems = customItems
     ?.filter((i) => i?.align === 'end' && !isHidden(i))
-    ?.concat(defaultEndItems)
+    ?.concat(includeDefaultItems ? defaultEndItems : [])
     ?.sort((a, b) => a?.order - b?.order);
 
   const renderContent = (

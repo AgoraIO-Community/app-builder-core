@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, ViewProps, ViewStyle, StyleSheet} from 'react-native';
 import {ToolbarPosition, useToolbar} from '../utils/useToolbar';
-import {isWebInternal} from '../utils/common';
+import {isMobileUA, isWebInternal} from '../utils/common';
 
 export interface ToolbarItemProps extends ViewProps {
   style?: ViewStyle;
@@ -13,31 +13,47 @@ const ToolbarItem = (props: ToolbarItemProps) => {
   //isHorizontal false -> left/right bar
   // todo hari - first item shouldnot contain the margin right
   // todo hari - last item shouldnot contain the margin right
-  return (
-    <View
-      {...props}
-      style={[
-        props?.style,
-        // isHorizontal ? {flexDirection: 'column'} : {flexDirection: 'row'},
-        position === ToolbarPosition.left
-          ? toolbarItemStyles.leftBarItemStyle
-          : position === ToolbarPosition.right
-          ? toolbarItemStyles.rightBarItemStyle
-          : position === ToolbarPosition.bottom
-          ? toolbarItemStyles.bottomBarItemStyle
-          : isWebInternal() && position === ToolbarPosition.top
-          ? toolbarItemStyles.topBarItemNonNativeStyle
-          : !isWebInternal() && position === ToolbarPosition.top
-          ? toolbarItemStyles.topBarItemNativeStyle
-          : {},
-      ]}>
-      {props?.children}
-    </View>
-  );
+
+  //action sheet
+  if (isMobileUA() && position === ToolbarPosition.bottom) {
+    return (
+      <View {...props} style={toolbarItemStyles.iconWithText}>
+        {props?.children}
+      </View>
+    );
+  } else {
+    return (
+      <View
+        {...props}
+        style={[
+          props?.style,
+          // isHorizontal ? {flexDirection: 'column'} : {flexDirection: 'row'},
+          position === ToolbarPosition.left
+            ? toolbarItemStyles.leftBarItemStyle
+            : position === ToolbarPosition.right
+            ? toolbarItemStyles.rightBarItemStyle
+            : position === ToolbarPosition.bottom
+            ? toolbarItemStyles.bottomBarItemStyle
+            : isWebInternal() && position === ToolbarPosition.top
+            ? toolbarItemStyles.topBarItemNonNativeStyle
+            : !isWebInternal() && position === ToolbarPosition.top
+            ? toolbarItemStyles.topBarItemNativeStyle
+            : {},
+        ]}>
+        {props?.children}
+      </View>
+    );
+  }
 };
 export default ToolbarItem;
 
 const toolbarItemStyles = StyleSheet.create({
+  iconWithText: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexBasis: '25%',
+    paddingBottom: 24,
+  },
   topBarItemNativeStyle: {},
   topBarItemNonNativeStyle: {
     marginTop: 8,
