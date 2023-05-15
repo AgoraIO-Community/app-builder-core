@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   transciptContainer: {
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: 24,
   },
 
   transciptText: {
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     fontWeight: '600',
+    marginBottom: 8,
   },
   captionName: {
     fontSize: 18,
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 12,
     lineHeight: 16,
+    marginLeft: 8,
     color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',

@@ -33,20 +33,19 @@ const Transcript = (props: TranscriptProps) => {
   const data = Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
-  const [flatListHeight, setFlatListHeight] = React.useState(0);
+  const contentHeightRef = React.useRef(0);
+  const flatListHeightRef = React.useRef(0);
   const flatListRef = React.useRef(null);
-
-  const [listDimensions, setListDimensions] = React.useState({
-    width: 0,
-    height: 0,
-  });
 
   React.useEffect(() => {
     console.log('new item pushed', meetingTranscript);
   }, [meetingTranscript]);
 
   const handleLayout = (event) => {
-    setFlatListHeight(event.nativeEvent.layout.height);
+    flatListHeightRef.current = event.nativeEvent.layout.height;
+    if (contentHeightRef.current > event.nativeEvent.layout.height) {
+      setShowButton(true);
+    }
   };
 
   const renderItem = ({item}) => (
@@ -55,27 +54,17 @@ const Transcript = (props: TranscriptProps) => {
 
   const handleViewLatest = () => {
     setShowButton(false);
-    //flatListRef.current.scrollToEnd({animated: true});
     flatListRef.current.scrollToOffset({
-      offset: listDimensions.height,
+      offset: contentHeightRef.current,
       animated: true,
     });
   };
 
-  // const handleContentSizeChange = () => {
-  //   const isScrollable =
-  //     flatListRef.current &&
-  //     flatListRef.current.contentSize.height >
-  //       flatListRef.current.layoutMeasurement.height;
-  //   setShowButton(isScrollable);
-  // };
   const handleContentSizeChange = (contentWidth, contentHeight) => {
-    if (flatListHeight === 0) {
-      setShowButton(false);
-    } else {
-      setShowButton(contentHeight > flatListHeight);
+    contentHeightRef.current = contentHeight;
+    if (flatListHeightRef.current) {
+      setShowButton(contentHeight > flatListHeightRef.current);
     }
-    setListDimensions({width: contentWidth, height: contentHeight});
   };
 
   const handleScroll = (event) => {
@@ -83,13 +72,12 @@ const Transcript = (props: TranscriptProps) => {
     const isAtTop = contentOffset.y <= 0;
     const isAtBottom =
       contentOffset.y + layoutMeasurement.height >= contentSize.height;
-
     setShowButton(!isAtBottom || isAtTop);
   };
 
   return (
     <View
-      onLayout={handleLayout}
+      // onLayout={handleLayout}
       style={[
         isMobileUA()
           ? //mobile and mobile web
@@ -104,19 +92,6 @@ const Transcript = (props: TranscriptProps) => {
           : {},
       ]}>
       {showHeader && <TranscriptHeader />}
-      {/* <ScrollView
-        style={styles.contentContainer}
-        onScroll={handleScroll}
-        ref={containerRef}>
-        {Object.entries(transcript).map(([key, value]) => (
-          <TranscriptText user={key} value={value} />
-        ))}
-        {true && (
-          <View style={{position: 'absolute', bottom: 20, right: 20}}>
-            <Button title="View Latest" onPress={handleViewLatest} />
-          </View>
-        )}
-      </ScrollView> */}
 
       <FlatList
         ref={flatListRef}
@@ -126,10 +101,7 @@ const Transcript = (props: TranscriptProps) => {
         keyExtractor={(item, index) => `${index}`}
         onContentSizeChange={handleContentSizeChange}
         onScroll={handleScroll}
-        onLayout={(event) => {
-          const {width, height} = event.nativeEvent.layout;
-          setListDimensions({width, height});
-        }}
+        onLayout={handleLayout}
       />
       {showButton && (
         <View
@@ -178,7 +150,7 @@ export const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontSize: ThemeConfig.FontSize.small,
     lineHeight: 19,
-    fontWeight: '600',
+    fontWeight: '400',
     textTransform: 'capitalize',
   },
 });
