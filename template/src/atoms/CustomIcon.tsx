@@ -88,4 +88,6 @@ export interface IconsInterface {
   'caption-mode': string;
   'transcript-mode': string;
   stt: string;
+  'down-arrow': string;
+  'closed-caption': string;
 }

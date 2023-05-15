@@ -61,6 +61,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
     data: {roomId, isHost},
   } = useMeetingInfo();
 
+  const {sidePanel, setSidePanel} = useSidePanel();
+
   const toggleSTT = async (method: string) => {
     // handleSTT
 
@@ -90,9 +92,14 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
-    onPress: () => toggleSTT(isCaptionON ? 'stop' : 'start'),
+    onPress: () => {
+      toggleSTT(isCaptionON ? 'stop' : 'start');
+      sidePanel === SidePanelType.Transcript &&
+        !isCaptionON &&
+        setSidePanel(SidePanelType.None);
+    },
     iconProps: {
-      name: 'caption-mode',
+      name: 'closed-caption',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
