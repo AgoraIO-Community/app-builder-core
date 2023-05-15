@@ -55,8 +55,7 @@ export type layoutComponent = React.ComponentType<{
 export interface layoutItem {
   name: string;
   label: string;
-  //todo: hari change iconName into icon and refactor icon lib
-  iconName: keyof IconsInterface;
+  icon: string;
   component: layoutComponent;
 }
 

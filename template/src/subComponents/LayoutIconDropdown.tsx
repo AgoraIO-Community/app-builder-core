@@ -80,10 +80,7 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
             padding: 10,
           },
           iconType: 'plain',
-          name:
-            item.iconName === 'pinned' && isMobileView
-              ? 'list-view'
-              : item.iconName,
+          icon: item.icon,
           tintColor: $config.SECONDARY_ACTION_COLOR,
         },
         btnTextProps: {

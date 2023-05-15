@@ -67,12 +67,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         textColor: $config.FONT_COLOR,
       },
     };
-    const iconName =
-      layouts[layout]?.iconName === 'pinned' && isMobileView
-        ? 'list-view'
-        : layouts[layout]?.iconName;
-
-    renderContent.push(
+    const iconName = renderContent.push(
       props?.render ? (
         props.render(onPress)
       ) : (
@@ -105,7 +100,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
             }}
             key={'defaultLayoutIconWithName'}
             iconProps={{
-              name: iconName,
+              icon: layouts[layout]?.icon,
               tintColor: $config.SECONDARY_ACTION_COLOR,
             }}
             {...iconButtonProps}
