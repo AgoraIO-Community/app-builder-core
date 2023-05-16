@@ -29,17 +29,13 @@ const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
-  const {transcript, meetingTranscript} = useCaption();
+  const {transcript} = useCaption();
   const data = Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
   const contentHeightRef = React.useRef(0);
   const flatListHeightRef = React.useRef(0);
   const flatListRef = React.useRef(null);
-
-  React.useEffect(() => {
-    console.log('new item pushed', meetingTranscript);
-  }, [meetingTranscript]);
 
   const handleLayout = (event) => {
     flatListHeightRef.current = event.nativeEvent.layout.height;

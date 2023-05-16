@@ -11,28 +11,19 @@ const Caption = () => {
   const {renderList} = useRender();
   const {RtcEngine} = useRtc();
   const renderListRef = React.useRef({renderList});
-  const [text, setText] = React.useState(''); // state for current live caption
+
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
-  const outputStreamFinal = React.useRef<string>(''); // store in localStorage to access previous captions
-
-  const {setTranscript, setMeetingTranscript} = useCaption();
+  const {setTranscript} = useCaption();
   const startTimeRef = React.useRef<number>(0);
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
 
   const meetingTranscriptRef = React.useRef([]);
 
-  const isSentenceBoundaryWord = (word) => {
-    return word == '.' || word == '?';
-  };
-
-  const isPunctuationWord = (word) => {
-    return word == '.' || word == '?' || word == ',';
-  };
-
   const handleStreamMessageCallback = (...args) => {
     const [uid, payload] = args; // uid is of the bot which sends the stream messages in the channel
-    let currentCaption = ''; // holds current caption
+    let nonFinalList = []; // holds intermediate results
+    let currentText = ''; // holds current caption
     const textstream = protoRoot
       .lookupType('Text')
       .decode(payload as Uint8Array) as any;
@@ -46,57 +37,36 @@ const Caption = () => {
       finalList.current[textstream.uid] = [];
     }
 
-    let nonFinalList = [];
-    let text1 = ''; // final name:text
-    let text2 = '';
-    let text3 = ''; // text
     const words = textstream.words;
 
     // categorize words into final & nonFinal objects per uid
     words.map((word) => {
       if (word.isFinal) {
         finalList.current[textstream.uid].push(word.text);
-        // for boundary word clear the finallist for the uid
-        if (isSentenceBoundaryWord(word.text)) {
-          finalList.current[textstream.uid] = [];
-        }
-        text1 += `${userName}:${word.text}`;
-        if (
-          meetingTextRef.current.length > 0 &&
-          !isPunctuationWord(word.text)
-        ) {
-          meetingTextRef.current += ' ';
-          text3 += ' ';
-        }
-        text3 += word.text;
-        meetingTextRef.current += word.text;
 
-        currentCaption = word.text;
+        if (meetingTextRef.current.length > 0) {
+          meetingTextRef.current += ' ';
+        }
+        currentText += word.text;
+        meetingTextRef.current += word.text;
         const duration = performance.now() - startTimeRef.current;
         console.log(
-          `Time taken to finalize caption ${currentCaption}: ${duration}ms`,
+          `Time taken to finalize caption ${currentText}: ${duration}ms`,
         );
         startTimeRef.current = null; // Reset start time
       } else {
-        text2 += `${userName}:${word.text}`;
         nonFinalList.push(word.text);
-
         if (!startTimeRef.current) {
           startTimeRef.current = performance.now();
         }
       }
     });
 
-    if (text1.length) {
-      outputStreamFinal.current +=
-        new Date().toLocaleString() + ' ' + text1 + '\n';
-    }
-
-    if (text3.length) {
+    if (currentText.length) {
       let flag = false;
       meetingTranscriptRef.current.forEach((item) => {
         if (item.uid == textstream.uid && textstream.time - item.time < 30000) {
-          item.text += text3;
+          item.text += currentText;
           flag = true;
           // update existing transcript for uid & time
         }
@@ -108,23 +78,22 @@ const Caption = () => {
           name: userName,
           uid: textstream.uid,
           time: textstream.time,
-          text: text3,
-        });
-        const key = userName + ':' + textstream.time;
-        // new transcript is pushed
-        setMeetingTranscript((prev) => {
-          return [
-            ...prev,
-            {
-              name: key,
-              uid: textstream.uid,
-              time: textstream.time,
-              text: text3,
-            },
-          ];
+          text: currentText,
         });
       }
     }
+
+    // including prev references of the caption
+    let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
+    stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
+    stringBuilder += nonFinalList?.join(' ');
+
+    // when stringBuilder is '' then it will clear the live captions when person stops speaking
+
+    setTextObj((prevState) => ({
+      ...prevState,
+      [textstream.uid]: stringBuilder,
+    }));
 
     if (textstream.words.length === 0) {
       const captionTxt = finalList.current[textstream.uid].join(' ');
@@ -142,53 +111,17 @@ const Caption = () => {
       finalList.current[textstream.uid] = [];
     }
 
-    // including prev references of the caption
-    let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
-    stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
-    stringBuilder += nonFinalList?.join(' ');
-
-    // adding prev final words
-
-    // finalList.current[textstream.uid].forEach((item) => {
-    //   if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
-    //     stringBuilder += ' ';
-    //   }
-    //   stringBuilder += item;
-    //   if (isSentenceBoundaryWord(item)) {
-    //     stringBuilder += '\n';
-    //   }
-    // });
-
-    // nonFinalList.forEach((item) => {
-    //   if (stringBuilder.length > 0 && !isPunctuationWord(item)) {
-    //     stringBuilder += ' ';
-    //   }
-    //   stringBuilder += item;
-    //   if (isSentenceBoundaryWord(item)) {
-    //     stringBuilder += '\n';
-    //   }
-    // });
-
-    if (textstream.words.length === 0) stringBuilder = '';
     console.group('STT-logs');
-    console.log('stt-finalList =>', finalList);
-    console.log('stt - meeting transcript =>', meetingTranscriptRef);
+    console.log('stt-finalList =>', finalList.current);
+    console.log('stt - all meeting text =>', meetingTextRef.current);
+    console.log('stt - meeting transcript =>', meetingTranscriptRef.current);
+    console.log('stt - current text =>', currentText);
+
     console.groupEnd();
-
-    if (1 || stringBuilder) {
-      //setText(`${userName} : ${stringBuilder}`);
-      setTextObj((prevState) => ({
-        ...prevState,
-        [textstream.uid]: stringBuilder,
-      }));
-    }
   };
-
-  const handleVolumeIndicator = () => {};
 
   React.useEffect(() => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
-    RtcEngine.addListener('AudioVolumeIndication', handleVolumeIndicator);
   }, []);
 
   React.useEffect(() => {

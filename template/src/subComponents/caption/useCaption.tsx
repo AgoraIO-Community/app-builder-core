@@ -12,8 +12,6 @@ export const CaptionContext = React.createContext<{
   setTranscript: React.Dispatch<React.SetStateAction<Transcript>>;
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
-  meetingTranscript: [];
-  setMeetingTranscript: React.Dispatch<React.SetStateAction<[]>>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -21,15 +19,12 @@ export const CaptionContext = React.createContext<{
   setTranscript: () => {},
   isSTTActive: false,
   setIsSTTActive: () => {},
-  meetingTranscript: [],
-  setMeetingTranscript: () => {},
 });
 
 const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [transcript, setTranscript] = React.useState<Transcript>({});
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
-  const [meetingTranscript, setMeetingTranscript] = React.useState([]);
 
   return (
     <CaptionContext.Provider
@@ -40,8 +35,6 @@ const CaptionProvider = ({children}) => {
         setTranscript,
         isSTTActive,
         setIsSTTActive,
-        meetingTranscript,
-        setMeetingTranscript,
       }}>
       {children}
     </CaptionContext.Provider>
