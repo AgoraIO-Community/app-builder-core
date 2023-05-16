@@ -132,8 +132,6 @@ export default Transcript;
 export const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
-    borderWidth: 1,
-    borderColor: 'red',
   },
   container: {
     alignItems: 'flex-start',

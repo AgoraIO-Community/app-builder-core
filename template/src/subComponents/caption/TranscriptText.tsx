@@ -3,6 +3,7 @@ import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
+import {isMobileUA} from '../../utils/common';
 
 interface TranscriptTextProps {
   user: string;
@@ -31,13 +32,19 @@ export const TranscriptText = ({
   const t = time ? formatTime(Number(time)) : '';
   const isTranscriptTxt = t.length > 0;
 
+  const isMobile = isMobileUA();
+
   return (
     <View
       key={user}
       style={
-        isTranscriptTxt ? styles.transciptContainer : styles.captionContainer
+        isTranscriptTxt
+          ? styles.transciptContainer
+          : isMobile
+          ? styles.captionContainerMobile
+          : styles.captionContainer
       }>
-      {name && value ? (
+      {(name && value && !isMobile) || (isMobile && isTranscriptTxt) ? (
         <Text
           style={[
             styles.name,
@@ -53,7 +60,12 @@ export const TranscriptText = ({
         <View
           style={
             !isTranscriptTxt
-              ? [styles.captionTextContainerStyle, captionContainerStyle]
+              ? [
+                  isMobile
+                    ? styles.captionTextContainerMobileStyle
+                    : styles.captionTextContainerStyle,
+                  captionContainerStyle,
+                ]
               : {}
           }>
           <Text
@@ -63,6 +75,15 @@ export const TranscriptText = ({
                 ? styles.transciptText
                 : [styles.captionText, captionStyle],
             ]}>
+            {isMobile && !isTranscriptTxt && (
+              <Text
+                style={[
+                  styles.name,
+                  isTranscriptTxt ? styles.transcriptName : styles.captionName,
+                ]}>
+                {name} {':'}{' '}
+              </Text>
+            )}
             {value}
           </Text>
         </View>
@@ -78,7 +99,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'flex-start',
   },
-
+  captionContainerMobile: {
+    marginRight: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    flex: 1,
+  },
   captionTextContainerStyle: {
     overflow: 'hidden',
     maxWidth: 1000,
@@ -87,6 +113,12 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     position: 'relative',
     textAlign: 'left',
+  },
+  captionTextContainerMobileStyle: {
+    overflow: 'hidden',
+    position: 'relative',
+    flex: 1,
+    flexWrap: 'wrap',
   },
   captionText: {
     fontSize: 18,

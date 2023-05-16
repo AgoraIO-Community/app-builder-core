@@ -47,14 +47,15 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
         alignItems: 'center',
         borderRadius: 20,
         position: 'absolute',
-        right: 12,
-        top: 12,
+        right: 8,
+        top: 8,
+        zIndex: 999,
+        backgroundColor: $config.ICON_BG_COLOR,
       }}>
       <IconButton
         hoverEffect={true}
         hoverEffectStyle={{
-          backgroundColor:
-            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['20%'],
+          backgroundColor: $config.ICON_BG_COLOR,
           borderRadius: 20,
           padding: 6,
         }}
@@ -152,7 +153,6 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: 15,
     height: 132,
-    overflow: 'scroll',
     marginHorizontal: 32,
     justifyContent: 'center',
     alignItems: 'center',
@@ -162,6 +162,9 @@ const styles = StyleSheet.create({
   },
   mobileContainer: {
     marginHorizontal: 0,
-    padding: 16,
+    padding: 12,
+    height: 120,
+    backgroundColor: $config.CARD_LAYER_1_COLOR,
+    borderRadius: ThemeConfig.BorderRadius.small,
   },
 });
