@@ -89,7 +89,9 @@ const Caption = () => {
     stringBuilder += nonFinalList?.join(' ');
 
     // when stringBuilder is '' then it will clear the live captions when person stops speaking
-
+    if (textstream.words.length === 0) {
+      stringBuilder = '';
+    }
     setTextObj((prevState) => ({
       ...prevState,
       [textstream.uid]: stringBuilder,
