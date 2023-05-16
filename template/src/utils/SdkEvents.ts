@@ -34,6 +34,10 @@ export interface userEventsMapInterface {
   'rtc-user-unpublished': (uid: UidType, trackType: 'audio' | 'video') => void;
   'rtc-user-joined': (uid: UidType) => void;
   'rtc-user-left': (uid: UidType) => void;
+  'token-not-found': () => void;
+  'will-token-expire': () => void;
+  'did-token-expire': () => void;
+  'token-refreshed': () => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();

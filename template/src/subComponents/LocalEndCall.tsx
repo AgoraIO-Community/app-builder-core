@@ -1,4 +1,6 @@
 import React, {useContext, useState} from 'react';
+import {useRtc} from 'customization-api';
+
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
 import {Prompt, useParams} from '../components/Router';

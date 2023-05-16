@@ -26,6 +26,8 @@ export interface SdkMethodEvents {
     roomid: string | Partial<RoomInfoContextInterface['data']>,
     skipPrecall?: boolean,
   ): RoomInfoContextInterface['data'];
+  login: (token: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 // interface AppBuilderSdkApiInterface {
@@ -42,6 +44,12 @@ export interface SdkMethodEvents {
 // }
 
 export const AppBuilderSdkApi = {
+  login: async (token: string) => {
+    return await SDKMethodEventsManager.emit('login', token);
+  },
+  logout: async () => {
+    return await SDKMethodEventsManager.emit('logout');
+  },
   customize: async (customization: CustomizationApiInterface) => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },

@@ -4,6 +4,7 @@ import StorageContext from '../components/StorageContext';
 import {RoomInfoContextInterface} from '../components/room-info/useRoomInfo';
 import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import {GraphQLContext} from '../components/GraphQLProvider';
+import useGetName from './useGetName';
 
 const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
   query JoinChannel($passphrase: String!) {
@@ -57,6 +58,8 @@ export default function useJoinRoom() {
   const {store} = useContext(StorageContext);
   const {setRoomInfo} = useSetRoomInfo();
   const {client} = useContext(GraphQLContext);
+  const username = useGetName();
+
   return async (phrase: string) => {
     setRoomInfo((prevState) => {
       return {
@@ -72,6 +75,7 @@ export default function useJoinRoom() {
             : JOIN_CHANNEL_PHRASE_AND_GET_USER,
         variables: {
           passphrase: phrase,
+          //userName: username,
         },
       });
       if (response.error) {

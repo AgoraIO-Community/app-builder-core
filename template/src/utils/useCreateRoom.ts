@@ -4,16 +4,8 @@ import {useSetRoomInfo} from '../components/room-info/useSetRoomInfo';
 import SDKEvents from '../utils/SdkEvents';
 
 const CREATE_CHANNEL = gql`
-  mutation CreateChannel(
-    $title: String!
-    $backendURL: String!
-    $enablePSTN: Boolean
-  ) {
-    createChannel(
-      title: $title
-      backendURL: $backendURL
-      enablePSTN: $enablePSTN
-    ) {
+  mutation CreateChannel($title: String!, $enablePSTN: Boolean) {
+    createChannel(title: $title, enablePSTN: $enablePSTN) {
       passphrase {
         host
         view
@@ -46,7 +38,6 @@ export default function useCreateRoom(): createRoomFun {
     const res = await createChannel({
       variables: {
         title: roomTitle,
-        backendURL: $config.BACKEND_ENDPOINT,
         enablePSTN: enablePSTN,
       },
     });

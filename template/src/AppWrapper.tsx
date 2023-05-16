@@ -29,6 +29,7 @@ import Error from './components/common/Error';
 import {ErrorProvider} from './components/common';
 import {useCustomization} from 'customization-implementation';
 import {LanguageProvider} from './language/useLanguage';
+import {AuthProvider} from './auth/AuthProvider';
 import {PropsConsumer} from 'agora-rn-uikit';
 import ToastComponent from './components/ToastComponent';
 import {ToastContext, ToastProvider} from './components/useToast';
@@ -99,19 +100,21 @@ const AppWrapper = (props: AppWrapperProps) => {
                       ? `/${SdkJoinState.phrase}`
                       : '',
                   ]}>
-                  <SessionProvider>
-                    <ColorConfigure>
-                      <DimensionProvider>
-                        <LanguageProvider>
-                          <ErrorProvider>
-                            <Error />
-                            <Navigation />
-                            {props.children}
-                          </ErrorProvider>
-                        </LanguageProvider>
-                      </DimensionProvider>
-                    </ColorConfigure>
-                  </SessionProvider>
+                  <AuthProvider>
+                    <SessionProvider>
+                      <ColorConfigure>
+                        <DimensionProvider>
+                          <LanguageProvider>
+                            <ErrorProvider>
+                              <Error />
+                              <Navigation />
+                              {props.children}
+                            </ErrorProvider>
+                          </LanguageProvider>
+                        </DimensionProvider>
+                      </ColorConfigure>
+                    </SessionProvider>
+                  </AuthProvider>
                 </Router>
               </GraphQLProvider>
             </StorageProvider>

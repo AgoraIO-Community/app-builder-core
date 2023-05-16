@@ -22,17 +22,30 @@ import {EventNames} from '../rtm-events';
 import useLocalScreenShareUid from '../utils/useLocalShareScreenUid';
 import {createHook} from 'customization-implementation';
 import ChatContext from './ChatContext';
+import {useRtc} from 'customization-api';
+import {gql, useMutation} from '@apollo/client';
 
 interface UserPreferenceContextInterface {
   displayName: string;
   setDisplayName: React.Dispatch<React.SetStateAction<string>>;
+  saveName: (name: string) => void;
 }
 
 const UserPreferenceContext =
   React.createContext<UserPreferenceContextInterface>({
     displayName: '',
     setDisplayName: () => {},
+    saveName: () => {},
   });
+
+const UPDATE_USER_NAME_MUTATION = gql`
+  mutation updateUserName($name: String!) {
+    updateUserName(name: $name) {
+      name
+      email
+    }
+  }
+`;
 
 const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   const localUid = useLocalUid();
@@ -44,7 +57,23 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
   const getInitialUsername = () =>
     store?.displayName ? store.displayName : '';
   const [displayName, setDisplayName] = useState(getInitialUsername());
+  const [updateUserName] = useMutation(UPDATE_USER_NAME_MUTATION);
 
+  const saveName = (name: string) => {
+    if (name && name?.trim() !== '') {
+      try {
+        updateUserName({
+          variables: {
+            name,
+          },
+        }).catch((error) => {
+          console.log('ERROR, could not save the name', error);
+        });
+      } catch (error) {
+        console.log('ERROR, could not save the name', error);
+      }
+    }
+  };
   //commented for v1 release
   // const userText = useString('remoteUserDefaultLabel')();
   const userText = 'User';
@@ -118,6 +147,7 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
       value={{
         setDisplayName,
         displayName,
+        saveName,
       }}>
       {props.children}
     </UserPreferenceContext.Provider>

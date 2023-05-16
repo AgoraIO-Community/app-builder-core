@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {
   SHARE_LINK_CONTENT_TYPE,
@@ -25,15 +25,19 @@ import {isMobileUA, useIsDesktop} from '../../utils/common';
 import {useVideoCall} from '../useVideoCall';
 import {useParams} from '../Router';
 import useGetMeetingPhrase from '../../utils/useGetMeetingPhrase';
+import {ErrorContext} from '../common';
 
 const InvitePopup = () => {
   const {setShowInvitePopup, showInvitePopup} = useVideoCall();
   const isDesktop = useIsDesktop();
   const {copyShareLinkToClipboard} = useShareLink();
   const {phrase} = useParams<{phrase: string}>();
+  const {setGlobalErrorMessage} = useContext(ErrorContext);
   const getMeeting = useGetMeetingPhrase();
   useEffect(() => {
-    getMeeting(phrase);
+    getMeeting(phrase).catch((error) => {
+      setGlobalErrorMessage(error);
+    });
   }, [phrase]);
   return (
     <Popup

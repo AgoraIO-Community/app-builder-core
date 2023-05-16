@@ -60,6 +60,7 @@ import {useWakeLock} from '../components/useWakeLock';
 import SDKEvents from '../utils/SdkEvents';
 import {UserPreferenceProvider} from '../components/useUserPreference';
 import EventsConfigure from '../components/EventsConfigure';
+import {useAuth} from '../auth/AuthProvider';
 import PermissionHelper from '../components/precall/PermissionHelper';
 import {currentFocus, FocusProvider} from '../utils/useFocus';
 import {VideoCallProvider} from '../components/useVideoCall';
@@ -115,6 +116,7 @@ const VideoCall: React.FC = () => {
     editName: false,
   });
   const {phrase} = useParams<{phrase: string}>();
+
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -246,6 +248,7 @@ const VideoCall: React.FC = () => {
     EndCall: () => {
       clearState('join');
       setTimeout(() => {
+        // TODO: These callbacks are being called twice
         SDKEvents.emit('leave');
         history.push('/');
       }, 0);
