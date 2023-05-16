@@ -71,7 +71,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   const {dispatch} = useContext(DispatchContext);
   const {defaultContent} = useContent();
   const localUid = useLocalUid();
-  const {setSidePanel} = useSidePanel();
+  const {setSidePanel, sidePanel} = useSidePanel();
   const {chatType, setChatType, privateChatUser, setPrivateChatUser} =
     useChatUIControls();
   const {
@@ -87,7 +87,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }>({});
 
   const defaultContentRef = useRef({defaultContent: defaultContent});
-  const groupActiveRef = useRef<boolean>();
+  const groupActiveRef = useRef<boolean>(false);
   const individualActiveRef = useRef<string | number>();
 
   //commented for v1 release
@@ -99,8 +99,9 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
   }, [defaultContent]);
 
   useEffect(() => {
-    groupActiveRef.current = chatType === ChatType.Group;
-  }, [chatType]);
+    groupActiveRef.current =
+      chatType === ChatType.Group && sidePanel === SidePanelType.Chat;
+  }, [chatType, sidePanel]);
 
   useEffect(() => {
     individualActiveRef.current = privateChatUser;

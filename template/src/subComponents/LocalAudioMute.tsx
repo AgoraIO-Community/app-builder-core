@@ -26,6 +26,9 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+
 /**
  * A component to mute / unmute the local audio
  */
@@ -45,6 +48,7 @@ export interface LocalAudioMuteProps {
 }
 
 function LocalAudioMute(props: LocalAudioMuteProps) {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {rtcProps} = useContext(PropsContext);
   const {
     data: {isHost},
@@ -156,6 +160,8 @@ function LocalAudioMute(props: LocalAudioMuteProps) {
 
   return props?.render ? (
     props.render(onPress, isAudioEnabled)
+  ) : isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
   ) : (
     <IconButton {...iconButtonProps} />
   );

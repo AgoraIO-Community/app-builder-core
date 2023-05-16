@@ -60,6 +60,9 @@ import styles from 'react-native-toast-message/src/styles';
 import RecordingInfo from '../atoms/RecordingInfo';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
+import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -99,6 +102,7 @@ export interface ParticipantsIconButtonProps {
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     liveStreamingRequestAlertIconPosition = {
       top: 0,
@@ -147,22 +151,30 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
     props.render(onPress, isPanelActive)
   ) : (
     <>
-      <View>
-        <IconButton {...iconButtonProps} />
-      </View>
-      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
-        <View
-          style={{
-            position: 'absolute',
-            top: liveStreamingRequestAlertIconPosition.top,
-            bottom: liveStreamingRequestAlertIconPosition.bottom,
-            right: liveStreamingRequestAlertIconPosition.right,
-            left: liveStreamingRequestAlertIconPosition.left,
-            backgroundColor: $config.SEMANTIC_ERROR,
-            width: 12,
-            height: 12,
-            borderRadius: 10,
-          }}></View>
+      {isToolbarMenuItem ? (
+        <ToolbarMenuItem {...iconButtonProps} />
+      ) : (
+        <>
+          <View>
+            <IconButton {...iconButtonProps} />
+          </View>
+          {$config.EVENT_MODE &&
+            $config.RAISE_HAND &&
+            isPendingRequestToReview && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: liveStreamingRequestAlertIconPosition.top,
+                  bottom: liveStreamingRequestAlertIconPosition.bottom,
+                  right: liveStreamingRequestAlertIconPosition.right,
+                  left: liveStreamingRequestAlertIconPosition.left,
+                  backgroundColor: $config.SEMANTIC_ERROR,
+                  width: 12,
+                  height: 12,
+                  borderRadius: 10,
+                }}></View>
+            )}
+        </>
       )}
     </>
   );
@@ -187,6 +199,7 @@ export interface ChatIconButtonProps {
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
   const {sidePanel, setSidePanel} = useSidePanel();
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     badgeContainerPosition = {
       top: 0,
@@ -287,8 +300,14 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   ) : (
     <>
       <View>
-        <IconButton {...iconButtonProps} />
-        {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
+        {isToolbarMenuItem ? (
+          <ToolbarMenuItem {...iconButtonProps} />
+        ) : (
+          <>
+            <IconButton {...iconButtonProps} />
+            {totalUnreadCount !== 0 && renderUnreadMessageIndicator()}
+          </>
+        )}
       </View>
     </>
   );
@@ -312,72 +331,163 @@ const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
   return <SettingsWithViewWrapper {...props} />;
 };
 
-const Navbar = () => {
-  //commented for v1 release
-  //const recordingLabel = useString('recordingLabel')();
-  const {isHorizontal} = useToolbar();
-  const recordingLabel = 'Recording';
-  const {audienceUids, hostUids} = useLiveStreamDataContext();
+export const MeetingTitleToolbarItem = () => {
   const {
     data: {meetingTitle},
   } = useRoomInfo();
-
+  return (
+    <ToolbarItem>
+      <Text
+        style={style.roomNameText}
+        testID="videocall-meetingName"
+        numberOfLines={1}
+        ellipsizeMode="tail">
+        {trimText(meetingTitle)}
+      </Text>
+    </ToolbarItem>
+  );
+};
+export const ParticipantCountToolbarItem = () => {
+  return (
+    <ToolbarItem>
+      <ParticipantsCount />
+    </ToolbarItem>
+  );
+};
+export const RecordingStatusToolbarItem = () => {
+  const recordingLabel = 'Recording';
   const {isRecordingActive} = useRecording();
-  const {onlineUsersCount} = useContext(ChatContext);
+  return isRecordingActive ? (
+    <ToolbarItem>
+      <RecordingInfo recordingLabel={recordingLabel} />
+    </ToolbarItem>
+  ) : (
+    <></>
+  );
+};
+const defaultStartItems: ToolbarCustomItem[] = [
+  {
+    align: 'start',
+    component: MeetingTitleToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: ParticipantCountToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: RecordingStatusToolbarItem,
+    order: 2,
+    hide: 'no',
+  },
+];
+const defaultCenterItems: ToolbarCustomItem[] = [];
+
+export const ParticipantToolbarItem = () => {
+  return (
+    <ToolbarItem testID="videocall-participantsicon">
+      <ParticipantsIconButton />
+    </ToolbarItem>
+  );
+};
+
+export const ChatToolbarItem = () => {
+  return (
+    $config.CHAT && (
+      <>
+        <ToolbarItem testID="videocall-chaticon">
+          <ChatIconButton />
+        </ToolbarItem>
+      </>
+    )
+  );
+};
+export const SettingsToobarItem = () => {
+  return (
+    <ToolbarItem testID="videocall-settingsicon">
+      <SettingsIconButtonWithWrapper />
+    </ToolbarItem>
+  );
+};
+
+const defaultEndItems: ToolbarCustomItem[] = [
+  {
+    align: 'start',
+    component: ParticipantToolbarItem,
+    order: 0,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: ChatToolbarItem,
+    order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: SettingsToobarItem,
+    order: 2,
+    hide: 'no',
+  },
+];
+
+export interface NavbarProps {
+  customItems?: ToolbarCustomItem[];
+  includeDefaultItems?: boolean;
+}
+const Navbar = (props: NavbarProps) => {
+  //commented for v1 release
+  //const recordingLabel = useString('recordingLabel')();
+  const {customItems = [], includeDefaultItems = true} = props;
   const {width} = useWindowDimensions();
+
+  const isHidden = (i) => {
+    return i?.hide === 'yes';
+  };
+
+  const customStartItems = customItems
+    ?.filter((i) => i.align === 'start' && !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultStartItems : [])
+    ?.sort((a, b) => a?.order - b?.order);
+
+  const customCenterItems = customItems
+    ?.filter((i) => i.align === 'center' && !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultCenterItems : [])
+    ?.sort((a, b) => a?.order - b?.order);
+
+  const customEndItems = customItems
+    ?.filter((i) => i.align === 'end' && !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultEndItems : [])
+    ?.sort((a, b) => a?.order - b?.order);
+
+  const renderContent = (
+    items: ToolbarCustomItem[],
+    type: 'start' | 'center' | 'end',
+  ) => {
+    return items?.map((item, index) => {
+      const ToolbarItem = item?.component;
+      if (ToolbarItem) {
+        return <ToolbarItem key={`top-toolbar-${type}` + index} />;
+      } else {
+        return null;
+      }
+    });
+  };
   return (
     <Toolbar>
-      <View
-        style={[
-          isHorizontal
-            ? {flexDirection: 'row'}
-            : {flexDirection: 'column', justifyContent: 'center'},
-        ]}>
-        <ToolbarItem>
-          <Text
-            style={style.roomNameText}
-            testID="videocall-meetingName"
-            numberOfLines={1}
-            ellipsizeMode="tail">
-            {trimText(meetingTitle)}
-          </Text>
-        </ToolbarItem>
-        {/* <Spacer size={8} horizontal={isHorizontal ? true : false} /> */}
-        <ToolbarItem>
-          <ParticipantsCount />
-        </ToolbarItem>
-        {!isRecordingActive ? (
-          <ToolbarItem>
-            <RecordingInfo
-              recordingLabel={isHorizontal ? recordingLabel : ''}
-            />
-          </ToolbarItem>
-        ) : (
-          <></>
-        )}
+      <View style={style.startContent}>
+        {renderContent(customStartItems, 'start')}
+      </View>
+      <View style={style.centerContent}>
+        {renderContent(customCenterItems, 'center')}
       </View>
       {width > BREAKPOINTS.sm || isMobileUA() ? (
-        <View
-          style={[
-            style.navControlBar,
-            isHorizontal
-              ? {flexDirection: 'row', width: '50%'}
-              : {flexDirection: 'column'},
-          ]}
-          testID="videocall-navcontrols">
-          <ToolbarItem testID="videocall-participantsicon">
-            <ParticipantsIconButton />
-          </ToolbarItem>
-          {$config.CHAT && (
-            <>
-              <ToolbarItem testID="videocall-chaticon">
-                <ChatIconButton />
-              </ToolbarItem>
-            </>
-          )}
-          <ToolbarItem testID="videocall-settingsicon">
-            <SettingsIconButtonWithWrapper />
-          </ToolbarItem>
+        <View style={style.endContent}>
+          {renderContent(customEndItems, 'end')}
         </View>
       ) : (
         <></>
@@ -387,6 +497,26 @@ const Navbar = () => {
 };
 
 const style = StyleSheet.create({
+  startContent: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  centerContent: {
+    zIndex: 2,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  endContent: {
+    flex: 1,
+    zIndex: 9,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   participantCountView: {
     flexDirection: 'row',
     padding: 12,
@@ -439,10 +569,6 @@ const style = StyleSheet.create({
     fontFamily: isIOS() ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_ACTION_COLOR,
-  },
-  navControlBar: {
-    justifyContent: 'flex-end',
-    zIndex: 9,
   },
   navSmItem: {
     flexGrow: 0,

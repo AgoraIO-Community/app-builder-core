@@ -25,6 +25,9 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+
 /**
  * A component to mute / unmute the local video
  */
@@ -45,6 +48,7 @@ export interface LocalVideoMuteProps {
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const {rtcProps} = useContext(PropsContext);
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {
     data: {isHost},
   } = useRoomInfo();
@@ -152,6 +156,8 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   }
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
+  ) : isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
   ) : (
     <IconButton {...iconButtonProps} />
   );

@@ -33,7 +33,11 @@ import {useChatNotification} from '../../components/chat-notification/useChatNot
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
-import {useLocalUserInfo} from 'customization-api';
+import {
+  ToolbarCustomItem,
+  ToolbarItem,
+  useLocalUserInfo,
+} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 
 //Icon for expanding Action Sheet
@@ -45,7 +49,7 @@ interface ShowMoreIconProps {
 const ShowMoreIcon = (props: ShowMoreIconProps) => {
   const {isExpanded, onPress, showNotification} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <TouchableOpacity onPress={onPress}>
           <ImageIcon
@@ -55,7 +59,7 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
         </TouchableOpacity>
         {showNotification && <View style={styles.notification} />}
       </View>
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -67,7 +71,7 @@ interface LiveStreamIconProps {
 const LiveStreamIcon = (props: LiveStreamIconProps) => {
   const {isHandRaised, showLabel = $config.ICON_TEXT} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <LiveStreamControls
           showControls={true}
@@ -80,7 +84,7 @@ const LiveStreamIcon = (props: LiveStreamIconProps) => {
           {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
         </Text>
       )}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -91,12 +95,12 @@ interface ChatIconProps {
 const ChatIcon = (props: ChatIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <ChatIconButton isOnActionSheet={true} />
       </View>
       {showLabel && <Text style={styles.iconText}>Chat</Text>}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -107,13 +111,12 @@ interface ParticipantsIconProps {
 const ParticipantsIcon = (props: ParticipantsIconProps) => {
   const {showNotification} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <ParticipantsIconButton isOnActionSheet={true} />
       </View>
       {$config.ICON_TEXT && <Text style={styles.iconText}>People</Text>}
-      {/* {showNotification && <View style={styles.notification} />} */}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -124,12 +127,12 @@ interface RecordingIconProps {
 const RecordingIcon = (props: RecordingIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <Recording showLabel={false} isOnActionSheet={true} />
       </View>
       {showLabel && <Text style={styles.iconText}>Record</Text>}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -139,7 +142,7 @@ interface SwitchCameraIconProps {
 const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
   const {disabled} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <LocalSwitchCamera showLabel={false} disabled={disabled} />
       </View>
@@ -166,7 +169,7 @@ const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
           </Text>
         </View>
       )}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -176,7 +179,7 @@ interface SettingsIconProps {
 const SettingsIcon = (props: SettingsIconProps) => {
   const {onPress} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
         <ImageIcon
           name={'settings'}
@@ -184,18 +187,18 @@ const SettingsIcon = (props: SettingsIconProps) => {
         />
       </TouchableOpacity>
       {$config.ICON_TEXT && <Text style={styles.iconText}>Settings</Text>}
-    </View>
+    </ToolbarItem>
   );
 };
 
 const ShareIcon = () => {
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
       </View>
       {$config.ICON_TEXT && <Text style={styles.iconText}>Invite</Text>}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -207,11 +210,11 @@ interface AudioIconProps {
 }
 const AudioIcon = (props: AudioIconProps) => {
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <LocalAudioMute {...props} />
       </View>
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -223,11 +226,11 @@ interface CamIconProps {
 }
 const CamIcon = (props: CamIconProps) => {
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <LocalVideoMute {...props} />
       </View>
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -237,7 +240,7 @@ interface EndCallIconProps {
 }
 const EndCallIcon = (props: EndCallIconProps) => {
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View
         style={[
           styles.iconContainer,
@@ -245,7 +248,7 @@ const EndCallIcon = (props: EndCallIconProps) => {
         ]}>
         <LocalEndcall {...props} />
       </View>
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -255,12 +258,12 @@ interface LayoutIconProps {
 const LayoutIcon = (props: LayoutIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
   return (
-    <View style={styles.iconWithText}>
+    <ToolbarItem>
       <View style={styles.iconContainer}>
         <LayoutIconButton showLabel={false} />
       </View>
       {showLabel && <Text style={styles.iconText}>Layout</Text>}
-    </View>
+    </ToolbarItem>
   );
 };
 
@@ -293,7 +296,12 @@ export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
 ];
 
 const ActionSheetContent = (props) => {
-  const {handleSheetChanges, isExpanded} = props;
+  const {
+    handleSheetChanges,
+    isExpanded,
+    customItems = [],
+    includeDefaultItems = true,
+  } = props;
   const {onlineUsersCount, localUid} = useContext(ChatContext);
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();
@@ -327,6 +335,167 @@ const ActionSheetContent = (props) => {
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+
+  const defaultItems = [
+    {
+      default: true,
+      order: 0,
+      hide: 'no',
+      align: 'start',
+      component: isAudioVideoControlsDisabled ? null : (
+        <AudioIcon
+          isMobileView={true}
+          isOnActionSheet={true}
+          showLabel={false}
+          disabled={isLiveStream && isAudience && !isBroadCasting}
+        />
+      ),
+    },
+    {
+      default: true,
+      order: 0,
+      hide: 'no',
+      align: 'start',
+      /*For AudioCast Host:Chat ,Attendee:Raise Hand 
+          For VoiceChat Host:Chat, Attendee:Chat
+         */
+      component: (isAudioCastHost ||
+        isVoiceChatHost ||
+        isVoiceChatAudience) && <ChatIcon showLabel={false} />,
+    },
+
+    {
+      default: true,
+      order: 0,
+      hide: 'no',
+      align: 'start',
+      component:
+        (isAudioCastAudience && isLiveStream && isAudience) ||
+        (isBroadCasting && !isHost) ? (
+          $config.RAISE_HAND && isAudioRoom ? (
+            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
+          ) : null
+        ) : null,
+    },
+    {
+      default: true,
+      order: 1,
+      hide: 'no',
+      align: 'start',
+      component:
+        !isAudioRoom &&
+        (isAudioVideoControlsDisabled ? null : (
+          <CamIcon
+            isOnActionSheet={true}
+            isMobileView={true}
+            showLabel={false}
+            disabled={isLiveStream && isAudience && !isBroadCasting}
+          />
+        )),
+    },
+    {
+      default: true,
+      order: 2,
+      hide: 'no',
+      align: 'start',
+      component: <EndCallIcon showLabel={false} isOnActionSheet={true} />,
+    },
+    //reset of the controls
+    {
+      default: true,
+      order: 4,
+      hide: 'no',
+      align: 'start',
+      component:
+        (isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+          $config.RAISE_HAND && !isAudioRoom ? (
+            <LiveStreamIcon isHandRaised={isHandRaised} />
+          ) : null
+        ) : null,
+    },
+    {
+      default: true,
+      order: 5,
+      hide: 'no',
+      align: 'start',
+      component: <LayoutIcon />,
+    },
+    {
+      default: true,
+      order: 6,
+      hide: 'no',
+      align: 'start',
+      component: !(
+        isAudioCastHost ||
+        isVoiceChatHost ||
+        isVoiceChatAudience
+      ) && <ChatIcon />,
+    },
+    {
+      default: true,
+      order: 7,
+      hide: 'no',
+      align: 'start',
+      component: (
+        <ParticipantsIcon
+          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
+        />
+      ),
+    },
+    {
+      default: true,
+      order: 8,
+      hide: 'no',
+      align: 'start',
+      component: isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null,
+    },
+    {
+      default: true,
+      order: 9,
+      hide: 'no',
+      align: 'start',
+      component:
+        !isAudioRoom &&
+        (isAudioVideoControlsDisabled ? null : (
+          <SwitchCameraIcon
+            disabled={
+              (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled
+            }
+          />
+        )),
+    },
+    {
+      default: true,
+      order: 10,
+      hide: 'no',
+      align: 'start',
+      component: (
+        <SettingsIcon
+          onPress={() => {
+            setSidePanel(SidePanelType.Settings);
+          }}
+        />
+      ),
+    },
+    {
+      default: true,
+      order: 11,
+      hide: 'no',
+      align: 'start',
+      component: <ShareIcon />,
+    },
+  ];
+
+  const isHidden = (i) => {
+    return i?.hide === 'yes';
+  };
+  const combinedItems = customItems
+    ?.filter((i) => !isHidden(i))
+    ?.concat(includeDefaultItems ? defaultItems : [])
+    //to filter empty component because of some condition array will have empty component
+    ?.filter((i) => i?.component)
+    ?.sort((a, b) => a?.order - b?.order);
+
   return (
     <View>
       {/* Row Always Visible */}
@@ -335,98 +504,43 @@ const ActionSheetContent = (props) => {
           styles.row,
           {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
         ]}>
-        {isAudioVideoControlsDisabled ? null : (
-          <AudioIcon
-            isMobileView={true}
-            isOnActionSheet={true}
-            showLabel={false}
-            disabled={isLiveStream && isAudience && !isBroadCasting}
+        {/**If no items more than 4 then render firstrender first 3 items and render show more icon  */}
+        {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
+        {combinedItems
+          ?.slice(0, combinedItems?.length >= 4 ? 3 : 4)
+          ?.map((i) => {
+            const Component = i?.component;
+            if (Component) {
+              return i?.default ? Component : <Component />;
+            } else {
+              return null;
+            }
+          })}
+        {combinedItems && combinedItems?.length >= 4 ? (
+          <ShowMoreIcon
+            isExpanded={isExpanded}
+            showNotification={
+              (!isExpanded && totalUnreadCount !== 0) ||
+              ($config.EVENT_MODE && isPendingRequestToReview)
+            }
+            onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
           />
+        ) : (
+          <></>
         )}
-
-        {/*For AudioCast Host:Chat ,Attendee:Raise Hand 
-          For VoiceChat Host:Chat, Attendee:Chat
-         */}
-
-        {(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
-          <ChatIcon showLabel={false} />
-        )}
-        {(isAudioCastAudience && isLiveStream && isAudience) ||
-        (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
-          ) : null
-        ) : null}
-
-        {!isAudioRoom &&
-          (isAudioVideoControlsDisabled ? null : (
-            <CamIcon
-              isOnActionSheet={true}
-              isMobileView={true}
-              showLabel={false}
-              disabled={isLiveStream && isAudience && !isBroadCasting}
-            />
-          ))}
-
-        <EndCallIcon showLabel={false} isOnActionSheet={true} />
-
-        <ShowMoreIcon
-          isExpanded={isExpanded}
-          showNotification={
-            (!isExpanded && totalUnreadCount !== 0) ||
-            ($config.EVENT_MODE && isPendingRequestToReview)
-          }
-          onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
-        />
       </View>
 
       {/* Rest Of Controls */}
       <View style={styles.row}>
-        {/**
-         * In event mode when raise hand feature is active
-         * and audience is promoted to host, the audience can also
-         * demote himself
-         */}
-        {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && !isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} />
-          ) : null
-        ) : null}
-
-        {/* Layout view */}
-        <LayoutIcon />
-
-        {/* chat */}
-        {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
-          <ChatIcon />
-        )}
-        {/* participants */}
-        <ParticipantsIcon
-          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
-        />
-        {/* record */}
-        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
-
-        {/* switch camera */}
-        {!isAudioRoom &&
-          (isAudioVideoControlsDisabled ? null : (
-            <SwitchCameraIcon
-              disabled={
-                (isLiveStream && isAudience && !isBroadCasting) ||
-                isVideoDisabled
-              }
-            />
-          ))}
-
-        {/* settings */}
-        <SettingsIcon
-          onPress={() => {
-            setSidePanel(SidePanelType.Settings);
-          }}
-        />
-
-        {/* invite */}
-        <ShareIcon />
+        {combinedItems?.length > 3 &&
+          combinedItems?.slice(3, combinedItems?.length)?.map((i) => {
+            const Component = i?.component;
+            if (Component) {
+              return i?.default ? Component : <Component />;
+            } else {
+              return null;
+            }
+          })}
       </View>
     </View>
   );

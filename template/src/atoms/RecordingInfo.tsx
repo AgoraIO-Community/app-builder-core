@@ -21,7 +21,7 @@ export default RecordingInfo;
 const styles = StyleSheet.create({
   recordingView: {
     padding: 12,
-    paddingVertical: isMobileUA() ? 5 : 12,
+    paddingVertical: isMobileUA() ? 10 : 12,
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',

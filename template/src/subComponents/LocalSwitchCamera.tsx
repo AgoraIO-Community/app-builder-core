@@ -4,6 +4,8 @@ import {PropsContext, ToggleState} from '../../agora-rn-uikit';
 import Styles from '../components/styles';
 import {useLocalUserInfo, useRtc} from 'customization-api';
 import IconButton, {IconButtonProps} from '../atoms/IconButton';
+import {useToolbarMenu} from '../utils/useMenu';
+import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 
 export interface LocalSwitchCameraProps {
   showLabel?: boolean;
@@ -12,6 +14,7 @@ export interface LocalSwitchCameraProps {
 }
 
 function LocalSwitchCamera(props: LocalSwitchCameraProps) {
+  const {isToolbarMenuItem} = useToolbarMenu();
   const {callbacks} = useContext(PropsContext);
   const {RtcEngineUnsafe} = useRtc();
   const local = useLocalUserInfo();
@@ -39,6 +42,8 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
 
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
+  ) : isToolbarMenuItem ? (
+    <ToolbarMenuItem {...iconButtonProps} />
   ) : (
     <IconButton {...iconButtonProps} />
   );
