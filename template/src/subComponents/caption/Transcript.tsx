@@ -18,10 +18,6 @@ import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 
-export type Transcript = {
-  [key: string]: string;
-};
-
 interface TranscriptProps {
   showHeader?: boolean;
 }
@@ -29,8 +25,8 @@ const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
-  const {transcript} = useCaption();
-  const data = Object.entries(transcript);
+  const {meetingTranscript} = useCaption();
+  const data = meetingTranscript; // Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
   const contentHeightRef = React.useRef(0);
@@ -45,7 +41,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const renderItem = ({item}) => (
-    <TranscriptText user={item[0]} value={item[1]} />
+    <TranscriptText user={item.name} time={item.time} value={item.text} />
   );
 
   const handleViewLatest = () => {
@@ -94,7 +90,7 @@ const Transcript = (props: TranscriptProps) => {
         style={styles.contentContainer}
         data={data}
         renderItem={renderItem}
-        keyExtractor={(item, index) => `${index}`}
+        keyExtractor={(item) => item.uid + '-' + item.time}
         onContentSizeChange={handleContentSizeChange}
         onScroll={handleScroll}
         onLayout={handleLayout}

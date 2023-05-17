@@ -7,6 +7,7 @@ import {isMobileUA} from '../../utils/common';
 
 interface TranscriptTextProps {
   user: string;
+  time?: number;
   value: string;
   captionContainerStyle?: ViewStyle;
   captionStyle?: TextStyle;
@@ -24,11 +25,11 @@ function formatTime(timestamp: number): string {
 
 export const TranscriptText = ({
   user,
+  time,
   value,
   captionContainerStyle = {},
   captionStyle = {},
 }: TranscriptTextProps) => {
-  const [name, time] = (user || '').split(':');
   const t = time ? formatTime(Number(time)) : '';
   const isTranscriptTxt = t.length > 0;
 
@@ -44,13 +45,13 @@ export const TranscriptText = ({
           ? styles.captionContainerMobile
           : styles.captionContainer
       }>
-      {(name && value && !isMobile) || (isMobile && isTranscriptTxt) ? (
+      {(user && value && !isMobile) || (isMobile && isTranscriptTxt) ? (
         <Text
           style={[
             styles.name,
             isTranscriptTxt ? styles.transcriptName : styles.captionName,
           ]}>
-          {name} {!isTranscriptTxt && ':'}{' '}
+          {user} {!isTranscriptTxt && ':'}
           {time && <Text style={styles.timestamp}>{t}</Text>}
         </Text>
       ) : (
@@ -81,7 +82,7 @@ export const TranscriptText = ({
                   styles.name,
                   isTranscriptTxt ? styles.transcriptName : styles.captionName,
                 ]}>
-                {name} {':'}{' '}
+                {user} {':'}
               </Text>
             )}
             {value}
