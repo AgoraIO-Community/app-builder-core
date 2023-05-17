@@ -276,7 +276,7 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <CaptionIcon isOnActionSheet={true} />
+        <CaptionIcon isOnActionSheet={true} showLabel={false} />
       </View>
       {showLabel && <Text style={styles.iconText}>Caption</Text>}
     </View>
@@ -292,7 +292,7 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <TranscriptIcon isOnActionSheet={true} />
+        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
       </View>
       {showLabel && <Text style={styles.iconText}>Transcript</Text>}
     </View>

@@ -49,13 +49,8 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
-  const {
-    isCaptionON,
-    setIsCaptionON,
-    isSTTActive,
-    setIsSTTActive,
-    setTranscript,
-  } = useCaption();
+  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive} =
+    useCaption();
   const {store} = React.useContext(StorageContext);
   const {
     data: {roomId, isHost},
