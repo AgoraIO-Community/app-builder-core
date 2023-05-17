@@ -13,11 +13,11 @@ const Caption = () => {
 
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
-  const {setMeetingTranscript} = useCaption();
+  const {setMeetingTranscript, meetingTranscript} = useCaption();
   const startTimeRef = React.useRef<number>(0);
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
 
-  const meetingTranscriptRef = React.useRef([]);
+  const meetingTranscriptRef = React.useRef(meetingTranscript);
 
   const handleStreamMessageCallback = (...args) => {
     const [uid, payload] = args; // uid is of the bot which sends the stream messages in the channel
@@ -64,41 +64,29 @@ const Caption = () => {
     if (currentText.length) {
       let flag = false;
       meetingTranscriptRef.current.forEach((item) => {
-        if (item.uid == textstream.uid && textstream.time - item.time < 30000) {
-          item.text += currentText;
+        if (
+          item.uid == textstream.uid &&
+          new Date().getTime() - item.time < 30000
+        ) {
+          item.text = item.text + ' ' + currentText;
           flag = true;
           // update existing transcript for uid & time
         }
       });
-
-      // meetingTranscript.forEach((item) => {
-      //   if (item.uid == textstream.uid && textstream.time - item.time < 30000) {
-      //     item.text += currentText;
-      //     flag = true;
-      //     // update existing transcript for uid & time
-      //   }
-      // });
 
       if (!flag) {
         // update with prev history
         meetingTranscriptRef.current.push({
           name: userName,
           uid: textstream.uid,
-          time: textstream.time,
+          time: new Date().getTime(), //textstream.time, // textstream.time returing value 699391063 - which is not comparable with timestamp
           text: currentText,
         });
-        // setMeetingTranscript((prevTranscript) => {
-        //   return [
-        //     ...prevTranscript,
-        //     {
-        //       name: userName,
-        //       uid: textstream.uid,
-        //       time: textstream.time,
-        //       text: currentText,
-        //     },
-        //   ];
-        // });
       }
+
+      setMeetingTranscript((prevTranscript) => {
+        return [...meetingTranscriptRef.current];
+      });
     }
 
     // including prev references of the caption
@@ -116,31 +104,19 @@ const Caption = () => {
     }));
 
     if (textstream.words.length === 0) {
-      const captionTxt = finalList.current[textstream.uid].join(' ');
-      if (captionTxt) {
-        setMeetingTranscript((prevTranscript) => {
-          return [
-            ...prevTranscript,
-            {
-              name: userName,
-              uid: textstream.uid,
-              time: new Date().getTime(),
-              text: captionTxt,
-            },
-          ];
-        });
-      }
       // clearing prev sel when empty words
       finalList.current[textstream.uid] = [];
     }
 
-    // console.group('STT-logs');
-    // console.log('stt-finalList =>', finalList.current);
-    // console.log('stt - all meeting text =>', meetingTextRef.current);
-    // console.log('stt - meeting transcript =>', meetingTranscriptRef.current);
-    // console.log('stt - current text =>', currentText);
-    // console.groupEnd();
+    console.group('STT-logs');
+    console.log('stt-finalList =>', finalList.current);
+    console.log('stt - all meeting text =>', meetingTextRef.current);
+    console.log('stt - meeting transcript =>', meetingTranscriptRef.current);
+    console.log('stt - current text =>', currentText);
+    console.groupEnd();
   };
+  //TODO : verify if volume can be used to detect if person is speaking or not so as to show live captions accordingly, right now relying on the
+  // streamMessagecallback [] payload to clear prev msgs.
   const handleVolumeCallback = (...args) => {
     console.log('in volume callback', args);
   };
