@@ -18,6 +18,10 @@ const JOIN_CHANNEL_PHRASE_AND_GET_USER = gql`
         rtm
         uid
       }
+      whiteboard {
+        room_uuid
+        room_token
+      }
       screenShare {
         rtc
         rtm
@@ -42,6 +46,10 @@ const JOIN_CHANNEL_PHRASE = gql`
         rtc
         rtm
         uid
+      }
+      whiteboard {
+        room_uuid
+        room_token
       }
       screenShare {
         rtc
@@ -110,6 +118,18 @@ export default function useJoinRoom() {
           }
           if (data?.joinChannel?.title) {
             roomInfo.meetingTitle = data.joinChannel.title;
+          }
+          if (data?.joinChannel?.title) {
+            roomInfo.meetingTitle = data.joinChannel.title;
+          }
+          if (data?.joinChannel?.whiteboard) {
+            const whiteboard: RoomInfoContextInterface['data']['whiteboard'] = {
+              room_token: data?.joinChannel?.whiteboard?.room_token,
+              room_uuid: data?.joinChannel?.whiteboard?.room_uuid,
+            };
+            if (whiteboard?.room_token && whiteboard?.room_uuid) {
+              roomInfo.whiteboard = whiteboard;
+            }
           }
           //getUser is not available from backend
           // if (data?.getUser?.name) {

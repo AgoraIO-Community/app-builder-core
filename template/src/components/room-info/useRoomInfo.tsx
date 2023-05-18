@@ -25,6 +25,10 @@ export interface RoomInfoContextInterface {
       number: string;
       pin: string;
     };
+    whiteboard?: {
+      room_uuid: string;
+      room_token: string;
+    };
     isSeparateHostLink: boolean;
     channel?: string;
     uid?: UidType;
