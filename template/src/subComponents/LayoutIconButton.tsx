@@ -16,7 +16,8 @@ export interface LayoutIconButtonInterface {
 }
 
 const LayoutIconButton = (props: LayoutIconButtonInterface) => {
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
+  //const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
   const {height: windowHeight} = useWindowDimensions();
   const [modalPosition, setModalPosition] = useState(null);
   const layoutBtnRef = useRef();

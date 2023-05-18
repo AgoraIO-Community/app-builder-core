@@ -27,8 +27,8 @@ interface VideoRendererProps {
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {dispatch} = useContext(DispatchContext);
   const activeSpeaker = useActiveSpeaker();
-  const {pinnedUid, activeUids} = useContent();
-  const isActiveSpeaker = activeSpeaker === user.uid;
+  const {pinnedUid} = useContent();
+  const isActiveSpeaker = activeSpeaker === user?.uid;
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
   const {currentLayout} = useLayout();
@@ -147,12 +147,11 @@ interface MoreMenuProps {
   videoMoreMenuRef: any;
 }
 const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
+  const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
   const {currentLayout} = useLayout();
   const reduceSpace =
-    isMobileUA() &&
-    activeUids.length > 4 &&
-    currentLayout === getGridLayoutName();
+    isMobileUA() && activeUidsLen > 4 && currentLayout === getGridLayoutName();
   return (
     <>
       <View
@@ -170,7 +169,7 @@ const MoreMenu = ({setActionMenuVisible, videoMoreMenuRef}: MoreMenuProps) => {
           }}
           iconProps={{
             iconContainerStyle: {
-              padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
+              padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
               backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
             },
             name: 'more-menu',

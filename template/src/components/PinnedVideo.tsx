@@ -29,7 +29,7 @@ import useActiveSpeaker from '../utils/useActiveSpeaker';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid, activeUids, defaultContent} = useContent();
+  const {pinnedUid, defaultContent, activeUids} = useContent();
   const activeSpeaker = useActiveSpeaker();
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
@@ -51,15 +51,15 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
 
     const remoteScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
       return (
-        defaultContent[uid].type === 'screenshare' &&
-        defaultContent[uid].parentUid !== localUid
+        defaultContent[uid]?.type === 'screenshare' &&
+        defaultContent[uid]?.parentUid !== localUid
       );
     });
 
     const localScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
       return (
-        defaultContent[uid].type === 'screenshare' &&
-        defaultContent[uid].parentUid === localUid
+        defaultContent[uid]?.type === 'screenshare' &&
+        defaultContent[uid]?.parentUid === localUid
       );
     });
     if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
@@ -67,7 +67,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
     }
 
     const restOfTheUids = nonActiveSpeakerUids.filter(
-      (uid) => defaultContent[uid].type !== 'screenshare',
+      (uid) => defaultContent[uid]?.type !== 'screenshare',
     );
 
     /**

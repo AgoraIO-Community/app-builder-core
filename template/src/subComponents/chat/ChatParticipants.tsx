@@ -35,13 +35,14 @@ const ChatParticipants = (props: any) => {
   //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
   const remoteUserDefaultLabel = 'User';
   const {selectUser} = props;
-  const {defaultContent, activeUids} = useContent();
+  const {defaultContent, activeUids, customContent} = useContent();
+  const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
   const localUid = useLocalUid();
   const {unreadIndividualMessageCount} = useChatNotification();
   const isMobile = isMobileUA();
   return (
     <ScrollView>
-      {activeUids && activeUids.length === 1 ? (
+      {activeUids && activeUidsLen === 1 ? (
         <View style={style.defaultMessageContainer}>
           <Text style={style.defaultMessageText}>
             No one else has joined yet.

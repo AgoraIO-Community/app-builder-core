@@ -13,13 +13,12 @@ export interface NameWithMicIconProps {
 }
 
 const NameWithMicIcon = (props: NameWithMicIconProps) => {
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
   const {videoTileWidth} = useVideoContainer();
   const {currentLayout} = useLayout();
+  const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
   const reduceSpace =
-    isMobileUA() &&
-    activeUids.length > 4 &&
-    currentLayout === getGridLayoutName();
+    isMobileUA() && activeUidsLen > 4 && currentLayout === getGridLayoutName();
   const {name, muted} = props;
   //const isSpeaking = isActiveSpeaker(user.uid);
   //commented for v1 release
@@ -34,7 +33,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
           maxWidth: videoTileWidth * 0.6 > 180 ? 180 : videoTileWidth * 0.6,
         },
         reduceSpace ? {left: 2, bottom: 2} : {},
-        reduceSpace && activeUids.length > 12 ? {padding: 2} : {},
+        reduceSpace && activeUidsLen > 12 ? {padding: 2} : {},
       ]}>
       {muted !== undefined ? (
         <ImageIcon
@@ -50,7 +49,7 @@ const NameWithMicIcon = (props: NameWithMicIconProps) => {
       )}
       {(isMobileUA() || (!isMobileUA() && isSmall())) &&
       currentLayout === getGridLayoutName() &&
-      activeUids.length > 6 ? (
+      activeUidsLen > 6 ? (
         <></>
       ) : (
         <PlatformWrapper>

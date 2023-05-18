@@ -41,7 +41,7 @@ import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
 
 const ParticipantView = (props) => {
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
   const {liveStreamData, audienceUids, hostUids} = useLiveStreamDataContext();
   const {
     attendeeUids: attendeeUidsVideoMeeting,
@@ -202,7 +202,8 @@ const ParticipantView = (props) => {
           <>
             <AllHostParticipants
               emptyMessage={'No Users has joined yet'}
-              uids={activeUids}
+              //custom content shouldn't be shown in the participant list. so filtering the activeuids
+              uids={activeUids.filter((i) => !customContent[i])}
               isMobile={isSmall()}
               updateActionSheet={props.updateActionSheet}
               handleClose={props.handleClose}

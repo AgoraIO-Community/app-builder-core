@@ -66,12 +66,11 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
     : defaultContent[uid]?.audio || defaultContent[uid]?.video
     ? 8
     : 7;
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
+  const activeUidsLen = activeUids?.filter((i) => !customContent[i])?.length;
   const {currentLayout} = useLayout();
   const reduceSpace =
-    isMobileUA() &&
-    activeUids.length > 4 &&
-    currentLayout === getGridLayoutName();
+    isMobileUA() && activeUidsLen > 4 && currentLayout === getGridLayoutName();
   return (
     <View
       testID="videocall-networkpill"
@@ -91,7 +90,7 @@ const NetworkQualityPill = (props: NetworkQualityPillProps) => {
           networkTextVisible,
           setNetworkTextVisible,
           reduceSpace,
-          activeUids,
+          activeUidsLen,
         }}>
         <View>
           <ImageIcon
@@ -121,7 +120,7 @@ const PlatformSpecificWrapper = ({
   setNetworkTextVisible,
   children,
   reduceSpace,
-  activeUids,
+  activeUidsLen,
 }: any) => {
   return !isWebInternal() ? (
     <Pressable
@@ -130,7 +129,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
+        padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
@@ -144,7 +143,7 @@ const PlatformSpecificWrapper = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        padding: reduceSpace && activeUids.length > 12 ? 2 : 8,
+        padding: reduceSpace && activeUidsLen > 12 ? 2 : 8,
       }}
       onClick={(e) => {
         e.preventDefault();

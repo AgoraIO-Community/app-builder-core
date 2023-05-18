@@ -37,7 +37,7 @@ const layout = (len: number, isDesktop: boolean = true) => {
 const GridVideo: layoutComponent = ({renderData}) => {
   const {dispatch} = useContext(DispatchContext);
   const {rtcProps} = useContext(PropsContext);
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
   const isDesktop = useIsDesktop();
 
   let {matrix, dims} = useMemo(
@@ -51,7 +51,7 @@ const GridVideo: layoutComponent = ({renderData}) => {
   if (
     $config.EVENT_MODE &&
     rtcProps?.role === ClientRole.Audience &&
-    activeUids.length === 0
+    activeUids.filter((i) => !customContent[i]).length === 0
   ) {
     return (
       <View style={style.infoTextContainer}>

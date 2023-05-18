@@ -35,7 +35,8 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
     modalPosition = {top: 0, left: 0},
     onHoverPlaceHolder = 'horizontal',
   } = props;
-  const {activeUids} = useContent();
+  const {activeUids, customContent} = useContent();
+
   const layouts = useLayoutsData();
   const {setLayout, currentLayout} = useLayout();
   const isMobileView = isMobileUA();
@@ -48,7 +49,9 @@ const LayoutIconDropdown = (props: LayoutIconDropdownProps) => {
       };
       let content = [];
       const disabled =
-        item.name === getPinnedLayoutName() && activeUids?.length === 1
+        item.name === getPinnedLayoutName() &&
+        //activeUids?.filter((i) => customContent[i])?.length === 1
+        activeUids?.length === 1
           ? true
           : false;
       let iconButtonProps: IconButtonProps = {

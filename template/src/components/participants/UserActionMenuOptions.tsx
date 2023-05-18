@@ -55,7 +55,7 @@ export default function UserActionMenuOptionsOptions(
   const [actionMenuitems, setActionMenuitems] = useState<ActionMenuItem[]>([]);
   const {setSidePanel} = useSidePanel();
   const {user, actionMenuVisible, setActionMenuVisible} = props;
-  const {pinnedUid, activeUids} = useContent();
+  const {pinnedUid, activeUids, customContent} = useContent();
   const {dispatch} = useContext(DispatchContext);
   const {setLayout} = useLayout();
   const localuid = useLocalUid();
@@ -88,7 +88,7 @@ export default function UserActionMenuOptionsOptions(
       )
     ) {
       items.push({
-        disabled: activeUids.length === 1,
+        disabled: activeUids?.filter((i) => !customContent[i])?.length === 1,
         icon: pinnedUid ? 'unpin-outlined' : 'pin-outlined',
         onHoverIcon: pinnedUid ? 'unpin-outlined' : 'pin-filled',
         iconColor: $config.SECONDARY_ACTION_COLOR,
