@@ -56,8 +56,10 @@ const VideoCallScreen = () => {
     TopbarProps,
     LeftbarProps,
     RightbarProps,
+    VideocallWrapper,
   } = useCustomization((data) => {
     let components: {
+      VideocallWrapper: React.ComponentType;
       VideocallComponent?: React.ComponentType;
       ChatComponent: React.ComponentType<ChatProps>;
       BottombarComponent: React.ComponentType<ControlsProps>;
@@ -80,6 +82,7 @@ const VideoCallScreen = () => {
       SettingsComponent: SettingsView,
       VideocallAfterView: React.Fragment,
       VideocallBeforeView: React.Fragment,
+      VideocallWrapper: React.Fragment,
       LeftbarComponent: Leftbar,
       RightbarComponent: Rightbar,
       BottombarProps: [],
@@ -194,6 +197,15 @@ const VideoCallScreen = () => {
           data?.components?.videoCall.participantsPanel;
       }
 
+      //todo hari - need to remove wrapper
+      if (
+        data?.components?.videoCall.wrapper &&
+        typeof data?.components?.videoCall.wrapper !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.wrapper)
+      ) {
+        components.VideocallWrapper = data?.components?.videoCall.wrapper;
+      }
+
       // commented for v1 release
       // if (
       //   data?.components?.videoCall.settingsPanel &&
@@ -219,82 +231,84 @@ const VideoCallScreen = () => {
   ) : (
     // Desktop View
     <>
-      <VideocallBeforeView />
-      <View style={style.fullRow}>
-        <ToolbarProvider value={{position: ToolbarPosition.left}}>
-          {LeftbarProps?.length ? (
-            <LeftbarComponent
-              customItems={LeftbarProps}
-              includeDefaultItems={false}
-            />
-          ) : (
-            <LeftbarComponent />
-          )}
-        </ToolbarProvider>
-        <View style={style.full}>
-          <ToolbarProvider value={{position: ToolbarPosition.top}}>
-            {TopbarProps?.length ? (
-              <TopbarComponent
-                customItems={TopbarProps}
+      <VideocallWrapper>
+        <VideocallBeforeView />
+        <View style={style.fullRow}>
+          <ToolbarProvider value={{position: ToolbarPosition.left}}>
+            {LeftbarProps?.length ? (
+              <LeftbarComponent
+                customItems={LeftbarProps}
                 includeDefaultItems={false}
               />
             ) : (
-              <TopbarComponent />
+              <LeftbarComponent />
             )}
           </ToolbarProvider>
-          <View
-            style={[
-              style.videoView,
-              {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
-            ]}>
-            <VideoComponent />
-            {sidePanel === SidePanelType.Participants ? (
-              <ParticipantsComponent />
-            ) : (
-              <></>
-            )}
-            {sidePanel === SidePanelType.Chat ? (
-              $config.CHAT ? (
-                <ChatComponent />
-              ) : (
-                <></>
-              )
-            ) : (
-              <></>
-            )}
-            {sidePanel === SidePanelType.Settings ? (
-              <SettingsComponent />
-            ) : (
-              <></>
-            )}
-          </View>
-          {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
-            <></>
-          ) : (
-            <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-              {BottombarProps?.length ? (
-                <BottombarComponent
-                  customItems={BottombarProps}
+          <View style={style.full}>
+            <ToolbarProvider value={{position: ToolbarPosition.top}}>
+              {TopbarProps?.length ? (
+                <TopbarComponent
+                  customItems={TopbarProps}
                   includeDefaultItems={false}
                 />
               ) : (
-                <BottombarComponent />
+                <TopbarComponent />
               )}
             </ToolbarProvider>
-          )}
+            <View
+              style={[
+                style.videoView,
+                {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
+              ]}>
+              <VideoComponent />
+              {sidePanel === SidePanelType.Participants ? (
+                <ParticipantsComponent />
+              ) : (
+                <></>
+              )}
+              {sidePanel === SidePanelType.Chat ? (
+                $config.CHAT ? (
+                  <ChatComponent />
+                ) : (
+                  <></>
+                )
+              ) : (
+                <></>
+              )}
+              {sidePanel === SidePanelType.Settings ? (
+                <SettingsComponent />
+              ) : (
+                <></>
+              )}
+            </View>
+            {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
+              <></>
+            ) : (
+              <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+                {BottombarProps?.length ? (
+                  <BottombarComponent
+                    customItems={BottombarProps}
+                    includeDefaultItems={false}
+                  />
+                ) : (
+                  <BottombarComponent />
+                )}
+              </ToolbarProvider>
+            )}
+          </View>
+          <ToolbarProvider value={{position: ToolbarPosition.right}}>
+            {RightbarProps?.length ? (
+              <RightbarComponent
+                customItems={RightbarProps}
+                includeDefaultItems={false}
+              />
+            ) : (
+              <RightbarComponent />
+            )}
+          </ToolbarProvider>
         </View>
-        <ToolbarProvider value={{position: ToolbarPosition.right}}>
-          {RightbarProps?.length ? (
-            <RightbarComponent
-              customItems={RightbarProps}
-              includeDefaultItems={false}
-            />
-          ) : (
-            <RightbarComponent />
-          )}
-        </ToolbarProvider>
-      </View>
-      <VideocallAfterView />
+        <VideocallAfterView />
+      </VideocallWrapper>
     </>
   );
 };
