@@ -4,6 +4,7 @@ import StorageContext from '../../components/StorageContext';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useCaption} from './useCaption';
 import events, {EventPersistLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 interface IuseSTTAPI {
   start: () => void;
@@ -52,7 +53,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       console.log('response aftet start api call', res);
       // once STT is active in the channel , notify others so that they dont' trigger start again
       events.send(
-        'handleCaption',
+        EventNames.STT_ACTIVE,
         JSON.stringify({active: true}),
         EventPersistLevel.LEVEL2,
       );
@@ -68,7 +69,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       console.log('response aftet start api call', res);
       // once STT is non-active in the channel , notify others so that they dont' trigger start again
       events.send(
-        'handleCaption',
+        EventNames.STT_ACTIVE,
         JSON.stringify({active: false}),
         EventPersistLevel.LEVEL2,
       );

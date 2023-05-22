@@ -20,8 +20,13 @@ import ChatContext from '../../components/ChatContext';
 import {useCaption} from '../../subComponents/caption/useCaption';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
 import {calculatePosition} from '../../utils/common';
-import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorPopup';
+import LanguageSelectorPopup, {
+  getLanguageLabel,
+} from '../../subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
+import useGetName from '../../utils/useGetName';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -178,7 +183,7 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON} = useCaption();
+  const {setIsCaptionON, language} = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
 
   const [modalPosition, setModalPosition] = React.useState({});
@@ -187,6 +192,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const {restart} = useSTTAPI();
+  const username = useGetName();
 
   actionMenuitems.push({
     icon: 'lang-select',
@@ -223,6 +229,13 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const onLanguageChange = () => {
     setLanguagePopup(false);
     restart();
+    events.send(
+      EventNames.STT_LANGUAGE,
+      `${username} changed the spoken language to ${getLanguageLabel(
+        language,
+      )} `,
+      EventPersistLevel.LEVEL1,
+    );
   };
   React.useEffect(() => {
     if (actionMenuVisible) {

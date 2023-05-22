@@ -6,8 +6,11 @@ import StorageContext from '../../components/StorageContext';
 import {useCaption} from './useCaption';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import events, {EventPersistLevel} from '../../rtm-events-api';
+import Toast from '../../../react-native-toast-message';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
+import {EventNames} from '../../rtm-events';
+import ImageIcon from '../../atoms/ImageIcon';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -65,10 +68,26 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const isLangPopupOpenedOnce = React.useRef(false);
   const {start} = useSTTAPI();
 
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
+
   React.useEffect(() => {
-    events.on('handleCaption', (data) => {
+    events.on(EventNames.STT_ACTIVE, (data) => {
       const payload = JSON.parse(data?.payload);
       setIsSTTActive(payload.active);
+    });
+
+    events.on(EventNames.STT_LANGUAGE, (data) => {
+      const payload = data?.payload || '';
+      Toast.show({
+        type: 'info',
+        leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+        text1: payload,
+        visibilityTime: 3000,
+      });
     });
   }, []);
 

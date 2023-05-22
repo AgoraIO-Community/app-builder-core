@@ -9,8 +9,11 @@ import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
 import {SidePanelType, useSidePanel} from 'customization-api';
-import LanguageSelectorPopup from './LanguageSelectorPopup';
+import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
+import useGetName from '../../utils/useGetName';
 
 const CaptionContainer = () => {
   const {isCaptionON, setIsCaptionON} = useCaption();
@@ -84,7 +87,7 @@ interface CaptionsActionMenuProps {
 const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON} = useCaption();
+  const {setIsCaptionON, language} = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -92,6 +95,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
   const {restart} = useSTTAPI();
+  const username = useGetName();
 
   actionMenuitems.push({
     icon: 'lang-select',
@@ -129,6 +133,14 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const onLanguageChange = () => {
     setLanguagePopup(false);
     restart();
+    //notify others lang changed
+    events.send(
+      EventNames.STT_LANGUAGE,
+      `${username} changed the spoken language to ${getLanguageLabel(
+        language,
+      )} `,
+      EventPersistLevel.LEVEL1,
+    );
   };
 
   React.useEffect(() => {

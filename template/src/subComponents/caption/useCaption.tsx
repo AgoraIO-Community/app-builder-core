@@ -1,5 +1,6 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
+import {LanguageType} from './LanguageSelectorPopup';
 
 interface Transcript {
   [key: string]: string;
@@ -16,7 +17,7 @@ export const CaptionContext = React.createContext<{
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
-  language: 'en-US' | 'hi-IN' | 'zh-CN' | '';
+  language: LanguageType;
   setLanguage: React.Dispatch<React.SetStateAction<string>>;
   meetingTranscript: TranscriptItem[];
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;

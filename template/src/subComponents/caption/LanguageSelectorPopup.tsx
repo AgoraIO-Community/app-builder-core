@@ -9,11 +9,30 @@ import {useIsDesktop} from '../../utils/common';
 import Dropdown from '../../atoms/Dropdown';
 import {useCaption} from './useCaption';
 
+export type LanguageType = 'en-US' | 'hi-IN' | 'zh-CN' | '';
+
+interface LanguageData {
+  label: string;
+  value: LanguageType;
+}
+
+const langData: LanguageData[] = [
+  {label: 'English', value: 'en-US'},
+  {label: 'Hindi', value: 'hi-IN'},
+  {label: 'Chinese', value: 'zh-CN'},
+];
+
+export function getLanguageLabel(languageCode: string): string | undefined {
+  const language = langData.find((data) => data.value === languageCode);
+  return language ? language.label : undefined;
+}
+
 interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
   onConfirm: () => void;
 }
+
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const isDesktop = useIsDesktop()('popup');
   const heading = 'Change Language';
@@ -21,11 +40,6 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     'Captions and transcript will appear in this language for everyone in the meeting';
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
-  const langData = [
-    {label: 'English', value: 'en-US'},
-    {label: 'Hindi', value: 'hi-IN'},
-    {label: 'Chinese', value: 'zh-CN'},
-  ];
 
   const {language, setLanguage} = useCaption();
   return (
