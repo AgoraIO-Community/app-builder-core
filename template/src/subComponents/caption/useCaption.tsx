@@ -16,6 +16,8 @@ export const CaptionContext = React.createContext<{
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
+  language: 'en-US' | 'hi-IN' | 'zh-CN' | '';
+  setLanguage: React.Dispatch<React.SetStateAction<string>>;
   meetingTranscript: TranscriptItem[];
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
 }>({
@@ -23,6 +25,8 @@ export const CaptionContext = React.createContext<{
   setIsCaptionON: () => {},
   isSTTActive: false,
   setIsSTTActive: () => {},
+  language: 'en-US',
+  setLanguage: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
 });
@@ -30,6 +34,7 @@ export const CaptionContext = React.createContext<{
 const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
+  const [language, setLanguage] = React.useState<string>('');
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
   >([]);
@@ -41,6 +46,8 @@ const CaptionProvider = ({children}) => {
         setIsCaptionON,
         isSTTActive,
         setIsSTTActive,
+        language,
+        setLanguage,
         meetingTranscript,
         setMeetingTranscript,
       }}>

@@ -9,6 +9,8 @@ import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
 import {SidePanelType, useSidePanel} from 'customization-api';
+import LanguageSelectorPopup from './LanguageSelectorPopup';
+import useSTTAPI from './useSTTAPI';
 
 const CaptionContainer = () => {
   const {isCaptionON, setIsCaptionON} = useCaption();
@@ -87,6 +89,20 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+  const {restart} = useSTTAPI();
+
+  actionMenuitems.push({
+    icon: 'lang-select',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: 'Change Language ',
+    callback: () => {
+      setActionMenuVisible(false);
+      setLanguagePopup(true);
+    },
+  });
 
   actionMenuitems.push({
     icon: 'transcript-mode', //TODO: update show transcript icon
@@ -109,6 +125,11 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
       setIsCaptionON(false);
     },
   });
+
+  const onLanguageChange = () => {
+    setLanguagePopup(false);
+    restart();
+  };
 
   React.useEffect(() => {
     if (actionMenuVisible) {
@@ -137,13 +158,20 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     }
   }, [actionMenuVisible]);
   return (
-    <ActionMenu
-      from={'caption'}
-      actionMenuVisible={actionMenuVisible && isPosCalculated}
-      setActionMenuVisible={setActionMenuVisible}
-      modalPosition={modalPosition}
-      items={actionMenuitems}
-    />
+    <>
+      <ActionMenu
+        from={'caption'}
+        actionMenuVisible={actionMenuVisible && isPosCalculated}
+        setActionMenuVisible={setActionMenuVisible}
+        modalPosition={modalPosition}
+        items={actionMenuitems}
+      />
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onLanguageChange}
+      />
+    </>
   );
 };
 

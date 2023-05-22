@@ -7,7 +7,6 @@
   font-style: normal;
   font-display: block;
 }
-
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -23,6 +22,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-lang-select:before {
+  content: "\e942";
+  color: #fff;
+}
+.icon-globe:before {
+  content: "\e944";
+  color: #808080;
+}
 .icon-down-arrow:before {
   content: "\e93f";
   color: #fff;

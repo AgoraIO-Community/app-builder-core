@@ -6,6 +6,8 @@ import StorageContext from '../../components/StorageContext';
 import {useCaption} from './useCaption';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import events, {EventPersistLevel} from '../../rtm-events-api';
+import LanguageSelectorPopup from './LanguageSelectorPopup';
+import useSTTAPI from './useSTTAPI';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -22,6 +24,7 @@ const startStopSTT = async (
   token: string,
   roomId: string,
   method: string,
+  language: string,
 ): Promise<string> => {
   const response = await fetch(`${STT_API_URL}/${method}`, {
     method: 'POST',
@@ -31,7 +34,7 @@ const startStopSTT = async (
       'X-Project-ID': $config.PROJECT_ID,
       authorization: token ? `Bearer ${token}` : '',
     },
-    body: JSON.stringify({passphrase: roomId}),
+    body: JSON.stringify({passphrase: roomId, lang: language}),
   });
   if (!response.ok) {
     const message = `An error has occured: ${response.status}`;
@@ -49,16 +52,27 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
-  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive} =
+  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive, language} =
     useCaption();
   const {store} = React.useContext(StorageContext);
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
 
   const {sidePanel, setSidePanel} = useSidePanel();
+  const isLangPopupOpenedOnce = React.useRef(false);
+  const {start} = useSTTAPI();
 
-  const toggleSTT = async (method: string) => {
+  React.useEffect(() => {
+    events.on('handleCaption', (data) => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+  }, []);
+
+  const toggleSTT = async (method: string, language: string) => {
     // handleSTT
 
     setIsCaptionON((prev) => !prev);
@@ -66,32 +80,46 @@ const CaptionIcon = (props: CaptionIconProps) => {
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
 
-    try {
-      const res = await startStopSTT(
-        store?.token || '',
-        roomId.host ? roomId.host : '',
-        method,
-      );
-      console.log('response after start/stop stt', res); //TODO: log username of who started stt
-      // once STT is active in the channel , notify others so that they dont' trigger start again
-      events.send(
-        'handleCaption',
-        JSON.stringify({active: true}),
-        EventPersistLevel.LEVEL2,
-      );
-      setIsSTTActive(true);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const res = await startStopSTT(
+    //     store?.token || '',
+    //     roomId.host ? roomId.host : '',
+    //     method,
+    //     language,
+    //   );
+    //   console.log('response after start/stop stt', res); //TODO: log username of who started stt
+    //   // once STT is active in the channel , notify others so that they dont' trigger start again
+    //   events.send(
+    //     'handleCaption',
+    //     JSON.stringify({active: true}),
+    //     EventPersistLevel.LEVEL2,
+    //   );
+    //   setIsSTTActive(true);
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    start();
+  };
+
+  const onLanguageChange = () => {
+    // lang would be set on confirm click
+    toggleSTT(isCaptionON ? 'stop' : 'start', language);
+    setLanguagePopup(false);
+    isLangPopupOpenedOnce.current = true;
   };
 
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
-      toggleSTT(isCaptionON ? 'stop' : 'start');
-      sidePanel === SidePanelType.Transcript &&
-        !isCaptionON &&
-        setSidePanel(SidePanelType.None);
+      if (isLangPopupOpenedOnce.current || isSTTActive) {
+        // is lang popup has been shown once for any user in meeting
+        sidePanel === SidePanelType.Transcript &&
+          !isCaptionON &&
+          setSidePanel(SidePanelType.None);
+        toggleSTT(isCaptionON ? 'stop' : 'start', language);
+      } else {
+        setLanguagePopup(true);
+      }
     },
     iconProps: {
       name: 'closed-caption',
@@ -115,6 +143,11 @@ const CaptionIcon = (props: CaptionIconProps) => {
   return (
     <View>
       <IconButton {...iconButtonProps} />
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onLanguageChange}
+      />
     </View>
   );
 };

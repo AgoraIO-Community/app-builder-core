@@ -90,4 +90,6 @@ export interface IconsInterface {
   stt: string;
   'down-arrow': string;
   'closed-caption': string;
+  globe: string;
+  'lang-select': string;
 }
