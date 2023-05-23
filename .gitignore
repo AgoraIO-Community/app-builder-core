@@ -105,6 +105,6 @@ template/theme-dark.json
 *.log
 
 #FPE plugin folder
-template/customization/*
+#template/customization/*
 Builds
 esbuild-bin
