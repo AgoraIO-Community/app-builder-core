@@ -226,17 +226,28 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       setSidePanel(SidePanelType.None);
     },
   });
-  const onLanguageChange = () => {
+  const onLanguageChange = (langChanged = false) => {
     setLanguagePopup(false);
-    restart();
-    events.send(
-      EventNames.STT_LANGUAGE,
-      `${username} changed the spoken language to ${getLanguageLabel(
-        language,
-      )} `,
-      EventPersistLevel.LEVEL1,
-    );
+    if (langChanged) {
+      restart()
+        .then(() => {
+          console.log('stt restarted successfully');
+          //notify others lang changed
+          events.send(
+            EventNames.STT_LANGUAGE,
+            `${username} changed the spoken language to ${getLanguageLabel(
+              language,
+            )} `,
+            EventPersistLevel.LEVEL1,
+          );
+        })
+        .catch((error) => {
+          console.log('Error in restarting', error);
+          // Handle the error case
+        });
+    }
   };
+
   React.useEffect(() => {
     if (actionMenuVisible) {
       //getting btnRef x,y

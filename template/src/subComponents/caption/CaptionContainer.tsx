@@ -130,17 +130,27 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = () => {
+  const onLanguageChange = (langChanged = false) => {
     setLanguagePopup(false);
-    restart();
-    //notify others lang changed
-    events.send(
-      EventNames.STT_LANGUAGE,
-      `${username} changed the spoken language to ${getLanguageLabel(
-        language,
-      )} `,
-      EventPersistLevel.LEVEL1,
-    );
+    if (langChanged) {
+      restart()
+        .then(() => {
+          console.log('stt restarted successfully');
+          //notify others lang changed
+          events.send(
+            EventNames.STT_LANGUAGE,
+            `${username} changed the spoken language to ${getLanguageLabel(
+              language,
+            )} `,
+            EventPersistLevel.LEVEL1,
+          );
+          setLanguagePopup(false);
+        })
+        .catch((error) => {
+          console.log('Error in restarting', error);
+          // Handle the error case
+        });
+    }
   };
 
   React.useEffect(() => {

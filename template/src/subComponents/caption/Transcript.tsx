@@ -17,6 +17,7 @@ import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
+import Loading from '../Loading';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -25,7 +26,7 @@ const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
-  const {meetingTranscript} = useCaption();
+  const {meetingTranscript, isLangChangeInProgress} = useCaption();
   const data = meetingTranscript; // Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
@@ -84,36 +85,41 @@ const Transcript = (props: TranscriptProps) => {
           : {},
       ]}>
       {showHeader && <TranscriptHeader />}
-
-      <FlatList
-        ref={flatListRef}
-        style={styles.contentContainer}
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.uid + '-' + item.time}
-        onContentSizeChange={handleContentSizeChange}
-        onScroll={handleScroll}
-        onLayout={handleLayout}
-      />
-      {showButton && (
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 30,
-            left: 0,
-            right: 0,
-            alignItems: 'center',
-            zIndex: 9999,
-          }}>
-          <PrimaryButton
-            iconName={'down-arrow'}
-            containerStyle={styles.showLatestBtn}
-            textStyle={styles.textStyleBtn}
-            onPress={handleViewLatest}
-            iconSize={20}
-            text={'View Latest'}
+      {isLangChangeInProgress ? (
+        <Loading text="Setting Transcript Language..." />
+      ) : (
+        <>
+          <FlatList
+            ref={flatListRef}
+            style={styles.contentContainer}
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.uid + '-' + item.time}
+            onContentSizeChange={handleContentSizeChange}
+            onScroll={handleScroll}
+            onLayout={handleLayout}
           />
-        </View>
+          {showButton && (
+            <View
+              style={{
+                position: 'absolute',
+                bottom: 30,
+                left: 0,
+                right: 0,
+                alignItems: 'center',
+                zIndex: 9999,
+              }}>
+              <PrimaryButton
+                iconName={'down-arrow'}
+                containerStyle={styles.showLatestBtn}
+                textStyle={styles.textStyleBtn}
+                onPress={handleViewLatest}
+                iconSize={20}
+                text={'View Latest'}
+              />
+            </View>
+          )}
+        </>
       )}
     </View>
   );

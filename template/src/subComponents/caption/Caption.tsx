@@ -5,6 +5,7 @@ import protoRoot from './proto/ptoto';
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import Spacer from '../../../src/atoms/Spacer';
+import Loading from '../Loading';
 
 const Caption = () => {
   const {renderList} = useRender();
@@ -13,7 +14,8 @@ const Caption = () => {
 
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
-  const {setMeetingTranscript, meetingTranscript} = useCaption();
+  const {setMeetingTranscript, meetingTranscript, isLangChangeInProgress} =
+    useCaption();
   const startTimeRef = React.useRef<number>(0);
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
 
@@ -42,7 +44,6 @@ const Caption = () => {
     words.map((word) => {
       if (word.isFinal) {
         finalList.current[textstream.uid].push(word.text);
-
         if (meetingTextRef.current.length > 0) {
           meetingTextRef.current += ' ';
         }
@@ -132,6 +133,8 @@ const Caption = () => {
 
   const speakers = Object.entries(textObj);
   const activeSpeakers = speakers.filter((item) => item[1] !== '');
+  if (isLangChangeInProgress)
+    return <Loading text="Setting Transcript Language..." />;
 
   return (
     <ScrollView>

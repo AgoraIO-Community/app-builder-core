@@ -5,11 +5,12 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useCaption} from './useCaption';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {err} from 'react-native-svg/lib/typescript/xml';
 
 interface IuseSTTAPI {
   start: () => void;
   stop: () => void;
-  restart: () => void;
+  restart: () => Promise<void>;
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -17,7 +18,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
-  const {language, setIsSTTActive} = useCaption();
+  const {language, setIsSTTActive, setIsLangChangeInProgress} = useCaption();
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
 
   const apiCall = async (method: string) => {
@@ -39,16 +40,17 @@ const useSTTAPI = (): IuseSTTAPI => {
     return res;
   };
 
-  const startWithDelay = (): Promise<void> =>
+  const startWithDelay = (): Promise<string> =>
     new Promise((resolve) => {
       setTimeout(async () => {
-        await start();
-        resolve();
+        const res = await start();
+        resolve(res);
       }, 1000); // Delay of 3 seconds (1000 milliseconds)
     });
 
   const start = async () => {
     try {
+      setIsLangChangeInProgress(true);
       const res = await apiCall('start');
       console.log('response aftet start api call', res);
       // once STT is active in the channel , notify others so that they dont' trigger start again
@@ -58,8 +60,11 @@ const useSTTAPI = (): IuseSTTAPI => {
         EventPersistLevel.LEVEL2,
       );
       setIsSTTActive(true);
+      return res;
     } catch (error) {
       console.log('error in starting STT', error);
+    } finally {
+      setIsLangChangeInProgress(false);
     }
   };
 
@@ -74,28 +79,22 @@ const useSTTAPI = (): IuseSTTAPI => {
         EventPersistLevel.LEVEL2,
       );
       setIsSTTActive(false);
+      return res;
     } catch (error) {
       console.log('error in stopping STT', error);
     }
   };
   const restart = async () => {
     try {
-      //   const res1 = await apiCall('stop');
-      //   const res2 = await apiCall('start');
-      //   console.log('response aftet start api call', res2);
-      //   // once STT is active in the channel , notify others so that they dont' trigger start again
-      //   events.send(
-      //     'handleCaption',
-      //     JSON.stringify({active: true}),
-      //     EventPersistLevel.LEVEL2,
-      //   );
-      //   setIsSTTActive(true);
+      setIsLangChangeInProgress(true);
       const r1 = await stop();
-      //const r2 = await start();
       const r2 = await startWithDelay();
-      console.log('response after restart  api call', r2);
+      return Promise.resolve();
     } catch (error) {
       console.log('error in re-starting STT', error);
+      return Promise.reject(error);
+    } finally {
+      setIsLangChangeInProgress(false);
     }
   };
 

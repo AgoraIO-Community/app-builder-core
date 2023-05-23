@@ -30,7 +30,7 @@ export function getLanguageLabel(languageCode: string): string | undefined {
 interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  onConfirm: () => void;
+  onConfirm: (param: boolean) => void;
 }
 
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
@@ -42,6 +42,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const ConfirmBtnLabel = 'CONFIRM';
 
   const {language, setLanguage} = useCaption();
+  const prevLangChanged = React.useRef<boolean>(false);
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -59,6 +60,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
         enabled={true}
         selectedValue={language || 'en-US'}
         onSelect={({label, value}) => {
+          prevLangChanged.current = true;
           setLanguage(value);
           console.warn('selected lang', label);
         }}
@@ -95,7 +97,10 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             }}
             text={ConfirmBtnLabel}
             textStyle={styles.btnText}
-            onPress={props.onConfirm}
+            onPress={() => {
+              props.onConfirm(prevLangChanged.current);
+              prevLangChanged.current = false;
+            }}
           />
         </View>
       </View>
