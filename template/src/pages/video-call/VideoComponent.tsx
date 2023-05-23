@@ -19,7 +19,7 @@ const VideoComponent = () => {
         dispatch({type: 'UserPin', value: [0]});
       }
       const gridLayoutName = getGridLayoutName();
-      if (currentLayout !== gridLayoutName) {
+      if (currentLayout !== gridLayoutName && layoutsData?.length <= 2) {
         setLayout(gridLayoutName);
       }
     }
