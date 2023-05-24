@@ -9,7 +9,14 @@ import {useIsDesktop} from '../../utils/common';
 import Dropdown from '../../atoms/Dropdown';
 import {useCaption} from './useCaption';
 
-export type LanguageType = 'en-US' | 'hi-IN' | 'zh-CN' | '';
+export type LanguageType =
+  | 'en-US'
+  | 'hi-IN'
+  | 'zh-CN'
+  | 'fr-FR'
+  | 'de-DE'
+  | 'ko-KR'
+  | '';
 
 interface LanguageData {
   label: string;
@@ -20,6 +27,9 @@ const langData: LanguageData[] = [
   {label: 'English', value: 'en-US'},
   {label: 'Hindi', value: 'hi-IN'},
   {label: 'Chinese', value: 'zh-CN'},
+  {label: 'French', value: 'fr-FR'},
+  {label: 'German', value: 'de-DE'},
+  {label: 'Korean', value: 'ko-KR'},
 ];
 
 export function getLanguageLabel(languageCode: string): string | undefined {
