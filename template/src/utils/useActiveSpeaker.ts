@@ -16,7 +16,7 @@ import LocalEventEmitter, {
 } from '../rtm-events-api/LocalEvents';
 
 /**
- * Returns a function that checks whether the given uid is a active speaker and returns true/false
+ * Returns active speaker uid or undefined if nobody speaking
  * @returns function
  */
 function useActiveSpeaker() {
