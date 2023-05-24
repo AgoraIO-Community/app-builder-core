@@ -359,10 +359,10 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
-      console.log('new user joined =>', user);
-      if (user._cname === undefined) {
-        // STT BOT user, sends streamMessages to users in channel
-        return;
+      console.log('stt: on user joined  event =>', user);
+      if (user._video_enabled_ === false) {
+        //TODO: need to identify STT BOT user, sends streamMessages to users in channel
+        // return;
       }
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
@@ -522,6 +522,7 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
+      console.log('stt: on stream-message  event =>', uid);
       (this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
     });
 
