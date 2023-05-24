@@ -58,6 +58,7 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const isSupported = useThirdPartyCookieCheck();
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
   const {setStore, store} = useContext(StorageContext);
@@ -258,6 +259,26 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, []);
 
   useEffect(() => {
+    //isSupported true means 3rd party cookies are supported in web, other platform it will be true
+    if (isSupported) {
+      proceedToLogin();
+    }
+    //isSupported false mean 3rd party cookies are blocked
+    else if (isSupported === false) {
+      Toast.show({
+        type: 'error',
+        text1: 'ERROR: Third-party cookies are blocked',
+        text2: 'please enable the third party cookies and try again',
+        visibilityTime: 1000 * 30,
+      });
+    }
+    //isSupported undefined means checking still in progress
+    else {
+      //in progress
+    }
+  }, [isSupported]);
+
+  useEffect(() => {
     if (!authenticated && authError) {
       Toast.show({
         type: 'error',
@@ -280,7 +301,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
   }
 
-  useEffect(() => {
+  const proceedToLogin = () => {
     //if application in authorization state then don't call authlogin
     if (
       //to check authoriztion
@@ -326,7 +347,7 @@ const AuthProvider = (props: AuthProviderProps) => {
         setLoading(false);
       }
     }
-  }, []);
+  };
 
   const authLogin = () => {
     // Authenticated login flow
@@ -493,3 +514,35 @@ const AuthProvider = (props: AuthProviderProps) => {
 const useAuth = () => React.useContext(AuthContext);
 
 export {AuthProvider, useAuth};
+
+export const useThirdPartyCookieCheck = () => {
+  const [isSupported, setIsSupported] = useState(isWeb() ? undefined : true);
+
+  useEffect(() => {
+    if (isWeb()) {
+      const frame = document.createElement('iframe');
+      frame.id = '3pc';
+      frame.src = $config.BACKEND_ENDPOINT + '/v1/iallowed/3pcookie/check';
+      frame.style.display = 'none';
+      frame.style.position = 'fixed';
+      document.body.appendChild(frame);
+
+      window.addEventListener(
+        'message',
+        function listen(event) {
+          if (
+            event.data === '3pcSupported' ||
+            event.data === '3pcUnsupported'
+          ) {
+            setIsSupported(event.data === '3pcSupported');
+            document.body.removeChild(frame);
+            window.removeEventListener('message', listen);
+          }
+        },
+        false,
+      );
+    }
+  }, []);
+
+  return isSupported;
+};
