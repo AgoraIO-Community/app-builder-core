@@ -34,6 +34,8 @@ import events, {PersistanceLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import Leftbar, {LeftbarProps} from '../../components/Leftbar';
 import Rightbar, {RightbarProps} from '../../components/Rightbar';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import Transcript from '../../subComponents/caption/Transcript';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -280,6 +282,7 @@ const VideoCallScreen = () => {
               ) : (
                 <></>
               )}
+              {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
             </View>
             {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
               <></>
@@ -291,7 +294,10 @@ const VideoCallScreen = () => {
                     includeDefaultItems={false}
                   />
                 ) : (
-                  <BottombarComponent />
+                  <>
+                    <CaptionContainer />
+                    <BottombarComponent />
+                  </>
                 )}
               </ToolbarProvider>
             )}

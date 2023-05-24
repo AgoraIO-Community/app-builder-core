@@ -37,8 +37,14 @@ import {
   ToolbarCustomItem,
   ToolbarItem,
   useLocalUserInfo,
+  isWeb,
+  useRtc,
 } from 'customization-api';
+
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
+import CaptionIcon from '../../subComponents/caption/CaptionIcon';
+import TranscriptIcon from '../../subComponents/caption/TranscriptIcon';
+import protoRoot from '../../../src/subComponents/caption/proto/ptoto';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -264,6 +270,115 @@ const LayoutIcon = (props: LayoutIconProps) => {
       </View>
       {showLabel && <Text style={styles.iconText}>Layout</Text>}
     </ToolbarItem>
+  );
+};
+
+interface CaptionIconBtnProps {
+  showLabel?: boolean;
+}
+
+const CaptionIconBtn = (props: CaptionIconBtnProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <CaptionIcon isOnActionSheet={true} showLabel={false} />
+      </View>
+      {showLabel && <Text style={styles.iconText}>Caption</Text>}
+    </View>
+  );
+};
+
+interface TranscriptIconProps {
+  showLabel?: boolean;
+}
+
+const TranscriptIconBtn = (props: TranscriptIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
+      </View>
+      {showLabel && <Text style={styles.iconText}>Transcript</Text>}
+    </View>
+  );
+};
+
+const TestStreamMessageIcon = () => {
+  const {RtcEngine} = useRtc();
+  const [streamId, setStreamId] = React.useState(0);
+
+  // Create data stream
+
+  React.useEffect(() => {
+    const createDataStream = async () => {
+      const config = {
+        syncWithAudio: true,
+        ordered: true,
+      };
+      try {
+        const id = await RtcEngine.createDataStreamWithConfig(config);
+        setStreamId(id);
+      } catch (err) {
+        console.error('Error on creating data stream:', err);
+        setStreamId(0);
+      }
+    };
+    createDataStream();
+  }, []);
+
+  const handleStreamMessage = async () => {
+    const Text = protoRoot.lookupType('Text');
+    // sample message to encode.
+    const message = {
+      vendor: 1,
+      version: 2,
+      seqnum: 3,
+      uid: 4,
+      flag: 5,
+      time: Date.now(),
+      lang: 7,
+      starttime: 8,
+      offtime: 9,
+      words: [
+        {
+          text: 'agora check',
+          start_ms: 0,
+          duration_ms: 0,
+          is_final: true,
+          confidence: 1.0,
+        },
+      ],
+    };
+
+    const encodedMessage = Text.encode(Text.create(message)).finish();
+
+    const buffer = [
+      32, 162, 174, 128, 123, 48, 235, 205, 240, 230, 253, 48, 72, 162, 67, 82,
+      19, 10, 3, 79, 75, 46, 24, 246, 4, 32, 1, 41, 0, 0, 0, 192, 44, 7, 235,
+      63, 96, 246, 4, 106, 10, 116, 114, 97, 110, 115, 99, 114, 105, 98, 101,
+      122, 5, 101, 110, 45, 85, 83,
+    ];
+
+    const messageString = buffer.toString();
+
+    console.warn('stream ID  :=>', streamId),
+      console.warn('stream message  =>', messageString),
+      RtcEngine.sendStreamMessage(streamId, buffer.toString());
+  };
+
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={handleStreamMessage}>
+          <ImageIcon
+            name={'alert'}
+            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -541,6 +656,58 @@ const ActionSheetContent = (props) => {
               return null;
             }
           })}
+        {/**
+         * In event mode when raise hand feature is active
+         * and audience is promoted to host, the audience can also
+         * demote himself
+         */}
+        {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+          $config.RAISE_HAND && !isAudioRoom ? (
+            <LiveStreamIcon isHandRaised={isHandRaised} />
+          ) : null
+        ) : null}
+
+        {/* Layout view */}
+        <LayoutIcon />
+
+        {/* chat */}
+        {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
+          <ChatIcon />
+        )}
+        {/* participants */}
+        <ParticipantsIcon
+          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
+        />
+        {/* record */}
+        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
+
+        {/* switch camera */}
+        {!isAudioRoom &&
+          (isAudioVideoControlsDisabled ? null : (
+            <SwitchCameraIcon
+              disabled={
+                (isLiveStream && isAudience && !isBroadCasting) ||
+                isVideoDisabled
+              }
+            />
+          ))}
+
+        {/* settings */}
+        <SettingsIcon
+          onPress={() => {
+            setSidePanel(SidePanelType.Settings);
+          }}
+        />
+
+        {/* invite */}
+        <ShareIcon />
+
+        {/* caption  */}
+        <CaptionIconBtn />
+        {/* Transcript */}
+        <TranscriptIconBtn />
+        {/* TODO: remove below , to test only  streamMessage callback on native */}
+        {!isWeb() && <TestStreamMessageIcon />}
       </View>
     </View>
   );

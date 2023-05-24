@@ -185,6 +185,7 @@ export default class RtcEngine {
     ['RemoteVideoStateChanged', () => null],
     ['NetworkQuality', () => null],
     ['ActiveSpeaker', () => null],
+    ['StreamMessage', () => null],
   ]);
   public localStream: LocalStream = {};
   public screenStream: ScreenStream = {};
@@ -358,6 +359,11 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
+      console.log('new user joined =>', user);
+      if (user._cname === undefined) {
+        // STT BOT user, sends streamMessages to users in channel
+        return;
+      }
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
         user.uid,
@@ -452,6 +458,7 @@ export default class RtcEngine {
       }
     });
 
+    this.client.enableAudioVolumeIndicator();
     this.client.on('volume-indicator', (volumes) => {
       const highestvolumeObj = volumes.reduce(
         (highestVolume, volume, index) => {
@@ -463,7 +470,7 @@ export default class RtcEngine {
             }
             return highestVolume;
           }
-          // console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
+          //console.log(`${index} UID ${volume.uid} Level ${volume.level}`);
         },
         null,
       );
@@ -513,6 +520,11 @@ export default class RtcEngine {
       },
     );
 
+    /* Recieve Captions  */
+    this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
+      (this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
+    });
+
     await this.client.join(
       this.appId,
       channelName,
@@ -547,10 +559,12 @@ export default class RtcEngine {
       event === 'RemoteAudioStateChanged' ||
       event === 'RemoteVideoStateChanged' ||
       event === 'NetworkQuality' ||
-      event === 'ActiveSpeaker'
+      event === 'ActiveSpeaker' ||
+      event === 'StreamMessage'
     ) {
       this.eventsMap.set(event, listener as callbackType);
     }
+
     return {
       remove: () => {
         console.log(

@@ -12,71 +12,77 @@ export interface SidePanelHeaderProps {
   trailingIconName?: keyof IconsInterface;
   trailingIconOnPress?: () => void;
   isChat?: boolean;
+  children?: React.ReactNode;
 }
-const SidePanelHeader = (props: SidePanelHeaderProps) => {
-  const {isChat = false} = props;
-  return (
-    <View
-      style={[
-        SidePanelStyles.sidePanelHeader,
-        isChat ? SidePanelStyles.chatPadding : {},
-      ]}>
-      {props?.leadingIconName ? (
-        <View>
-          <IconButton
-            hoverEffect={true}
-            hoverEffectStyle={{
-              backgroundColor: $config.ICON_BG_COLOR,
-              borderRadius: 20,
-            }}
-            iconProps={{
-              iconType: 'plain',
-              iconContainerStyle: {
-                padding: 5,
-              },
-              iconSize: 20,
-              name: props.leadingIconName,
-              tintColor: $config.SECONDARY_ACTION_COLOR,
-            }}
-            onPress={() => {
-              props?.leadingIconOnPress && props.leadingIconOnPress();
-            }}
-          />
+const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
+  (props: SidePanelHeaderProps, ref) => {
+    const {isChat = false, children = <></>} = props;
+    return (
+      <>
+        <View
+          style={[
+            SidePanelStyles.sidePanelHeader,
+            isChat ? SidePanelStyles.chatPadding : {},
+          ]}>
+          {props?.leadingIconName ? (
+            <View>
+              <IconButton
+                hoverEffect={true}
+                hoverEffectStyle={{
+                  backgroundColor: $config.ICON_BG_COLOR,
+                  borderRadius: 20,
+                }}
+                iconProps={{
+                  iconType: 'plain',
+                  iconContainerStyle: {
+                    padding: 5,
+                  },
+                  iconSize: 20,
+                  name: props.leadingIconName,
+                  tintColor: $config.SECONDARY_ACTION_COLOR,
+                }}
+                onPress={() => {
+                  props?.leadingIconOnPress && props.leadingIconOnPress();
+                }}
+              />
+            </View>
+          ) : isChat ? (
+            <View style={{width: 30, height: 'auto'}}></View>
+          ) : (
+            <></>
+          )}
+          {props?.centerComponent ? props.centerComponent : <></>}
+          <View ref={ref}>
+            {props?.trailingIconName ? (
+              <IconButton
+                hoverEffect={true}
+                hoverEffectStyle={{
+                  backgroundColor: $config.ICON_BG_COLOR,
+                  borderRadius: 20,
+                }}
+                iconProps={{
+                  iconType: 'plain',
+                  iconContainerStyle: {
+                    padding: 5,
+                  },
+                  iconSize: 20,
+                  name: props?.trailingIconName,
+                  tintColor: $config.SECONDARY_ACTION_COLOR,
+                }}
+                onPress={() => {
+                  props?.trailingIconOnPress && props.trailingIconOnPress();
+                }}
+              />
+            ) : (
+              <></>
+            )}
+          </View>
         </View>
-      ) : isChat ? (
-        <View style={{width: 30, height: 'auto'}}></View>
-      ) : (
-        <></>
-      )}
-      {props?.centerComponent ? props.centerComponent : <></>}
-      <View>
-        {props?.trailingIconName ? (
-          <IconButton
-            hoverEffect={true}
-            hoverEffectStyle={{
-              backgroundColor: $config.ICON_BG_COLOR,
-              borderRadius: 20,
-            }}
-            iconProps={{
-              iconType: 'plain',
-              iconContainerStyle: {
-                padding: 5,
-              },
-              iconSize: 20,
-              name: props?.trailingIconName,
-              tintColor: $config.SECONDARY_ACTION_COLOR,
-            }}
-            onPress={() => {
-              props?.trailingIconOnPress && props.trailingIconOnPress();
-            }}
-          />
-        ) : (
-          <></>
-        )}
-      </View>
-    </View>
-  );
-};
+        {children}
+      </>
+    );
+  },
+);
 
 export const SidePanelStyles = StyleSheet.create({
   sidePanelHeader: {

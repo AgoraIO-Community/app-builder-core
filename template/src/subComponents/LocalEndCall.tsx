@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {useRtc} from 'customization-api';
+import {useContent, useRtc} from 'customization-api';
 
 import EndcallPopup from './EndcallPopup';
 import StorageContext from '../components/StorageContext';
@@ -11,6 +11,8 @@ import {DispatchContext} from '../../agora-rn-uikit';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
 
+import useSTTAPI from './caption/useSTTAPI';
+import {useCaption} from './caption/useCaption';
 export interface LocalEndcallProps {
   showLabel?: boolean;
   isOnActionSheet?: boolean;
@@ -34,6 +36,9 @@ const LocalEndcall = (props: LocalEndcallProps) => {
   const endCallLabel = 'Leave';
   const {setStore} = useContext(StorageContext);
   const [endcallVisible, setEndcallVisible] = useState(false);
+  const {stop} = useSTTAPI();
+  const {defaultContent: renderList} = useContent();
+  const {isSTTActive} = useCaption();
   const {phrase} = useParams<{phrase: string}>();
   const onPress = () => {
     setEndcallVisible(true);
@@ -48,6 +53,11 @@ const LocalEndcall = (props: LocalEndcallProps) => {
     });
     // stopping foreground servie on end call
     stopForegroundService();
+    // stopping STT on call end,if only last user is remaining in call
+    const usersInCall = Object.entries(renderList).filter(
+      (item) => item[1].type === 'rtc',
+    );
+    usersInCall.length === 1 && isSTTActive && stop();
   };
 
   let iconButtonProps: IconButtonProps = {

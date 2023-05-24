@@ -42,6 +42,7 @@ import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -278,6 +279,15 @@ export const InviteToolbarItem = () => {
     </ToolbarItem>
   );
 };
+
+export const CaptionToolbarItem = () => {
+  return (
+    <ToolbarItem testID="caption-btn">
+      <CaptionIcon />
+    </ToolbarItem>
+  );
+};
+
 const defaultStartItems: Array<ToolbarCustomItem> = [
   {
     align: 'start',
@@ -289,6 +299,12 @@ const defaultStartItems: Array<ToolbarCustomItem> = [
     align: 'start',
     component: InviteToolbarItem,
     order: 1,
+    hide: 'no',
+  },
+  {
+    align: 'start',
+    component: CaptionToolbarItem,
+    order: 2,
     hide: 'no',
   },
 ];
