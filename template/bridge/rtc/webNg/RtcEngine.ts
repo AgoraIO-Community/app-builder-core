@@ -361,8 +361,8 @@ export default class RtcEngine {
     this.client.on('user-joined', (user) => {
       console.log('new user joined =>', user);
       if (user._cname === undefined) {
-        // STT BOT user, sends streamMessages to users in channel
-        return;
+        //TODO: identify STT BOT user, sends streamMessages to users in channel
+        // return;
       }
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
