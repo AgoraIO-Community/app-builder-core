@@ -6,8 +6,8 @@ import TertiaryButton from '../../atoms/TertiaryButton';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import {useIsDesktop} from '../../utils/common';
-import Dropdown from '../../atoms/Dropdown';
 import {useCaption} from './useCaption';
+import DropdownMulti from '../../atoms/DropDownMulti';
 
 export type LanguageType =
   | 'en-US'
@@ -32,9 +32,13 @@ const langData: LanguageData[] = [
   {label: 'Korean', value: 'ko-KR'},
 ];
 
-export function getLanguageLabel(languageCode: string): string | undefined {
-  const language = langData.find((data) => data.value === languageCode);
-  return language ? language.label : undefined;
+export function getLanguageLabel(
+  languageCode: LanguageType[],
+): string | undefined {
+  const langLabels = languageCode.map((langCode) => {
+    return langData.find((data) => data.value === langCode).label;
+  });
+  return langLabels ? langLabels.join(',') : undefined;
 }
 
 interface LanguageSelectorPopup {
@@ -46,13 +50,15 @@ interface LanguageSelectorPopup {
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const isDesktop = useIsDesktop()('popup');
   const heading = 'Change Language';
-  const subHeading =
-    'Captions and transcript will appear in this language for everyone in the meeting';
+  const subHeading = `Captions and transcript will appear in this language for everyone in the meeting. `;
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
 
   const {language, setLanguage} = useCaption();
   const prevLangChanged = React.useRef<boolean>(false);
+  const [error, setError] = React.useState<boolean>(false);
+  const [selectedValues, setSelectedValues] =
+    React.useState<LanguageType[]>(language);
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -63,18 +69,25 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       <Spacer size={8} />
       <Text style={styles.subHeading}>{subHeading}</Text>
       <Spacer size={32} />
-      <Dropdown
+      <DropdownMulti
         label=""
         icon="globe"
         data={langData}
         enabled={true}
-        selectedValue={language || 'en-US'}
-        onSelect={({label, value}) => {
+        selectedValues={selectedValues}
+        setSelectedValues={setSelectedValues}
+        defaultSelectedValues={['en-US']}
+        error={error}
+        onSelect={(value) => {
+          setError(false);
           prevLangChanged.current = true;
-          setLanguage(value);
-          console.warn('selected lang', label);
+          setLanguage(value); //chnage on confirm
         }}
       />
+      <Spacer size={8} />
+      <Text style={[styles.subHeading]}>
+        {'At most 2 languages are supported.'}
+      </Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
         <View style={isDesktop && {flex: 1}}>
@@ -108,6 +121,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             text={ConfirmBtnLabel}
             textStyle={styles.btnText}
             onPress={() => {
+              console.log(selectedValues);
+              if (selectedValues.length === 0) {
+                setError(true);
+                return;
+              }
+              // setLanguage(selectedValues);
               props.onConfirm(prevLangChanged.current);
               prevLangChanged.current = false;
             }}

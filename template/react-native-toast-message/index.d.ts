@@ -56,6 +56,7 @@ declare module 'react-native-toast-message' {
       onShow?: () => void;
       onHide?: () => void;
       onPress?: () => void;
+      leadingIcon?: React.ReactNode;
     }): void;
 
     static hide(): void;
