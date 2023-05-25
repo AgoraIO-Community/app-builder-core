@@ -30,7 +30,10 @@ const useSTTAPI = (): IuseSTTAPI => {
         'X-Project-ID': $config.PROJECT_ID,
         authorization: store.token ? `Bearer ${store.token}` : '',
       },
-      body: JSON.stringify({passphrase: roomId?.host || '', lang: language}),
+      body: JSON.stringify({
+        passphrase: roomId?.host || '',
+        lang: language.join(','),
+      }),
     });
     if (!response.ok) {
       const message = `An error has occured: ${response.status}`;

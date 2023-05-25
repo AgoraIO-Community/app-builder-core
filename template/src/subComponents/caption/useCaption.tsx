@@ -17,8 +17,8 @@ export const CaptionContext = React.createContext<{
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
-  language: LanguageType;
-  setLanguage: React.Dispatch<React.SetStateAction<string>>;
+  language: LanguageType[];
+  setLanguage: React.Dispatch<React.SetStateAction<LanguageType[]>>;
   meetingTranscript: TranscriptItem[];
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
   isLangChangeInProgress: boolean;
@@ -28,7 +28,7 @@ export const CaptionContext = React.createContext<{
   setIsCaptionON: () => {},
   isSTTActive: false,
   setIsSTTActive: () => {},
-  language: 'en-US',
+  language: ['en-US'],
   setLanguage: () => {},
   meetingTranscript: [],
   setMeetingTranscript: () => {},
@@ -39,7 +39,7 @@ export const CaptionContext = React.createContext<{
 const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
-  const [language, setLanguage] = React.useState<string>('');
+  const [language, setLanguage] = React.useState<[LanguageType]>(['en-US']);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
   const [meetingTranscript, setMeetingTranscript] = React.useState<
