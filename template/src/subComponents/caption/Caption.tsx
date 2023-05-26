@@ -1,17 +1,18 @@
 import {StyleSheet, ScrollView} from 'react-native';
-import React from 'react';
-import {useContent, useRtc} from 'customization-api';
+import React, {MutableRefObject} from 'react';
+import {useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import Spacer from '../../../src/atoms/Spacer';
 import Loading from '../Loading';
+import {ContentObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
+interface CaptionProps {
+  renderListRef: MutableRefObject<{renderList: ContentObjects}>;
+}
 
-const Caption = () => {
-  const {defaultContent: renderList} = useContent();
+const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   const {RtcEngineUnsafe: RtcEngine} = useRtc();
-  const renderListRef = React.useRef({renderList});
-
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
   const {setMeetingTranscript, meetingTranscript, isLangChangeInProgress} =
@@ -121,9 +122,9 @@ const Caption = () => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
   }, []);
 
-  React.useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+  // React.useEffect(() => {
+  //   renderListRef.current.renderList = renderList;
+  // }, [renderList]);
 
   const speakers = Object.entries(textObj);
   const activeSpeakers = speakers.filter((item) => item[1] !== '');

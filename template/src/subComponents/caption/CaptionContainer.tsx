@@ -8,7 +8,7 @@ import {calculatePosition, isMobileUA} from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-import {SidePanelType, useSidePanel} from 'customization-api';
+import {SidePanelType, useContent, useSidePanel} from 'customization-api';
 import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import events, {PersistanceLevel} from '../../rtm-events-api';
@@ -18,8 +18,14 @@ import useGetName from '../../utils/useGetName';
 const CaptionContainer = () => {
   const {isCaptionON, setIsCaptionON} = useCaption();
   const moreIconRef = React.useRef<View>(null);
+  const {defaultContent: renderList} = useContent();
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
+  const renderListRef = React.useRef({renderList});
+
+  React.useEffect(() => {
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
 
   return isCaptionON ? (
     <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
@@ -29,7 +35,7 @@ const CaptionContainer = () => {
         btnRef={moreIconRef}
       />
       <MoreMenu ref={moreIconRef} setActionMenuVisible={setActionMenuVisible} />
-      <Caption />
+      <Caption renderListRef={renderListRef} />
     </View>
   ) : null;
 };
