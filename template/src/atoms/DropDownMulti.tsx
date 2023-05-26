@@ -49,6 +49,7 @@ const DropdownMulti: FC<Props> = ({
   const [visible, setVisible] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({top: 0, left: 0, width: 0});
   const [isHovered, setIsHovered] = React.useState(false);
+  const maxHeight = 200;
 
   const selected = useMemo(() => {
     return data.find((dataItem) => selectedValues.includes(dataItem.value));
@@ -156,10 +157,11 @@ const DropdownMulti: FC<Props> = ({
               },
             ]}>
             <FlatList
-              showsVerticalScrollIndicator={false}
+              showsVerticalScrollIndicator={true}
               data={data}
               renderItem={renderItem}
               keyExtractor={(item, index) => index.toString()}
+              style={{maxHeight}}
             />
           </View>
         </TouchableOpacity>
