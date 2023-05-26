@@ -36,7 +36,8 @@ const {topPinned} = layoutProps;
 
 const CustomLayout: layoutComponent = ({renderData}) => {
   const {pinnedUid, defaultContent, activeUids} = useContent();
-  const activeSpeaker = useActiveSpeaker();
+  //const activeSpeaker = useActiveSpeaker();
+  const activeSpeaker = undefined;
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
   const {width, height} = useWindowDimensions();
@@ -133,16 +134,10 @@ const CustomLayout: layoutComponent = ({renderData}) => {
                   marginBottom: 8,
                 }
           }>
-          {/**if whiteboard is active then show maxuid in the min uids */}
-          {whiteboardActive ? (
-            <RenderComponent uid={uids[0]} isMax={true} />
-          ) : (
-            <></>
-          )}
           {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
           {uids?.map((minUid, i) => {
             //first item -> maximized view so returning null
-            if (i === 0) return null;
+            if (i === 0 && !whiteboardActive) return null;
             //remaining items -> minimized view
             {
               /**Rendering minimized views */
