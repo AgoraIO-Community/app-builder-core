@@ -5,7 +5,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useCaption} from './useCaption';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {err} from 'react-native-svg/lib/typescript/xml';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IuseSTTAPI {
   start: () => void;
@@ -39,7 +39,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       const message = `An error has occured: ${response.status}`;
       throw new Error(message);
     }
-    const res = await response.text();
+    const res = await response.json();
     return res;
   };
 
@@ -56,6 +56,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       setIsLangChangeInProgress(true);
       const res = await apiCall('start');
       console.log('response aftet start api call', res);
+      await AsyncStorage.setItem('STT_BOT_UID', res.dataStream_uid);
       // once STT is active in the channel , notify others so that they dont' trigger start again
       events.send(
         EventNames.STT_ACTIVE,
