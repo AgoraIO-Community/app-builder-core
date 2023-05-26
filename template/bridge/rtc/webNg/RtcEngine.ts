@@ -359,11 +359,6 @@ export default class RtcEngine {
   ): Promise<void> {
     // TODO create agora client here
     this.client.on('user-joined', (user) => {
-      console.log('stt: on user joined  event =>', user);
-      if (user._video_enabled_ === false) {
-        //TODO: need to identify STT BOT user, sends streamMessages to users in channel
-        // return;
-      }
       (this.eventsMap.get('UserJoined') as callbackType)(user.uid);
       (this.eventsMap.get('RemoteVideoStateChanged') as callbackType)(
         user.uid,
