@@ -8,7 +8,7 @@ import {calculatePosition, isMobileUA} from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-import {SidePanelType, useContent, useSidePanel} from 'customization-api';
+import {SidePanelType, useRender, useSidePanel} from 'customization-api';
 import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
@@ -18,7 +18,7 @@ import useGetName from '../../utils/useGetName';
 const CaptionContainer = () => {
   const {isCaptionON, setIsCaptionON} = useCaption();
   const moreIconRef = React.useRef<View>(null);
-  const {defaultContent: renderList} = useContent();
+  const {renderList} = useRender();
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const renderListRef = React.useRef({renderList});

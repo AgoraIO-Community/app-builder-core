@@ -12,7 +12,7 @@ interface CaptionProps {
 }
 
 const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
-  const {RtcEngineUnsafe: RtcEngine} = useRtc();
+  const {RtcEngine} = useRtc();
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
   const {setMeetingTranscript, meetingTranscript, isLangChangeInProgress} =
@@ -117,20 +117,10 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
     console.log('stt - current text =>', currentText);
     console.groupEnd();
   };
-  //TODO : verify if volume can be used to detect if person is speaking or not so as to show live captions accordingly, right now relying on the
-  // streamMessagecallback [] payload to clear prev msgs.
-  const handleVolumeCallback = (...args) => {
-    console.log('in volume callback', args);
-  };
 
   React.useEffect(() => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
-    RtcEngine.addListener('AudioVolumeIndication', handleVolumeCallback);
   }, []);
-
-  // React.useEffect(() => {
-  //   renderListRef.current.renderList = renderList;
-  // }, [renderList]);
 
   const speakers = Object.entries(textObj);
   const activeSpeakers = speakers.filter((item) => item[1] !== '');
