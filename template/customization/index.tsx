@@ -1,6 +1,7 @@
 import React from 'react';
 import {ToolbarPreset, customize} from 'customization-api';
 import AINSButton from './AINS/AINSButton';
+import VBButtons from './VB/VBButton';
 import WhiteboardButton from './whiteboard/WhiteboardButton';
 import CustomLayout from './CustomLayout';
 import WhiteboardConfigure from './whiteboard/WhiteboardConfigure';
@@ -11,6 +12,7 @@ const CustomBottomBar = () => {
       align="bottom"
       customItems={[
         {align: 'end', component: AINSButton, hide: 'no', order: 0},
+        {align: 'end', component: VBButtons, hide: 'no', order: 0},
         {align: 'end', component: WhiteboardButton, hide: 'no', order: 1},
       ]}
     />
