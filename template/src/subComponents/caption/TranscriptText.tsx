@@ -11,6 +11,7 @@ interface TranscriptTextProps {
   value: string;
   captionContainerStyle?: ViewStyle;
   captionStyle?: TextStyle;
+  searchQuery?: string;
 }
 
 function formatTime(timestamp: number): string {
@@ -27,6 +28,7 @@ export const TranscriptText = ({
   user,
   time,
   value,
+  searchQuery = '',
   captionContainerStyle = {},
   captionStyle = {},
 }: TranscriptTextProps) => {
@@ -34,6 +36,8 @@ export const TranscriptText = ({
   const isTranscriptTxt = t.length > 0;
 
   const isMobile = isMobileUA();
+  const regex = new RegExp(`(${searchQuery})`, 'gi');
+  const parts = value.split(regex);
 
   return (
     <View
@@ -85,7 +89,19 @@ export const TranscriptText = ({
                 {user} {':'}
               </Text>
             )}
-            {value}
+            {isTranscriptTxt ? (
+              parts.map((part, index) =>
+                part.toLowerCase() === searchQuery.toLowerCase() ? (
+                  <Text key={index} style={styles.highlightedText}>
+                    {part}
+                  </Text>
+                ) : (
+                  <Text key={index}>{part}</Text>
+                ),
+              )
+            ) : (
+              <Text> {value} </Text>
+            )}
           </Text>
         </View>
       ) : (
@@ -165,5 +181,9 @@ const styles = StyleSheet.create({
     color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
+  },
+  highlightedText: {
+    fontWeight: 'bold',
+    backgroundColor: $config.CARD_LAYER_5_COLOR,
   },
 });
