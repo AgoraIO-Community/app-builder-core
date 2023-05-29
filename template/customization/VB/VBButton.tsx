@@ -47,7 +47,7 @@ const VBButton = () => {
               isVBEnabled === 1
                 ? $config.SECONDARY_ACTION_COLOR
                 : $config.SEMANTIC_ERROR,
-            name: 'demote-filled',
+            name: 'vb-color',
             iconSize: 26,
           }}
           btnTextProps={{
@@ -67,7 +67,7 @@ const VBButton = () => {
               isVBEnabled === 2
                 ? $config.SECONDARY_ACTION_COLOR
                 : $config.SEMANTIC_ERROR,
-            name: 'raise-hand',
+            name: 'vb-blur',
             iconSize: 26,
           }}
           btnTextProps={{
@@ -87,7 +87,7 @@ const VBButton = () => {
               isVBEnabled === 3
                 ? $config.SECONDARY_ACTION_COLOR
                 : $config.SEMANTIC_ERROR,
-            name: 'demote-outlined',
+            name: 'vb-image',
             iconSize: 26,
           }}
           btnTextProps={{
