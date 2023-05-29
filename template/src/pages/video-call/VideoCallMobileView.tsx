@@ -26,6 +26,7 @@ import NavbarMobile, {NavbarProps} from '../../components/NavbarMobile';
 import {useCustomization} from 'customization-implementation';
 import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
 import {ControlsProps} from 'src/components/Controls';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 
 const VideoCallMobileView = () => {
   const {
@@ -177,6 +178,7 @@ const VideoCallMobileView = () => {
       {/* <Spacer size={16} /> */}
       <View style={styles.videoView}>
         <VideoComponent />
+        <CaptionContainer />
       </View>
       <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
         {BottombarProps?.length ? (

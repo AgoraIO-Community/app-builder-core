@@ -22,13 +22,13 @@ const WhiteboardButton = () => {
 
   const {setLayout, currentLayout} = useLayout();
 
-  const WhiteboardStoppedCallBack = useCallback(() => {
-    whiteboardActive && toggleWhiteboard(true, false);
-  }, [whiteboardActive]);
+  const WhiteboardStoppedCallBack = () => {
+    toggleWhiteboard(true, false);
+  };
 
-  const WhiteboardStartedCallBack = useCallback(() => {
-    !whiteboardActive && toggleWhiteboard(false, false);
-  }, [whiteboardActive]);
+  const WhiteboardStartedCallBack = () => {
+    toggleWhiteboard(false, false);
+  };
 
   useEffect(() => {
     whiteboardActive &&

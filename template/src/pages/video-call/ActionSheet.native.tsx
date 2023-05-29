@@ -23,6 +23,7 @@ import {useSidePanel} from '../../utils/useSidePanel';
 import {isIOS} from '../../utils/common';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
+import Transcript from '../../subComponents/caption/Transcript';
 
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
@@ -33,6 +34,7 @@ const ActionSheet = (props) => {
   const chatSheetRef = useRef<BottomSheetModal>(null);
   const participantsSheetRef = useRef<BottomSheetModal>(null);
   const settingsSheetRef = useRef<BottomSheetModal>(null);
+  const transcriptSheetRef = useRef<BottomSheetModal>(null);
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
@@ -59,10 +61,15 @@ const ActionSheet = (props) => {
         settingsSheetRef?.current.present();
         break;
       }
+      case SidePanelType.Transcript: {
+        transcriptSheetRef?.current.present();
+        break;
+      }
       case SidePanelType.None: {
         chatSheetRef?.current.close();
         participantsSheetRef?.current.close();
         settingsSheetRef?.current.close();
+        transcriptSheetRef?.current.close();
         handleSheetChanges(0);
       }
       default:
@@ -168,6 +175,25 @@ const ActionSheet = (props) => {
         stackBehavior="push">
         <BottomSheetView>
           <SettingsView showHeader={false} />
+        </BottomSheetView>
+      </BottomSheetModal>
+
+      {/* Transcript Action Sheet  */}
+      <BottomSheetModal
+        snapPoints={['100%']}
+        ref={transcriptSheetRef}
+        name="TranscriptSheet"
+        onDismiss={onDismiss}
+        style={styles.container}
+        backgroundStyle={styles.backgroundStyle}
+        handleIndicatorStyle={styles.handleIndicatorStyle}
+        enableContentPanningGesture={false}
+        handleComponent={() => (
+          <ActionSheetHandle sidePanel={SidePanelType.Transcript} />
+        )}
+        stackBehavior="push">
+        <BottomSheetView>
+          <Transcript showHeader={false} />
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>

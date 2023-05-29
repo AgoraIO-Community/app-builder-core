@@ -54,19 +54,15 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
           isWritable: isHost,
         })
         .then((room) => {
-          console.log('debugging white join success', room);
-
           whiteboardRoom.current = room;
           whiteboardRoom.current.bindHtmlElement(whiteboardPaper);
           setWhiteboardRoomState(RoomPhase.Connected);
         })
         .catch((err) => {
-          console.log('debugging white join error', err);
           setWhiteboardRoomState(InitState);
           console.log(err);
         });
     } catch (err) {
-      console.log('debugging white join error', err);
       setWhiteboardRoomState(InitState);
       console.log(err);
     }
@@ -79,30 +75,24 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
       whiteboardRoom.current
         .disconnect()
         .then(() => {
-          console.log('debugging white leave success');
           whiteboardRoom.current.bindHtmlElement(null);
           setWhiteboardRoomState(RoomPhase.Disconnected);
         })
         .catch((err) => {
-          console.log('debugging white leave error', err);
           setWhiteboardRoomState(InitState);
           console.log(err);
         });
     } catch (err) {
-      console.log('debugging white leave error', err);
       setWhiteboardRoomState(InitState);
       console.log(err);
     }
   };
 
   const joinWhiteboardRoom = () => {
-    console.log('debugging joinWhiteboardRoom called');
     setWhiteboardActive(true);
   };
 
   const leaveWhiteboardRoom = () => {
-    console.log('debugging leaveWhiteboardRoom called');
-
     setWhiteboardActive(false);
   };
 
