@@ -5,6 +5,10 @@ import {
   Button,
   FlatList,
   Dimensions,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  Platform,
 } from 'react-native';
 import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
@@ -18,6 +22,8 @@ import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import Loading from '../Loading';
+import Input from '../../atoms/Input';
+import {maxInputLimit} from '../../utils/common';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -33,6 +39,8 @@ const Transcript = (props: TranscriptProps) => {
   const contentHeightRef = React.useRef(0);
   const flatListHeightRef = React.useRef(0);
   const flatListRef = React.useRef(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState([]);
 
   const handleLayout = (event) => {
     flatListHeightRef.current = event.nativeEvent.layout.height;
@@ -41,9 +49,23 @@ const Transcript = (props: TranscriptProps) => {
     }
   };
 
-  const renderItem = ({item}) => (
-    <TranscriptText user={item.name} time={item.time} value={item.text} />
-  );
+  const renderItem = ({item}) => {
+    // Highlight the keyword in the text value
+    const highlightedText = searchQuery
+      ? item.text.replace(new RegExp(`(${searchQuery})`, 'gi'), '<b>$1</b>')
+      : item.text;
+    const regex = new RegExp(`(${searchQuery})`, 'gi');
+    const parts = item.text.split(regex);
+
+    return (
+      <TranscriptText
+        user={item.name}
+        time={item.time}
+        value={item.text}
+        searchQuery={searchQuery}
+      />
+    );
+  };
 
   const handleViewLatest = () => {
     setShowButton(false);
@@ -68,6 +90,19 @@ const Transcript = (props: TranscriptProps) => {
     setShowButton(!isAtBottom || isAtTop);
   };
 
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    // Filter the data based on the search query
+    const filteredResults = meetingTranscript.filter((item) =>
+      item.text.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+    setSearchResults(filteredResults);
+    // Scroll to the top of the FlatList when searching
+    flatListRef.current.scrollToOffset({offset: 0, animated: true});
+  };
+
+  const renderedData = searchQuery ? searchResults : data;
+
   return (
     <View
       // onLayout={handleLayout}
@@ -85,6 +120,33 @@ const Transcript = (props: TranscriptProps) => {
           : {},
       ]}>
       {showHeader && <TranscriptHeader />}
+      <View style={styles.searchContainer}>
+        {/* <TextInput
+          style={styles.searchInput}
+          placeholder="Search transcript"
+          value={searchQuery}
+          onChangeText={handleSearch}
+          placeholderTextColor={
+            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+          }
+        /> */}
+        <Input
+          maxLength={maxInputLimit}
+          style={styles.searchInput}
+          // onBlur={handleSearch}
+          placeholder="Search transcript"
+          value={searchQuery}
+          editable={true}
+          onChangeText={handleSearch}
+          //onSubmitEditing={handleSearch}
+          placeholderTextColor={
+            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+          }
+        />
+        {/* <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
+          <Text style={styles.searchButtonText}>Search</Text>
+        </TouchableOpacity> */}
+      </View>
       {isLangChangeInProgress ? (
         <Loading text="Setting Transcript Language..." />
       ) : (
@@ -92,7 +154,7 @@ const Transcript = (props: TranscriptProps) => {
           <FlatList
             ref={flatListRef}
             style={styles.contentContainer}
-            data={data}
+            data={renderedData}
             renderItem={renderItem}
             keyExtractor={(item) => item.uid + '-' + item.time}
             onContentSizeChange={handleContentSizeChange}
@@ -148,5 +210,41 @@ export const styles = StyleSheet.create({
     lineHeight: 19,
     fontWeight: '400',
     textTransform: 'capitalize',
+  },
+  /* search results*/
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+    backgroundColor: $config.ICON_BG_COLOR,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    borderRadius: 4,
+    marginRight: 10,
+    color: $config.FONT_COLOR,
+
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontSize: ThemeConfig.FontSize.medium,
+    width: '100%',
+    paddingHorizontal: 8,
+    paddingVertical: 18,
+    borderWidth: 0,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  },
+  searchButton: {
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    borderRadius: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  searchButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
   },
 });
