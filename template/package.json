@@ -93,7 +93,7 @@
     "react-router-native": "5.2.0",
     "react-spring-bottom-sheet": "3.4.1",
     "react-tooltip": "4.5.1",
-    "white-web-sdk": "2.16.4"
+    "white-web-sdk": "2.16.42"
   },
   "devDependencies": {
     "@babel/core": "7.14.3",
