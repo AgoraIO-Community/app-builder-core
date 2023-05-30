@@ -86,72 +86,89 @@ const VideoCallMobileView = () => {
   //   };
   // }, []);
 
-  const {BottombarComponent, BottombarProps, TopbarComponent, TopbarProps} =
-    useCustomization((data) => {
-      let components: {
-        BottombarComponent: React.ComponentType<ControlsProps>;
-        BottombarProps?: ToolbarCustomItem[];
-        TopbarComponent: React.ComponentType<NavbarProps>;
-        TopbarProps?: ToolbarCustomItem[];
-      } = {
-        BottombarComponent: ActionSheet,
-        BottombarProps: [],
-        TopbarComponent: NavbarMobile,
-        TopbarProps: [],
-      };
+  const {
+    BottombarComponent,
+    BottombarProps,
+    TopbarComponent,
+    TopbarProps,
+    VideocallWrapper,
+  } = useCustomization((data) => {
+    let components: {
+      BottombarComponent: React.ComponentType<ControlsProps>;
+      BottombarProps?: ToolbarCustomItem[];
+      TopbarComponent: React.ComponentType<NavbarProps>;
+      TopbarProps?: ToolbarCustomItem[];
+      VideocallWrapper?: React.ComponentType;
+    } = {
+      BottombarComponent: ActionSheet,
+      BottombarProps: [],
+      TopbarComponent: NavbarMobile,
+      TopbarProps: [],
+      VideocallWrapper: React.Fragment,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
       if (
-        data?.components?.videoCall &&
-        typeof data?.components?.videoCall === 'object'
+        data?.components?.videoCall.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.bottomToolBar)
       ) {
-        if (
-          data?.components?.videoCall.bottomToolBar &&
-          typeof data?.components?.videoCall.bottomToolBar !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall.bottomToolBar)
-        ) {
-          components.BottombarComponent =
-            data?.components?.videoCall.bottomToolBar;
-        }
-        if (
-          data?.components?.videoCall.bottomToolBar &&
-          typeof data?.components?.videoCall.bottomToolBar === 'object' &&
-          data?.components?.videoCall.bottomToolBar.length
-        ) {
-          components.BottombarProps = data?.components?.videoCall.bottomToolBar;
-        }
-
-        if (
-          data?.components?.videoCall.topToolBar &&
-          typeof data?.components?.videoCall.topToolBar !== 'object' &&
-          isValidReactComponent(data?.components?.videoCall.topToolBar)
-        ) {
-          components.TopbarComponent = data?.components?.videoCall.topToolBar;
-        }
-
-        if (
-          data?.components?.videoCall.topToolBar &&
-          typeof data?.components?.videoCall.topToolBar === 'object' &&
-          data?.components?.videoCall.topToolBar.length
-        ) {
-          components.TopbarProps = data?.components?.videoCall.topToolBar;
-        }
+        components.BottombarComponent =
+          data?.components?.videoCall.bottomToolBar;
+      }
+      if (
+        data?.components?.videoCall.bottomToolBar &&
+        typeof data?.components?.videoCall.bottomToolBar === 'object' &&
+        data?.components?.videoCall.bottomToolBar.length
+      ) {
+        components.BottombarProps = data?.components?.videoCall.bottomToolBar;
       }
 
-      return components;
-    });
+      if (
+        data?.components?.videoCall.topToolBar &&
+        typeof data?.components?.videoCall.topToolBar !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.topToolBar)
+      ) {
+        components.TopbarComponent = data?.components?.videoCall.topToolBar;
+      }
+
+      if (
+        data?.components?.videoCall.topToolBar &&
+        typeof data?.components?.videoCall.topToolBar === 'object' &&
+        data?.components?.videoCall.topToolBar.length
+      ) {
+        components.TopbarProps = data?.components?.videoCall.topToolBar;
+      }
+
+      //todo hari - need to remove wrapper
+      if (
+        data?.components?.videoCall.wrapper &&
+        typeof data?.components?.videoCall.wrapper !== 'object' &&
+        isValidReactComponent(data?.components?.videoCall.wrapper)
+      ) {
+        components.VideocallWrapper = data?.components?.videoCall.wrapper;
+      }
+    }
+
+    return components;
+  });
 
   return (
     <View style={styles.container}>
-      <ToolbarProvider value={{position: ToolbarPosition.top}}>
-        {TopbarProps?.length ? (
-          <TopbarComponent
-            customItems={TopbarProps}
-            includeDefaultItems={false}
-          />
-        ) : (
-          <TopbarComponent />
-        )}
-      </ToolbarProvider>
-      {/* <View style={styles.titleBar}>
+      <VideocallWrapper>
+        <ToolbarProvider value={{position: ToolbarPosition.top}}>
+          {TopbarProps?.length ? (
+            <TopbarComponent
+              customItems={TopbarProps}
+              includeDefaultItems={false}
+            />
+          ) : (
+            <TopbarComponent />
+          )}
+        </ToolbarProvider>
+        {/* <View style={styles.titleBar}>
         <Text style={styles.title}>{trimText(meetingTitle)}</Text>
         <Spacer size={8} horizontal={false} />
         <View style={styles.countView}>
@@ -175,21 +192,22 @@ const VideoCallMobileView = () => {
           )}
         </View>
       </View> */}
-      {/* <Spacer size={16} /> */}
-      <View style={styles.videoView}>
-        <VideoComponent />
-        <CaptionContainer />
-      </View>
-      <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-        {BottombarProps?.length ? (
-          <BottombarComponent
-            customItems={BottombarProps}
-            includeDefaultItems={false}
-          />
-        ) : (
-          <BottombarComponent />
-        )}
-      </ToolbarProvider>
+        {/* <Spacer size={16} /> */}
+        <View style={styles.videoView}>
+          <VideoComponent />
+          <CaptionContainer />
+        </View>
+        <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
+          {BottombarProps?.length ? (
+            <BottombarComponent
+              customItems={BottombarProps}
+              includeDefaultItems={false}
+            />
+          ) : (
+            <BottombarComponent />
+          )}
+        </ToolbarProvider>
+      </VideocallWrapper>
     </View>
   );
 };
