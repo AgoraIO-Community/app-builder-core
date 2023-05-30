@@ -154,7 +154,7 @@ const ActionSheet = (props) => {
           onSpringEnd={handleSpringEnd}
           // skipInitialTransition={true}
           expandOnContentDrag={true}
-          snapPoints={({maxHeight}) => [100, 350]}
+          snapPoints={({maxHeight}) => [100, 550]}
           defaultSnap={({lastSnap, snapPoints}) =>
             lastSnap ?? Math.min(...snapPoints)
           }
