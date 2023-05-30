@@ -604,12 +604,17 @@ const ActionSheetContent = (props) => {
   const isHidden = (i) => {
     return i?.hide === 'yes';
   };
-  const combinedItems = customItems
-    ?.filter((i) => !isHidden(i))
-    ?.concat(includeDefaultItems ? defaultItems : [])
-    //to filter empty component because of some condition array will have empty component
-    ?.filter((i) => i?.component)
-    ?.sort((a, b) => a?.order - b?.order);
+  // const combinedItems = customItems
+  //   ?.filter((i) => !isHidden(i))
+  //   ?.concat(includeDefaultItems ? defaultItems : [])
+  //   //to filter empty component because of some condition array will have empty component
+  //   ?.filter((i) => i?.component);
+  //?.sort((a, b) => a?.order - b?.order);
+  const combinedItems = includeDefaultItems
+    ? defaultItems
+        .concat(customItems?.filter((i) => !isHidden(i)))
+        ?.filter((i) => i?.component)
+    : customItems?.filter((i) => !isHidden(i))?.filter((i) => i?.component);
 
   return (
     <View>
@@ -661,28 +666,28 @@ const ActionSheetContent = (props) => {
          * and audience is promoted to host, the audience can also
          * demote himself
          */}
-        {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+        {/* {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
           $config.RAISE_HAND && !isAudioRoom ? (
             <LiveStreamIcon isHandRaised={isHandRaised} />
           ) : null
-        ) : null}
+        ) : null} */}
 
         {/* Layout view */}
-        <LayoutIcon />
+        {/* <LayoutIcon /> */}
 
         {/* chat */}
-        {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
+        {/* {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
           <ChatIcon />
-        )}
+        )} */}
         {/* participants */}
-        <ParticipantsIcon
+        {/* <ParticipantsIcon
           showNotification={$config.EVENT_MODE && isPendingRequestToReview}
-        />
+        /> */}
         {/* record */}
-        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
+        {/* {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null} */}
 
         {/* switch camera */}
-        {!isAudioRoom &&
+        {/* {!isAudioRoom &&
           (isAudioVideoControlsDisabled ? null : (
             <SwitchCameraIcon
               disabled={
@@ -690,17 +695,17 @@ const ActionSheetContent = (props) => {
                 isVideoDisabled
               }
             />
-          ))}
+          ))} */}
 
         {/* settings */}
-        <SettingsIcon
+        {/* <SettingsIcon
           onPress={() => {
             setSidePanel(SidePanelType.Settings);
           }}
-        />
+        /> */}
 
         {/* invite */}
-        <ShareIcon />
+        {/* <ShareIcon /> */}
 
         {/* caption  */}
         <CaptionIconBtn />
