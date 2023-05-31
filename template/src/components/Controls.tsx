@@ -51,6 +51,14 @@ import {RoomPhase} from 'white-web-sdk';
 import useAINS from '../../customization/AINS/useAINS';
 import useVB from '../../customization/VB/useVB';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
+import {useCaption} from '../subComponents/caption/useCaption';
+import StorageContext from '../components/StorageContext';
+import useSTTAPI from '../subComponents/caption/useSTTAPI';
+import ImageIcon from '../atoms/ImageIcon';
+import events from '../rtm-events-api';
+import LanguageSelectorPopup from '../subComponents/caption/LanguageSelectorPopup';
+import {EventNames} from '../rtm-events';
+import Toast from '../../react-native-toast-message';
 
 const MoreButton = () => {
   const {video: localVideoStatus} = useLocalUserInfo();
@@ -144,6 +152,7 @@ const MoreButton = () => {
     actionMenuitems.push({
       disabled: WhiteboardDisabled,
       isBase64Icon: true,
+      //@ts-ignore
       icon: 'white-board',
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
@@ -168,6 +177,7 @@ const MoreButton = () => {
   };
   actionMenuitems.push({
     isBase64Icon: true,
+    //@ts-ignore
     icon: 'ains',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -200,6 +210,7 @@ const MoreButton = () => {
   actionMenuitems.push({
     disabled: localVideoStatus !== ToggleState.enabled,
     isBase64Icon: true,
+    //@ts-ignore
     icon: 'vb-blur',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -221,6 +232,7 @@ const MoreButton = () => {
   actionMenuitems.push({
     disabled: localVideoStatus !== ToggleState.enabled,
     isBase64Icon: true,
+    //@ts-ignore
     icon: 'vb-color',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -241,6 +253,7 @@ const MoreButton = () => {
   actionMenuitems.push({
     disabled: localVideoStatus !== ToggleState.enabled,
     isBase64Icon: true,
+    //@ts-ignore
     icon: 'vb-image',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
@@ -259,6 +272,96 @@ const MoreButton = () => {
     },
   });
   //virtual background
+
+  //caption
+  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive, language} =
+    useCaption();
+  const {store} = React.useContext(StorageContext);
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+
+  const isLangPopupOpenedOnce = React.useRef(false);
+  const {start} = useSTTAPI();
+
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
+
+  React.useEffect(() => {
+    events.on(EventNames.STT_ACTIVE, (data) => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+
+    events.on(EventNames.STT_LANGUAGE, (data) => {
+      const payload = data?.payload || '';
+      Toast.show({
+        type: 'info',
+        leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+        text1: payload,
+        visibilityTime: 3000,
+      });
+    });
+  }, []);
+
+  const toggleSTT = async (method: string, language: string) => {
+    // handleSTT
+
+    setIsCaptionON((prev) => !prev);
+
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+
+    // try {
+    //   const res = await startStopSTT(
+    //     store?.token || '',
+    //     roomId.host ? roomId.host : '',
+    //     method,
+    //     language,
+    //   );
+    //   console.log('response after start/stop stt', res); //TODO: log username of who started stt
+    //   // once STT is active in the channel , notify others so that they dont' trigger start again
+    //   events.send(
+    //     'handleCaption',
+    //     JSON.stringify({active: true}),
+    //     PersistanceLevel.Sender,
+    //   );
+    //   setIsSTTActive(true);
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    start();
+  };
+
+  const onLanguageChange = () => {
+    // lang would be set on confirm click
+    toggleSTT(isCaptionON ? 'stop' : 'start', language);
+    setLanguagePopup(false);
+    isLangPopupOpenedOnce.current = true;
+  };
+
+  const label = isCaptionON ? 'Turn off Caption' : 'Turn on Caption';
+  actionMenuitems.push({
+    icon: 'closed-caption',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: label,
+    callback: () => {
+      setActionMenuVisible(false);
+      if (isLangPopupOpenedOnce.current || isSTTActive) {
+        // is lang popup has been shown once for any user in meeting
+        sidePanel === SidePanelType.Transcript &&
+          !isCaptionON &&
+          setSidePanel(SidePanelType.None);
+        toggleSTT(isCaptionON ? 'stop' : 'start', language);
+      } else {
+        setLanguagePopup(true);
+      }
+    },
+  });
+  //caption
 
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
@@ -401,6 +504,11 @@ const MoreButton = () => {
 
   return (
     <>
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onLanguageChange}
+      />
       <ActionMenu
         containerStyle={{width: 180}}
         hoverMode={true}
@@ -491,12 +599,12 @@ const defaultStartItems: Array<ToolbarCustomItem> = [
     order: 1,
     hide: 'no',
   },
-  {
-    align: 'start',
-    component: CaptionToolbarItem,
-    order: 2,
-    hide: 'no',
-  },
+  // {
+  //   align: 'start',
+  //   component: CaptionToolbarItem,
+  //   order: 2,
+  //   hide: 'no',
+  // },
 ];
 
 export const RaiseHandToolbarItem = () => {
