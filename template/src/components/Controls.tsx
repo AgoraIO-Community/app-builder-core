@@ -30,9 +30,12 @@ import ActionMenu, {ActionMenuItem} from '../atoms/ActionMenu';
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   ChatType,
+  PersistanceLevel,
   SidePanelType,
+  customEvents,
   useChatUIControls,
   useLayout,
+  useLocalUserInfo,
   useRecording,
   useSidePanel,
 } from 'customization-api';
@@ -43,8 +46,14 @@ import Toolbar from '../atoms/Toolbar';
 import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
+import {whiteboardContext} from '../../customization/whiteboard/WhiteboardConfigure';
+import {RoomPhase} from 'white-web-sdk';
+import useAINS from '../../customization/AINS/useAINS';
+import useVB from '../../customization/VB/useVB';
+import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
 
 const MoreButton = () => {
+  const {video: localVideoStatus} = useLocalUserInfo();
   const {rtcProps} = useContext(PropsContext);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -68,7 +77,188 @@ const MoreButton = () => {
     useScreenshare();
   const {isRecordingActive, startRecording, inProgress} = useRecording();
   const {setChatType} = useChatUIControls();
+
+  //whiteboard start
+
+  const {
+    whiteboardRoomState,
+    whiteboardActive,
+    joinWhiteboardRoom,
+    leaveWhiteboardRoom,
+  } = useContext(whiteboardContext);
+
+  const WhiteboardStoppedCallBack = () => {
+    toggleWhiteboard(true, false);
+  };
+
+  const WhiteboardStartedCallBack = () => {
+    toggleWhiteboard(false, false);
+  };
+
+  useEffect(() => {
+    whiteboardActive &&
+      currentLayout !== 'whiteboard' &&
+      setLayout('whiteboard');
+    customEvents.on('WhiteBoardStopped', WhiteboardStoppedCallBack);
+    customEvents.on('WhiteBoardStarted', WhiteboardStartedCallBack);
+
+    return () => {
+      customEvents.off('WhiteBoardStopped', WhiteboardStoppedCallBack);
+      customEvents.off('WhiteBoardStarted', WhiteboardStartedCallBack);
+    };
+  }, []);
+
+  const toggleWhiteboard = (
+    whiteboardActive: boolean,
+    triggerEvent: boolean,
+  ) => {
+    if (whiteboardActive) {
+      leaveWhiteboardRoom();
+      setLayout('grid');
+      triggerEvent &&
+        customEvents.send(
+          'WhiteBoardStopped',
+          JSON.stringify({}),
+          PersistanceLevel.Session,
+        );
+    } else {
+      joinWhiteboardRoom();
+      setLayout('whiteboard');
+      triggerEvent &&
+        customEvents.send(
+          'WhiteBoardStarted',
+          JSON.stringify({}),
+          PersistanceLevel.Session,
+        );
+    }
+  };
+  const WhiteboardDisabled =
+    !isHost ||
+    whiteboardRoomState === RoomPhase.Connecting ||
+    whiteboardRoomState === RoomPhase.Disconnecting;
+
+  //whiteboard ends
+
   const actionMenuitems: ActionMenuItem[] = [];
+  if (isHost) {
+    actionMenuitems.push({
+      disabled: WhiteboardDisabled,
+      isBase64Icon: true,
+      icon: 'white-board',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: whiteboardActive ? 'Turn off Whiteboard' : 'Turn on Whiteboard',
+      callback: () => {
+        setActionMenuVisible(false);
+        toggleWhiteboard(whiteboardActive, true);
+      },
+    });
+  }
+  //AINS
+  const [isANISEnabled, setIsANISEnabled] = useState(false);
+  const {disableNoiseSuppression, enableNoiseSuppression} = useAINS();
+  const toggleAINS = () => {
+    if (isANISEnabled) {
+      disableNoiseSuppression();
+      setIsANISEnabled(false);
+    } else {
+      enableNoiseSuppression();
+      setIsANISEnabled(true);
+    }
+  };
+  actionMenuitems.push({
+    isBase64Icon: true,
+    icon: 'ains',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isANISEnabled ? 'Turn off AINS' : 'Turn on AINS',
+    callback: () => {
+      setActionMenuVisible(false);
+      toggleAINS();
+    },
+  });
+  //AINS
+
+  // actionMenuitems.push({
+  //   icon: 'closed-caption',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: 'Show Caption',
+  //   callback: () => {
+  //     setActionMenuVisible(false);
+  //   },
+  // });
+
+  //virtual background
+
+  const [isImageVBOn, setIsImageVBOn] = useState(false);
+  const [isColorVBOn, setIsColorVBOn] = useState(false);
+  const [isBlurVBOn, setIsBlurVBOn] = useState(false);
+
+  const {colorVB, disableVB, imageVB, blurVB} = useVB();
+
+  actionMenuitems.push({
+    disabled: localVideoStatus !== ToggleState.enabled,
+    isBase64Icon: true,
+    icon: 'vb-blur',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isBlurVBOn ? 'Remove Blur BG' : 'Apply Blur BG',
+    callback: () => {
+      setActionMenuVisible(false);
+      if (isBlurVBOn) {
+        setIsBlurVBOn(false);
+        disableVB();
+      } else {
+        setIsColorVBOn(false);
+        setIsImageVBOn(false);
+        setIsBlurVBOn(true);
+        blurVB();
+      }
+    },
+  });
+
+  actionMenuitems.push({
+    disabled: localVideoStatus !== ToggleState.enabled,
+    isBase64Icon: true,
+    icon: 'vb-color',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isColorVBOn ? 'Remove Color BG' : 'Apply Color BG',
+    callback: () => {
+      setActionMenuVisible(false);
+      if (isColorVBOn) {
+        setIsColorVBOn(false);
+        disableVB();
+      } else {
+        setIsImageVBOn(false);
+        setIsBlurVBOn(false);
+        setIsColorVBOn(true);
+        colorVB();
+      }
+    },
+  });
+  actionMenuitems.push({
+    disabled: localVideoStatus !== ToggleState.enabled,
+    isBase64Icon: true,
+    icon: 'vb-image',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isImageVBOn ? 'Remove Image BG' : 'Apply Image BG',
+    callback: () => {
+      setActionMenuVisible(false);
+      if (isImageVBOn) {
+        setIsImageVBOn(false);
+        disableVB();
+      } else {
+        setIsBlurVBOn(false);
+        setIsColorVBOn(false);
+        setIsImageVBOn(true);
+        imageVB();
+      }
+    },
+  });
+  //virtual background
 
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
@@ -149,7 +339,7 @@ const MoreButton = () => {
 
   if (globalWidth <= BREAKPOINTS.md) {
     actionMenuitems.push({
-      icon: layouts[layout]?.iconName,
+      iconSrc: layouts[layout]?.icon,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: 'Layout',
@@ -399,11 +589,11 @@ export const RecordingToolbarItem = () => {
 export const MoreButtonToolbarItem = () => {
   const {width} = useWindowDimensions();
   return (
-    width < BREAKPOINTS.md && (
-      <ToolbarItem testID="more-btn">
-        <MoreButton />
-      </ToolbarItem>
-    )
+    // width < BREAKPOINTS.md && (
+    <ToolbarItem testID="more-btn">
+      <MoreButton />
+    </ToolbarItem>
+    // )
   );
 };
 export const LocalEndcallToolbarItem = () => {

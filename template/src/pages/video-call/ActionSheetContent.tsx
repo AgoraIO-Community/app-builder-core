@@ -45,6 +45,9 @@ import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../subComponents/caption/TranscriptIcon';
 import protoRoot from '../../../src/subComponents/caption/proto/ptoto';
+import WhiteboardButton from '../../../customization/whiteboard/WhiteboardButton';
+import ANISButton from '../../../customization/AINS/AINSButton';
+import VBButton from '../../../customization/VB/VBButton';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -706,6 +709,9 @@ const ActionSheetContent = (props) => {
 
         {/* invite */}
         {/* <ShareIcon /> */}
+        <WhiteboardButton />
+        <ANISButton />
+        <VBButton />
 
         {/* caption  */}
         <CaptionIconBtn />

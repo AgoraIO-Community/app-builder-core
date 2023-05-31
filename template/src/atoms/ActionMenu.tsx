@@ -19,7 +19,8 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 export interface ActionMenuItem {
   isBase64Icon?: boolean;
-  icon: keyof IconsInterface;
+  icon?: keyof IconsInterface;
+  iconSrc?: string;
   onHoverIcon?: keyof IconsInterface;
   iconColor: string;
   textColor: string;
@@ -59,6 +60,7 @@ const ActionMenu = (props: ActionMenuProps) => {
       (
         {
           icon,
+          iconSrc = undefined,
           onHoverIcon,
           isBase64Icon = false,
           title,
@@ -98,16 +100,32 @@ const ActionMenu = (props: ActionMenuProps) => {
                 onPress={callback}
                 key={icon + index}>
                 <View style={styles.iconContainer}>
-                  <ImageIcon
-                    base64={isBase64Icon}
-                    base64TintColor={iconColor}
-                    iconType="plain"
-                    iconSize={20}
-                    name={
-                      isHovered && onHoverIcon && !disabled ? onHoverIcon : icon
-                    }
-                    tintColor={iconColor}
-                  />
+                  {icon || onHoverIcon ? (
+                    <ImageIcon
+                      base64={isBase64Icon}
+                      base64TintColor={iconColor}
+                      iconType="plain"
+                      iconSize={20}
+                      name={
+                        isHovered && onHoverIcon && !disabled
+                          ? onHoverIcon
+                          : icon
+                      }
+                      tintColor={iconColor}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                  {iconSrc ? (
+                    <ImageIcon
+                      iconType="plain"
+                      iconSize={20}
+                      icon={iconSrc}
+                      tintColor={iconColor}
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </View>
                 <Text
                   style={[styles.text, textColor ? {color: textColor} : {}]}>
