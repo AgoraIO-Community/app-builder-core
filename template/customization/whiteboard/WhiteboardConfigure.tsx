@@ -35,10 +35,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
   const whiteboardRoom = useRef({} as Room);
 
   const {
-    data: {
-      isHost,
-      whiteboard: {room_token, room_uuid},
-    },
+    data: {isHost, whiteboard: {room_token, room_uuid} = {}},
   } = useRoomInfo();
 
   const join = () => {

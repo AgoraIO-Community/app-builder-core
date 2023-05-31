@@ -5,6 +5,7 @@ import {
   customEvents,
   useContent,
   useLayout,
+  useRoomInfo,
 } from 'customization-api';
 import {Text, TouchableOpacity, Image, View} from 'react-native';
 import WhiteboardView from './WhiteboardView';
@@ -19,6 +20,9 @@ const WhiteboardButton = () => {
     joinWhiteboardRoom,
     leaveWhiteboardRoom,
   } = useContext(whiteboardContext);
+  const {
+    data: {isHost},
+  } = useRoomInfo();
 
   const {setLayout, currentLayout} = useLayout();
 
@@ -71,9 +75,14 @@ const WhiteboardButton = () => {
         );
     }
   };
+  const disabled =
+    !isHost ||
+    whiteboardRoomState === RoomPhase.Connecting ||
+    whiteboardRoomState === RoomPhase.Disconnecting;
   return (
     <ToolbarItem>
       <IconButton
+        hoverEffect={disabled ? false : true}
         iconProps={{
           iconBackgroundColor: whiteboardActive
             ? $config.PRIMARY_ACTION_BRAND_COLOR
@@ -89,11 +98,8 @@ const WhiteboardButton = () => {
           textColor: $config.FONT_COLOR,
           text: whiteboardActive ? 'Whiteboard On' : 'Whiteboard Off',
         }}
-        onPress={() => toggleWhiteboard(whiteboardActive, true)}
-        disabled={
-          whiteboardRoomState === RoomPhase.Connecting ||
-          whiteboardRoomState === RoomPhase.Disconnecting
-        }
+        onPress={() => isHost && toggleWhiteboard(whiteboardActive, true)}
+        disabled={disabled}
       />
     </ToolbarItem>
   );
