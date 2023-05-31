@@ -12,7 +12,7 @@
   "ICON": "logoSquare.png",
   "FRONTEND_ENDPOINT": "",
   "BACKEND_ENDPOINT": "https://managedservices-dev.rteappbuilder.com",
-  "PSTN": true,
+  "PSTN": false,
   "PRECALL": true,
   "CHAT": true,
   "CLOUD_RECORDING": true,
