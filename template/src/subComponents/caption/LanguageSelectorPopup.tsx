@@ -8,6 +8,7 @@ import ThemeConfig from '../../theme';
 import {useIsDesktop} from '../../utils/common';
 import {useCaption} from './useCaption';
 import DropdownMulti from '../../atoms/DropDownMulti';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export type LanguageType =
   | 'en-US'
@@ -65,7 +66,7 @@ interface LanguageSelectorPopup {
 
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const isDesktop = useIsDesktop()('popup');
-  const heading = 'Change Language';
+  const heading = 'Set Language';
   const subHeading = `Captions and transcript will appear in this language for everyone in the meeting. `;
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
@@ -73,8 +74,11 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const {language, setLanguage} = useCaption();
   const prevLangChanged = React.useRef<boolean>(false);
   const [error, setError] = React.useState<boolean>(false);
+  const [selectedLangCount, setSelectedLangCount] = React.useState<number>(0);
   const [selectedValues, setSelectedValues] =
     React.useState<LanguageType[]>(language);
+  const isNotValidated =
+    selectedValues.length === 0 || selectedValues.length === 2;
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -85,24 +89,28 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       <Spacer size={8} />
       <Text style={styles.subHeading}>{subHeading}</Text>
       <Spacer size={32} />
-      <DropdownMulti
-        label=""
-        icon="globe"
-        data={langData}
-        enabled={true}
-        selectedValues={selectedValues}
-        setSelectedValues={setSelectedValues}
-        defaultSelectedValues={['en-US']}
-        error={error}
-        onSelect={(value) => {
-          setError(false);
-          prevLangChanged.current = true;
-          setLanguage(value); //chnage on confirm
-        }}
-      />
+      <View>
+        <DropdownMulti
+          label=""
+          data={langData}
+          enabled={true}
+          selectedValues={selectedValues}
+          setSelectedValues={setSelectedValues}
+          defaultSelectedValues={['en-US']}
+          error={error}
+          setError={setError}
+          onSelect={(value) => {
+            //  setError(false);
+            prevLangChanged.current = true;
+            setLanguage(value); //chnage on confirm
+          }}
+        />
+      </View>
       <Spacer size={8} />
-      <Text style={[styles.subHeading]}>
-        {'At most 2 languages are supported.'}
+      <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
+        {selectedValues.length === 0
+          ? 'Choose at least one language to proceed'
+          : 'You can choose a maximum of two languages'}
       </Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
@@ -134,12 +142,13 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
               paddingVertical: 12,
               paddingHorizontal: 12,
             }}
+            disabled={selectedValues.length === 0}
             text={ConfirmBtnLabel}
             textStyle={styles.btnText}
             onPress={() => {
               console.log(selectedValues);
               if (selectedValues.length === 0) {
-                setError(true);
+                // setError(true);
                 return;
               }
               // setLanguage(selectedValues);
@@ -172,7 +181,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
-    maxWidth: 342,
+    maxWidth: 400,
   },
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -184,8 +193,13 @@ const styles = StyleSheet.create({
   subHeading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.small,
+    fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 20,
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+  },
+
+  errorTxt: {
+    color: $config.SEMANTIC_ERROR,
+    fontWeight: '600',
   },
 });
