@@ -21,6 +21,8 @@ import ImageIcon from './ImageIcon';
 import {IconsInterface} from './CustomIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {LanguageType} from '../subComponents/caption/LanguageSelectorPopup';
+import IconButton from './IconButton';
+import Checkbox from './Checkbox';
 
 interface Props {
   label: string;
@@ -29,6 +31,7 @@ interface Props {
   onSelect: (value: LanguageType[]) => void;
   enabled: boolean;
   error: boolean;
+  setError: React.Dispatch<React.SetStateAction<boolean>>;
   selectedValues: LanguageType[];
   setSelectedValues: React.Dispatch<React.SetStateAction<LanguageType[]>>;
   defaultSelectedValues?: string[];
@@ -43,13 +46,14 @@ const DropdownMulti: FC<Props> = ({
   selectedValues,
   setSelectedValues,
   error,
+  setError,
   icon,
 }) => {
   const DropdownButton = useRef();
   const [visible, setVisible] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState({top: 0, left: 0, width: 0});
+
   const [isHovered, setIsHovered] = React.useState(false);
-  const maxHeight = 200;
+  const maxHeight = 170;
 
   const selected = useMemo(() => {
     return data.find((dataItem) => selectedValues.includes(dataItem.value));
@@ -64,23 +68,15 @@ const DropdownMulti: FC<Props> = ({
   }, []);
 
   const toggleDropdown = (): void => {
-    visible ? setVisible(false) : openDropdown();
-  };
-
-  const updateDropdownPosition = () => {
-    //@ts-ignore
-    DropdownButton?.current?.measure((_fx, _fy, _w, h, _px, py) => {
-      setDropdownPos({
-        top: py + h,
-        left: _px,
-        width: _w,
-      });
-    });
+    visible ? closeDropdown() : openDropdown();
   };
 
   const openDropdown = (): void => {
-    updateDropdownPosition();
     setVisible(true);
+  };
+
+  const closeDropdown = (): void => {
+    setVisible(false);
   };
 
   const onItemPress = (item): void => {
@@ -103,39 +99,31 @@ const DropdownMulti: FC<Props> = ({
         updatedValues = [...selectedValues, item.value];
       } else {
         // Max selection limit reached, replace the second selected value
-        updatedValues = [selectedValues[1], item.value];
+        //  updatedValues = [selectedValues[1], item.value];
       }
     }
+
     setSelectedValues(updatedValues);
     onSelect(updatedValues);
-    setVisible(false);
   };
 
   const renderItem = ({item}): ReactElement<any, any> => {
     const isSelected = selectedValues.includes(item.value);
+    const isDisabled = !isSelected && selectedValues.length === 2;
+    setError(isDisabled || selectedValues.length === 0);
+
     return (
-      <PlatformWrapper onPress={() => onItemPress(item)}>
+      <PlatformWrapper>
         <View style={styles.itemContainer}>
           <View style={styles.itemTextContainer}>
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.itemText,
-                isSelected ? styles.itemTextSelected : {},
-              ]}>
-              {item.label}
-            </Text>
+            <Checkbox
+              disabled={isDisabled}
+              checked={isSelected}
+              label={item.label}
+              labelStye={styles.itemText}
+              onChange={() => onItemPress(item)}
+            />
           </View>
-          {isSelected && (
-            <View style={styles.itemTextSelectedContainer}>
-              <ImageIcon
-                iconType="plain"
-                name={'tick'}
-                iconSize={12}
-                tintColor={'#099DFD'}
-              />
-            </View>
-          )}
         </View>
       </PlatformWrapper>
     );
@@ -143,93 +131,109 @@ const DropdownMulti: FC<Props> = ({
 
   const renderDropdown = (): ReactElement<any, any> => {
     return (
-      <Modal visible={visible} transparent animationType="none">
-        <TouchableOpacity
-          style={styles.overlay}
-          onPress={() => setVisible(false)}>
-          <View
-            style={[
-              styles.dropdown,
-              {
-                top: dropdownPos.top,
-                left: dropdownPos.left,
-                width: dropdownPos.width,
-              },
-            ]}>
-            <FlatList
-              showsVerticalScrollIndicator={true}
-              data={data}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-              style={{maxHeight}}
-            />
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <View style={[styles.dropdown]}>
+        <FlatList
+          showsVerticalScrollIndicator={true}
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          style={{maxHeight}}
+        />
+      </View>
     );
   };
 
   const noData = !data || !data.length;
   const selectedLabels = selectedValues.map((value) => {
     const selectedLanguage = data.find((item) => item.value === value);
-    return selectedLanguage ? selectedLanguage.label : '';
+    return selectedLanguage ? (
+      <View style={styles.selectedLang}>
+        <TouchableOpacity
+          onPress={() => {
+            const updatedValues = selectedValues.filter(
+              (value) => value !== selectedLanguage.value,
+            );
+            setSelectedValues(updatedValues);
+          }}>
+          <ImageIcon
+            iconType="plain"
+            name={'close'}
+            iconSize={20}
+            tintColor={$config.CARD_LAYER_5_COLOR}
+          />
+        </TouchableOpacity>
+
+        <Text numberOfLines={1} style={styles.dropdownOptionText}>
+          {selectedLanguage.label}
+        </Text>
+      </View>
+    ) : (
+      <></>
+    );
   });
-  const formattedSelectedLanguages = selectedLabels.join(', ');
+  const formattedSelectedLanguages = selectedLabels; //selectedLabels.join(', ');
 
   return (
-    <TouchableOpacity
-      disabled={!enabled || !data || !data.length}
-      ref={DropdownButton}
-      style={[
-        styles.dropdownOptionContainer,
-        error && styles.errorState,
-        !enabled || !data || !data.length
-          ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
-          : {},
-        visible
-          ? {
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-              //borderBottomWidth: 0,
-              borderBottomColor: 'transparent',
-            }
-          : {},
-      ]}
-      onPress={toggleDropdown}>
-      {enabled && !noData ? renderDropdown() : <></>}
-      <View
-        style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'row'}}>
-        {icon ? (
-          <View style={styles.dropdownIconContainer}>
-            <ImageIcon
-              iconType="plain"
-              name={icon}
-              iconSize={20}
-              tintColor={$config.SEMANTIC_NEUTRAL}
-            />
+    <View>
+      {/* Dropdown Header */}
+      <TouchableOpacity
+        disabled={!enabled || !data || !data.length}
+        ref={DropdownButton}
+        style={[
+          styles.dropdownOptionContainer,
+          !enabled || !data || !data.length
+            ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
+            : {},
+          visible
+            ? {
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                borderBottomWidth: 0,
+                borderBottomColor: 'transparent',
+              }
+            : {},
+        ]}
+        onPress={toggleDropdown}>
+        <View
+          style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'row'}}>
+          {/* Dropdown start Icon */}
+          {icon ? (
+            <View style={styles.dropdownIconContainer}>
+              <ImageIcon
+                iconType="plain"
+                name={icon}
+                iconSize={20}
+                tintColor={$config.SEMANTIC_NEUTRAL}
+              />
+            </View>
+          ) : (
+            <></>
+          )}
+          {/* Dropdown Text */}
+          <View
+            style={[
+              styles.dropdownOptionTextContainer,
+              selectedValues.length === 2 && {flex: 0.9},
+            ]}>
+            {formattedSelectedLanguages}
           </View>
-        ) : (
-          <></>
-        )}
-        <View style={[styles.dropdownOptionTextContainer]}>
-          <Text numberOfLines={1} style={styles.dropdownOptionText}>
-            {/* {(selected && selected.label) || label} */}
-            {formattedSelectedLanguages || label}
-          </Text>
         </View>
-      </View>
-      <View style={styles.dropdownIconContainer}>
-        <ImageIcon
-          iconType="plain"
-          name={visible ? 'arrow-up' : 'arrow-down'}
-          tintColor={$config.SECONDARY_ACTION_COLOR}
-        />
-      </View>
-    </TouchableOpacity>
+        {/* Dropdown end Icon */}
+        <View style={styles.dropdownIconContainer}>
+          <ImageIcon
+            iconType="plain"
+            name={visible ? 'arrow-up' : 'arrow-down'}
+            tintColor={$config.SECONDARY_ACTION_COLOR}
+          />
+        </View>
+      </TouchableOpacity>
+      {/* Dropdown Body */}
+      {visible && !noData ? renderDropdown() : <></>}
+    </View>
   );
 };
 
-const PlatformWrapper = ({children, onPress}) => {
+const PlatformWrapper = ({children}) => {
   const [isHovered, setIsHovered] = React.useState(false);
   return isWebInternal() ? (
     <div
@@ -244,15 +248,11 @@ const PlatformWrapper = ({children, onPress}) => {
       }}
       onMouseLeave={() => {
         setIsHovered(false);
-      }}
-      onClick={(e) => {
-        e.preventDefault();
-        onPress && onPress();
       }}>
       {children}
     </div>
   ) : (
-    <TouchableOpacity onPress={onPress}>{children}</TouchableOpacity>
+    <TouchableOpacity>{children}</TouchableOpacity>
   );
 };
 
@@ -260,7 +260,6 @@ const styles = StyleSheet.create({
   dropdownOptionContainer: {
     flex: 1,
     flexDirection: 'row',
-    minHeight: 60,
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -268,13 +267,13 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderRadius: ThemeConfig.BorderRadius.medium,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     justifyContent: 'space-between',
   },
   dropdownOptionTextContainer: {
     alignSelf: 'center',
-    flex: 1,
+    flexDirection: 'row',
   },
   dropdownOptionText: {
     textAlign: 'left',
@@ -282,14 +281,14 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR,
-    paddingLeft: 8,
-    paddingVertical: 20,
+    marginLeft: 4,
+    flex: 1,
   },
   dropdownIconContainer: {
     alignSelf: 'center',
   },
   dropdown: {
-    position: 'absolute',
+    // position: 'relative',
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderBottomColor: $config.INPUT_FIELD_BORDER_COLOR,
     borderLeftColor: $config.INPUT_FIELD_BORDER_COLOR,
@@ -306,8 +305,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    overflow: 'hidden',
+    overflow: 'scroll',
   },
+  selectedLang: {
+    paddingVertical: 4,
+    paddingRight: 16,
+    paddingLeft: 8,
+    backgroundColor: $config.CARD_LAYER_4_COLOR,
+    borderRadius: 6,
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+
   overlay: {
     width: '100%',
     height: '100%',
@@ -318,17 +330,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   itemTextContainer: {
-    flex: 0.8,
+    flex: 1,
     justifyContent: 'center',
     alignSelf: 'center',
+    paddingLeft: 16,
   },
   itemText: {
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.normal,
-    color: $config.SECONDARY_ACTION_COLOR,
     paddingVertical: 12,
-    paddingHorizontal: 15,
   },
   itemTextSelected: {
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
@@ -337,9 +345,6 @@ const styles = StyleSheet.create({
     flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  errorState: {
-    borderColor: $config.SEMANTIC_ERROR,
   },
 });
 
