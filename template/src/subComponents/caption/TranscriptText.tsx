@@ -183,7 +183,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   highlightedText: {
-    fontWeight: 'bold',
     backgroundColor: $config.CARD_LAYER_5_COLOR,
   },
 });

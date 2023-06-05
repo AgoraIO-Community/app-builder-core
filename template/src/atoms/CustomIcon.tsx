@@ -92,4 +92,5 @@ export interface IconsInterface {
   'closed-caption': string;
   globe: string;
   'lang-select': string;
+  search: string;
 }

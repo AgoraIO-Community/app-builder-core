@@ -22,6 +22,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+.icon-search:before {
+  content: "\e945";
+  color: #808080;
+}
 .icon-lang-select:before {
   content: "\e942";
   color: #fff;
