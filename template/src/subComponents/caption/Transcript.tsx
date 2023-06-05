@@ -22,8 +22,8 @@ import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import ThemeConfig from '../../theme';
 import Loading from '../Loading';
-import Input from '../../atoms/Input';
-import {maxInputLimit} from '../../utils/common';
+import ImageIcon from '../../atoms/ImageIcon';
+import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -103,6 +103,10 @@ const Transcript = (props: TranscriptProps) => {
 
   const renderedData = searchQuery ? searchResults : data;
 
+  const NoResultsMsg = () => {
+    return <Text style={styles.emptyMsg}>No search results found</Text>;
+  };
+
   return (
     <View
       // onLayout={handleLayout}
@@ -121,31 +125,32 @@ const Transcript = (props: TranscriptProps) => {
       ]}>
       {showHeader && <TranscriptHeader />}
       <View style={styles.searchContainer}>
-        {/* <TextInput
+        <ImageIcon
+          name="search"
+          iconSize={20}
+          iconType="plain"
+          tintColor={$config.SEMANTIC_NEUTRAL}
+        />
+        <TextInput
           style={styles.searchInput}
-          placeholder="Search transcript"
+          placeholder="Search"
           value={searchQuery}
           onChangeText={handleSearch}
-          placeholderTextColor={
-            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
-          }
-        /> */}
-        <Input
-          maxLength={maxInputLimit}
-          style={styles.searchInput}
-          // onBlur={handleSearch}
-          placeholder="Search transcript"
-          value={searchQuery}
-          editable={true}
-          onChangeText={handleSearch}
-          //onSubmitEditing={handleSearch}
           placeholderTextColor={
             $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
           }
         />
-        {/* <TouchableOpacity onPress={handleSearch} style={styles.searchButton}>
-          <Text style={styles.searchButtonText}>Search</Text>
-        </TouchableOpacity> */}
+        <TouchableOpacity
+          onPress={() => {
+            setSearchQuery('');
+          }}>
+          <ImageIcon
+            name="close"
+            iconSize={20}
+            iconType="plain"
+            tintColor={$config.SEMANTIC_NEUTRAL}
+          />
+        </TouchableOpacity>
       </View>
       {isLangChangeInProgress ? (
         <Loading text="Setting Transcript Language..." />
@@ -160,6 +165,7 @@ const Transcript = (props: TranscriptProps) => {
             onContentSizeChange={handleContentSizeChange}
             onScroll={handleScroll}
             onLayout={handleLayout}
+            ListEmptyComponent={searchQuery && <NoResultsMsg />}
           />
           {showButton && (
             <View
@@ -196,6 +202,7 @@ export const styles = StyleSheet.create({
   container: {
     alignItems: 'flex-start',
   },
+
   showLatestBtn: {
     backgroundColor: $config.CARD_LAYER_5_COLOR,
     paddingVertical: 8,
@@ -217,6 +224,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 4,
     backgroundColor: $config.ICON_BG_COLOR,
+    margin: 8,
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    height: 40,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_4_COLOR,
   },
   searchInput: {
     flex: 1,
@@ -244,7 +258,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   searchButtonText: {
-    color: '#ffffff',
+    color: $config.FONT_COLOR,
     fontSize: 14,
+  },
+  emptyMsg: {
+    color: $config.FONT_COLOR + hexadecimalTransparency['40%'],
+    alignSelf: 'center',
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });

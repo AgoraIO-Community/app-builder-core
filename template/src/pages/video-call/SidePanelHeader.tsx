@@ -212,16 +212,16 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       setIsCaptionON(true);
     },
   });
-  actionMenuitems.push({
-    icon: 'stt',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Turn Off Speech to text ',
-    callback: () => {
-      setActionMenuVisible(false);
-      setSidePanel(SidePanelType.None);
-    },
-  });
+  // actionMenuitems.push({
+  //   icon: 'stt',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: 'Turn Off Speech to text ',
+  //   callback: () => {
+  //     setActionMenuVisible(false);
+  //     setSidePanel(SidePanelType.None);
+  //   },
+  // });
   const onLanguageChange = (langChanged = false) => {
     setLanguagePopup(false);
     if (langChanged) {
