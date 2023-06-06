@@ -3,39 +3,66 @@ import {View, StyleSheet} from 'react-native';
 import {useToolbar, ToolbarPosition} from '../utils/useToolbar';
 import {isWebInternal, useIsDesktop} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
+import {ToolbarCustomItem} from './ToolbarPreset';
+import ActionSheet from '../pages/video-call/ActionSheet';
 
-export interface ToolbarProps {
+// export interface ToolbarProps {
+//   children: React.ReactNode;
+//   bottomSheetOnMobile?: boolean;
+//   customItems?: ToolbarCustomItem[];
+// }
+
+export interface ToolbarPropsDesktop {
   children: React.ReactNode;
+  bottomSheetOnMobile?: never;
+  customItems?: never;
 }
+export interface ToolbarPropsMobile {
+  children?: never;
+  bottomSheetOnMobile?: boolean;
+  customItems?: ToolbarCustomItem[];
+}
+export type ToolbarProps = ToolbarPropsDesktop | ToolbarPropsMobile;
+
 const Toolbar = (props: ToolbarProps) => {
   const {position} = useToolbar();
-  const {children} = props;
+  const {children, bottomSheetOnMobile = false, customItems} = props;
   const isDesktop = useIsDesktop();
   const paddingHorizontal = isDesktop('toolbar') ? 32 : 10;
 
-  return (
-    <View
-      style={[
-        position === ToolbarPosition.left || position === ToolbarPosition.right
-          ? {
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              paddingVertical: paddingHorizontal,
-            }
-          : position === ToolbarPosition.top
-          ? isWebInternal()
-            ? toolBarStyles.topBarNonNativeStyle
-            : toolBarStyles.topBarNativeStyle
-          : position === ToolbarPosition.bottom
-          ? toolBarStyles.bottomBarStyle
-          : {},
-        position === ToolbarPosition.top || position === ToolbarPosition.bottom
-          ? {paddingHorizontal}
-          : {},
-      ]}>
-      {children}
-    </View>
-  );
+  if (bottomSheetOnMobile && customItems && customItems.length) {
+    return (
+      <ActionSheet customItems={customItems} includeDefaultItems={false} />
+    );
+  } else if (bottomSheetOnMobile && (!customItems || !customItems?.length)) {
+    return null;
+  } else {
+    return (
+      <View
+        style={[
+          position === ToolbarPosition.left ||
+          position === ToolbarPosition.right
+            ? {
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                paddingVertical: paddingHorizontal,
+              }
+            : position === ToolbarPosition.top
+            ? isWebInternal()
+              ? toolBarStyles.topBarNonNativeStyle
+              : toolBarStyles.topBarNativeStyle
+            : position === ToolbarPosition.bottom
+            ? toolBarStyles.bottomBarStyle
+            : {},
+          position === ToolbarPosition.top ||
+          position === ToolbarPosition.bottom
+            ? {paddingHorizontal}
+            : {},
+        ]}>
+        {children}
+      </View>
+    );
+  }
 };
 
 export default Toolbar;

@@ -336,7 +336,7 @@ const ActionSheetContent = (props) => {
           {/**If no items more than 4 then render firstrender first 3 items and render show more icon  */}
           {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
           {combinedItems
-            ?.slice(0, combinedItems?.length >= 4 ? 3 : 4)
+            ?.slice(0, combinedItems?.length > 4 ? 3 : 4)
             ?.map((i) => {
               const Component = i?.component;
               if (Component) {
@@ -345,7 +345,7 @@ const ActionSheetContent = (props) => {
                 return null;
               }
             })}
-          {combinedItems && combinedItems?.length >= 4 ? (
+          {combinedItems && combinedItems?.length > 4 ? (
             <ShowMoreIcon
               isExpanded={isExpanded}
               showNotification={
@@ -361,7 +361,7 @@ const ActionSheetContent = (props) => {
       </ActionSheetProvider>
       {/* Rest Of Controls */}
       <View style={styles.row}>
-        {combinedItems?.length > 3 &&
+        {combinedItems?.length > 4 &&
           combinedItems?.slice(3, combinedItems?.length)?.map((i) => {
             const Component = i?.component;
             if (Component) {
