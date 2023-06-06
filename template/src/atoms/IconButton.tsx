@@ -17,6 +17,7 @@ export interface BtnTextProps {
   textStyle?: TextStyle;
   textColor?: string;
   text?: string;
+  numberOfLines?: number;
 }
 
 export interface IconButtonProps {
@@ -42,7 +43,7 @@ const IconButton = (props: IconButtonProps) => {
       <ImageIcon {...props.iconProps} isHovered={props?.isToolTipVisible} />
       {props?.btnTextProps?.text ? (
         <Text
-          numberOfLines={1}
+          numberOfLines={props?.btnTextProps?.numberOfLines || 1}
           ellipsizeMode="tail"
           style={[
             styles.btnTextStyle,

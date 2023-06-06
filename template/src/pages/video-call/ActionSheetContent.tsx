@@ -39,6 +39,7 @@ import {
   useLocalUserInfo,
 } from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
+import {ActionSheetProvider} from '../../utils/useActionSheet';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -64,129 +65,51 @@ const ShowMoreIcon = (props: ShowMoreIconProps) => {
 };
 
 //Icon for Live Streaming Controls
-interface LiveStreamIconProps {
-  isHandRaised: boolean;
-  showLabel?: boolean;
-}
-const LiveStreamIcon = (props: LiveStreamIconProps) => {
-  const {isHandRaised, showLabel = $config.ICON_TEXT} = props;
-  return (
-    <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <LiveStreamControls
-          showControls={true}
-          isDesktop={false}
-          showLabel={false}
-        />
-      </View>
-      {showLabel && (
-        <Text style={styles.iconText}>
-          {isHandRaised ? 'Lower\nHand' : 'Raise\nHand'}
-        </Text>
-      )}
-    </ToolbarItem>
-  );
+const LiveStreamIcon = () => {
+  //toolbaritem wrapped in the LiveStreamControls
+  return <LiveStreamControls showControls={true} />;
 };
 
 //Icon for Chat
-interface ChatIconProps {
-  showLabel?: boolean;
-}
-const ChatIcon = (props: ChatIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+const ChatIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <ChatIconButton isOnActionSheet={true} />
-      </View>
-      {showLabel && <Text style={styles.iconText}>Chat</Text>}
+      <ChatIconButton />
     </ToolbarItem>
   );
 };
 
 //Icon for Participants
-interface ParticipantsIconProps {
-  showNotification: boolean;
-}
-const ParticipantsIcon = (props: ParticipantsIconProps) => {
-  const {showNotification} = props;
+const ParticipantsIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <ParticipantsIconButton isOnActionSheet={true} />
-      </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>People</Text>}
+      <ParticipantsIconButton />
     </ToolbarItem>
   );
 };
 
 //Icon for Recording
-interface RecordingIconProps {
-  showLabel?: boolean;
-}
-const RecordingIcon = (props: RecordingIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+
+const RecordingIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <Recording showLabel={false} isOnActionSheet={true} />
-      </View>
-      {showLabel && <Text style={styles.iconText}>Record</Text>}
+      <Recording />
     </ToolbarItem>
   );
 };
 
-interface SwitchCameraIconProps {
-  disabled: boolean;
-}
-const SwitchCameraIcon = (props: SwitchCameraIconProps) => {
-  const {disabled} = props;
+const SwitchCameraIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <LocalSwitchCamera showLabel={false} disabled={disabled} />
-      </View>
-      {$config.ICON_TEXT && (
-        <View>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
-              },
-            ]}>
-            Switch
-          </Text>
-          <Text
-            style={[
-              styles.iconText,
-              {
-                color: disabled ? $config.SEMANTIC_NEUTRAL : $config.FONT_COLOR,
-                marginTop: 0,
-              },
-            ]}>
-            Camera
-          </Text>
-        </View>
-      )}
+      <LocalSwitchCamera />
     </ToolbarItem>
   );
 };
 
-interface SettingsIconProps {
-  onPress: () => void;
-}
-const SettingsIcon = (props: SettingsIconProps) => {
-  const {onPress} = props;
+const SettingsIcon = () => {
   return (
     <ToolbarItem>
-      <TouchableOpacity style={styles.iconContainer} onPress={onPress}>
-        <ImageIcon
-          name={'settings'}
-          tintColor={$config.SECONDARY_ACTION_COLOR}
-        />
-      </TouchableOpacity>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Settings</Text>}
+      <Settings />
     </ToolbarItem>
   );
 };
@@ -194,106 +117,42 @@ const SettingsIcon = (props: SettingsIconProps) => {
 const ShareIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
-      </View>
-      {$config.ICON_TEXT && <Text style={styles.iconText}>Invite</Text>}
+      <CopyJoinInfo />
     </ToolbarItem>
   );
 };
 
-interface AudioIconProps {
-  isMobileView: boolean;
-  isOnActionSheet: boolean;
-  showLabel: boolean;
-  disabled: boolean;
-}
-const AudioIcon = (props: AudioIconProps) => {
+const AudioIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <LocalAudioMute {...props} />
-      </View>
+      <LocalAudioMute />
     </ToolbarItem>
   );
 };
 
-interface CamIconProps {
-  isMobileView: boolean;
-  isOnActionSheet: boolean;
-  showLabel: boolean;
-  disabled: boolean;
-}
-const CamIcon = (props: CamIconProps) => {
+const CamIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <LocalVideoMute {...props} />
-      </View>
+      <LocalVideoMute />
     </ToolbarItem>
   );
 };
 
-interface EndCallIconProps {
-  showLabel: boolean;
-  isOnActionSheet: boolean;
-}
-const EndCallIcon = (props: EndCallIconProps) => {
+const EndCallIcon = () => {
   return (
     <ToolbarItem>
-      <View
-        style={[
-          styles.iconContainer,
-          {backgroundColor: $config.SEMANTIC_ERROR},
-        ]}>
-        <LocalEndcall {...props} />
-      </View>
+      <LocalEndcall />
     </ToolbarItem>
   );
 };
 
-interface LayoutIconProps {
-  showLabel?: boolean;
-}
-const LayoutIcon = (props: LayoutIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+const LayoutIcon = () => {
   return (
     <ToolbarItem>
-      <View style={styles.iconContainer}>
-        <LayoutIconButton showLabel={false} />
-      </View>
-      {showLabel && <Text style={styles.iconText}>Layout</Text>}
+      <LayoutIconButton />
     </ToolbarItem>
   );
 };
-
-type ActionSheetComponentsProps = [
-  (props: AudioIconProps) => JSX.Element,
-  (props: CamIconProps) => JSX.Element,
-  (props: EndCallIconProps) => JSX.Element,
-  (props: ShowMoreIconProps) => JSX.Element,
-  (props: ChatIconProps) => JSX.Element,
-  (props: ParticipantsIconProps) => JSX.Element,
-  (props) => JSX.Element,
-  (props: SwitchCameraIconProps) => JSX.Element,
-  (props: LayoutIconProps) => JSX.Element,
-  (props: SettingsIconProps) => JSX.Element,
-  (props) => JSX.Element,
-];
-
-export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
-  AudioIcon,
-  CamIcon,
-  EndCallIcon,
-  ShowMoreIcon,
-  ChatIcon,
-  ParticipantsIcon,
-  RecordingIcon,
-  SwitchCameraIcon,
-  LayoutIcon,
-  SettingsIcon,
-  ShareIcon,
-];
 
 const ActionSheetContent = (props) => {
   const {
@@ -342,14 +201,7 @@ const ActionSheetContent = (props) => {
       order: 0,
       hide: 'no',
       align: 'start',
-      component: isAudioVideoControlsDisabled ? null : (
-        <AudioIcon
-          isMobileView={true}
-          isOnActionSheet={true}
-          showLabel={false}
-          disabled={isLiveStream && isAudience && !isBroadCasting}
-        />
-      ),
+      component: isAudioVideoControlsDisabled ? null : <AudioIcon />,
     },
     {
       default: true,
@@ -361,7 +213,7 @@ const ActionSheetContent = (props) => {
          */
       component: (isAudioCastHost ||
         isVoiceChatHost ||
-        isVoiceChatAudience) && <ChatIcon showLabel={false} />,
+        isVoiceChatAudience) && <ChatIcon />,
     },
 
     {
@@ -373,7 +225,7 @@ const ActionSheetContent = (props) => {
         (isAudioCastAudience && isLiveStream && isAudience) ||
         (isBroadCasting && !isHost) ? (
           $config.RAISE_HAND && isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} showLabel={false} />
+            <LiveStreamIcon />
           ) : null
         ) : null,
     },
@@ -383,22 +235,14 @@ const ActionSheetContent = (props) => {
       hide: 'no',
       align: 'start',
       component:
-        !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : (
-          <CamIcon
-            isOnActionSheet={true}
-            isMobileView={true}
-            showLabel={false}
-            disabled={isLiveStream && isAudience && !isBroadCasting}
-          />
-        )),
+        !isAudioRoom && (isAudioVideoControlsDisabled ? null : <CamIcon />),
     },
     {
       default: true,
       order: 2,
       hide: 'no',
       align: 'start',
-      component: <EndCallIcon showLabel={false} isOnActionSheet={true} />,
+      component: <EndCallIcon />,
     },
     //reset of the controls
     {
@@ -409,7 +253,7 @@ const ActionSheetContent = (props) => {
       component:
         (isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
           $config.RAISE_HAND && !isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} />
+            <LiveStreamIcon />
           ) : null
         ) : null,
     },
@@ -436,11 +280,7 @@ const ActionSheetContent = (props) => {
       order: 7,
       hide: 'no',
       align: 'start',
-      component: (
-        <ParticipantsIcon
-          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
-        />
-      ),
+      component: <ParticipantsIcon />,
     },
     {
       default: true,
@@ -456,26 +296,14 @@ const ActionSheetContent = (props) => {
       align: 'start',
       component:
         !isAudioRoom &&
-        (isAudioVideoControlsDisabled ? null : (
-          <SwitchCameraIcon
-            disabled={
-              (isLiveStream && isAudience && !isBroadCasting) || isVideoDisabled
-            }
-          />
-        )),
+        (isAudioVideoControlsDisabled ? null : <SwitchCameraIcon />),
     },
     {
       default: true,
       order: 10,
       hide: 'no',
       align: 'start',
-      component: (
-        <SettingsIcon
-          onPress={() => {
-            setSidePanel(SidePanelType.Settings);
-          }}
-        />
-      ),
+      component: <SettingsIcon />,
     },
     {
       default: true,
@@ -499,37 +327,38 @@ const ActionSheetContent = (props) => {
   return (
     <View>
       {/* Row Always Visible */}
-      <View
-        style={[
-          styles.row,
-          {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
-        ]}>
-        {/**If no items more than 4 then render firstrender first 3 items and render show more icon  */}
-        {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
-        {combinedItems
-          ?.slice(0, combinedItems?.length >= 4 ? 3 : 4)
-          ?.map((i) => {
-            const Component = i?.component;
-            if (Component) {
-              return i?.default ? Component : <Component />;
-            } else {
-              return null;
-            }
-          })}
-        {combinedItems && combinedItems?.length >= 4 ? (
-          <ShowMoreIcon
-            isExpanded={isExpanded}
-            showNotification={
-              (!isExpanded && totalUnreadCount !== 0) ||
-              ($config.EVENT_MODE && isPendingRequestToReview)
-            }
-            onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
-          />
-        ) : (
-          <></>
-        )}
-      </View>
-
+      <ActionSheetProvider isOnFirstRow={true}>
+        <View
+          style={[
+            styles.row,
+            {borderBottomWidth: 1, paddingTop: 4, justifyContent: 'center'},
+          ]}>
+          {/**If no items more than 4 then render firstrender first 3 items and render show more icon  */}
+          {/**If no items more less or equal to 4 then render n items and don't show more icon  */}
+          {combinedItems
+            ?.slice(0, combinedItems?.length >= 4 ? 3 : 4)
+            ?.map((i) => {
+              const Component = i?.component;
+              if (Component) {
+                return i?.default ? Component : <Component />;
+              } else {
+                return null;
+              }
+            })}
+          {combinedItems && combinedItems?.length >= 4 ? (
+            <ShowMoreIcon
+              isExpanded={isExpanded}
+              showNotification={
+                (!isExpanded && totalUnreadCount !== 0) ||
+                ($config.EVENT_MODE && isPendingRequestToReview)
+              }
+              onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
+            />
+          ) : (
+            <></>
+          )}
+        </View>
+      </ActionSheetProvider>
       {/* Rest Of Controls */}
       <View style={styles.row}>
         {combinedItems?.length > 3 &&

@@ -63,6 +63,7 @@ import ToolbarItem from '../atoms/ToolbarItem';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
 
 export const ParticipantsCountView = ({
   isMobileView = false,
@@ -98,7 +99,6 @@ export interface ParticipantsIconButtonProps {
     left?: number;
     bottom?: number;
   };
-  isOnActionSheet?: boolean;
   render?: (onPress: () => void, isPanelActive: boolean) => JSX.Element;
 }
 export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
@@ -110,8 +110,8 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
       left: undefined,
       bottom: undefined,
     },
-    isOnActionSheet = false,
   } = props;
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
@@ -141,10 +141,28 @@ export const ParticipantsIconButton = (props: ParticipantsIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: isOnActionSheet || !$config.ICON_TEXT ? '' : participantsLabel,
+      text: showLabel ? participantsLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   return props?.render ? (
@@ -194,7 +212,6 @@ export interface ChatIconButtonProps {
     totalUnreadCount: number,
   ) => JSX.Element;
   isMobileView?: boolean;
-  isOnActionSheet?: boolean;
 }
 
 export const ChatIconButton = (props: ChatIconButtonProps) => {
@@ -213,7 +230,6 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       fontSize: 12,
       textAlign: 'center',
     },
-    isOnActionSheet = false,
   } = props;
   const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
   const {setChatType, setPrivateChatUser} = useChatUIControls();
@@ -236,6 +252,7 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
       }
     }
   };
+  const {isOnActionSheet, showLabel} = useActionSheet();
   let iconButtonProps: IconButtonProps = {
     onPress: onPress,
     iconProps: {
@@ -248,11 +265,29 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
         : '',
     },
     btnTextProps: {
-      text: isOnActionSheet || !$config.ICON_TEXT ? '' : chatLabel,
+      text: showLabel ? chatLabel : '',
       textColor: $config.FONT_COLOR,
     },
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   // const renderBadgeOld = (badgeCount: any) => {

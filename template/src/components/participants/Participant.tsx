@@ -171,8 +171,6 @@ const Participant = (props: ParticipantInterface) => {
                                   : $config.SEMANTIC_ERROR,
                               };
                             }}
-                            showLabel={false}
-                            isMobileView={isMobile}
                           />
                         </View>
                       )
@@ -204,8 +202,6 @@ const Participant = (props: ParticipantInterface) => {
                                 : $config.SEMANTIC_ERROR,
                             };
                           }}
-                          showLabel={false}
-                          isMobileView={isMobile}
                         />
                       </View>
                     )

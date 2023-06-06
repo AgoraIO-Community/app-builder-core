@@ -27,23 +27,22 @@ import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
-
+import {useActionSheet} from '../utils/useActionSheet';
+import {isMobileUA} from '../utils/common';
+import {useToolbar} from '../utils/useToolbar';
 /**
  * A component to mute / unmute the local video
  */
 export interface LocalVideoMuteProps {
   plainIconHoverEffect?: boolean;
   showToolTip?: boolean;
-  showLabel?: boolean;
   render?: (onPress: () => void, isVideoEnabled: boolean) => JSX.Element;
   disabled?: boolean;
-  isOnActionSheet?: boolean;
   iconProps?: (
     isVideoEnabled: boolean,
     isPermissionDenied: boolean,
   ) => Partial<ImageIconProps>;
   showWarningIcon?: boolean;
-  isMobileView?: boolean;
 }
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
@@ -55,14 +54,13 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   const local = useLocalUserInfo();
   const isHandRaised = useIsHandRaised();
   const localMute = useMuteToggleLocal();
+  const {showToolTip = false, disabled = false, showWarningIcon = true} = props;
+  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
+  const {position} = useToolbar();
   const {
-    showToolTip = false,
-    showLabel = $config.ICON_TEXT,
-    disabled = false,
-    isOnActionSheet = false,
-    showWarningIcon = true,
-    isMobileView = false,
-  } = props;
+    rtcProps: {callActive},
+  } = useContext(PropsContext);
+
   //commented for v1 release
   //const videoLabel = useString('toggleVideoButton')();
 
@@ -117,8 +115,34 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
     disabled: permissionDenied || disabled ? true : false,
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    const isAudience = rtcProps?.role == ClientRole.Audience;
+    const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
+
+    iconButtonProps.disabled =
+      permissionDenied || ($config.EVENT_MODE && isAudience && !isBroadCasting)
+        ? true
+        : false;
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
+
   iconButtonProps.isOnActionSheet = isOnActionSheet;
-  if (!isMobileView) {
+  if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = showToolTip
       ? permissionDenied
         ? 'Give Permissions'
@@ -126,6 +150,14 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
         ? 'Disable Camera'
         : 'Enable Camera'
       : '';
+    if (
+      //precall mobile/mobile web UI - mute button should not show the label
+      (!callActive && isMobileUA()) ||
+      //sidepanel mute button should not show the label
+      (callActive && !position)
+    ) {
+      iconButtonProps.btnTextProps.text = '';
+    }
   }
 
   if (

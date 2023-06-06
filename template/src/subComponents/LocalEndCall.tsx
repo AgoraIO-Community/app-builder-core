@@ -10,10 +10,9 @@ import {Platform} from 'react-native';
 import {DispatchContext} from '../../agora-rn-uikit';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
 
 export interface LocalEndcallProps {
-  showLabel?: boolean;
-  isOnActionSheet?: boolean;
   render?: (onPress: () => void) => JSX.Element;
 }
 
@@ -28,7 +27,7 @@ const stopForegroundService = () => {
 const LocalEndcall = (props: LocalEndcallProps) => {
   const {isToolbarMenuItem} = useToolbarMenu();
   const {dispatch} = useContext(DispatchContext);
-  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
+  const {isOnActionSheet, isOnFirstRow, showLabel} = useActionSheet();
   //commented for v1 release
   //const endCallLabel = useString('endCallButton')();
   const endCallLabel = 'Leave';
@@ -66,6 +65,25 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       textColor: $config.FONT_COLOR,
     },
   };
+
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: 'white',
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
 
   return props?.render ? (
     props.render(onPress)

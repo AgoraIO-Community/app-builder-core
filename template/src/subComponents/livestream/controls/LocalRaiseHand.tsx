@@ -24,10 +24,9 @@ import {isMobileUA} from '../../../utils/common';
 import {IconButtonProps} from '../../../atoms/IconButton';
 import {useToolbarMenu} from '../../../utils/useMenu';
 import ToolbarMenuItem from '../../../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../../../utils/useActionSheet';
 
-interface LocalRaiseHandProps {
-  showLabel?: boolean;
-}
+interface LocalRaiseHandProps {}
 const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {isToolbarMenuItem} = useToolbarMenu();
   const {audienceSendsRequest, audienceRecallsRequest, raiseHandList} =
@@ -35,11 +34,18 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
   const {rtcProps} = useContext(PropsContext);
   const {localUid} = useContext(ChatContext);
   const {activeUids} = useContent();
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {isOnActionSheet, showLabel} = useActionSheet();
+
   //commented for v1 release
   //const handStatusText = useString<boolean>('raiseHandButton');
   const handStatusText = (toggle: boolean) =>
-    toggle ? 'Lower hand' : 'Raise Hand';
+    toggle
+      ? isOnActionSheet
+        ? 'Lower\nHand'
+        : 'Lower hand'
+      : isOnActionSheet
+      ? 'Raise\nHand'
+      : 'Raise hand';
   const isHandRasied = raiseHandList[localUid]?.raised === RaiseHandValue.TRUE;
   const iconButtonProps: IconButtonProps = {
     iconProps: {
@@ -55,6 +61,7 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
     btnTextProps: {
       text: showLabel ? handStatusText(isHandRasied) : '',
       textColor: $config.FONT_COLOR,
+      numberOfLines: 2,
     },
     onPress: () => {
       if (isHandRasied) {
@@ -64,6 +71,25 @@ const LocalRaiseHand = (props: LocalRaiseHandProps) => {
       }
     },
   };
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   return isToolbarMenuItem ? (
     <ToolbarMenuItem {...iconButtonProps} />
   ) : (

@@ -15,11 +15,11 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import {useVideoCall} from '../components/useVideoCall';
 import {useToolbarMenu} from '../utils/useMenu';
 import ToolbarMenuItem from '../atoms/ToolbarMenuItem';
+import {useActionSheet} from '../utils/useActionSheet';
 
 export interface RecordingButtonProps {
   showLabel?: boolean;
   render?: (onPress: () => void, isRecordingActive: boolean) => JSX.Element;
-  isOnActionSheet?: boolean;
 }
 
 const Recording = (props: RecordingButtonProps) => {
@@ -29,7 +29,7 @@ const Recording = (props: RecordingButtonProps) => {
   //const recordingButton = useString<boolean>('recordingButton');
   const recordingButton = (recording: boolean) =>
     recording ? 'Stop Rec' : 'Record';
-  const {showLabel = $config.ICON_TEXT, isOnActionSheet = false} = props;
+  const {isOnActionSheet, showLabel} = useActionSheet();
   const {setShowStopRecordingPopup} = useVideoCall();
   const onPress = () => {
     if (!isRecordingActive) {
@@ -54,6 +54,24 @@ const Recording = (props: RecordingButtonProps) => {
     containerStyle: inProgress ? {opacity: 0.6} : {},
   };
 
+  if (isOnActionSheet) {
+    // iconButtonProps.containerStyle = {
+    //   backgroundColor: $config.CARD_LAYER_2_COLOR,
+    //   width: 52,
+    //   height: 52,
+    //   borderRadius: 26,
+    //   justifyContent: 'center',
+    //   alignItems: 'center',
+    // };
+    iconButtonProps.btnTextProps.textStyle = {
+      color: $config.FONT_COLOR,
+      marginTop: 8,
+      fontSize: 12,
+      fontWeight: '400',
+      fontFamily: 'Source Sans Pro',
+      textAlign: 'center',
+    };
+  }
   iconButtonProps.isOnActionSheet = isOnActionSheet;
 
   return props?.render ? (

@@ -301,20 +301,14 @@ export const RaiseHandToolbarItem = () => {
   } = useRoomInfo();
   return $config.EVENT_MODE ? (
     rtcProps.role == ClientRole.Audience ? (
-      <LiveStreamControls
-        showControls={true}
-        isDesktop={isDesktop('toolbar')}
-      />
+      <LiveStreamControls showControls={true} />
     ) : rtcProps?.role == ClientRole.Broadcaster ? (
       /**
        * In event mode when raise hand feature is active
        * and audience is promoted to host, the audience can also
        * demote himself
        */
-      <LiveStreamControls
-        isDesktop={isDesktop('toolbar')}
-        showControls={!isHost}
-      />
+      <LiveStreamControls showControls={!isHost} />
     ) : (
       <></>
     )

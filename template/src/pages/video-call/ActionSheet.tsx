@@ -15,6 +15,8 @@ import {isMobileUA} from '../../utils/common';
 import {useToast} from '../../components/useToast';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
+import {ToolbarProvider} from '../../utils/useToolbar';
+import {ActionSheetProvider} from '../../utils/useActionSheet';
 
 const ActionSheet = (props) => {
   const {setActionSheetVisible} = useToast();
@@ -172,19 +174,27 @@ const ActionSheet = (props) => {
           <Chat showHeader={false} />
         </BottomSheet>
         {/* Participants Action Sheet */}
-        <BottomSheet
-          sibling={ToastComponentRender}
-          ref={participantsSheetRef}
-          onDismiss={onDismiss}
-          open={isParticipantsOpen}
-          expandOnContentDrag={false}
-          snapPoints={({maxHeight}) => [1 * maxHeight]}
-          defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
-          scrollLocking={false}
-          header={<ActionSheetHandle sidePanel={SidePanelType.Participants} />}
-          blocking={false}>
-          <ParticipantView showHeader={false} />
-        </BottomSheet>
+        {/** Toolbar and actionsheet wrapper added to hide the local mute button label*/}
+        <ToolbarProvider value={{position: undefined}}>
+          <ActionSheetProvider>
+            <BottomSheet
+              sibling={ToastComponentRender}
+              ref={participantsSheetRef}
+              onDismiss={onDismiss}
+              open={isParticipantsOpen}
+              expandOnContentDrag={false}
+              snapPoints={({maxHeight}) => [1 * maxHeight]}
+              defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
+              scrollLocking={false}
+              header={
+                <ActionSheetHandle sidePanel={SidePanelType.Participants} />
+              }
+              blocking={false}>
+              <ParticipantView showHeader={false} />
+            </BottomSheet>
+          </ActionSheetProvider>
+        </ToolbarProvider>
+
         {/* Settings  Action Sheet */}
         <BottomSheet
           sibling={ToastComponentRender}

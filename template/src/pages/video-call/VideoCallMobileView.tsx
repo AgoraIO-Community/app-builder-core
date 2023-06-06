@@ -25,7 +25,8 @@ import {
 import NavbarMobile, {NavbarProps} from '../../components/NavbarMobile';
 import {useCustomization} from 'customization-implementation';
 import {ToolbarPosition, ToolbarProvider} from '../../utils/useToolbar';
-import {ControlsProps} from 'src/components/Controls';
+import {ControlsProps} from '../../components/Controls';
+import {ActionSheetProvider} from '../../utils/useActionSheet';
 
 const VideoCallMobileView = () => {
   const {
@@ -179,14 +180,16 @@ const VideoCallMobileView = () => {
         <VideoComponent />
       </View>
       <ToolbarProvider value={{position: ToolbarPosition.bottom}}>
-        {BottombarProps?.length ? (
-          <BottombarComponent
-            customItems={BottombarProps}
-            includeDefaultItems={false}
-          />
-        ) : (
-          <BottombarComponent />
-        )}
+        <ActionSheetProvider>
+          {BottombarProps?.length ? (
+            <BottombarComponent
+              customItems={BottombarProps}
+              includeDefaultItems={false}
+            />
+          ) : (
+            <BottombarComponent />
+          )}
+        </ActionSheetProvider>
       </ToolbarProvider>
     </View>
   );
