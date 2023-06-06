@@ -160,7 +160,14 @@ const ActionSheetContent = (props) => {
     isExpanded,
     customItems = [],
     includeDefaultItems = true,
+    displayCustomBottomSheetContent = false,
+    customBottomSheetContent,
   } = props;
+
+  if (displayCustomBottomSheetContent) {
+    return <View>{customBottomSheetContent}</View>;
+  }
+
   const {onlineUsersCount, localUid} = useContext(ChatContext);
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();

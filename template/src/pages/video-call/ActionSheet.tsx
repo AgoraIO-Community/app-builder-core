@@ -19,6 +19,8 @@ import {ToolbarProvider} from '../../utils/useToolbar';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
 
 const ActionSheet = (props) => {
+  const {bottomSheetHeightMinimized = 100, bottomSheetHeightMaximized = 350} =
+    props;
   const {setActionSheetVisible} = useToast();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -142,7 +144,10 @@ const ActionSheet = (props) => {
           onSpringEnd={handleSpringEnd}
           // skipInitialTransition={true}
           expandOnContentDrag={true}
-          snapPoints={({maxHeight}) => [100, 350]}
+          snapPoints={({maxHeight}) => [
+            bottomSheetHeightMinimized,
+            bottomSheetHeightMaximized,
+          ]}
           defaultSnap={({lastSnap, snapPoints}) =>
             lastSnap ?? Math.min(...snapPoints)
           }

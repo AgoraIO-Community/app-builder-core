@@ -14,10 +14,22 @@ export interface ToolbarCustomItem {
   order?: number;
 }
 
-export interface ToolbarPresetProps {
-  align: 'top' | 'left' | 'bottom' | 'right';
+export interface ToolbarBottomPresetProps {
+  align: 'bottom';
   customItems?: Array<ToolbarCustomItem>;
+  bottomSheetHeightMinimized: number;
+  bottomSheetHeightMaximized: number;
 }
+export interface ToolbarOtherPresetProps {
+  align: 'top' | 'left' | 'right';
+  customItems?: Array<ToolbarCustomItem>;
+  bottomSheetHeightMinimized?: never;
+  bottomSheetHeightMaximized?: never;
+}
+
+export type ToolbarPresetProps =
+  | ToolbarBottomPresetProps
+  | ToolbarOtherPresetProps;
 
 const ToolbarPreset = (props: ToolbarPresetProps) => {
   const {align} = props;
@@ -49,6 +61,8 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
       <ActionSheet
         customItems={props?.customItems}
         includeDefaultItems={true}
+        bottomSheetHeightMinimized={props?.bottomSheetHeightMinimized}
+        bottomSheetHeightMaximized={props?.bottomSheetHeightMaximized}
       />
     ) : (
       <Controls customItems={props?.customItems} includeDefaultItems={true} />

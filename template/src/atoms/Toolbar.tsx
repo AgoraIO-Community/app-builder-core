@@ -12,30 +12,42 @@ import ActionSheet from '../pages/video-call/ActionSheet';
 //   customItems?: ToolbarCustomItem[];
 // }
 
-export interface ToolbarPropsDesktop {
+export interface ToolbarPropsBase {
   children: React.ReactNode;
-  bottomSheetOnMobile?: never;
-  customItems?: never;
 }
-export interface ToolbarPropsMobile {
-  children?: never;
-  bottomSheetOnMobile?: boolean;
-  customItems?: ToolbarCustomItem[];
+
+export interface ToolbarPropsDesktop extends ToolbarPropsBase {
+  bottomSheetOnMobile?: never;
+  bottomSheetHeightMinimized?: never;
+  bottomSheetHeightMaximized?: never;
+}
+export interface ToolbarPropsMobile extends ToolbarPropsBase {
+  bottomSheetOnMobile: boolean;
+  bottomSheetHeightMinimized: number;
+  bottomSheetHeightMaximized: number;
 }
 export type ToolbarProps = ToolbarPropsDesktop | ToolbarPropsMobile;
 
 const Toolbar = (props: ToolbarProps) => {
   const {position} = useToolbar();
-  const {children, bottomSheetOnMobile = false, customItems} = props;
+  const {
+    children,
+    bottomSheetOnMobile = false,
+    bottomSheetHeightMinimized,
+    bottomSheetHeightMaximized,
+  } = props;
   const isDesktop = useIsDesktop();
   const paddingHorizontal = isDesktop('toolbar') ? 32 : 10;
 
-  if (bottomSheetOnMobile && customItems && customItems.length) {
+  if (bottomSheetOnMobile) {
     return (
-      <ActionSheet customItems={customItems} includeDefaultItems={false} />
+      <ActionSheet
+        displayCustomBottomSheetContent={true}
+        customBottomSheetContent={children}
+        bottomSheetHeightMinimized={bottomSheetHeightMinimized}
+        bottomSheetHeightMaximized={bottomSheetHeightMaximized}
+      />
     );
-  } else if (bottomSheetOnMobile && (!customItems || !customItems?.length)) {
-    return null;
   } else {
     return (
       <View
