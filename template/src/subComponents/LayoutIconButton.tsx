@@ -24,7 +24,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
   const [isHovered, setIsHoveredLocal] = useState(false);
   const [isHoveredOnModal, setIsHoveredOnModal] = useState(false);
   const isMobileView = isMobileUA();
-  const isOnActionSheet = useActionSheet();
+  const {isOnActionSheet} = useActionSheet();
   const showLabel = $config.ICON_TEXT || isOnActionSheet ? true : false;
   const setIsHovered = (hovered: boolean) => {
     if (layoutBtnRef && layoutBtnRef.current) {
@@ -69,7 +69,7 @@ const LayoutIconButton = (props: LayoutIconButtonInterface) => {
         textColor: $config.FONT_COLOR,
       },
     };
-
+    iconButtonProps.isOnActionSheet = isOnActionSheet;
     if (isOnActionSheet) {
       // iconButtonProps.containerStyle = {
       //   backgroundColor: $config.CARD_LAYER_2_COLOR,

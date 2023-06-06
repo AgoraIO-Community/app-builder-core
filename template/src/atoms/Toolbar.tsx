@@ -96,8 +96,8 @@ const toolBarStyles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     height: '8%',
-    backgroundColor:
-      $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
+    backgroundColor: $config.TOOLBAR_COLOR,
+    //$config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['80%'],
   },
   bottomBarStyle: {
     flexDirection: 'row',

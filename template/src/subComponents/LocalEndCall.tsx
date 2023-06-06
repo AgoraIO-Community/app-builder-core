@@ -65,7 +65,7 @@ const LocalEndcall = (props: LocalEndcallProps) => {
       textColor: $config.FONT_COLOR,
     },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (isOnActionSheet) {
     // iconButtonProps.containerStyle = {
     //   backgroundColor: 'white',

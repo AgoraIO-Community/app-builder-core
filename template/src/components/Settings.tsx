@@ -54,7 +54,7 @@ const Settings = (props: SettingsIconButtonProps) => {
       textColor: $config.FONT_COLOR,
     },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (isOnActionSheet) {
     // iconButtonProps.containerStyle = {
     //   backgroundColor: $config.CARD_LAYER_2_COLOR,

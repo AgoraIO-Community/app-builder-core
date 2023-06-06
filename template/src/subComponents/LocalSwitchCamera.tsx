@@ -59,7 +59,7 @@ function LocalSwitchCamera(props: LocalSwitchCameraProps) {
       },
     },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   return props?.render ? (
     props.render(onPress, isVideoEnabled)
   ) : isToolbarMenuItem ? (
