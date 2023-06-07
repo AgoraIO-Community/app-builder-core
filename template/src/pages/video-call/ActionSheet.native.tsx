@@ -27,8 +27,7 @@ import Spacer from '../../atoms/Spacer';
 //topbar btn template is used to show icons without label text (as in desktop : bottomBar)
 
 const ActionSheet = (props) => {
-  const {bottomSheetHeightMinimized = 100, bottomSheetHeightMaximized = 350} =
-    props;
+  const {snapPointsMinMax = [100, 350]} = props;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {sidePanel, setSidePanel} = useSidePanel();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -92,7 +91,7 @@ const ActionSheet = (props) => {
       )}
       {/* Controls  Action Sheet*/}
       <BottomSheetModal
-        snapPoints={[bottomSheetHeightMinimized, bottomSheetHeightMaximized]}
+        snapPoints={snapPointsMinMax}
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         enablePanDownToClose={false}

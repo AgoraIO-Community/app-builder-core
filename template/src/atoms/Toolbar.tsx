@@ -18,24 +18,17 @@ export interface ToolbarPropsBase {
 
 export interface ToolbarPropsDesktop extends ToolbarPropsBase {
   bottomSheetOnMobile?: never;
-  bottomSheetHeightMinimized?: never;
-  bottomSheetHeightMaximized?: never;
+  snapPointsMinMax?: never;
 }
 export interface ToolbarPropsMobile extends ToolbarPropsBase {
   bottomSheetOnMobile: boolean;
-  bottomSheetHeightMinimized: number;
-  bottomSheetHeightMaximized: number;
+  snapPointsMinMax: [number, number];
 }
 export type ToolbarProps = ToolbarPropsDesktop | ToolbarPropsMobile;
 
 const Toolbar = (props: ToolbarProps) => {
   const {position} = useToolbar();
-  const {
-    children,
-    bottomSheetOnMobile = false,
-    bottomSheetHeightMinimized,
-    bottomSheetHeightMaximized,
-  } = props;
+  const {children, bottomSheetOnMobile = false, snapPointsMinMax} = props;
   const isDesktop = useIsDesktop();
   const paddingHorizontal = isDesktop('toolbar') ? 32 : 10;
 
@@ -44,8 +37,7 @@ const Toolbar = (props: ToolbarProps) => {
       <ActionSheet
         displayCustomBottomSheetContent={true}
         customBottomSheetContent={children}
-        bottomSheetHeightMinimized={bottomSheetHeightMinimized}
-        bottomSheetHeightMaximized={bottomSheetHeightMaximized}
+        snapPointsMinMax={snapPointsMinMax}
       />
     );
   } else {

@@ -17,14 +17,12 @@ export interface ToolbarCustomItem {
 export interface ToolbarBottomPresetProps {
   align: 'bottom';
   customItems?: Array<ToolbarCustomItem>;
-  bottomSheetHeightMinimized: number;
-  bottomSheetHeightMaximized: number;
+  snapPointsMinMax: [number, number];
 }
 export interface ToolbarOtherPresetProps {
   align: 'top' | 'left' | 'right';
   customItems?: Array<ToolbarCustomItem>;
-  bottomSheetHeightMinimized?: never;
-  bottomSheetHeightMaximized?: never;
+  snapPointsMinMax?: never;
 }
 
 export type ToolbarPresetProps =
@@ -61,8 +59,7 @@ const ToolbarPreset = (props: ToolbarPresetProps) => {
       <ActionSheet
         customItems={props?.customItems}
         includeDefaultItems={true}
-        bottomSheetHeightMinimized={props?.bottomSheetHeightMinimized}
-        bottomSheetHeightMaximized={props?.bottomSheetHeightMaximized}
+        snapPointsMinMax={props?.snapPointsMinMax}
       />
     ) : (
       <Controls customItems={props?.customItems} includeDefaultItems={true} />
