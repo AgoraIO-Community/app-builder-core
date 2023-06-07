@@ -159,9 +159,9 @@ const ActionSheet = (props) => {
           }
           blocking={false}>
           <ActionSheetContent
-            {...props}
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
+            {...props}
           />
         </BottomSheet>
         {/* Chat  Action Sheet */}

@@ -108,9 +108,9 @@ const ActionSheet = (props) => {
         handleIndicatorStyle={styles.handleIndicatorStyle}>
         <BottomSheetView>
           <ActionSheetContent
-            {...props}
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
+            {...props}
           />
         </BottomSheetView>
       </BottomSheetModal>
