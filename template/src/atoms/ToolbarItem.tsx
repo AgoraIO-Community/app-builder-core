@@ -51,6 +51,7 @@ const toolbarItemStyles = StyleSheet.create({
   iconWithText: {
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
     flexBasis: '25%',
     paddingBottom: 24,
   },
