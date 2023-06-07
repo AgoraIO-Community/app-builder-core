@@ -12,6 +12,7 @@
 
 import React, {useState} from 'react';
 import {StyleSheet, View, Pressable} from 'react-native';
+import {isMobileUA} from '../../src/utils/common';
 import {ApplianceNames} from 'white-web-sdk';
 
 const WhiteboardToolBox = ({whiteboardRoom}) => {
@@ -29,7 +30,10 @@ const WhiteboardToolBox = ({whiteboardRoom}) => {
   };
 
   return (
-    <View style={style.toolboxContainer}>
+    <View
+      style={
+        isMobileUA() ? style.toolboxContainerMobile : style.toolboxContainer
+      }>
       <View style={style.toolbox} nativeID="toolbox">
         <Pressable
           style={
@@ -600,6 +604,12 @@ const style = StyleSheet.create({
     position: 'absolute',
     top: 50,
     left: 30,
+    zIndex: 10,
+  },
+  toolboxContainerMobile: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
     zIndex: 10,
   },
   toolbox: {
