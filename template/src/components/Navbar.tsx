@@ -385,7 +385,19 @@ export const MeetingTitleToolbarItem = () => {
 export const ParticipantCountToolbarItem = () => {
   return (
     <ToolbarItem>
-      <ParticipantsCount />
+      <View>
+        <View
+          style={{
+            width: 45,
+            height: 35,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center',
+            zIndex: isWebInternal() ? 3 : 0,
+          }}>
+          <ParticipantsCount />
+        </View>
+      </View>
     </ToolbarItem>
   );
 };

@@ -54,7 +54,12 @@ const toolbarItemStyles = StyleSheet.create({
     flexBasis: '25%',
     paddingBottom: 24,
   },
-  topBarItemNativeStyle: {},
+  topBarItemNativeStyle: {
+    marginTop: 8,
+    marginBottom: 10,
+    marginHorizontal: 10,
+    justifyContent: 'center',
+  },
   topBarItemNonNativeStyle: {
     marginTop: 8,
     marginBottom: 10,
