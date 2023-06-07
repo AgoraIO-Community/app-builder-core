@@ -1,7 +1,7 @@
 import {useRoomInfo} from 'customization-api';
 import React, {useState, useRef, useEffect} from 'react';
 import {createContext} from 'react';
-import {WhiteWebSdk, RoomPhase, Room} from 'white-web-sdk';
+import {WhiteWebSdk, RoomPhase, Room, ViewMode} from 'white-web-sdk';
 
 export const whiteboardPaper = document.createElement('div');
 whiteboardPaper.className = 'whiteboardPaper';
@@ -52,6 +52,7 @@ const WhiteboardConfigure: React.FC<WhiteboardPropsInterface> = (props) => {
         })
         .then((room) => {
           whiteboardRoom.current = room;
+          whiteboardRoom.current.setViewMode(ViewMode.Freedom);
           whiteboardRoom.current.bindHtmlElement(whiteboardPaper);
           setWhiteboardRoomState(RoomPhase.Connected);
         })
