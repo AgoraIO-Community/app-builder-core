@@ -40,6 +40,7 @@ import {
 } from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import {ActionSheetProvider} from '../../utils/useActionSheet';
+import {CustomToolbarSort} from '../../utils/common';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -329,7 +330,7 @@ const ActionSheetContent = (props) => {
     ?.concat(includeDefaultItems ? defaultItems : [])
     //to filter empty component because of some condition array will have empty component
     ?.filter((i) => i?.component)
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   return (
     <View>

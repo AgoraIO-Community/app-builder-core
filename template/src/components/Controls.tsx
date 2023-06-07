@@ -20,7 +20,7 @@ import ScreenshareButton from '../subComponents/screenshare/ScreenshareButton';
 import isMobileOrTablet from '../utils/isMobileOrTablet';
 import {ClientRole} from '../../agora-rn-uikit';
 import LiveStreamControls from './livestream/views/LiveStreamControls';
-import {BREAKPOINTS, useIsDesktop} from '../utils/common';
+import {BREAKPOINTS, CustomToolbarSort, useIsDesktop} from '../utils/common';
 import {useRoomInfo} from './room-info/useRoomInfo';
 import LocalEndcall from '../subComponents/LocalEndCall';
 import LayoutIconButton from '../subComponents/LayoutIconButton';
@@ -459,17 +459,17 @@ const Controls = (props: ControlsProps) => {
   const customStartItems = customItems
     ?.filter((i) => i?.align === 'start' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultStartItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
     ?.filter((i) => i?.align === 'center' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultCenterItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
     ?.filter((i) => i?.align === 'end' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultEndItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const renderContent = (
     items: ToolbarCustomItem[],

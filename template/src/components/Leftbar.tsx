@@ -13,6 +13,7 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Toolbar from '../atoms/Toolbar';
 import {ToolbarCustomItem} from '../atoms/ToolbarPreset';
+import {CustomToolbarSort} from '../utils/common';
 
 const defaultStartItems: ToolbarCustomItem[] = [];
 const defaultCenterItems: ToolbarCustomItem[] = [];
@@ -30,17 +31,17 @@ const Leftbar = (props: LeftbarProps) => {
   const customStartItems = customItems
     ?.filter((i) => i?.align === 'start' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultStartItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
     ?.filter((i) => i?.align === 'center' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultCenterItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
     ?.filter((i) => i?.align === 'end' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultEndItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const renderContent = (
     items: ToolbarCustomItem[],

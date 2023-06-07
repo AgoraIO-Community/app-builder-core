@@ -32,6 +32,7 @@ import {useChatNotification} from '../components/chat-notification/useChatNotifi
 import useLayoutsData from '../pages/video-call/useLayoutsData';
 import {
   BREAKPOINTS,
+  CustomToolbarSort,
   isAndroid,
   isIOS,
   isMobileUA,
@@ -499,17 +500,17 @@ const Navbar = (props: NavbarProps) => {
   const customStartItems = customItems
     ?.filter((i) => i.align === 'start' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultStartItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const customCenterItems = customItems
     ?.filter((i) => i.align === 'center' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultCenterItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const customEndItems = customItems
     ?.filter((i) => i.align === 'end' && !isHidden(i))
     ?.concat(includeDefaultItems ? defaultEndItems : [])
-    ?.sort((a, b) => a?.order - b?.order);
+    ?.sort(CustomToolbarSort);
 
   const renderContent = (
     items: ToolbarCustomItem[],

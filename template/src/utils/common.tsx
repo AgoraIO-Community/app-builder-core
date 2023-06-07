@@ -220,6 +220,10 @@ const getParamFromURL = (url, param) => {
   return value;
 };
 
+const CustomToolbarSort = (a, b) =>
+  (a.hasOwnProperty('order') ? a.order : 999999) -
+  (b.hasOwnProperty('order') ? b.order : 999999);
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -240,4 +244,5 @@ export {
   useResponsive,
   processDeepLinkURI,
   getParamFromURL,
+  CustomToolbarSort,
 };
