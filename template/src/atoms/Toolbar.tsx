@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {useToolbar, ToolbarPosition} from '../utils/useToolbar';
-import {isWebInternal, useIsDesktop} from '../utils/common';
+import {isMobileUA, isWebInternal, useIsDesktop} from '../utils/common';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {ToolbarCustomItem} from './ToolbarPreset';
 import ActionSheet from '../pages/video-call/ActionSheet';
@@ -32,7 +32,7 @@ const Toolbar = (props: ToolbarProps) => {
   const isDesktop = useIsDesktop();
   const paddingHorizontal = isDesktop('toolbar') ? 32 : 10;
 
-  if (bottomSheetOnMobile) {
+  if (isMobileUA() && bottomSheetOnMobile) {
     return (
       <ActionSheet
         displayCustomBottomSheetContent={true}
