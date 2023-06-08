@@ -17,7 +17,7 @@ const ToolbarItem = (props: ToolbarItemProps) => {
   //action sheet
   if (isMobileUA() && position === ToolbarPosition.bottom) {
     return (
-      <View {...props} style={toolbarItemStyles.iconWithText}>
+      <View {...props} style={[props?.style, toolbarItemStyles.iconWithText]}>
         {props?.children}
       </View>
     );
@@ -51,7 +51,7 @@ const toolbarItemStyles = StyleSheet.create({
   iconWithText: {
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
+    // alignSelf: 'center',
     flexBasis: '25%',
     paddingBottom: 24,
   },
