@@ -26,6 +26,7 @@ import AgoraRTC, {
   CameraVideoTrackInitConfig,
   MicrophoneAudioTrackInitConfig,
 } from 'agora-rtc-sdk-ng';
+import wasm1 from '../../../node_modules/agora-extension-virtual-background/wasms/agora-wasm.wasm';
 import type {
   RtcEngineEvents,
   Subscription,
@@ -36,6 +37,11 @@ import {role, mode} from './Types';
 import {LOG_ENABLED, GEO_FENCING} from '../../../config.json';
 import {Platform} from 'react-native';
 import isMobileOrTablet from '../../../src/utils/isMobileOrTablet';
+import {
+  VirtualBackgroundSource,
+  VirtualBackgroundSourceType,
+} from 'react-native-agora';
+import VirtualBackgroundExtension from 'agora-extension-virtual-background';
 
 interface MediaDeviceInfo {
   readonly deviceId: string;
@@ -202,6 +208,11 @@ export default class RtcEngine {
   private muteLocalVideoMutex = false;
   private muteLocalAudioMutex = false;
   private speakerDeviceId = '';
+  private isVirtualBackgroundInit = false;
+  private virtualBackgroundProcessor: ReturnType<
+    VirtualBackgroundExtension['_createProcessor']
+  > = null;
+  private virtualBackgroundExtension = new VirtualBackgroundExtension();
   // Create channel profile and set it here
 
   // Create channel profile and set it here
@@ -306,6 +317,79 @@ export default class RtcEngine {
       //     audioError ? 'No Microphone found' : 'No Video device found',
       //   );
     }
+  }
+
+  async enableVirtualBackground(
+    enabled: boolean,
+    backgroundSource: VirtualBackgroundSource,
+  ): Promise<void> {
+    console.log('enableVirtualBackground', enabled, backgroundSource);
+
+    if (!this.isVirtualBackgroundInit) {
+      console.log('init virtual background');
+      AgoraRTC.registerExtensions([this.virtualBackgroundExtension]);
+      this.virtualBackgroundProcessor =
+        this.virtualBackgroundExtension.createProcessor();
+      await this.virtualBackgroundProcessor.init(wasm1);
+      this.virtualBackgroundProcessor.disable();
+      this.isVirtualBackgroundInit = true;
+      const localVideoTrack = this.localStream.video;
+      if (this.virtualBackgroundProcessor) {
+        localVideoTrack
+          ?.pipe(this.virtualBackgroundProcessor)
+          .pipe(localVideoTrack?.processorDestination);
+      }
+    }
+
+    if (!enabled) {
+      return this.virtualBackgroundProcessor.disable();
+    }
+
+    const componentToHex = (c: Number) => {
+      const hex = c.toString(16);
+      return hex.length == 1 ? '0' + hex : hex;
+    };
+    switch (backgroundSource.backgroundSourceType) {
+      case 1:
+        this.virtualBackgroundProcessor.setOptions({
+          type: 'color',
+          color:
+            '#' +
+            componentToHex(backgroundSource.color.red) +
+            componentToHex(backgroundSource.color.green) +
+            componentToHex(backgroundSource.color.blue),
+        });
+        await this.virtualBackgroundProcessor.enable();
+        break;
+      case 2:
+        let htmlElement = document.createElement('img');
+        htmlElement.src = backgroundSource.source;
+        htmlElement.onload = async () => {
+          this.virtualBackgroundProcessor.setOptions({
+            type: 'img',
+            source: htmlElement,
+          });
+          await this.virtualBackgroundProcessor.enable();
+        };
+        break;
+      case 3:
+        console.log('!VB', 'caseblur');
+        this.virtualBackgroundProcessor.setOptions({
+          type: 'blur',
+          blurDegree: backgroundSource.blur_degree,
+        });
+        await this.virtualBackgroundProcessor.enable();
+        console.log('!VB', 'enabledone');
+        break;
+      default:
+        console.warn('VirtualBackground called with unknown source type');
+        this.virtualBackgroundProcessor.setOptions({
+          type: 'blur',
+          blurDegree: 2,
+        });
+        await this.virtualBackgroundProcessor.enable();
+        break;
+    };
   }
 
   async enableAudioVolumeIndication(interval, smooth, isLocal) {
