@@ -16,7 +16,7 @@ import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
 import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useRtc, useContent} from 'customization-api';
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import PrimaryButton from '../../atoms/PrimaryButton';
@@ -24,6 +24,7 @@ import ThemeConfig from '../../theme';
 import Loading from '../Loading';
 import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
+import {streamMessageCallback} from './utils';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -32,7 +33,12 @@ const Transcript = (props: TranscriptProps) => {
   const isSmall = useIsSmall();
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
-  const {meetingTranscript, isLangChangeInProgress} = useCaption();
+  const {
+    setMeetingTranscript,
+    meetingTranscript,
+    isLangChangeInProgress,
+    isSTTActive,
+  } = useCaption();
   const data = meetingTranscript; // Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
@@ -41,6 +47,15 @@ const Transcript = (props: TranscriptProps) => {
   const flatListRef = React.useRef(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState([]);
+  const {RtcEngineUnsafe: RtcEngine} = useRtc();
+
+  const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
+  const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
+
+  const startTimeRef = React.useRef<number>(0);
+  const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
+  const {defaultContent: renderList} = useContent();
+  const renderListRef = React.useRef({renderList});
 
   const handleLayout = (event) => {
     flatListHeightRef.current = event.nativeEvent.layout.height;
@@ -106,6 +121,31 @@ const Transcript = (props: TranscriptProps) => {
   const NoResultsMsg = () => {
     return <Text style={styles.emptyMsg}>No search results found</Text>;
   };
+
+  const meetingTranscriptRef = React.useRef(meetingTranscript);
+
+  const sttObj = {
+    renderListRef,
+    finalList,
+    meetingTextRef,
+    startTimeRef,
+    meetingTranscriptRef,
+    setMeetingTranscript,
+    setTextObj,
+  };
+
+  const handleStreamMessageCallback = (...args) => {
+    streamMessageCallback(args, sttObj);
+  };
+
+  React.useEffect(() => {
+    renderListRef.current.renderList = renderList;
+  }, [renderList]);
+
+  React.useEffect(() => {
+    !isSTTActive &&
+      RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+  }, []);
 
   return (
     <View

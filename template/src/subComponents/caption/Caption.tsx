@@ -7,6 +7,7 @@ import {TranscriptText} from './TranscriptText';
 import Spacer from '../../../src/atoms/Spacer';
 import Loading from '../Loading';
 import {ContentObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
+import {streamMessageCallback} from './utils';
 interface CaptionProps {
   renderListRef: MutableRefObject<{renderList: ContentObjects}>;
 }
@@ -21,8 +22,21 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
 
   const meetingTranscriptRef = React.useRef(meetingTranscript);
+  const sttObj = {
+    renderListRef,
+    finalList,
+    meetingTextRef,
+    startTimeRef,
+    meetingTranscriptRef,
+    setMeetingTranscript,
+    setTextObj,
+  };
 
   const handleStreamMessageCallback = (...args) => {
+    streamMessageCallback(args, sttObj);
+  };
+
+  const handleStreamMessageCallback2 = (...args) => {
     const [uid, payload] = args; // uid is of the bot which sends the stream messages in the channel
     let nonFinalList = []; // holds intermediate results
     let currentText = ''; // holds current caption

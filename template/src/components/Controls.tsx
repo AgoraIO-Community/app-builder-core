@@ -204,6 +204,7 @@ const MoreButton = () => {
   const [isImageVBOn, setIsImageVBOn] = useState(false);
   const [isColorVBOn, setIsColorVBOn] = useState(false);
   const [isBlurVBOn, setIsBlurVBOn] = useState(false);
+  const STTMode = React.useRef(null);
 
   const {colorVB, disableVB, imageVB, blurVB} = useVB();
 
@@ -274,8 +275,15 @@ const MoreButton = () => {
   //virtual background
 
   //caption
-  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive, language} =
-    useCaption();
+  const {
+    isCaptionON,
+    setIsCaptionON,
+    isTranscriptON,
+    setIsTranscriptON,
+    isSTTActive,
+    setIsSTTActive,
+    language,
+  } = useCaption();
   const {store} = React.useContext(StorageContext);
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -306,61 +314,80 @@ const MoreButton = () => {
     });
   }, []);
 
-  const toggleSTT = async (method: string, language: string) => {
+  const toggleSTT = async (method: string) => {
     // handleSTT
-
-    setIsCaptionON((prev) => !prev);
 
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-
-    // try {
-    //   const res = await startStopSTT(
-    //     store?.token || '',
-    //     roomId.host ? roomId.host : '',
-    //     method,
-    //     language,
-    //   );
-    //   console.log('response after start/stop stt', res); //TODO: log username of who started stt
-    //   // once STT is active in the channel , notify others so that they dont' trigger start again
-    //   events.send(
-    //     'handleCaption',
-    //     JSON.stringify({active: true}),
-    //     PersistanceLevel.Sender,
-    //   );
-    //   setIsSTTActive(true);
-    // } catch (error) {
-    //   console.log(error);
-    // }
     start();
   };
 
   const onLanguageChange = () => {
     // lang would be set on confirm click
-    toggleSTT(isCaptionON ? 'stop' : 'start', language);
+    if (STTMode.current === 'caption') {
+      toggleSTT(isCaptionON ? 'stop' : 'start');
+      setIsCaptionON((prev) => !prev);
+    }
+
+    if (STTMode.current === 'transcript') {
+      toggleSTT('start');
+      if (isTranscriptON) {
+        setSidePanel(SidePanelType.Transcript);
+      } else {
+        setSidePanel(SidePanelType.None);
+      }
+    }
     setLanguagePopup(false);
     isLangPopupOpenedOnce.current = true;
   };
 
-  const label = isCaptionON ? 'Turn off Caption' : 'Turn on Caption';
+  const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   actionMenuitems.push({
     icon: 'closed-caption',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: label,
     callback: () => {
+      STTMode.current = 'caption';
       setActionMenuVisible(false);
       if (isLangPopupOpenedOnce.current || isSTTActive) {
         // is lang popup has been shown once for any user in meeting
         sidePanel === SidePanelType.Transcript &&
           !isCaptionON &&
           setSidePanel(SidePanelType.None);
-        toggleSTT(isCaptionON ? 'stop' : 'start', language);
+        toggleSTT(isCaptionON ? 'stop' : 'start');
+        setIsCaptionON((prev) => !prev);
       } else {
         setLanguagePopup(true);
       }
     },
   });
+
+  actionMenuitems.push({
+    icon: 'transcript-mode',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    title: isTranscriptON ? 'Hide Transcript' : 'Show Transcript',
+    callback: () => {
+      STTMode.current = 'transcript';
+      setActionMenuVisible(false);
+
+      if (isLangPopupOpenedOnce.current || isSTTActive) {
+        // is lang popup has been shown once for any user in meeting
+        // sidePanel === SidePanelType.Transcript &&
+        //   !isCaptionON &&
+        //   setSidePanel(SidePanelType.None);
+        // toggleSTT(isCaptionON ? 'stop' : 'start');
+        !isTranscriptON
+          ? setSidePanel(SidePanelType.Transcript)
+          : setSidePanel(SidePanelType.None);
+      } else {
+        setLanguagePopup(true);
+      }
+      setIsTranscriptON((prev) => !prev);
+    },
+  });
+
   //caption
 
   if (globalWidth <= BREAKPOINTS.sm) {
