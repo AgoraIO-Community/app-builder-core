@@ -352,9 +352,9 @@ const MoreButton = () => {
       setActionMenuVisible(false);
       if (isLangPopupOpenedOnce.current || isSTTActive) {
         // is lang popup has been shown once for any user in meeting
-        sidePanel === SidePanelType.Transcript &&
-          !isCaptionON &&
-          setSidePanel(SidePanelType.None);
+        // sidePanel === SidePanelType.Transcript &&
+        //   !isCaptionON &&
+        //   setSidePanel(SidePanelType.None);
         toggleSTT(isCaptionON ? 'stop' : 'start');
         setIsCaptionON((prev) => !prev);
       } else {
