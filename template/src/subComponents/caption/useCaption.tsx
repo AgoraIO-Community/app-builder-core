@@ -15,6 +15,8 @@ type TranscriptItem = {
 export const CaptionContext = React.createContext<{
   isCaptionON: boolean;
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
+  isTranscriptON: boolean;
+  setIsTranscriptON: React.Dispatch<React.SetStateAction<boolean>>;
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
   language: LanguageType[];
@@ -26,6 +28,8 @@ export const CaptionContext = React.createContext<{
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
+  isTranscriptON: false,
+  setIsTranscriptON: () => {},
   isSTTActive: false,
   setIsSTTActive: () => {},
   language: ['en-US'],
@@ -38,6 +42,7 @@ export const CaptionContext = React.createContext<{
 
 const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
+  const [isTranscriptON, setIsTranscriptON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['en-US']);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
@@ -51,6 +56,8 @@ const CaptionProvider = ({children}) => {
       value={{
         isCaptionON,
         setIsCaptionON,
+        isTranscriptON,
+        setIsTranscriptON,
         isSTTActive,
         setIsSTTActive,
         language,

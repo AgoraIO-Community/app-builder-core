@@ -2,6 +2,9 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
+import LanguageSelectorPopup from './LanguageSelectorPopup';
+import {useCaption} from './useCaption';
+import useSTTAPI from './useSTTAPI';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -21,19 +24,31 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
+  const {start} = useSTTAPI();
 
-  const isTranscriptON = sidePanel === SidePanelType.Transcript;
+  const {isTranscriptON, setIsTranscriptON, isSTTActive} = useCaption();
+
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+  const isLangPopupOpenedOnce = React.useRef(false);
+
+  //const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
-    isTranscriptON
-      ? setSidePanel(SidePanelType.None)
-      : setSidePanel(SidePanelType.Transcript);
+    if (isLangPopupOpenedOnce.current || isSTTActive) {
+      setIsTranscriptON((prev) => !prev);
+      !isTranscriptON
+        ? setSidePanel(SidePanelType.Transcript)
+        : setSidePanel(SidePanelType.None);
+    } else {
+      setLanguagePopup(true);
+    }
   };
 
   const label = isTranscriptON ? 'Hide Transcript' : 'Show Transcript';
   const iconButtonProps: IconButtonProps = {
     onPress,
     iconProps: {
-      name: 'transcript-mode',
+      name: 'stt',
       iconBackgroundColor: isTranscriptON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
@@ -50,10 +65,35 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   if (!isOnActionSheet) {
     iconButtonProps.toolTipMessage = label;
   }
+  const toggleSTT = async (method: string) => {
+    // handleSTT
+    setIsTranscriptON((prev) => !prev);
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    start();
+  };
+
+  const onLanguageChange = () => {
+    // lang would be set on confirm click
+    toggleSTT('start');
+    if (!isTranscriptON) {
+      setSidePanel(SidePanelType.Transcript);
+    } else {
+      setSidePanel(SidePanelType.None);
+    }
+
+    setLanguagePopup(false);
+    isLangPopupOpenedOnce.current = true;
+  };
 
   return (
     <View>
       <IconButton {...iconButtonProps} />
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onLanguageChange}
+      />
     </View>
   );
 };

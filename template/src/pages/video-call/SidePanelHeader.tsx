@@ -27,6 +27,7 @@ import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
+import {downloadTranscript} from '../../subComponents/caption/utils';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -183,7 +184,7 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON, language} = useCaption();
+  const {setIsCaptionON, language, meetingTranscript} = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
 
   const [modalPosition, setModalPosition] = React.useState({});
@@ -206,16 +207,31 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   });
 
   actionMenuitems.push({
-    icon: 'caption-mode',
+    icon: 'down-arrow',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Live Captions Mode',
+    title: 'Download Transcript',
     callback: () => {
       setActionMenuVisible(false);
-      setSidePanel(SidePanelType.None);
-      setIsCaptionON(true);
+      console.log(meetingTranscript);
+      downloadTranscript(meetingTranscript);
+      // download transcript
+      // setSidePanel(SidePanelType.None);
+      //setIsCaptionON(true);
     },
   });
+
+  // actionMenuitems.push({
+  //   icon: 'caption-mode',
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: 'Live Captions Mode',
+  //   callback: () => {
+  //     setActionMenuVisible(false);
+  //     setSidePanel(SidePanelType.None);
+  //     setIsCaptionON(true);
+  //   },
+  // });
   // actionMenuitems.push({
   //   icon: 'stt',
   //   iconColor: $config.SECONDARY_ACTION_COLOR,

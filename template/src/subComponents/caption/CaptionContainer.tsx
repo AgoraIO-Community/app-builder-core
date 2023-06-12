@@ -114,17 +114,17 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  actionMenuitems.push({
-    icon: 'transcript-mode', //TODO: update show transcript icon
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Show Transcript',
-    callback: () => {
-      setActionMenuVisible(false);
-      setIsCaptionON(false);
-      setSidePanel(SidePanelType.Transcript);
-    },
-  });
+  // actionMenuitems.push({
+  //   icon: 'transcript-mode', //TODO: update show transcript icon
+  //   iconColor: $config.SECONDARY_ACTION_COLOR,
+  //   textColor: $config.FONT_COLOR,
+  //   title: 'Show Transcript',
+  //   callback: () => {
+  //     setActionMenuVisible(false);
+  //     setIsCaptionON(false);
+  //     setSidePanel(SidePanelType.Transcript);
+  //   },
+  // });
   actionMenuitems.push({
     icon: 'stt',
     iconColor: $config.SECONDARY_ACTION_COLOR,

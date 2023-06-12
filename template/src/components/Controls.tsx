@@ -310,9 +310,13 @@ const Controls = () => {
             <CopyJoinInfo />
           </View>
 
-          {/* TODO:// to be refactored */}
+          {/* TODO:// to be refactored to more menu */}
           <View testID="caption-btn" style={{marginHorizontal: 10}}>
             <CaptionIcon />
+          </View>
+          {/* TODO:// to be refactored to more menu*/}
+          <View testID="transcript-btn" style={{marginHorizontal: 10}}>
+            <TranscriptIcon />
           </View>
         </View>
       )}
