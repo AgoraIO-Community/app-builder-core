@@ -98,7 +98,7 @@ interface ConfigInterface {
   ICON_BG_COLOR: string;
   TOOLBAR_COLOR: string;
   ACTIVE_SPEAKER: boolean;
-  TOAST_NOTIFICATIONS: boolean;
+  // TOAST_NOTIFICATIONS: boolean;
   ENABLE_TOKEN_AUTH: boolean;
   ENABLE_IDP_AUTH: boolean;
   PROJECT_ID: string;
