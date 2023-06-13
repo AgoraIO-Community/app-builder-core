@@ -53,6 +53,7 @@ import {ChatNotificationProvider} from '../components/chat-notification/useChatN
 import {ChatUIControlsProvider} from '../components/chat-ui/useChatUIControls';
 import {ChatMessagesProvider} from '../components/chat-messages/useChatMessages';
 import {ScreenShareProvider} from '../components/contexts/ScreenShareContext';
+import {VirtualBackgroundProvider} from '../components/contexts/VirtualBackgroundContext';
 import {LiveStreamDataProvider} from '../components/contexts/LiveStreamDataContext';
 import {VideoMeetingDataProvider} from '../components/contexts/VideoMeetingDataContext';
 import {useWakeLock} from '../components/useWakeLock';
@@ -337,36 +338,38 @@ const VideoCall: React.FC = () => {
                                             <LiveStreamDataProvider>
                                               <LocalUserContext
                                                 localUid={rtcProps?.uid}>
-                                                <NetworkQualityProvider>
-                                                  {!isMobileUA() && (
-                                                    <PermissionHelper />
-                                                  )}
-                                                  {callActive ? (
-                                                    <VideoMeetingDataProvider>
-                                                      <VideoCallProvider>
-                                                        <VideoCallScreen />
-                                                      </VideoCallProvider>
-                                                    </VideoMeetingDataProvider>
-                                                  ) : $config.PRECALL ? (
-                                                    <PreCallProvider
-                                                      value={{
-                                                        callActive,
-                                                        setCallActive,
-                                                        isCameraAvailable,
-                                                        isMicAvailable,
-                                                        setCameraAvailable,
-                                                        setMicAvailable,
-                                                        isPermissionRequested,
-                                                        setIsPermissionRequested,
-                                                        isSpeakerAvailable,
-                                                        setSpeakerAvailable,
-                                                      }}>
-                                                      <Precall />
-                                                    </PreCallProvider>
-                                                  ) : (
-                                                    <></>
-                                                  )}
-                                                </NetworkQualityProvider>
+                                                <VirtualBackgroundProvider>
+                                                  <NetworkQualityProvider>
+                                                    {!isMobileUA() && (
+                                                      <PermissionHelper />
+                                                    )}
+                                                    {callActive ? (
+                                                      <VideoMeetingDataProvider>
+                                                        <VideoCallProvider>
+                                                          <VideoCallScreen />
+                                                        </VideoCallProvider>
+                                                      </VideoMeetingDataProvider>
+                                                    ) : $config.PRECALL ? (
+                                                      <PreCallProvider
+                                                        value={{
+                                                          callActive,
+                                                          setCallActive,
+                                                          isCameraAvailable,
+                                                          isMicAvailable,
+                                                          setCameraAvailable,
+                                                          setMicAvailable,
+                                                          isPermissionRequested,
+                                                          setIsPermissionRequested,
+                                                          isSpeakerAvailable,
+                                                          setSpeakerAvailable,
+                                                        }}>
+                                                        <Precall />
+                                                      </PreCallProvider>
+                                                    ) : (
+                                                      <></>
+                                                    )}
+                                                  </NetworkQualityProvider>
+                                                </VirtualBackgroundProvider>
                                               </LocalUserContext>
                                             </LiveStreamDataProvider>
                                           </LiveStreamContextProvider>
