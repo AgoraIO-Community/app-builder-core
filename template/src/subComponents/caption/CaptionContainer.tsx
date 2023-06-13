@@ -107,7 +107,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Change Language ',
+    title: 'Change Spoken Language ',
     callback: () => {
       setActionMenuVisible(false);
       setLanguagePopup(true);
@@ -126,10 +126,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   //   },
   // });
   actionMenuitems.push({
-    icon: 'stt',
+    icon: 'captions-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Turn Off Speech to text ',
+    title: 'Turn Off Captions ',
     callback: () => {
       setActionMenuVisible(false);
       setIsCaptionON(false);
@@ -214,7 +214,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
-    paddingLeft: 260,
   },
   mobileContainer: {
     marginHorizontal: 0,
