@@ -16,6 +16,8 @@ export interface SdkMethodEvents {
   cameraDevice: (deviceId: deviceId) => void;
   muteAudio: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
   muteVideo: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
+  login: (token: string) => void;
+  logout: () => void;
 }
 
 type EventParameterHelper<T extends keyof SdkMethodEvents> = Parameters<

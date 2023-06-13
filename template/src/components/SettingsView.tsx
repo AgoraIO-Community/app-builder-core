@@ -43,9 +43,10 @@ import {useLayout} from '../utils/useLayout';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {useFocus} from '../utils/useFocus';
 import {SettingsHeader} from '../pages/video-call/SidePanelHeader';
-
+import {useUserPreference} from './useUserPreference';
 interface EditNameProps {}
 const EditName: React.FC = (props?: EditNameProps) => {
+  const {saveName} = useUserPreference();
   const [saved, setSaved] = useState(false);
   const username = useGetName();
   const [newName, setNewName] = useState(username);
@@ -83,6 +84,7 @@ const EditName: React.FC = (props?: EditNameProps) => {
         setSaved(false);
       }, 2000);
       setEditable(false);
+      saveName(trimmedText ? trimmedText : username);
     } else {
       setEditable(true);
       inputRef.current.focus();

@@ -15,7 +15,6 @@ import {deviceId} from './components/DeviceConfigure';
 
 type meetingData = Partial<MeetingInfoContextInterface['data']>;
 
-// Hard defined since its an api.
 export interface AppBuilderSdkApiInterface {
   customize: (customization: CustomizationApiInterface) => Promise<void>;
   joinRoom: (roomDetails: string | meetingData) => Promise<meetingData>;
@@ -36,6 +35,8 @@ export interface AppBuilderSdkApiInterface {
   createCustomization: (
     customization: CustomizationApiInterface,
   ) => CustomizationApiInterface;
+  login:(token:string) => Promise<void>
+  logout:() => Promise<void>
   customEvents: typeof customEvents;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
@@ -44,6 +45,12 @@ export interface AppBuilderSdkApiInterface {
 }
 
 export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
+  login: async (token: string) => {
+    return await SDKMethodEventsManager.emit('login', token);
+  },
+  logout: async () => {
+    return await SDKMethodEventsManager.emit('logout');
+  },
   customize: async (customization) => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },

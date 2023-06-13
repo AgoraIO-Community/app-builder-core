@@ -36,6 +36,7 @@ import LinkButton from '../atoms/LinkButton';
 import ImageIcon from '../atoms/ImageIcon';
 import ThemeConfig from '../theme';
 import Tooltip from '../atoms/Tooltip';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
 const isLiveStream = $config.EVENT_MODE;
 
@@ -212,7 +213,7 @@ export const CopyMeetingInfo = (props?: CopyMeetingInfoProps) => {
       ) : (
         <></>
       )}
-      {pstn ? (
+      {$config.PSTN && pstn && pstn?.number && pstn?.pin ? (
         <>
           <Text style={style.urlTitle}>{pstnLabel}</Text>
           <Spacer size={11} />
@@ -292,10 +293,29 @@ const Share = () => {
     <FpeShareComponent />
   ) : (
     <View style={style.root}>
+      {!isMobileUA() ? (
+        <IDPLogoutComponent containerStyle={{marginBottom: -100}} />
+      ) : (
+        <></>
+      )}
       <ScrollView contentContainerStyle={style.scrollMain}>
         <Card>
           <View>
-            <Logo />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Logo />
+              {isMobileUA() ? (
+                <IDPLogoutComponent
+                  containerStyle={{marginTop: 0, marginRight: 0}}
+                />
+              ) : (
+                <></>
+              )}
+            </View>
             <Spacer size={20} />
             <Text style={style.heading} numberOfLines={1}>
               {trimText(meetingTitle)}

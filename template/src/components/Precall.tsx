@@ -39,6 +39,7 @@ import {useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -306,6 +307,7 @@ const Precall = () => {
       <PrecallBeforeView />
       {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
         <View style={style.root}>
+          {!isMobileUA() ? <IDPLogoutComponent /> : <></>}
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
@@ -325,7 +327,21 @@ const Precall = () => {
             ]}
             testID="precall-screen">
             <>
-              <MeetingName textStyle={{textAlign: 'left'}} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <MeetingName textStyle={{textAlign: 'left'}} />
+                {!isMobileUA() ? (
+                  <IDPLogoutComponent
+                    containerStyle={{marginRight: 0, marginTop: 0}}
+                  />
+                ) : (
+                  <></>
+                )}
+              </View>
               <Spacer size={32} />
               <View
                 style={{

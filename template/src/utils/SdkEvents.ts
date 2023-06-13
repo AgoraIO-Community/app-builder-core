@@ -44,6 +44,10 @@ export interface userEventsMapInterface {
   'devices-selected-speaker-changed': (
     deviceId: MediaDeviceInfo['deviceId'],
   ) => void;
+  'token-not-found': () => void;
+  'will-token-expire': () => void;
+  'did-token-expire': () => void;
+  'token-refreshed': () => void;
 }
 
 const SDKEvents = createNanoEvents<userEventsMapInterface>();
