@@ -343,7 +343,7 @@ const MoreButton = () => {
 
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   actionMenuitems.push({
-    icon: 'closed-caption',
+    icon: 'captions',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: label,

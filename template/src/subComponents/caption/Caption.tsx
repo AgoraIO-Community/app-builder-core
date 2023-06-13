@@ -142,8 +142,7 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
 
   const speakers = Object.entries(textObj);
   const activeSpeakers = speakers.filter((item) => item[1] !== '');
-  if (isLangChangeInProgress)
-    return <Loading text="Setting Transcript Language..." />;
+  if (isLangChangeInProgress) return <Loading text="Setting Spoken Language" />;
 
   return (
     <ScrollView>

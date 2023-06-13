@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   captionText: {
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 23,
     position: 'absolute',
     bottom: 0,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   captionName: {
-    fontSize: 18,
+    fontSize: 20,
     lineHeight: 26,
     fontWeight: '700',
     marginRight: 8,

@@ -141,7 +141,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
       }
     },
     iconProps: {
-      name: 'closed-caption',
+      name: 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',

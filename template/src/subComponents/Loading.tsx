@@ -11,14 +11,18 @@
 */
 import React from 'react';
 import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
+import ThemeConfig from '../../src/theme';
 
 const Loading = (props: {text: string}) => {
   const {text} = props;
 
   return (
     <View style={styles.overlay}>
+      <ActivityIndicator
+        size="large"
+        color={$config.PRIMARY_ACTION_BRAND_COLOR}
+      />
       <Text style={styles.loadingText}>{text}</Text>
-      <ActivityIndicator size="large" color={$config.SECONDARY_ACTION_COLOR} />
     </View>
   );
 };
@@ -38,9 +42,12 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     alignSelf: 'center',
-    fontSize: 18,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: 600,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     color: $config.SECONDARY_ACTION_COLOR,
-    marginBottom: 10,
+    marginTop: 8,
   },
 });
 

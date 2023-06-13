@@ -52,7 +52,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
       ]}
       {...otherProps}>
       {iconName && (
-        <View style={{marginRight: 8}}>
+        <View style={{marginRight: 4}}>
           <ImageIcon
             iconType="plain"
             name={iconName}

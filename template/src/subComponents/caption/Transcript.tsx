@@ -193,7 +193,7 @@ const Transcript = (props: TranscriptProps) => {
         </TouchableOpacity>
       </View>
       {isLangChangeInProgress ? (
-        <Loading text="Setting Transcript Language..." />
+        <Loading text="Setting Spoken Language" />
       ) : (
         <>
           <FlatList
@@ -246,7 +246,8 @@ export const styles = StyleSheet.create({
   showLatestBtn: {
     backgroundColor: $config.CARD_LAYER_5_COLOR,
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingLeft: 12,
+    paddingRight: 16,
     minWidth: 'auto',
     borderRadius: 28,
   },

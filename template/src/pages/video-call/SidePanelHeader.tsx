@@ -195,7 +195,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     icon: 'lang-select',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Change Language ',
+    title: 'Change Spoken Language ',
     callback: () => {
       setActionMenuVisible(false);
       setLanguagePopup(true);
@@ -203,7 +203,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   });
 
   actionMenuitems.push({
-    icon: 'down-arrow',
+    icon: 'download',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Download Transcript',

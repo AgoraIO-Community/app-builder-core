@@ -23,6 +23,26 @@
 }
 
 
+.icon-captions-off:before {
+  content: "\e941";
+  color: #fff;
+}
+.icon-captions:before {
+  content: "\e958";
+  color: #fff;
+}
+.icon-download:before {
+  content: "\e959";
+  color: #fff;
+}
+.icon-transcript-stop:before {
+  content: "\e95a";
+  color: #fff;
+}
+.icon-transcript:before {
+  content: "\e95b";
+  color: #fff;
+}
 .icon-search:before {
   content: "\e945";
   color: #808080;
@@ -38,9 +58,6 @@
 .icon-down-arrow:before {
   content: "\e93f";
   color: #fff;
-}
-.icon-closed-caption:before {
-  content: "\e941";
 }
 .icon-caption-mode:before {
   content: "\e93c";
