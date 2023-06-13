@@ -54,7 +54,6 @@
   "ICON_BG_COLOR": "#242529",
   "TOOLBAR_COLOR": "#111111",
   "ACTIVE_SPEAKER": true,
-  "TOAST_NOTIFICATIONS": true,
   "ENABLE_TOKEN_AUTH": false,
   "ENABLE_IDP_AUTH": false,
   "PROJECT_ID": ""
