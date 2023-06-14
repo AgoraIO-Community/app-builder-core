@@ -22,6 +22,8 @@ export const ScreenshareContext = createContext<ScreenshareContextInterface>({
   isScreenshareActive: false,
   startUserScreenshare: () => {},
   stopUserScreenShare: () => {},
+  //@ts-ignore
+  ScreenshareStoppedCallback: () => {},
 });
 
 const useScreenshare = createHook(ScreenshareContext);

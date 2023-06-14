@@ -21,6 +21,7 @@ import {useRender} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
 import {isWebInternal, trimText} from '../utils/common';
+import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 
 interface Props {
   children: React.ReactNode;
@@ -28,10 +29,16 @@ interface Props {
 
 const EventsConfigure: React.FC<Props> = (props) => {
   const {setStore} = useContext(StorageContext);
+  //@ts-ignore
+  const {isScreenshareActive, ScreenshareStoppedCallback} = useScreenshare();
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
+  const isScreenshareActiveRef = useRef({isScreenshareActive});
   const {phrase} = useParams<{phrase: string}>();
+  useEffect(() => {
+    isScreenshareActiveRef.current.isScreenshareActive = isScreenshareActive;
+  }, [isScreenshareActive]);
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
@@ -86,6 +93,16 @@ const EventsConfigure: React.FC<Props> = (props) => {
       });
     });
     events.on(controlMessageEnum.kickUser, () => {
+      //before kickoff the user we have check whether screenshare on/off
+      //if its on then stop screenshare and emit event for screensharing is stopped
+      try {
+        if (isScreenshareActiveRef?.current?.isScreenshareActive) {
+          ScreenshareStoppedCallback && ScreenshareStoppedCallback();
+        }
+      } catch (error) {
+        console.log('error on stop the screeshare', error);
+      }
+
       Toast.show({
         type: 'info',
         text1: 'The host has removed you from the meeting.',

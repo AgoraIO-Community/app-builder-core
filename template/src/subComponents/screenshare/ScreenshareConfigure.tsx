@@ -130,74 +130,85 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       const action = payload.action;
       const value = payload.value;
 
-      const screenUidOfUser =
-        renderListRef.current.renderList[data.sender].screenUid;
-      switch (action) {
-        case EventActions.SCREENSHARE_STARTED:
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [screenUidOfUser]: {
-                name: renderListRef.current.renderList[screenUidOfUser]?.name,
-                isActive: true,
-                ts: value || 0,
-              },
-            };
-          });
-          break;
-        case EventActions.SCREENSHARE_STOPPED:
-          setScreenShareData((prevState) => {
-            return {
-              ...prevState,
-              [screenUidOfUser]: {
-                name: renderListRef.current.renderList[screenUidOfUser]?.name,
-                isActive: false,
-                ts: value || 0,
-              },
-            };
-          });
-          //if remote user started/stopped the screenshare then change the layout to pinned/grid
-          //if user pinned somebody then don't triggerlayout change
-          if (!pinnedUidRef.current.pinnedUid) {
-            triggerChangeLayout(false);
+      if (data?.sender) {
+        let screenUidOfUser =
+          renderListRef.current.renderList[data?.sender]?.screenUid;
+        if (!screenUidOfUser) {
+          screenUidOfUser = payload?.screenUidOfUser;
+        }
+        if (screenUidOfUser) {
+          switch (action) {
+            case EventActions.SCREENSHARE_STARTED:
+              setScreenShareData((prevState) => {
+                return {
+                  ...prevState,
+                  [screenUidOfUser]: {
+                    name: renderListRef.current.renderList[screenUidOfUser]
+                      ?.name,
+                    isActive: true,
+                    ts: value || 0,
+                  },
+                };
+              });
+              break;
+            case EventActions.SCREENSHARE_STOPPED:
+              setScreenShareData((prevState) => {
+                return {
+                  ...prevState,
+                  [screenUidOfUser]: {
+                    name: renderListRef.current.renderList[screenUidOfUser]
+                      ?.name,
+                    isActive: false,
+                    ts: value || 0,
+                  },
+                };
+              });
+              //if remote user started/stopped the screenshare then change the layout to pinned/grid
+              //if user pinned somebody then don't triggerlayout change
+              if (!pinnedUidRef.current.pinnedUid) {
+                triggerChangeLayout(false);
+              }
+              break;
+            default:
+              break;
           }
-          break;
-        default:
-          break;
+        }
       }
     });
   }, []);
 
+  const ScreenshareStoppedCallback = () => {
+    setScreenshareActive(false);
+    console.log('STOPPED SHARING');
+    executeNormalQuery();
+    events.send(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      JSON.stringify({
+        action: EventActions.SCREENSHARE_STOPPED,
+        value: 0,
+      }),
+      EventPersistLevel.LEVEL2,
+    );
+    setScreenShareData((prevState) => {
+      return {
+        ...prevState,
+        [screenShareUid]: {
+          ...prevState[screenShareUid],
+          isActive: false,
+          ts: 0,
+        },
+      };
+    });
+    //if local user stopped the screenshare then change layout to grid
+    //if user pinned somebody then don't triggerlayout change
+    if (!pinnedUidRef.current.pinnedUid) {
+      triggerChangeLayout(false);
+    }
+  };
+
   useEffect(() => {
     // @ts-ignore
-    rtc.RtcEngine.addListener('ScreenshareStopped', () => {
-      setScreenshareActive(false);
-      console.log('STOPPED SHARING');
-      executeNormalQuery();
-      events.send(
-        EventNames.SCREENSHARE_ATTRIBUTE,
-        JSON.stringify({
-          action: EventActions.SCREENSHARE_STOPPED,
-          value: 0,
-        }),
-        EventPersistLevel.LEVEL2,
-      );
-      setScreenShareData((prevState) => {
-        return {
-          ...prevState,
-          [screenShareUid]: {
-            ...prevState[screenShareUid],
-            isActive: false,
-            ts: 0,
-          },
-        };
-      });
-      //if local user stopped the screenshare then change layout to grid
-      //if user pinned somebody then don't triggerlayout change
-      if (!pinnedUidRef.current.pinnedUid) {
-        triggerChangeLayout(false);
-      }
-    });
+    rtc.RtcEngine.addListener('ScreenshareStopped', ScreenshareStoppedCallback);
   }, []);
 
   const executeRecordingQuery = (isScreenActive: boolean) => {
@@ -256,6 +267,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           JSON.stringify({
             action: EventActions.SCREENSHARE_STARTED,
             value: timeNow(),
+            screenUidOfUser: screenShareUid,
           }),
           EventPersistLevel.LEVEL2,
         );
@@ -272,6 +284,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
         isScreenshareActive,
         startUserScreenshare,
         stopUserScreenShare,
+        //@ts-ignore
+        ScreenshareStoppedCallback,
       }}>
       {props.children}
     </ScreenshareContext.Provider>
