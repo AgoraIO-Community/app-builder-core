@@ -91,38 +91,20 @@ const CaptionIcon = (props: CaptionIconProps) => {
     });
   }, []);
 
-  const toggleSTT = async (method: string, language: string) => {
+  const toggleSTT = async (method: string) => {
     // handleSTT
 
     setIsCaptionON((prev) => !prev);
 
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-
-    // try {
-    //   const res = await startStopSTT(
-    //     store?.token || '',
-    //     roomId.host ? roomId.host : '',
-    //     method,
-    //     language,
-    //   );
-    //   console.log('response after start/stop stt', res); //TODO: log username of who started stt
-    //   // once STT is active in the channel , notify others so that they dont' trigger start again
-    //   events.send(
-    //     'handleCaption',
-    //     JSON.stringify({active: true}),
-    //     PersistanceLevel.Sender,
-    //   );
-    //   setIsSTTActive(true);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    if (!isHost) return; // only host can start stt
     start();
   };
 
   const onLanguageChange = () => {
     // lang would be set on confirm click
-    toggleSTT(isCaptionON ? 'stop' : 'start', language);
+    toggleSTT(isCaptionON ? 'stop' : 'start');
     setLanguagePopup(false);
     isLangPopupOpenedOnce.current = true;
   };
@@ -130,12 +112,12 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
-      if (isLangPopupOpenedOnce.current || isSTTActive) {
+      if (isLangPopupOpenedOnce.current || isSTTActive || !isHost) {
         // is lang popup has been shown once for any user in meeting
         sidePanel === SidePanelType.Transcript &&
           !isCaptionON &&
           setSidePanel(SidePanelType.None);
-        toggleSTT(isCaptionON ? 'stop' : 'start', language);
+        toggleSTT(isCaptionON ? 'stop' : 'start');
       } else {
         setLanguagePopup(true);
       }
