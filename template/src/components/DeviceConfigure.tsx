@@ -136,10 +136,10 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   const {RtcEngine} = rtc as unknown as {RtcEngine: WebRtcEngineInstance};
   const {localStream} = RtcEngine;
 
-  const refreshDeviceList = useCallback(async () => {
+  const refreshDeviceList = useCallback(async (noEmitLog?: boolean) => {
     let updatedDeviceList: MediaDeviceInfo[];
     await RtcEngine.getDevices(function (devices: deviceInfo[]) {
-      log('Fetching all devices: ', devices);
+      !noEmitLog && log('Fetching all devices: ', devices);
       /**
        * Some browsers list the same microphone twice with different Id's,
        * their group Id's match as they are the same physical device.
@@ -161,7 +161,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
             device.kind == 'audiooutput'),
       );
 
-      log('Setting unique devices', updatedDeviceList);
+      !noEmitLog && log('Setting unique devices', updatedDeviceList);
       if (updatedDeviceList.length > 0) {
         setDeviceList(updatedDeviceList);
       }
@@ -327,8 +327,11 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   };
 
   useEffect(() => {
+    // Notify updated state every 20s
+    let count = 0;
     const interval = setInterval(() => {
-      navigator.mediaDevices.enumerateDevices();
+      count = count + 1;
+      refreshDeviceList(count % 10 !== 0);
     }, 2000);
     return () => {
       clearInterval(interval);
@@ -542,7 +545,6 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
   // Port this to useEffectEvent(https://beta.reactjs.org/reference/react/useEffectEvent) when
   // released
   useEffect(() => {
-    log('previous devicelist updated', deviceList);
     AgoraRTC.onMicrophoneChanged = commonOnChangedEvent;
     return () => {
       AgoraRTC.onMicrophoneChanged = null;
