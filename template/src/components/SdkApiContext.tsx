@@ -25,6 +25,7 @@ type SdkApiContextInterface = {
         initialized: true;
         phrase: string;
         meetingDetails?: Partial<MeetingInfoContextInterface['data']>;
+        userName: string;
         skipPrecall: boolean;
         promise: extractPromises<_InternalSDKMethodEventsMap['join']>;
       }
@@ -88,16 +89,17 @@ export const SdkApiContext =
 let moduleEventsUnsub: any[] = [];
 
 type commonEventHandlers = {
-  [K in keyof Omit<_InternalSDKMethodEventsMap, 'muteVideo' | 'muteAudio'>]?: (
-    setter: (p: SdkApiContextInterface[K]) => void,
-  ) => Unsubscribe;
+  [K in keyof Omit<
+    _InternalSDKMethodEventsMap,
+    'muteVideo' | 'muteAudio' | 'login' | 'logout'
+  >]?: (setter: (p: SdkApiContextInterface[K]) => void) => Unsubscribe;
 };
 
 const commonEventHandlers: commonEventHandlers = {
   join: (setter) => {
     return SDKMethodEventsManager.on(
       'join',
-      (res, rej, roomDetail, skipPrecall) => {
+      (res, rej, roomDetail, skipPrecall, userName) => {
         if (typeof roomDetail === 'object') {
           if (!validateMeetingInfoData(roomDetail)) {
             rej(new Error('Invalid meeting details'));
@@ -108,6 +110,7 @@ const commonEventHandlers: commonEventHandlers = {
             phrase: SDK_MEETING_TAG,
             meetingDetails: roomDetail,
             skipPrecall,
+            userName,
             promise: {res, rej},
           });
         } else if (
@@ -118,6 +121,7 @@ const commonEventHandlers: commonEventHandlers = {
             initialized: true,
             phrase: roomDetail,
             skipPrecall,
+            userName,
             promise: {res, rej},
           });
         } else {

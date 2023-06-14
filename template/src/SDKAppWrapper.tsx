@@ -17,11 +17,18 @@ type meetingData = Partial<MeetingInfoContextInterface['data']>;
 
 export interface AppBuilderSdkApiInterface {
   customize: (customization: CustomizationApiInterface) => Promise<void>;
-  joinRoom: (roomDetails: string | meetingData) => Promise<meetingData>;
+  joinRoom: (
+    roomDetails: string | meetingData,
+    userName?: string,
+  ) => Promise<meetingData>;
   joinPrecall: (
     roomDetails: string | meetingData,
+    userName?: string,
   ) => Promise<
-    [meetingData, () => Promise<MeetingInfoContextInterface['data']>]
+    [
+      meetingData,
+      (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
+    ]
   >;
   setMicrophone: (deviceId: deviceId) => Promise<void>;
   setCamera: (deviceId: deviceId) => Promise<void>;
@@ -35,8 +42,8 @@ export interface AppBuilderSdkApiInterface {
   createCustomization: (
     customization: CustomizationApiInterface,
   ) => CustomizationApiInterface;
-  login:(token:string) => Promise<void>
-  logout:() => Promise<void>
+  login: (token: string) => Promise<void>;
+  logout: () => Promise<void>;
   customEvents: typeof customEvents;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
@@ -55,16 +62,26 @@ export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
   customEvents: customEvents,
-  joinRoom: async (roomDetails) => {
-    return await SDKMethodEventsManager.emit('join', roomDetails, true);
+  joinRoom: async (roomDetails, userName) => {
+    return await SDKMethodEventsManager.emit(
+      'join',
+      roomDetails,
+      true,
+      userName,
+    );
   },
-  joinPrecall: async (roomDetails) => {
+  joinPrecall: async (roomDetails, userName) => {
     if (!$config.PRECALL)
       throw new Error('Precall disabled in config, cant join precall');
-    const t = await SDKMethodEventsManager.emit('join', roomDetails);
+    const t = await SDKMethodEventsManager.emit(
+      'join',
+      roomDetails,
+      false,
+      userName,
+    );
     return t as unknown as [
       MeetingInfoContextInterface['data'],
-      () => Promise<MeetingInfoContextInterface['data']>,
+      (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
     ];
   },
   setMicrophone: async (deviceId) => {

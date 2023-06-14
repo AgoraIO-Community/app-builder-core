@@ -18,6 +18,7 @@ import {SdkApiContext} from './SdkApiContext';
 import {useRtc, useMeetingInfo} from 'customization-api';
 import SDKEvents from '../utils/SdkEvents';
 import DeviceContext from './DeviceContext';
+import useSetName from '../utils/useSetName';
 
 export interface VideoCallContextInterface {
   showInvitePopup: boolean;
@@ -47,9 +48,13 @@ const VideoCallProvider = (props: VideoCallProviderProps) => {
   const {join, enterRoom} = useContext(SdkApiContext);
   const meetingInfo = useMeetingInfo();
   const {deviceList} = useContext(DeviceContext);
+  const setUsername = useSetName();
 
   useEffect(() => {
     if (join.initialized && join.phrase) {
+      if (join.userName && join.skipPrecall) {
+        setUsername(join.userName);
+      }
       join.promise.res(meetingInfo.data);
     }
     if (enterRoom.promise) {

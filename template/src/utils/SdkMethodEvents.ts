@@ -10,6 +10,7 @@ export interface SdkMethodEvents {
   join(
     roomid: string | Partial<MeetingInfoContextInterface['data']>,
     skipPrecall?: boolean,
+    username?: string,
   ): MeetingInfoContextInterface['data'];
   microphoneDevice: (deviceId: deviceId) => void;
   speakerDevice: (deviceId: deviceId) => void;
