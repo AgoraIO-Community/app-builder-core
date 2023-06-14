@@ -16,6 +16,7 @@ import {useToast} from '../../components/useToast';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
 import Transcript from '../../subComponents/caption/Transcript';
+import {useCaption} from '../../subComponents/caption/useCaption';
 
 const ActionSheet = () => {
   const {setActionSheetVisible} = useToast();
@@ -42,6 +43,8 @@ const ActionSheet = () => {
     bottomSheetRef.current?.snapTo(({snapPoints}) => snapPoints[index]);
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
   }, []);
+
+  const {setIsTranscriptON} = useCaption();
 
   const root = document.documentElement;
 
@@ -95,6 +98,10 @@ const ActionSheet = () => {
 
   function onDismiss() {
     setSidePanel(SidePanelType.None);
+  }
+  function onTranscriptDismiss() {
+    setSidePanel(SidePanelType.None);
+    setIsTranscriptON(false);
   }
 
   const handleSpringStart = (event: SpringEvent) => {
@@ -215,7 +222,7 @@ const ActionSheet = () => {
         <BottomSheet
           sibling={ToastComponentRender}
           ref={transcriptSheetRef}
-          onDismiss={onDismiss}
+          onDismiss={onTranscriptDismiss}
           open={isTranscriptOpen}
           expandOnContentDrag={false}
           snapPoints={({maxHeight}) => [1 * maxHeight]}
