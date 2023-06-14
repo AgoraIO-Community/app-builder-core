@@ -14,6 +14,7 @@ import useSTTAPI from './useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
+import {useMeetingInfo} from 'customization-api';
 
 const CaptionContainer = () => {
   const {isCaptionON, setIsCaptionON} = useCaption();
@@ -22,6 +23,9 @@ const CaptionContainer = () => {
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const renderListRef = React.useRef({renderList});
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   React.useEffect(() => {
     renderListRef.current.renderList = renderList;
@@ -34,7 +38,12 @@ const CaptionContainer = () => {
         setActionMenuVisible={setActionMenuVisible}
         btnRef={moreIconRef}
       />
-      <MoreMenu ref={moreIconRef} setActionMenuVisible={setActionMenuVisible} />
+      {isHost && (
+        <MoreMenu
+          ref={moreIconRef}
+          setActionMenuVisible={setActionMenuVisible}
+        />
+      )}
       <Caption renderListRef={renderListRef} />
     </View>
   ) : null;

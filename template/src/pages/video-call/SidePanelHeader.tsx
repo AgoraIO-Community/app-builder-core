@@ -28,6 +28,7 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
 import {downloadTranscript} from '../../subComponents/caption/utils';
+import {useMeetingInfo} from 'customization-api';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -157,11 +158,14 @@ export const TranscriptHeader = (props) => {
     React.useState<boolean>(false);
 
   const label = 'Meeting Transcript';
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   return (
     <SidePanelHeader
       centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
-      trailingIconName="more-menu"
+      trailingIconName={isHost ? 'more-menu' : undefined}
       ref={moreIconRef}
       trailingIconOnPress={() => {
         setActionMenuVisible(true);
@@ -194,6 +198,9 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     React.useState<boolean>(false);
   const {restart} = useSTTAPI();
   const username = useGetName();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   actionMenuitems.push({
     icon: 'lang-select',
@@ -232,16 +239,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   //     setIsCaptionON(true);
   //   },
   // });
-  // actionMenuitems.push({
-  //   icon: 'stt',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Turn Off Speech to text ',
-  //   callback: () => {
-  //     setActionMenuVisible(false);
-  //     setSidePanel(SidePanelType.None);
-  //   },
-  // });
+
   const onLanguageChange = (langChanged = false) => {
     setLanguagePopup(false);
     if (langChanged) {
@@ -299,6 +297,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
         modalPosition={modalPosition}
         items={actionMenuitems}
       />
+
       <LanguageSelectorPopup
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}

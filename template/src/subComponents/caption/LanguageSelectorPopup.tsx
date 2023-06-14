@@ -66,8 +66,8 @@ interface LanguageSelectorPopup {
 
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const isDesktop = useIsDesktop()('popup');
-  const heading = 'Set Language';
-  const subHeading = `Captions and transcript will appear in this language for everyone in the meeting. `;
+  const heading = 'Set Spoken Language';
+  const subHeading = `What language(s) are being spoken by everyone in this meeting?`;
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
 
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 24,
-    maxWidth: 400,
+    maxWidth: 446,
   },
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   subHeading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    fontSize: ThemeConfig.FontSize.tiny,
+    fontSize: ThemeConfig.FontSize.small,
     lineHeight: 20,
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
   },

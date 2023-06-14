@@ -69,6 +69,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     setIsCaptionON((prev) => !prev);
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    if (!isHost) return; // only host can start stt
     start();
   };
 
@@ -82,7 +83,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
-      if (isLangPopupOpenedOnce.current || isSTTActive) {
+      if (isLangPopupOpenedOnce.current || isSTTActive || !isHost) {
         // is lang popup has been shown once for any user in meeting
         toggleSTT(isCaptionON ? 'stop' : 'start');
       } else {

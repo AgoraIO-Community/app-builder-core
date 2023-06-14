@@ -5,6 +5,7 @@ import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import {useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
+import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -27,6 +28,9 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   const {start} = useSTTAPI();
 
   const {isTranscriptON, setIsTranscriptON, isSTTActive} = useCaption();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -34,7 +38,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   //const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
-    if (isLangPopupOpenedOnce.current || isSTTActive) {
+    if (isLangPopupOpenedOnce.current || isSTTActive || !isHost) {
       setIsTranscriptON((prev) => !prev);
       !isTranscriptON
         ? setSidePanel(SidePanelType.Transcript)
@@ -70,6 +74,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     setIsTranscriptON((prev) => !prev);
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    if (!isHost) return; // only host can start stt
     start();
   };
 
