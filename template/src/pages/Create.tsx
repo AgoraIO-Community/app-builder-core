@@ -42,6 +42,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import isSDK from '../utils/isSDK';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -117,7 +118,7 @@ const Create = () => {
     //   )}-${randomNameGenerator(3)}`,
     // );
 
-    if (isWebInternal()) {
+    if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
