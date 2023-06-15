@@ -165,6 +165,10 @@ export const TranscriptHeader = (props) => {
       ref={moreIconRef}
       trailingIconOnPress={() => {
         setActionMenuVisible(true);
+      }}
+      trailingIconName2={'close'}
+      trailingIconOnPress2={() => {
+        setSidePanel(SidePanelType.None);
       }}>
       <TranscriptHeaderActionMenu
         actionMenuVisible={actionMenuVisible}
@@ -184,7 +188,12 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON, language, meetingTranscript} = useCaption();
+  const {
+    language,
+    meetingTranscript,
+    setIsTranscriptPaused,
+    isTranscriptPaused,
+  } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
 
   const [modalPosition, setModalPosition] = React.useState({});
@@ -215,23 +224,20 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       setActionMenuVisible(false);
       console.log(meetingTranscript);
       downloadTranscript(meetingTranscript);
-      // download transcript
-      // setSidePanel(SidePanelType.None);
-      //setIsCaptionON(true);
     },
   });
 
-  // actionMenuitems.push({
-  //   icon: 'caption-mode',
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Live Captions Mode',
-  //   callback: () => {
-  //     setActionMenuVisible(false);
-  //     setSidePanel(SidePanelType.None);
-  //     setIsCaptionON(true);
-  //   },
-  // });
+  !isTranscriptPaused &&
+    actionMenuitems.push({
+      icon: 'transcript-stop',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Stop Generating Transcript',
+      callback: () => {
+        setIsTranscriptPaused((prev) => !prev);
+        setActionMenuVisible(false);
+      },
+    });
 
   const onLanguageChange = (langChanged = false) => {
     setLanguagePopup(false);

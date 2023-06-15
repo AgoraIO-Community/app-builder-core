@@ -57,6 +57,23 @@ const Transcript = (props: TranscriptProps) => {
   const {defaultContent: renderList} = useContent();
   const renderListRef = React.useRef({renderList});
 
+  const [isFocused, setIsFocused] = React.useState(false);
+  const {setIsTranscriptON, isTranscriptPaused, setIsTranscriptPaused} =
+    useCaption();
+  const isTranscriptPausedRef = React.useRef(isTranscriptPaused);
+
+  const updateIsTranscriptPausedRef = () => {
+    isTranscriptPausedRef.current = isTranscriptPaused;
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
   const handleLayout = (event) => {
     flatListHeightRef.current = event.nativeEvent.layout.height;
     if (contentHeightRef.current > event.nativeEvent.layout.height) {
@@ -135,7 +152,9 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args) => {
-    streamMessageCallback(args, sttObj);
+    if (!isTranscriptPausedRef.current) {
+      streamMessageCallback(args, sttObj);
+    }
   };
 
   React.useEffect(() => {
@@ -143,9 +162,13 @@ const Transcript = (props: TranscriptProps) => {
   }, [renderList]);
 
   React.useEffect(() => {
+    updateIsTranscriptPausedRef();
     !isSTTActive &&
       RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
-  }, []);
+    return () => {
+      setIsTranscriptON(false);
+    };
+  }, [isTranscriptPaused]);
 
   return (
     <View
@@ -164,13 +187,15 @@ const Transcript = (props: TranscriptProps) => {
           : {},
       ]}>
       {showHeader && <TranscriptHeader />}
-      <View style={styles.searchContainer}>
-        <ImageIcon
-          name="search"
-          iconSize={20}
-          iconType="plain"
-          tintColor={$config.SEMANTIC_NEUTRAL}
-        />
+      <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
+        {!searchQuery && (
+          <ImageIcon
+            name="search"
+            iconSize={20}
+            iconType="plain"
+            tintColor={$config.SEMANTIC_NEUTRAL}
+          />
+        )}
         <TextInput
           style={styles.searchInput}
           placeholder="Search"
@@ -179,6 +204,8 @@ const Transcript = (props: TranscriptProps) => {
           placeholderTextColor={
             $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
           }
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
         <TouchableOpacity
           onPress={() => {
@@ -196,34 +223,49 @@ const Transcript = (props: TranscriptProps) => {
         <Loading text="Setting Spoken Language" />
       ) : (
         <>
-          <FlatList
-            ref={flatListRef}
-            style={styles.contentContainer}
-            data={renderedData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.uid + '-' + item.time}
-            onContentSizeChange={handleContentSizeChange}
-            onScroll={handleScroll}
-            onLayout={handleLayout}
-            ListEmptyComponent={searchQuery && <NoResultsMsg />}
-          />
-          {showButton && (
-            <View
-              style={{
-                position: 'absolute',
-                bottom: 30,
-                left: 0,
-                right: 0,
-                alignItems: 'center',
-                zIndex: 9999,
-              }}>
+          <View style={{flex: isTranscriptPaused ? 0.98 : 1}}>
+            <FlatList
+              ref={flatListRef}
+              style={styles.contentContainer}
+              data={renderedData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.uid + '-' + item.time}
+              onContentSizeChange={handleContentSizeChange}
+              onScroll={handleScroll}
+              onLayout={handleLayout}
+              ListEmptyComponent={searchQuery && <NoResultsMsg />}
+            />
+            {showButton && (
+              <View
+                style={{
+                  position: 'absolute',
+                  bottom: 30,
+                  left: 0,
+                  right: 0,
+                  alignItems: 'center',
+                  zIndex: 9999,
+                }}>
+                <PrimaryButton
+                  iconName={'down-arrow'}
+                  containerStyle={styles.showLatestBtn}
+                  textStyle={styles.textStyleBtn}
+                  onPress={handleViewLatest}
+                  iconSize={20}
+                  text={'View Latest'}
+                />
+              </View>
+            )}
+          </View>
+          {isTranscriptPaused && (
+            <View style={styles.btnContainer}>
               <PrimaryButton
-                iconName={'down-arrow'}
-                containerStyle={styles.showLatestBtn}
-                textStyle={styles.textStyleBtn}
-                onPress={handleViewLatest}
-                iconSize={20}
-                text={'View Latest'}
+                iconName={'transcript'}
+                containerStyle={styles.btnContainerStyle}
+                textStyle={styles.btnTxtStyle}
+                onPress={() => {
+                  setIsTranscriptPaused(false);
+                }}
+                text={'Resume Transcript'}
               />
             </View>
           )}
@@ -241,6 +283,24 @@ export const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'flex-start',
+  },
+  btnContainerStyle: {
+    paddingVertical: 11,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: $config.SECONDARY_ACTION_COLOR,
+    borderRadius: 4,
+  },
+  btnContainer: {
+    paddingHorizontal: 40,
+    marginVertical: 20,
+  },
+
+  btnTxtStyle: {
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.small,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
 
   showLatestBtn: {
@@ -291,6 +351,9 @@ export const styles = StyleSheet.create({
         outlineStyle: 'none',
       },
     }),
+  },
+  inputFocused: {
+    borderColor: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   searchButton: {
     backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
