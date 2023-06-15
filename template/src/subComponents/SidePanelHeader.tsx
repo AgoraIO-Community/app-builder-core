@@ -4,6 +4,7 @@ import IconButton from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {IconsInterface} from '../atoms/CustomIcon';
 import {isWebInternal} from '../utils/common';
+import styles from 'react-native-toast-message/src/styles';
 
 export interface SidePanelHeaderProps {
   centerComponent?: React.ReactNode;
@@ -11,6 +12,8 @@ export interface SidePanelHeaderProps {
   leadingIconOnPress?: () => void;
   trailingIconName?: keyof IconsInterface;
   trailingIconOnPress?: () => void;
+  trailingIconName2?: keyof IconsInterface;
+  trailingIconOnPress2?: () => void;
   isChat?: boolean;
   children?: React.ReactNode;
 }
@@ -52,7 +55,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
             <></>
           )}
           {props?.centerComponent ? props.centerComponent : <></>}
-          <View ref={ref}>
+          <View ref={ref} style={SidePanelStyles.row}>
             {props?.trailingIconName ? (
               <IconButton
                 hoverEffect={true}
@@ -71,6 +74,29 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
                 }}
                 onPress={() => {
                   props?.trailingIconOnPress && props.trailingIconOnPress();
+                }}
+              />
+            ) : (
+              <></>
+            )}
+            {props?.trailingIconName2 ? (
+              <IconButton
+                hoverEffect={true}
+                hoverEffectStyle={{
+                  backgroundColor: $config.ICON_BG_COLOR,
+                  borderRadius: 20,
+                }}
+                iconProps={{
+                  iconType: 'plain',
+                  iconContainerStyle: {
+                    padding: 5,
+                  },
+                  iconSize: 20,
+                  name: props?.trailingIconName2,
+                  tintColor: $config.SECONDARY_ACTION_COLOR,
+                }}
+                onPress={() => {
+                  props?.trailingIconOnPress2 && props.trailingIconOnPress2();
                 }}
               />
             ) : (
@@ -113,6 +139,9 @@ export const SidePanelStyles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  row: {
+    flexDirection: 'row',
   },
 });
 export default SidePanelHeader;
