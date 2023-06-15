@@ -58,6 +58,7 @@ interface AuthContextInterface {
 const AuthContext = createContext<AuthContextInterface | null>(null);
 
 const AuthProvider = (props: AuthProviderProps) => {
+  const regEvent = useRef(true);
   const refreshTimeoutWeb = useRef(null);
   const [showNativePopup, setShowNativePopup] = useState(false);
   const {setStore, store} = useContext(StorageContext);
@@ -210,7 +211,8 @@ const AuthProvider = (props: AuthProviderProps) => {
   }, [history]);
 
   useEffect(() => {
-    if (isSDK()) {
+    if (isSDK() && regEvent.current) {
+      regEvent.current = false;
       SDKMethodEventsManager.on('login', async (res, rej, token) => {
         try {
           setStore((prevState) => {
