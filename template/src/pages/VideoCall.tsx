@@ -324,14 +324,14 @@ const VideoCall: React.FC = () => {
                                   setRecordingActive={setRecordingActive}
                                   callActive={callActive}>
                                   <UserPreferenceProvider>
-                                    <EventsConfigure>
-                                      <WhiteboardProvider>
-                                        <RecordingProvider
-                                          value={{
-                                            setRecordingActive,
-                                            isRecordingActive,
-                                          }}>
-                                          <ScreenshareConfigure>
+                                    <WhiteboardProvider>
+                                      <RecordingProvider
+                                        value={{
+                                          setRecordingActive,
+                                          isRecordingActive,
+                                        }}>
+                                        <ScreenshareConfigure>
+                                          <EventsConfigure>
                                             <LiveStreamContextProvider
                                               value={{
                                                 setRtcProps,
@@ -378,10 +378,10 @@ const VideoCall: React.FC = () => {
                                                 </LocalUserContext>
                                               </LiveStreamDataProvider>
                                             </LiveStreamContextProvider>
-                                          </ScreenshareConfigure>
-                                        </RecordingProvider>
-                                      </WhiteboardProvider>
-                                    </EventsConfigure>
+                                          </EventsConfigure>
+                                        </ScreenshareConfigure>
+                                      </RecordingProvider>
+                                    </WhiteboardProvider>
                                   </UserPreferenceProvider>
                                 </RtmConfigure>
                               </ScreenShareProvider>
