@@ -241,7 +241,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
       textColor: $config.FONT_COLOR,
       title: 'Stop Generating Transcript',
       callback: () => {
-        setIsTranscriptPaused((prev) => !prev);
+        setIsTranscriptPaused(true);
         setActionMenuVisible(false);
       },
     });
