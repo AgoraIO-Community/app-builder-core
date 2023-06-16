@@ -74,11 +74,12 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const {language, setLanguage} = useCaption();
   const prevLangChanged = React.useRef<boolean>(false);
   const [error, setError] = React.useState<boolean>(false);
-  const [selectedLangCount, setSelectedLangCount] = React.useState<number>(0);
   const [selectedValues, setSelectedValues] =
     React.useState<LanguageType[]>(language);
   const isNotValidated =
     selectedValues.length === 0 || selectedValues.length === 2;
+
+  React.useEffect(() => setSelectedValues(language), [language]);
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -96,7 +97,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
           enabled={true}
           selectedValues={selectedValues}
           setSelectedValues={setSelectedValues}
-          defaultSelectedValues={['en-US']}
+          defaultSelectedValues={language || ['en-US']}
           error={error}
           setError={setError}
           onSelect={(value) => {

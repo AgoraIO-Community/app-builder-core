@@ -79,7 +79,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       events.send(
         EventNames.STT_ACTIVE,
         JSON.stringify({active: false}),
-        EventPersistLevel.LEVEL2,
+        EventPersistLevel.LEVEL3,
       );
       setIsSTTActive(false);
       return res;

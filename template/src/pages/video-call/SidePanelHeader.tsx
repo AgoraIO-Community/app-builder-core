@@ -255,10 +255,8 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
           //notify others lang changed
           events.send(
             EventNames.STT_LANGUAGE,
-            `${username} changed the spoken language to ${getLanguageLabel(
-              language,
-            )} `,
-            EventPersistLevel.LEVEL1,
+            JSON.stringify({username, language}),
+            EventPersistLevel.LEVEL3,
           );
         })
         .catch((error) => {
