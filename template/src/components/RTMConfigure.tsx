@@ -48,6 +48,8 @@ const RtmConfigure = (props: any) => {
   const renderListRef = useRef({renderList: renderList});
   const activeUidsRef = useRef({activeUids: activeUids});
 
+  const mountState = useRef(false);
+
   /**
    * inside event callback state won't have latest value.
    * so creating ref to access the state
@@ -451,6 +453,10 @@ const RtmConfigure = (props: any) => {
   };
 
   useEffect(() => {
+    if (!mountState.current) {
+      mountState.current = true;
+      return () => {};
+    }
     callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
     return () => {
       end();
