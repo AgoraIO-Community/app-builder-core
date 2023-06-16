@@ -56,7 +56,9 @@ import StorageContext from '../components/StorageContext';
 import useSTTAPI from '../subComponents/caption/useSTTAPI';
 import ImageIcon from '../atoms/ImageIcon';
 import events from '../rtm-events-api';
-import LanguageSelectorPopup from '../subComponents/caption/LanguageSelectorPopup';
+import LanguageSelectorPopup, {
+  getLanguageLabel,
+} from '../subComponents/caption/LanguageSelectorPopup';
 import {EventNames} from '../rtm-events';
 import Toast from '../../react-native-toast-message';
 
@@ -283,6 +285,7 @@ const MoreButton = () => {
     isSTTActive,
     setIsSTTActive,
     language,
+    setLanguage,
   } = useCaption();
   const {store} = React.useContext(StorageContext);
   const [isLanguagePopupOpen, setLanguagePopup] =
@@ -304,19 +307,24 @@ const MoreButton = () => {
     });
 
     events.on(EventNames.STT_LANGUAGE, (data) => {
-      const payload = data?.payload || '';
+      const payload = JSON.parse(data?.payload);
+      const msg = `${
+        payload.username
+      } changed the spoken language to ${getLanguageLabel(payload.language)} `;
+
       Toast.show({
         type: 'info',
         leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-        text1: payload,
+        text1: msg,
         visibilityTime: 3000,
       });
+      // syncing local set language
+      payload && setLanguage(payload.language);
     });
   }, []);
 
   const toggleSTT = async (method: string) => {
     // handleSTT
-
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
     start();

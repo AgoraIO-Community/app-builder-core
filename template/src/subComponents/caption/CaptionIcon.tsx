@@ -6,7 +6,7 @@ import StorageContext from '../../components/StorageContext';
 import {useCaption} from './useCaption';
 import events, {PersistanceLevel} from '../../rtm-events-api';
 import Toast from '../../../react-native-toast-message';
-import LanguageSelectorPopup from './LanguageSelectorPopup';
+import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import {EventNames} from '../../rtm-events';
 import ImageIcon from '../../atoms/ImageIcon';
@@ -55,8 +55,14 @@ const CaptionIcon = (props: CaptionIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
-  const {isCaptionON, setIsCaptionON, isSTTActive, setIsSTTActive, language} =
-    useCaption();
+  const {
+    isCaptionON,
+    setIsCaptionON,
+    isSTTActive,
+    setIsSTTActive,
+    language,
+    setLanguage,
+  } = useCaption();
   const {store} = React.useContext(StorageContext);
   const {
     data: {roomId, isHost},
@@ -81,13 +87,19 @@ const CaptionIcon = (props: CaptionIconProps) => {
     });
 
     events.on(EventNames.STT_LANGUAGE, (data) => {
-      const payload = data?.payload || '';
+      const payload = JSON.parse(data?.payload);
+      const msg = `${
+        payload.username
+      } changed the spoken language to ${getLanguageLabel(payload.language)} `;
+
       Toast.show({
         type: 'info',
         leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-        text1: payload,
+        text1: msg,
         visibilityTime: 3000,
       });
+      // syncing local set language
+      payload && setLanguage(payload.language);
     });
   }, []);
 
