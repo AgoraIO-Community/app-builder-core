@@ -227,17 +227,17 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  !isTranscriptPaused &&
-    actionMenuitems.push({
-      icon: 'transcript-stop',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Stop Generating Transcript',
-      callback: () => {
-        setIsTranscriptPaused(true);
-        setActionMenuVisible(false);
-      },
-    });
+  // !isTranscriptPaused &&
+  //   actionMenuitems.push({
+  //     icon: 'transcript-stop',
+  //     iconColor: $config.SECONDARY_ACTION_COLOR,
+  //     textColor: $config.FONT_COLOR,
+  //     title: 'Stop Generating Transcript',
+  //     callback: () => {
+  //       setIsTranscriptPaused(true);
+  //       setActionMenuVisible(false);
+  //     },
+  //   });
 
   const onLanguageChange = (langChanged = false) => {
     setLanguagePopup(false);

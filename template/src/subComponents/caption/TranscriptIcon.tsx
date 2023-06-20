@@ -38,12 +38,13 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   //const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
-    if (isLangPopupOpenedOnce.current || isSTTActive || !isHost) {
+    if (isSTTActive || !isHost) {
       setIsTranscriptON((prev) => !prev);
       !isTranscriptON
         ? setSidePanel(SidePanelType.Transcript)
         : setSidePanel(SidePanelType.None);
     } else {
+      isLangPopupOpenedOnce.current = true;
       setLanguagePopup(true);
     }
   };
@@ -88,7 +89,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     }
 
     setLanguagePopup(false);
-    isLangPopupOpenedOnce.current = true;
+    isLangPopupOpenedOnce.current = false;
   };
 
   return (
@@ -98,6 +99,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onLanguageChange}
+        isFirstTimePopupOpen={isLangPopupOpenedOnce.current}
       />
     </View>
   );

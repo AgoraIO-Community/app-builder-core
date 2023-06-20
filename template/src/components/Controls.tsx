@@ -346,7 +346,7 @@ const MoreButton = () => {
       }
     }
     setLanguagePopup(false);
-    isLangPopupOpenedOnce.current = true;
+    isLangPopupOpenedOnce.current = false;
   };
 
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
@@ -358,7 +358,7 @@ const MoreButton = () => {
     callback: () => {
       STTMode.current = 'caption';
       setActionMenuVisible(false);
-      if (isLangPopupOpenedOnce.current || isSTTActive) {
+      if (isSTTActive) {
         // is lang popup has been shown once for any user in meeting
         // sidePanel === SidePanelType.Transcript &&
         //   !isCaptionON &&
@@ -366,13 +366,14 @@ const MoreButton = () => {
         toggleSTT(isCaptionON ? 'stop' : 'start');
         setIsCaptionON((prev) => !prev);
       } else {
+        isLangPopupOpenedOnce.current = true;
         setLanguagePopup(true);
       }
     },
   });
 
   actionMenuitems.push({
-    icon: 'transcript-mode',
+    icon: 'transcript',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: isTranscriptON ? 'Hide Transcript' : 'Show Transcript',
@@ -380,7 +381,7 @@ const MoreButton = () => {
       STTMode.current = 'transcript';
       setActionMenuVisible(false);
 
-      if (isLangPopupOpenedOnce.current || isSTTActive) {
+      if (isSTTActive) {
         // is lang popup has been shown once for any user in meeting
         // sidePanel === SidePanelType.Transcript &&
         //   !isCaptionON &&
@@ -390,6 +391,7 @@ const MoreButton = () => {
           ? setSidePanel(SidePanelType.Transcript)
           : setSidePanel(SidePanelType.None);
       } else {
+        isLangPopupOpenedOnce.current = true;
         setLanguagePopup(true);
       }
       setIsTranscriptON((prev) => !prev);
@@ -543,6 +545,7 @@ const MoreButton = () => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onLanguageChange}
+        isFirstTimePopupOpen={isLangPopupOpenedOnce.current}
       />
       <ActionMenu
         containerStyle={{width: 180}}

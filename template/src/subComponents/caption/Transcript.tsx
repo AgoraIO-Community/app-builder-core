@@ -24,7 +24,8 @@ import ThemeConfig from '../../theme';
 import Loading from '../Loading';
 import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
-import {streamMessageCallback} from './utils';
+import {downloadTranscript, streamMessageCallback} from './utils';
+import Spacer from '../../atoms/Spacer';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -163,8 +164,8 @@ const Transcript = (props: TranscriptProps) => {
 
   React.useEffect(() => {
     updateIsTranscriptPausedRef();
-    !isSTTActive &&
-      RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+
+    RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
     return () => {
       setIsTranscriptON(false);
     };
@@ -189,12 +190,15 @@ const Transcript = (props: TranscriptProps) => {
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
         {!searchQuery && (
-          <ImageIcon
-            name="search"
-            iconSize={20}
-            iconType="plain"
-            tintColor={$config.SEMANTIC_NEUTRAL}
-          />
+          <>
+            <ImageIcon
+              name="search"
+              iconSize={20}
+              iconType="plain"
+              tintColor={$config.SEMANTIC_NEUTRAL}
+            />
+            <Spacer size={8} horizontal />
+          </>
         )}
         <TextInput
           style={styles.searchInput}
@@ -202,25 +206,27 @@ const Transcript = (props: TranscriptProps) => {
           value={searchQuery}
           onChangeText={handleSearch}
           placeholderTextColor={
-            $config.FONT_COLOR + ThemeConfig.EmphasisPlus.disabled
+            $config.FONT_COLOR + hexadecimalTransparency['30%']
           }
           onFocus={handleFocus}
           onBlur={handleBlur}
         />
-        <TouchableOpacity
-          onPress={() => {
-            setSearchQuery('');
-          }}>
-          <ImageIcon
-            name="close"
-            iconSize={20}
-            iconType="plain"
-            tintColor={$config.SEMANTIC_NEUTRAL}
-          />
-        </TouchableOpacity>
+        {searchQuery && (
+          <TouchableOpacity
+            onPress={() => {
+              setSearchQuery('');
+            }}>
+            <ImageIcon
+              name="close"
+              iconSize={20}
+              iconType="plain"
+              tintColor={$config.SEMANTIC_NEUTRAL}
+            />
+          </TouchableOpacity>
+        )}
       </View>
       {isLangChangeInProgress ? (
-        <Loading text="Setting Spoken Language" />
+        <Loading text="Setting Spoken Language" background="transparent" />
       ) : (
         <>
           <View style={{flex: isTranscriptPaused ? 0.98 : 1}}>
@@ -256,16 +262,17 @@ const Transcript = (props: TranscriptProps) => {
               </View>
             )}
           </View>
-          {isTranscriptPaused && (
+          {meetingTranscript.length && (
             <View style={styles.btnContainer}>
               <PrimaryButton
-                iconName={'transcript'}
+                iconSize={20}
+                iconName={'download'}
                 containerStyle={styles.btnContainerStyle}
                 textStyle={styles.btnTxtStyle}
                 onPress={() => {
-                  setIsTranscriptPaused(false);
+                  downloadTranscript(meetingTranscript);
                 }}
-                text={'Resume Transcript'}
+                text={'Download Transcript'}
               />
             </View>
           )}
@@ -279,21 +286,20 @@ export default Transcript;
 
 export const styles = StyleSheet.create({
   contentContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   container: {
     alignItems: 'flex-start',
   },
   btnContainerStyle: {
-    paddingVertical: 11,
+    paddingVertical: 8,
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 4,
   },
   btnContainer: {
-    paddingHorizontal: 40,
-    marginVertical: 20,
+    margin: 20,
   },
 
   btnTxtStyle: {
@@ -323,12 +329,11 @@ export const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 4,
+    padding: 10,
     backgroundColor: $config.ICON_BG_COLOR,
-    margin: 8,
+    marginHorizontal: 20,
+    marginVertical: 16,
     borderRadius: 4,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
     height: 40,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_4_COLOR,
@@ -339,12 +344,11 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     marginRight: 10,
     color: $config.FONT_COLOR,
-
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontSize: ThemeConfig.FontSize.medium,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: ThemeConfig.FontSize.medium,
     width: '100%',
-    paddingHorizontal: 8,
-    paddingVertical: 18,
     borderWidth: 0,
     ...Platform.select({
       web: {

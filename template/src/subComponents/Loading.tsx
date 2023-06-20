@@ -13,11 +13,11 @@ import React from 'react';
 import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
 import ThemeConfig from '../../src/theme';
 
-const Loading = (props: {text: string}) => {
-  const {text} = props;
+const Loading = (props: {text: string; background?: string}) => {
+  const {text, background = 'rgba(0,0,0,0.9)'} = props;
 
   return (
-    <View style={styles.overlay}>
+    <View style={[styles.overlay, {backgroundColor: background}]}>
       <ActivityIndicator
         size="large"
         color={$config.PRIMARY_ACTION_BRAND_COLOR}
@@ -37,14 +37,14 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     zIndex: 2,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+
     borderRadius: 15,
   },
   loadingText: {
     alignSelf: 'center',
     fontSize: 16,
     lineHeight: 22,
-    fontWeight: 600,
+    fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     color: $config.SECONDARY_ACTION_COLOR,
     marginTop: 8,

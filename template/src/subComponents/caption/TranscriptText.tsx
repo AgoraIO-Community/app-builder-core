@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   transciptContainer: {
     alignItems: 'flex-start',
-    marginBottom: 24,
+    marginBottom: 16,
   },
 
   transciptText: {
