@@ -62,11 +62,16 @@ interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
   onConfirm: (param: boolean) => void;
+  isFirstTimePopupOpen?: boolean;
 }
 
 const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
+  const {isFirstTimePopupOpen = false} = props;
+  const [isOpen, setIsOpen] = React.useState(false);
   const isDesktop = useIsDesktop()('popup');
-  const heading = 'Set Spoken Language';
+  const heading = isFirstTimePopupOpen
+    ? 'Set Spoken Language'
+    : 'Change Spoken Language';
   const subHeading = `What language(s) are being spoken by everyone in this meeting?`;
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
@@ -77,7 +82,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const [selectedValues, setSelectedValues] =
     React.useState<LanguageType[]>(language);
   const isNotValidated =
-    selectedValues.length === 0 || selectedValues.length === 2;
+    isOpen && (selectedValues.length === 0 || selectedValues.length === 2);
 
   React.useEffect(() => setSelectedValues(language), [language]);
   return (
@@ -105,6 +110,8 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             prevLangChanged.current = true;
             setLanguage(value); //chnage on confirm
           }}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
         />
       </View>
       <Spacer size={8} />

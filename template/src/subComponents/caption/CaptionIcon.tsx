@@ -89,16 +89,17 @@ const CaptionIcon = (props: CaptionIconProps) => {
     // lang would be set on confirm click
     toggleSTT(isCaptionON ? 'stop' : 'start');
     setLanguagePopup(false);
-    isLangPopupOpenedOnce.current = true;
+    isLangPopupOpenedOnce.current = false;
   };
 
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
-      if (isLangPopupOpenedOnce.current || isSTTActive || !isHost) {
+      if (isSTTActive || !isHost) {
         // is lang popup has been shown once for any user in meeting
         toggleSTT(isCaptionON ? 'stop' : 'start');
       } else {
+        isLangPopupOpenedOnce.current = true;
         setLanguagePopup(true);
       }
     },
@@ -128,6 +129,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
         onConfirm={onLanguageChange}
+        isFirstTimePopupOpen={isLangPopupOpenedOnce.current}
       />
     </View>
   );

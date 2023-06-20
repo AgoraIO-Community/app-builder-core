@@ -310,14 +310,19 @@ const Controls = () => {
             <CopyJoinInfo />
           </View>
 
+          {/* STT works on host mode only */}
           {/* TODO:// to be refactored to more menu */}
-          <View testID="caption-btn" style={{marginHorizontal: 10}}>
-            <CaptionIcon />
-          </View>
+          {isHost && (
+            <View testID="caption-btn" style={{marginHorizontal: 10}}>
+              <CaptionIcon />
+            </View>
+          )}
           {/* TODO:// to be refactored to more menu*/}
-          <View testID="transcript-btn" style={{marginHorizontal: 10}}>
-            <TranscriptIcon />
-          </View>
+          {isHost && (
+            <View testID="transcript-btn" style={{marginHorizontal: 10}}>
+              <TranscriptIcon />
+            </View>
+          )}
         </View>
       )}
       <View style={style.centerContent}>

@@ -35,6 +35,8 @@ interface Props {
   selectedValues: LanguageType[];
   setSelectedValues: React.Dispatch<React.SetStateAction<LanguageType[]>>;
   defaultSelectedValues?: string[];
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const DropdownMulti: FC<Props> = ({
@@ -48,9 +50,10 @@ const DropdownMulti: FC<Props> = ({
   error,
   setError,
   icon,
+  isOpen,
+  setIsOpen,
 }) => {
   const DropdownButton = useRef();
-  const [visible, setVisible] = useState(false);
 
   const [isHovered, setIsHovered] = React.useState(false);
   const maxHeight = 170;
@@ -62,28 +65,28 @@ const DropdownMulti: FC<Props> = ({
   useEffect(() => {
     if (isWebInternal()) {
       window.addEventListener('resize', () => {
-        setVisible(false);
+        setIsOpen(false);
       });
     }
   }, []);
 
   const toggleDropdown = (): void => {
-    visible ? closeDropdown() : openDropdown();
+    isOpen ? closeDropdown() : openDropdown();
   };
 
   const openDropdown = (): void => {
-    setVisible(true);
+    setIsOpen(true);
   };
 
   const closeDropdown = (): void => {
-    setVisible(false);
+    setIsOpen(false);
   };
 
   const onItemPress = (item): void => {
     // // Dropdown should rely on the provided
     // setSelected(item);
     //onSelect(item);
-    //setVisible(false);
+    //setIsOpen(false);
 
     const isSelected = selectedValues.includes(item.value);
     let updatedValues = [...selectedValues];
@@ -184,7 +187,7 @@ const DropdownMulti: FC<Props> = ({
           !enabled || !data || !data.length
             ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
             : {},
-          visible
+          isOpen
             ? {
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
@@ -222,13 +225,13 @@ const DropdownMulti: FC<Props> = ({
         <View style={styles.dropdownIconContainer}>
           <ImageIcon
             iconType="plain"
-            name={visible ? 'arrow-up' : 'arrow-down'}
+            name={isOpen ? 'arrow-up' : 'arrow-down'}
             tintColor={$config.SECONDARY_ACTION_COLOR}
           />
         </View>
       </TouchableOpacity>
       {/* Dropdown Body */}
-      {visible && !noData ? renderDropdown() : <></>}
+      {isOpen && !noData ? renderDropdown() : <></>}
     </View>
   );
 };
