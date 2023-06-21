@@ -19,9 +19,6 @@ import {
 } from '../agora-rn-uikit';
 import {I18nInterface} from '../src/language/i18nTypes';
 import {IconsInterface} from '../src/atoms/CustomIcon';
-export type {ContentInterface, ContentStateInterface, UidType};
-export type {ChatTextInputProps} from '../src/subComponents/ChatInput';
-import {ChatTextInputProps} from '../src/subComponents/ChatInput';
 import {ToolbarCustomItem} from './sub-components';
 
 export const CUSTOM_ROUTES_PREFIX = '/r/';
@@ -45,7 +42,7 @@ export interface ChatCmpInterface {
   //commented for v1 release
   //extends BeforeAndAfterInterface
   chatBubble?: React.ComponentType<ChatBubbleProps>;
-  chatInput?: React.ComponentType<ChatTextInputProps>;
+  chatInput?: React.ComponentType;
 }
 
 export type LayoutComponent = React.ComponentType<{

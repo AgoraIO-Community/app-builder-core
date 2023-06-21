@@ -24,3 +24,4 @@ export * from './customEvents';
 export * from './sub-components';
 export * from './typeDefinition';
 export * from './utils';
+export * from './types';

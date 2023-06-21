@@ -28,7 +28,6 @@ import {ChatType, useChatUIControls} from './chat-ui/useChatUIControls';
 import {useCustomization} from 'customization-implementation';
 import {UidType} from '../../agora-rn-uikit';
 import {ChatBubbleProps} from './ChatContext';
-import {ChatTextInputProps} from '../subComponents/ChatInput';
 import {useSidePanel} from '../utils/useSidePanel';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import IconButton from '../atoms/IconButton';

@@ -49,3 +49,9 @@ export {useSidePanel} from '../src/utils/useSidePanel';
 
 //hook used to get/set username
 export {default as useUserName} from '../src/utils/useUserName';
+
+export {
+  useChatUIControls,
+  ChatType,
+} from '../src/components/chat-ui/useChatUIControls';
+export type {ChatUIControlsInterface} from '../src/components/chat-ui/useChatUIControls';

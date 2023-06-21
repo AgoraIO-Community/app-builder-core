@@ -8,11 +8,3 @@ export {default as useRemoteEndcall} from '../src/utils/useRemoteEndCall';
 export {default as useSwitchCamera} from '../src/utils/useSwitchCamera';
 
 export {controlMessageEnum} from '../src/components/ChatContext';
-//audio/video toggle state
-export {ToggleState} from '../agora-rn-uikit/src/Contexts/PropsContext';
-
-export {
-  useChatUIControls,
-  ChatType,
-} from '../src/components/chat-ui/useChatUIControls';
-export type {ChatUIControlsInterface} from '../src/components/chat-ui/useChatUIControls';
