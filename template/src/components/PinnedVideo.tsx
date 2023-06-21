@@ -19,7 +19,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {layoutProps} from '../../theme.json';
-import {layoutComponent, useLocalUid, useContent} from 'customization-api';
+import {LayoutComponent, useLocalUid, useContent} from 'customization-api';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -28,7 +28,7 @@ import {DispatchContext} from '../../agora-rn-uikit';
 import useActiveSpeaker from '../utils/useActiveSpeaker';
 const {topPinned} = layoutProps;
 
-const PinnedVideo: layoutComponent = ({renderData}) => {
+const PinnedVideo: LayoutComponent = ({renderData}) => {
   const {pinnedUid, defaultContent, activeUids} = useContent();
   const activeSpeaker = useActiveSpeaker();
   const [collapse, setCollapse] = useState(false);

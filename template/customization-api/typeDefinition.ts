@@ -48,7 +48,7 @@ export interface ChatCmpInterface {
   chatInput?: React.ComponentType<ChatTextInputProps>;
 }
 
-export type layoutComponent = React.ComponentType<{
+export type LayoutComponent = React.ComponentType<{
   renderData: ContentStateInterface['activeUids'];
 }>;
 
@@ -56,7 +56,7 @@ export interface LayoutItem {
   name: string;
   label: string;
   icon: string;
-  component: layoutComponent;
+  component: LayoutComponent;
 }
 
 export type ToolbarType = React.ComponentType | Array<ToolbarCustomItem>;
