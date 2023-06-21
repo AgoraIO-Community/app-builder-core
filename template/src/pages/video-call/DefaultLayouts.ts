@@ -1,11 +1,11 @@
-import {layoutItem} from 'customization-api';
+import {LayoutItem} from 'customization-api';
 import GridVideo from '../../components/GridVideo';
 import PinnedVideo from '../../components/PinnedVideo';
 import useLayoutsData from './useLayoutsData';
 import {useLayout} from '../../utils/useLayout';
 import {isMobileUA} from '../../utils/common';
 const isMobileView = isMobileUA();
-export const DefaultLayouts: layoutItem[] = [
+export const DefaultLayouts: LayoutItem[] = [
   {
     name: 'grid',
     label: 'Grid',

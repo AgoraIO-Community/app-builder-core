@@ -52,7 +52,7 @@ export type layoutComponent = React.ComponentType<{
   renderData: ContentStateInterface['activeUids'];
 }>;
 
-export interface layoutItem {
+export interface LayoutItem {
   name: string;
   label: string;
   icon: string;
@@ -69,7 +69,7 @@ export interface VideoCallInterface extends BeforeAndAfterInterface {
   //settingsPanel?: React.ComponentType;
   participantsPanel?: React.ComponentType;
   chat?: ChatCmpInterface;
-  customLayout?: (layouts: layoutItem[]) => layoutItem[];
+  customLayout?: (layouts: LayoutItem[]) => LayoutItem[];
 }
 
 export type ComponentsInterface = {
