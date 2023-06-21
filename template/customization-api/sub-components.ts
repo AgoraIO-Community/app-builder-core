@@ -1,7 +1,7 @@
 //Common components
 export {default as TextInput} from '../src/atoms/TextInput';
 //Icons
-export {Icons} from '../agora-rn-uikit';
+//export {Icons} from '../agora-rn-uikit';
 
 // commented for v1 release
 //create screen
@@ -44,7 +44,7 @@ export {default as PrecallScreen} from '../src/components/Precall';
 //export {default as LanguageSelector} from '../src/subComponents/LanguageSelector';
 
 //Sidepanel buttons
-export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
+//export {SidePanelButtonsArray} from '../src/subComponents/SidePanelButtons';
 export {
   MaxVideoView as UiKitMaxVideoView,
   ClientRole as UikitClientRole,
