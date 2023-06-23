@@ -9,22 +9,24 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React from 'react';
-import {Linking} from 'react-native';
-import SelectOAuth from '../subComponents/SelectOAuth';
-import {url, oAuthSystemType} from './OAuthConfig';
+import React, {useEffect, useContext} from 'react';
+import {SdkApiContext} from './SdkApiContext';
+import {useHistory} from './Router';
+import isSDK from '../utils/isSDK';
 
-const Oauth = () => {
-  const onSelectOAuthSystem = ({
-    oAuthSystem,
-  }: {
-    oAuthSystem: oAuthSystemType;
-  }) => {
-    const oAuthUrl = url({platform: 'web'})[`${oAuthSystem}Url`];
-    console.log(oAuthUrl);
-    Linking.openURL(oAuthUrl);
-  };
-  return <SelectOAuth onSelectOAuth={onSelectOAuthSystem} />;
+const Navigation = () => {
+  const {join: SdkJoinState} = useContext(SdkApiContext);
+
+  const history = useHistory();
+
+  useEffect(() => {
+    if (isSDK() && SdkJoinState.initialized) {
+      if (SdkJoinState.phrase) {
+        history.push(`/${SdkJoinState.phrase}`);
+      }
+    }
+  }, [SdkJoinState]);
+  return <></>;
 };
 
-export default Oauth;
+export default Navigation;

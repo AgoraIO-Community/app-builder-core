@@ -18,6 +18,7 @@ import {ChannelProfile, PropsContext} from '../../../agora-rn-uikit';
 import {JoinRoomButtonTextInterface} from '../../language/default-labels/precallScreenLabels';
 import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import useGetName from '../../utils/useGetName';
+import {useUserPreference} from '../useUserPreference';
 
 export interface PreCallJoinCallBtnProps {
   render?: (
@@ -34,7 +35,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   const {isJoinDataFetched} = useMeetingInfo();
   const joinRoomButton =
     useString<JoinRoomButtonTextInterface>('joinRoomButton');
-
+  const {saveName} = useUserPreference();
   const [buttonText, setButtonText] = React.useState(
     joinRoomButton({
       ready: isJoinDataFetched,
@@ -53,6 +54,7 @@ const JoinCallBtn = (props: PreCallJoinCallBtnProps) => {
   }, [rtcProps?.role]);
 
   const onSubmit = () => {
+    saveName(username?.trim());
     setCallActive(true);
   };
 

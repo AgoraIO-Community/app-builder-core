@@ -20,7 +20,7 @@ import SettingsView from '../../components/SettingsView';
 import ActionSheetContent from './ActionSheetContent';
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
-import {isIOS} from '../../utils/common';
+import {isAndroid, isIOS} from '../../utils/common';
 import ActionSheetHandle from './ActionSheetHandle';
 import Spacer from '../../atoms/Spacer';
 
@@ -46,6 +46,7 @@ const ActionSheet = () => {
 
   // updating on sidepanel changes
   React.useEffect(() => {
+    let timeout;
     switch (sidePanel) {
       case SidePanelType.Participants: {
         participantsSheetRef?.current.present();
@@ -60,14 +61,29 @@ const ActionSheet = () => {
         break;
       }
       case SidePanelType.None: {
-        chatSheetRef?.current.close();
-        participantsSheetRef?.current.close();
-        settingsSheetRef?.current.close();
+        if (isAndroid) {
+          timeout = setTimeout(() => {
+            // Code to be executed after the timeout until https://github.com/gorhom/react-native-bottom-sheet/pull/1164/files is merged
+            chatSheetRef?.current.close();
+            participantsSheetRef?.current.close();
+            settingsSheetRef?.current.close();
+          }, 200);
+        } else {
+          // Code to be executed immediately without a timer
+          chatSheetRef?.current.dismiss();
+          participantsSheetRef?.current.close();
+          settingsSheetRef?.current.close();
+        }
+
         handleSheetChanges(0);
+        break;
       }
       default:
         bottomSheetRef?.current.present();
     }
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [sidePanel]);
 
   React.useEffect(() => {
@@ -125,6 +141,7 @@ const ActionSheet = () => {
         handleComponent={() => (
           <ActionSheetHandle sidePanel={SidePanelType.Chat} />
         )}
+        android_keyboardInputMode="adjustResize"
         keyboardBehavior="extend"
         stackBehavior="push">
         <BottomSheetView>

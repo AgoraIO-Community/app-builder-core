@@ -41,6 +41,8 @@ import ImageIcon from '../atoms/ImageIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {randomNameGenerator} from '../utils';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
+import isSDK from '../utils/isSDK';
 
 const Create = () => {
   const {CreateComponent} = useCustomization((data) => {
@@ -116,7 +118,7 @@ const Create = () => {
     //   )}-${randomNameGenerator(3)}`,
     // );
 
-    if (isWebInternal()) {
+    if (isWebInternal() && !isSDK) {
       document.title = $config.APP_NAME;
     }
     console.log('[SDKEvents] Join listener registered');
@@ -224,10 +226,29 @@ const Create = () => {
           <CreateComponent />
         ) : (
           <View style={style.root}>
+            {!isMobileUA() ? (
+              <IDPLogoutComponent containerStyle={{marginBottom: -100}} />
+            ) : (
+              <></>
+            )}
             <ScrollView contentContainerStyle={style.main}>
               <Card>
                 <View>
-                  <Logo />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <Logo />
+                    {isMobileUA() ? (
+                      <IDPLogoutComponent
+                        containerStyle={{marginTop: 0, marginRight: 0}}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                  </View>
                   <Spacer size={isDesktop ? 20 : 16} />
                   <Text style={style.heading}>{getHeading()}</Text>
                   <Spacer size={40} />

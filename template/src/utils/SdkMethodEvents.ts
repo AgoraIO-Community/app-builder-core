@@ -1,5 +1,25 @@
-import {SdkMethodEvents} from '../SDKAppWrapper';
 import {createNanoEvents, Emitter} from 'nanoevents';
+import {
+  CustomizationApiInterface,
+  MeetingInfoContextInterface,
+} from 'customization-api';
+import {deviceId} from '../components/DeviceConfigure';
+
+export interface SdkMethodEvents {
+  customize: (customization: CustomizationApiInterface) => void;
+  join(
+    roomid: string | Partial<MeetingInfoContextInterface['data']>,
+    skipPrecall?: boolean,
+    username?: string,
+  ): MeetingInfoContextInterface['data'];
+  microphoneDevice: (deviceId: deviceId) => void;
+  speakerDevice: (deviceId: deviceId) => void;
+  cameraDevice: (deviceId: deviceId) => void;
+  muteAudio: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
+  muteVideo: (mute: boolean | ((currentMute: boolean) => boolean)) => void;
+  login: (token: string) => void;
+  logout: () => void;
+}
 
 type EventParameterHelper<T extends keyof SdkMethodEvents> = Parameters<
   SdkMethodEvents[T]

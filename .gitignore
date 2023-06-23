@@ -108,3 +108,4 @@ template/theme-dark.json
 template/customization/*
 Builds
 esbuild-bin
+template/pnpm-lock.yaml

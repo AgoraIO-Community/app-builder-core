@@ -212,7 +212,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
 
   const getPstn = () => {
     let stringToCopy = '';
-    if (pstn && pstn?.number && pstn?.pin) {
+    if (pstn && pstn?.number && pstn.pin) {
       stringToCopy += `${PSTNNumberText}: ${pstn.number} ${PSTNPinText}: ${pstn.pin}`;
     }
 
@@ -233,6 +233,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
         break;
       case SHARE_LINK_CONTENT_TYPE.PSTN:
         stringToCopy = getPstn();
+        break;
       default:
         break;
     }
@@ -256,6 +257,7 @@ const ShareLinkProvider = (props: ShareLinkProvideProps) => {
         break;
       case SHARE_LINK_CONTENT_TYPE.PSTN:
         stringToCopy = getPstn();
+        break;
       default:
         break;
     }

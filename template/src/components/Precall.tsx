@@ -19,6 +19,7 @@ import {
   trimText,
   useIsDesktop,
   useResponsive,
+  isValidReactComponent,
 } from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useCustomization} from 'customization-implementation';
@@ -38,6 +39,7 @@ import {useRtc} from 'customization-api';
 import {MeetingTitleProps} from './precall/meetingTitle';
 import {PreCallTextInputProps} from './precall/textInput';
 import ThemeConfig from '../theme';
+import IDPLogoutComponent from '../auth/IDPLogoutComponent';
 
 const JoinRoomInputView = ({isDesktop}) => {
   const {rtcProps} = useContext(PropsContext);
@@ -276,23 +278,23 @@ const Precall = () => {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {
-        SDKEvents.emit('preJoin', meetingTitle, devices);
+        SDKEvents.emit('ready-to-join', meetingTitle, devices);
       });
     }
   }, [isJoinDataFetched]);
 
   const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
-    // if (
-    //   data?.components?.precall &&
-    //   typeof data?.components?.precall !== 'object'
-    // ) {
-    //   if (isValidReactComponent(data?.components?.precall)) {
-    //     return data?.components?.precall;
-    //   }
-    //   return undefined;
-    // }
-    return undefined;
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall !== 'object'
+    ) {
+      if (isValidReactComponent(data?.components?.precall)) {
+        return data?.components?.precall;
+      }
+      return undefined;
+    }
+    // return undefined;
   });
 
   const isDesktop = useIsDesktop();
@@ -305,6 +307,7 @@ const Precall = () => {
       <PrecallBeforeView />
       {$config.EVENT_MODE && rtcProps.role == ClientRole.Audience ? (
         <View style={style.root}>
+          {!isMobileUA() ? <IDPLogoutComponent /> : <></>}
           <ScrollView contentContainerStyle={style.main}>
             <Card>
               <View>
@@ -324,7 +327,21 @@ const Precall = () => {
             ]}
             testID="precall-screen">
             <>
-              <MeetingName textStyle={{textAlign: 'left'}} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <MeetingName textStyle={{textAlign: 'left'}} />
+                {!isMobileUA() ? (
+                  <IDPLogoutComponent
+                    containerStyle={{marginRight: 0, marginTop: 0}}
+                  />
+                ) : (
+                  <></>
+                )}
+              </View>
               <Spacer size={32} />
               <View
                 style={{
