@@ -82,6 +82,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     ? 240600
     : 3540600;
 
+  //not needed since cookies authentication removed
   const tokenRefreshWeb = () => {
     //cookie token expiry in staging - 5min and production - 1hr
     //since we can't read the cookies and its expiry details in the frontend
@@ -89,39 +90,39 @@ const AuthProvider = (props: AuthProviderProps) => {
     //NOTE - IMP - if we call the refresh before or after 59 sec it won't work
     //staging - 4min 1 sec
     //production - 59min 1 sec
-    if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
-      refreshTimeoutWeb.current = setTimeout(() => {
-        console.log('debugging calling refresh');
-        fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'X-Platform-ID': getPlatformId(),
-          },
-        })
-          .then((data) => {
-            clearTimeout(refreshTimeoutWeb.current);
-            tokenRefreshWeb();
-            console.log('debugging cookie set');
-          })
-          .catch((error) => {
-            console.log('debugging error', error);
-          });
-      }, timeout);
-    } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
-      //not authenticated
-      if (refreshTimeoutWeb.current) {
-        console.log('debugging clearing the interval');
-        clearTimeout(refreshTimeoutWeb.current);
-      } else {
-        console.log('debugging no interval to clear');
-      }
-    }
+    // if (authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
+    //   refreshTimeoutWeb.current = setTimeout(() => {
+    //     console.log('debugging calling refresh');
+    //     fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
+    //       method: 'POST',
+    //       credentials: 'include',
+    //       headers: {
+    //         'X-Platform-ID': getPlatformId(),
+    //       },
+    //     })
+    //       .then((data) => {
+    //         clearTimeout(refreshTimeoutWeb.current);
+    //         tokenRefreshWeb();
+    //         console.log('debugging cookie set');
+    //       })
+    //       .catch((error) => {
+    //         console.log('debugging error', error);
+    //       });
+    //   }, timeout);
+    // } else if (!authenticated && $config.ENABLE_IDP_AUTH && isWeb()) {
+    //   //not authenticated
+    //   if (refreshTimeoutWeb.current) {
+    //     console.log('debugging clearing the interval');
+    //     clearTimeout(refreshTimeoutWeb.current);
+    //   } else {
+    //     console.log('debugging no interval to clear');
+    //   }
+    // }
   };
 
-  useEffect(() => {
-    tokenRefreshWeb();
-  }, [authenticated]);
+  // useEffect(() => {
+  //   tokenRefreshWeb();
+  // }, [authenticated]);
 
   useEffect(() => {
     if (!ENABLE_AUTH && !authenticated && store.token) {
@@ -299,7 +300,8 @@ const AuthProvider = (props: AuthProviderProps) => {
           //so each time page refresh will get new token
           //then only
           if (isWeb() && $config.ENABLE_IDP_AUTH) {
-            authLogin();
+            //authLogin();this is for cookie based authentication
+            setIsAuthenticated(true);
           } else {
             setIsAuthenticated(true);
             if (isSDK()) {
