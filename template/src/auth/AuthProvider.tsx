@@ -284,6 +284,12 @@ const AuthProvider = (props: AuthProviderProps) => {
   }
 
   useEffect(() => {
+    // Ignore if on sdk since IDP flow is not supported
+    if (isSDK()) {
+      setIsAuthenticated(true);
+      setLoading(false);
+      return () => {};
+    }
     //if application in authorization state then don't call authlogin
     if (
       //to check authoriztion
@@ -304,9 +310,6 @@ const AuthProvider = (props: AuthProviderProps) => {
             setIsAuthenticated(true);
           } else {
             setIsAuthenticated(true);
-            if (isSDK()) {
-              history.push(location.pathname);
-            }
           }
         })
         .catch(() => {
