@@ -13,6 +13,9 @@ import RecordingInfo from '../../atoms/RecordingInfo';
 import {isAndroid, isWebInternal, trimText} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
+import VideoRenderer from './VideoRenderer';
+import {filterObject} from '../../utils';
 
 const VideoCallMobileView = () => {
   const {
@@ -20,12 +23,20 @@ const VideoCallMobileView = () => {
   } = useMeetingInfo();
   const {isRecordingActive} = useRecording();
   const recordingLabel = 'Recording';
+  const {isScreenShareOnFullView, screenShareData} = useScreenContext();
 
   const appState = useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const local = useLocalUserInfo();
-
+  const {renderList} = useRender();
+  const maxScreenShareData = filterObject(
+    screenShareData,
+    ([k, v]) => v?.isExpanded === true,
+  );
+  const maxScreenShareUid = Object.keys(maxScreenShareData)?.length
+    ? Object.keys(maxScreenShareData)[0]
+    : null;
   const isCamON = useRef(local.video);
 
   // moved below logic to useMuteToggleLocal
@@ -74,37 +85,44 @@ const VideoCallMobileView = () => {
   // }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.titleBar}>
-        <Text style={styles.title}>{trimText(meetingTitle)}</Text>
-        <Spacer size={8} horizontal={false} />
-        <View style={styles.countView}>
-          <View
-            style={{
-              width: 45,
-              height: 35,
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignSelf: 'center',
-              zIndex: isWebInternal() ? 3 : 0,
-
-              //flex: 1,
-            }}>
-            <ParticipantsCount />
+    <>
+      {!isScreenShareOnFullView ? (
+        <View style={styles.container}>
+          <View style={styles.titleBar}>
+            <Text style={styles.title}>{trimText(meetingTitle)}</Text>
+            <Spacer size={8} horizontal={false} />
+            <View style={styles.countView}>
+              <View
+                style={{
+                  width: 45,
+                  height: 35,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  zIndex: isWebInternal() ? 3 : 0,
+                  //flex: 1,
+                }}>
+                <ParticipantsCount />
+              </View>
+              {isRecordingActive ? (
+                <RecordingInfo recordingLabel={recordingLabel} />
+              ) : (
+                <></>
+              )}
+            </View>
           </View>
-          {isRecordingActive ? (
-            <RecordingInfo recordingLabel={recordingLabel} />
-          ) : (
-            <></>
-          )}
+          <Spacer size={16} />
+          <View style={styles.videoView}>
+            <VideoComponent />
+          </View>
+          <ActionSheet />
         </View>
-      </View>
-      <Spacer size={16} />
-      <View style={styles.videoView}>
-        <VideoComponent />
-      </View>
-      <ActionSheet />
-    </View>
+      ) : maxScreenShareUid && renderList[maxScreenShareUid] ? (
+        <VideoRenderer user={renderList[maxScreenShareUid]} />
+      ) : (
+        <></>
+      )}
+    </>
   );
 };
 

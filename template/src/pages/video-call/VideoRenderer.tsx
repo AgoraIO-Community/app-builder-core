@@ -1,5 +1,5 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
-import {View, StyleSheet, Platform} from 'react-native';
+import {View, StyleSheet, Platform, TouchableOpacity} from 'react-native';
 import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -13,6 +13,8 @@ import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ThemeConfig from '../../theme';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -37,6 +39,19 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
+  const [showVideoTileButtons, setShowVideoTileButtons] = useState(true);
+
+  const {
+    screenShareData,
+    setScreenShareData,
+    isScreenShareOnFullView,
+    setScreenShareOnFullView,
+  } = useScreenContext();
+  useEffect(() => {
+    if (isScreenShareOnFullView) {
+      setShowVideoTileButtons(false);
+    }
+  }, [isScreenShareOnFullView]);
   return (
     <>
       <UserActionMenuOptionsOptions
@@ -52,90 +67,162 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
         btnRef={videoMoreMenuRef}
         from={'video-tile'}
       />
-      <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
-        <View
-          onLayout={({
-            nativeEvent: {
-              layout: {x, y, width, height},
-            },
-          }) => {
-            setVideoTileWidth(width);
-            setAvatarSize(Math.floor(width * 0.35));
-          }}
-          style={[
-            maxStyle.container,
-            activeSpeaker
-              ? maxStyle.activeContainerStyle
-              : user.video
-              ? maxStyle.noVideoStyle
-              : maxStyle.nonActiveContainerStyle,
-          ]}>
-          {!showReplacePin && !showPinForMe && (
-            <ScreenShareNotice uid={user.uid} isMax={isMax} />
-          )}
-          <NetworkQualityPill user={user} />
-          <MaxVideoView
-            fallback={() => {
-              return FallbackLogo(
-                user?.name,
-                activeSpeaker,
-                (showReplacePin || showPinForMe) && !isMobileUA()
-                  ? true
-                  : false,
-                isMax,
-                avatarSize,
-              );
+      <VideoTileWrapper
+        isScreenShareOnFullView={isScreenShareOnFullView}
+        onPressVideoTile={() => {
+          setShowVideoTileButtons(!showVideoTileButtons);
+          setTimeout(() => {
+            setShowVideoTileButtons(false);
+          }, 5000);
+        }}>
+        <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
+          <View
+            onLayout={({
+              nativeEvent: {
+                layout: {x, y, width, height},
+              },
+            }) => {
+              setVideoTileWidth(width);
+              setAvatarSize(Math.floor(width * 0.35));
             }}
-            user={user}
-            containerStyle={{
-              width: '100%',
-              height: '100%',
-            }}
-            key={user.uid}
-          />
-          <NameWithMicIcon
-            videoTileWidth={videoTileWidth}
-            user={user}
-            isMax={isMax}
-          />
-          {user.uid !== rtcProps?.screenShareUid &&
-          (isHovered || actionMenuVisible || isMobileUA()) ? (
-            <MoreMenu
-              videoMoreMenuRef={videoMoreMenuRef}
-              setActionMenuVisible={setActionMenuVisible}
+            style={[
+              maxStyle.container,
+              activeSpeaker
+                ? maxStyle.activeContainerStyle
+                : user.video
+                ? maxStyle.noVideoStyle
+                : maxStyle.nonActiveContainerStyle,
+            ]}>
+            {!showReplacePin && !showPinForMe && (
+              <ScreenShareNotice uid={user.uid} isMax={isMax} />
+            )}
+            {showVideoTileButtons &&
+            screenShareData &&
+            screenShareData?.[user.uid] &&
+            isMobileUA() ? (
+              <IconButton
+                containerStyle={{
+                  position: 'absolute',
+                  top: 8,
+                  left: 8,
+                  zIndex: 999,
+                  elevation: 999,
+                }}
+                onPress={() => {
+                  setScreenShareOnFullView(
+                    !screenShareData[user.uid]?.isExpanded,
+                  );
+                  setScreenShareData((prevState) => {
+                    return {
+                      ...prevState,
+                      [user.uid]: {
+                        ...prevState[user.uid],
+                        isExpanded: !prevState[user.uid]?.isExpanded,
+                      },
+                    };
+                  });
+                }}
+                iconProps={{
+                  iconContainerStyle: {
+                    padding: 8,
+                    backgroundColor:
+                      $config.CARD_LAYER_5_COLOR +
+                      hexadecimalTransparency['10%'],
+                  },
+                  name:
+                    screenShareData?.[user?.uid]?.isExpanded === true
+                      ? 'collapse'
+                      : 'expand',
+                  tintColor: $config.SECONDARY_ACTION_COLOR,
+                  iconSize: 24,
+                }}
+              />
+            ) : (
+              <></>
+            )}
+            {showVideoTileButtons && <NetworkQualityPill user={user} />}
+            <MaxVideoView
+              fallback={() => {
+                return FallbackLogo(
+                  user?.name,
+                  activeSpeaker,
+                  (showReplacePin || showPinForMe) && !isMobileUA()
+                    ? true
+                    : false,
+                  isMax,
+                  avatarSize,
+                );
+              }}
+              user={user}
+              containerStyle={{
+                width: '100%',
+                height: '100%',
+              }}
+              key={user.uid}
             />
-          ) : (
-            <></>
-          )}
-          {(showReplacePin || showPinForMe) && !isMobileUA() ? (
-            <IconButton
-              onPress={() => {
-                dispatch({type: 'UserPin', value: [user.uid]});
-              }}
-              containerStyle={maxStyle.replacePinContainer}
-              btnTextProps={{
-                text: showReplacePin ? 'Replace Pin' : 'Pin for me',
-                textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-                textStyle: {
-                  marginTop: 0,
-                  fontWeight: '700',
-                  marginLeft: 6,
-                },
-              }}
-              iconProps={{
-                name: 'pin-filled',
-                iconSize: 20,
-                iconType: 'plain',
-                tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
-              }}
-            />
-          ) : (
-            <></>
-          )}
-        </View>
-      </PlatformWrapper>
+            {showVideoTileButtons && (
+              <NameWithMicIcon
+                videoTileWidth={videoTileWidth}
+                user={user}
+                isMax={isMax}
+              />
+            )}
+            {showVideoTileButtons &&
+            user.uid !== rtcProps?.screenShareUid &&
+            (isHovered || actionMenuVisible || isMobileUA()) ? (
+              <MoreMenu
+                videoMoreMenuRef={videoMoreMenuRef}
+                setActionMenuVisible={setActionMenuVisible}
+              />
+            ) : (
+              <></>
+            )}
+            {(showReplacePin || showPinForMe) && !isMobileUA() ? (
+              <IconButton
+                onPress={() => {
+                  dispatch({type: 'UserPin', value: [user.uid]});
+                }}
+                containerStyle={maxStyle.replacePinContainer}
+                btnTextProps={{
+                  text: showReplacePin ? 'Replace Pin' : 'Pin for me',
+                  textColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                  textStyle: {
+                    marginTop: 0,
+                    fontWeight: '700',
+                    marginLeft: 6,
+                  },
+                }}
+                iconProps={{
+                  name: 'pin-filled',
+                  iconSize: 20,
+                  iconType: 'plain',
+                  tintColor: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+                }}
+              />
+            ) : (
+              <></>
+            )}
+          </View>
+        </PlatformWrapper>
+      </VideoTileWrapper>
     </>
   );
+};
+
+const VideoTileWrapper = (props) => {
+  if (props?.isScreenShareOnFullView) {
+    return (
+      <TouchableOpacity
+        style={{
+          flex: 1,
+        }}
+        onPress={props?.onPressVideoTile}>
+        {props?.children}
+      </TouchableOpacity>
+    );
+  } else {
+    return props?.children;
+  }
 };
 
 interface MoreMenuProps {
