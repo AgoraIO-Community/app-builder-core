@@ -98,11 +98,7 @@ export default class RtmEngine {
     this.appId = APP_ID;
     this.client = AgoraRTM.createInstance(this.appId);
 
-    if (!window.rtmClient) {
-      window.rtmClient = [this.client];
-    } else {
-      window.rtmClient.push(this.client);
-    }
+    window.rtmClient = this.client;
 
     this.client.on('ConnectionStateChanged', (state, reason) => {
       this.clientEventsMap.get('connectionStateChanged')({state, reason});
