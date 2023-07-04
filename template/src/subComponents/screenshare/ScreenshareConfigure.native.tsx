@@ -93,7 +93,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
+    const unsubScreenShareAttribute = events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
       const payload = JSON.parse(data.payload);
       const action = payload.action;
       const value = payload.value;
@@ -134,6 +134,10 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           break;
       }
     });
+
+    return () => {
+      unsubScreenShareAttribute();
+    };
   }, []);
 
   return (

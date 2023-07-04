@@ -124,7 +124,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
           break;
       }
     });
-    () => {
+    return () => {
       events.off(EventNames.RECORDING_ATTRIBUTE);
     };
   }, []);
