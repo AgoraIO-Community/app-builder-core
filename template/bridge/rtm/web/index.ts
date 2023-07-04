@@ -20,8 +20,7 @@ import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngi
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
 // export {RtmAttribute}
 //
-interface RtmAttributePlaceholder {
-};
+interface RtmAttributePlaceholder {}
 export {RtmAttributePlaceholder as RtmAttribute};
 
 type callbackType = (args?: any) => void;
@@ -98,6 +97,12 @@ export default class RtmEngine {
   createClient(APP_ID: string) {
     this.appId = APP_ID;
     this.client = AgoraRTM.createInstance(this.appId);
+
+    if (!window.rtmClient) {
+      window.rtmClient = [this.client];
+    } else {
+      window.rtmClient.push(this.client);
+    }
 
     this.client.on('ConnectionStateChanged', (state, reason) => {
       this.clientEventsMap.get('connectionStateChanged')({state, reason});

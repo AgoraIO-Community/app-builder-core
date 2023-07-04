@@ -33,6 +33,7 @@ import RTMEngine from '../rtm/RTMEngine';
 import {filterObject} from '../utils';
 import SDKEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
+import {useAsyncEffect} from '../utils/useAsyncEffect';
 
 export enum UserType {
   ScreenShare = 'screenshare',
@@ -118,7 +119,7 @@ const RtmConfigure = (props: any) => {
       });
       RTMEngine.getInstance().setLocalUID(localUid.toString());
       timerValueRef.current = 5;
-      setAttribute();
+      await setAttribute();
     } catch (error) {
       setTimeout(async () => {
         timerValueRef.current = timerValueRef.current + timerValueRef.current;
@@ -390,7 +391,7 @@ const RtmConfigure = (props: any) => {
         }
       }
     });
-    doLoginAndSetupRTM();
+    await doLoginAndSetupRTM();
   };
 
   const runQueuedEvents = async () => {
@@ -441,19 +442,24 @@ const RtmConfigure = (props: any) => {
   };
 
   const end = async () => {
-    callActive
-      ? (RTMEngine.getInstance().destroy(),
-        EventUtils.clear(),
-        setHasUserJoinedRTM(false),
-        // setLogin(false),
-        console.log('RTM cleanup done'))
-      : {};
+    if (!callActive) {
+      return;
+    }
+    await RTMEngine.getInstance().destroy();
+    setHasUserJoinedRTM(false);
+    // setLogin(false),
+    console.log('RTM cleanup done');
   };
 
-  useEffect(() => {
-    callActive ? init() : (console.log('waiting to init RTM'), setLogin(true));
-    return () => {
-      end();
+  useAsyncEffect(async () => {
+    if (!callActive) {
+      console.log('waiting to init RTM');
+      setLogin(true);
+    } else {
+      await init();
+    }
+    return async () => {
+      await end();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rtcProps.channel, rtcProps.appId, callActive]);

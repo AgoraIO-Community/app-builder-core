@@ -119,62 +119,72 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   };
 
   useEffect(() => {
-    events.on(controlMessageEnum.kickScreenshare, () => {
-      //if screenscreen already active. then below method will stop the screen share
-      // @ts-ignore
-      rtc.RtcEngine.startScreenshare();
-    });
+    const unsubKickScreenshare = events.on(
+      controlMessageEnum.kickScreenshare,
+      () => {
+        //if screenscreen already active. then below method will stop the screen share
+        // @ts-ignore
+        rtc.RtcEngine.startScreenshare();
+      },
+    );
+    const unsubScreenshareAttribute = events.on(
+      EventNames.SCREENSHARE_ATTRIBUTE,
+      (data) => {
+        const payload = JSON.parse(data.payload);
+        const action = payload.action;
+        const value = payload.value;
 
-    events.on(EventNames.SCREENSHARE_ATTRIBUTE, (data) => {
-      const payload = JSON.parse(data.payload);
-      const action = payload.action;
-      const value = payload.value;
-
-      if (data?.sender) {
-        let screenUidOfUser =
-          renderListRef.current.renderList[data?.sender]?.screenUid;
-        if (!screenUidOfUser) {
-          screenUidOfUser = payload?.screenUidOfUser;
-        }
-        if (screenUidOfUser) {
-          switch (action) {
-            case EventActions.SCREENSHARE_STARTED:
-              setScreenShareData((prevState) => {
-                return {
-                  ...prevState,
-                  [screenUidOfUser]: {
-                    name: renderListRef.current.renderList[screenUidOfUser]
-                      ?.name,
-                    isActive: true,
-                    ts: value || 0,
-                  },
-                };
-              });
-              break;
-            case EventActions.SCREENSHARE_STOPPED:
-              setScreenShareData((prevState) => {
-                return {
-                  ...prevState,
-                  [screenUidOfUser]: {
-                    name: renderListRef.current.renderList[screenUidOfUser]
-                      ?.name,
-                    isActive: false,
-                    ts: value || 0,
-                  },
-                };
-              });
-              //if remote user started/stopped the screenshare then change the layout to pinned/grid
-              //if user pinned somebody then don't triggerlayout change
-              if (!pinnedUidRef.current.pinnedUid) {
-                triggerChangeLayout(false);
-              }
-              break;
-            default:
-              break;
+        if (data?.sender) {
+          let screenUidOfUser =
+            renderListRef.current.renderList[data?.sender]?.screenUid;
+          if (!screenUidOfUser) {
+            screenUidOfUser = payload?.screenUidOfUser;
+          }
+          if (screenUidOfUser) {
+            switch (action) {
+              case EventActions.SCREENSHARE_STARTED:
+                setScreenShareData((prevState) => {
+                  return {
+                    ...prevState,
+                    [screenUidOfUser]: {
+                      name: renderListRef.current.renderList[screenUidOfUser]
+                        ?.name,
+                      isActive: true,
+                      ts: value || 0,
+                    },
+                  };
+                });
+                break;
+              case EventActions.SCREENSHARE_STOPPED:
+                setScreenShareData((prevState) => {
+                  return {
+                    ...prevState,
+                    [screenUidOfUser]: {
+                      name: renderListRef.current.renderList[screenUidOfUser]
+                        ?.name,
+                      isActive: false,
+                      ts: value || 0,
+                    },
+                  };
+                });
+                //if remote user started/stopped the screenshare then change the layout to pinned/grid
+                //if user pinned somebody then don't triggerlayout change
+                if (!pinnedUidRef.current.pinnedUid) {
+                  triggerChangeLayout(false);
+                }
+                break;
+              default:
+                break;
+            }
           }
         }
-      }
-    });
+      },
+    );
+
+    return () => {
+      unsubKickScreenshare();
+      unsubScreenshareAttribute();
+    };
   }, []);
 
   const ScreenshareStoppedCallback = () => {
