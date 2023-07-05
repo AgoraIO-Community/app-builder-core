@@ -64,6 +64,7 @@
     "electron-squirrel-startup": "1.0.0",
     "electron-updater": "4.3.9",
     "exponential-backoff": "3.1.0",
+    "fetch-retry": "^5.0.6",
     "graphql": "15.5.0",
     "jwt-decode": "3.1.2",
     "nanoevents": "7.0.1",
