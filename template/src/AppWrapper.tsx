@@ -34,6 +34,9 @@ import ToastComponent from './components/ToastComponent';
 import {ToastContext, ToastProvider} from './components/useToast';
 import {SdkApiContext} from './components/SdkApiContext';
 import isSDK from './utils/isSDK';
+import {setupLogger} from './utils/axiomLogger';
+
+setupLogger();
 
 interface AppWrapperProps {
   children: React.ReactNode;
