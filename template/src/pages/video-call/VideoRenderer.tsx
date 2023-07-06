@@ -15,7 +15,7 @@ import {isMobileUA, isWebInternal} from '../../utils/common';
 import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
-
+import ZoomableWrapper from './ZoomableWrapper';
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -140,34 +140,39 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             ) : (
               <></>
             )}
-            {showVideoTileButtons && <NetworkQualityPill user={user} />}
-            <MaxVideoView
-              fallback={() => {
-                return FallbackLogo(
-                  user?.name,
-                  activeSpeaker,
-                  (showReplacePin || showPinForMe) && !isMobileUA()
-                    ? true
-                    : false,
-                  isMax,
-                  avatarSize,
-                );
-              }}
-              user={user}
-              containerStyle={{
-                width: '100%',
-                height: '100%',
-              }}
-              key={user.uid}
-            />
-            {showVideoTileButtons && (
+            {!isScreenShareOnFullView && <NetworkQualityPill user={user} />}
+            <ZoomableWrapper
+              enableZoom={
+                screenShareData && screenShareData?.[user.uid] ? true : false
+              }>
+              <MaxVideoView
+                fallback={() => {
+                  return FallbackLogo(
+                    user?.name,
+                    activeSpeaker,
+                    (showReplacePin || showPinForMe) && !isMobileUA()
+                      ? true
+                      : false,
+                    isMax,
+                    avatarSize,
+                  );
+                }}
+                user={user}
+                containerStyle={{
+                  width: '100%',
+                  height: '100%',
+                }}
+                key={user.uid}
+              />
+            </ZoomableWrapper>
+            {!isScreenShareOnFullView && (
               <NameWithMicIcon
                 videoTileWidth={videoTileWidth}
                 user={user}
                 isMax={isMax}
               />
             )}
-            {showVideoTileButtons &&
+            {!isScreenShareOnFullView &&
             user.uid !== rtcProps?.screenShareUid &&
             (isHovered || actionMenuVisible || isMobileUA()) ? (
               <MoreMenu
