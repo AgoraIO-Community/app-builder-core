@@ -1,15 +1,17 @@
-import {StyleSheet, ScrollView} from 'react-native';
+import {StyleSheet, ScrollView, Platform} from 'react-native';
 import React, {MutableRefObject} from 'react';
-import {useRtc} from 'customization-api';
+import {isWeb, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
 import {useCaption} from './useCaption';
 import {TranscriptText} from './TranscriptText';
 import Spacer from '../../../src/atoms/Spacer';
 import Loading from '../Loading';
-import {ContentObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
+import {RenderObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
 import {streamMessageCallback} from './utils';
+import {isWebInternal} from '../../utils/common';
+
 interface CaptionProps {
-  renderListRef: MutableRefObject<{renderList: ContentObjects}>;
+  renderListRef: MutableRefObject<{renderList: RenderObjects}>;
 }
 
 const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
@@ -32,12 +34,18 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
     setTextObj,
   };
 
-  const handleStreamMessageCallback = (...args) => {
-    streamMessageCallback(args, sttObj);
+  const handleStreamMessageCallback1 = (...args: any[]) => {
+    if (isWebInternal()) {
+      streamMessageCallback(args, sttObj);
+    } else {
+      const [uid, , data] = args;
+      const streamBuffer = Object.values(data);
+      streamMessageCallback([uid, streamBuffer], sttObj);
+    }
   };
 
   React.useEffect(() => {
-    RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+    RtcEngine.addListener('StreamMessage', handleStreamMessageCallback1);
   }, []);
 
   const speakers = Object.entries(textObj);

@@ -51,10 +51,8 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
             </View>
           ) : isChat ? (
             <View style={{width: 30, height: 'auto'}}></View>
-          ) : (
-            <></>
-          )}
-          {props?.centerComponent ? props.centerComponent : <></>}
+          ) : null}
+          {props?.centerComponent ? props.centerComponent : null}
           <View ref={ref} style={SidePanelStyles.row}>
             {props?.trailingIconName ? (
               <IconButton
@@ -76,9 +74,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
                   props?.trailingIconOnPress && props.trailingIconOnPress();
                 }}
               />
-            ) : (
-              <></>
-            )}
+            ) : null}
             {props?.trailingIconName2 ? (
               <IconButton
                 hoverEffect={true}
@@ -99,9 +95,7 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
                   props?.trailingIconOnPress2 && props.trailingIconOnPress2();
                 }}
               />
-            ) : (
-              <></>
-            )}
+            ) : null}
           </View>
         </View>
         {children}
@@ -142,6 +136,9 @@ export const SidePanelStyles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    flex: 0.3,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 export default SidePanelHeader;

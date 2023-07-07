@@ -261,7 +261,6 @@ const PlatformWrapper = ({children}) => {
 
 const styles = StyleSheet.create({
   dropdownOptionContainer: {
-    flex: 1,
     flexDirection: 'row',
     backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
     borderTopWidth: 1,

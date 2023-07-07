@@ -11,6 +11,7 @@ import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import {EventNames} from '../../rtm-events';
 import ImageIcon from '../../atoms/ImageIcon';
+import {isWebInternal} from '../../utils/common';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -54,26 +55,31 @@ const CaptionIcon = (props: CaptionIconProps) => {
   );
 
   React.useEffect(() => {
-    events.on(EventNames.STT_ACTIVE, (data) => {
-      const payload = JSON.parse(data?.payload);
-      setIsSTTActive(payload.active);
-    });
-
-    events.on(EventNames.STT_LANGUAGE, (data) => {
-      const payload = JSON.parse(data?.payload);
-      const msg = `${
-        payload.username
-      } changed the spoken language to ${getLanguageLabel(payload.language)} `;
-
-      Toast.show({
-        type: 'info',
-        leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-        text1: msg,
-        visibilityTime: 3000,
+    // for native events are set in VideoCallMobileView as this action is action sheet
+    if (isWebInternal()) {
+      events.on(EventNames.STT_ACTIVE, (data) => {
+        const payload = JSON.parse(data?.payload);
+        setIsSTTActive(payload.active);
       });
-      // syncing local set language
-      payload && setLanguage(payload.language);
-    });
+
+      events.on(EventNames.STT_LANGUAGE, (data) => {
+        const payload = JSON.parse(data?.payload);
+        const msg = `${
+          payload.username
+        } changed the spoken language to ${getLanguageLabel(
+          payload.language,
+        )} `;
+
+        Toast.show({
+          type: 'info',
+          leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+          text1: msg,
+          visibilityTime: 3000,
+        });
+        // syncing local set language
+        payload && setLanguage(payload.language);
+      });
+    }
   }, []);
 
   const toggleSTT = async (method: string) => {
