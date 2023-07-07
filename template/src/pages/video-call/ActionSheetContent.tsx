@@ -299,83 +299,6 @@ const TranscriptIconBtn = (props: TranscriptIconProps) => {
   );
 };
 
-const TestStreamMessageIcon = () => {
-  const {RtcEngine} = useRtc();
-  const [streamId, setStreamId] = React.useState(0);
-
-  // Create data stream
-
-  React.useEffect(() => {
-    const createDataStream = async () => {
-      const config = {
-        syncWithAudio: true,
-        ordered: true,
-      };
-      try {
-        const id = await RtcEngine.createDataStreamWithConfig(config);
-        setStreamId(id);
-      } catch (err) {
-        console.error('Error on creating data stream:', err);
-        setStreamId(0);
-      }
-    };
-    createDataStream();
-  }, []);
-
-  const handleStreamMessage = async () => {
-    const Text = protoRoot.lookupType('Text');
-    // sample message to encode.
-    const message = {
-      vendor: 1,
-      version: 2,
-      seqnum: 3,
-      uid: 4,
-      flag: 5,
-      time: Date.now(),
-      lang: 7,
-      starttime: 8,
-      offtime: 9,
-      words: [
-        {
-          text: 'agora check',
-          start_ms: 0,
-          duration_ms: 0,
-          is_final: true,
-          confidence: 1.0,
-        },
-      ],
-    };
-
-    const encodedMessage = Text.encode(Text.create(message)).finish();
-
-    const buffer = [
-      32, 162, 174, 128, 123, 48, 235, 205, 240, 230, 253, 48, 72, 162, 67, 82,
-      19, 10, 3, 79, 75, 46, 24, 246, 4, 32, 1, 41, 0, 0, 0, 192, 44, 7, 235,
-      63, 96, 246, 4, 106, 10, 116, 114, 97, 110, 115, 99, 114, 105, 98, 101,
-      122, 5, 101, 110, 45, 85, 83,
-    ];
-
-    const messageString = buffer.toString();
-
-    console.warn('stream ID  :=>', streamId),
-      console.warn('stream message  =>', messageString),
-      RtcEngine.sendStreamMessage(streamId, buffer.toString());
-  };
-
-  return (
-    <View style={styles.iconWithText}>
-      <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={handleStreamMessage}>
-          <ImageIcon
-            name={'alert'}
-            tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-
 type ActionSheetComponentsProps = [
   (props: AudioIconProps) => JSX.Element,
   (props: CamIconProps) => JSX.Element,
@@ -544,8 +467,6 @@ const ActionSheetContent = (props) => {
         <CaptionIconBtn />
         {/* Transcript */}
         <TranscriptIconBtn />
-        {/* TODO: remove below , to test only  streamMessage callback on native */}
-        {!isWeb() && <TestStreamMessageIcon />}
       </View>
     </View>
   );

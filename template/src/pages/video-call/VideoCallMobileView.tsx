@@ -14,6 +14,12 @@ import {isAndroid, isWebInternal, trimText} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import {EventNames} from '../../rtm-events';
+import events from '../../rtm-events-api';
+import ImageIcon from '../../atoms/ImageIcon';
+import {useCaption} from '../../subComponents/caption/useCaption';
+import {getLanguageLabel} from '../../subComponents/caption/LanguageSelectorPopup';
+import Toast from '../../../react-native-toast-message';
 
 const VideoCallMobileView = () => {
   const {
@@ -73,6 +79,35 @@ const VideoCallMobileView = () => {
   //     subscription?.remove();
   //   };
   // }, []);
+  const {setIsSTTActive, setLanguage} = useCaption();
+  React.useEffect(() => {
+    events.on(EventNames.STT_ACTIVE, (data) => {
+      const payload = JSON.parse(data?.payload);
+      setIsSTTActive(payload.active);
+    });
+
+    events.on(EventNames.STT_LANGUAGE, (data) => {
+      const payload = JSON.parse(data?.payload);
+      const msg = `${
+        payload.username
+      } changed the spoken language to ${getLanguageLabel(payload.language)} `;
+
+      Toast.show({
+        type: 'info',
+        leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+        text1: msg,
+        visibilityTime: 3000,
+      });
+      // syncing local set language
+      payload && setLanguage(payload.language);
+    });
+  }, []);
+
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
 
   return (
     <View style={styles.container}>

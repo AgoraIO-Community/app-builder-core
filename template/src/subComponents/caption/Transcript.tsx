@@ -154,8 +154,12 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args) => {
-    if (!isTranscriptPausedRef.current) {
+    if (isWebInternal()) {
       streamMessageCallback(args, sttObj);
+    } else {
+      const [uid, , data] = args;
+      const streamBuffer = Object.values(data);
+      streamMessageCallback([uid, streamBuffer], sttObj);
     }
   };
 
@@ -164,13 +168,13 @@ const Transcript = (props: TranscriptProps) => {
   }, [renderList]);
 
   React.useEffect(() => {
-    updateIsTranscriptPausedRef();
+    // updateIsTranscriptPausedRef();
 
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
     return () => {
       setIsTranscriptON(false);
     };
-  }, [isTranscriptPaused]);
+  }, []); //isTranscriptPaused
 
   return (
     <View
@@ -212,7 +216,7 @@ const Transcript = (props: TranscriptProps) => {
           onFocus={handleFocus}
           onBlur={handleBlur}
         />
-        {searchQuery && (
+        {searchQuery ? (
           <TouchableOpacity
             onPress={() => {
               setSearchQuery('');
@@ -224,7 +228,7 @@ const Transcript = (props: TranscriptProps) => {
               tintColor={$config.SEMANTIC_NEUTRAL}
             />
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
       {isLangChangeInProgress ? (
         <Loading text="Setting Spoken Language" background="transparent" />
@@ -242,7 +246,7 @@ const Transcript = (props: TranscriptProps) => {
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
             />
-            {showButton && (
+            {showButton ? (
               <View
                 style={{
                   position: 'absolute',
@@ -261,9 +265,9 @@ const Transcript = (props: TranscriptProps) => {
                   text={'View Latest'}
                 />
               </View>
-            )}
+            ) : null}
           </View>
-          {meetingTranscript.length && (
+          {meetingTranscript.length ? (
             <View style={styles.btnContainer}>
               <PrimaryButton
                 iconSize={20}
@@ -276,7 +280,7 @@ const Transcript = (props: TranscriptProps) => {
                 text={'Download Transcript'}
               />
             </View>
-          )}
+          ) : null}
         </>
       )}
     </View>
