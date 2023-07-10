@@ -117,6 +117,15 @@ const VideoCall: React.FC = () => {
     editName: false,
   });
   const {phrase} = useParams<{phrase: string}>();
+
+  const {store} = useContext(StorageContext);
+  const {
+    join: SdkJoinState,
+    microphoneDevice: sdkMicrophoneDevice,
+    cameraDevice: sdkCameraDevice,
+    clearState,
+  } = useContext(SdkApiContext);
+
   // commented for v1 release
   //const lifecycle = useCustomization((data) => data.lifecycle);
   const [rtcProps, setRtcProps] = React.useState({
@@ -136,9 +145,12 @@ const VideoCall: React.FC = () => {
     geoFencing: $config.GEO_FENCING,
     audioRoom: $config.AUDIO_ROOM,
     activeSpeaker: $config.ACTIVE_SPEAKER,
+    preferredCameraId:
+      sdkCameraDevice.deviceId || store?.activeDeviceId?.videoinput || null,
+    preferredMicrophoneId:
+      sdkMicrophoneDevice.deviceId || store?.activeDeviceId?.audioinput || null,
   });
 
-  const {join: SdkJoinState, clearState} = useContext(SdkApiContext);
   const history = useHistory();
   const currentMeetingPhrase = useRef(history.location.pathname);
 
@@ -207,14 +219,12 @@ const VideoCall: React.FC = () => {
 
   React.useEffect(() => {
     if (isJoinDataFetched === true && !queryComplete) {
-      setRtcProps({
-        appId: $config.APP_ID,
+      setRtcProps((prevRtcProps) => ({
+        ...prevRtcProps,
         channel: data.channel,
         uid: data.uid,
         token: data.token,
         rtm: data.rtmToken,
-        dual: true,
-        profile: $config.PROFILE,
         encryption: $config.ENCRYPTION_ENABLED
           ? {
               key: data.encryptionSecret,
@@ -225,10 +235,7 @@ const VideoCall: React.FC = () => {
         screenShareUid: data.screenShareUid,
         screenShareToken: data.screenShareToken,
         role: data.isHost ? ClientRole.Broadcaster : ClientRole.Audience,
-        geoFencing: $config.GEO_FENCING,
-        audioRoom: $config.AUDIO_ROOM,
-        activeSpeaker: $config.ACTIVE_SPEAKER,
-      });
+      }));
 
       // 1. Store the display name from API
       // if (data.username) {
@@ -281,7 +288,6 @@ const VideoCall: React.FC = () => {
   const [isMicAvailable, setMicAvailable] = useState(false);
   const [isSpeakerAvailable, setSpeakerAvailable] = useState(false);
   const [isPermissionRequested, setIsPermissionRequested] = useState(false);
-  const {store} = useContext(StorageContext);
   return (
     <>
       {queryComplete ? (
@@ -292,7 +298,6 @@ const VideoCall: React.FC = () => {
                 rtcProps: {
                   ...rtcProps,
                   callActive,
-                  preferredCameraId: store?.activeDeviceId?.videoinput,
                   // commented for v1 release
                   //lifecycle,
                 },

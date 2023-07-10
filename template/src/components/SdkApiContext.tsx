@@ -185,6 +185,8 @@ const registerListener = () => {
   ];
 };
 
+registerListener();
+
 const deRegisterListener = () => {
   moduleEventsUnsub.forEach((v) => v());
 };
