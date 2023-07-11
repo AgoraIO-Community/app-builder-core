@@ -4,7 +4,7 @@ import React from 'react';
 import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
-import {calculatePosition, isMobileUA} from '../../utils/common';
+import {calculatePosition, isMobileUA, useIsDesktop} from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
@@ -23,6 +23,7 @@ const CaptionContainer = () => {
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const renderListRef = React.useRef({renderList});
+  const isDesktop = useIsDesktop();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -32,7 +33,11 @@ const CaptionContainer = () => {
   }, [renderList]);
 
   return isCaptionON ? (
-    <View style={isMobileUA() ? styles.mobileContainer : styles.container}>
+    <View
+      style={[
+        !isDesktop() ? styles.mobileContainer : styles.container,
+        isMobileUA() && {marginHorizontal: 0},
+      ]}>
       <CaptionsActionMenu
         actionMenuVisible={actionMenuVisible}
         setActionMenuVisible={setActionMenuVisible}
@@ -70,7 +75,6 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
         right: 8,
         top: 8,
         zIndex: 999,
-        backgroundColor: $config.ICON_BG_COLOR,
       }}>
       <IconButton
         hoverEffect={true}
@@ -223,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: ThemeConfig.BorderRadius.small,
   },
   mobileContainer: {
-    marginHorizontal: 0,
+    marginHorizontal: 10,
     padding: 12,
     height: 120,
     backgroundColor: $config.CARD_LAYER_1_COLOR,

@@ -57,6 +57,9 @@ import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
 import TranscriptIcon from '../../src/subComponents/caption/TranscriptIcon';
 import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
+import {useCaption} from '../../src/subComponents/caption/useCaption';
+import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
+import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -69,6 +72,19 @@ const MoreButton = () => {
   const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
+  const {
+    isCaptionON,
+    isTranscriptON,
+    isSTTActive,
+    setIsTranscriptON,
+    setIsCaptionON,
+  } = useCaption();
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+  const isFirstTimePopupOpen = React.useRef(false);
+  const STT_clicked = React.useRef(null);
+
+  const {start} = useSTTAPI();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -197,6 +213,42 @@ const MoreButton = () => {
         setShowInvitePopup(true);
       },
     });
+    actionMenuitems.push({
+      icon: 'captions',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isCaptionON ? 'caption' : null;
+        if (isSTTActive) {
+          setIsCaptionON((prev) => !prev);
+          // is lang popup has been shown once for any user in meeting
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
+    actionMenuitems.push({
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+        if (isSTTActive) {
+          setIsTranscriptON((prev) => !prev);
+          !isTranscriptON
+            ? setSidePanel(SidePanelType.Transcript)
+            : setSidePanel(SidePanelType.None);
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
   }
 
   if (globalWidth <= BREAKPOINTS.sm) {
@@ -223,8 +275,46 @@ const MoreButton = () => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
+  const onConfirm = async () => {
+    const isCaptionClicked = STT_clicked.current === 'caption';
+    const isTranscriptClicked = STT_clicked.current === 'transcript';
+    setLanguagePopup(false);
+    isFirstTimePopupOpen.current = false;
+    const method = isCaptionClicked
+      ? isCaptionON
+      : isTranscriptON
+      ? 'stop'
+      : 'start';
+    if (isTranscriptClicked) {
+      if (!isTranscriptON) {
+        setSidePanel(SidePanelType.Transcript);
+      } else {
+        setSidePanel(SidePanelType.None);
+      }
+    }
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    try {
+      if (isCaptionClicked) {
+        setIsCaptionON((prev) => !prev);
+      } else {
+        setIsTranscriptON((prev) => !prev);
+      }
+
+      const res = await start();
+    } catch (error) {
+      console.log('eror in starting stt', error);
+    }
+  };
+
   return (
     <>
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onConfirm}
+        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
+      />
       <ActionMenu
         containerStyle={{width: 180}}
         hoverMode={true}
@@ -312,16 +402,18 @@ const Controls = () => {
 
           {/* STT works on host mode only */}
           {/* TODO:// to be refactored to more menu */}
-          {isHost && (
-            <View testID="caption-btn" style={{marginHorizontal: 10}}>
-              <CaptionIcon />
-            </View>
-          )}
-          {/* TODO:// to be refactored to more menu*/}
-          {isHost && (
-            <View testID="transcript-btn" style={{marginHorizontal: 10}}>
-              <TranscriptIcon />
-            </View>
+
+          {isHost && $config.ENABLE_STT ? (
+            <>
+              <View testID="caption-btn" style={{marginHorizontal: 10}}>
+                <CaptionIcon />
+              </View>
+              <View testID="transcript-btn" style={{marginHorizontal: 10}}>
+                <TranscriptIcon />
+              </View>
+            </>
+          ) : (
+            <></>
           )}
         </View>
       )}

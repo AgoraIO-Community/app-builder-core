@@ -45,7 +45,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
 
-  const isLangPopupOpenedOnce = React.useRef(false);
+  const isFirstTimePopupOpen = React.useRef(false);
   const {start} = useSTTAPI();
 
   const ToastIcon = ({color}) => (
@@ -82,30 +82,14 @@ const CaptionIcon = (props: CaptionIconProps) => {
     }
   }, []);
 
-  const toggleSTT = async (method: string) => {
-    // handleSTT
-    setIsCaptionON((prev) => !prev);
-    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
-    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-    if (!isHost) return; // only host can start stt
-    start();
-  };
-
-  const onLanguageChange = () => {
-    // lang would be set on confirm click
-    toggleSTT(isCaptionON ? 'stop' : 'start');
-    setLanguagePopup(false);
-    isLangPopupOpenedOnce.current = false;
-  };
-
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
-      if (isSTTActive || !isHost) {
+      if (isSTTActive) {
         // is lang popup has been shown once for any user in meeting
-        toggleSTT(isCaptionON ? 'stop' : 'start');
+        setIsCaptionON((prev) => !prev);
       } else {
-        isLangPopupOpenedOnce.current = true;
+        isFirstTimePopupOpen.current = true;
         setLanguagePopup(true);
       }
     },
@@ -128,14 +112,28 @@ const CaptionIcon = (props: CaptionIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
+  const onConfirm = async () => {
+    setLanguagePopup(false);
+    isFirstTimePopupOpen.current = false;
+    const method = isCaptionON ? 'stop' : 'start';
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    try {
+      setIsCaptionON((prev) => !prev);
+      const res = await start();
+    } catch (error) {
+      console.log('eror in starting stt', error);
+    }
+  };
+
   return (
     <View>
       <IconButton {...iconButtonProps} />
       <LanguageSelectorPopup
         modalVisible={isLanguagePopupOpen}
         setModalVisible={setLanguagePopup}
-        onConfirm={onLanguageChange}
-        isFirstTimePopupOpen={isLangPopupOpenedOnce.current}
+        onConfirm={onConfirm}
+        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
       />
     </View>
   );

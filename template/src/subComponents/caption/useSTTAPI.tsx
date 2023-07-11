@@ -64,8 +64,8 @@ const useSTTAPI = (): IuseSTTAPI => {
       );
       setIsSTTActive(true);
       return res;
-    } catch (error) {
-      console.log('error in starting STT', error);
+    } catch (errorMsg) {
+      throw new Error(errorMsg);
     } finally {
       setIsLangChangeInProgress(false);
     }

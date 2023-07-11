@@ -136,7 +136,6 @@ export const SidePanelStyles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    flex: 0.3,
     justifyContent: 'center',
     alignItems: 'center',
   },

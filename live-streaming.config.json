@@ -56,5 +56,6 @@
   "ACTIVE_SPEAKER": true,
   "ENABLE_TOKEN_AUTH": false,
   "ENABLE_IDP_AUTH": false,
-  "PROJECT_ID": ""
+  "PROJECT_ID": "",
+  "ENABLE_STT": true
 }
