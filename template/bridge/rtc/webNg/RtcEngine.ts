@@ -455,8 +455,6 @@ export default class RtcEngine {
 
     this.client.enableAudioVolumeIndicator();
     this.client.on('volume-indicator', (volumes) => {
-      console.log('volume --', volumes);
-      return;
       const highestvolumeObj = volumes.reduce(
         (highestVolume, volume, index) => {
           if (highestVolume === null) {
@@ -521,7 +519,8 @@ export default class RtcEngine {
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
       console.log(
         `stt-web: onStreamMessageCallback uid:${uid} , payload:${payload}`,
-      )(this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
+      );
+      (this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
     });
 
     await this.client.join(
