@@ -35,6 +35,7 @@ import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
 import {useLocalUserInfo} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
+import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -198,6 +199,16 @@ const ShareIcon = () => {
     </View>
   );
 };
+const ScreenshareIcon = () => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <ScreenshareButton showLabel={false} isOnActionSheet={true} />
+      </View>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Screen Share</Text>}
+    </View>
+  );
+};
 
 interface AudioIconProps {
   isMobileView: boolean;
@@ -293,7 +304,7 @@ export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
 ];
 
 const ActionSheetContent = (props) => {
-  const {handleSheetChanges, isExpanded} = props;
+  const {handleSheetChanges, isExpanded, native = false} = props;
   const {onlineUsersCount, localUid} = useContext(ChatContext);
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();
@@ -424,6 +435,8 @@ const ActionSheetContent = (props) => {
             setSidePanel(SidePanelType.Settings);
           }}
         />
+
+        {native ? <ScreenshareIcon /> : <></>}
 
         {/* invite */}
         <ShareIcon />

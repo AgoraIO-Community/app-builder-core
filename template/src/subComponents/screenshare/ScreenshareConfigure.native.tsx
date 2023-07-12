@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import KeepAwake from 'react-native-keep-awake';
 import {UidType} from '../../../agora-rn-uikit';
 import {
@@ -24,9 +24,14 @@ import events from '../../rtm-events-api';
 import {EventNames, EventActions} from '../../rtm-events';
 import {useLayout, useRender, useRtc} from 'customization-api';
 import {filterObject} from '../../utils';
+import {ScreenshareContext} from './useScreenshare';
+import {PermissionsAndroid, Platform} from 'react-native';
+
+export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
 export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
-  const {dispatch} = useRtc();
+  const [isScreenshareActive, setScreenshareActive] = useState(false);
+  const {dispatch, RtcEngine} = useRtc();
   const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
   const isPinned = useRef(0);
   const {setScreenShareData, screenShareData} = useScreenContext();
@@ -42,6 +47,15 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const currentLayoutRef = useRef({currentLayout: currentLayout});
 
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      PermissionsAndroid.requestMultiple([
+        'android.permission.RECORD_AUDIO',
+        'android.permission.CAMERA',
+      ]);
+    }
+  }, []);
 
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
@@ -136,11 +150,41 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     });
   }, []);
 
+  const startUserScreenshare = () => {
+    if (!isScreenshareActive) {
+      RtcEngine?.startScreenCapture({
+        captureAudio: true,
+        captureVideo: true,
+      });
+      setScreenshareActive(true);
+    } else {
+      console.log('screenshare is already active');
+    }
+  };
+
+  const stopUserScreenShare = () => {
+    if (isScreenshareActive) {
+      RtcEngine?.stopScreenCapture();
+      setScreenshareActive(false);
+    } else {
+      console.log('no screenshare is active');
+    }
+  };
+
+  const ScreenshareStoppedCallback = () => {};
+
   return (
-    <>
+    <ScreenshareContext.Provider
+      value={{
+        isScreenshareActive,
+        startUserScreenshare,
+        stopUserScreenShare,
+        //@ts-ignore
+        ScreenshareStoppedCallback,
+      }}>
       {props.children}
       <KeepAwake />
-    </>
+    </ScreenshareContext.Provider>
   );
 };
 

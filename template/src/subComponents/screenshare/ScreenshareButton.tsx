@@ -27,10 +27,14 @@ import useIsHandRaised from '../../utils/useIsHandRaised';
 
 export interface ScreenshareButtonProps {
   render?: (onPress: () => void, isScreenshareActive: boolean) => JSX.Element;
+  showLabel?: boolean;
+  isOnActionSheet?: boolean;
 }
 
 const ScreenshareButton = (props: ScreenshareButtonProps) => {
   const {rtcProps} = useContext(PropsContext);
+  const {showLabel = $config.ICON_TEXT || false, isOnActionSheet = false} =
+    props;
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -53,11 +57,11 @@ const ScreenshareButton = (props: ScreenshareButtonProps) => {
     },
     onPress,
     btnTextProps: {
-      text: $config.ICON_TEXT ? screenShareButton : '',
+      text: showLabel ? screenShareButton : '',
       textColor: $config.FONT_COLOR,
     },
   };
-
+  iconButtonProps.isOnActionSheet = isOnActionSheet;
   if (
     rtcProps.role == ClientRole.Audience &&
     $config.EVENT_MODE &&
