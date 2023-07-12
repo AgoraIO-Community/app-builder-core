@@ -252,8 +252,8 @@ const Transcript = (props: TranscriptProps) => {
               onContentSizeChange={handleContentSizeChange}
               onScroll={handleScroll}
               onLayout={handleLayout}
-              // initialScrollIndex={renderedData.length - 1} // Scroll to the last item
-              // initialNumToRender={renderedData.length + 10} // Render all items
+              initialScrollIndex={renderedData.length - 1} // Scroll to the last item
+              initialNumToRender={renderedData.length + 10} // Render all items
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
             />
             {showButton ? (
