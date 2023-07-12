@@ -519,7 +519,9 @@ export default class RtcEngine {
 
     /* Recieve Captions  */
     this.client.on('stream-message', (uid: UID, payload: UInt8Array) => {
-      (this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
+      console.log(
+        `stt-web: onStreamMessageCallback uid:${uid} , payload:${payload}`,
+      )(this.eventsMap.get('StreamMessage') as callbackType)(uid, payload);
     });
 
     await this.client.join(

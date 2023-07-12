@@ -2,9 +2,6 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {LanguageType} from './LanguageSelectorPopup';
 
-interface Transcript {
-  [key: string]: string;
-}
 type TranscriptItem = {
   name: string;
   uid: string;
@@ -13,22 +10,35 @@ type TranscriptItem = {
 };
 
 export const CaptionContext = React.createContext<{
+  // for caption btn state
   isCaptionON: boolean;
   setIsCaptionON: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // for transcript btn state
   isTranscriptON: boolean;
   setIsTranscriptON: React.Dispatch<React.SetStateAction<boolean>>;
-  isTranscriptPaused: boolean;
-  setIsTranscriptPaused: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // to check if stt is active in the call
   isSTTActive: boolean;
   setIsSTTActive: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // holds the language selection for stt
   language: LanguageType[];
   setLanguage: React.Dispatch<React.SetStateAction<LanguageType[]>>;
+
+  // holds meeting transcript
   meetingTranscript: TranscriptItem[];
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
+
+  // holds status of stt language change process
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // holds live captions
   captionObj: {[key: string]: string};
   setCaptionObj: React.Dispatch<React.SetStateAction<{[key: string]: string}>>;
+
+  // holds status of StreamMessageCallback listener added (caption/transcript)
   isSTTListenerAdded: boolean;
   setIsSTTListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
@@ -36,8 +46,6 @@ export const CaptionContext = React.createContext<{
   setIsCaptionON: () => {},
   isTranscriptON: false,
   setIsTranscriptON: () => {},
-  isTranscriptPaused: false,
-  setIsTranscriptPaused: () => {},
   isSTTActive: false,
   setIsSTTActive: () => {},
   language: ['en-US'],
@@ -55,8 +63,6 @@ export const CaptionContext = React.createContext<{
 const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isTranscriptON, setIsTranscriptON] = React.useState<boolean>(false);
-  const [isTranscriptPaused, setIsTranscriptPaused] =
-    React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
   const [language, setLanguage] = React.useState<[LanguageType]>(['en-US']);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
@@ -77,8 +83,6 @@ const CaptionProvider = ({children}) => {
         setIsCaptionON,
         isTranscriptON,
         setIsTranscriptON,
-        isTranscriptPaused,
-        setIsTranscriptPaused,
         isSTTActive,
         setIsSTTActive,
         language,

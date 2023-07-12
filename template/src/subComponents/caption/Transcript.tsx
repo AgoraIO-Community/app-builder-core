@@ -24,8 +24,9 @@ import ThemeConfig from '../../theme';
 import Loading from '../Loading';
 import ImageIcon from '../../atoms/ImageIcon';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
-import {downloadTranscript, streamMessageCallback} from './utils';
 import Spacer from '../../atoms/Spacer';
+import useStreamMessageUtils from './useStreamMessageUtils';
+import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -38,11 +39,12 @@ const Transcript = (props: TranscriptProps) => {
     setMeetingTranscript,
     meetingTranscript,
     isLangChangeInProgress,
-    isSTTActive,
     setCaptionObj,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
   } = useCaption();
+
+  const {downloadTranscript} = useStreamMessageUtils();
   const data = meetingTranscript; // Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
@@ -53,23 +55,9 @@ const Transcript = (props: TranscriptProps) => {
   const [searchResults, setSearchResults] = React.useState([]);
   const {RtcEngine} = useRtc();
   const {renderList} = useRender();
-
-  const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
-  const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
-
-  const startTimeRef = React.useRef<number>(0);
-  const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
-
-  const renderListRef = React.useRef({renderList});
-
+  const {streamMessageCallback} = useStreamMessageUtils();
   const [isFocused, setIsFocused] = React.useState(false);
-  const {setIsTranscriptON, isTranscriptPaused, setIsTranscriptPaused} =
-    useCaption();
-  const isTranscriptPausedRef = React.useRef(isTranscriptPaused);
-
-  const updateIsTranscriptPausedRef = () => {
-    isTranscriptPausedRef.current = isTranscriptPaused;
-  };
+  const {setIsTranscriptON} = useCaption();
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -149,36 +137,29 @@ const Transcript = (props: TranscriptProps) => {
     return <Text style={styles.emptyMsg}>No search results found</Text>;
   };
 
-  const meetingTranscriptRef = React.useRef(meetingTranscript);
-
-  const sttObj = {
-    renderListRef,
-    finalList,
-    meetingTextRef,
-    startTimeRef,
-    meetingTranscriptRef,
-    setMeetingTranscript,
-    setCaptionObj,
-  };
-
-  const handleStreamMessageCallback = (...args) => {
+  const handleStreamMessageCallback = (
+    ...args: [number, Uint8Array] | [number, string, Uint8Array]
+  ) => {
     setIsSTTListenerAdded(true);
     if (isWebInternal()) {
-      streamMessageCallback(args, sttObj);
+      streamMessageCallback(args as [number, Uint8Array]);
     } else {
       const [uid, , data] = args;
       const streamBuffer = Object.values(data);
-      streamMessageCallback([uid, streamBuffer], sttObj);
+      streamMessageCallback([uid, new Uint8Array(streamBuffer)]);
     }
   };
 
-  React.useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
+  // React.useEffect(() => {
+  //   renderListRef.current.renderList = renderList;
+  // }, [renderList]);
 
   React.useEffect(() => {
     if (!isSTTListenerAdded) {
-      RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+      RtcEngine.addListener(
+        'StreamMessage',
+        handleStreamMessageCallback as unknown as StreamMessageCallback,
+      );
     }
     return () => {
       setIsTranscriptON(false);
@@ -243,7 +224,7 @@ const Transcript = (props: TranscriptProps) => {
         <Loading text="Setting Spoken Language" background="transparent" />
       ) : (
         <>
-          <View style={{flex: isTranscriptPaused ? 0.98 : 1}}>
+          <View style={{flex: 1}}>
             <FlatList
               ref={flatListRef}
               style={styles.contentContainer}
@@ -284,7 +265,8 @@ const Transcript = (props: TranscriptProps) => {
                 containerStyle={styles.btnContainerStyle}
                 textStyle={styles.btnTxtStyle}
                 onPress={() => {
-                  downloadTranscript(meetingTranscript);
+                  // downloadTranscript(meetingTranscript);
+                  downloadTranscript();
                 }}
                 text={'Download Transcript'}
               />
