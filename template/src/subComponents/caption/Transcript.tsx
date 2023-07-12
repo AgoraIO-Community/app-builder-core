@@ -169,10 +169,12 @@ const Transcript = (props: TranscriptProps) => {
 
   React.useEffect(() => {
     // updateIsTranscriptPausedRef();
-
-    RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+    if (!isSTTActive) {
+      RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
+    }
     return () => {
       setIsTranscriptON(false);
+      RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback);
     };
   }, []); //isTranscriptPaused
 

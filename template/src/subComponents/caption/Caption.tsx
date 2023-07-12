@@ -18,8 +18,12 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   const {RtcEngine} = useRtc();
   const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
-  const {setMeetingTranscript, meetingTranscript, isLangChangeInProgress} =
-    useCaption();
+  const {
+    setMeetingTranscript,
+    meetingTranscript,
+    isLangChangeInProgress,
+    isSTTActive,
+  } = useCaption();
   const startTimeRef = React.useRef<number>(0);
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
 
@@ -46,6 +50,9 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
 
   React.useEffect(() => {
     RtcEngine.addListener('StreamMessage', handleStreamMessageCallback1);
+    return () => {
+      RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback1);
+    };
   }, []);
 
   const speakers = Object.entries(textObj);

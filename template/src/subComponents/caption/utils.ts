@@ -87,14 +87,16 @@ export const streamMessageCallback = (args, sttObj) => {
   if (textstream.words.length === 0) {
     stringBuilder = '';
   }
-  setTextObj((prevState) => ({
-    ...prevState,
-    [textstream.uid]: stringBuilder,
-  }));
+  if (stringBuilder != '') {
+    setTextObj((prevState) => ({
+      ...prevState,
+      [textstream.uid]: stringBuilder,
+    }));
+  }
 
   if (textstream.words.length === 0) {
     // clearing prev sel when empty words
-    finalList.current[textstream.uid] = [];
+    // finalList.current[textstream.uid] = [];
   }
 
   console.group('STT-logs');
