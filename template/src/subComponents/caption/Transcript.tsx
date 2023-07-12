@@ -40,6 +40,8 @@ const Transcript = (props: TranscriptProps) => {
     isLangChangeInProgress,
     isSTTActive,
     setCaptionObj,
+    isSTTListenerAdded,
+    setIsSTTListenerAdded,
   } = useCaption();
   const data = meetingTranscript; // Object.entries(transcript);
 
@@ -160,6 +162,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleStreamMessageCallback = (...args) => {
+    setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       streamMessageCallback(args, sttObj);
     } else {
@@ -174,7 +177,7 @@ const Transcript = (props: TranscriptProps) => {
   }, [renderList]);
 
   React.useEffect(() => {
-    if (!isSTTActive) {
+    if (!isSTTListenerAdded) {
       RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
     }
     return () => {
@@ -250,8 +253,6 @@ const Transcript = (props: TranscriptProps) => {
               onContentSizeChange={handleContentSizeChange}
               onScroll={handleScroll}
               onLayout={handleLayout}
-              initialScrollIndex={renderedData.length - 1} // Scroll to the last item
-              initialNumToRender={renderedData.length + 10} // Render all items
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
             />
             {showButton ? (

@@ -29,6 +29,8 @@ export const CaptionContext = React.createContext<{
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
   captionObj: {[key: string]: string};
   setCaptionObj: React.Dispatch<React.SetStateAction<{[key: string]: string}>>;
+  isSTTListenerAdded: boolean;
+  setIsSTTListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -46,6 +48,8 @@ export const CaptionContext = React.createContext<{
   setIsLangChangeInProgress: () => {},
   captionObj: {},
   setCaptionObj: () => {},
+  isSTTListenerAdded: false,
+  setIsSTTListenerAdded: () => {},
 });
 
 const CaptionProvider = ({children}) => {
@@ -63,6 +67,8 @@ const CaptionProvider = ({children}) => {
   const [captionObj, setCaptionObj] = React.useState<{[key: string]: string}>(
     {},
   );
+  const [isSTTListenerAdded, setIsSTTListenerAdded] =
+    React.useState<boolean>(false);
 
   return (
     <CaptionContext.Provider
@@ -83,6 +89,8 @@ const CaptionProvider = ({children}) => {
         setIsLangChangeInProgress,
         captionObj,
         setCaptionObj,
+        isSTTListenerAdded,
+        setIsSTTListenerAdded,
       }}>
       {children}
     </CaptionContext.Provider>

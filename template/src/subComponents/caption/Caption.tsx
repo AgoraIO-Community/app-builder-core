@@ -24,6 +24,8 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
     isSTTActive,
     captionObj, //state for current live caption for all users
     setCaptionObj,
+    isSTTListenerAdded,
+    setIsSTTListenerAdded,
   } = useCaption();
   const startTimeRef = React.useRef<number>(0);
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
@@ -40,6 +42,7 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   };
 
   const handleStreamMessageCallback1 = (...args: any[]) => {
+    setIsSTTListenerAdded(true);
     if (isWebInternal()) {
       streamMessageCallback(args, sttObj);
     } else {
@@ -50,7 +53,7 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   };
 
   React.useEffect(() => {
-    if (!isSTTActive) {
+    if (!isSTTListenerAdded) {
       RtcEngine.addListener('StreamMessage', handleStreamMessageCallback1);
     }
     setCaptionObj({}); // clear live captions on mount
