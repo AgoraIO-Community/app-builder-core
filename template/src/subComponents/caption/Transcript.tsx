@@ -81,6 +81,11 @@ const Transcript = (props: TranscriptProps) => {
     if (contentHeightRef.current > event.nativeEvent.layout.height) {
       setShowButton(true);
     }
+    // Scroll to the last item on initial mount
+    if (flatListRef.current && data.length > 0) {
+      const lastIndex = data.length - 1;
+      flatListRef.current.scrollToIndex({index: lastIndex, animated: false});
+    }
   };
 
   const renderItem = ({item}) => {
@@ -169,6 +174,7 @@ const Transcript = (props: TranscriptProps) => {
 
   React.useEffect(() => {
     // updateIsTranscriptPausedRef();
+
     if (!isSTTActive) {
       RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
     }
@@ -246,6 +252,8 @@ const Transcript = (props: TranscriptProps) => {
               onContentSizeChange={handleContentSizeChange}
               onScroll={handleScroll}
               onLayout={handleLayout}
+              // initialScrollIndex={renderedData.length - 1} // Scroll to the last item
+              // initialNumToRender={renderedData.length + 10} // Render all items
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
             />
             {showButton ? (
