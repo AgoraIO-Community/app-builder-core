@@ -1,4 +1,4 @@
-import {StyleSheet, ScrollView, Platform} from 'react-native';
+import {StyleSheet, View, Platform} from 'react-native';
 import React, {MutableRefObject} from 'react';
 import {isWeb, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
@@ -16,13 +16,14 @@ interface CaptionProps {
 
 const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   const {RtcEngine} = useRtc();
-  const [textObj, setTextObj] = React.useState<{[key: string]: string}>({}); // state for current live caption for all users
   const finalList = React.useRef<{[key: number]: string[]}>({}); // holds transcript of final words of all users
   const {
     setMeetingTranscript,
     meetingTranscript,
     isLangChangeInProgress,
     isSTTActive,
+    captionObj, //state for current live caption for all users
+    setCaptionObj,
   } = useCaption();
   const startTimeRef = React.useRef<number>(0);
   const meetingTextRef = React.useRef<string>(''); // This is the full meeting text concatenated together.
@@ -35,7 +36,7 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
     startTimeRef,
     meetingTranscriptRef,
     setMeetingTranscript,
-    setTextObj,
+    setCaptionObj,
   };
 
   const handleStreamMessageCallback1 = (...args: any[]) => {
@@ -49,42 +50,40 @@ const Caption: React.FC<CaptionProps> = ({renderListRef}) => {
   };
 
   React.useEffect(() => {
-    RtcEngine.addListener('StreamMessage', handleStreamMessageCallback1);
-    return () => {
-      RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback1);
-    };
+    if (!isSTTActive) {
+      RtcEngine.addListener('StreamMessage', handleStreamMessageCallback1);
+    }
+    setCaptionObj({}); // clear live captions on mount
   }, []);
 
-  const speakers = Object.entries(textObj);
+  const speakers = Object.entries(captionObj);
   const activeSpeakers = speakers.filter((item) => item[1] !== '');
   if (isLangChangeInProgress)
     return <Loading text="Setting Spoken Language" background="transparent" />;
 
   return (
-    <ScrollView>
+    <View>
       {speakers.map(([key, value], index) => (
-        <>
-          <TranscriptText
-            key={key}
-            user={
-              renderListRef.current.renderList[Number(key)]?.name || 'Speaker'
-            }
-            value={value.trim()}
-            captionContainerStyle={
-              activeSpeakers.length === 1
-                ? styles.singleCaptionContainerStyle
-                : styles.captionContainerStyle
-            }
-            captionStyle={
-              activeSpeakers.length === 1
-                ? styles.singleCaptionStyle
-                : styles.captionStyle
-            }
-          />
-          {index !== speakers.length - 1 && <Spacer size={10} />}
-        </>
+        <TranscriptText
+          key={key}
+          user={
+            renderListRef.current.renderList[Number(key)]?.name || 'Speaker'
+          }
+          value={value.trim()}
+          captionContainerStyle={
+            activeSpeakers.length === 1
+              ? styles.singleCaptionContainerStyle
+              : styles.captionContainerStyle
+          }
+          captionStyle={
+            activeSpeakers.length === 1
+              ? styles.singleCaptionStyle
+              : styles.captionStyle
+          }
+        />
+        /* {index !== speakers.length - 1 && <Spacer size={10} />} */
       ))}
-    </ScrollView>
+    </View>
   );
 };
 

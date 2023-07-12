@@ -27,6 +27,8 @@ export const CaptionContext = React.createContext<{
   setMeetingTranscript: React.Dispatch<React.SetStateAction<TranscriptItem[]>>;
   isLangChangeInProgress: boolean;
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
+  captionObj: {[key: string]: string};
+  setCaptionObj: React.Dispatch<React.SetStateAction<{[key: string]: string}>>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -42,6 +44,8 @@ export const CaptionContext = React.createContext<{
   setMeetingTranscript: () => {},
   isLangChangeInProgress: false,
   setIsLangChangeInProgress: () => {},
+  captionObj: {},
+  setCaptionObj: () => {},
 });
 
 const CaptionProvider = ({children}) => {
@@ -56,6 +60,9 @@ const CaptionProvider = ({children}) => {
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
   >([]);
+  const [captionObj, setCaptionObj] = React.useState<{[key: string]: string}>(
+    {},
+  );
 
   return (
     <CaptionContext.Provider
@@ -74,6 +81,8 @@ const CaptionProvider = ({children}) => {
         setMeetingTranscript,
         isLangChangeInProgress,
         setIsLangChangeInProgress,
+        captionObj,
+        setCaptionObj,
       }}>
       {children}
     </CaptionContext.Provider>

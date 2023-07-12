@@ -8,7 +8,7 @@ export const streamMessageCallback = (args, sttObj) => {
     startTimeRef,
     meetingTranscriptRef,
     setMeetingTranscript,
-    setTextObj,
+    setCaptionObj,
   } = sttObj;
   const [uid, payload] = args; // uid is of the bot which sends the stream messages in the channel
   let nonFinalList = []; // holds intermediate results
@@ -83,20 +83,20 @@ export const streamMessageCallback = (args, sttObj) => {
   stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
   stringBuilder += nonFinalList?.join(' ');
 
-  // when stringBuilder is '' then it will clear the live captions when person stops speaking
+  // when stringBuilder is '' then it will clear the live captions when person stops speaking or mic muted
   if (textstream.words.length === 0) {
     stringBuilder = '';
   }
-  if (stringBuilder != '') {
-    setTextObj((prevState) => ({
+
+  setCaptionObj &&
+    setCaptionObj((prevState) => ({
       ...prevState,
       [textstream.uid]: stringBuilder,
     }));
-  }
 
   if (textstream.words.length === 0) {
-    // clearing prev sel when empty words
-    // finalList.current[textstream.uid] = [];
+    // clearing prev sel when there is pause so that live captions show current spoken words
+    finalList.current[textstream.uid] = [];
   }
 
   console.group('STT-logs');

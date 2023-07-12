@@ -39,6 +39,7 @@ const Transcript = (props: TranscriptProps) => {
     meetingTranscript,
     isLangChangeInProgress,
     isSTTActive,
+    setCaptionObj,
   } = useCaption();
   const data = meetingTranscript; // Object.entries(transcript);
 
@@ -155,7 +156,7 @@ const Transcript = (props: TranscriptProps) => {
     startTimeRef,
     meetingTranscriptRef,
     setMeetingTranscript,
-    setTextObj,
+    setCaptionObj,
   };
 
   const handleStreamMessageCallback = (...args) => {
@@ -173,16 +174,13 @@ const Transcript = (props: TranscriptProps) => {
   }, [renderList]);
 
   React.useEffect(() => {
-    // updateIsTranscriptPausedRef();
-
     if (!isSTTActive) {
       RtcEngine.addListener('StreamMessage', handleStreamMessageCallback);
     }
     return () => {
       setIsTranscriptON(false);
-      RtcEngine.removeListener('StreamMessage', handleStreamMessageCallback);
     };
-  }, []); //isTranscriptPaused
+  }, []);
 
   return (
     <View
