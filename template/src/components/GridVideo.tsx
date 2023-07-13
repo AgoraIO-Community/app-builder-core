@@ -16,7 +16,6 @@ import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import {ClientRole, DispatchContext, PropsContext} from '../../agora-rn-uikit';
-
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
