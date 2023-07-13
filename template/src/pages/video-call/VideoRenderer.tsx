@@ -1,5 +1,11 @@
 import React, {useState, useRef, useContext, useEffect} from 'react';
-import {View, StyleSheet, Platform, TouchableOpacity} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import {PropsContext, RenderInterface, UidType} from '../../../agora-rn-uikit';
 import ScreenShareNotice from '../../subComponents/ScreenShareNotice';
 import {MaxVideoView} from '../../../agora-rn-uikit';
@@ -21,7 +27,8 @@ interface VideoRendererProps {
   isMax?: boolean;
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
-  const {dispatch} = useRtc();
+  const {dispatch, RtcEngine} = useRtc();
+  const {height, width} = useWindowDimensions();
   const isActiveSpeaker = useIsActiveSpeaker();
   const {pinnedUid, activeUids} = useRender();
   const activeSpeaker = isActiveSpeaker(user.uid);
@@ -39,7 +46,6 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  const [showVideoTileButtons, setShowVideoTileButtons] = useState(true);
 
   const {
     screenShareData,
@@ -47,11 +53,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     isScreenShareOnFullView,
     setScreenShareOnFullView,
   } = useScreenContext();
-  useEffect(() => {
-    if (isScreenShareOnFullView) {
-      setShowVideoTileButtons(false);
-    }
-  }, [isScreenShareOnFullView]);
+
   return (
     <>
       <UserActionMenuOptionsOptions
@@ -69,12 +71,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
       />
       <VideoTileWrapper
         isScreenShareOnFullView={isScreenShareOnFullView}
-        onPressVideoTile={() => {
-          setShowVideoTileButtons(!showVideoTileButtons);
-          setTimeout(() => {
-            setShowVideoTileButtons(false);
-          }, 5000);
-        }}>
+        onPressVideoTile={() => {}}>
         <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
           <View
             onLayout={({
@@ -96,10 +93,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             {!showReplacePin && !showPinForMe && (
               <ScreenShareNotice uid={user.uid} isMax={isMax} />
             )}
-            {showVideoTileButtons &&
-            screenShareData &&
-            screenShareData?.[user.uid] &&
-            isMobileUA() ? (
+            {screenShareData && screenShareData?.[user.uid] && isMobileUA() ? (
               <IconButton
                 containerStyle={{
                   position: 'absolute',
@@ -159,10 +153,13 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 }}
                 user={user}
                 containerStyle={{
-                  width: '100%',
-                  height: '100%',
+                  width: isScreenShareOnFullView ? height : '100%',
+                  height: isScreenShareOnFullView ? width : '100%',
+                  // width: '100%',
+                  // height: '100%',
                 }}
                 key={user.uid}
+                landscapeMode={isScreenShareOnFullView ? true : false}
               />
             </ZoomableWrapper>
             {!isScreenShareOnFullView && (

@@ -34,7 +34,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {dispatch, RtcEngine} = useRtc();
   const {renderList, activeUids, lastJoinedUid, pinnedUid} = useRender();
   const isPinned = useRef(0);
-  const {setScreenShareData, screenShareData} = useScreenContext();
+  const {setScreenShareData, screenShareData, setScreenShareOnFullView} =
+    useScreenContext();
   // commented for v1 release
   // const getScreenShareName = useString('screenshareUserName');
   // const userText = useString('remoteUserDefaultLabel')();
@@ -45,21 +46,16 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const {currentLayout} = useLayout();
   const renderListRef = useRef({renderList: renderList});
   const currentLayoutRef = useRef({currentLayout: currentLayout});
-
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.requestMultiple([
-        'android.permission.RECORD_AUDIO',
-        'android.permission.CAMERA',
-      ]);
-    }
-  }, []);
+  const screenShareDataRef = useRef({screenShareData: screenShareData});
 
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
   }, [pinnedUid]);
+
+  useEffect(() => {
+    screenShareDataRef.current.screenShareData = screenShareData;
+  }, [screenShareData]);
 
   useEffect(() => {
     renderListRef.current.renderList = renderList;
@@ -68,6 +64,16 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     currentLayoutRef.current.currentLayout = currentLayout;
   }, [currentLayout]);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      //todo hari ask permission based on user input
+      PermissionsAndroid.requestMultiple([
+        'android.permission.RECORD_AUDIO',
+        'android.permission.CAMERA',
+      ]);
+    }
+  }, []);
 
   useEffect(() => {
     const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
@@ -120,6 +126,7 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
             return {
               ...prevState,
               [screenUidOfUser]: {
+                ...prevState[screenUidOfUser],
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: true,
                 ts: value || 0,
@@ -128,10 +135,21 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
           });
           break;
         case EventActions.SCREENSHARE_STOPPED:
+          //if user pinned some remote screenshare view as fullscreen view on native and remote stop the screenshare
+          //then we need to exit the fullscreen view
+          if (
+            screenShareDataRef.current.screenShareData[screenUidOfUser] &&
+            screenShareDataRef.current.screenShareData[screenUidOfUser]
+              ?.isExpanded
+          ) {
+            setScreenShareOnFullView(false);
+          }
           setScreenShareData((prevState) => {
             return {
               ...prevState,
               [screenUidOfUser]: {
+                ...prevState[screenUidOfUser],
+                isExpanded: false,
                 name: renderListRef.current.renderList[screenUidOfUser]?.name,
                 isActive: false,
                 ts: value || 0,

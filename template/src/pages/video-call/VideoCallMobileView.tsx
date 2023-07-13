@@ -86,7 +86,12 @@ const VideoCallMobileView = () => {
 
   return (
     <>
-      {!isScreenShareOnFullView ? (
+      {isScreenShareOnFullView &&
+      maxScreenShareUid &&
+      renderList[maxScreenShareUid] &&
+      renderList[maxScreenShareUid]?.video ? (
+        <VideoRenderer user={renderList[maxScreenShareUid]} />
+      ) : (
         <View style={styles.container}>
           <View style={styles.titleBar}>
             <Text style={styles.title}>{trimText(meetingTitle)}</Text>
@@ -117,10 +122,6 @@ const VideoCallMobileView = () => {
           </View>
           <ActionSheet />
         </View>
-      ) : maxScreenShareUid && renderList[maxScreenShareUid] ? (
-        <VideoRenderer user={renderList[maxScreenShareUid]} />
-      ) : (
-        <></>
       )}
     </>
   );
