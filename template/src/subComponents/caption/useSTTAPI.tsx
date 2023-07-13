@@ -7,8 +7,8 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 
 interface IuseSTTAPI {
-  start: () => void;
-  stop: () => void;
+  start: () => Promise<{message: string} | null>;
+  stop: () => Promise<void>;
   restart: () => Promise<void>;
 }
 
@@ -35,10 +35,6 @@ const useSTTAPI = (): IuseSTTAPI => {
         dataStream_uid: 111111, // bot ID
       }),
     });
-    if (!response.ok) {
-      const message = `An error has occured: ${response.status}`;
-      throw new Error(message);
-    }
     const res = await response.json();
     return res;
   };
@@ -48,7 +44,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       setTimeout(async () => {
         const res = await start();
         resolve(res);
-      }, 1000); // Delay of 3 seconds (1000 milliseconds)
+      }, 1000); // Delay of 1 seconds (1000 milliseconds) to allow existing stt service to fully stop
     });
 
   const start = async () => {
@@ -56,16 +52,19 @@ const useSTTAPI = (): IuseSTTAPI => {
       setIsLangChangeInProgress(true);
       const res = await apiCall('start');
       console.log('response aftet start api call', res);
-      // once STT is active in the channel , notify others so that they dont' trigger start again
-      events.send(
-        EventNames.STT_ACTIVE,
-        JSON.stringify({active: true}),
-        EventPersistLevel.LEVEL2,
-      );
-      setIsSTTActive(true);
+      // null means stt startred successfully
+      if (res === null) {
+        // once STT is active in the channel , notify others so that they dont' trigger start again
+        events.send(
+          EventNames.STT_ACTIVE,
+          JSON.stringify({active: true}),
+          EventPersistLevel.LEVEL2,
+        );
+        setIsSTTActive(true);
+      }
       return res;
     } catch (errorMsg) {
-      throw new Error(errorMsg);
+      throw errorMsg;
     } finally {
       setIsLangChangeInProgress(false);
     }
@@ -84,14 +83,14 @@ const useSTTAPI = (): IuseSTTAPI => {
       setIsSTTActive(false);
       return res;
     } catch (error) {
-      console.log('error in stopping STT', error);
+      throw error;
     }
   };
   const restart = async () => {
     try {
       setIsLangChangeInProgress(true);
-      const r1 = await stop();
-      const r2 = await startWithDelay();
+      await stop();
+      await startWithDelay();
       return Promise.resolve();
     } catch (error) {
       console.log('error in re-starting STT', error);

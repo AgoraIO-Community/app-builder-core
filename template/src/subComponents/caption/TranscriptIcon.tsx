@@ -25,7 +25,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
-  const {start} = useSTTAPI();
+  const {start, restart} = useSTTAPI();
 
   const {isTranscriptON, setIsTranscriptON, isSTTActive} = useCaption();
   const {
@@ -77,14 +77,18 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     const method = isTranscriptON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    if (!isTranscriptON) {
+      setSidePanel(SidePanelType.Transcript);
+    } else {
+      setSidePanel(SidePanelType.None);
+    }
+    setIsTranscriptON((prev) => !prev);
     try {
-      if (!isTranscriptON) {
-        setSidePanel(SidePanelType.Transcript);
-      } else {
-        setSidePanel(SidePanelType.None);
-      }
-      setIsTranscriptON((prev) => !prev);
       const res = await start();
+      if (res?.message.includes('STARTED')) {
+        // channel is already started now restart
+        await restart();
+      }
     } catch (error) {
       console.log('eror in starting stt', error);
     }

@@ -46,7 +46,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     React.useState<boolean>(false);
 
   const isFirstTimePopupOpen = React.useRef(false);
-  const {start} = useSTTAPI();
+  const {start, restart} = useSTTAPI();
 
   const ToastIcon = ({color}) => (
     <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
@@ -118,9 +118,13 @@ const CaptionIcon = (props: CaptionIconProps) => {
     const method = isCaptionON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+    setIsCaptionON((prev) => !prev);
     try {
-      setIsCaptionON((prev) => !prev);
       const res = await start();
+      if (res?.message.includes('STARTED')) {
+        // channel is already started now restart
+        await restart();
+      }
     } catch (error) {
       console.log('eror in starting stt', error);
     }

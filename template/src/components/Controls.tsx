@@ -84,7 +84,7 @@ const MoreButton = () => {
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
 
-  const {start} = useSTTAPI();
+  const {start, restart} = useSTTAPI();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -294,14 +294,19 @@ const MoreButton = () => {
     }
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
-    try {
-      if (isCaptionClicked) {
-        setIsCaptionON((prev) => !prev);
-      } else {
-        setIsTranscriptON((prev) => !prev);
-      }
 
+    if (isCaptionClicked) {
+      setIsCaptionON((prev) => !prev);
+    } else {
+      setIsTranscriptON((prev) => !prev);
+    }
+
+    try {
       const res = await start();
+      if (res?.message.includes('STARTED')) {
+        // channel is already started now restart
+        await restart();
+      }
     } catch (error) {
       console.log('eror in starting stt', error);
     }
