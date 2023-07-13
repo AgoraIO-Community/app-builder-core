@@ -16,7 +16,6 @@ import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import {ClientRole, DispatchContext, PropsContext} from '../../agora-rn-uikit';
-import MeetingInfoGridTile from './meeting-info-invite/MeetingInfoGridTile';
 
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
@@ -115,7 +114,6 @@ const GridVideo: LayoutComponent = ({renderData}) => {
 const style = StyleSheet.create({
   full: {
     flex: 1,
-    flexDirection: 'row',
   },
   gridRow: {
     flex: 1,
