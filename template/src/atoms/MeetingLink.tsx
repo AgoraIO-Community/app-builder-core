@@ -84,14 +84,16 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
     label: {},
     linkTextBox: {},
     linkText: {},
+    linkContainer: {},
   };
   if (styleProps.size === 'tiny') {
     customStyles.label = {
       fontSize: ThemeConfig.FontSize.tiny,
     };
+    customStyles.linkContainer = {
+      borderRadius: ThemeConfig.BorderRadius[styleProps.size],
+    };
     customStyles.linkTextBox = {
-      borderTopLeftRadius: ThemeConfig.BorderRadius[styleProps.size],
-      borderBottomLeftRadius: ThemeConfig.BorderRadius[styleProps.size],
       paddingVertical: 18,
     };
     customStyles.linkText = {
