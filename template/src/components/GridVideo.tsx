@@ -108,12 +108,6 @@ const GridVideo: LayoutComponent = ({renderData}) => {
           ))}
         </View>
       ))}
-      {/* Show invite tile if only one person is in the call */}
-      {activeUids.length === 1 && (
-        <View style={style.gridRow}>
-          <MeetingInfoGridTile />{' '}
-        </View>
-      )}
     </View>
   );
 };
