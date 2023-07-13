@@ -16,6 +16,8 @@ import {isWebInternal, useIsDesktop} from '../utils/common';
 import {useSetPinnedLayout} from '../pages/video-call/DefaultLayouts';
 import RenderComponent from '../pages/video-call/RenderComponent';
 import {ClientRole, DispatchContext, PropsContext} from '../../agora-rn-uikit';
+import MeetingInfoGridTile from './meeting-info-invite/MeetingInfoGridTile';
+
 const layout = (len: number, isDesktop: boolean = true) => {
   const rows = Math.round(Math.sqrt(len));
   const cols = Math.ceil(len / rows);
@@ -106,6 +108,12 @@ const GridVideo: LayoutComponent = ({renderData}) => {
           ))}
         </View>
       ))}
+      {/* Show invite tile if only one person is in the call */}
+      {activeUids.length === 1 && (
+        <View style={style.gridRow}>
+          <MeetingInfoGridTile />{' '}
+        </View>
+      )}
     </View>
   );
 };
@@ -113,6 +121,7 @@ const GridVideo: LayoutComponent = ({renderData}) => {
 const style = StyleSheet.create({
   full: {
     flex: 1,
+    flexDirection: 'row',
   },
   gridRow: {
     flex: 1,

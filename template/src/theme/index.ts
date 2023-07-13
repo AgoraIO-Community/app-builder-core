@@ -10,6 +10,14 @@ const EmphasisPlus = {
   medium: hexadecimalTransparency['85%'],
   disabled: hexadecimalTransparency['40%'],
 };
+export interface FontSizes {
+  extraLarge: number;
+  large: number;
+  medium: number;
+  normal: number;
+  small: number;
+  tiny: number;
+}
 const FontSize: {
   extraLarge: 32;
   large: 20;
@@ -25,6 +33,7 @@ const FontSize: {
   small: 14,
   tiny: 12,
 };
+
 const FontFamily = {
   sansPro: 'Source Sans Pro',
 };
