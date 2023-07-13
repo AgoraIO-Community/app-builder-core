@@ -143,13 +143,20 @@ const useStreamMessageUtils = (): {
 
     // If person is not speaking or mic is muted, then we don't want to show live captions
     if (textstream.words.length === 0) {
-      //stringBuilder = '';
+      stringBuilder = '';
+      setTimeout(() => {
+        /* adding a  2sec deplay so that captions does not go away abruptly  */
+        setCaptionObj((prevState) => ({
+          ...prevState,
+          [textstream.uid]: stringBuilder,
+        }));
+      }, 2000);
+    } else {
+      setCaptionObj((prevState) => ({
+        ...prevState,
+        [textstream.uid]: stringBuilder,
+      })); // live captions will appear with nonfinal words
     }
-
-    setCaptionObj((prevState) => ({
-      ...prevState,
-      [textstream.uid]: stringBuilder,
-    })); // live captions will appear with nonfinal words
 
     if (textstream.words.length === 0) {
       // clearing prev live captions for a uid when there is pause so that live captions show only current spoken words
