@@ -7,9 +7,9 @@ import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from '../useShareLink';
-import {trimText} from '../../utils/common';
 import ImageIcon from '../../atoms/ImageIcon';
 import useGetName from '../../utils/useGetName';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 export default function MeetingInfoGridTile() {
   const copyInviteButton = 'COPY INVITATION';
@@ -18,10 +18,7 @@ export default function MeetingInfoGridTile() {
 
   return (
     <View style={style.root}>
-      <ScrollView
-        contentContainerStyle={{
-          flex: 1,
-        }}>
+      <ScrollView contentContainerStyle={style.scroll}>
         <View style={style.inviteContainerTile}>
           <View style={style.inviteTile}>
             <MeetingInfo padding="dense" margin="dense">
@@ -71,30 +68,31 @@ export default function MeetingInfoGridTile() {
 const style = StyleSheet.create({
   root: {
     flex: 1,
+    marginLeft: 30,
+    flexShrink: 0,
   },
-
+  scroll: {
+    flexGrow: 1,
+    padding: 4,
+  },
   inviteContainerTile: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 30,
     backgroundColor: $config.VIDEO_AUDIO_TILE_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     overflowY: 'auto',
   },
   inviteTile: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
     overflowY: 'auto',
   },
   heading: {
     fontSize: ThemeConfig.FontSize.tiny,
     fontWeight: '400',
     lineHeight: ThemeConfig.FontSize.normal,
-    color: '#ffffffcc',
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
     fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingVertical: 2,
   },

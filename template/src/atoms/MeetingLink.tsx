@@ -9,6 +9,7 @@ import Spacer from './Spacer';
 import isSDKCheck from '../utils/isSDK';
 import ClipboardIconButton from './ClipboardIconButton';
 import ThemeConfig, {FontSizes} from '../theme';
+import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface MeetingLinkStyleProps {
   size?: keyof FontSizes;
@@ -56,7 +57,6 @@ const MeetingLink = (props: MeetingLinkProps) => {
             style={[
               style.linkText,
               //@ts-ignore
-
               isWebCheck ? urlWeb : {opacity: 1},
             ]}>
             {
@@ -86,7 +86,6 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
     linkText: {},
   };
   if (styleProps.size === 'tiny') {
-    console.log('supriya size');
     customStyles.label = {
       fontSize: ThemeConfig.FontSize.tiny,
     };
@@ -100,13 +99,9 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
     };
   }
   if (styleProps.variant === 'secondary') {
-    customStyles.label = {
-      ...customStyles.label,
-      color: '#ffffffbf',
-    };
     customStyles.linkText = {
       ...customStyles.linkText,
-      color: '#535353',
+      color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
     };
   }
   return StyleSheet.create({
@@ -139,7 +134,6 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
       color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
       fontSize: ThemeConfig.FontSize.small,
       fontFamily: ThemeConfig.FontFamily.sansPro,
-      // fontWeight: '400'
       ...customStyles.linkText,
     },
     linkIcon: {
