@@ -15,92 +15,96 @@ interface TranscriptTextProps {
   searchQuery?: string;
 }
 
-export const TranscriptText = ({
-  user,
-  time,
-  value,
-  searchQuery = '',
-  captionContainerStyle = {},
-  captionStyle = {},
-}: TranscriptTextProps) => {
-  const t = time ? formatTime(Number(time)) : '';
-  const isTranscriptTxt = t.length > 0;
+export const TranscriptText = React.memo(
+  ({
+    user,
+    time,
+    value,
+    searchQuery = '',
+    captionContainerStyle = {},
+    captionStyle = {},
+  }: TranscriptTextProps) => {
+    const t = time ? formatTime(Number(time)) : '';
+    const isTranscriptTxt = t.length > 0;
 
-  const isMobile = isMobileUA();
-  const regex = new RegExp(`(${searchQuery})`, 'gi');
-  const parts = value.split(regex);
+    const isMobile = isMobileUA();
+    const regex = new RegExp(`(${searchQuery})`, 'gi');
+    const parts = value.split(regex);
 
-  return (
-    <View
-      key={user}
-      style={
-        isTranscriptTxt
-          ? styles.transciptContainer
-          : isMobile
-          ? styles.captionContainerMobile
-          : styles.captionContainer
-      }>
-      {(user && value && !isMobile) || (isMobile && isTranscriptTxt) ? (
-        <Text
-          style={[
-            styles.name,
-            isTranscriptTxt ? styles.transcriptName : styles.captionName,
-          ]}>
-          {user} {!isTranscriptTxt && ':'}
-          {time && <Text style={styles.timestamp}>{t}</Text>}
-        </Text>
-      ) : (
-        <></>
-      )}
-      {value ? (
-        <View
-          style={
-            !isTranscriptTxt
-              ? [
-                  isMobile
-                    ? styles.captionTextContainerMobileStyle
-                    : styles.captionTextContainerStyle,
-                  captionContainerStyle,
-                ]
-              : {}
-          }>
+    return (
+      <View
+        key={user}
+        style={
+          isTranscriptTxt
+            ? styles.transciptContainer
+            : isMobile
+            ? styles.captionContainerMobile
+            : styles.captionContainer
+        }>
+        {(user && value && !isMobile) || (isMobile && isTranscriptTxt) ? (
           <Text
             style={[
-              styles.text,
-              isTranscriptTxt
-                ? styles.transciptText
-                : [styles.captionText, captionStyle],
+              styles.name,
+              isTranscriptTxt ? styles.transcriptName : styles.captionName,
             ]}>
-            {isMobile && !isTranscriptTxt && (
-              <Text
-                style={[
-                  styles.name,
-                  isTranscriptTxt ? styles.transcriptName : styles.captionName,
-                ]}>
-                {user} {':'}
-              </Text>
-            )}
-            {isTranscriptTxt ? (
-              parts.map((part, index) =>
-                part.toLowerCase() === searchQuery.toLowerCase() ? (
-                  <Text key={index} style={styles.highlightedText}>
-                    {part}
-                  </Text>
-                ) : (
-                  <Text key={index}>{part}</Text>
-                ),
-              )
-            ) : (
-              <Text> {value} </Text>
-            )}
+            {user} {!isTranscriptTxt && ':'}
+            {time && <Text style={styles.timestamp}>{t}</Text>}
           </Text>
-        </View>
-      ) : (
-        <></>
-      )}
-    </View>
-  );
-};
+        ) : (
+          <></>
+        )}
+        {value ? (
+          <View
+            style={
+              !isTranscriptTxt
+                ? [
+                    isMobile
+                      ? styles.captionTextContainerMobileStyle
+                      : styles.captionTextContainerStyle,
+                    captionContainerStyle,
+                  ]
+                : {}
+            }>
+            <Text
+              style={[
+                styles.text,
+                isTranscriptTxt
+                  ? styles.transciptText
+                  : [styles.captionText, captionStyle],
+              ]}>
+              {isMobile && !isTranscriptTxt && (
+                <Text
+                  style={[
+                    styles.name,
+                    isTranscriptTxt
+                      ? styles.transcriptName
+                      : styles.captionName,
+                  ]}>
+                  {user} {':'}
+                </Text>
+              )}
+              {isTranscriptTxt ? (
+                parts.map((part, index) =>
+                  part.toLowerCase() === searchQuery.toLowerCase() ? (
+                    <Text key={index} style={styles.highlightedText}>
+                      {part}
+                    </Text>
+                  ) : (
+                    <Text key={index}>{part}</Text>
+                  ),
+                )
+              ) : (
+                <Text> {value} </Text>
+              )}
+            </Text>
+          </View>
+        ) : (
+          <></>
+        )}
+      </View>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   captionContainer: {
