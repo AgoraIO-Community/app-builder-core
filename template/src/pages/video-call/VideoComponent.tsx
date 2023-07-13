@@ -1,10 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
+import {View, StyleSheet, Pressable, Text} from 'react-native';
 import useLayoutsData from './useLayoutsData';
-import {isArray, isValidReactComponent} from '../../utils/common';
+import {isArray, isDesktop, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
+import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -40,7 +42,12 @@ const VideoComponent = () => {
     isValidReactComponent(layoutsData[layout].component)
   ) {
     const CurrentLayout = layoutsData[layout].component;
-    return <CurrentLayout renderData={activeUids} />;
+    return (
+      <View style={{flex: 1, flexDirection: 'row'}}>
+        <CurrentLayout renderData={activeUids} />
+        {activeUids.length === 1 && <MeetingInfoGridTile />}
+      </View>
+    );
   } else {
     return <></>;
   }

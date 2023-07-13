@@ -13,7 +13,7 @@ import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import IDPLogoutComponent from '../../auth/IDPLogoutComponent';
 import Spacer from '../../atoms/Spacer';
-import {isMobileUA, isValidReactComponent, trimText} from '../../utils/common';
+import {isMobileUA} from '../../utils/common';
 import ThemeConfig from '../../theme';
 
 interface MeetingInfoCardHeaderProps {
