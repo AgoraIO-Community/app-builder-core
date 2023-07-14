@@ -44,8 +44,6 @@ export const MeetingInfoCardHeader = (props: MeetingInfoCardHeaderProps) => {
         )}
         <View style={style.header}>{children}</View>
       </View>
-
-      <Spacer size={40} />
     </View>
   );
 };

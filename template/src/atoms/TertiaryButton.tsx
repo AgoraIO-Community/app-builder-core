@@ -5,11 +5,14 @@ import {
   TouchableOpacityProps,
   ViewStyle,
   TextStyle,
+  View,
 } from 'react-native';
 import React, {useState} from 'react';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {isWebInternal} from '../utils/common';
+import {IconsInterface} from '../atoms/CustomIcon';
+import ImageIcon from '../atoms/ImageIcon';
 
 interface ButtonProps extends TouchableOpacityProps {
   setRef?: (ref: any) => void;
@@ -17,10 +20,12 @@ interface ButtonProps extends TouchableOpacityProps {
   children?: React.ReactNode;
   containerStyle?: ViewStyle;
   textStyle?: TextStyle;
+  iconName?: keyof IconsInterface;
+  iconSize?: number;
 }
 
 const TertiaryButton = (props: ButtonProps) => {
-  const {text, ...rest} = props;
+  const {text, iconName, iconSize = 26, ...rest} = props;
   const [isHovered, setIsHovered] = useState();
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
@@ -37,7 +42,19 @@ const TertiaryButton = (props: ButtonProps) => {
           props?.containerStyle,
         ]}
         {...rest}>
-        <Text style={[styles.text, props?.textStyle]}>{text}</Text>
+        <View style={styles.flexRow}>
+          {iconName && (
+            <View style={{marginRight: 8}}>
+              <ImageIcon
+                iconSize={iconSize}
+                iconType="plain"
+                name={iconName}
+                tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+              />
+            </View>
+          )}
+          <Text style={[styles.text, props?.textStyle]}>{text}</Text>
+        </View>
       </TouchableOpacity>
     </PlatformWrapper>
   );
@@ -60,6 +77,11 @@ const PlatformWrapper = ({children, setIsHovered}) => {
 export default TertiaryButton;
 
 const styles = StyleSheet.create({
+  flexRow: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
   container: {
     paddingHorizontal: 12,
     paddingVertical: 11,
