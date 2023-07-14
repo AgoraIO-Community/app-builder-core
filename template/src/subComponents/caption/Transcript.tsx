@@ -14,7 +14,12 @@ import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
 import {getGridLayoutName} from '../../pages/video-call/DefaultLayouts';
 import {useLayout} from '../../utils/useLayout';
-import {isMobileUA, isWebInternal, useIsSmall} from '../../utils/common';
+import {
+  calculatePosition,
+  isMobileUA,
+  isWebInternal,
+  useIsSmall,
+} from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import {useRtc, useRender} from 'customization-api';
 import {useCaption} from './useCaption';
@@ -27,6 +32,7 @@ import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency'
 import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
+import useCaptionWidth from './useCaptionWidth';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -58,6 +64,7 @@ const Transcript = (props: TranscriptProps) => {
   const {streamMessageCallback} = useStreamMessageUtils();
   const [isFocused, setIsFocused] = React.useState(false);
   const {setIsTranscriptON} = useCaption();
+  const {transcriptHeight} = useCaptionWidth();
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -181,6 +188,7 @@ const Transcript = (props: TranscriptProps) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        transcriptHeight && {height: transcriptHeight},
       ]}>
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>

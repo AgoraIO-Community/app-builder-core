@@ -8,42 +8,59 @@ import {calculatePosition, isMobileUA, useIsDesktop} from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-import {useSidePanel} from 'customization-api';
+import {useSidePanel, SidePanelType} from 'customization-api';
 import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
 import {useMeetingInfo} from 'customization-api';
+import {
+  SIDE_PANEL_MAX_WIDTH,
+  SIDE_PANEL_GAP,
+  SIDE_PANEL_MIN_WIDTH,
+  CAPTION_CONTAINER_HEIGHT,
+} from '../../../src/components/CommonStyles';
+import useCaptionWidth from './useCaptionWidth';
 
 const CaptionContainer = () => {
-  const {isCaptionON, setIsCaptionON} = useCaption();
+  const {isCaptionON, setIsCaptionON, isTranscriptON} = useCaption();
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
+  const {sidePanel} = useSidePanel();
+  const {width: globalWidth, height: globalHeight} = useWindowDimensions();
   const {
     data: {isHost},
   } = useMeetingInfo();
 
+  const {isCaptionNotFullWidth} = useCaptionWidth();
   return isCaptionON ? (
     <View
-      style={[
-        !isDesktop() ? styles.mobileContainer : styles.container,
-        isMobileUA() && {marginHorizontal: 0},
-      ]}>
-      <CaptionsActionMenu
-        actionMenuVisible={actionMenuVisible}
-        setActionMenuVisible={setActionMenuVisible}
-        btnRef={moreIconRef}
-      />
-      {isHost && (
-        <MoreMenu
-          ref={moreIconRef}
+      style={[{paddingHorizontal: isMobileUA() ? 0 : isDesktop() ? 32 : 10}]}>
+      <View
+        style={[
+          !isDesktop() ? styles.mobileContainer : styles.container,
+          isMobileUA() && {marginHorizontal: 0},
+          isCaptionNotFullWidth && {
+            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
+            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
+          },
+        ]}>
+        <CaptionsActionMenu
+          actionMenuVisible={actionMenuVisible}
           setActionMenuVisible={setActionMenuVisible}
+          btnRef={moreIconRef}
         />
-      )}
-      <Caption />
+        {isHost && (
+          <MoreMenu
+            ref={moreIconRef}
+            setActionMenuVisible={setActionMenuVisible}
+          />
+        )}
+        <Caption />
+      </View>
     </View>
   ) : null;
 };
@@ -213,15 +230,13 @@ export default CaptionContainer;
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 15,
-    height: 132,
-    marginHorizontal: 32,
+    height: CAPTION_CONTAINER_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
   },
   mobileContainer: {
-    marginHorizontal: 10,
     padding: 12,
     height: 120,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
