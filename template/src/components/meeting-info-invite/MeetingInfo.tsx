@@ -15,11 +15,7 @@ import {useCustomization} from 'customization-implementation';
 import {isMobileUA} from '../../utils/common';
 import Card from '../../atoms/Card';
 import Spacer from '../../atoms/Spacer';
-import {useRoomInfo} from '../room-info/useRoomInfo';
 import IDPLogoutComponent from '../../auth/IDPLogoutComponent';
-import MeetingInfoCardHeader from './MeetingInfoCardHeader';
-import MeetingInfoCardBody from './MeetingInfoLinks';
-import ImageIcon from '../../atoms/ImageIcon';
 
 interface MeetingInfoProps {
   margin?: 'dense' | 'normal';
@@ -47,9 +43,6 @@ const MeetingInfo = (props: MeetingInfoProps) => {
     // }
     return components;
   });
-  const {
-    data: {roomId, isHost, pstn, isSeparateHostLink, meetingTitle},
-  } = useRoomInfo();
 
   return FpeShareComponent ? (
     <FpeShareComponent />
@@ -62,12 +55,7 @@ const MeetingInfo = (props: MeetingInfoProps) => {
       )}
       <ScrollView contentContainerStyle={style.scrollMain}>
         <Card margin={margin} padding={padding}>
-          <View>
-            {children}
-            {/* <MeetingInfoCardBody /> */}
-            <Spacer size={60} />
-          </View>
-          {/* <MeetingInfoCardFooter /> */}
+          <View>{children}</View>
         </Card>
       </ScrollView>
     </View>
