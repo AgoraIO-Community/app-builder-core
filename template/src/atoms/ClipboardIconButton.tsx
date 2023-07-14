@@ -24,7 +24,7 @@ const ClipboardIconButton = (props: Props) => {
     if (variant == 'primary') {
       return $config.PRIMARY_ACTION_BRAND_COLOR;
     }
-    return '#ffffff';
+    return $config.SECONDARY_ACTION_COLOR;
   };
   return (
     <View style={style.iconContainer}>
