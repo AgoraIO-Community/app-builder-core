@@ -25,6 +25,10 @@ import IconButton, {IconButtonProps} from '../atoms/IconButton';
 import ThemeConfig from '../theme';
 import {ImageIconProps} from '../atoms/ImageIcon';
 import useIsHandRaised from '../utils/useIsHandRaised';
+import {useScreenshare} from './screenshare/useScreenshare';
+import {isAndroid} from '../utils/common';
+import {isIOS} from '../utils/common';
+import {useVideoCall} from '../components/useVideoCall';
 /**
  * A component to mute / unmute the local video
  */
@@ -45,6 +49,8 @@ export interface LocalVideoMuteProps {
 
 function LocalVideoMute(props: LocalVideoMuteProps) {
   const {rtcProps} = useContext(PropsContext);
+  const {isScreenshareActive} = useScreenshare();
+  const {setShowStopScreenSharePopup} = useVideoCall();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -63,9 +69,20 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   //const videoLabel = useString('toggleVideoButton')();
 
   const onPress = () => {
-    localMute(MUTE_LOCAL_TYPE.video);
+    //if screensharing is going on native - to turn on video screenshare should be turn off
+    //show confirm popup to stop the screenshare
+    if ((isAndroid() || isIOS()) && isScreenshareActive) {
+      setShowStopScreenSharePopup(true);
+    } else {
+      localMute(MUTE_LOCAL_TYPE.video);
+    }
   };
-  const isVideoEnabled = local.video === ToggleState.enabled;
+  //native screen share uses same local uid to publish the screenshare steam
+  //so if screenshare active on native then its means local video is turned off
+  const isVideoEnabled =
+    (isAndroid() || isIOS) && isScreenshareActive
+      ? false
+      : local.video === ToggleState.enabled;
 
   const permissionDenied =
     local.permissionStatus === PermissionState.REJECTED ||

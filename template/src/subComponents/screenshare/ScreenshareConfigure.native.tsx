@@ -25,7 +25,10 @@ import {EventNames, EventActions} from '../../rtm-events';
 import {useLayout, useRender, useRtc} from 'customization-api';
 import {filterObject} from '../../utils';
 import {ScreenshareContext} from './useScreenshare';
-import {PermissionsAndroid, Platform} from 'react-native';
+import useMuteToggleLocal, {
+  MUTE_LOCAL_TYPE,
+} from '../../utils/useMuteToggleLocal';
+import {useLocalUserInfo} from '../../app-state/useLocalUserInfo';
 
 export const ScreenshareContextConsumer = ScreenshareContext.Consumer;
 
@@ -48,7 +51,8 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   const currentLayoutRef = useRef({currentLayout: currentLayout});
   const pinnedUidRef = useRef({pinnedUid: pinnedUid});
   const screenShareDataRef = useRef({screenShareData: screenShareData});
-
+  const localMute = useMuteToggleLocal();
+  const {video} = useLocalUserInfo();
   useEffect(() => {
     pinnedUidRef.current.pinnedUid = pinnedUid;
   }, [pinnedUid]);
@@ -64,16 +68,6 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
   useEffect(() => {
     currentLayoutRef.current.currentLayout = currentLayout;
   }, [currentLayout]);
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      //todo hari ask permission based on user input
-      PermissionsAndroid.requestMultiple([
-        'android.permission.RECORD_AUDIO',
-        'android.permission.CAMERA',
-      ]);
-    }
-  }, []);
 
   useEffect(() => {
     const data = filterObject(screenShareData, ([k, v]) => v?.isActive);
@@ -168,13 +162,25 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     });
   }, []);
 
-  const startUserScreenshare = () => {
+  const startUserScreenshare = (captureAudio: boolean = false) => {
     if (!isScreenshareActive) {
-      RtcEngine?.startScreenCapture({
-        captureAudio: true,
-        captureVideo: true,
-      });
-      setScreenshareActive(true);
+      //either user can publish local video or screenshare stream
+      //so if user video is turned on then we are turning off video before screenshare
+      if (video) {
+        localMute(MUTE_LOCAL_TYPE.video).finally(() => {
+          RtcEngine?.startScreenCapture({
+            captureVideo: true,
+            captureAudio,
+          });
+          setScreenshareActive(true);
+        });
+      } else {
+        RtcEngine?.startScreenCapture({
+          captureVideo: true,
+          captureAudio,
+        });
+        setScreenshareActive(true);
+      }
     } else {
       console.log('screenshare is already active');
     }
@@ -182,7 +188,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
 
   const stopUserScreenShare = () => {
     if (isScreenshareActive) {
-      RtcEngine?.stopScreenCapture();
+      RtcEngine?.stopScreenCapture().finally(() => {
+        //once screenshare stopped. user video will published in the same uid even though previously it was turned off.
+        //so stopping localvideo here
+        RtcEngine?.enableLocalVideo(false);
+      });
       setScreenshareActive(false);
     } else {
       console.log('no screenshare is active');
