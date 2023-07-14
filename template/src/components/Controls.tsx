@@ -177,42 +177,7 @@ const MoreButton = () => {
     }
   }
 
-  if (globalWidth <= BREAKPOINTS.md) {
-    actionMenuitems.push({
-      icon: layouts[layout]?.iconName,
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Layout',
-      callback: () => {
-        //setShowLayoutOption(true);
-      },
-      onHoverCallback: (isHovered) => {
-        setShowLayoutOption(isHovered);
-      },
-      onHoverContent: (
-        <LayoutIconDropdown
-          onHoverPlaceHolder="vertical"
-          setShowDropdown={() => {}}
-          showDropdown={true}
-          modalPosition={
-            globalWidth <= BREAKPOINTS.sm
-              ? {bottom: 65, left: -150}
-              : {bottom: 20, left: -150}
-          }
-          caretPosition={{bottom: 45, right: -10}}
-        />
-      ),
-    });
-    actionMenuitems.push({
-      icon: 'share',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: 'Invite',
-      callback: () => {
-        setActionMenuVisible(false);
-        setShowInvitePopup(true);
-      },
-    });
+  if (globalWidth <= BREAKPOINTS.lg) {
     actionMenuitems.push({
       icon: 'captions',
       iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -247,6 +212,41 @@ const MoreButton = () => {
           isFirstTimePopupOpen.current = true;
           setLanguagePopup(true);
         }
+      },
+    });
+    actionMenuitems.push({
+      icon: layouts[layout]?.iconName,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Layout',
+      callback: () => {
+        //setShowLayoutOption(true);
+      },
+      onHoverCallback: (isHovered) => {
+        setShowLayoutOption(isHovered);
+      },
+      onHoverContent: (
+        <LayoutIconDropdown
+          onHoverPlaceHolder="vertical"
+          setShowDropdown={() => {}}
+          showDropdown={true}
+          modalPosition={
+            globalWidth <= BREAKPOINTS.sm
+              ? {bottom: 65, left: -150}
+              : {bottom: 20, left: -150}
+          }
+          caretPosition={{bottom: 45, right: -10}}
+        />
+      ),
+    });
+    actionMenuitems.push({
+      icon: 'share',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Invite',
+      callback: () => {
+        setActionMenuVisible(false);
+        setShowInvitePopup(true);
       },
     });
   }
@@ -388,7 +388,7 @@ const Controls = () => {
           paddingHorizontal: isDesktop('toolbar') ? 32 : 16,
         },
       ]}>
-      {width >= BREAKPOINTS.md && (
+      {width >= BREAKPOINTS.lg && (
         <View style={style.leftContent}>
           <View
             testID="layout-btn"
@@ -487,7 +487,7 @@ const Controls = () => {
             </View>
           )}
         </>
-        {width < BREAKPOINTS.md && (
+        {width < BREAKPOINTS.lg && (
           <View testID="more-btn" style={{marginHorizontal: 10}}>
             <MoreButton />
           </View>
@@ -496,7 +496,7 @@ const Controls = () => {
           <LocalEndcall />
         </View>
       </View>
-      {width >= BREAKPOINTS.md && <View style={style.rightContent}></View>}
+      {width >= BREAKPOINTS.lg && <View style={style.rightContent}></View>}
     </View>
   );
 };
