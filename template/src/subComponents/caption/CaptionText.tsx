@@ -86,11 +86,15 @@ const styles = StyleSheet.create({
   },
   captionTextContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end', // Aligns caption text to the right
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
   },
   nameContainer: {
     padding: 4,
     flexDirection: 'row',
+    alignItems: 'center',
+    width: '15%',
+    justifyContent: 'flex-end',
   },
   captionText: {
     fontSize: 20,
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 28,
     fontWeight: '700',
-    marginLeft: 4,
+    marginLeft: 8,
   },
   captionUserName: {
     fontSize: 20,
@@ -114,6 +118,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     color: $config.FONT_COLOR,
-    maxWidth: 180, // for mobile verify
+    maxWidth: 200, // for mobile verify
   },
 });
