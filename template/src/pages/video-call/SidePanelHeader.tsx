@@ -192,12 +192,7 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {
-    language,
-    meetingTranscript,
-    setIsTranscriptPaused,
-    isTranscriptPaused,
-  } = useCaption();
+  const {language, meetingTranscript, isLangChangeInProgress} = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
 
   const [modalPosition, setModalPosition] = React.useState({});
@@ -216,6 +211,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Change Spoken Language ',
+    disabled: isLangChangeInProgress,
     callback: () => {
       setActionMenuVisible(false);
       setLanguagePopup(true);
@@ -227,6 +223,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Download Transcript',
+    disabled: meetingTranscript.length === 0,
     callback: () => {
       setActionMenuVisible(false);
       console.log(meetingTranscript);

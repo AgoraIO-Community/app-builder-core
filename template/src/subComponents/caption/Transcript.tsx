@@ -222,7 +222,9 @@ const Transcript = (props: TranscriptProps) => {
         ) : null}
       </View>
       {isLangChangeInProgress ? (
-        <Loading text="Setting Spoken Language" background="transparent" />
+        <View style={{flex: 1}}>
+          <Loading text="Setting Spoken Language" background="transparent" />
+        </View>
       ) : (
         <>
           <View style={{flex: 1}}>

@@ -117,7 +117,7 @@ interface CaptionsActionMenuProps {
 const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON, language} = useCaption();
+  const {setIsCaptionON, language, isLangChangeInProgress} = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -132,6 +132,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Change Spoken Language ',
+    disabled: isLangChangeInProgress,
     callback: () => {
       setActionMenuVisible(false);
       setLanguagePopup(true);
