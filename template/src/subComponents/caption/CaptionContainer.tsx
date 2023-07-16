@@ -229,7 +229,8 @@ export default CaptionContainer;
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 15,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     height: CAPTION_CONTAINER_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',

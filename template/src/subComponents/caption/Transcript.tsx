@@ -87,13 +87,6 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const renderItem = ({item}) => {
-    // Highlight the keyword in the text value
-    const highlightedText = searchQuery
-      ? item.text.replace(new RegExp(`(${searchQuery})`, 'gi'), '<b>$1</b>')
-      : item.text;
-    const regex = new RegExp(`(${searchQuery})`, 'gi');
-    const parts = item.text.split(regex);
-
     return (
       <TranscriptText
         user={item.name}

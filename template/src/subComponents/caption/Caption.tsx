@@ -3,7 +3,7 @@ import React, {MutableRefObject} from 'react';
 import {isWeb, useRender, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
 import {useCaption} from './useCaption';
-import {TranscriptText} from './TranscriptText';
+import {CaptionText} from './CaptionText';
 import Spacer from '../../../src/atoms/Spacer';
 import Loading from '../Loading';
 // import {streamMessageCallback} from './utils';
@@ -53,41 +53,28 @@ const Caption: React.FC = () => {
     return <Loading text="Setting Spoken Language" background="transparent" />;
 
   return (
-    <View>
-      {speakers.map(([key, value], index) => (
-        <TranscriptText
-          key={key}
-          user={renderList[Number(key)]?.name || 'Speaker'}
-          value={value.trim()}
-          captionContainerStyle={
-            activeSpeakers.length === 1
-              ? styles.singleCaptionContainerStyle
-              : styles.captionContainerStyle
-          }
-          captionStyle={
-            activeSpeakers.length === 1
-              ? styles.singleCaptionStyle
-              : styles.captionStyle
-          }
-        />
-        /* {index !== speakers.length - 1 && <Spacer size={10} />} */
-      ))}
+    <View style={styles.captionContainer}>
+      {speakers.map(([key, value], index) => {
+        return (
+          <React.Fragment key={key}>
+            {value ? (
+              <CaptionText
+                user={renderList[Number(key)]?.name || 'Speaker'}
+                value={value.trim()}
+                activeSpeakersCount={activeSpeakers?.length || 0}
+              />
+            ) : null}
+            {index !== speakers.length - 1 && <Spacer size={10} />}
+          </React.Fragment>
+        );
+      })}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  captionStyle: {
-    minHeight: 45,
-  },
-  singleCaptionStyle: {
-    minHeight: 90,
-  },
-  captionContainerStyle: {
-    height: 45,
-  },
-  singleCaptionContainerStyle: {
-    height: 90,
+  captionContainer: {
+    width: '100%',
   },
 });
 
