@@ -38,15 +38,26 @@ const CaptionContainer = () => {
   const {isCaptionNotFullWidth} = useCaptionWidth();
   return isCaptionON ? (
     <View
-      style={[{paddingHorizontal: isMobileUA() ? 0 : isDesktop() ? 32 : 10}]}>
+      style={[
+        {
+          paddingLeft: isMobileUA() ? 0 : isDesktop() ? 32 : 10,
+          paddingRight: isMobileUA()
+            ? 0
+            : isDesktop()
+            ? globalWidth > 1700 && isCaptionNotFullWidth
+              ? 20
+              : 32
+            : 10,
+        },
+        isCaptionNotFullWidth && {
+          maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
+          width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
+        },
+      ]}>
       <View
         style={[
           !isDesktop() ? styles.mobileContainer : styles.container,
           isMobileUA() && {marginHorizontal: 0},
-          isCaptionNotFullWidth && {
-            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
-            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
-          },
         ]}>
         <CaptionsActionMenu
           actionMenuVisible={actionMenuVisible}
