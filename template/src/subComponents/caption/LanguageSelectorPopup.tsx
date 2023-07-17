@@ -46,7 +46,7 @@ const langData: LanguageData[] = [
   {label: 'Portuguese', value: 'pt-PT'},
   {label: 'Spanish', value: 'es-ES'},
   {label: 'Italian', value: 'it-IT'},
-  {label: 'Indonesian', value: 'id_ID'},
+  {label: 'Indonesian', value: 'id-ID'},
 ];
 
 export function getLanguageLabel(
