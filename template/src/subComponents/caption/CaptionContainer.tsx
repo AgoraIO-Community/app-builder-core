@@ -243,5 +243,6 @@ const styles = StyleSheet.create({
     height: 120,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
+    marginTop: 16,
   },
 });

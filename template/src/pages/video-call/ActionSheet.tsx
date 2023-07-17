@@ -44,7 +44,7 @@ const ActionSheet = () => {
     index === 0 ? setIsExpanded(false) : setIsExpanded(true);
   }, []);
 
-  const {setIsTranscriptON} = useCaption();
+  const {setIsTranscriptON, isCaptionON} = useCaption();
 
   const root = document.documentElement;
 
@@ -95,6 +95,10 @@ const ActionSheet = () => {
       default:
     }
   }, [sidePanel]);
+
+  useEffect(() => {
+    handleSheetChanges(0);
+  }, [isCaptionON]);
 
   function onDismiss() {
     setSidePanel(SidePanelType.None);

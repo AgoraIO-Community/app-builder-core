@@ -14,23 +14,40 @@ interface CaptionTextProps {
 export const CaptionText = React.memo(
   ({user, value, activeSpeakersCount}: CaptionTextProps) => {
     const isMobile = isMobileUA();
+    const mobileCaptionHeight = activeSpeakersCount === 1 ? 90 : 45;
+    const desktopCaptionHeight = activeSpeakersCount === 1 ? 85 : 30;
+    // as user speaks continously previous captions should be hidden , new appended
+    const isCaptionAutoUpdate = activeSpeakersCount === 1 || isMobile;
 
     return (
       <View
         style={[
           isMobile ? styles.captionContainerMobile : styles.captionContainer,
-          activeSpeakersCount === 1 ? {height: 85} : {height: 30},
+          {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
         ]}>
         {/*  Name  Tag */}
-        <View style={styles.nameContainer}>
+        <View
+          style={[
+            isMobile ? styles.nameContainerMobileStyle : styles.nameContainer,
+          ]}>
           <Text
-            style={[styles.captionUserName]}
+            style={[
+              styles.captionUserName,
+              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+            ]}
             numberOfLines={1}
             textBreakStrategy="simple"
             ellipsizeMode="tail">
             {user}
           </Text>
-          <Text style={styles.separator}>{':'}</Text>
+          <Text
+            style={[
+              styles.separator,
+              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+              {marginLeft: isMobile ? 4 : 8},
+            ]}>
+            {':'}
+          </Text>
         </View>
 
         {/* Caption Text */}
@@ -39,14 +56,18 @@ export const CaptionText = React.memo(
             isMobile
               ? styles.captionTextContainerMobileStyle
               : styles.captionTextContainerStyle,
-            activeSpeakersCount === 1 ? {minHeight: 85} : {minHeight: 30},
+            {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
           ]}>
           <Text
             style={[
               styles.captionText,
-              activeSpeakersCount === 1
-                ? {minHeight: 80, bottom: 0}
-                : {minHeight: 30},
+              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+              isCaptionAutoUpdate && {bottom: 0},
+              {
+                minHeight: isMobile
+                  ? mobileCaptionHeight - 2 //subtracting top padding
+                  : desktopCaptionHeight - 4,
+              },
             ]}>
             {value}
           </Text>
@@ -64,7 +85,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   captionContainerMobile: {
-    marginRight: 20,
+    marginRight: 15,
     flexDirection: 'row',
     flexWrap: 'wrap',
     flex: 1,
@@ -73,16 +94,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     maxWidth: 1000,
     width: '85%',
-    lineHeight: 28,
     position: 'relative',
-
     padding: 4,
   },
   captionTextContainerMobileStyle: {
     overflow: 'hidden',
     position: 'relative',
+    padding: 2,
     flex: 1,
-    flexWrap: 'wrap',
   },
   captionTextContainer: {
     flexDirection: 'row',
@@ -96,28 +115,35 @@ const styles = StyleSheet.create({
     width: '15%',
     justifyContent: 'flex-end',
   },
+  nameContainerMobileStyle: {
+    padding: 2,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    width: 70,
+    justifyContent: 'flex-end',
+  },
   captionText: {
-    fontSize: 20,
-    lineHeight: 28,
     position: 'absolute',
-
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
   },
   separator: {
     color: $config.FONT_COLOR,
-    fontSize: 20,
-    lineHeight: 28,
     fontWeight: '700',
-    marginLeft: 8,
   },
   captionUserName: {
-    fontSize: 20,
-    lineHeight: 28,
     fontWeight: '700',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     color: $config.FONT_COLOR,
-    maxWidth: 200, // for mobile verify
+    maxWidth: 200,
+  },
+  mobileFontSize: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  desktopFontSize: {
+    fontSize: 20,
+    lineHeight: 28,
   },
 });
