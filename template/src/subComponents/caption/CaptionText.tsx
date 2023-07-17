@@ -17,7 +17,6 @@ export const CaptionText = React.memo(
     const mobileCaptionHeight = activeSpeakersCount === 1 ? 90 : 45;
     const desktopCaptionHeight = activeSpeakersCount === 1 ? 85 : 30;
     // as user speaks continously previous captions should be hidden , new appended
-    const isCaptionAutoUpdate = activeSpeakersCount === 1 || isMobile;
 
     return (
       <View
@@ -62,7 +61,6 @@ export const CaptionText = React.memo(
             style={[
               styles.captionText,
               isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-              isCaptionAutoUpdate && {bottom: 0},
               {
                 minHeight: isMobile
                   ? mobileCaptionHeight - 2 //subtracting top padding
@@ -127,6 +125,7 @@ const styles = StyleSheet.create({
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+    bottom: 0,
   },
   separator: {
     color: $config.FONT_COLOR,
