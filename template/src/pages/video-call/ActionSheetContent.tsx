@@ -436,7 +436,7 @@ const ActionSheetContent = (props) => {
           }}
         />
 
-        {native ? <ScreenshareIcon /> : <></>}
+        {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
 
         {/* invite */}
         <ShareIcon />
