@@ -85,4 +85,6 @@ export interface IconsInterface {
   'video-on-outlined': string;
   'video-off-filled': string;
   'video-off-outlined': string;
+  'full-screen': string;
+  'full-screen-exit': string;
 }

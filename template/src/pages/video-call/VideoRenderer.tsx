@@ -177,8 +177,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                   },
                   name:
                     screenShareData?.[user?.uid]?.isExpanded === true
-                      ? 'collapse'
-                      : 'expand',
+                      ? 'full-screen-exit'
+                      : 'full-screen',
                   tintColor: $config.SECONDARY_ACTION_COLOR,
                   iconSize: 24,
                 }}
