@@ -9,6 +9,7 @@ import {useIsDesktop} from '../../utils/common';
 import {useCaption} from './useCaption';
 import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
+import Loading from '../Loading';
 
 export type LanguageType =
   | 'en-US'
@@ -76,7 +77,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
 
-  const {language, setLanguage} = useCaption();
+  const {language, setLanguage, isLangChangeInProgress} = useCaption();
   const prevLangChanged = React.useRef<boolean>(false);
   const [error, setError] = React.useState<boolean>(false);
   const [selectedValues, setSelectedValues] =
@@ -94,78 +95,91 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
       <Text style={styles.heading}>{heading}</Text>
       <Spacer size={8} />
       <Text style={styles.subHeading}>{subHeading}</Text>
-      <Spacer size={32} />
-      <View>
-        <DropdownMulti
-          label=""
-          data={langData}
-          enabled={true}
-          selectedValues={selectedValues}
-          setSelectedValues={setSelectedValues}
-          defaultSelectedValues={language || ['en-US']}
-          error={error}
-          setError={setError}
-          onSelect={(value) => {
-            //  setError(false);
-            prevLangChanged.current = true;
-            setLanguage(value); //chnage on confirm
-          }}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
-      </View>
-      <Spacer size={8} />
-      <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
-        {selectedValues.length === 0
-          ? 'Choose at least one language to proceed'
-          : 'You can choose a maximum of two languages'}
-      </Text>
-      <Spacer size={32} />
-      <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
-        <View style={isDesktop && {flex: 1}}>
-          <TertiaryButton
-            containerStyle={{
-              width: '100%',
-              height: 48,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
-              borderRadius: ThemeConfig.BorderRadius.medium,
-            }}
-            text={cancelBtnLabel}
-            textStyle={styles.btnText}
-            onPress={() => props.setModalVisible(false)}
+
+      {isLangChangeInProgress ? (
+        <View style={styles.changeInProgress}>
+          <Loading
+            text="Language Change is in progress..."
+            background="transparent"
           />
         </View>
-        <Spacer
-          size={isDesktop ? 10 : 20}
-          horizontal={isDesktop ? true : false}
-        />
-        <View style={isDesktop && {flex: 1}}>
-          <PrimaryButton
-            containerStyle={{
-              minWidth: 'auto',
-              width: '100%',
-              borderRadius: ThemeConfig.BorderRadius.medium,
-              height: 48,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
-            }}
-            disabled={selectedValues.length === 0}
-            text={ConfirmBtnLabel}
-            textStyle={styles.btnText}
-            onPress={() => {
-              console.log(selectedValues);
-              if (selectedValues.length === 0) {
-                // setError(true);
-                return;
-              }
-              // setLanguage(selectedValues);
-              props.onConfirm(prevLangChanged.current);
-              prevLangChanged.current = false;
-            }}
-          />
-        </View>
-      </View>
+      ) : (
+        <>
+          <Spacer size={32} />
+          <View>
+            <DropdownMulti
+              label=""
+              data={langData}
+              enabled={true}
+              selectedValues={selectedValues}
+              setSelectedValues={setSelectedValues}
+              defaultSelectedValues={language || ['en-US']}
+              error={error}
+              setError={setError}
+              onSelect={(value) => {
+                //  setError(false);
+                prevLangChanged.current = true;
+                setLanguage(value); //chnage on confirm
+              }}
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+            />
+          </View>
+          <Spacer size={8} />
+          <Text style={[styles.subHeading, isNotValidated && styles.errorTxt]}>
+            {selectedValues.length === 0
+              ? 'Choose at least one language to proceed'
+              : 'You can choose a maximum of two languages'}
+          </Text>
+          <Spacer size={32} />
+          <View
+            style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
+            <View style={isDesktop && {flex: 1}}>
+              <TertiaryButton
+                containerStyle={{
+                  width: '100%',
+                  height: 48,
+                  paddingVertical: 12,
+                  paddingHorizontal: 12,
+                  borderRadius: ThemeConfig.BorderRadius.medium,
+                }}
+                text={cancelBtnLabel}
+                textStyle={styles.btnText}
+                onPress={() => props.setModalVisible(false)}
+              />
+            </View>
+            <Spacer
+              size={isDesktop ? 10 : 20}
+              horizontal={isDesktop ? true : false}
+            />
+            <View style={isDesktop && {flex: 1}}>
+              <PrimaryButton
+                containerStyle={{
+                  minWidth: 'auto',
+                  width: '100%',
+                  borderRadius: ThemeConfig.BorderRadius.medium,
+                  height: 48,
+                  paddingVertical: 12,
+                  paddingHorizontal: 12,
+                }}
+                disabled={selectedValues.length === 0}
+                text={ConfirmBtnLabel}
+                textStyle={styles.btnText}
+                onPress={() => {
+                  console.log(selectedValues);
+                  if (selectedValues.length === 0) {
+                    // setError(true);
+                    return;
+                  }
+                  // setLanguage(selectedValues);
+                  props.onConfirm(prevLangChanged.current);
+                  prevLangChanged.current = false;
+                }}
+              />
+            </View>
+          </View>
+        </>
+      )}
     </Popup>
   );
 };
@@ -209,5 +223,10 @@ const styles = StyleSheet.create({
   errorTxt: {
     color: $config.SEMANTIC_ERROR,
     fontWeight: '600',
+  },
+  changeInProgress: {
+    width: '100%',
+    height: 162,
+    alignSelf: 'center',
   },
 });
