@@ -220,8 +220,9 @@ export default class RtcEngine {
   getRemoteVideoStats(id: string) {
     try {
       const data = this.client.getRemoteVideoStats();
-      return data[id];
+      return data && data[id] ? data[id] : null;
     } catch (error) {
+      console.log(`ERROR: on getRemoteVideoStats - ` + error?.message);
       return null;
     }
   }
