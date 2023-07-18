@@ -18,7 +18,7 @@ import {EventNames} from '../../rtm-events';
 import events from '../../rtm-events-api';
 import ImageIcon from '../../atoms/ImageIcon';
 import {useCaption} from '../../subComponents/caption/useCaption';
-import {getLanguageLabel} from '../../subComponents/caption/LanguageSelectorPopup';
+import {getLanguageLabel} from '../../subComponents/caption/utils';
 import Toast from '../../../react-native-toast-message';
 
 const VideoCallMobileView = () => {

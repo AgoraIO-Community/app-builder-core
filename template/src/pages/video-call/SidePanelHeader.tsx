@@ -19,16 +19,15 @@ import {numFormatter} from '../../utils';
 import ChatContext from '../../components/ChatContext';
 import {useCaption} from '../../subComponents/caption/useCaption';
 import ActionMenu, {ActionMenuItem} from '../../atoms/ActionMenu';
-import {calculatePosition} from '../../utils/common';
-import LanguageSelectorPopup, {
-  getLanguageLabel,
-} from '../../subComponents/caption/LanguageSelectorPopup';
+import {calculatePosition, isWebInternal} from '../../utils/common';
+import LanguageSelectorPopup from '../../subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../subComponents/caption/useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import useGetName from '../../utils/useGetName';
-import {downloadTranscript} from '../../subComponents/caption/utils';
+import {LanguageType} from '../../subComponents/caption/utils';
 import {useMeetingInfo} from 'customization-api';
+import useStreamMessageUtils from '../../subComponents/caption/useStreamMessageUtils';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -192,7 +191,9 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {language, meetingTranscript, isLangChangeInProgress} = useCaption();
+  const {language, meetingTranscript, isLangChangeInProgress, setLanguage} =
+    useCaption();
+  const {downloadTranscript} = useStreamMessageUtils();
   const actionMenuitems: ActionMenuItem[] = [];
 
   const [modalPosition, setModalPosition] = React.useState({});
@@ -223,11 +224,11 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Download Transcript',
-    disabled: meetingTranscript.length === 0,
+    disabled: meetingTranscript.length === 0 || !isWebInternal(),
     callback: () => {
       setActionMenuVisible(false);
       console.log(meetingTranscript);
-      downloadTranscript(meetingTranscript);
+      downloadTranscript();
     },
   });
 
@@ -243,9 +244,10 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   //     },
   //   });
 
-  const onLanguageChange = (langChanged = false) => {
+  const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
+      setLanguage(() => language);
       restart()
         .then(() => {
           console.log('stt restarted successfully');

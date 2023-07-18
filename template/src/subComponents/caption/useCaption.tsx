@@ -1,6 +1,6 @@
 import {createHook} from 'customization-implementation';
 import React from 'react';
-import {LanguageType} from './LanguageSelectorPopup';
+import {LanguageType} from './utils';
 
 type TranscriptItem = {
   name: string;

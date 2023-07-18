@@ -5,6 +5,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useCaption} from './useCaption';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
+import {LanguageType} from './utils';
 
 interface IuseSTTAPI {
   start: () => Promise<{message: string} | null>;
@@ -18,7 +19,13 @@ const useSTTAPI = (): IuseSTTAPI => {
     data: {roomId, isHost},
   } = useMeetingInfo();
   const {language, setIsSTTActive, setIsLangChangeInProgress} = useCaption();
+
+  const currentLangRef = React.useRef<LanguageType[]>([]);
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
+
+  React.useEffect(() => {
+    currentLangRef.current = language;
+  }, [language]);
 
   const apiCall = async (method: string) => {
     const response = await fetch(`${STT_API_URL}/${method}`, {
@@ -31,7 +38,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       },
       body: JSON.stringify({
         passphrase: roomId?.host || '',
-        lang: language.join(','),
+        lang: currentLangRef.current.join(','),
         dataStream_uid: 111111, // bot ID
       }),
     });
@@ -60,6 +67,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           JSON.stringify({active: true}),
           EventPersistLevel.LEVEL2,
         );
+
         setIsSTTActive(true);
       }
       return res;

@@ -6,6 +6,9 @@ import LanguageSelectorPopup from './LanguageSelectorPopup';
 import {useCaption} from './useCaption';
 import useSTTAPI from './useSTTAPI';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
+import useGetName from '../../utils/useGetName';
+import events, {EventPersistLevel} from '../../rtm-events-api';
+import {EventNames} from '../../rtm-events';
 
 interface TranscriptIconProps {
   plainIconHoverEffect?: boolean;
@@ -27,10 +30,12 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   } = props;
   const {start, restart} = useSTTAPI();
 
-  const {isTranscriptON, setIsTranscriptON, isSTTActive} = useCaption();
+  const {isTranscriptON, setIsTranscriptON, isSTTActive, setLanguage} =
+    useCaption();
   const {
     data: {isHost},
   } = useMeetingInfo();
+  const username = useGetName();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -71,8 +76,9 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
-  const onConfirm = async () => {
+  const onConfirm = async (langChanged, language) => {
     setLanguagePopup(false);
+    setLanguage(() => language);
     isFirstTimePopupOpen.current = false;
     const method = isTranscriptON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
@@ -89,6 +95,12 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
         // channel is already started now restart
         await restart();
       }
+      // inform about the language set for stt
+      events.send(
+        EventNames.STT_LANGUAGE,
+        JSON.stringify({username, language}),
+        EventPersistLevel.LEVEL3,
+      );
     } catch (error) {
       console.log('eror in starting stt', error);
     }

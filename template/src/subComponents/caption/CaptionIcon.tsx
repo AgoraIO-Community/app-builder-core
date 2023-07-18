@@ -7,11 +7,13 @@ import {useCaption} from './useCaption';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import Toast from '../../../react-native-toast-message';
-import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
+import LanguageSelectorPopup from './LanguageSelectorPopup';
+import {getLanguageLabel} from './utils';
 import useSTTAPI from './useSTTAPI';
 import {EventNames} from '../../rtm-events';
 import ImageIcon from '../../atoms/ImageIcon';
 import {isWebInternal} from '../../utils/common';
+import useGetName from '../../utils/useGetName';
 
 interface CaptionIconProps {
   plainIconHoverEffect?: boolean;
@@ -47,6 +49,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart} = useSTTAPI();
+  const username = useGetName();
 
   const ToastIcon = ({color}) => (
     <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
@@ -112,8 +115,9 @@ const CaptionIcon = (props: CaptionIconProps) => {
     iconButtonProps.toolTipMessage = label;
   }
 
-  const onConfirm = async () => {
+  const onConfirm = async (langChanged, language) => {
     setLanguagePopup(false);
+    setLanguage(() => language);
     isFirstTimePopupOpen.current = false;
     const method = isCaptionON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
@@ -125,6 +129,12 @@ const CaptionIcon = (props: CaptionIconProps) => {
         // channel is already started now restart
         await restart();
       }
+      // inform about the language set for stt
+      events.send(
+        EventNames.STT_LANGUAGE,
+        JSON.stringify({username, language}),
+        EventPersistLevel.LEVEL3,
+      );
     } catch (error) {
       console.log('eror in starting stt', error);
     }

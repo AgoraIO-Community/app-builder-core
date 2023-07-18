@@ -9,7 +9,7 @@ import IconButton from '../../../src/atoms/IconButton';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
 import {useSidePanel, SidePanelType} from 'customization-api';
-import LanguageSelectorPopup, {getLanguageLabel} from './LanguageSelectorPopup';
+import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
@@ -22,6 +22,7 @@ import {
   CAPTION_CONTAINER_HEIGHT,
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
+import {LanguageType} from './utils';
 
 const CaptionContainer = () => {
   const {isCaptionON, setIsCaptionON, isTranscriptON} = useCaption();
@@ -128,7 +129,8 @@ interface CaptionsActionMenuProps {
 const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {setIsCaptionON, language, isLangChangeInProgress} = useCaption();
+  const {setIsCaptionON, language, isLangChangeInProgress, setLanguage} =
+    useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -172,9 +174,10 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     },
   });
 
-  const onLanguageChange = (langChanged = false) => {
+  const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
+      setLanguage(() => language);
       restart()
         .then(() => {
           console.log('stt restarted successfully');
@@ -184,7 +187,6 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
             JSON.stringify({username, language}),
             EventPersistLevel.LEVEL3,
           );
-          setLanguagePopup(false);
         })
         .catch((error) => {
           console.log('Error in restarting', error);

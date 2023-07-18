@@ -1,4 +1,4 @@
-import {StyleSheet, View, Platform} from 'react-native';
+import {StyleSheet, View, Platform, ScrollView} from 'react-native';
 import React, {MutableRefObject} from 'react';
 import {isWeb, useRender, useRtc} from 'customization-api';
 import protoRoot from './proto/ptoto';
@@ -53,7 +53,7 @@ const Caption: React.FC = () => {
     return <Loading text="Setting Spoken Language" background="transparent" />;
 
   return (
-    <View style={styles.captionContainer}>
+    <ScrollView style={styles.captionContainer}>
       {speakers.map(([key, value], index) => {
         return (
           <React.Fragment key={key}>
@@ -68,7 +68,7 @@ const Caption: React.FC = () => {
           </React.Fragment>
         );
       })}
-    </View>
+    </ScrollView>
   );
 };
 

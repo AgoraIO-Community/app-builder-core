@@ -20,30 +20,23 @@ import ThemeConfig from '../theme';
 import ImageIcon from './ImageIcon';
 import {IconsInterface} from './CustomIcon';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {LanguageType} from '../subComponents/caption/LanguageSelectorPopup';
+import {LanguageType, langData as data} from '../subComponents/caption/utils';
 import IconButton from './IconButton';
 import Checkbox from './Checkbox';
 
 interface Props {
-  label: string;
   icon?: keyof IconsInterface;
-  data: Array<{label: string; value: string}>;
-  onSelect: (value: LanguageType[]) => void;
-  enabled: boolean;
+
   error: boolean;
   setError: React.Dispatch<React.SetStateAction<boolean>>;
   selectedValues: LanguageType[];
   setSelectedValues: React.Dispatch<React.SetStateAction<LanguageType[]>>;
-  defaultSelectedValues?: string[];
+  defaultSelectedValues?: LanguageType[];
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const DropdownMulti: FC<Props> = ({
-  label,
-  data,
-  onSelect,
-  enabled,
   defaultSelectedValues,
   selectedValues,
   setSelectedValues,
@@ -54,15 +47,11 @@ const DropdownMulti: FC<Props> = ({
   setIsOpen,
 }) => {
   const DropdownButton = useRef();
-
-  const [isHovered, setIsHovered] = React.useState(false);
   const maxHeight = 170;
 
-  const selected = useMemo(() => {
-    return data.find((dataItem) => selectedValues.includes(dataItem.value));
-  }, [selectedValues, data]);
-
   useEffect(() => {
+    setSelectedValues(defaultSelectedValues);
+    setIsOpen(() => false);
     if (isWebInternal()) {
       window.addEventListener('resize', () => {
         setIsOpen(false);
@@ -107,9 +96,10 @@ const DropdownMulti: FC<Props> = ({
     }
 
     setSelectedValues(updatedValues);
-    onSelect(updatedValues);
+    // onSelect(updatedValues);
   };
 
+  // renders each lang checkbox row
   const renderItem = ({item}): ReactElement<any, any> => {
     const isSelected = selectedValues.includes(item.value);
     const isDisabled = !isSelected && selectedValues.length === 2;
@@ -132,6 +122,7 @@ const DropdownMulti: FC<Props> = ({
     );
   };
 
+  // renders multiselect lang dropdown
   const renderDropdown = (): ReactElement<any, any> => {
     return (
       <View style={[styles.dropdown]}>
@@ -146,7 +137,6 @@ const DropdownMulti: FC<Props> = ({
     );
   };
 
-  const noData = !data || !data.length;
   const selectedLabels = selectedValues.map((value) => {
     const selectedLanguage = data.find((item) => item.value === value);
     return selectedLanguage ? (
@@ -180,11 +170,11 @@ const DropdownMulti: FC<Props> = ({
     <View>
       {/* Dropdown Header */}
       <TouchableOpacity
-        disabled={!enabled || !data || !data.length}
+        disabled={!data || !data.length}
         ref={DropdownButton}
         style={[
           styles.dropdownOptionContainer,
-          !enabled || !data || !data.length
+          !data || !data.length
             ? {opacity: ThemeConfig.EmphasisOpacity.disabled}
             : {},
           isOpen
@@ -231,7 +221,7 @@ const DropdownMulti: FC<Props> = ({
         </View>
       </TouchableOpacity>
       {/* Dropdown Body */}
-      {isOpen && !noData ? renderDropdown() : <></>}
+      {isOpen ? renderDropdown() : <></>}
     </View>
   );
 };

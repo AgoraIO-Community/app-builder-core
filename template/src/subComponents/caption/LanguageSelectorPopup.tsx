@@ -10,59 +10,12 @@ import {useCaption} from './useCaption';
 import DropdownMulti from '../../atoms/DropDownMulti';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import Loading from '../Loading';
-
-export type LanguageType =
-  | 'en-US'
-  | 'hi-IN'
-  | 'zh-CN'
-  | 'zh-HK'
-  | 'fr-FR'
-  | 'de-DE'
-  | 'ko-KR'
-  | 'en-IN'
-  | 'ar'
-  | 'ja-JP'
-  | 'pt-PT'
-  | 'es-ES'
-  | 'it-IT'
-  | 'id-ID'
-  | '';
-
-interface LanguageData {
-  label: string;
-  value: LanguageType;
-}
-
-const langData: LanguageData[] = [
-  {label: 'English (US)', value: 'en-US'},
-  {label: 'English (India)', value: 'en-IN'},
-  {label: 'Hindi', value: 'hi-IN'},
-  {label: 'Chinese (Simplified)', value: 'zh-CN'},
-  {label: 'Chinese (Traditional)', value: 'zh-HK'},
-  {label: 'Arabic', value: 'ar'},
-  {label: 'French', value: 'fr-FR'},
-  {label: 'German', value: 'de-DE'},
-  {label: 'Japanese', value: 'ja-JP'},
-  {label: 'Korean', value: 'ko-KR'},
-  {label: 'Portuguese', value: 'pt-PT'},
-  {label: 'Spanish', value: 'es-ES'},
-  {label: 'Italian', value: 'it-IT'},
-  {label: 'Indonesian', value: 'id-ID'},
-];
-
-export function getLanguageLabel(
-  languageCode: LanguageType[],
-): string | undefined {
-  const langLabels = languageCode.map((langCode) => {
-    return langData.find((data) => data.value === langCode).label;
-  });
-  return langLabels ? langLabels.join(',') : undefined;
-}
+import {LanguageType} from './utils';
 
 interface LanguageSelectorPopup {
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
-  onConfirm: (param: boolean) => void;
+  onConfirm: (param: boolean, lang: LanguageType[]) => void;
   isFirstTimePopupOpen?: boolean;
 }
 
@@ -77,15 +30,16 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
   const cancelBtnLabel = 'CANCEL';
   const ConfirmBtnLabel = 'CONFIRM';
 
-  const {language, setLanguage, isLangChangeInProgress} = useCaption();
-  const prevLangChanged = React.useRef<boolean>(false);
+  const {language, setLanguage, isLangChangeInProgress, isSTTActive} =
+    useCaption();
+
   const [error, setError] = React.useState<boolean>(false);
   const [selectedValues, setSelectedValues] =
     React.useState<LanguageType[]>(language);
   const isNotValidated =
     isOpen && (selectedValues.length === 0 || selectedValues.length === 2);
 
-  React.useEffect(() => setSelectedValues(language), [language]);
+  // React.useEffect(() => setSelectedValues(() => language), []);
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -108,19 +62,11 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
           <Spacer size={32} />
           <View>
             <DropdownMulti
-              label=""
-              data={langData}
-              enabled={true}
               selectedValues={selectedValues}
               setSelectedValues={setSelectedValues}
               defaultSelectedValues={language || ['en-US']}
               error={error}
               setError={setError}
-              onSelect={(value) => {
-                //  setError(false);
-                prevLangChanged.current = true;
-                setLanguage(value); //chnage on confirm
-              }}
               isOpen={isOpen}
               setIsOpen={setIsOpen}
             />
@@ -167,13 +113,16 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
                 textStyle={styles.btnText}
                 onPress={() => {
                   console.log(selectedValues);
+                  console.log(language);
+
                   if (selectedValues.length === 0) {
                     // setError(true);
                     return;
                   }
-                  // setLanguage(selectedValues);
-                  props.onConfirm(prevLangChanged.current);
-                  prevLangChanged.current = false;
+                  const lang1 = language.slice().sort().toString();
+                  const lang2 = selectedValues.slice().sort().toString();
+                  const isLangChanged = lang1 !== lang2 || !isSTTActive;
+                  props.onConfirm(isLangChanged, selectedValues);
                 }}
               />
             </View>
@@ -204,6 +153,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 24,
     maxWidth: 446,
+    width: '100%',
   },
   heading: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
