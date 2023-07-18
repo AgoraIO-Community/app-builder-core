@@ -22,6 +22,8 @@ import ThemeConfig from '../../theme';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import ZoomableWrapper from './ZoomableWrapper';
+import {isAndroid} from '../../utils/common';
+import {isIOS} from '../../utils/common';
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -46,13 +48,52 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-
+  const [landscapeMode, setLandscapeMode] = useState(true);
+  const landscapeModeRef = useRef({landscapeMode});
   const {
     screenShareData,
     setScreenShareData,
     isScreenShareOnFullView,
     setScreenShareOnFullView,
   } = useScreenContext();
+
+  useEffect(() => {
+    landscapeModeRef.current.landscapeMode = landscapeMode;
+  }, [landscapeMode]);
+
+  useEffect(() => {
+    if (isScreenShareOnFullView) {
+      if (isAndroid() || isIOS()) {
+        const cb = (args) => {
+          if (
+            args?.uid == user.uid &&
+            args?.width &&
+            args?.height &&
+            args.height > args.width
+          ) {
+            landscapeModeRef.current.landscapeMode && setLandscapeMode(false);
+          }
+        };
+        const subscription = RtcEngine.addListener('RemoteVideoStats', cb);
+        setTimeout(() => {
+          subscription.remove();
+        }, 5000);
+      } else {
+        if (screenShareData && screenShareData?.[user.uid] && isMobileUA()) {
+          //@ts-ignore
+          const data = RtcEngine.getRemoteVideoStats(user.uid);
+          if (
+            data &&
+            data?.receiveResolutionHeight &&
+            data?.receiveResolutionWidth &&
+            data?.receiveResolutionHeight > data.receiveResolutionWidth
+          ) {
+            setLandscapeMode(false);
+          }
+        }
+      }
+    }
+  }, [screenShareData, isScreenShareOnFullView]);
 
   return (
     <>
@@ -95,13 +136,24 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             )}
             {screenShareData && screenShareData?.[user.uid] && isMobileUA() ? (
               <IconButton
-                containerStyle={{
-                  position: 'absolute',
-                  top: 8,
-                  left: 8,
-                  zIndex: 999,
-                  elevation: 999,
-                }}
+                containerStyle={
+                  isScreenShareOnFullView && landscapeMode
+                    ? {
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        transform: [{rotate: '90deg'}],
+                        zIndex: 999,
+                        elevation: 999,
+                      }
+                    : {
+                        position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        zIndex: 999,
+                        elevation: 999,
+                      }
+                }
                 onPress={() => {
                   setScreenShareOnFullView(
                     !screenShareData[user.uid]?.isExpanded,
@@ -153,13 +205,17 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                 }}
                 user={user}
                 containerStyle={{
-                  width: isScreenShareOnFullView ? height : '100%',
-                  height: isScreenShareOnFullView ? width : '100%',
+                  width:
+                    landscapeMode && isScreenShareOnFullView ? height : '100%',
+                  height:
+                    landscapeMode && isScreenShareOnFullView ? width : '100%',
                   // width: '100%',
                   // height: '100%',
                 }}
                 key={user.uid}
-                landscapeMode={isScreenShareOnFullView ? true : false}
+                landscapeMode={
+                  landscapeMode && isScreenShareOnFullView ? true : false
+                }
               />
             </ZoomableWrapper>
             {!isScreenShareOnFullView && (
