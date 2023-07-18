@@ -48,7 +48,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const [avatarSize, setAvatarSize] = useState(100);
   const videoMoreMenuRef = useRef(null);
   const [actionMenuVisible, setActionMenuVisible] = React.useState(false);
-  const [landscapeMode, setLandscapeMode] = useState(true);
+  const [landscapeMode, setLandscapeMode] = useState(
+    isAndroid() || isIOS() ? true : false,
+  );
   const landscapeModeRef = useRef({landscapeMode});
   const {
     screenShareData,
@@ -174,13 +176,14 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                     backgroundColor:
                       $config.CARD_LAYER_5_COLOR +
                       hexadecimalTransparency['10%'],
+                    transform: [{rotate: '-45deg'}],
                   },
                   name:
                     screenShareData?.[user?.uid]?.isExpanded === true
-                      ? 'full-screen-exit'
-                      : 'full-screen',
+                      ? 'collapse'
+                      : 'expand',
                   tintColor: $config.SECONDARY_ACTION_COLOR,
-                  iconSize: 24,
+                  iconSize: 20,
                 }}
               />
             ) : (
