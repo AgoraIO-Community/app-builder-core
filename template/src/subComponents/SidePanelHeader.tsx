@@ -53,7 +53,9 @@ const SidePanelHeader = React.forwardRef<View, SidePanelHeaderProps>(
             <View style={{width: 30, height: 'auto'}}></View>
           ) : null}
           {props?.centerComponent ? props.centerComponent : null}
-          <View ref={ref} style={SidePanelStyles.row}>
+          <View
+            ref={ref}
+            style={props?.trailingIconName2 && SidePanelStyles.row}>
             {props?.trailingIconName ? (
               <IconButton
                 hoverEffect={true}
@@ -138,6 +140,7 @@ export const SidePanelStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    flex: 0.3,
   },
 });
 export default SidePanelHeader;

@@ -81,8 +81,13 @@ const Transcript = (props: TranscriptProps) => {
     }
     // Scroll to the last item on initial mount
     if (flatListRef.current && data.length > 0) {
-      const lastIndex = data.length - 1;
-      flatListRef.current.scrollToIndex({index: lastIndex, animated: false});
+      // const lastIndex = data.length - 1;
+      // flatListRef.current.scrollToIndex({
+      //   index: lastIndex,
+      //   viewPosition: 1, // 0 for top, 1 for bottom, 0.5 for middle
+      //   animated: false,
+      // });
+      flatListRef.current.scrollToEnd({animated: true});
     }
   };
 
@@ -260,7 +265,7 @@ const Transcript = (props: TranscriptProps) => {
               </View>
             ) : null}
           </View>
-          {meetingTranscript.length ? (
+          {meetingTranscript.length && isWebInternal() ? (
             <View style={styles.btnContainer}>
               <PrimaryButton
                 iconSize={20}
