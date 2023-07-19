@@ -21,13 +21,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-
-.icon-captions-off:before {
+.icon-caption-off:before {
   content: "\e941";
   color: #fff;
 }
-.icon-captions:before {
+.icon-caption:before {
   content: "\e958";
   color: #fff;
 }

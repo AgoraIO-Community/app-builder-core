@@ -179,7 +179,7 @@ const MoreButton = () => {
 
   if (globalWidth <= BREAKPOINTS.lg) {
     actionMenuitems.push({
-      icon: 'captions',
+      icon: `${isCaptionON ? 'caption-off' : 'caption'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,

@@ -90,8 +90,8 @@ export interface IconsInterface {
   globe: string;
   'lang-select': string;
   search: string;
-  captions: string;
-  'captions-off': string;
+  caption: string;
+  'caption-off': string;
   download: string;
   'transcript-stop': string;
   transcript: string;
