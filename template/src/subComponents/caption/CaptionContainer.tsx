@@ -83,6 +83,7 @@ interface MoreMenuProps {
 
 const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
   const {setActionMenuVisible} = props;
+  const isMobile = isMobileUA();
   return (
     <View
       ref={ref}
@@ -102,15 +103,21 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
       <IconButton
         hoverEffect={true}
         hoverEffectStyle={{
-          backgroundColor: $config.ICON_BG_COLOR,
+          backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
           borderRadius: 20,
-          padding: 6,
         }}
         iconProps={{
           iconType: 'plain',
           name: 'more-menu',
-          iconSize: 18,
+          iconSize: isMobile ? 18 : 20,
           tintColor: $config.SECONDARY_ACTION_COLOR,
+          iconContainerStyle: {
+            padding: isMobile ? 6 : 8,
+            borderRadius: 20,
+            backgroundColor: isMobile
+              ? $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR
+              : 'transparent',
+          },
         }}
         onPress={() => {
           setActionMenuVisible(true);
