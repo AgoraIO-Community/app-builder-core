@@ -153,6 +153,7 @@ const useStreamMessageUtils = (): {
       let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
       stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
       stringBuilder += nonFinalList?.join(' ');
+      if (stringBuilder === '') return {...prevState};
       return {
         ...prevState,
         [textstream.uid]: {

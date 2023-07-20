@@ -41,8 +41,12 @@ const CaptionContainer = () => {
   // If yes then clear it as we have to show live captions for person speaking
   React.useEffect(() => {
     const timerID = setInterval(() => {
-      console.log('captions', captionObj);
       const speakers = Object.entries(captionObj);
+      console.log(
+        'stt:speakers at ',
+        new Date().toLocaleTimeString(),
+        captionObj,
+      );
       let isChanged = false;
       const updatedObj = speakers.map(([key, value]) => {
         const lastUpdated = value.lastUpdated;
