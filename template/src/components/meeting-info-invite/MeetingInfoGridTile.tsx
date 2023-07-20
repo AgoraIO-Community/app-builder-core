@@ -11,6 +11,9 @@ import ImageIcon from '../../atoms/ImageIcon';
 import useGetName from '../../utils/useGetName';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {isMobileUA} from '../../utils/common';
+import Avatar from '../../atoms/Avatar';
+
+const waveHandEmoji = '👋';
 
 export default function MeetingInfoGridTile() {
   const isMobile = isMobileUA();
@@ -26,29 +29,24 @@ export default function MeetingInfoGridTile() {
             <MeetingInfo padding="dense" margin="dense">
               <MeetingInfoCardHeader
                 avatar={
-                  <ImageIcon
-                    iconType="plain"
-                    name="person"
-                    iconSize={56}
-                    tintColor={'#099DFD'}
-                  />
+                  isMobile ? null : (
+                    <Avatar
+                      name={waveHandEmoji}
+                      containerStyle={style.avatarContainerStyle}
+                      textStyle={style.avatarTextStyle}
+                    />
+                  )
                 }>
                 <>
                   <View style={style.flexRow}>
                     {isMobile && (
-                      <View style={{marginRight: 5}}>
-                        <ImageIcon
-                          iconType="plain"
-                          name="person"
-                          iconSize={14}
-                          tintColor={'#099DFD'}
-                        />
-                      </View>
+                      <Text style={{marginRight: 5}}>{waveHandEmoji}</Text>
                     )}
                     <Text style={style.heading} numberOfLines={1}>
                       Welcome {username}
                     </Text>
                   </View>
+                  {isMobile && <Spacer size={10} />}
                   <Text
                     style={style.subheading}
                     numberOfLines={isMobile ? 2 : 1}>
@@ -58,7 +56,7 @@ export default function MeetingInfoGridTile() {
                   </Text>
                 </>
               </MeetingInfoCardHeader>
-              {isMobile ? <Spacer size={10} /> : <Spacer size={40} />}
+              {isMobile ? <Spacer size={20} /> : <Spacer size={40} />}
               {!isMobile && (
                 <MeetingInfoLinks variant="secondary" size="tiny" />
               )}
@@ -110,7 +108,7 @@ const style = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    paddingHorizontal: 35,
+    paddingHorizontal: isMobileUA ? 0 : 35,
   },
   flexRow: {
     display: 'flex',
@@ -132,5 +130,17 @@ const style = StyleSheet.create({
     color: $config.FONT_COLOR,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     paddingVertical: 2,
+  },
+  avatarContainerStyle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
+  },
+  avatarTextStyle: {
+    fontSize: ThemeConfig.FontSize.large + 4,
+    lineHeight: 12,
+    fontWeight: '400',
+    textAlignVertical: 'center',
   },
 });
