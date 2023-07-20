@@ -57,7 +57,7 @@ export const style = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    marginRight: 5,
+    marginRight: 10,
   },
   header: {
     marginTop: 2,

@@ -1,12 +1,13 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, StyleSheet, Pressable, Text} from 'react-native';
+import {View} from 'react-native';
 import useLayoutsData from './useLayoutsData';
-import {isArray, isDesktop, isValidReactComponent} from '../../utils/common';
+import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
 import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
 import {DispatchContext} from '../../../agora-rn-uikit';
 import MeetingInfoGridTile from '../../components/meeting-info-invite/MeetingInfoGridTile';
+import Spacer from '../../atoms/Spacer';
 
 const VideoComponent = () => {
   const {dispatch} = useContext(DispatchContext);
@@ -14,6 +15,7 @@ const VideoComponent = () => {
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const {activeUids, pinnedUid} = useContent();
+  const isDesktop = useIsDesktop();
 
   useEffect(() => {
     if (activeUids && activeUids.length === 1) {
@@ -43,9 +45,19 @@ const VideoComponent = () => {
   ) {
     const CurrentLayout = layoutsData[layout].component;
     return (
-      <View style={{flex: 1, flexDirection: 'row'}}>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: isDesktop() ? 'row' : 'column',
+          justifyContent: 'space-between',
+        }}>
         <CurrentLayout renderData={activeUids} />
-        {activeUids.length === 1 && <MeetingInfoGridTile />}
+        {activeUids.length === 1 && (
+          <>
+            <Spacer size={24} horizontal={isDesktop() ? true : false} />
+            <MeetingInfoGridTile />
+          </>
+        )}
       </View>
     );
   } else {
