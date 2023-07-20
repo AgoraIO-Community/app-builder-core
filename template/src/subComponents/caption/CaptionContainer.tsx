@@ -23,9 +23,10 @@ import {
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
+import {reactRouterV3Instrumentation} from '@sentry/react';
 
 const CaptionContainer = () => {
-  const {isCaptionON, setIsCaptionON, isTranscriptON} = useCaption();
+  const {captionObj, setCaptionObj} = useCaption();
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
@@ -36,8 +37,30 @@ const CaptionContainer = () => {
     data: {isHost},
   } = useMeetingInfo();
 
+  // Timer is run in the interval of 2 sec which checks if the last updated caption was more than 3sec ago
+  // If yes then clear it as we have to show live captions for person speaking
+  React.useEffect(() => {
+    const timerID = setInterval(() => {
+      console.log('captions', captionObj);
+      const speakers = Object.entries(captionObj);
+      let isChanged = false;
+      const updatedObj = speakers.map(([key, value]) => {
+        const lastUpdated = value.lastUpdated;
+        const currentTime = new Date().getTime();
+        if (currentTime - lastUpdated > 3000 && value.text !== '') {
+          value.text = '';
+          value.lastUpdated = currentTime;
+          isChanged = true;
+        }
+        return [key, value];
+      });
+      isChanged && setCaptionObj(Object.fromEntries(updatedObj));
+    }, 3000);
+    return () => clearInterval(timerID);
+  }, [captionObj]);
+
   const {isCaptionNotFullWidth} = useCaptionWidth();
-  return isCaptionON ? (
+  return (
     <View
       style={[
         {
@@ -74,7 +97,7 @@ const CaptionContainer = () => {
         <Caption />
       </View>
     </View>
-  ) : null;
+  );
 };
 
 interface MoreMenuProps {

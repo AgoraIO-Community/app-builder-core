@@ -79,7 +79,7 @@ const VideoCallMobileView = () => {
   //     subscription?.remove();
   //   };
   // }, []);
-  const {setIsSTTActive, setLanguage} = useCaption();
+  const {setIsSTTActive, setLanguage, isCaptionON} = useCaption();
   React.useEffect(() => {
     events.on(EventNames.STT_ACTIVE, (data) => {
       const payload = JSON.parse(data?.payload);
@@ -138,7 +138,7 @@ const VideoCallMobileView = () => {
       <Spacer size={16} />
       <View style={styles.videoView}>
         <VideoComponent />
-        <CaptionContainer />
+        {isCaptionON && <CaptionContainer />}
       </View>
       <ActionSheet />
     </View>

@@ -33,6 +33,7 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript from '../../subComponents/caption/Transcript';
+import {useCaption} from '../../subComponents/caption/useCaption';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -41,6 +42,7 @@ const VideoCallScreen = () => {
   const {
     data: {meetingTitle, isHost},
   } = useMeetingInfo();
+  const {isCaptionON} = useCaption();
   const {
     ChatComponent,
     VideocallComponent,
@@ -189,7 +191,7 @@ const VideoCallScreen = () => {
         ) : (
           <ButtonTemplateProvider
             value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
-            <CaptionContainer />
+            {isCaptionON && <CaptionContainer />}
             <BottombarComponent />
           </ButtonTemplateProvider>
         )}

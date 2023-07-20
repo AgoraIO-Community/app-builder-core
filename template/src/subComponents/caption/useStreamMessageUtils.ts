@@ -18,7 +18,8 @@ const useStreamMessageUtils = (): {
   streamMessageCallback: StreamMessageCallback;
   downloadTranscript: () => void;
 } => {
-  const {meetingTranscript, setCaptionObj, setMeetingTranscript} = useCaption();
+  const {meetingTranscript, setCaptionObj, setMeetingTranscript, captionObj} =
+    useCaption();
   const startTimeRef = useRef<number>(0);
   const finalList = useRef<FinalListType>({});
   const {renderList} = useRender();
@@ -137,31 +138,29 @@ const useStreamMessageUtils = (): {
      Previous final words of the uid are prepended and 
      then current non final words so that context of speech is not lost
     */
-    let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
-    stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
-    stringBuilder += nonFinalList?.join(' ');
 
     // If person is not speaking or mic is muted, then we don't want to show live captions
-    if (textstream.words.length === 0) {
-      stringBuilder = '';
-      setTimeout(() => {
-        /* adding a  2sec deplay so that captions does not go away abruptly  */
-        setCaptionObj((prevState) => ({
-          ...prevState,
-          [textstream.uid]: stringBuilder,
-        }));
-      }, 2000);
-    } else {
-      setCaptionObj((prevState) => ({
+    // <CaptionContainer> after each interval of 3s , clearing live captions so removing from finalist as well
+    // as from stt api we are not able to know if person has stopped speaking
+    setCaptionObj((prevState) => {
+      if (
+        prevState &&
+        prevState[textstream.uid] &&
+        prevState[textstream.uid].text === ''
+      ) {
+        finalList.current[textstream.uid] = [];
+      }
+      let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
+      stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
+      stringBuilder += nonFinalList?.join(' ');
+      return {
         ...prevState,
-        [textstream.uid]: stringBuilder,
-      })); // live captions will appear with nonfinal words
-    }
-
-    if (textstream.words.length === 0) {
-      // clearing prev live captions for a uid when there is pause so that live captions show only current spoken words
-      finalList.current[textstream.uid] = [];
-    }
+        [textstream.uid]: {
+          text: stringBuilder,
+          lastUpdated: new Date().getTime(),
+        },
+      };
+    });
 
     console.group('STT-logs');
     console.log('stt-finalList =>', finalList.current);

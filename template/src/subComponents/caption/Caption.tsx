@@ -48,7 +48,7 @@ const Caption: React.FC = () => {
   }, []);
 
   const speakers = Object.entries(captionObj);
-  const activeSpeakers = speakers.filter((item) => item[1] !== '');
+  const activeSpeakers = speakers.filter((item) => item[1].text !== '');
   if (isLangChangeInProgress)
     return <Loading text="Setting Spoken Language" background="transparent" />;
 
@@ -57,10 +57,10 @@ const Caption: React.FC = () => {
       {speakers.map(([key, value], index) => {
         return (
           <React.Fragment key={key}>
-            {value ? (
+            {value?.text ? (
               <CaptionText
                 user={renderList[Number(key)]?.name || 'Speaker'}
-                value={value.trim()}
+                value={value.text.trim()}
                 activeSpeakersCount={activeSpeakers?.length || 0}
               />
             ) : null}

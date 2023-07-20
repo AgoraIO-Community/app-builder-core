@@ -9,6 +9,13 @@ type TranscriptItem = {
   text: string;
 };
 
+type CaptionObj = {
+  [key: string]: {
+    text: string;
+    lastUpdated: number;
+  };
+};
+
 export const CaptionContext = React.createContext<{
   // for caption btn state
   isCaptionON: boolean;
@@ -35,8 +42,8 @@ export const CaptionContext = React.createContext<{
   setIsLangChangeInProgress: React.Dispatch<React.SetStateAction<boolean>>;
 
   // holds live captions
-  captionObj: {[key: string]: string};
-  setCaptionObj: React.Dispatch<React.SetStateAction<{[key: string]: string}>>;
+  captionObj: CaptionObj;
+  setCaptionObj: React.Dispatch<React.SetStateAction<CaptionObj>>;
 
   // holds status of StreamMessageCallback listener added (caption/transcript)
   isSTTListenerAdded: boolean;
@@ -70,9 +77,7 @@ const CaptionProvider = ({children}) => {
   const [meetingTranscript, setMeetingTranscript] = React.useState<
     TranscriptItem[]
   >([]);
-  const [captionObj, setCaptionObj] = React.useState<{[key: string]: string}>(
-    {},
-  );
+  const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
   const [isSTTListenerAdded, setIsSTTListenerAdded] =
     React.useState<boolean>(false);
 
