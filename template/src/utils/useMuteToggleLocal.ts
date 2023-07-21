@@ -10,15 +10,10 @@
 *********************************************
 */
 import {useLocalUserInfo, useRtc} from 'customization-api';
-import {useContext, useEffect, useRef, useState} from 'react';
-
+import {useContext} from 'react';
 import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import {isMobileUA, isWebInternal} from './common';
-import {AppState} from 'react-native';
+import {isWebInternal} from './common';
 import {SdkMuteQueueContext} from '../components/SdkMuteToggleListener';
-import {isAndroid} from '../utils/common';
-import {isIOS} from '../utils/common';
-import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 
 export enum MUTE_LOCAL_TYPE {
   audio,
@@ -32,52 +27,6 @@ function useMuteToggleLocal() {
   const local = useLocalUserInfo();
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
-  const {isScreenshareActive} = useScreenshare();
-  const appState = useRef(AppState.currentState);
-  const [appStateVisible, setAppStateVisible] = useState(appState.current);
-  const isCamON = useRef(local.video);
-
-  useEffect(() => {
-    if ($config.AUDIO_ROOM || !isMobileUA()) return;
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      appState.current = nextAppState;
-      setAppStateVisible(appState.current);
-    });
-
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
-    //native screenshare use local uid to publish the screenshare stream
-    //so when user minimize the app we shouldnot pause the local video
-    if (!((isAndroid() || isIOS()) && isScreenshareActive)) {
-      if (appStateVisible === 'background') {
-        isCamON.current = local.video;
-        if (isCamON.current) {
-          isWebInternal()
-            ? RtcEngine.muteLocalVideoStream(true)
-            : RtcEngine.enableLocalVideo(false);
-
-          dispatch({
-            type: 'LocalMuteVideo',
-            value: [0],
-          });
-        }
-      }
-      if (appStateVisible === 'active' && isCamON.current) {
-        isWebInternal()
-          ? RtcEngine.muteLocalVideoStream(false)
-          : RtcEngine.enableLocalVideo(true);
-        dispatch({
-          type: 'LocalMuteVideo',
-          value: [1],
-        });
-      }
-    }
-  }, [appStateVisible]);
 
   const toggleMute = async (
     type: MUTE_LOCAL_TYPE,

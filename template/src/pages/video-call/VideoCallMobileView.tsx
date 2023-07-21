@@ -10,12 +10,19 @@ import {useRecording} from '../../subComponents/recording/useRecording';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import ParticipantsCount from '../../atoms/ParticipantsCount';
 import RecordingInfo from '../../atoms/RecordingInfo';
-import {isAndroid, isWebInternal, trimText} from '../../utils/common';
+import {
+  isAndroid,
+  isIOS,
+  isMobileUA,
+  isWebInternal,
+  trimText,
+} from '../../utils/common';
 import {RtcContext, ToggleState, useLocalUid} from '../../../agora-rn-uikit';
 import {useLocalUserInfo, useRender} from 'customization-api';
 import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import VideoRenderer from './VideoRenderer';
 import {filterObject} from '../../utils';
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 
 const VideoCallMobileView = () => {
   const {
@@ -25,8 +32,6 @@ const VideoCallMobileView = () => {
   const recordingLabel = 'Recording';
   const {isScreenShareOnFullView, screenShareData} = useScreenContext();
 
-  const appState = useRef(AppState.currentState);
-  const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const local = useLocalUserInfo();
   const {renderList} = useRender();
@@ -37,52 +42,51 @@ const VideoCallMobileView = () => {
   const maxScreenShareUid = Object.keys(maxScreenShareData)?.length
     ? Object.keys(maxScreenShareData)[0]
     : null;
+
+  const appState = useRef(AppState.currentState);
+  const {isScreenshareActive} = useScreenshare();
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const isCamON = useRef(local.video);
 
-  // moved below logic to useMuteToggleLocal
-  // useEffect(() => {
-  //   if ($config.AUDIO_ROOM) return;
-  //   const subscription = AppState.addEventListener(
-  //     'change',
-  //     async (nextAppState) => {
-  //       if (nextAppState === 'background') {
-  //         // check if cam was on before app goes to background
-  //         isCamON.current = isAndroid()
-  //           ? local.video === ToggleState.enabled
-  //           : RtcEngine?.isVideoEnabled;
+  useEffect(() => {
+    if ($config.AUDIO_ROOM || !isMobileUA()) return;
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+    });
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
 
-  //         if (isCamON.current || 1) {
-  //           isWebInternal()
-  //             ? await RtcEngine.muteLocalVideoStream(true)
-  //             : await RtcEngine.enableLocalVideo(false);
-
-  //           // dispatch({
-  //           //   type: 'LocalMuteVideo',
-  //           //   value: [0],
-  //           // });
-  //         }
-  //       }
-  //       if (nextAppState === 'active') {
-  //         // enable cam only if cam was on before app goes to background
-  //         console.log('active state 111111 ==>', isCamON.current);
-  //         if (local.video) {
-  //           isWebInternal()
-  //             ? await RtcEngine.muteLocalVideoStream(false)
-  //             : await RtcEngine.enableLocalVideo(true);
-  //           dispatch({
-  //             type: 'LocalMuteVideo',
-  //             value: [1],
-  //           });
-  //         }
-  //       }
-  //       appState.current = nextAppState;
-  //     },
-  //   );
-
-  //   return () => {
-  //     subscription?.remove();
-  //   };
-  // }, []);
+  useEffect(() => {
+    // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
+    //native screenshare use local uid to publish the screenshare stream
+    //so when user minimize the app we shouldnot pause the local video
+    if (!((isAndroid() || isIOS()) && isScreenshareActive)) {
+      if (appStateVisible === 'background') {
+        isCamON.current = local.video;
+        if (isCamON.current) {
+          isWebInternal()
+            ? RtcEngine.muteLocalVideoStream(true)
+            : RtcEngine.enableLocalVideo(false);
+          dispatch({
+            type: 'LocalMuteVideo',
+            value: [0],
+          });
+        }
+      }
+      if (appStateVisible === 'active' && isCamON.current) {
+        isWebInternal()
+          ? RtcEngine.muteLocalVideoStream(false)
+          : RtcEngine.enableLocalVideo(true);
+        dispatch({
+          type: 'LocalMuteVideo',
+          value: [1],
+        });
+      }
+    }
+  }, [appStateVisible, isScreenshareActive]);
 
   return (
     <>

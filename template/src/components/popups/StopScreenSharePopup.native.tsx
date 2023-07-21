@@ -29,10 +29,9 @@ const StopScreenSharePopup = () => {
 
   const doStopScreenShare = () => {
     if (isScreenshareActive) {
-      stopUserScreenShare();
-      setTimeout(() => {
-        localMute(MUTE_LOCAL_TYPE.video);
-      });
+      //true means keep the video enabled and stop only the screenshare
+      //@ts-ignore
+      stopUserScreenShare(true);
       setShowStopScreenSharePopup(false);
     }
   };
