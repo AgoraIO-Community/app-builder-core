@@ -28,6 +28,7 @@ import useGetName from '../../utils/useGetName';
 import {LanguageType} from '../../subComponents/caption/utils';
 import {useMeetingInfo} from 'customization-api';
 import useStreamMessageUtils from '../../subComponents/caption/useStreamMessageUtils';
+import useTranscriptDownload from '../../subComponents/caption/useTranscriptDownload';
 
 export const SettingsHeader = (props) => {
   const {setSidePanel} = useSidePanel();
@@ -193,8 +194,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {setSidePanel} = useSidePanel();
   const {language, meetingTranscript, isLangChangeInProgress, setLanguage} =
     useCaption();
-  const {downloadTranscript} = useStreamMessageUtils();
-  const actionMenuitems: ActionMenuItem[] = [];
+  const {downloadTranscript} = useTranscriptDownload();
 
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -203,6 +203,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     React.useState<boolean>(false);
   const {restart} = useSTTAPI();
   const username = useGetName();
+  const actionMenuitems: ActionMenuItem[] = [];
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -224,11 +225,10 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Download Transcript',
-    disabled: meetingTranscript.length === 0 || !isWebInternal(),
+    disabled: meetingTranscript.length === 0,
     callback: () => {
-      setActionMenuVisible(false);
-      console.log(meetingTranscript);
       downloadTranscript();
+      setActionMenuVisible(false);
     },
   });
 

@@ -16,7 +16,6 @@ type TranscriptItem = {
 };
 const useStreamMessageUtils = (): {
   streamMessageCallback: StreamMessageCallback;
-  downloadTranscript: () => void;
 } => {
   const {meetingTranscript, setCaptionObj, setMeetingTranscript, captionObj} =
     useCaption();
@@ -169,43 +168,8 @@ const useStreamMessageUtils = (): {
     console.groupEnd();
   };
 
-  // handles download of meeting Transcript
-  // TODO: does not works on native : react0native-blob
-  const downloadTranscript = () => {
-    try {
-      const formattedContent = meetingTranscript
-        .map(
-          (item) =>
-            `${item.name} ${formatTime(Number(item.time))}: ${item.text}`,
-        )
-        .join('\n');
-
-      // Create a Blob with the formatted content
-      const blob = new Blob([formattedContent], {type: 'text/plain'});
-
-      // Generate a download URL for the Blob
-      const downloadUrl = URL.createObjectURL(blob);
-
-      // Create an anchor element to initiate the download
-      const anchor = document.createElement('a');
-      anchor.href = downloadUrl;
-      anchor.download = 'MeetingTranscript.txt';
-
-      // Programmatically click the anchor element to trigger the download
-      anchor.click();
-
-      // Cleanup: Revoke the download URL
-      URL.revokeObjectURL(downloadUrl);
-
-      console.log('Content downloaded successfully.');
-    } catch (error) {
-      console.error('Error downloading content:', error);
-    }
-  };
-
   return {
     streamMessageCallback,
-    downloadTranscript,
   };
 };
 

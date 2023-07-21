@@ -33,6 +33,7 @@ import Spacer from '../../atoms/Spacer';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
+import useTranscriptDownload from './useTranscriptDownload';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -50,7 +51,6 @@ const Transcript = (props: TranscriptProps) => {
     setIsSTTListenerAdded,
   } = useCaption();
 
-  const {downloadTranscript} = useStreamMessageUtils();
   const data = meetingTranscript; // Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
@@ -62,6 +62,7 @@ const Transcript = (props: TranscriptProps) => {
   const {RtcEngine} = useRtc();
   const {renderList} = useRender();
   const {streamMessageCallback} = useStreamMessageUtils();
+  const {downloadTranscript} = useTranscriptDownload();
   const [isFocused, setIsFocused] = React.useState(false);
   const {setIsTranscriptON} = useCaption();
   const {transcriptHeight} = useCaptionWidth();
@@ -265,7 +266,7 @@ const Transcript = (props: TranscriptProps) => {
               </View>
             ) : null}
           </View>
-          {meetingTranscript.length && isWebInternal() ? (
+          {meetingTranscript.length ? (
             <View style={styles.btnContainer}>
               <PrimaryButton
                 iconSize={20}
