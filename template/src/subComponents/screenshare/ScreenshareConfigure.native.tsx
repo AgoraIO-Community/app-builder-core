@@ -204,8 +204,11 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     }
   };
 
-  const stopUserScreenShare = async (enableVideo: boolean = false) => {
-    if (isScreenshareActive) {
+  const stopUserScreenShare = async (
+    enableVideo: boolean = false,
+    forceStop: boolean = false,
+  ) => {
+    if (isScreenshareActive || forceStop) {
       enableVideoRef.current = enableVideo;
       await RtcEngine?.stopScreenCapture();
       if (Platform.OS === 'android') {

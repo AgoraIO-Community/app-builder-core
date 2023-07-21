@@ -22,6 +22,7 @@ import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
 import {isWebInternal, trimText} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
+import {isAndroid, isIOS} from '../utils/common';
 
 interface Props {
   children: React.ReactNode;
@@ -30,7 +31,8 @@ interface Props {
 const EventsConfigure: React.FC<Props> = (props) => {
   const {setStore} = useContext(StorageContext);
   //@ts-ignore
-  const {isScreenshareActive, ScreenshareStoppedCallback} = useScreenshare();
+  const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
+    useScreenshare();
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
@@ -67,13 +69,21 @@ const EventsConfigure: React.FC<Props> = (props) => {
         primaryBtn: null,
         secondaryBtn: null,
       });
-      isWebInternal()
-        ? await RtcEngine.muteLocalVideoStream(true)
-        : await RtcEngine.enableLocalVideo(false);
-      dispatch({
-        type: 'LocalMuteVideo',
-        value: [0],
-      });
+      if (
+        (isAndroid() || isIOS()) &&
+        isScreenshareActiveRef.current.isScreenshareActive
+      ) {
+        //@ts-ignore
+        stopUserScreenShare(false, true);
+      } else {
+        isWebInternal()
+          ? await RtcEngine.muteLocalVideoStream(true)
+          : await RtcEngine.enableLocalVideo(false);
+        dispatch({
+          type: 'LocalMuteVideo',
+          value: [0],
+        });
+      }
     });
     events.on(controlMessageEnum.muteAudio, ({sender}) => {
       Toast.show({
