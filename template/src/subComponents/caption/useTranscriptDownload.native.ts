@@ -2,6 +2,7 @@ import {formatTime} from './utils';
 import {useCaption} from './useCaption';
 import RNFetchBlob from 'rn-fetch-blob';
 import {isAndroid, isIOS} from 'customization-api';
+import Share from 'react-native-share';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
@@ -42,8 +43,17 @@ const useTranscriptDownload = (): {
             if (isIOS()) {
               RNFetchBlob.ios.previewDocument(filePath);
             } else if (isAndroid()) {
-              console.warn('android download complete');
+              console.warn('android download complete !');
               // need to show the preview of downloaded file
+              Share.open({url: `file://${filePath}`, type: 'text/plain'})
+                .then((res) => {
+                  console.warn('File shared successfully:', res);
+                  resolve(filePath);
+                })
+                .catch((error) => {
+                  console.error('Error sharing file:', error);
+                  reject(error);
+                });
             }
             resolve(filePath);
           })
