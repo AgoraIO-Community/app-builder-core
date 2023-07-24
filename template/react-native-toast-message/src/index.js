@@ -255,8 +255,9 @@ class Toast extends Component {
   }
 
   async show(options = {}) {
+    const { update = false } = options;
     const { inProgress, isVisible } = this.state;
-    if (inProgress || isVisible) {
+    if ((inProgress || isVisible) && !update) {
       await this.hide();
     }
 
