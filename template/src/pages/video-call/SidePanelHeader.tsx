@@ -158,14 +158,11 @@ export const TranscriptHeader = (props) => {
     React.useState<boolean>(false);
 
   const label = 'Meeting Transcript';
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
 
   return (
     <SidePanelHeader
       centerComponent={<Text style={SidePanelStyles.heading}>{label}</Text>}
-      trailingIconName={isHost ? 'more-menu' : undefined}
+      trailingIconName={'more-menu'}
       ref={moreIconRef}
       trailingIconOnPress={() => {
         setActionMenuVisible(true);
@@ -195,7 +192,6 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {language, meetingTranscript, isLangChangeInProgress, setLanguage} =
     useCaption();
   const {downloadTranscript} = useTranscriptDownload();
-
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
@@ -208,17 +204,18 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     data: {isHost},
   } = useMeetingInfo();
 
-  actionMenuitems.push({
-    icon: 'lang-select',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Change Spoken Language ',
-    disabled: isLangChangeInProgress,
-    callback: () => {
-      setActionMenuVisible(false);
-      setLanguagePopup(true);
-    },
-  });
+  isHost &&
+    actionMenuitems.push({
+      icon: 'lang-select',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Change Spoken Language ',
+      disabled: isLangChangeInProgress,
+      callback: () => {
+        setActionMenuVisible(false);
+        setLanguagePopup(true);
+      },
+    });
 
   actionMenuitems.push({
     icon: 'download',

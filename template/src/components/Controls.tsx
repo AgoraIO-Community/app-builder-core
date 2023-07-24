@@ -60,6 +60,11 @@ import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
 import {useCaption} from '../../src/subComponents/caption/useCaption';
 import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
 import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
+import {EventNames} from '../rtm-events';
+import events, {EventPersistLevel} from '../rtm-events-api';
+import Toast from '../../react-native-toast-message';
+import {getLanguageLabel} from '../../src/subComponents/caption/utils';
+import ImageIcon from '../atoms/ImageIcon';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -84,7 +89,7 @@ const MoreButton = () => {
   const isFirstTimePopupOpen = React.useRef(false);
   const STT_clicked = React.useRef(null);
 
-  const {start, restart} = useSTTAPI();
+  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -178,42 +183,44 @@ const MoreButton = () => {
   }
 
   if (globalWidth <= BREAKPOINTS.lg) {
-    actionMenuitems.push({
-      icon: `${isCaptionON ? 'caption-off' : 'caption'}`,
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
-      callback: () => {
-        setActionMenuVisible(false);
-        STT_clicked.current = !isCaptionON ? 'caption' : null;
-        if (isSTTActive) {
-          setIsCaptionON((prev) => !prev);
-          // is lang popup has been shown once for any user in meeting
-        } else {
-          isFirstTimePopupOpen.current = true;
-          setLanguagePopup(true);
-        }
-      },
-    });
-    actionMenuitems.push({
-      icon: 'transcript',
-      iconColor: $config.SECONDARY_ACTION_COLOR,
-      textColor: $config.FONT_COLOR,
-      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
-      callback: () => {
-        setActionMenuVisible(false);
-        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-        if (isSTTActive) {
-          setIsTranscriptON((prev) => !prev);
-          !isTranscriptON
-            ? setSidePanel(SidePanelType.Transcript)
-            : setSidePanel(SidePanelType.None);
-        } else {
-          isFirstTimePopupOpen.current = true;
-          setLanguagePopup(true);
-        }
-      },
-    });
+    isAuthorizedSTTUser() &&
+      actionMenuitems.push({
+        icon: `${isCaptionON ? 'caption-off' : 'caption'}`,
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+        callback: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isCaptionON ? 'caption' : null;
+          if (isSTTActive) {
+            setIsCaptionON((prev) => !prev);
+            // is lang popup has been shown once for any user in meeting
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
+    isAuthorizedSTTUser() &&
+      actionMenuitems.push({
+        icon: 'transcript',
+        iconColor: $config.SECONDARY_ACTION_COLOR,
+        textColor: $config.FONT_COLOR,
+        title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+        callback: () => {
+          setActionMenuVisible(false);
+          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+          if (isSTTActive) {
+            setIsTranscriptON((prev) => !prev);
+            !isTranscriptON
+              ? setSidePanel(SidePanelType.Transcript)
+              : setSidePanel(SidePanelType.None);
+          } else {
+            isFirstTimePopupOpen.current = true;
+            setLanguagePopup(true);
+          }
+        },
+      });
     actionMenuitems.push({
       icon: layouts[layout]?.iconName,
       iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -374,10 +381,51 @@ const MoreButton = () => {
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
+  // attendee can view option if any host has started STT
+  const {isAuthorizedSTTUser} = useSTTAPI();
   const {
     data: {isHost},
   } = useMeetingInfo();
   const {width} = useWindowDimensions();
+  const {
+    setIsSTTActive,
+
+    setLanguage,
+  } = useCaption();
+
+  React.useEffect(() => {
+    // for native events are set in VideoCallMobileView as this action is action sheet
+    if (isWebInternal()) {
+      events.on(EventNames.STT_ACTIVE, (data) => {
+        const payload = JSON.parse(data?.payload);
+        setIsSTTActive(payload.active);
+      });
+
+      events.on(EventNames.STT_LANGUAGE, (data) => {
+        const payload = JSON.parse(data?.payload);
+        const msg = `${
+          payload.username
+        } changed the spoken language to ${getLanguageLabel(
+          payload.language,
+        )} `;
+
+        Toast.show({
+          type: 'info',
+          leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+          text1: msg,
+          visibilityTime: 3000,
+        });
+        // syncing local set language
+        payload && setLanguage(payload.language);
+      });
+    }
+  }, []);
+
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
 
   return (
     <View
@@ -408,7 +456,7 @@ const Controls = () => {
           {/* STT works on host mode only */}
           {/* TODO:// to be refactored to more menu */}
 
-          {isHost && $config.ENABLE_STT ? (
+          {isAuthorizedSTTUser() ? (
             <>
               <View testID="caption-btn" style={{marginHorizontal: 10}}>
                 <CaptionIcon />

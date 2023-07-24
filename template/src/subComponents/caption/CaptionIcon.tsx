@@ -6,13 +6,9 @@ import StorageContext from '../../components/StorageContext';
 import {useCaption} from './useCaption';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import events, {EventPersistLevel} from '../../rtm-events-api';
-import Toast from '../../../react-native-toast-message';
 import LanguageSelectorPopup from './LanguageSelectorPopup';
-import {getLanguageLabel} from './utils';
 import useSTTAPI from './useSTTAPI';
 import {EventNames} from '../../rtm-events';
-import ImageIcon from '../../atoms/ImageIcon';
-import {isWebInternal} from '../../utils/common';
 import useGetName from '../../utils/useGetName';
 
 interface CaptionIconProps {
@@ -50,40 +46,6 @@ const CaptionIcon = (props: CaptionIconProps) => {
   const isFirstTimePopupOpen = React.useRef(false);
   const {start, restart} = useSTTAPI();
   const username = useGetName();
-
-  const ToastIcon = ({color}) => (
-    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
-      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
-    </View>
-  );
-
-  React.useEffect(() => {
-    // for native events are set in VideoCallMobileView as this action is action sheet
-    if (isWebInternal()) {
-      events.on(EventNames.STT_ACTIVE, (data) => {
-        const payload = JSON.parse(data?.payload);
-        setIsSTTActive(payload.active);
-      });
-
-      events.on(EventNames.STT_LANGUAGE, (data) => {
-        const payload = JSON.parse(data?.payload);
-        const msg = `${
-          payload.username
-        } changed the spoken language to ${getLanguageLabel(
-          payload.language,
-        )} `;
-
-        Toast.show({
-          type: 'info',
-          leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-          text1: msg,
-          visibilityTime: 3000,
-        });
-        // syncing local set language
-        payload && setLanguage(payload.language);
-      });
-    }
-  }, []);
 
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {

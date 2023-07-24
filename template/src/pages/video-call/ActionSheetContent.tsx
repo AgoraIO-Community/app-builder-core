@@ -38,6 +38,7 @@ import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import protoRoot from '../../../src/subComponents/caption/proto/ptoto';
+import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -341,6 +342,7 @@ const ActionSheetContent = (props) => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
+  const {isAuthorizedSTTUser} = useSTTAPI();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
@@ -464,9 +466,10 @@ const ActionSheetContent = (props) => {
         <ShareIcon />
 
         {/* caption  */}
-        <CaptionIconBtn />
+        {isAuthorizedSTTUser() && <CaptionIconBtn />}
+
         {/* Transcript */}
-        <TranscriptIconBtn />
+        {isAuthorizedSTTUser() && <TranscriptIconBtn />}
       </View>
     </View>
   );

@@ -23,7 +23,6 @@ import {
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
-import {reactRouterV3Instrumentation} from '@sentry/react';
 
 const CaptionContainer = () => {
   const {captionObj, setCaptionObj} = useCaption();
@@ -33,9 +32,6 @@ const CaptionContainer = () => {
   const isDesktop = useIsDesktop();
   const {sidePanel} = useSidePanel();
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
-  const {
-    data: {isHost},
-  } = useMeetingInfo();
 
   // Timer is run in the interval of 2 sec which checks if the last updated caption was more than 3sec ago
   // If yes then clear it as we have to show live captions for person speaking
@@ -92,12 +88,12 @@ const CaptionContainer = () => {
           setActionMenuVisible={setActionMenuVisible}
           btnRef={moreIconRef}
         />
-        {isHost && (
-          <MoreMenu
-            ref={moreIconRef}
-            setActionMenuVisible={setActionMenuVisible}
-          />
-        )}
+
+        <MoreMenu
+          ref={moreIconRef}
+          setActionMenuVisible={setActionMenuVisible}
+        />
+
         <Caption />
       </View>
     </View>
@@ -173,30 +169,24 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     React.useState<boolean>(false);
   const {restart} = useSTTAPI();
   const username = useGetName();
+  const {
+    data: {isHost},
+  } = useMeetingInfo();
 
-  actionMenuitems.push({
-    icon: 'lang-select',
-    iconColor: $config.SECONDARY_ACTION_COLOR,
-    textColor: $config.FONT_COLOR,
-    title: 'Change Spoken Language ',
-    disabled: isLangChangeInProgress,
-    callback: () => {
-      setActionMenuVisible(false);
-      setLanguagePopup(true);
-    },
-  });
+  // only Host is authorized to start/stop stt
+  isHost &&
+    actionMenuitems.push({
+      icon: 'lang-select',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: 'Change Spoken Language ',
+      disabled: isLangChangeInProgress,
+      callback: () => {
+        setActionMenuVisible(false);
+        setLanguagePopup(true);
+      },
+    });
 
-  // actionMenuitems.push({
-  //   icon: 'transcript-mode', //TODO: update show transcript icon
-  //   iconColor: $config.SECONDARY_ACTION_COLOR,
-  //   textColor: $config.FONT_COLOR,
-  //   title: 'Show Transcript',
-  //   callback: () => {
-  //     setActionMenuVisible(false);
-  //     setIsCaptionON(false);
-  //     setSidePanel(SidePanelType.Transcript);
-  //   },
-  // });
   actionMenuitems.push({
     icon: 'caption-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,

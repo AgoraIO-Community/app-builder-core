@@ -11,6 +11,7 @@ interface IuseSTTAPI {
   start: () => Promise<{message: string} | null>;
   stop: () => Promise<void>;
   restart: () => Promise<void>;
+  isAuthorizedSTTUser: () => boolean;
 }
 
 const useSTTAPI = (): IuseSTTAPI => {
@@ -18,7 +19,8 @@ const useSTTAPI = (): IuseSTTAPI => {
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
-  const {language, setIsSTTActive, setIsLangChangeInProgress} = useCaption();
+  const {language, isSTTActive, setIsSTTActive, setIsLangChangeInProgress} =
+    useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
@@ -108,7 +110,11 @@ const useSTTAPI = (): IuseSTTAPI => {
     }
   };
 
-  return {start, stop, restart};
+  // attendee can view option if any host has started STT
+  const isAuthorizedSTTUser = () =>
+    $config.ENABLE_STT && (isHost || (!isHost && isSTTActive));
+
+  return {start, stop, restart, isAuthorizedSTTUser};
 };
 
 export default useSTTAPI;
