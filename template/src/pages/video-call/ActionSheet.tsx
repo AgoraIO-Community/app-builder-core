@@ -232,6 +232,7 @@ const ActionSheet = () => {
           snapPoints={({maxHeight}) => [1 * maxHeight]}
           defaultSnap={({lastSnap, snapPoints}) => snapPoints[0]}
           header={<ActionSheetHandle sidePanel={SidePanelType.Transcript} />}
+          scrollLocking={false}
           blocking={false}>
           <Transcript showHeader={false} />
         </BottomSheet>
