@@ -156,7 +156,7 @@ const Chat = (props?: ChatProps) => {
           isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
             ? {marginVertical: 4}
             : {},
-          transcriptHeight && {height: transcriptHeight},
+          transcriptHeight && !isMobileUA() && {height: transcriptHeight},
         ]}>
         {/**
          * In Native device we are setting absolute view. so placed ChatBeforeView and ChatAfterView inside the main view

@@ -187,7 +187,7 @@ const Transcript = (props: TranscriptProps) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
-        transcriptHeight && {height: transcriptHeight},
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>

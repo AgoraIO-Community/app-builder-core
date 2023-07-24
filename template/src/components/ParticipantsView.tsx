@@ -88,7 +88,7 @@ const ParticipantView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
-        transcriptHeight && {height: transcriptHeight},
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <PeopleHeader />}
       <ScrollView style={[style.bodyContainer]}>

@@ -266,7 +266,7 @@ const SettingsView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
-        transcriptHeight && {height: transcriptHeight},
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <SettingsHeader {...props} />}
       <ScrollView style={style.contentContainer}>
