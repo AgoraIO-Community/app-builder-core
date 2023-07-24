@@ -80,7 +80,7 @@ function LocalVideoMute(props: LocalVideoMuteProps) {
   //native screen share uses same local uid to publish the screenshare steam
   //so if screenshare active on native then its means local video is turned off
   const isVideoEnabled =
-    (isAndroid() || isIOS) && isScreenshareActive
+    (isAndroid() || isIOS()) && isScreenshareActive
       ? false
       : local.video === ToggleState.enabled;
 
