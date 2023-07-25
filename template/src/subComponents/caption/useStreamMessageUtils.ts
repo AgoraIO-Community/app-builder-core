@@ -132,35 +132,53 @@ const useStreamMessageUtils = (): {
       });
     }
 
+    // calculating for how long the words were spoken for a uid.
+    const totalDurationMs = textstream.words?.reduce(
+      (total, word) => total + word.durationMs,
+      0,
+    );
+
+    // setting timer to clear after the caption when a user stops speaking
+    if (totalDurationMs) {
+      console.log(
+        `stt: clearing captions in for ${userName} in ${totalDurationMs} ms with text : ${finalList?.current[
+          textstream.uid
+        ].join(',')}`,
+      );
+      setTimeout(() => {
+        setCaptionObj((prev) => {
+          finalList.current[textstream.uid] = [];
+          return {
+            ...prev,
+            [textstream.uid]: {
+              text: '',
+              lastUpdated: new Date().getTime(),
+            },
+          };
+        });
+      }, totalDurationMs);
+    }
+
     /* 
      stringBuilder- used to create strings for live captioning
      Previous final words of the uid are prepended and 
      then current non final words so that context of speech is not lost
     */
+    let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
+    stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
+    stringBuilder += nonFinalList?.join(' ');
 
-    // If person is not speaking or mic is muted, then we don't want to show live captions
-    // <CaptionContainer> after each interval of 3s , clearing live captions so removing from finalist as well
-    // as from stt api we are not able to know if person has stopped speaking
-    setCaptionObj((prevState) => {
-      if (
-        prevState &&
-        prevState[textstream.uid] &&
-        prevState[textstream.uid].text === ''
-      ) {
-        finalList.current[textstream.uid] = [];
-      }
-      let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
-      stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
-      stringBuilder += nonFinalList?.join(' ');
-      if (stringBuilder === '') return {...prevState};
-      return {
-        ...prevState,
-        [textstream.uid]: {
-          text: stringBuilder,
-          lastUpdated: new Date().getTime(),
-        },
-      };
-    });
+    // updating the captions when there is some text
+    stringBuilder &&
+      setCaptionObj((prevState) => {
+        return {
+          ...prevState,
+          [textstream.uid]: {
+            text: stringBuilder,
+            lastUpdated: new Date().getTime(),
+          },
+        };
+      });
 
     console.group('STT-logs');
     console.log('stt-finalList =>', finalList.current);
