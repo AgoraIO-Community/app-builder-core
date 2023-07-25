@@ -453,7 +453,6 @@ export default class RtcEngine {
       }
     });
 
-    this.client.enableAudioVolumeIndicator();
     this.client.on('volume-indicator', (volumes) => {
       const highestvolumeObj = volumes.reduce(
         (highestVolume, volume, index) => {
