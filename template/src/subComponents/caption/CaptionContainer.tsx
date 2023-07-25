@@ -6,9 +6,9 @@ import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
 import {calculatePosition, isMobileUA, useIsDesktop} from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
-import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
+
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
-import {useSidePanel, SidePanelType} from 'customization-api';
+
 import LanguageSelectorPopup from './LanguageSelectorPopup';
 import useSTTAPI from './useSTTAPI';
 import events, {EventPersistLevel} from '../../rtm-events-api';
@@ -25,12 +25,11 @@ import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
 
 const CaptionContainer = () => {
-  const {captionObj, setCaptionObj} = useCaption();
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
-  const {sidePanel} = useSidePanel();
+
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
   const {isCaptionNotFullWidth} = useCaptionWidth();
@@ -132,7 +131,6 @@ interface CaptionsActionMenuProps {
 
 const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
-  const {setSidePanel} = useSidePanel();
   const {setIsCaptionON, language, isLangChangeInProgress, setLanguage} =
     useCaption();
   const actionMenuitems: ActionMenuItem[] = [];

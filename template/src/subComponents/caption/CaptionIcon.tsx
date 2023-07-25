@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {SidePanelType, useSidePanel} from 'customization-api';
 import IconButton, {IconButtonProps} from '../../atoms/IconButton';
 import StorageContext from '../../components/StorageContext';
 import {useCaption} from './useCaption';

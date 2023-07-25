@@ -43,10 +43,9 @@ const Transcript = (props: TranscriptProps) => {
   const {currentLayout} = useLayout();
   const {showHeader = true} = props;
   const {
-    setMeetingTranscript,
     meetingTranscript,
     isLangChangeInProgress,
-    setCaptionObj,
+
     isSTTListenerAdded,
     setIsSTTListenerAdded,
   } = useCaption();

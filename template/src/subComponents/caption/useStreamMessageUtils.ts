@@ -1,6 +1,5 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useRef, useEffect} from 'react';
 import {useCaption} from './useCaption';
-import {formatTime} from './utils';
 import protoRoot from './proto/ptoto';
 import {useRender} from 'customization-api';
 
@@ -17,8 +16,7 @@ type TranscriptItem = {
 const useStreamMessageUtils = (): {
   streamMessageCallback: StreamMessageCallback;
 } => {
-  const {meetingTranscript, setCaptionObj, setMeetingTranscript, captionObj} =
-    useCaption();
+  const {setCaptionObj, setMeetingTranscript} = useCaption();
   const startTimeRef = useRef<number>(0);
   const finalList = useRef<FinalListType>({});
   const {renderList} = useRender();
@@ -146,8 +144,8 @@ const useStreamMessageUtils = (): {
         ].join(',')}`,
       );
       setTimeout(() => {
+        finalList.current[textstream.uid] = [];
         setCaptionObj((prev) => {
-          finalList.current[textstream.uid] = [];
           return {
             ...prev,
             [textstream.uid]: {

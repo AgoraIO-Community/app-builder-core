@@ -1,7 +1,7 @@
-import {StyleSheet, View, Platform, ScrollView} from 'react-native';
-import React, {MutableRefObject} from 'react';
-import {isWeb, useRender, useRtc} from 'customization-api';
-import protoRoot from './proto/ptoto';
+import {StyleSheet, ScrollView} from 'react-native';
+import React from 'react';
+import {useRender, useRtc} from 'customization-api';
+
 import {useCaption} from './useCaption';
 import {CaptionText} from './CaptionText';
 import Spacer from '../../../src/atoms/Spacer';

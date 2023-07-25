@@ -1,4 +1,3 @@
-import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import StorageContext from '../../components/StorageContext';
 import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
