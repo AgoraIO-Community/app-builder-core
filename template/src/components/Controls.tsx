@@ -65,6 +65,7 @@ import events, {EventPersistLevel} from '../rtm-events-api';
 import Toast from '../../react-native-toast-message';
 import {getLanguageLabel} from '../../src/subComponents/caption/utils';
 import ImageIcon from '../atoms/ImageIcon';
+import useGetName from '../utils/useGetName';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -77,12 +78,14 @@ const MoreButton = () => {
   const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
+  const username = useGetName();
   const {
     isCaptionON,
     isTranscriptON,
     isSTTActive,
     setIsTranscriptON,
     setIsCaptionON,
+    setLanguage,
   } = useCaption();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -285,10 +288,11 @@ const MoreButton = () => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
-  const onConfirm = async () => {
+  const onConfirm = async (langChanged, language) => {
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
+    setLanguage(() => language);
     isFirstTimePopupOpen.current = false;
     const method = isCaptionClicked
       ? isCaptionON
@@ -317,6 +321,12 @@ const MoreButton = () => {
         // channel is already started now restart
         await restart();
       }
+      // inform about the language set for stt
+      events.send(
+        EventNames.STT_LANGUAGE,
+        JSON.stringify({username, language}),
+        EventPersistLevel.LEVEL3,
+      );
     } catch (error) {
       console.log('eror in starting stt', error);
     }
