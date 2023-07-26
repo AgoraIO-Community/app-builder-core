@@ -24,6 +24,7 @@ import {useScreenContext} from '../../components/contexts/ScreenShareContext';
 import ZoomableWrapper from './ZoomableWrapper';
 import {isAndroid} from '../../utils/common';
 import {isIOS} from '../../utils/common';
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 interface VideoRendererProps {
   user: RenderInterface;
   isMax?: boolean;
@@ -58,6 +59,8 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     isScreenShareOnFullView,
     setScreenShareOnFullView,
   } = useScreenContext();
+
+  const {isScreenshareActive} = useScreenshare();
 
   useEffect(() => {
     landscapeModeRef.current.landscapeMode = landscapeMode;
@@ -98,6 +101,10 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
     }
   }, [screenShareData, isScreenShareOnFullView]);
 
+  const isNativeScreenShareActive =
+    (isAndroid() || isIOS()) && isScreenshareActive;
+  const enableExpandButton = isNativeScreenShareActive ? false : true;
+
   return (
     <>
       <UserActionMenuOptionsOptions
@@ -134,7 +141,10 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           {!showReplacePin && !showPinForMe && (
             <ScreenShareNotice uid={user.uid} isMax={isMax} />
           )}
-          {screenShareData && screenShareData?.[user.uid] && isMobileUA() ? (
+          {enableExpandButton &&
+          screenShareData &&
+          screenShareData?.[user.uid] &&
+          isMobileUA() ? (
             <IconButton
               containerStyle={
                 isScreenShareOnFullView && landscapeMode
@@ -189,7 +199,11 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           {!isScreenShareOnFullView && <NetworkQualityPill user={user} />}
           <ZoomableWrapper
             enableZoom={
-              screenShareData && screenShareData?.[user.uid] ? true : false
+              isScreenShareOnFullView &&
+              screenShareData &&
+              screenShareData?.[user.uid]
+                ? true
+                : false
             }>
             <MaxVideoView
               fallback={() => {
@@ -203,7 +217,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                   avatarSize,
                 );
               }}
-              user={user}
+              user={isNativeScreenShareActive ? {...user, video: 0} : user}
               containerStyle={{
                 width:
                   landscapeMode && isScreenShareOnFullView ? height : '100%',
