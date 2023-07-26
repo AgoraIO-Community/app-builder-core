@@ -54,13 +54,13 @@ const styles = StyleSheet.create({
   nameTimeContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 8,
+    marginBottom: 4,
     justifyContent: 'flex-start',
   },
 
   transcriptTextContainer: {
     alignItems: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 20,
   },
 
   transciptText: {

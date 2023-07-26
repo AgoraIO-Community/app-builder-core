@@ -55,6 +55,8 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
           <Loading
             text="Language Change is in progress..."
             background="transparent"
+            indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+            textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
           />
         </View>
       ) : (

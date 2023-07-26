@@ -23,6 +23,7 @@ import {
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const CaptionContainer = () => {
   const moreIconRef = React.useRef<View>(null);
@@ -99,7 +100,8 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
       <IconButton
         hoverEffect={true}
         hoverEffectStyle={{
-          backgroundColor: $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR,
+          backgroundColor:
+            $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%'],
           borderRadius: 20,
         }}
         iconProps={{
@@ -111,7 +113,7 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
             padding: isMobile ? 6 : 8,
             borderRadius: 20,
             backgroundColor: isMobile
-              ? $config.VIDEO_AUDIO_TILE_OVERLAY_COLOR
+              ? $config.CARD_LAYER_5_COLOR + hexadecimalTransparency['25%']
               : 'transparent',
           },
         }}

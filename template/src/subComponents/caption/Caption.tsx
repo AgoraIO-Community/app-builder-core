@@ -10,6 +10,7 @@ import Loading from '../Loading';
 import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
+import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 
 const Caption: React.FC = () => {
   const {RtcEngine} = useRtc();
@@ -50,7 +51,14 @@ const Caption: React.FC = () => {
   const speakers = Object.entries(captionObj);
   const activeSpeakers = speakers.filter((item) => item[1].text !== '');
   if (isLangChangeInProgress)
-    return <Loading text="Setting Spoken Language" background="transparent" />;
+    return (
+      <Loading
+        text="Setting Spoken Language"
+        background="transparent"
+        indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+        textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+      />
+    );
 
   return (
     <ScrollView style={styles.captionContainer}>

@@ -196,9 +196,9 @@ const Transcript = (props: TranscriptProps) => {
               name="search"
               iconSize={20}
               iconType="plain"
-              tintColor={$config.SEMANTIC_NEUTRAL}
+              tintColor={$config.FONT_COLOR + hexadecimalTransparency['30%']}
             />
-            <Spacer size={8} horizontal />
+            <Spacer size={4} horizontal />
           </>
         )}
         <TextInput
@@ -221,14 +221,19 @@ const Transcript = (props: TranscriptProps) => {
               name="close"
               iconSize={20}
               iconType="plain"
-              tintColor={$config.SEMANTIC_NEUTRAL}
+              tintColor={$config.FONT_COLOR + hexadecimalTransparency['30%']}
             />
           </TouchableOpacity>
         ) : null}
       </View>
       {isLangChangeInProgress ? (
         <View style={{flex: 1}}>
-          <Loading text="Setting Spoken Language" background="transparent" />
+          <Loading
+            text="Setting Spoken Language"
+            background="transparent"
+            indicatorColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+            textColor={$config.FONT_COLOR + hexadecimalTransparency['70%']}
+          />
         </View>
       ) : (
         <>
@@ -334,13 +339,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: $config.ICON_BG_COLOR,
+
     marginHorizontal: 20,
     marginVertical: 16,
     borderRadius: 4,
     height: 40,
     borderWidth: 1,
-    borderColor: $config.CARD_LAYER_4_COLOR,
+
+    borderColor: $config.INPUT_FIELD_BORDER_COLOR,
+    backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
   },
   searchInput: {
     flex: 1,
@@ -354,6 +361,7 @@ export const styles = StyleSheet.create({
     lineHeight: ThemeConfig.FontSize.medium,
     width: '100%',
     borderWidth: 0,
+
     ...Platform.select({
       web: {
         outlineStyle: 'none',
