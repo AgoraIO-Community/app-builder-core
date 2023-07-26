@@ -105,6 +105,47 @@ const MoreButton = () => {
   const {setGroupActive} = useChatUIControl();
   const actionMenuitems: ActionMenuItem[] = [];
 
+  // host can see stt options and attendee can view only when stt is enabled by a host in the channel
+  isAuthorizedSTTUser() &&
+    actionMenuitems.push({
+      icon: `${isCaptionON ? 'caption-off' : 'caption'}`,
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isCaptionON ? 'caption' : null;
+        if (isSTTActive) {
+          setIsCaptionON((prev) => !prev);
+          // is lang popup has been shown once for any user in meeting
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
+
+  isAuthorizedSTTUser() &&
+    actionMenuitems.push({
+      icon: 'transcript',
+      iconColor: $config.SECONDARY_ACTION_COLOR,
+      textColor: $config.FONT_COLOR,
+      title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+      callback: () => {
+        setActionMenuVisible(false);
+        STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+        if (isSTTActive) {
+          setIsTranscriptON((prev) => !prev);
+          !isTranscriptON
+            ? setSidePanel(SidePanelType.Transcript)
+            : setSidePanel(SidePanelType.None);
+        } else {
+          isFirstTimePopupOpen.current = true;
+          setLanguagePopup(true);
+        }
+      },
+    });
+
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
       icon: 'participants',
@@ -182,45 +223,7 @@ const MoreButton = () => {
     }
   }
 
-  if (globalWidth <= BREAKPOINTS.lg) {
-    isAuthorizedSTTUser() &&
-      actionMenuitems.push({
-        icon: `${isCaptionON ? 'caption-off' : 'caption'}`,
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.FONT_COLOR,
-        title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
-        callback: () => {
-          setActionMenuVisible(false);
-          STT_clicked.current = !isCaptionON ? 'caption' : null;
-          if (isSTTActive) {
-            setIsCaptionON((prev) => !prev);
-            // is lang popup has been shown once for any user in meeting
-          } else {
-            isFirstTimePopupOpen.current = true;
-            setLanguagePopup(true);
-          }
-        },
-      });
-    isAuthorizedSTTUser() &&
-      actionMenuitems.push({
-        icon: 'transcript',
-        iconColor: $config.SECONDARY_ACTION_COLOR,
-        textColor: $config.FONT_COLOR,
-        title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
-        callback: () => {
-          setActionMenuVisible(false);
-          STT_clicked.current = !isTranscriptON ? 'transcript' : null;
-          if (isSTTActive) {
-            setIsTranscriptON((prev) => !prev);
-            !isTranscriptON
-              ? setSidePanel(SidePanelType.Transcript)
-              : setSidePanel(SidePanelType.None);
-          } else {
-            isFirstTimePopupOpen.current = true;
-            setLanguagePopup(true);
-          }
-        },
-      });
+  if (globalWidth <= BREAKPOINTS.md) {
     actionMenuitems.push({
       icon: layouts[layout]?.iconName,
       iconColor: $config.SECONDARY_ACTION_COLOR,
@@ -436,7 +439,7 @@ const Controls = () => {
           paddingHorizontal: isDesktop('toolbar') ? 32 : 16,
         },
       ]}>
-      {width >= BREAKPOINTS.lg && (
+      {width >= BREAKPOINTS.md && (
         <View style={style.leftContent}>
           <View
             testID="layout-btn"
@@ -456,7 +459,7 @@ const Controls = () => {
           {/* STT works on host mode only */}
           {/* TODO:// to be refactored to more menu */}
 
-          {isAuthorizedSTTUser() ? (
+          {/* {isAuthorizedSTTUser() ? (
             <>
               <View testID="caption-btn" style={{marginHorizontal: 10}}>
                 <CaptionIcon />
@@ -467,7 +470,7 @@ const Controls = () => {
             </>
           ) : (
             <></>
-          )}
+          )} */}
         </View>
       )}
       <View style={style.centerContent}>
@@ -535,7 +538,7 @@ const Controls = () => {
             </View>
           )}
         </>
-        {width < BREAKPOINTS.lg && (
+        {(width < BREAKPOINTS.md || isAuthorizedSTTUser()) && (
           <View testID="more-btn" style={{marginHorizontal: 10}}>
             <MoreButton />
           </View>
@@ -544,7 +547,7 @@ const Controls = () => {
           <LocalEndcall />
         </View>
       </View>
-      {width >= BREAKPOINTS.lg && <View style={style.rightContent}></View>}
+      {width >= BREAKPOINTS.md && <View style={style.rightContent}></View>}
     </View>
   );
 };

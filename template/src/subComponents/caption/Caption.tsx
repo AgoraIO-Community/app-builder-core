@@ -1,4 +1,4 @@
-import {StyleSheet, ScrollView} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
 import {useRender, useRtc} from 'customization-api';
 
@@ -61,7 +61,7 @@ const Caption: React.FC = () => {
     );
 
   return (
-    <ScrollView style={styles.captionContainer}>
+    <View style={styles.captionContainer}>
       {speakers.map(([key, value], index) => {
         return (
           <React.Fragment key={key}>
@@ -76,7 +76,7 @@ const Caption: React.FC = () => {
           </React.Fragment>
         );
       })}
-    </ScrollView>
+    </View>
   );
 };
 
