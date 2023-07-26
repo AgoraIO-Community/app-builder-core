@@ -36,7 +36,7 @@ import Settings from '../../components/Settings';
 import {useLocalUserInfo} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
-
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -306,6 +306,7 @@ export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
 const ActionSheetContent = (props) => {
   const {handleSheetChanges, isExpanded, native = false} = props;
   const {onlineUsersCount, localUid} = useContext(ChatContext);
+  const {isScreenshareActive} = useScreenshare();
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();
   const changeLayout = useChangeDefaultLayout();
@@ -337,7 +338,9 @@ const ActionSheetContent = (props) => {
 
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
-  const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+  const isVideoDisabled = native
+    ? useLocalUserInfo().video === ToggleState.disabled || isScreenshareActive
+    : useLocalUserInfo().video === ToggleState.disabled;
   return (
     <View>
       {/* Row Always Visible */}

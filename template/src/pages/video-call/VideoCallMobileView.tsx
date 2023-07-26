@@ -47,6 +47,7 @@ const VideoCallMobileView = () => {
   const {isScreenshareActive} = useScreenshare();
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const isCamON = useRef(local.video);
+  const isScreenShareOn = useRef(isScreenshareActive);
 
   useEffect(() => {
     if ($config.AUDIO_ROOM || !isMobileUA()) return;
@@ -63,9 +64,27 @@ const VideoCallMobileView = () => {
     // console.log(`Video State  ${local.video} in Mode  ${appStateVisible}`);
     //native screenshare use local uid to publish the screenshare stream
     //so when user minimize the app we shouldnot pause the local video
+    if (
+      appStateVisible === 'background' &&
+      isScreenshareActive &&
+      (isAndroid() || isIOS())
+    ) {
+      isScreenShareOn.current = true;
+    }
+    if (
+      appStateVisible === 'active' &&
+      !isScreenshareActive &&
+      (isAndroid() || isIOS())
+    ) {
+      isScreenShareOn.current = false;
+    }
+
     if (!((isAndroid() || isIOS()) && isScreenshareActive)) {
       if (appStateVisible === 'background') {
-        isCamON.current = local.video;
+        isCamON.current =
+          isAndroid() || isIOS()
+            ? local.video && !isScreenShareOn.current
+            : local.video;
         if (isCamON.current) {
           isWebInternal()
             ? RtcEngine.muteLocalVideoStream(true)

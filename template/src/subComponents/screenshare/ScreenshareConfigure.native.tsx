@@ -225,6 +225,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
     if (processRef.current) {
       //native screenshare is started
       if (isScreenshareActive) {
+        //to increase the performance - stop incoming video stream
+        RtcEngine.muteAllRemoteVideoStreams(true);
+
         //since native screenshare uses local user video
         //we need to turn on video if its off.
         //otherwise remote user can't see the screen shared from the mobile
@@ -234,6 +237,9 @@ export const ScreenshareConfigure = (props: {children: React.ReactNode}) => {
       }
       //native screenshare is stopped
       else {
+        //resume the incoming video stream
+        RtcEngine.muteAllRemoteVideoStreams(false);
+
         //edge case - if screenshare is going on and user want to enable the video
         //then we will inform the user to stop screenshare and start camera
         //in that case if video is off then turned it on.
