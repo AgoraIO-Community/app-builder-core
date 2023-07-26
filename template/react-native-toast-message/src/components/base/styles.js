@@ -15,11 +15,10 @@ export default StyleSheet.create({
     elevation: 2
   },
   borderTop: {
-    borderTopWidth: 5,
+    borderTopWidth: 4,
     borderTopColor: colors.alto
   },
   contentContainer: {
-    paddingLeft: 20,
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-start'

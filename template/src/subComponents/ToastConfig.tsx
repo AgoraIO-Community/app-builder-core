@@ -23,22 +23,25 @@ import {autoUpdater} from 'electron';
 const trailingIcon = (
   <TouchableOpacity
     onPress={() => Toast.hide()}
-    style={{alignSelf: 'flex-end'}}>
-    <View style={{width: 26, height: 26}}>
-      <ImageIcon
-        iconType="plain"
-        tintColor={$config.SECONDARY_ACTION_COLOR}
-        name="close"
-        iconSize={26}
-      />
-    </View>
+    style={{marginLeft: 8, marginTop: 8}}>
+    <ImageIcon
+      iconType="plain"
+      tintColor={$config.SECONDARY_ACTION_COLOR}
+      name="close"
+      iconSize={24}
+    />
   </TouchableOpacity>
 );
 
 const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
   return (
-    <View style={{marginRight: 4, alignSelf: 'center', width: 26, height: 26}}>
-      <ImageIcon iconType="plain" tintColor={color} name={iconName} />
+    <View style={{marginRight: 4, width: 24, height: 24}}>
+      <ImageIcon
+        iconType="plain"
+        tintColor={color}
+        name={iconName}
+        iconSize={24}
+      />
     </View>
   );
 };
@@ -56,11 +59,14 @@ const ToastConfig = {
       trailingIcon={trailingIcon}
       style={{
         borderRadius: 4,
-        borderTopWidth: 6,
+        borderTopWidth: 4,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         //width: !isMobileOrTablet() ? '40%' : '95%',
         width: '100%',
         borderTopColor: $config.SEMANTIC_SUCCESS,
+        paddingHorizontal: 24,
+        paddingTop: 12,
+        paddingBottom: 16,
       }}
       contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
@@ -79,11 +85,14 @@ const ToastConfig = {
       trailingIcon={trailingIcon}
       style={{
         borderRadius: 4,
-        borderTopWidth: 6,
+        borderTopWidth: 4,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         //width: !isMobileOrTablet() ? '40%' : '95%',
         width: '100%',
         borderTopColor: $config.SEMANTIC_ERROR,
+        paddingHorizontal: 24,
+        paddingTop: 12,
+        paddingBottom: 16,
       }}
       contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
@@ -102,14 +111,25 @@ const ToastConfig = {
       style={{
         height: 'auto', //primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
         borderRadius: ThemeConfig.BorderRadius.small,
-        borderTopWidth: 6,
+        borderTopWidth: 4,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         width: '100%',
         borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        paddingHorizontal: 24,
+        paddingTop: 12,
+        paddingBottom: 16,
       }}
       contentContainerStyle={styles.contentContainerStyle}
-      text1Style={styles.text1Style}
-      text2Style={styles.text2Style}
+      text1Style={
+        primaryBtn || secondaryBtn
+          ? styles.text1StyleWithCTA
+          : styles.text1Style
+      }
+      text2Style={
+        primaryBtn || secondaryBtn
+          ? styles.text2StyleWithCTA
+          : styles.text2Style
+      }
       text1={text1}
       text2={text2}
       primaryBtn={primaryBtn ? primaryBtn : null}
@@ -132,7 +152,7 @@ const ToastConfig = {
       style={{
         height: primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
         borderRadius: 4,
-        borderTopWidth: 6,
+        borderTopWidth: 4,
         backgroundColor: $config.CARD_LAYER_4_COLOR,
         width: '100%',
         borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
@@ -154,29 +174,46 @@ export default ToastConfig;
 
 const styles = StyleSheet.create({
   text1Style: {
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 22,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '700',
+    color: $config.FONT_COLOR,
+    alignSelf: 'center',
+  },
+  text1StyleWithCTA: {
     fontSize: ThemeConfig.FontSize.normal,
     lineHeight: 22,
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
+    fontWeight: '700',
     color: $config.FONT_COLOR,
     alignSelf: 'center',
   },
   text2Style: {
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 22,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
+    marginTop: 4,
+    alignSelf: 'center',
+  },
+  text2StyleWithCTA: {
     fontSize: ThemeConfig.FontSize.normal,
     lineHeight: 22,
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    marginTop: 11,
+    marginTop: 4,
     alignSelf: 'center',
   },
   subTextStyle: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
   },
   contentContainerStyle: {
-    paddingHorizontal: 15,
-    paddingTop: 20,
-    paddingBottom: 25,
+    // paddingHorizontal:,
+    // paddingTop: 12,
+    // paddingBottom: 16,
     overflow: 'hidden',
     flexDirection: 'column',
     justifyContent: 'flex-start',

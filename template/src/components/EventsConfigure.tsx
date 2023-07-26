@@ -10,8 +10,8 @@
 *********************************************
 */
 import React, {useContext, useEffect, useRef} from 'react';
-import {StyleSheet} from 'react-native';
-import PrimaryButton from '../atoms/PrimaryButton';
+import {StyleSheet, TouchableOpacity, Text} from 'react-native';
+//import PrimaryButton from '../atoms/PrimaryButton';
 import {RtcContext} from '../../agora-rn-uikit';
 import events from '../rtm-events-api';
 import {controlMessageEnum} from '../components/ChatContext';
@@ -22,6 +22,7 @@ import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
 import {isWebInternal, trimText} from '../utils/common';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
+import ThemeConfig from '../theme';
 
 interface Props {
   children: React.ReactNode;
@@ -182,27 +183,35 @@ const EventsConfigure: React.FC<Props> = (props) => {
 export default EventsConfigure;
 
 const style = StyleSheet.create({
-  secondaryBtn: {marginLeft: 16, height: 40, paddingVertical: 5},
+  secondaryBtn: {marginLeft: 12, paddingVertical: 9, paddingHorizontal: 20},
   primaryBtn: {
-    maxWidth: 109,
-    minWidth: 109,
-    height: 40,
     borderRadius: 4,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
+    backgroundColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+    paddingHorizontal: 20,
+    paddingVertical: 9,
   },
   primaryBtnText: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
-    fontSize: 16,
-    paddingLeft: 0,
+    fontSize: 14,
+    color: $config.FONT_COLOR,
   },
 });
 const SecondaryBtn = (
   <TertiaryButton
     containerStyle={style.secondaryBtn}
+    textStyle={style.primaryBtnText}
     text="LATER"
     onPress={() => {
       Toast.hide();
     }}
   />
 );
+const PrimaryButton = (props) => {
+  const {text, containerStyle, textStyle, onPress} = props;
+  return (
+    <TouchableOpacity style={containerStyle} onPress={onPress}>
+      <Text style={textStyle}>{text}</Text>
+    </TouchableOpacity>
+  );
+};

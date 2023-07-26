@@ -37,43 +37,30 @@ function BaseToast({
             style={{
               flex: 1,
               flexDirection: 'row',
-              justifyContent: 'space-between'
+              alignItems: 'center'
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                flex: 1
-              }}>
-              {leadingIcon ? leadingIcon : <></>}
-              <Text
-                testID='text1'
-                style={[styles.text1, text1Style]}
-                numberOfLines={text1NumberOfLines}>
-                {text1}
-              </Text>
-            </View>
-            <View style={{ justifyContent: 'flex-start', alignSelf: 'center' }}>
-              {trailingIcon ? trailingIcon : <></>}
-            </View>
+            {leadingIcon ? leadingIcon : <></>}
+            <Text
+              testID='text1'
+              style={[styles.text1, text1Style]}
+              numberOfLines={text1NumberOfLines}>
+              {text1}
+            </Text>
           </View>
         )}
         {(text2 || text2?.length > 0) && (
-          <View>
-            <Text
-              testID='text2'
-              style={[styles.text2, text2Style]}
-              numberOfLines={text2NumberOfLines}>
-              {text2}
-            </Text>
-          </View>
+          <Text
+            testID='text2'
+            style={[styles.text2, text2Style]}
+            numberOfLines={text2NumberOfLines}>
+            {text2}
+          </Text>
         )}
         {primaryBtn || secondaryBtn ? (
           <View
             style={{
-              flex: 1,
               flexDirection: 'row',
-              paddingTop: 32,
-              paddingBottom: 24
+              paddingTop: 20
             }}>
             {primaryBtn ? primaryBtn : <></>}
             {secondaryBtn ? secondaryBtn : <></>}
@@ -82,6 +69,7 @@ function BaseToast({
           <></>
         )}
       </View>
+      {trailingIcon ? trailingIcon : <></>}
     </TouchableOpacity>
   );
 }
