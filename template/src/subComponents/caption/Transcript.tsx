@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Text,
   Platform,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
@@ -18,7 +20,9 @@ import {
   calculatePosition,
   isMobileUA,
   isWebInternal,
+  throttleFn,
   useIsSmall,
+  debounceFn,
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import {useRtc, useRender} from 'customization-api';
@@ -53,6 +57,7 @@ const Transcript = (props: TranscriptProps) => {
   const data = meetingTranscript; // Object.entries(transcript);
 
   const [showButton, setShowButton] = React.useState(false);
+
   const contentHeightRef = React.useRef(0);
   const flatListHeightRef = React.useRef(0);
   const flatListRef = React.useRef(null);
@@ -77,16 +82,10 @@ const Transcript = (props: TranscriptProps) => {
   const handleLayout = (event) => {
     flatListHeightRef.current = event.nativeEvent.layout.height;
     if (contentHeightRef.current > event.nativeEvent.layout.height) {
-      setShowButton(true);
+      //setShowButton(true);
     }
     // Scroll to the last item on initial mount
     if (flatListRef.current && data.length > 0) {
-      // const lastIndex = data.length - 1;
-      // flatListRef.current.scrollToIndex({
-      //   index: lastIndex,
-      //   viewPosition: 1, // 0 for top, 1 for bottom, 0.5 for middle
-      //   animated: false,
-      // });
       flatListRef.current.scrollToEnd({animated: true});
     }
   };
@@ -103,29 +102,39 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleViewLatest = () => {
-    setShowButton(false);
     flatListRef.current.scrollToOffset({
       offset: contentHeightRef.current,
       animated: true,
     });
+    setShowButton(false);
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
     contentHeightRef.current = contentHeight;
-    if (flatListHeightRef.current) {
-      setShowButton(contentHeight > flatListHeightRef.current);
+    if (!showButton) {
+      //setShowButton(contentHeight > flatListHeightRef.current);
+      // flatListRef?.current.scrollToEnd({animated: false});
+      flatListRef.current.scrollToOffset({
+        offset: contentHeightRef.current,
+        animated: true,
+      });
     }
   };
 
-  const handleScroll = (event) => {
-    const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
-    const isAtTop = contentOffset.y <= 0;
-    const isAtBottom =
-      contentOffset.y + layoutMeasurement.height >= contentSize.height;
-    setShowButton(!isAtBottom || isAtTop);
-  };
+  const handleScroll = debounceFn(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
+      const isAtTop = contentOffset.y <= 0;
+      const isAtBottom =
+        contentOffset.y + layoutMeasurement.height >= contentSize.height;
 
-  const handleSearch = (text) => {
+      console.log('scrolling');
+      setShowButton(!isAtBottom);
+    },
+    300,
+  );
+
+  const handleSearch = (text: string) => {
     setSearchQuery(text);
     // Filter the data based on the search query
     const filteredResults = meetingTranscript.filter((item) =>
