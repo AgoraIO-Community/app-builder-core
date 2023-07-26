@@ -189,8 +189,12 @@ interface TranscriptHeaderActionMenuProps {
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
   const {setSidePanel} = useSidePanel();
-  const {language, meetingTranscript, isLangChangeInProgress, setLanguage} =
-    useCaption();
+  const {
+    language: prevLang,
+    meetingTranscript,
+    isLangChangeInProgress,
+    setLanguage,
+  } = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -229,31 +233,12 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     },
   });
 
-  // !isTranscriptPaused &&
-  //   actionMenuitems.push({
-  //     icon: 'transcript-stop',
-  //     iconColor: $config.SECONDARY_ACTION_COLOR,
-  //     textColor: $config.FONT_COLOR,
-  //     title: 'Stop Generating Transcript',
-  //     callback: () => {
-  //       setIsTranscriptPaused(true);
-  //       setActionMenuVisible(false);
-  //     },
-  //   });
-
   const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
-      setLanguage(() => language);
-      restart()
+      restart(language)
         .then(() => {
           console.log('stt restarted successfully');
-          //notify others lang changed
-          events.send(
-            EventNames.STT_LANGUAGE,
-            JSON.stringify({username, language}),
-            EventPersistLevel.LEVEL3,
-          );
         })
         .catch((error) => {
           console.log('Error in restarting', error);

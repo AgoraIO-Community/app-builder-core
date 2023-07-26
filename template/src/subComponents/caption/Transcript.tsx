@@ -91,7 +91,18 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const renderItem = ({item}) => {
-    return (
+    return item.uid === 'langUpdate' ? (
+      <View style={styles.langChangeContainer}>
+        <ImageIcon
+          iconType="plain"
+          iconSize={20}
+          tintColor={$config.PRIMARY_ACTION_BRAND_COLOR}
+          name={'lang-select'}
+        />
+
+        <Text style={styles.langChange}>{item.text}</Text>
+      </View>
+    ) : (
       <TranscriptText
         user={item.name}
         time={item.time}
@@ -395,5 +406,19 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     fontSize: 14,
     fontStyle: 'italic',
+  },
+  langChange: {
+    marginLeft: 4,
+    color: $config.PRIMARY_ACTION_BRAND_COLOR,
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: 12,
+    lineHeight: 16,
+    fontStyle: 'italic',
+    textTransform: 'capitalize',
+  },
+  langChangeContainer: {
+    marginBottom: 20,
+    flexDirection: 'row',
   },
 });

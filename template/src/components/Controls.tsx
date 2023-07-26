@@ -86,6 +86,7 @@ const MoreButton = () => {
     setIsTranscriptON,
     setIsCaptionON,
     setLanguage,
+    language: prevLang,
   } = useCaption();
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -292,7 +293,6 @@ const MoreButton = () => {
     const isCaptionClicked = STT_clicked.current === 'caption';
     const isTranscriptClicked = STT_clicked.current === 'transcript';
     setLanguagePopup(false);
-    setLanguage(() => language);
     isFirstTimePopupOpen.current = false;
     const method = isCaptionClicked
       ? isCaptionON
@@ -316,17 +316,11 @@ const MoreButton = () => {
     }
 
     try {
-      const res = await start();
+      const res = await start(language);
       if (res?.message.includes('STARTED')) {
         // channel is already started now restart
-        await restart();
+        await restart(language);
       }
-      // inform about the language set for stt
-      events.send(
-        EventNames.STT_LANGUAGE,
-        JSON.stringify({username, language}),
-        EventPersistLevel.LEVEL3,
-      );
     } catch (error) {
       console.log('eror in starting stt', error);
     }
@@ -400,11 +394,7 @@ const Controls = () => {
     data: {isHost},
   } = useMeetingInfo();
   const {width} = useWindowDimensions();
-  const {
-    setIsSTTActive,
-
-    setLanguage,
-  } = useCaption();
+  const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
 
   React.useEffect(() => {
     // for native events are set in VideoCallMobileView as this action is action sheet
@@ -415,12 +405,14 @@ const Controls = () => {
       });
 
       events.on(EventNames.STT_LANGUAGE, (data) => {
-        const payload = JSON.parse(data?.payload);
-        const msg = `${
-          payload.username
-        } changed the spoken language to ${getLanguageLabel(
-          payload.language,
-        )} `;
+        const {username, prevLang, newLang} = JSON.parse(data?.payload);
+        const action =
+          prevLang.indexOf('') !== -1
+            ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+            : `changed the spoken language from "${getLanguageLabel(
+                prevLang,
+              )}" to "${getLanguageLabel(newLang)}" `;
+        const msg = `${username} ${action} `;
 
         Toast.show({
           type: 'info',
@@ -429,7 +421,19 @@ const Controls = () => {
           visibilityTime: 3000,
         });
         // syncing local set language
-        payload && setLanguage(payload.language);
+        newLang && setLanguage(newLang);
+        // add spoken lang msg to transcript
+        setMeetingTranscript((prev) => {
+          return [
+            ...prev,
+            {
+              name: 'langUpdate',
+              time: new Date().getTime(),
+              uid: 'langUpdate',
+              text: msg,
+            },
+          ];
+        });
       });
     }
   }, []);

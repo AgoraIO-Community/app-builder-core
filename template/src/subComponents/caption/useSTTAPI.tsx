@@ -5,11 +5,12 @@ import {useCaption} from './useCaption';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {LanguageType} from './utils';
+import useGetName from '../../utils/useGetName';
 
 interface IuseSTTAPI {
-  start: () => Promise<{message: string} | null>;
+  start: (lang: LanguageType[]) => Promise<{message: string} | null>;
   stop: () => Promise<void>;
-  restart: () => Promise<void>;
+  restart: (lang: LanguageType[]) => Promise<void>;
   isAuthorizedSTTUser: () => boolean;
 }
 
@@ -18,17 +19,23 @@ const useSTTAPI = (): IuseSTTAPI => {
   const {
     data: {roomId, isHost},
   } = useMeetingInfo();
-  const {language, isSTTActive, setIsSTTActive, setIsLangChangeInProgress} =
-    useCaption();
+  const {
+    language,
+    isSTTActive,
+    setIsSTTActive,
+    setIsLangChangeInProgress,
+    setLanguage,
+  } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
+  const username = useGetName();
 
   React.useEffect(() => {
     currentLangRef.current = language;
   }, [language]);
 
-  const apiCall = async (method: string) => {
+  const apiCall = async (method: string, lang: LanguageType[] = []) => {
     const response = await fetch(`${STT_API_URL}/${method}`, {
       method: 'POST',
       headers: {
@@ -39,7 +46,7 @@ const useSTTAPI = (): IuseSTTAPI => {
       },
       body: JSON.stringify({
         passphrase: roomId?.host || '',
-        lang: currentLangRef.current.join(','),
+        lang: lang.join(','),
         dataStream_uid: 111111, // bot ID
       }),
     });
@@ -47,18 +54,18 @@ const useSTTAPI = (): IuseSTTAPI => {
     return res;
   };
 
-  const startWithDelay = (): Promise<string> =>
+  const startWithDelay = (lang: LanguageType[]): Promise<string> =>
     new Promise((resolve) => {
       setTimeout(async () => {
-        const res = await start();
+        const res = await start(lang);
         resolve(res);
       }, 1000); // Delay of 1 seconds (1000 milliseconds) to allow existing stt service to fully stop
     });
 
-  const start = async () => {
+  const start = async (lang: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
-      const res = await apiCall('start');
+      const res = await apiCall('start', lang);
       console.log('response aftet start api call', res);
       // null means stt startred successfully
       if (res === null) {
@@ -68,8 +75,15 @@ const useSTTAPI = (): IuseSTTAPI => {
           JSON.stringify({active: true}),
           EventPersistLevel.LEVEL2,
         );
-
         setIsSTTActive(true);
+        console.log(`stt lang update from: ${language} to ${lang}`);
+        // inform about the language set for stt
+        events.send(
+          EventNames.STT_LANGUAGE,
+          JSON.stringify({username, prevLang: language, newLang: lang}),
+          EventPersistLevel.LEVEL3,
+        );
+        setLanguage(lang);
       }
       return res;
     } catch (errorMsg) {
@@ -84,22 +98,22 @@ const useSTTAPI = (): IuseSTTAPI => {
       const res = await apiCall('stop');
       console.log('response aftet start api call', res);
       // once STT is non-active in the channel , notify others so that they dont' trigger start again
-      events.send(
-        EventNames.STT_ACTIVE,
-        JSON.stringify({active: false}),
-        EventPersistLevel.LEVEL3,
-      );
+      // events.send(
+      //   EventNames.STT_ACTIVE,
+      //   JSON.stringify({active: false}),
+      //   EventPersistLevel.LEVEL3,
+      // );
       setIsSTTActive(false);
       return res;
     } catch (error) {
       throw error;
     }
   };
-  const restart = async () => {
+  const restart = async (lang: LanguageType[]) => {
     try {
       setIsLangChangeInProgress(true);
       await stop();
-      await startWithDelay();
+      await startWithDelay(lang);
       return Promise.resolve();
     } catch (error) {
       console.log('error in re-starting STT', error);

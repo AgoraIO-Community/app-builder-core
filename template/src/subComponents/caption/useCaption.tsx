@@ -71,7 +71,7 @@ const CaptionProvider = ({children}) => {
   const [isCaptionON, setIsCaptionON] = React.useState<boolean>(false);
   const [isTranscriptON, setIsTranscriptON] = React.useState<boolean>(false);
   const [isSTTActive, setIsSTTActive] = React.useState<boolean>(false);
-  const [language, setLanguage] = React.useState<[LanguageType]>(['en-US']);
+  const [language, setLanguage] = React.useState<[LanguageType]>(['']);
   const [isLangChangeInProgress, setIsLangChangeInProgress] =
     React.useState<boolean>(false);
   const [meetingTranscript, setMeetingTranscript] = React.useState<

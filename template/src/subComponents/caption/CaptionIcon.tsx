@@ -32,7 +32,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     setIsCaptionON,
     isSTTActive,
     setIsSTTActive,
-    language,
+    language: prevLang,
     setLanguage,
   } = useCaption();
   const {store} = React.useContext(StorageContext);
@@ -78,24 +78,18 @@ const CaptionIcon = (props: CaptionIconProps) => {
 
   const onConfirm = async (langChanged, language) => {
     setLanguagePopup(false);
-    setLanguage(() => language);
+
     isFirstTimePopupOpen.current = false;
     const method = isCaptionON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
     if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
     setIsCaptionON((prev) => !prev);
     try {
-      const res = await start();
+      const res = await start(language);
       if (res?.message.includes('STARTED')) {
         // channel is already started now restart
-        await restart();
+        await restart(language);
       }
-      // inform about the language set for stt
-      events.send(
-        EventNames.STT_LANGUAGE,
-        JSON.stringify({username, language}),
-        EventPersistLevel.LEVEL3,
-      );
     } catch (error) {
       console.log('eror in starting stt', error);
     }

@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, ScrollView} from 'react-native';
 import React from 'react';
 import {useRender, useRtc} from 'customization-api';
 

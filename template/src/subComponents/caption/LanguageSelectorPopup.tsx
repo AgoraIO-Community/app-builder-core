@@ -40,6 +40,7 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     isOpen && (selectedValues.length === 0 || selectedValues.length === 2);
 
   // React.useEffect(() => setSelectedValues(() => language), []);
+
   return (
     <Popup
       modalVisible={props.modalVisible}
@@ -66,7 +67,9 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
             <DropdownMulti
               selectedValues={selectedValues}
               setSelectedValues={setSelectedValues}
-              defaultSelectedValues={language || ['en-US']}
+              defaultSelectedValues={
+                language.indexOf('') === -1 ? language : ['en-US']
+              }
               error={error}
               setError={setError}
               isOpen={isOpen}

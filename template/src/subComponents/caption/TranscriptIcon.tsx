@@ -30,8 +30,13 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   } = props;
   const {start, restart} = useSTTAPI();
 
-  const {isTranscriptON, setIsTranscriptON, isSTTActive, setLanguage} =
-    useCaption();
+  const {
+    isTranscriptON,
+    setIsTranscriptON,
+    isSTTActive,
+    setLanguage,
+    language: prevLang,
+  } = useCaption();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -78,7 +83,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
 
   const onConfirm = async (langChanged, language) => {
     setLanguagePopup(false);
-    setLanguage(() => language);
+
     isFirstTimePopupOpen.current = false;
     const method = isTranscriptON ? 'stop' : 'start';
     if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
@@ -90,17 +95,11 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     }
     setIsTranscriptON((prev) => !prev);
     try {
-      const res = await start();
+      const res = await start(language);
       if (res?.message.includes('STARTED')) {
         // channel is already started now restart
-        await restart();
+        await restart(language);
       }
-      // inform about the language set for stt
-      events.send(
-        EventNames.STT_LANGUAGE,
-        JSON.stringify({username, language}),
-        EventPersistLevel.LEVEL3,
-      );
     } catch (error) {
       console.log('eror in starting stt', error);
     }

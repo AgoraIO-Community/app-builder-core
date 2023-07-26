@@ -79,7 +79,8 @@ const VideoCallMobileView = () => {
   //     subscription?.remove();
   //   };
   // }, []);
-  const {setIsSTTActive, setLanguage, isCaptionON} = useCaption();
+  const {setIsSTTActive, setLanguage, isCaptionON, setMeetingTranscript} =
+    useCaption();
   React.useEffect(() => {
     events.on(EventNames.STT_ACTIVE, (data) => {
       const payload = JSON.parse(data?.payload);
@@ -87,10 +88,14 @@ const VideoCallMobileView = () => {
     });
 
     events.on(EventNames.STT_LANGUAGE, (data) => {
-      const payload = JSON.parse(data?.payload);
-      const msg = `${
-        payload.username
-      } changed the spoken language to ${getLanguageLabel(payload.language)} `;
+      const {username, prevLang, newLang} = JSON.parse(data?.payload);
+      const action =
+        prevLang.indexOf('') !== -1
+          ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+          : `changed the spoken language from "${getLanguageLabel(
+              prevLang,
+            )}" to "${getLanguageLabel(newLang)}" `;
+      const msg = `${username} ${action} `;
 
       Toast.show({
         type: 'info',
@@ -99,7 +104,19 @@ const VideoCallMobileView = () => {
         visibilityTime: 3000,
       });
       // syncing local set language
-      payload && setLanguage(payload.language);
+      newLang && setLanguage(newLang);
+      // add spoken lang msg to transcript
+      setMeetingTranscript((prev) => {
+        return [
+          ...prev,
+          {
+            name: 'langUpdate',
+            time: new Date().getTime(),
+            uid: 'langUpdate',
+            text: msg,
+          },
+        ];
+      });
     });
   }, []);
 

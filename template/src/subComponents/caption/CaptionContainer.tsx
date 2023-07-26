@@ -133,8 +133,12 @@ interface CaptionsActionMenuProps {
 
 const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
-  const {setIsCaptionON, language, isLangChangeInProgress, setLanguage} =
-    useCaption();
+  const {
+    setIsCaptionON,
+    language: prevLang,
+    isLangChangeInProgress,
+    setLanguage,
+  } = useCaption();
   const actionMenuitems: ActionMenuItem[] = [];
   const [modalPosition, setModalPosition] = React.useState({});
   const [isPosCalculated, setIsPosCalculated] = React.useState(false);
@@ -175,16 +179,9 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
   const onLanguageChange = (langChanged = false, language: LanguageType[]) => {
     setLanguagePopup(false);
     if (langChanged) {
-      setLanguage(() => language);
-      restart()
+      restart(language)
         .then(() => {
           console.log('stt restarted successfully');
-          //notify others lang changed
-          events.send(
-            EventNames.STT_LANGUAGE,
-            JSON.stringify({username, language}),
-            EventPersistLevel.LEVEL3,
-          );
         })
         .catch((error) => {
           console.log('Error in restarting', error);
