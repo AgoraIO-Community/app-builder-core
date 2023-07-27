@@ -112,7 +112,7 @@ const MoreButton = () => {
   // host can see stt options and attendee can view only when stt is enabled by a host in the channel
   isAuthorizedSTTUser() &&
     actionMenuitems.push({
-      icon: `${isCaptionON ? 'caption-off' : 'caption'}`,
+      icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
       iconColor: $config.SECONDARY_ACTION_COLOR,
       textColor: $config.FONT_COLOR,
       title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
