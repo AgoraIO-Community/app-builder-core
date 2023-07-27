@@ -18,6 +18,7 @@ import {
   isValidReactComponent,
   isWebInternal,
   useIsDesktop,
+  useIsSmall,
 } from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
@@ -34,6 +35,7 @@ import VideoCallMobileView from './VideoCallMobileView';
 import CaptionContainer from '../../subComponents/caption/CaptionContainer';
 import Transcript from '../../subComponents/caption/Transcript';
 import {useCaption} from '../../subComponents/caption/useCaption';
+import Spacer from '../../atoms/Spacer';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -147,6 +149,7 @@ const VideoCallScreen = () => {
   });
 
   const isDesktop = useIsDesktop();
+  const isSmall = useIsSmall();
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -163,10 +166,12 @@ const VideoCallScreen = () => {
           value={{buttonTemplateName: ButtonTemplateName.topBar}}>
           <TopbarComponent />
         </ButtonTemplateProvider>
+        <Spacer size={10} />
         <View
           style={[
             style.videoView,
-            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 0},
+            {paddingHorizontal: isDesktop() ? 32 : 10},
+            {paddingVertical: isSmall() ? 10 : 0},
           ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
@@ -192,6 +197,7 @@ const VideoCallScreen = () => {
           <ButtonTemplateProvider
             value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
             {isCaptionON && <CaptionContainer />}
+            {<Spacer size={10} />}
             <BottombarComponent />
           </ButtonTemplateProvider>
         )}

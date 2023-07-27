@@ -4,7 +4,13 @@ import React from 'react';
 import Caption from './Caption';
 import {useCaption} from './useCaption';
 import ThemeConfig from '../../../src/theme';
-import {calculatePosition, isMobileUA, useIsDesktop} from '../../utils/common';
+import {
+  calculatePosition,
+  isMobileUA,
+  isWeb,
+  useIsDesktop,
+  useIsSmall,
+} from '../../utils/common';
 import IconButton from '../../../src/atoms/IconButton';
 
 import ActionMenu, {ActionMenuItem} from '../../../src/atoms/ActionMenu';
@@ -30,6 +36,7 @@ const CaptionContainer = () => {
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
+  const isSmall = useIsSmall();
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
@@ -56,6 +63,7 @@ const CaptionContainer = () => {
         style={[
           !isDesktop() ? styles.mobileContainer : styles.container,
           isMobileUA() && {marginHorizontal: 0},
+          !isMobileUA() && isSmall() && {marginTop: 0},
         ]}>
         <CaptionsActionMenu
           actionMenuVisible={actionMenuVisible}
