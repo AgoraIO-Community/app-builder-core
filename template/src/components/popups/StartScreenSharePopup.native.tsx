@@ -53,7 +53,7 @@ const StartScreenSharePopup = () => {
       </View>
       {video ? (
         <>
-          <Spacer size={24} />
+          <Spacer size={28} />
           <Text style={styles.subHeading}>{screenshareLabelSubHeading}</Text>
         </>
       ) : (
@@ -107,16 +107,16 @@ const styles = StyleSheet.create({
   toggleContainer: {
     flexDirection: 'row',
     backgroundColor: $config.CARD_LAYER_2_COLOR,
-    paddingVertical: 22,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   upper: {
-    borderTopLeftRadius: ThemeConfig.BorderRadius.medium,
-    borderTopRightRadius: ThemeConfig.BorderRadius.medium,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
   },
   lower: {
-    borderBottomLeftRadius: ThemeConfig.BorderRadius.medium,
-    borderBottomRightRadius: ThemeConfig.BorderRadius.medium,
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
   },
   toggleLabel: {
     color: $config.FONT_COLOR,
