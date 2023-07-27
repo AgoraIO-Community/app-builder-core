@@ -4,7 +4,7 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {useCaption} from './useCaption';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
-import {LanguageType} from './utils';
+import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
 
 interface IuseSTTAPI {
@@ -25,6 +25,7 @@ const useSTTAPI = (): IuseSTTAPI => {
     setIsSTTActive,
     setIsLangChangeInProgress,
     setLanguage,
+    setMeetingTranscript,
   } = useCaption();
 
   const currentLangRef = React.useRef<LanguageType[]>([]);
@@ -84,6 +85,26 @@ const useSTTAPI = (): IuseSTTAPI => {
           EventPersistLevel.LEVEL3,
         );
         setLanguage(lang);
+
+        // updaing transcript for self
+        const action =
+          language.indexOf('') !== -1
+            ? `has set the spoken language to  "${getLanguageLabel(lang)}" `
+            : `changed the spoken language from "${getLanguageLabel(
+                language,
+              )}" to "${getLanguageLabel(lang)}" `;
+        const msg = `${username} ${action} `;
+        setMeetingTranscript((prev) => {
+          return [
+            ...prev,
+            {
+              name: 'langUpdate',
+              time: new Date().getTime(),
+              uid: 'langUpdate',
+              text: msg,
+            },
+          ];
+        });
       }
       return res;
     } catch (errorMsg) {

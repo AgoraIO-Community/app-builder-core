@@ -10,10 +10,12 @@ const useTranscriptDownload = (): {
     return new Promise((resolve, reject) => {
       try {
         const formattedContent = meetingTranscript
-          .map(
-            (item) =>
-              `${item.name} ${formatTime(Number(item.time))}: ${item.text}`,
-          )
+          .map((item) => {
+            if (item.uid === 'langUpdate') return item.text;
+            return `${item.name} ${formatTime(Number(item.time))}:\n${
+              item.text
+            }`;
+          })
           .join('\n\n');
 
         // blob with required content
