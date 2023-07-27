@@ -21,12 +21,16 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.icon-caption-off:before {
+.icon-captions:before {
   content: "\e941";
   color: #fff;
 }
-.icon-caption:before {
+.icon-captions-off:before {
   content: "\e958";
+  color: #fff;
+}
+.icon-view-last:before {
+  content: "\e95c";
   color: #fff;
 }
 .icon-download:before {

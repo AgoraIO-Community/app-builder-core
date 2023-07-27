@@ -280,7 +280,7 @@ const Transcript = (props: TranscriptProps) => {
                   zIndex: 9999,
                 }}>
                 <PrimaryButton
-                  iconName={'down-arrow'}
+                  iconName={'view-last'}
                   containerStyle={styles.showLatestBtn}
                   textStyle={styles.textStyleBtn}
                   onPress={handleViewLatest}

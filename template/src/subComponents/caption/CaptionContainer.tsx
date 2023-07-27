@@ -41,6 +41,34 @@ const CaptionContainer = () => {
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
   const {isCaptionNotFullWidth} = useCaptionWidth();
+
+  // Timer is run in the interval of 2 sec which checks if the last updated caption was more than 3sec ago
+  // If yes then clear it as we have to show live captions for person speaking
+  // const {captionObj, setCaptionObj} = useCaption();
+  // React.useEffect(() => {
+  //   const timerID = setInterval(() => {
+  //     const speakers = Object.entries(captionObj);
+  //     console.log(
+  //       'stt:speakers at ',
+  //       new Date().toLocaleTimeString(),
+  //       captionObj,
+  //     );
+  //     let isChanged = false;
+  //     const updatedObj = speakers.map(([key, value]) => {
+  //       const lastUpdated = value.lastUpdated;
+  //       const currentTime = new Date().getTime();
+  //       if (currentTime - lastUpdated > 3000 && value.text !== '') {
+  //         value.text = '';
+  //         value.lastUpdated = currentTime;
+  //         isChanged = true;
+  //       }
+  //       return [key, value];
+  //     });
+  //     isChanged && setCaptionObj(Object.fromEntries(updatedObj));
+  //   }, 3000);
+  //   return () => clearInterval(timerID);
+  // }, [captionObj]);
+
   return (
     <View
       style={[
@@ -174,7 +202,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     });
 
   actionMenuitems.push({
-    icon: 'caption-off',
+    icon: 'captions-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
     title: 'Turn Off Captions ',
