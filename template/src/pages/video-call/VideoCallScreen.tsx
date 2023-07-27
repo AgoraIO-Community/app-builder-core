@@ -166,7 +166,7 @@ const VideoCallScreen = () => {
         <View
           style={[
             style.videoView,
-            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
+            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 0},
           ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (

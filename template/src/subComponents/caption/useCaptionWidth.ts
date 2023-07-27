@@ -18,7 +18,7 @@ const useCaptionWidth = (): CaptionWidthReturnType => {
     isCaptionON && sidePanel !== SidePanelType.None && windowWidth > 1200;
 
   const transcriptHeight = isCaptionNotFullWidth
-    ? `calc(100% + ${CAPTION_CONTAINER_HEIGHT}px + 10px)` //10px is gap b/w <Video> & <Caption/>
+    ? `calc(100% + ${CAPTION_CONTAINER_HEIGHT}px + 4px)` //10px is gap b/w <Video> & <Caption/>
     : '';
 
   return {isCaptionNotFullWidth, transcriptHeight};

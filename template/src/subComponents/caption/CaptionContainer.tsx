@@ -245,12 +245,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
+    marginTop: 8,
   },
   mobileContainer: {
     padding: 12,
     height: 120,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
-    marginTop: 16,
+    marginTop: 8,
   },
 });

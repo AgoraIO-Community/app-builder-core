@@ -3,7 +3,7 @@ import ThemeConfig from '../theme';
 
 export const SIDE_PANEL_MAX_WIDTH = '20%';
 export const SIDE_PANEL_MIN_WIDTH = 338;
-export const SIDE_PANEL_GAP = 12;
+export const SIDE_PANEL_GAP = 8;
 export const CAPTION_CONTAINER_HEIGHT = 132;
 
 const CommonStyles = StyleSheet.create({
