@@ -414,7 +414,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     fontStyle: 'italic',
-    textTransform: 'capitalize',
   },
   langChangeContainer: {
     marginBottom: 20,

@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
 
   errorTxt: {
-    color: $config.SEMANTIC_ERROR,
+    color: $config.SEMANTIC_WARNING,
     fontWeight: '600',
   },
   changeInProgress: {

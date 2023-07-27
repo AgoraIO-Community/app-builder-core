@@ -250,6 +250,10 @@ const debounceFn = (fn: Function, ms = 300) => {
   };
 };
 
+const capitalizeFirstLetter = (word: string): string => {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+};
+
 export {
   useIsDesktop,
   useIsSmall,
@@ -272,4 +276,5 @@ export {
   getParamFromURL,
   throttleFn,
   debounceFn,
+  capitalizeFirstLetter,
 };

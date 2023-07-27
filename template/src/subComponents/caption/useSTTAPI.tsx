@@ -6,6 +6,7 @@ import events, {EventPersistLevel} from '../../rtm-events-api';
 import {EventNames} from '../../rtm-events';
 import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
+import {capitalizeFirstLetter} from '../../utils/common';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -81,7 +82,11 @@ const useSTTAPI = (): IuseSTTAPI => {
         // inform about the language set for stt
         events.send(
           EventNames.STT_LANGUAGE,
-          JSON.stringify({username, prevLang: language, newLang: lang}),
+          JSON.stringify({
+            username: capitalizeFirstLetter(username),
+            prevLang: language,
+            newLang: lang,
+          }),
           EventPersistLevel.LEVEL3,
         );
         setLanguage(lang);
@@ -93,7 +98,7 @@ const useSTTAPI = (): IuseSTTAPI => {
             : `changed the spoken language from "${getLanguageLabel(
                 language,
               )}" to "${getLanguageLabel(lang)}" `;
-        const msg = `${username} ${action} `;
+        const msg = `${capitalizeFirstLetter(username)} ${action} `;
         setMeetingTranscript((prev) => {
           return [
             ...prev,
