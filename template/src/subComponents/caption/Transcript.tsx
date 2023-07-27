@@ -20,7 +20,6 @@ import {
   calculatePosition,
   isMobileUA,
   isWebInternal,
-  throttleFn,
   useIsSmall,
   debounceFn,
 } from '../../utils/common';
@@ -132,18 +131,16 @@ const Transcript = (props: TranscriptProps) => {
     }
   };
 
-  const handleScroll = debounceFn(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
-      const isAtTop = contentOffset.y <= 0;
-      const isAtBottom =
-        contentOffset.y + layoutMeasurement.height >= contentSize.height;
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setShowButton(false);
+    const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
+    const isAtTop = contentOffset.y <= 0;
+    const isAtBottom =
+      contentOffset.y + layoutMeasurement.height >= contentSize.height;
 
-      console.log('scrolling');
-      setShowButton(!isAtBottom);
-    },
-    300,
-  );
+    console.log('scrolling');
+    setShowButton(!isAtBottom);
+  };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -265,7 +262,9 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={(item) => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={handleScroll}
+              onScroll={
+                isWebInternal() ? debounceFn(handleScroll, 300) : handleScroll
+              }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
             />
