@@ -6,6 +6,7 @@ import TertiaryButton from '../atoms/TertiaryButton';
 import PrimaryButton from '../atoms/PrimaryButton';
 import ThemeConfig from '../theme';
 import {useIsDesktop} from '../utils/common';
+import DownloadTranscriptBtn from './caption/DownloadTranscriptBtn';
 
 interface EndcallPopupProps {
   modalVisible: boolean;
@@ -31,13 +32,20 @@ const EndcallPopup = (props: EndcallPopupProps) => {
       <Text style={styles.subHeading}>{leaveMeetingLabelSubHeading}</Text>
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
+        {isDesktop && (
+          <DownloadTranscriptBtn
+            textStyle={{textTransform: 'uppercase'}}
+            containerStyle={styles.downloadBtn}
+          />
+        )}
+
         <View style={isDesktop && {flex: 1}}>
           <TertiaryButton
             containerStyle={{
               width: '100%',
               height: 48,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
+              paddingVertical: 8,
+              paddingHorizontal: 40,
               borderRadius: ThemeConfig.BorderRadius.medium,
             }}
             text={stayBtnLabel}
@@ -57,14 +65,24 @@ const EndcallPopup = (props: EndcallPopupProps) => {
               borderRadius: ThemeConfig.BorderRadius.medium,
               height: 48,
               backgroundColor: $config.SEMANTIC_ERROR,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
+              paddingVertical: 8,
+              paddingHorizontal: 36,
             }}
             text={leaveBtnLabel}
             textStyle={styles.btnText}
             onPress={props.endCall}
           />
         </View>
+        {!isDesktop && (
+          <>
+            <DownloadTranscriptBtn
+              textStyle={{textTransform: 'uppercase'}}
+              containerStyle={
+                [styles.downloadBtn, {marginBottom: 20}] as Object
+              }
+            />
+          </>
+        )}
       </View>
     </Popup>
   );
@@ -103,5 +121,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: ThemeConfig.FontSize.small,
     color: $config.FONT_COLOR,
+  },
+  downloadBtn: {
+    minWidth: 215,
   },
 });

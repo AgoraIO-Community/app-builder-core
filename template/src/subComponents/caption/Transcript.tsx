@@ -37,6 +37,7 @@ import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
 import useCaptionWidth from './useCaptionWidth';
 import useTranscriptDownload from './useTranscriptDownload';
+import DownloadTranscriptBtn from './DownloadTranscriptBtn';
 
 interface TranscriptProps {
   showHeader?: boolean;
@@ -195,23 +196,6 @@ const Transcript = (props: TranscriptProps) => {
     console.log('check');
   };
 
-  const DownloadButton = () => {
-    return meetingTranscript?.length > 0 ? (
-      <View style={styles.btnContainer}>
-        <PrimaryButton
-          iconSize={20}
-          iconName={'download'}
-          containerStyle={styles.btnContainerStyle}
-          textStyle={styles.btnTxtStyle}
-          onPress={() => {
-            downloadTranscript();
-          }}
-          text={'Download Transcript'}
-        />
-      </View>
-    ) : null;
-  };
-
   return (
     <View
       // onLayout={handleLayout}
@@ -292,7 +276,7 @@ const Transcript = (props: TranscriptProps) => {
               }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
-              ListFooterComponent={DownloadButton}
+              ListFooterComponent={DownloadTranscriptBtn}
               ListFooterComponentStyle={styles.footer}
               contentContainerStyle={styles.content}
               onEndReached={handleEndReached}
