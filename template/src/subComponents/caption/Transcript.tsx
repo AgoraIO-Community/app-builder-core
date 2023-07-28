@@ -69,6 +69,7 @@ const Transcript = (props: TranscriptProps) => {
   const [isFocused, setIsFocused] = React.useState(false);
   const {setIsTranscriptON} = useCaption();
   const {transcriptHeight} = useCaptionWidth();
+  const isLatestClicked = React.useRef<boolean>(false);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -85,7 +86,7 @@ const Transcript = (props: TranscriptProps) => {
     }
     // Scroll to the last item on initial mount
     if (flatListRef.current && data.length > 0) {
-      flatListRef.current.scrollToEnd({animated: true});
+      flatListRef.current.scrollToEnd({animated: false});
     }
   };
 
@@ -112,33 +113,35 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleViewLatest = () => {
-    flatListRef.current.scrollToOffset({
-      offset: contentHeightRef.current,
-      animated: true,
-    });
+    // flatListRef.current.scrollToOffset({
+    //   offset: contentHeightRef.current,
+    //   animated: false,
+    // });
     setShowButton(false);
+    flatListRef.current.scrollToEnd({animated: false});
+    isLatestClicked.current = true;
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
     contentHeightRef.current = contentHeight;
     if (!showButton) {
-      //setShowButton(contentHeight > flatListHeightRef.current);
-      // flatListRef?.current.scrollToEnd({animated: false});
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
-        animated: true,
+        animated: false,
       });
     }
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (isLatestClicked.current) {
+      isLatestClicked.current = false;
+      return;
+    }
     setShowButton(false);
     const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
     const isAtTop = contentOffset.y <= 0;
     const isAtBottom =
       contentOffset.y + layoutMeasurement.height >= contentSize.height;
-
-    console.log('scrolling');
     setShowButton(!isAtBottom);
   };
 
@@ -188,6 +191,27 @@ const Transcript = (props: TranscriptProps) => {
     };
   }, []);
 
+  const handleEndReached = () => {
+    console.log('check');
+  };
+
+  const DownloadButton = () => {
+    return meetingTranscript?.length > 0 ? (
+      <View style={styles.btnContainer}>
+        <PrimaryButton
+          iconSize={20}
+          iconName={'download'}
+          containerStyle={styles.btnContainerStyle}
+          textStyle={styles.btnTxtStyle}
+          onPress={() => {
+            downloadTranscript();
+          }}
+          text={'Download Transcript'}
+        />
+      </View>
+    ) : null;
+  };
+
   return (
     <View
       // onLayout={handleLayout}
@@ -204,6 +228,7 @@ const Transcript = (props: TranscriptProps) => {
           ? {marginVertical: 4}
           : {},
         transcriptHeight && !isMobileUA() && {height: transcriptHeight},
+        {paddingBottom: 20},
       ]}>
       {showHeader && <TranscriptHeader />}
       <View style={[styles.searchContainer, isFocused && styles.inputFocused]}>
@@ -267,12 +292,17 @@ const Transcript = (props: TranscriptProps) => {
               }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
+              ListFooterComponent={DownloadButton}
+              ListFooterComponentStyle={styles.footer}
+              contentContainerStyle={styles.content}
+              onEndReached={handleEndReached}
             />
+
             {showButton ? (
               <View
                 style={{
                   position: 'absolute',
-                  bottom: 30,
+                  bottom: 0,
                   left: 0,
                   right: 0,
                   alignItems: 'center',
@@ -289,21 +319,6 @@ const Transcript = (props: TranscriptProps) => {
               </View>
             ) : null}
           </View>
-          {meetingTranscript.length ? (
-            <View style={styles.btnContainer}>
-              <PrimaryButton
-                iconSize={20}
-                iconName={'download'}
-                containerStyle={styles.btnContainerStyle}
-                textStyle={styles.btnTxtStyle}
-                onPress={() => {
-                  // downloadTranscript(meetingTranscript);
-                  downloadTranscript();
-                }}
-                text={'Download Transcript'}
-              />
-            </View>
-          ) : null}
         </>
       )}
     </View>
@@ -320,14 +335,13 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   btnContainerStyle: {
-    paddingVertical: 8,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
     backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: $config.SECONDARY_ACTION_COLOR,
     borderRadius: 4,
   },
   btnContainer: {
-    margin: 20,
+    // margin: 20,
   },
 
   btnTxtStyle: {
@@ -418,5 +432,15 @@ export const styles = StyleSheet.create({
   langChangeContainer: {
     marginBottom: 20,
     flexDirection: 'row',
+  },
+  footer: {
+    borderWidth: 1,
+    paddingVertical: 8,
+    borderColor: $config.SECONDARY_ACTION_COLOR,
+    borderRadius: 4,
+    marginTop: 'auto',
+  },
+  content: {
+    flexGrow: 1,
   },
 });
