@@ -18,6 +18,7 @@ import {
 } from 'agora-react-native-rtm/lib/typescript/src';
 import {RtmClientEvents} from 'agora-react-native-rtm/lib/typescript/src/RtmEngine';
 import AgoraRTM, {VERSION} from 'agora-rtm-sdk';
+import RtmClient from 'agora-react-native-rtm';
 // export {RtmAttribute}
 //
 interface RtmAttributePlaceholder {}
@@ -175,7 +176,7 @@ export default class RtmEngine {
   }
 
   async logout(): Promise<any> {
-    return this.client.logout();
+    return await this.client.logout();
   }
 
   async joinChannel(channelId: string): Promise<any> {
