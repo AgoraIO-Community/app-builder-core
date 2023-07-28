@@ -83,6 +83,8 @@ const Caption: React.FC = () => {
 const styles = StyleSheet.create({
   captionContainer: {
     width: '100%',
+
+    height: '100%',
   },
 });
 
