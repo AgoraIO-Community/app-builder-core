@@ -8,6 +8,7 @@ import {
   calculatePosition,
   isMobileUA,
   isWeb,
+  isWebInternal,
   useIsDesktop,
   useIsSmall,
 } from '../../utils/common';
@@ -35,8 +36,10 @@ const CaptionContainer = () => {
   const moreIconRef = React.useRef<View>(null);
   const [actionMenuVisible, setActionMenuVisible] =
     React.useState<boolean>(false);
+  const [isHovered, setIsHovered] = React.useState<boolean>(false);
   const isDesktop = useIsDesktop();
   const isSmall = useIsSmall();
+  const {isLangChangeInProgress} = useCaption();
 
   const {width: globalWidth, height: globalHeight} = useWindowDimensions();
 
@@ -70,43 +73,63 @@ const CaptionContainer = () => {
   // }, [captionObj]);
 
   return (
-    <View
-      style={[
-        {
-          paddingLeft: isMobileUA() ? 0 : isDesktop() ? 32 : 10,
-          paddingRight: isMobileUA()
-            ? 0
-            : isDesktop()
-            ? globalWidth > 1700 && isCaptionNotFullWidth
-              ? 20
-              : 32
-            : 10,
-        },
-        isCaptionNotFullWidth && {
-          maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
-          width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
-        },
-      ]}>
+    <PlatformWrapper isHovered={isHovered} setIsHovered={setIsHovered}>
       <View
         style={[
-          !isDesktop() ? styles.mobileContainer : styles.container,
-          isMobileUA() && {marginHorizontal: 0},
-          !isMobileUA() && isSmall() && {marginTop: 0},
+          {
+            paddingLeft: isMobileUA() ? 0 : isDesktop() ? 32 : 10,
+            paddingRight: isMobileUA()
+              ? 0
+              : isDesktop()
+              ? globalWidth > 1700 && isCaptionNotFullWidth
+                ? 20
+                : 32
+              : 10,
+          },
+          isCaptionNotFullWidth && {
+            maxWidth: `calc(100% - ${SIDE_PANEL_MAX_WIDTH} - ${SIDE_PANEL_GAP}px )`,
+            width: `calc(100% - ${SIDE_PANEL_MIN_WIDTH}px - ${SIDE_PANEL_GAP}px )`,
+          },
         ]}>
-        <CaptionsActionMenu
-          actionMenuVisible={actionMenuVisible}
-          setActionMenuVisible={setActionMenuVisible}
-          btnRef={moreIconRef}
-        />
+        <View
+          style={[
+            !isDesktop() ? styles.mobileContainer : styles.container,
+            isMobileUA() && {marginHorizontal: 0},
+            !isMobileUA() && isSmall() && {marginTop: 0},
+          ]}>
+          <CaptionsActionMenu
+            actionMenuVisible={actionMenuVisible}
+            setActionMenuVisible={setActionMenuVisible}
+            btnRef={moreIconRef}
+          />
 
-        <MoreMenu
-          ref={moreIconRef}
-          setActionMenuVisible={setActionMenuVisible}
-        />
+          {(isHovered || isMobileUA()) && !isLangChangeInProgress && (
+            <MoreMenu
+              ref={moreIconRef}
+              setActionMenuVisible={setActionMenuVisible}
+            />
+          )}
 
-        <Caption />
+          <Caption />
+        </View>
       </View>
-    </View>
+    </PlatformWrapper>
+  );
+};
+
+const PlatformWrapper = ({children, setIsHovered, isHovered}) => {
+  return isWebInternal() && !isMobileUA() ? (
+    <div
+      onMouseOver={() => {
+        !isHovered && setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}>
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
   );
 };
 
