@@ -54,6 +54,7 @@ const CommonError: React.FC = () => {
         visibilityTime: 1000 * 10,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
     }
   }, [error]);
