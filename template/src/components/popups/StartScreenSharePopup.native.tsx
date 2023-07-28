@@ -19,8 +19,10 @@ const StartScreenSharePopup = () => {
   const {startUserScreenshare, isScreenshareActive} = useScreenshare();
   const isDesktop = useIsDesktop()('popup');
   const screenshareLabelHeading = 'Screen Share';
-  const screenshareLabelSubHeading =
-    'NOTE: Camera will be turned OFF while sharing your screen, do you wish to proceed?';
+  const screenshareLabelSubHeadingCamOff =
+    'NOTE: All incoming videos will be turned OFF for an optimised performance, do you wish to proceed?';
+  const screenshareLabelSubHeadingCamOn =
+    'NOTE: Camera and all incoming videos will be turned OFF for an optimised performance, do you wish to proceed?';
 
   const cancelBtnLabel = 'CANCEL';
   const startShareShareBtnLabel = 'PROCEED';
@@ -54,10 +56,17 @@ const StartScreenSharePopup = () => {
       {video ? (
         <>
           <Spacer size={28} />
-          <Text style={styles.subHeading}>{screenshareLabelSubHeading}</Text>
+          <Text style={styles.subHeading}>
+            {screenshareLabelSubHeadingCamOn}
+          </Text>
         </>
       ) : (
-        <></>
+        <>
+          <Spacer size={28} />
+          <Text style={styles.subHeading}>
+            {screenshareLabelSubHeadingCamOff}
+          </Text>
+        </>
       )}
       <Spacer size={32} />
       <View style={isDesktop ? styles.btnContainer : styles.btnContainerMobile}>
