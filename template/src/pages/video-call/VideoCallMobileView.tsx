@@ -102,6 +102,9 @@ const VideoCallMobileView = () => {
         leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
         text1: msg,
         visibilityTime: 3000,
+        text2: null,
+        primaryBtn: null,
+        secondaryBtn: null,
       });
       // syncing local set language
       newLang && setLanguage(newLang);

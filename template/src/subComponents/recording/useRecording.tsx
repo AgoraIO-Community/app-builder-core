@@ -157,6 +157,7 @@ const RecordingProvider = (props: RecordingProviderProps) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
     }
   }, [isRecordingActive]);

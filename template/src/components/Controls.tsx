@@ -419,6 +419,9 @@ const Controls = () => {
           leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
           text1: msg,
           visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+          text2: null,
         });
         // syncing local set language
         newLang && setLanguage(newLang);
