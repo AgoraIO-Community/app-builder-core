@@ -16,16 +16,34 @@ type TranscriptItem = {
 const useStreamMessageUtils = (): {
   streamMessageCallback: StreamMessageCallback;
 } => {
-  const {setCaptionObj, setMeetingTranscript} = useCaption();
+  const {
+    setCaptionObj,
+    setMeetingTranscript,
+    captionObj,
+    setActiveSpeakerUID,
+    setPrevActiveSpeakerUID,
+    activeSpeakerUID,
+    prevActiveSpeakerUID,
+  } = useCaption();
   const startTimeRef = useRef<number>(0);
   const finalList = useRef<FinalListType>({});
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
+  const captionObjRef = useRef(captionObj);
+  const activeSpeakerRef = useRef(activeSpeakerUID);
 
   /* renderlist was not updating when new user joins the call */
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
+
+  // useEffect(() => {
+  //   captionObjRef.current = captionObj;
+  // }, [captionObj]);
+
+  useEffect(() => {
+    activeSpeakerRef.current = activeSpeakerUID;
+  }, [activeSpeakerUID]);
 
   //  handles the stream messages and updates the state variables.
   const streamMessageCallback: StreamMessageCallback = (args) => {
@@ -46,6 +64,12 @@ const useStreamMessageUtils = (): {
       .lookupType('Text')
       .decode(payload as Uint8Array) as any;
     console.log('STT - Parsed Textstream : ', textstream);
+
+    //Updating Active speakers only if there is a change in active speaker
+    if (textstream.uid !== activeSpeakerRef.current) {
+      setPrevActiveSpeakerUID(activeSpeakerRef.current);
+      setActiveSpeakerUID(textstream.uid);
+    }
 
     // identifying speaker of caption
     const userName =
@@ -135,25 +159,31 @@ const useStreamMessageUtils = (): {
       (total, word) => total + word.durationMs,
       0,
     );
+    const currentTime = new Date().getTime();
+    // const isStaleCaption =
+    //   currentTime - captionObjRef?.current[textstream.uid]?.lastUpdated > 3000;
 
     // setting timer to clear after the caption when a user stops speaking
     if (totalDurationMs) {
-      console.log(
-        `stt: clearing captions in for ${userName} in ${totalDurationMs} ms with text : ${finalList?.current[
-          textstream.uid
-        ].join(',')}`,
-      );
-      setTimeout(() => {
-        finalList.current[textstream.uid] = [];
-        setCaptionObj((prev) => {
-          return {
-            ...prev,
-            [textstream.uid]: {
-              text: '',
-              lastUpdated: new Date().getTime(),
-            },
-          };
-        });
+      return;
+      const timerId = setTimeout(() => {
+        // if (!isStaleCaption) return;
+        console.log(
+          `stt: clearing captions in for ${userName} in ${totalDurationMs} ms with text : ${finalList?.current[
+            textstream.uid
+          ].join(',')}`,
+        );
+        // finalList.current[textstream.uid] = [];
+        // setCaptionObj((prev) => {
+        //   return {
+        //     ...prev,
+        //     [textstream.uid]: {
+        //       text: '',
+        //       lastUpdated: new Date().getTime(),
+        //       name: userName,
+        //     },
+        //   };
+        // });
       }, totalDurationMs);
     }
 
@@ -174,6 +204,7 @@ const useStreamMessageUtils = (): {
           [textstream.uid]: {
             text: stringBuilder,
             lastUpdated: new Date().getTime(),
+            name: userName,
           },
         };
       });

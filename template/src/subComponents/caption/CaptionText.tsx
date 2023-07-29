@@ -9,13 +9,19 @@ interface CaptionTextProps {
   user: string;
   value: string;
   activeSpeakersCount: number;
+  isActiveSpeaker?: boolean;
 }
 
 export const CaptionText = React.memo(
-  ({user, value, activeSpeakersCount}: CaptionTextProps) => {
+  ({
+    user,
+    value,
+    activeSpeakersCount,
+    isActiveSpeaker = false,
+  }: CaptionTextProps) => {
     const isMobile = isMobileUA();
     const mobileCaptionHeight = activeSpeakersCount === 1 ? 90 : 45;
-    const desktopCaptionHeight = activeSpeakersCount === 1 ? 85 : 30;
+    const desktopCaptionHeight = activeSpeakersCount === 1 ? 108 : 54;
     // as user speaks continously previous captions should be hidden , new appended
 
     return (
@@ -23,6 +29,7 @@ export const CaptionText = React.memo(
         style={[
           isMobile ? styles.captionContainerMobile : styles.captionContainer,
           {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+          {borderColor: isActiveSpeaker ? 'blue' : 'yellow'},
         ]}>
         {/*  Name  Tag */}
         <View
@@ -55,6 +62,7 @@ export const CaptionText = React.memo(
             isMobile
               ? styles.captionTextContainerMobileStyle
               : styles.captionTextContainerStyle,
+            // {height: '90%'},
             {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
           ]}>
           <Text
@@ -63,8 +71,8 @@ export const CaptionText = React.memo(
               isMobile ? styles.mobileFontSize : styles.desktopFontSize,
               {
                 minHeight: isMobile
-                  ? mobileCaptionHeight - 2 //subtracting top padding
-                  : desktopCaptionHeight - 4,
+                  ? mobileCaptionHeight
+                  : desktopCaptionHeight,
               },
             ]}>
             {value}
@@ -81,24 +89,30 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     width: '100%',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderStyle: 'dotted',
+
+    flex: 1,
   },
   captionContainerMobile: {
     marginRight: 15,
     flexDirection: 'row',
     flexWrap: 'wrap',
     flex: 1,
+    borderWidth: 1,
+    borderStyle: 'dotted',
   },
   captionTextContainerStyle: {
     overflow: 'hidden',
     maxWidth: 1000,
     width: '85%',
     position: 'relative',
-    padding: 4,
+    paddingHorizontal: 4,
   },
   captionTextContainerMobileStyle: {
     overflow: 'hidden',
     position: 'relative',
-    padding: 2,
+    paddingHorizontal: 2,
     flex: 1,
   },
   captionTextContainer: {
@@ -107,7 +121,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   nameContainer: {
-    padding: 4,
+    paddingHorizontal: 4,
     flexDirection: 'row',
     alignItems: 'center',
     width: '15%',

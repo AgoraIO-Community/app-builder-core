@@ -13,6 +13,7 @@ type CaptionObj = {
   [key: string]: {
     text: string;
     lastUpdated: number;
+    name: string;
   };
 };
 
@@ -48,6 +49,12 @@ export const CaptionContext = React.createContext<{
   // holds status of StreamMessageCallback listener added (caption/transcript)
   isSTTListenerAdded: boolean;
   setIsSTTListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
+
+  activeSpeakerUID: string;
+  setActiveSpeakerUID: React.Dispatch<React.SetStateAction<string>>;
+
+  prevActiveSpeakerUID: string;
+  setPrevActiveSpeakerUID: React.Dispatch<React.SetStateAction<string>>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -65,6 +72,10 @@ export const CaptionContext = React.createContext<{
   setCaptionObj: () => {},
   isSTTListenerAdded: false,
   setIsSTTListenerAdded: () => {},
+  activeSpeakerUID: '',
+  setActiveSpeakerUID: () => {},
+  prevActiveSpeakerUID: '',
+  setPrevActiveSpeakerUID: () => {},
 });
 
 const CaptionProvider = ({children}) => {
@@ -80,6 +91,9 @@ const CaptionProvider = ({children}) => {
   const [captionObj, setCaptionObj] = React.useState<CaptionObj>({});
   const [isSTTListenerAdded, setIsSTTListenerAdded] =
     React.useState<boolean>(false);
+  const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
+  const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
+    React.useState<string>('');
 
   return (
     <CaptionContext.Provider
@@ -100,6 +114,10 @@ const CaptionProvider = ({children}) => {
         setCaptionObj,
         isSTTListenerAdded,
         setIsSTTListenerAdded,
+        activeSpeakerUID,
+        setActiveSpeakerUID,
+        prevActiveSpeakerUID,
+        setPrevActiveSpeakerUID,
       }}>
       {children}
     </CaptionContext.Provider>

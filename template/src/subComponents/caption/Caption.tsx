@@ -20,6 +20,8 @@ const Caption: React.FC = () => {
     setCaptionObj,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
+    activeSpeakerUID,
+    prevActiveSpeakerUID,
   } = useCaption();
 
   const {streamMessageCallback} = useStreamMessageUtils();
@@ -48,8 +50,6 @@ const Caption: React.FC = () => {
     setCaptionObj({}); // clear live captions on mount
   }, []);
 
-  const speakers = Object.entries(captionObj);
-  const activeSpeakers = speakers.filter((item) => item[1].text !== '');
   if (isLangChangeInProgress)
     return (
       <Loading
@@ -60,9 +60,53 @@ const Caption: React.FC = () => {
       />
     );
 
+  console.log('current speaker uid', activeSpeakerUID);
+  console.log('prev current uid ', prevActiveSpeakerUID);
+
+  if (Object.keys(captionObj).length === 0) return null;
+
+  const speakers = Object.entries(captionObj);
+  const activeSpeakers = speakers.filter((item) => item[1].text !== '');
+  const prevActiveSpeakerText = captionObj[prevActiveSpeakerUID]?.text;
+  const activeSpeakerText = captionObj[prevActiveSpeakerUID]?.text;
+
+  const speakerCount =
+    prevActiveSpeakerUID === '' ||
+    (prevActiveSpeakerText === '' && activeSpeakerText !== '') ||
+    (prevActiveSpeakerText !== '' && activeSpeakerText === '')
+      ? 1
+      : 2;
+
   return (
     <View style={styles.captionContainer}>
-      {speakers.map(([key, value], index) => {
+      {
+        <>
+          {speakerCount == 2 &&
+            captionObj[prevActiveSpeakerUID] &&
+            captionObj[prevActiveSpeakerUID].text && (
+              <>
+                <CaptionText
+                  user={captionObj[prevActiveSpeakerUID].name}
+                  value={captionObj[prevActiveSpeakerUID].text}
+                  activeSpeakersCount={speakerCount}
+                  isActiveSpeaker={false}
+                />
+                <Spacer size={10} />
+              </>
+            )}
+          {captionObj[activeSpeakerUID] &&
+            captionObj[activeSpeakerUID].text && (
+              <CaptionText
+                user={captionObj[activeSpeakerUID].name}
+                value={captionObj[activeSpeakerUID].text}
+                activeSpeakersCount={speakerCount}
+                isActiveSpeaker={true}
+              />
+            )}
+        </>
+      }
+
+      {/* {speakers.map(([key, value], index) => {
         return (
           <React.Fragment key={key}>
             {value?.text ? (
@@ -75,7 +119,7 @@ const Caption: React.FC = () => {
             {index !== speakers.length - 1 && <Spacer size={10} />}
           </React.Fragment>
         );
-      })}
+      })} */}
     </View>
   );
 };
@@ -83,7 +127,6 @@ const Caption: React.FC = () => {
 const styles = StyleSheet.create({
   captionContainer: {
     width: '100%',
-
     height: '100%',
   },
 });
