@@ -31,6 +31,7 @@ const useStreamMessageUtils = (): {
   const renderListRef = useRef({renderList});
   const captionObjRef = useRef(captionObj);
   const activeSpeakerRef = useRef(activeSpeakerUID);
+  const prevSpeakerRef = useRef(prevActiveSpeakerUID);
 
   /* renderlist was not updating when new user joins the call */
   useEffect(() => {
@@ -44,6 +45,38 @@ const useStreamMessageUtils = (): {
   useEffect(() => {
     activeSpeakerRef.current = activeSpeakerUID;
   }, [activeSpeakerUID]);
+  useEffect(() => {
+    prevSpeakerRef.current = prevActiveSpeakerUID;
+  }, [prevActiveSpeakerUID]);
+
+  useEffect(() => {
+    /*
+     check only when there is one speaker, 
+    as timer callback will not be exceuted if one speaker is speaking it will only run if when captions are not updating for any one
+    */
+    const timerID = setInterval(() => {
+      if (!activeSpeakerUID || Object.keys(captionObj).length === 0) return;
+      const {lastUpdated = 0, name, text} = captionObj[activeSpeakerUID];
+      if (text === '') {
+        clearInterval(timerID);
+        return;
+      }
+      // captions being cleared for when no one is speaking
+      const currentTime = new Date().getTime();
+      if (currentTime - lastUpdated > 3000) {
+        finalList.current[activeSpeakerUID] = [];
+        setCaptionObj((prev) => ({
+          ...prev,
+          [activeSpeakerUID]: {
+            text: '',
+            name,
+            lastUpdated: currentTime,
+          },
+        }));
+      }
+    }, 2000);
+    return () => clearInterval(timerID);
+  }, [captionObj]);
 
   //  handles the stream messages and updates the state variables.
   const streamMessageCallback: StreamMessageCallback = (args) => {
@@ -154,39 +187,6 @@ const useStreamMessageUtils = (): {
       });
     }
 
-    // calculating for how long the words were spoken for a uid.
-    const totalDurationMs = textstream.words?.reduce(
-      (total, word) => total + word.durationMs,
-      0,
-    );
-    const currentTime = new Date().getTime();
-    // const isStaleCaption =
-    //   currentTime - captionObjRef?.current[textstream.uid]?.lastUpdated > 3000;
-
-    // setting timer to clear after the caption when a user stops speaking
-    if (totalDurationMs) {
-      return;
-      const timerId = setTimeout(() => {
-        // if (!isStaleCaption) return;
-        console.log(
-          `stt: clearing captions in for ${userName} in ${totalDurationMs} ms with text : ${finalList?.current[
-            textstream.uid
-          ].join(',')}`,
-        );
-        // finalList.current[textstream.uid] = [];
-        // setCaptionObj((prev) => {
-        //   return {
-        //     ...prev,
-        //     [textstream.uid]: {
-        //       text: '',
-        //       lastUpdated: new Date().getTime(),
-        //       name: userName,
-        //     },
-        //   };
-        // });
-      }, totalDurationMs);
-    }
-
     /* 
      stringBuilder- used to create strings for live captioning
      Previous final words of the uid are prepended and 
@@ -199,6 +199,41 @@ const useStreamMessageUtils = (): {
     // updating the captions when there is some text
     stringBuilder &&
       setCaptionObj((prevState) => {
+        // also check for last updated for other speakers
+        console.log(prevActiveSpeakerUID);
+        console.log(prevSpeakerRef);
+        const currentTime = new Date().getTime();
+        let inActiveUserObj = {};
+
+        if (
+          prevSpeakerRef.current !== '' &&
+          prevSpeakerRef.current !== activeSpeakerRef.current &&
+          Object.keys(prevState).length > 0
+        ) {
+          // captions being cleared for inactive speaker when active speaker is speaking
+          const {
+            lastUpdated: lastUpdated1,
+            name: name1,
+            text: text1,
+          } = prevState[prevSpeakerRef.current];
+          if (currentTime - lastUpdated1 > 3000 && text1 !== '') {
+            // clear prev user captions
+            inActiveUserObj = {
+              [prevSpeakerRef.current]: {
+                name: name1,
+                text: '',
+                lastUpdated: currentTime,
+              },
+            };
+            finalList.current[prevSpeakerRef.current] = [];
+            const timerID = setTimeout(() => {
+              setCaptionObj((prev) => ({
+                ...prev,
+                ...inActiveUserObj,
+              }));
+            }, 3000);
+          }
+        }
         return {
           ...prevState,
           [textstream.uid]: {
@@ -206,6 +241,7 @@ const useStreamMessageUtils = (): {
             lastUpdated: new Date().getTime(),
             name: userName,
           },
+          //  ...inActiveUserObj,
         };
       });
 

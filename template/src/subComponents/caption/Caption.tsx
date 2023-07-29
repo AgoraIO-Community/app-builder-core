@@ -63,12 +63,10 @@ const Caption: React.FC = () => {
   console.log('current speaker uid', activeSpeakerUID);
   console.log('prev current uid ', prevActiveSpeakerUID);
 
-  if (Object.keys(captionObj).length === 0) return null;
+  if (Object.keys(captionObj).length === 0) return <></>;
 
-  const speakers = Object.entries(captionObj);
-  const activeSpeakers = speakers.filter((item) => item[1].text !== '');
   const prevActiveSpeakerText = captionObj[prevActiveSpeakerUID]?.text;
-  const activeSpeakerText = captionObj[prevActiveSpeakerUID]?.text;
+  const activeSpeakerText = captionObj[activeSpeakerUID]?.text;
 
   const speakerCount =
     prevActiveSpeakerUID === '' ||
@@ -82,27 +80,30 @@ const Caption: React.FC = () => {
       {
         <>
           {speakerCount == 2 &&
-            captionObj[prevActiveSpeakerUID] &&
-            captionObj[prevActiveSpeakerUID].text && (
-              <>
-                <CaptionText
-                  user={captionObj[prevActiveSpeakerUID].name}
-                  value={captionObj[prevActiveSpeakerUID].text}
-                  activeSpeakersCount={speakerCount}
-                  isActiveSpeaker={false}
-                />
-                <Spacer size={10} />
-              </>
-            )}
-          {captionObj[activeSpeakerUID] &&
-            captionObj[activeSpeakerUID].text && (
+          captionObj[prevActiveSpeakerUID] &&
+          captionObj[prevActiveSpeakerUID].text ? (
+            <>
               <CaptionText
-                user={captionObj[activeSpeakerUID].name}
-                value={captionObj[activeSpeakerUID].text}
+                user={captionObj[prevActiveSpeakerUID].name}
+                value={captionObj[prevActiveSpeakerUID].text}
                 activeSpeakersCount={speakerCount}
-                isActiveSpeaker={true}
+                isActiveSpeaker={false}
               />
-            )}
+              <Spacer size={10} />
+            </>
+          ) : (
+            <></>
+          )}
+          {captionObj[activeSpeakerUID] && captionObj[activeSpeakerUID].text ? (
+            <CaptionText
+              user={captionObj[activeSpeakerUID].name}
+              value={captionObj[activeSpeakerUID].text}
+              activeSpeakersCount={speakerCount}
+              isActiveSpeaker={true}
+            />
+          ) : (
+            <></>
+          )}
         </>
       }
 

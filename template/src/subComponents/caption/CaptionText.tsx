@@ -12,76 +12,72 @@ interface CaptionTextProps {
   isActiveSpeaker?: boolean;
 }
 
-export const CaptionText = React.memo(
-  ({
-    user,
-    value,
-    activeSpeakersCount,
-    isActiveSpeaker = false,
-  }: CaptionTextProps) => {
-    const isMobile = isMobileUA();
-    const mobileCaptionHeight = activeSpeakersCount === 1 ? 90 : 45;
-    const desktopCaptionHeight = activeSpeakersCount === 1 ? 108 : 54;
-    // as user speaks continously previous captions should be hidden , new appended
+export const CaptionText = ({
+  user,
+  value,
+  activeSpeakersCount,
+  isActiveSpeaker = false,
+}: CaptionTextProps) => {
+  const isMobile = isMobileUA();
+  const mobileCaptionHeight = activeSpeakersCount === 1 ? 90 : 45;
+  const desktopCaptionHeight = activeSpeakersCount === 1 ? 108 : 54;
+  // as user speaks continously previous captions should be hidden , new appended
 
-    return (
+  return (
+    <View
+      style={[
+        isMobile ? styles.captionContainerMobile : styles.captionContainer,
+        {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+        {borderColor: isActiveSpeaker ? 'blue' : 'yellow'},
+      ]}>
+      {/*  Name  Tag */}
       <View
         style={[
-          isMobile ? styles.captionContainerMobile : styles.captionContainer,
-          {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
-          {borderColor: isActiveSpeaker ? 'blue' : 'yellow'},
+          isMobile ? styles.nameContainerMobileStyle : styles.nameContainer,
         ]}>
-        {/*  Name  Tag */}
-        <View
+        <Text
           style={[
-            isMobile ? styles.nameContainerMobileStyle : styles.nameContainer,
-          ]}>
-          <Text
-            style={[
-              styles.captionUserName,
-              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-            ]}
-            numberOfLines={1}
-            textBreakStrategy="simple"
-            ellipsizeMode="tail">
-            {user}
-          </Text>
-          <Text
-            style={[
-              styles.separator,
-              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-              {marginLeft: isMobile ? 4 : 8},
-            ]}>
-            {':'}
-          </Text>
-        </View>
-
-        {/* Caption Text */}
-        <View
+            styles.captionUserName,
+            isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+          ]}
+          numberOfLines={1}
+          textBreakStrategy="simple"
+          ellipsizeMode="tail">
+          {user}
+        </Text>
+        <Text
           style={[
-            isMobile
-              ? styles.captionTextContainerMobileStyle
-              : styles.captionTextContainerStyle,
-            // {height: '90%'},
-            {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+            styles.separator,
+            isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+            {marginLeft: isMobile ? 4 : 8},
           ]}>
-          <Text
-            style={[
-              styles.captionText,
-              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-              {
-                minHeight: isMobile
-                  ? mobileCaptionHeight
-                  : desktopCaptionHeight,
-              },
-            ]}>
-            {value}
-          </Text>
-        </View>
+          {':'}
+        </Text>
       </View>
-    );
-  },
-);
+
+      {/* Caption Text */}
+      <View
+        style={[
+          isMobile
+            ? styles.captionTextContainerMobileStyle
+            : styles.captionTextContainerStyle,
+          // {height: '90%'},
+          {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+        ]}>
+        <Text
+          style={[
+            styles.captionText,
+            isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+            {
+              minHeight: isMobile ? mobileCaptionHeight : desktopCaptionHeight,
+            },
+          ]}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   captionContainer: {
