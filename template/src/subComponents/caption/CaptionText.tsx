@@ -27,7 +27,7 @@ export const CaptionText = ({
     <View
       style={[
         isMobile ? styles.captionContainerMobile : styles.captionContainer,
-        {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+        // {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
         {borderColor: isActiveSpeaker ? 'blue' : 'yellow'},
       ]}>
       {/*  Name  Tag */}
@@ -35,24 +35,26 @@ export const CaptionText = ({
         style={[
           isMobile ? styles.nameContainerMobileStyle : styles.nameContainer,
         ]}>
-        <Text
-          style={[
-            styles.captionUserName,
-            isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-          ]}
-          numberOfLines={1}
-          textBreakStrategy="simple"
-          ellipsizeMode="tail">
-          {user}
-        </Text>
-        <Text
-          style={[
-            styles.separator,
-            isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-            {marginLeft: isMobile ? 4 : 8},
-          ]}>
-          {':'}
-        </Text>
+        <View style={styles.nameTagContainer}>
+          <Text
+            style={[
+              styles.captionUserName,
+              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+            ]}
+            numberOfLines={1}
+            textBreakStrategy="simple"
+            ellipsizeMode="tail">
+            {user}
+          </Text>
+          <Text
+            style={[
+              styles.separator,
+              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
+              {marginLeft: isMobile ? 4 : 8},
+            ]}>
+            {':'}
+          </Text>
+        </View>
       </View>
 
       {/* Caption Text */}
@@ -62,14 +64,14 @@ export const CaptionText = ({
             ? styles.captionTextContainerMobileStyle
             : styles.captionTextContainerStyle,
           // {height: '90%'},
-          {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+          //  {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
         ]}>
         <Text
           style={[
             styles.captionText,
             isMobile ? styles.mobileFontSize : styles.desktopFontSize,
             {
-              minHeight: isMobile ? mobileCaptionHeight : desktopCaptionHeight,
+              //    minHeight: isMobile ? mobileCaptionHeight : desktopCaptionHeight,
             },
           ]}>
           {value}
@@ -87,7 +89,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderStyle: 'dotted',
-
     flex: 1,
   },
   captionContainerMobile: {
@@ -104,12 +105,20 @@ const styles = StyleSheet.create({
     width: '85%',
     position: 'relative',
     paddingHorizontal: 4,
+    // added for moving text up;
+    height: '100%',
+    // borderWidth: 1,
+    // borderColor: 'red',
   },
   captionTextContainerMobileStyle: {
     overflow: 'hidden',
     position: 'relative',
     paddingHorizontal: 2,
     flex: 1,
+    // added for moving text up;
+    height: '100%',
+    // borderWidth: 1,
+    // borderColor: 'red',
   },
   captionTextContainer: {
     flexDirection: 'row',
@@ -119,16 +128,26 @@ const styles = StyleSheet.create({
   nameContainer: {
     paddingHorizontal: 4,
     flexDirection: 'row',
-    alignItems: 'center',
+    // alignItems: 'center',
     width: '15%',
     justifyContent: 'flex-end',
+    // added for moving text bottom to top:
+    // borderWidth: 1,
+    // borderColor: 'green',
+    height: '100%',
+    alignItems: 'flex-end',
   },
   nameContainerMobileStyle: {
     padding: 2,
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    // alignItems: 'flex-start',
     width: 70,
     justifyContent: 'flex-end',
+    // added for moving text bottom to top:
+    // borderWidth: 1,
+    // borderColor: 'green',
+    height: '100%',
+    alignItems: 'flex-end',
   },
   captionText: {
     position: 'absolute',
@@ -148,11 +167,14 @@ const styles = StyleSheet.create({
     maxWidth: 200,
   },
   mobileFontSize: {
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 20,
   },
   desktopFontSize: {
-    fontSize: 20,
-    lineHeight: 28,
+    fontSize: 18,
+    lineHeight: 22,
+  },
+  nameTagContainer: {
+    flexDirection: 'row',
   },
 });
