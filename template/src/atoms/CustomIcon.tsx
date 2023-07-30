@@ -96,4 +96,6 @@ export interface IconsInterface {
   'transcript-stop': string;
   transcript: string;
   'view-last': string;
+  'transcript-mode': string;
+  '': string;
 }

@@ -51,7 +51,7 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      {iconName && (
+      {iconName ? (
         <View style={{marginRight: 4}}>
           <ImageIcon
             iconType="plain"
@@ -60,6 +60,8 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
             iconSize={iconSize}
           />
         </View>
+      ) : (
+        <></>
       )}
       {props.text && (
         <Text style={[styles.text, textStyle ? textStyle : {}]}>

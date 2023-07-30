@@ -4,30 +4,38 @@ import {useCaption} from './useCaption';
 import PrimaryButton from '../../atoms/PrimaryButton';
 import useTranscriptDownload from './useTranscriptDownload';
 import ThemeConfig from '../../../src/theme';
+import {IconsInterface} from 'src/atoms/CustomIcon';
 
 interface DownloadTranscriptBtn {
   textStyle?: TextStyle;
   containerStyle?: ViewStyle;
+  iconName?: keyof IconsInterface;
+  text?: string;
 }
 
 const DownloadTranscriptBtn = (props: DownloadTranscriptBtn) => {
-  const {textStyle = {}, containerStyle = {}} = props;
-  const {meetingTranscript} = useCaption();
+  const {
+    textStyle = {},
+    containerStyle = {},
+    iconName = 'download',
+    text = 'Download Transcript',
+  } = props;
+  const {isSTTActive} = useCaption();
   const {downloadTranscript} = useTranscriptDownload();
-  return meetingTranscript?.length > 0 ? (
+  return (
     <View style={styles.btnContainer}>
       <PrimaryButton
         iconSize={20}
-        iconName={'download'}
+        iconName={iconName}
         containerStyle={[styles.btnContainerStyle, containerStyle] as Object}
         textStyle={[styles.btnTxtStyle, textStyle] as Object}
         onPress={() => {
           downloadTranscript();
         }}
-        text={'Download Transcript'}
+        text={text}
       />
     </View>
-  ) : null;
+  );
 };
 
 export default DownloadTranscriptBtn;
