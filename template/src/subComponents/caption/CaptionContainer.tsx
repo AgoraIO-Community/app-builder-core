@@ -270,7 +270,7 @@ export default CaptionContainer;
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingVertical: 4,
     paddingHorizontal: 20,
     height: CAPTION_CONTAINER_HEIGHT,
     justifyContent: 'center',
@@ -278,16 +278,13 @@ const styles = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: 8,
-    borderWidth: 1,
-    borderColor: 'white',
   },
   mobileContainer: {
-    padding: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
     height: 120,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: 8,
-    borderWidth: 1,
-    borderColor: 'white',
   },
 });

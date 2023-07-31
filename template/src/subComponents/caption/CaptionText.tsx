@@ -1,9 +1,10 @@
-import {Text, View, StyleSheet} from 'react-native';
+import {Text, View, StyleSheet, LayoutChangeEvent} from 'react-native';
 import React from 'react';
 
 import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isMobileUA} from '../../utils/common';
+import {CAPTION_CONTAINER_HEIGHT} from 'src/components/CommonStyles';
 
 interface CaptionTextProps {
   user: string;
@@ -11,6 +12,9 @@ interface CaptionTextProps {
   activeSpeakersCount: number;
   isActiveSpeaker?: boolean;
 }
+
+const DESKTOP_LINE_HEIGHT = 28;
+const MOBILE_LINE_HEIGHT = 24; // TO VERIFY
 
 export const CaptionText = ({
   user,
@@ -23,56 +27,48 @@ export const CaptionText = ({
   const desktopCaptionHeight = activeSpeakersCount === 1 ? 108 : 54;
   // as user speaks continously previous captions should be hidden , new appended
 
+  const [captionContainerHeight, setCaptionContainerHeight] = React.useState(
+    () => (isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT),
+  );
+  const handleTextLayout = (event: LayoutChangeEvent) => {
+    const textHeight = event.nativeEvent.layout.height;
+    // max caption lines 3 for 1 user
+    // max caption lines for active speaker 2 when 2 users
+    const MaxLines = activeSpeakersCount === 1 ? 3 : isActiveSpeaker ? 2 : 1;
+    setCaptionContainerHeight(
+      () => Math.min(textHeight, DESKTOP_LINE_HEIGHT * MaxLines) - 1,
+      // 1 is subtracted from line height to avoid hindi charcters when scrolled up
+    );
+  };
+
   return (
     <View
       style={[
-        isMobile ? styles.captionContainerMobile : styles.captionContainer,
-        // {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
-        {borderColor: isActiveSpeaker ? 'blue' : 'yellow'},
+        styles.captionContainer,
+        {borderColor: isActiveSpeaker ? 'yellow' : 'pink'},
       ]}>
-      {/*  Name  Tag */}
+      <Text
+        style={[
+          styles.captionUserName,
+          isMobile ? styles.mobileNameFontSize : styles.desktopNameFontSize,
+        ]}
+        numberOfLines={1}
+        textBreakStrategy="simple"
+        ellipsizeMode="tail">
+        {user}
+      </Text>
       <View
         style={[
-          isMobile ? styles.nameContainerMobileStyle : styles.nameContainer,
-        ]}>
-        <View style={styles.nameTagContainer}>
-          <Text
-            style={[
-              styles.captionUserName,
-              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-            ]}
-            numberOfLines={1}
-            textBreakStrategy="simple"
-            ellipsizeMode="tail">
-            {user}
-          </Text>
-          <Text
-            style={[
-              styles.separator,
-              isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-              {marginLeft: isMobile ? 4 : 8},
-            ]}>
-            {':'}
-          </Text>
-        </View>
-      </View>
-
-      {/* Caption Text */}
-      <View
-        style={[
-          isMobile
-            ? styles.captionTextContainerMobileStyle
-            : styles.captionTextContainerStyle,
-          // {height: '90%'},
-          // {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+          styles.captionTextContainerStyle,
+          {height: captionContainerHeight},
         ]}>
         <Text
+          onLayout={handleTextLayout}
           style={[
             styles.captionText,
-            isMobile ? styles.mobileFontSize : styles.desktopFontSize,
-            {
-              //  minHeight: isMobile ? mobileCaptionHeight : desktopCaptionHeight,
-            },
+            isMobile
+              ? styles.mobileCaptionFontSize
+              : styles.edsktopCaptionFontSize,
           ]}>
           {value}
         </Text>
@@ -83,87 +79,52 @@ export const CaptionText = ({
 
 const styles = StyleSheet.create({
   captionContainer: {
-    flexDirection: 'row',
     alignItems: 'flex-start',
+    alignSelf: 'center',
     width: '100%',
-    justifyContent: 'center',
-    borderWidth: 1,
+    maxWidth: 620,
+    justifyContent: 'flex-end',
+    //  borderWidth: 1,
     borderStyle: 'dotted',
+    flex: 1,
+  },
 
-    flex: 1,
-  },
-  captionContainerMobile: {
-    marginRight: 15,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    flex: 1,
-    borderWidth: 1,
-    borderStyle: 'dotted',
-  },
   captionTextContainerStyle: {
     overflow: 'hidden',
-    maxWidth: 1000,
-    width: '85%',
+    width: '100%',
     position: 'relative',
-    paddingHorizontal: 4,
-    height: '100%',
   },
-  captionTextContainerMobileStyle: {
-    overflow: 'hidden',
-    position: 'relative',
-    paddingHorizontal: 2,
-    flex: 1,
-    height: '100%',
-  },
-  captionTextContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
-  },
-  nameContainer: {
-    paddingHorizontal: 4,
-    flexDirection: 'row',
-    // alignItems: 'center',
-    width: '15%',
-    justifyContent: 'flex-end',
-    height: '100%',
-    alignItems: 'flex-end',
-  },
-  nameContainerMobileStyle: {
-    padding: 2,
-    flexDirection: 'row',
-    // alignItems: 'flex-start',
-    width: 70,
-    justifyContent: 'flex-end',
-    height: '100%',
-    alignItems: 'flex-end',
-  },
+
   captionText: {
-    position: 'absolute',
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '400',
-    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+    color: $config.FONT_COLOR,
+    position: 'absolute',
     bottom: 0,
   },
-  separator: {
-    color: $config.FONT_COLOR,
-    fontWeight: '700',
-  },
+
   captionUserName: {
-    fontWeight: '700',
+    fontWeight: '600',
     fontFamily: ThemeConfig.FontFamily.sansPro,
-    color: $config.FONT_COLOR,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+    fontSize: ThemeConfig.FontSize.medium,
+    lineHeight: 22,
     maxWidth: 200,
   },
-  mobileFontSize: {
+  mobileNameFontSize: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  desktopNameFontSize: {
+    fontSize: 18,
+    lineHeight: 22,
+  },
+  mobileCaptionFontSize: {
     fontSize: 16,
     lineHeight: 22,
   },
-  desktopFontSize: {
-    fontSize: 20,
+  edsktopCaptionFontSize: {
+    fontSize: 24,
     lineHeight: 28,
-  },
-  nameTagContainer: {
-    flexDirection: 'row',
   },
 });
