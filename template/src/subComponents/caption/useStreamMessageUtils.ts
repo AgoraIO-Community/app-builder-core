@@ -66,6 +66,7 @@ const useStreamMessageUtils = (): {
       // captions being cleared for when no one is speaking, 10-1s , as timer would take 1sec to init
       const currentTime = new Date().getTime();
       if (currentTime - lastUpdated > waitTimeToClearCaptions - 1000) {
+        //updating the transcript from caption
         finalList.current[activeSpeakerUID]?.length > 0 &&
           setMeetingTranscript((prevTranscript) => {
             return [
@@ -78,7 +79,9 @@ const useStreamMessageUtils = (): {
               },
             ];
           });
+        // clearing the captions from list
         finalList.current[activeSpeakerUID] = [];
+        //clearing the live caption from ui
         setCaptionObj((prev) => ({
           ...prev,
           [activeSpeakerUID]: {
@@ -113,6 +116,7 @@ const useStreamMessageUtils = (): {
     console.log('STT - Parsed Textstream : ', textstream);
 
     //Updating Active speakers only if there is a change in active speaker
+
     if (textstream.uid !== activeSpeakerRef.current) {
       setPrevActiveSpeakerUID(activeSpeakerRef.current);
       setActiveSpeakerUID(textstream.uid);
@@ -231,10 +235,21 @@ const useStreamMessageUtils = (): {
             text: text1,
           } = prevState[prevSpeakerRef.current];
 
-          if (
-            currentTime - lastUpdated1 > waitTimeToClearCaptions - 3000 &&
-            text1 !== ''
-          ) {
+          finalList.current[prevSpeakerRef.current]?.length > 0 &&
+            setMeetingTranscript((prevTranscript) => {
+              return [
+                ...prevTranscript,
+                {
+                  name: name1,
+                  uid: prevSpeakerRef.current,
+                  text: text1,
+                  time: lastUpdated1,
+                },
+              ];
+            });
+          finalList.current[prevSpeakerRef.current] = [];
+          //    setTimeout(() => {
+          if (currentTime - lastUpdated1 > 800 && text1 !== '') {
             // clear prev user captions
 
             inActiveUserObj = {
@@ -246,25 +261,15 @@ const useStreamMessageUtils = (): {
             };
 
             //    const timerID = setTimeout(() => {
-            finalList.current[prevSpeakerRef.current]?.length > 0 &&
-              setMeetingTranscript((prevTranscript) => {
-                return [
-                  ...prevTranscript,
-                  {
-                    name: name1,
-                    uid: prevSpeakerRef.current,
-                    text: text1,
-                    time: lastUpdated1,
-                  },
-                ];
-              });
-            finalList.current[prevSpeakerRef.current] = [];
+
+            //finalList.current[prevSpeakerRef.current] = [];
             setCaptionObj((prev) => ({
               ...prev,
               ...inActiveUserObj,
             }));
             //   }, 3000);
           }
+          // }, 2000);
         }
         return {
           ...prevState,
