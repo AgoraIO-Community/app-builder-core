@@ -64,6 +64,18 @@ const useStreamMessageUtils = (): {
       // captions being cleared for when no one is speaking
       const currentTime = new Date().getTime();
       if (currentTime - lastUpdated > 3000) {
+        finalList.current[activeSpeakerUID]?.length > 0 &&
+          setMeetingTranscript((prevTranscript) => {
+            return [
+              ...prevTranscript,
+              {
+                name: name,
+                uid: activeSpeakerUID,
+                text: text,
+                time: lastUpdated,
+              },
+            ];
+          });
         finalList.current[activeSpeakerUID] = [];
         setCaptionObj((prev) => ({
           ...prev,
@@ -145,47 +157,47 @@ const useStreamMessageUtils = (): {
     /* after getting the final word in the streamMessage 
        checking if previous transcript be updated or new entry should be added   
      */
-    if (currentText.length) {
-      let shouldTranscriptBeUpdated = false;
+    // if (currentText.length) {
+    //   let shouldTranscriptBeUpdated = false;
 
-      setMeetingTranscript((prevTranscript) => {
-        // getting the last item in the transcript
-        currentTranscript =
-          prevTranscript.length > 0
-            ? prevTranscript[prevTranscript.length - 1]
-            : null;
-        /* 
-          checking if the last item transcript matches with current uid and there is delay of less than 3 sec.
-          If yes then updating the last transcript msg with current text
-          If no then adding a new entry in the transcript  
-        */
-        if (
-          currentTranscript &&
-          currentTranscript.uid === textstream.uid &&
-          new Date().getTime() - currentTranscript.time < 30000
-        ) {
-          currentTranscript.text = currentTranscript.text + ' ' + currentText;
-          shouldTranscriptBeUpdated = true;
-        }
+    //   setMeetingTranscript((prevTranscript) => {
+    //     // getting the last item in the transcript
+    //     currentTranscript =
+    //       prevTranscript.length > 0
+    //         ? prevTranscript[prevTranscript.length - 1]
+    //         : null;
+    //     /*
+    //       checking if the last item transcript matches with current uid and there is delay of less than 3 sec.
+    //       If yes then updating the last transcript msg with current text
+    //       If no then adding a new entry in the transcript
+    //     */
+    //     if (
+    //       currentTranscript &&
+    //       currentTranscript.uid === textstream.uid &&
+    //       new Date().getTime() - currentTranscript.time < 30000
+    //     ) {
+    //       currentTranscript.text = currentTranscript.text + ' ' + currentText;
+    //       shouldTranscriptBeUpdated = true;
+    //     }
 
-        if (shouldTranscriptBeUpdated && currentTranscript) {
-          // updating existing
-          prevTranscript[prevTranscript.length - 1] = currentTranscript;
-          return prevTranscript;
-        } else {
-          // adding new entry
-          return [
-            ...prevTranscript,
-            {
-              name: userName,
-              uid: textstream.uid,
-              time: new Date().getTime(),
-              text: currentText,
-            },
-          ];
-        }
-      });
-    }
+    //     if (shouldTranscriptBeUpdated && currentTranscript) {
+    //       // updating existing
+    //       prevTranscript[prevTranscript.length - 1] = currentTranscript;
+    //       return prevTranscript;
+    //     } else {
+    //       // adding new entry
+    //       return [
+    //         ...prevTranscript,
+    //         {
+    //           name: userName,
+    //           uid: textstream.uid,
+    //           time: new Date().getTime(),
+    //           text: currentText,
+    //         },
+    //       ];
+    //     }
+    //   });
+    // }
 
     /* 
      stringBuilder- used to create strings for live captioning
@@ -216,8 +228,10 @@ const useStreamMessageUtils = (): {
             name: name1,
             text: text1,
           } = prevState[prevSpeakerRef.current];
+
           if (currentTime - lastUpdated1 > 3000 && text1 !== '') {
             // clear prev user captions
+
             inActiveUserObj = {
               [prevSpeakerRef.current]: {
                 name: name1,
@@ -225,13 +239,26 @@ const useStreamMessageUtils = (): {
                 lastUpdated: currentTime,
               },
             };
-            finalList.current[prevSpeakerRef.current] = [];
+
             const timerID = setTimeout(() => {
+              finalList.current[prevSpeakerRef.current]?.length > 0 &&
+                setMeetingTranscript((prevTranscript) => {
+                  return [
+                    ...prevTranscript,
+                    {
+                      name: name1,
+                      uid: prevSpeakerRef.current,
+                      text: text1,
+                      time: lastUpdated1,
+                    },
+                  ];
+                });
+              finalList.current[prevSpeakerRef.current] = [];
               setCaptionObj((prev) => ({
                 ...prev,
                 ...inActiveUserObj,
               }));
-            }, 3000);
+            }, 2000);
           }
         }
         return {
