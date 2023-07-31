@@ -33,6 +33,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
   //@ts-ignore
   const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
     useScreenshare();
+  const isLiveStream = $config.EVENT_MODE;
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
@@ -79,6 +80,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         isWebInternal()
           ? await RtcEngine.muteLocalVideoStream(true)
           : await RtcEngine.enableLocalVideo(false);
+        await updateVideoStream(true);
         dispatch({
           type: 'LocalMuteVideo',
           value: [0],
@@ -164,6 +166,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
               isWebInternal()
                 ? await RtcEngine.muteLocalVideoStream(false)
                 : await RtcEngine.enableLocalVideo(true);
+              await updateVideoStream(false);
               dispatch({
                 type: 'LocalMuteVideo',
                 value: [1],
@@ -175,6 +178,12 @@ const EventsConfigure: React.FC<Props> = (props) => {
         secondaryBtn: SecondaryBtn,
       });
     });
+
+    const updateVideoStream = async (enabled: boolean) => {
+      if ((isAndroid() || isIOS()) && isLiveStream) {
+        await RtcEngine.muteLocalVideoStream(enabled);
+      }
+    };
 
     return () => {
       //events.off(controlMessageEnum.newUserJoined);
