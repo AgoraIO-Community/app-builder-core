@@ -40,7 +40,7 @@ const ZoomableWrapper = (props) => {
   const updatedValue = useRef(1);
   const duration = 250;
 
-  function debounce(func, timeout = 200) {
+  function debounce(func, timeout = 100) {
     let timer;
     return (...args) => {
       clearTimeout(timer);
@@ -51,20 +51,17 @@ const ZoomableWrapper = (props) => {
   }
 
   useEffect(() => {
-    Animated.timing(startValue.current, {
+    Animated.spring(startValue.current, {
       toValue: updatedValue.current,
-      duration: duration,
+      delay: 250,
       useNativeDriver: true,
     }).start();
   }, [updatedValue.current]);
 
   const pinchGesture = Gesture.Pinch()
-    .runOnJS(true)
-    .onUpdate(
-      debounce((e) => {
-        updatedValue.current = lastSavedValue.current * e.scale;
-      }),
-    )
+    .onUpdate((e) => {
+      updatedValue.current = lastSavedValue.current * e.scale;
+    })
     .onEnd(() => {
       lastSavedValue.current = updatedValue.current;
       startValue.current = new Animated.Value(updatedValue.current);

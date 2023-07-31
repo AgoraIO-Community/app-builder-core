@@ -41,16 +41,21 @@ const VideoCallleScreen = () => {
     ? Object.keys(maxScreenShareData)[0]
     : null;
 
-  return isScreenShareOnFullView &&
-    maxScreenShareUid &&
-    renderList[maxScreenShareUid] &&
-    renderList[maxScreenShareUid]?.video ? (
-    <VideoCallMobileView />
-  ) : (
+  return (
     <GestureHandlerRootView style={{flex: 1}}>
       <VideoCallMobileView />
     </GestureHandlerRootView>
   );
+  // return isScreenShareOnFullView &&
+  //   maxScreenShareUid &&
+  //   renderList[maxScreenShareUid] &&
+  //   renderList[maxScreenShareUid]?.video ? (
+  //   <VideoCallMobileView />
+  // ) : (
+  //   <GestureHandlerRootView style={{flex: 1}}>
+  //     <VideoCallMobileView />
+  //   </GestureHandlerRootView>
+  // );
 };
 
 export default VideoCallleScreen;
