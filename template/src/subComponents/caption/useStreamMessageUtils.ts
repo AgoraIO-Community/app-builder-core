@@ -13,6 +13,7 @@ type TranscriptItem = {
   time: number;
   text: string;
 };
+const waitTime = 10000;
 const useStreamMessageUtils = (): {
   streamMessageCallback: StreamMessageCallback;
 } => {
@@ -63,7 +64,7 @@ const useStreamMessageUtils = (): {
       }
       // captions being cleared for when no one is speaking
       const currentTime = new Date().getTime();
-      if (currentTime - lastUpdated > 3000) {
+      if (currentTime - lastUpdated > waitTime - 1000) {
         finalList.current[activeSpeakerUID]?.length > 0 &&
           setMeetingTranscript((prevTranscript) => {
             return [
@@ -86,7 +87,7 @@ const useStreamMessageUtils = (): {
           },
         }));
       }
-    }, 2000);
+    }, 1000);
     return () => clearInterval(timerID);
   }, [captionObj]);
 
@@ -229,7 +230,7 @@ const useStreamMessageUtils = (): {
             text: text1,
           } = prevState[prevSpeakerRef.current];
 
-          if (currentTime - lastUpdated1 > 3000 && text1 !== '') {
+          if (currentTime - lastUpdated1 > waitTime - 3000 && text1 !== '') {
             // clear prev user captions
 
             inActiveUserObj = {
@@ -240,25 +241,25 @@ const useStreamMessageUtils = (): {
               },
             };
 
-            const timerID = setTimeout(() => {
-              finalList.current[prevSpeakerRef.current]?.length > 0 &&
-                setMeetingTranscript((prevTranscript) => {
-                  return [
-                    ...prevTranscript,
-                    {
-                      name: name1,
-                      uid: prevSpeakerRef.current,
-                      text: text1,
-                      time: lastUpdated1,
-                    },
-                  ];
-                });
-              finalList.current[prevSpeakerRef.current] = [];
-              setCaptionObj((prev) => ({
-                ...prev,
-                ...inActiveUserObj,
-              }));
-            }, 2000);
+            //  const timerID = setTimeout(() => {
+            finalList.current[prevSpeakerRef.current]?.length > 0 &&
+              setMeetingTranscript((prevTranscript) => {
+                return [
+                  ...prevTranscript,
+                  {
+                    name: name1,
+                    uid: prevSpeakerRef.current,
+                    text: text1,
+                    time: lastUpdated1,
+                  },
+                ];
+              });
+            finalList.current[prevSpeakerRef.current] = [];
+            setCaptionObj((prev) => ({
+              ...prev,
+              ...inActiveUserObj,
+            }));
+            //  }, 2000);
           }
         }
         return {

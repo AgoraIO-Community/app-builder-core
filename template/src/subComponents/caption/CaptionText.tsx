@@ -27,7 +27,7 @@ export const CaptionText = ({
     <View
       style={[
         isMobile ? styles.captionContainerMobile : styles.captionContainer,
-        // {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+        {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
         {borderColor: isActiveSpeaker ? 'blue' : 'yellow'},
       ]}>
       {/*  Name  Tag */}
@@ -64,14 +64,14 @@ export const CaptionText = ({
             ? styles.captionTextContainerMobileStyle
             : styles.captionTextContainerStyle,
           // {height: '90%'},
-          //  {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
+          {height: isMobile ? mobileCaptionHeight : desktopCaptionHeight},
         ]}>
         <Text
           style={[
             styles.captionText,
             isMobile ? styles.mobileFontSize : styles.desktopFontSize,
             {
-              //    minHeight: isMobile ? mobileCaptionHeight : desktopCaptionHeight,
+              minHeight: isMobile ? mobileCaptionHeight : desktopCaptionHeight,
             },
           ]}>
           {value}
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     flex: 1,
     // added for moving text up;
-    height: '100%',
+    // height: '100%',
     // borderWidth: 1,
     // borderColor: 'red',
   },
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     // added for moving text bottom to top:
     // borderWidth: 1,
     // borderColor: 'green',
-    height: '100%',
+    //height: '100%',
     alignItems: 'flex-end',
   },
   nameContainerMobileStyle: {
