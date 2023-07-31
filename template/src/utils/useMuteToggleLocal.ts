@@ -11,8 +11,8 @@
 */
 import {useLocalUserInfo, useRtc} from 'customization-api';
 import {useContext} from 'react';
-import {ToggleState} from '../../agora-rn-uikit/src/Contexts/PropsContext';
-import {isWebInternal} from './common';
+import {PropsContext, ClientRole, ToggleState} from '../../agora-rn-uikit';
+import {isAndroid, isIOS, isWebInternal} from './common';
 import {SdkMuteQueueContext} from '../components/SdkMuteToggleListener';
 
 export enum MUTE_LOCAL_TYPE {
@@ -25,6 +25,9 @@ export enum MUTE_LOCAL_TYPE {
 function useMuteToggleLocal() {
   const {RtcEngine, dispatch} = useRtc();
   const local = useLocalUserInfo();
+  const isLiveStream = $config.EVENT_MODE;
+  const {rtcProps} = useContext(PropsContext);
+  const isBroadCasting = rtcProps?.role == ClientRole.Broadcaster;
 
   const {videoMuteQueue, audioMuteQueue} = useContext(SdkMuteQueueContext);
 
@@ -125,7 +128,17 @@ function useMuteToggleLocal() {
                 : await RtcEngine.enableLocalVideo(
                     localVideoState === ToggleState.enabled ? false : true,
                   );
-
+              /**
+               * In native only
+               * hotfix for livestream co-presenter video publishing
+               * enableLocalVideo -> only enabled local video not publishing video stream
+               * enable publishing for livestreaming presenter(who raised hand and approved by host)
+               */
+              if ((isAndroid() || isIOS()) && isLiveStream && isBroadCasting) {
+                await RtcEngine.muteLocalVideoStream(
+                  localVideoState === ToggleState.enabled ? true : false,
+                );
+              }
               // Enable UI
               dispatch({
                 type: 'LocalMuteVideo',
