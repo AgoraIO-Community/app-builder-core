@@ -1,14 +1,17 @@
-import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
-import {isAndroid} from '../../utils/common';
+// import {ReactNativeZoomableView} from '@openspacelabs/react-native-zoomable-view';
+// import {isAndroid} from '../../utils/common';
 import React, {useEffect, useRef} from 'react';
-import {Animated, View} from 'react-native';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {useSharedValue} from 'react-native-reanimated';
+// import {Animated, View} from 'react-native';
+// import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+// import {useSharedValue} from 'react-native-reanimated';
+import {PinchableView} from './PinchableView';
 
 const ZoomableWrapper = (props) => {
   if (!props?.enableZoom) {
     return <>{props.children}</>;
   }
+  return <PinchableView>{props.children}</PinchableView>;
+  /**
   if (isAndroid()) {
     return (
       <View
@@ -29,11 +32,6 @@ const ZoomableWrapper = (props) => {
       </View>
     );
   }
-  /**
-   * IOS - SurfaceView having some issue ReactNativeZoomableView lib for zoom
-   * SurfaceView blocking pinch gesture from ReactNativeZoomableView lib
-   * so below added pinch gesture to enable zoom in/out option on ios
-   */
 
   const startValue = useRef(new Animated.Value(1));
   const lastSavedValue = useRef(1);
@@ -81,5 +79,6 @@ const ZoomableWrapper = (props) => {
       </Animated.View>
     </GestureDetector>
   );
+   */
 };
 export default ZoomableWrapper;
