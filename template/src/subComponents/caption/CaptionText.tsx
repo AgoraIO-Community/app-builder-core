@@ -36,7 +36,7 @@ const CaptionText = ({
     const textHeight = event.nativeEvent.layout.height;
     // max caption lines 3 for 1 user
     // max caption lines for active speaker 2 when 2 users
-    const MaxLines = activeSpeakersCount === 1 ? 3 : isActiveSpeaker ? 2 : 2;
+    const MaxLines = activeSpeakersCount === 1 ? 3 : isActiveSpeaker ? 2 : 1;
     const currentLines = Math.floor(textHeight / DESKTOP_LINE_HEIGHT); //TODO: for mobile
     const allowedCurrentLines = Math.min(currentLines, MaxLines);
 
