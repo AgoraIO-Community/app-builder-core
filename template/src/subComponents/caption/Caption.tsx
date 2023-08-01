@@ -3,7 +3,7 @@ import React from 'react';
 import {useRender, useRtc} from 'customization-api';
 
 import {useCaption} from './useCaption';
-import {CaptionText} from './CaptionText';
+import CaptionText from './CaptionText';
 import Spacer from '../../../src/atoms/Spacer';
 import Loading from '../Loading';
 // import {streamMessageCallback} from './utils';

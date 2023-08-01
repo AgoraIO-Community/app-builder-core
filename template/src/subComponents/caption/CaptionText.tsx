@@ -18,7 +18,7 @@ interface CaptionTextProps {
 const DESKTOP_LINE_HEIGHT = 28;
 const MOBILE_LINE_HEIGHT = 24; // TO VERIFY
 
-export const CaptionText = ({
+const CaptionText = ({
   user,
   value,
   activeSpeakersCount,
@@ -27,16 +27,11 @@ export const CaptionText = ({
   setActiveContainerFlex,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
-  const mobileCaptionHeight = activeSpeakersCount === 1 ? 90 : 45;
-  const desktopCaptionHeight = activeSpeakersCount === 1 ? 108 : 54;
-  // as user speaks continously previous captions should be hidden , new appended
-
-  const flexRef = React.useRef(0.4);
 
   const [captionContainerHeight, setCaptionContainerHeight] = React.useState(
     () => (isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT),
   );
-  const [containerFlex, setContainerFlex] = React.useState(1);
+
   const handleTextLayout = (event: LayoutChangeEvent) => {
     const textHeight = event.nativeEvent.layout.height;
     // max caption lines 3 for 1 user
@@ -44,14 +39,8 @@ export const CaptionText = ({
     const MaxLines = activeSpeakersCount === 1 ? 3 : isActiveSpeaker ? 2 : 1;
     const currentLines = Math.floor(textHeight / DESKTOP_LINE_HEIGHT); //TODO: for mobile
     const allowedCurrentLines = Math.min(currentLines, MaxLines);
-    const flex =
-      activeSpeakersCount === 1
-        ? 1
-        : isActiveSpeaker
-        ? (allowedCurrentLines + 1) * 0.2
-        : 1 - flexRef.current;
 
-    if (isActiveSpeaker) {
+    if (isActiveSpeaker && activeSpeakersCount !== 1) {
       setActiveContainerFlex(
         activeSpeakersCount === 1 ? 1 : (allowedCurrentLines + 1) * 0.2, // total 5 lines (3 caption + 2 name tag) so 1 line will take 1/5 =>0.2
       );
@@ -99,6 +88,8 @@ export const CaptionText = ({
     </View>
   );
 };
+
+export default CaptionText;
 
 const styles = StyleSheet.create({
   captionContainer: {
