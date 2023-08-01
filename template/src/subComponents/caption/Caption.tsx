@@ -26,6 +26,7 @@ const Caption: React.FC = () => {
 
   const {streamMessageCallback} = useStreamMessageUtils();
   const {renderList} = useRender();
+  const [activeContainerFlex, setActiveContainerFlex] = React.useState(1);
 
   const handleStreamMessageCallback1 = (
     ...args: [number, Uint8Array] | [number, string, Uint8Array]
@@ -88,8 +89,9 @@ const Caption: React.FC = () => {
                 value={captionObj[prevActiveSpeakerUID].text}
                 activeSpeakersCount={speakerCount}
                 isActiveSpeaker={false}
+                activeContainerFlex={1 - activeContainerFlex}
+                setActiveContainerFlex={setActiveContainerFlex}
               />
-              <Spacer size={10} />
             </>
           ) : (
             <></>
@@ -100,6 +102,8 @@ const Caption: React.FC = () => {
               value={captionObj[activeSpeakerUID].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
+              activeContainerFlex={activeContainerFlex}
+              setActiveContainerFlex={setActiveContainerFlex}
             />
           ) : (
             <></>
