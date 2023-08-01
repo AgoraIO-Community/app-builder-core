@@ -201,7 +201,7 @@ const CaptionsActionMenu = (props: CaptionsActionMenuProps) => {
     icon: 'captions-off',
     iconColor: $config.SECONDARY_ACTION_COLOR,
     textColor: $config.FONT_COLOR,
-    title: 'Turn Off Captions ',
+    title: 'Hide Captions ',
     callback: () => {
       setActionMenuVisible(false);
       setIsCaptionON(false);
