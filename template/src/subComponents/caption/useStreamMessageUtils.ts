@@ -8,7 +8,6 @@ type FinalListType = {
   [key: string]: string[];
 };
 type TranscriptItem = {
-  name: string;
   uid: string;
   time: number;
   text: string;
@@ -29,20 +28,9 @@ const useStreamMessageUtils = (): {
   } = useCaption();
   const startTimeRef = useRef<number>(0);
   const finalList = useRef<FinalListType>({});
-  const {renderList} = useRender();
-  const renderListRef = useRef({renderList});
-  const captionObjRef = useRef(captionObj);
+
   const activeSpeakerRef = useRef(activeSpeakerUID);
   const prevSpeakerRef = useRef(prevActiveSpeakerUID);
-
-  /* renderlist was not updating when new user joins the call */
-  useEffect(() => {
-    renderListRef.current.renderList = renderList;
-  }, [renderList]);
-
-  // useEffect(() => {
-  //   captionObjRef.current = captionObj;
-  // }, [captionObj]);
 
   useEffect(() => {
     activeSpeakerRef.current = activeSpeakerUID;
@@ -60,7 +48,6 @@ const useStreamMessageUtils = (): {
     let nonFinalList = []; // holds intermediate results
     let currentText = ''; // holds current caption
     let currentTranscript: TranscriptItem = {
-      name: '',
       uid: '',
       time: 0,
       text: '',
@@ -81,9 +68,6 @@ const useStreamMessageUtils = (): {
       setActiveSpeakerUID(textstream.uid);
     }
 
-    // identifying speaker of caption
-    const userName =
-      renderListRef.current.renderList[textstream.uid]?.name || 'Speaker';
     /* creating [] for each user to store their complete transcripts
        ex: {282190954:[]}
     */
@@ -154,7 +138,6 @@ const useStreamMessageUtils = (): {
           return [
             ...prevTranscript,
             {
-              name: userName,
               uid: textstream.uid,
               time: new Date().getTime(),
               text: currentText,
@@ -183,7 +166,6 @@ const useStreamMessageUtils = (): {
           [textstream.uid]: {
             text: stringBuilder,
             lastUpdated: new Date().getTime(),
-            name: userName,
           },
           //  ...inActiveUserObj,
         };

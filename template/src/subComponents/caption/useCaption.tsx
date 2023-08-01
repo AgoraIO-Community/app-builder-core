@@ -3,7 +3,6 @@ import React from 'react';
 import {LanguageType} from './utils';
 
 type TranscriptItem = {
-  name: string;
   uid: string;
   time: number;
   text: string;
@@ -13,7 +12,6 @@ type CaptionObj = {
   [key: string]: {
     text: string;
     lastUpdated: number;
-    name: string;
   };
 };
 

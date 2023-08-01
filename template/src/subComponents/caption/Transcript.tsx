@@ -105,7 +105,7 @@ const Transcript = (props: TranscriptProps) => {
       </View>
     ) : (
       <TranscriptText
-        user={item.name}
+        user={renderList[item.uid].name}
         time={item.time}
         value={item.text}
         searchQuery={searchQuery}

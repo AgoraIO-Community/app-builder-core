@@ -85,7 +85,7 @@ const Caption: React.FC = () => {
           captionObj[prevActiveSpeakerUID].text ? (
             <>
               <CaptionText
-                user={captionObj[prevActiveSpeakerUID].name}
+                user={renderList[prevActiveSpeakerUID].name || 'Speaker'}
                 value={captionObj[prevActiveSpeakerUID].text}
                 activeSpeakersCount={speakerCount}
                 isActiveSpeaker={false}
@@ -98,7 +98,7 @@ const Caption: React.FC = () => {
           )}
           {captionObj[activeSpeakerUID] && captionObj[activeSpeakerUID].text ? (
             <CaptionText
-              user={captionObj[activeSpeakerUID].name}
+              user={renderList[activeSpeakerUID].name || 'Speaker'}
               value={captionObj[activeSpeakerUID].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
