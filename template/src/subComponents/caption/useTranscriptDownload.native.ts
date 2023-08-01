@@ -1,13 +1,14 @@
 import {formatTime} from './utils';
 import {useCaption} from './useCaption';
 import RNFetchBlob from 'rn-fetch-blob';
-import {isAndroid, isIOS} from 'customization-api';
+import {isAndroid, isIOS, useRender} from 'customization-api';
 import Share from 'react-native-share';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
 } => {
   const {meetingTranscript} = useCaption();
+  const {renderList} = useRender();
 
   const downloadTranscript = (): Promise<string | null> => {
     return new Promise((resolve, reject) => {
@@ -15,9 +16,9 @@ const useTranscriptDownload = (): {
         const formattedContent = meetingTranscript
           .map((item) => {
             if (item.uid === 'langUpdate') return item.text;
-            return `${item.name} ${formatTime(Number(item.time))}:\n${
-              item.text
-            }`;
+            return `${renderList[item.uid].name} ${formatTime(
+              Number(item.time),
+            )}:\n${item.text}`;
           })
           .join('\n\n');
 
