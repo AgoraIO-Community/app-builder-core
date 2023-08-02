@@ -62,7 +62,10 @@ const useStreamMessageUtils = (): {
 
     if (textstream.uid !== activeSpeakerRef.current) {
       // we have a speaker change so clear the contect
-      finalList.current[textstream.uid] = [];
+      if (prevSpeakerRef.current !== '') {
+        finalList.current[prevSpeakerRef.current] = [];
+      }
+
       //finalList.current[activeSpeakerRef.current] = [];
       setPrevActiveSpeakerUID(activeSpeakerRef.current);
       setActiveSpeakerUID(textstream.uid);

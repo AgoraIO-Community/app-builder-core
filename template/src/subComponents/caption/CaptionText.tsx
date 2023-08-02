@@ -5,6 +5,7 @@ import ThemeConfig from '../../../src/theme';
 import hexadecimalTransparency from '../../../src/utils/hexadecimalTransparency';
 import {isMobileUA} from '../../utils/common';
 import {CAPTION_CONTAINER_HEIGHT} from 'src/components/CommonStyles';
+import {useCaption} from './useCaption';
 
 interface CaptionTextProps {
   user: string;
@@ -13,6 +14,8 @@ interface CaptionTextProps {
   isActiveSpeaker?: boolean;
   activeContainerFlex: number;
   setActiveContainerFlex: React.Dispatch<React.SetStateAction<number>>;
+  activelinesAvailable: number;
+  setActiveLinesAvailable: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -25,19 +28,34 @@ const CaptionText = ({
   isActiveSpeaker = false,
   activeContainerFlex,
   setActiveContainerFlex,
+  activelinesAvailable,
+  setActiveLinesAvailable,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
 
   const [captionContainerHeight, setCaptionContainerHeight] = React.useState(
     () => (isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT),
   );
+  const activeLinesRef = React.useRef(1);
+  const preActiveLinesRef = React.useRef(1);
 
   const handleTextLayout = (event: LayoutChangeEvent) => {
     const textHeight = event.nativeEvent.layout.height;
+    const currentLines = Math.floor(textHeight / DESKTOP_LINE_HEIGHT); //TODO: for mobile
+    if (isActiveSpeaker) {
+      activeLinesRef.current = Math.min(currentLines, 3);
+    } else {
+      preActiveLinesRef.current = Math.min(currentLines, 3);
+    }
     // max caption lines 3 for 1 user
     // max caption lines for active speaker 2 when 2 users
-    const MaxLines = activeSpeakersCount === 1 ? 3 : isActiveSpeaker ? 2 : 1;
-    const currentLines = Math.floor(textHeight / DESKTOP_LINE_HEIGHT); //TODO: for mobile
+    const MaxLines =
+      activeSpeakersCount === 1
+        ? 3
+        : isActiveSpeaker
+        ? activeLinesRef.current
+        : 3 - activeLinesRef.current;
+
     const allowedCurrentLines = Math.min(currentLines, MaxLines);
 
     if (isActiveSpeaker && activeSpeakersCount !== 1) {
@@ -46,10 +64,13 @@ const CaptionText = ({
       );
     }
 
-    setCaptionContainerHeight(
-      () => Math.min(textHeight, DESKTOP_LINE_HEIGHT * MaxLines) - 1,
-      // 1 is subtracted from line height to avoid hindi charcters when scrolled up
-    );
+    if (isActiveSpeaker) {
+      setActiveLinesAvailable(allowedCurrentLines);
+    }
+
+    if (isActiveSpeaker && activeSpeakersCount !== 1 && currentLines >= 3) {
+      setActiveContainerFlex(() => 1);
+    }
   };
 
   return (
@@ -72,7 +93,13 @@ const CaptionText = ({
       <View
         style={[
           styles.captionTextContainerStyle,
-          {height: captionContainerHeight},
+          {
+            height:
+              (isActiveSpeaker
+                ? activelinesAvailable
+                : Math.min(activelinesAvailable, preActiveLinesRef.current)) *
+              DESKTOP_LINE_HEIGHT,
+          },
         ]}>
         <Text
           onLayout={handleTextLayout}
@@ -98,7 +125,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 620,
     justifyContent: 'flex-end',
-    //   borderWidth: 1,
+    //  borderWidth: 1,
     borderStyle: 'dotted',
   },
 
