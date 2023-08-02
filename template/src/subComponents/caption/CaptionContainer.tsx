@@ -27,6 +27,7 @@ import {
   SIDE_PANEL_GAP,
   SIDE_PANEL_MIN_WIDTH,
   CAPTION_CONTAINER_HEIGHT,
+  MOBILE_CAPTION_CONTAINER_HEIGHT,
 } from '../../../src/components/CommonStyles';
 import useCaptionWidth from './useCaptionWidth';
 import {LanguageType} from './utils';
@@ -281,8 +282,8 @@ const styles = StyleSheet.create({
   },
   mobileContainer: {
     paddingVertical: 4,
-    paddingHorizontal: 12,
-    height: 120,
+    paddingHorizontal: 8,
+    height: MOBILE_CAPTION_CONTAINER_HEIGHT,
     backgroundColor: $config.CARD_LAYER_1_COLOR,
     borderRadius: ThemeConfig.BorderRadius.small,
     marginTop: 8,

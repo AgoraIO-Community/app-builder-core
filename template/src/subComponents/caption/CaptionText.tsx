@@ -19,7 +19,7 @@ interface CaptionTextProps {
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
-const MOBILE_LINE_HEIGHT = 24; // TO VERIFY
+const MOBILE_LINE_HEIGHT = 19; // TO VERIFY
 
 const CaptionText = ({
   user,
@@ -39,16 +39,20 @@ const CaptionText = ({
   const activeLinesRef = React.useRef(1);
   const preActiveLinesRef = React.useRef(1);
 
+  const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
+
+  // callback triggers whenevere captions reaches next line
   const handleTextLayout = (event: LayoutChangeEvent) => {
-    const textHeight = event.nativeEvent.layout.height;
-    const currentLines = Math.floor(textHeight / DESKTOP_LINE_HEIGHT); //TODO: for mobile
+    const textHeight = event.nativeEvent.layout.height; // height of the <Text>
+    const currentLines = Math.floor(textHeight / LINE_HEIGHT); // calculate numberOfLines
+
     if (isActiveSpeaker) {
-      activeLinesRef.current = Math.min(currentLines, 3);
+      activeLinesRef.current = Math.min(currentLines, 3); // setting activeUser Lines
     } else {
-      preActiveLinesRef.current = Math.min(currentLines, 3);
+      preActiveLinesRef.current = Math.min(currentLines, 3); // setting in-activeUser Lines
     }
-    // max caption lines 3 for 1 user
-    // max caption lines for active speaker 2 when 2 users
+
+    // max caption lines means how many lines can be accomadated: Max 3 for 1 speaker and 2 for 2 speakers
     const MaxLines =
       activeSpeakersCount === 1
         ? 3
@@ -56,16 +60,16 @@ const CaptionText = ({
         ? activeLinesRef.current
         : 3 - activeLinesRef.current;
 
-    const allowedCurrentLines = Math.min(currentLines, MaxLines);
+    const currentActiveLines = Math.min(currentLines, MaxLines);
 
     if (isActiveSpeaker && activeSpeakersCount !== 1) {
       setActiveContainerFlex(
-        activeSpeakersCount === 1 ? 1 : (allowedCurrentLines + 1) * 0.2, // total 5 lines (3 caption + 2 name tag) so 1 line will take 1/5 =>0.2
+        activeSpeakersCount === 1 ? 1 : (currentActiveLines + 1) * 0.2, // total 5 lines (3 caption + 2 name tag) so 1 line will take 1/5 =>0.2
       );
     }
 
     if (isActiveSpeaker) {
-      setActiveLinesAvailable(allowedCurrentLines);
+      setActiveLinesAvailable(currentActiveLines);
     }
 
     if (isActiveSpeaker && activeSpeakersCount !== 1 && currentLines >= 3) {
@@ -98,7 +102,7 @@ const CaptionText = ({
               (isActiveSpeaker
                 ? activelinesAvailable
                 : Math.min(activelinesAvailable, preActiveLinesRef.current)) *
-              DESKTOP_LINE_HEIGHT,
+              LINE_HEIGHT,
           },
         ]}>
         <Text
@@ -107,7 +111,7 @@ const CaptionText = ({
             styles.captionText,
             isMobile
               ? styles.mobileCaptionFontSize
-              : styles.edsktopCaptionFontSize,
+              : styles.desktopCaptionFontSize,
           ]}>
           {value}
         </Text>
@@ -152,8 +156,8 @@ const styles = StyleSheet.create({
     maxWidth: 200,
   },
   mobileNameFontSize: {
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: 16,
+    lineHeight: 19,
   },
   desktopNameFontSize: {
     fontSize: 18,
@@ -161,9 +165,9 @@ const styles = StyleSheet.create({
   },
   mobileCaptionFontSize: {
     fontSize: 16,
-    lineHeight: 22,
+    lineHeight: 19,
   },
-  edsktopCaptionFontSize: {
+  desktopCaptionFontSize: {
     fontSize: 24,
     lineHeight: 28,
   },
