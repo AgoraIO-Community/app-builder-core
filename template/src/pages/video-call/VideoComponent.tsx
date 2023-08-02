@@ -44,22 +44,25 @@ const VideoComponent = () => {
     isValidReactComponent(layoutsData[layout].component)
   ) {
     const CurrentLayout = layoutsData[layout].component;
-    return (
-      <View
-        style={{
-          flex: 1,
-          flexDirection: isDesktop() ? 'row' : 'column',
-          justifyContent: 'space-between',
-        }}>
-        <CurrentLayout renderData={activeUids} />
-        {activeUids.length === 1 && (
-          <>
-            <Spacer size={24} horizontal={isDesktop() ? true : false} />
-            <MeetingInfoGridTile />
-          </>
-        )}
-      </View>
-    );
+    if (activeUids.length == 1) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: isDesktop() ? 'row' : 'column',
+            justifyContent: 'space-between',
+          }}>
+          <CurrentLayout renderData={activeUids} />
+          {activeUids.length === 1 && (
+            <>
+              <Spacer size={24} horizontal={isDesktop() ? true : false} />
+              <MeetingInfoGridTile />
+            </>
+          )}
+        </View>
+      );
+    }
+    return <CurrentLayout renderData={activeUids} />;
   } else {
     return <></>;
   }
