@@ -125,8 +125,8 @@ const useStreamMessageUtils = (): {
         */
         if (
           currentTranscript &&
-          currentTranscript.uid === textstream.uid &&
-          new Date().getTime() - currentTranscript.time < 30000
+          currentTranscript.uid === textstream.uid
+          //  && new Date().getTime() - currentTranscript.time < 30000
         ) {
           currentTranscript.text = currentTranscript.text + ' ' + currentText;
           shouldTranscriptBeUpdated = true;
