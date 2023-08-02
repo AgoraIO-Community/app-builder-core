@@ -102,7 +102,14 @@ const DropdownMulti: FC<Props> = ({
   // renders each lang checkbox row
   const renderItem = ({item}): ReactElement<any, any> => {
     const isSelected = selectedValues.includes(item.value);
-    const isDisabled = !isSelected && selectedValues.length === 2;
+    const isUSEngLangSelected = selectedValues.includes('en-US');
+    const isINEngLangSelected = selectedValues.includes('en-IN');
+
+    const isDisabled =
+      (!isSelected && selectedValues.length === 2) ||
+      (item.value === 'en-US' && isINEngLangSelected) ||
+      (item.value === 'en-IN' && isUSEngLangSelected);
+
     setError(isDisabled || selectedValues.length === 0);
 
     return (
