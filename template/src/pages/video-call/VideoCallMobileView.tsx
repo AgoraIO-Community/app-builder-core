@@ -32,6 +32,13 @@ const VideoCallMobileView = () => {
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const local = useLocalUserInfo();
+  const {renderList} = useRender();
+
+  const renderListRef = React.useRef(renderList);
+
+  React.useEffect(() => {
+    renderListRef.current = renderList;
+  }, [renderList]);
 
   const isCamON = useRef(local.video);
 
@@ -88,14 +95,14 @@ const VideoCallMobileView = () => {
     });
 
     events.on(EventNames.STT_LANGUAGE, (data) => {
-      const {username, prevLang, newLang} = JSON.parse(data?.payload);
-      const action =
+      const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
+      const actionText =
         prevLang.indexOf('') !== -1
           ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
           : `changed the spoken language from "${getLanguageLabel(
               prevLang,
             )}" to "${getLanguageLabel(newLang)}" `;
-      const msg = `${username} ${action} `;
+      const msg = `${renderListRef[uid]?.name || username} ${actionText} `;
 
       Toast.show({
         type: 'info',
@@ -115,8 +122,8 @@ const VideoCallMobileView = () => {
           {
             name: 'langUpdate',
             time: new Date().getTime(),
-            uid: 'langUpdate',
-            text: msg,
+            uid: `langUpdate-${uid}`,
+            text: actionText,
           },
         ];
       });

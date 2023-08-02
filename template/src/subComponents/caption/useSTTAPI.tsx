@@ -7,6 +7,7 @@ import {EventNames} from '../../rtm-events';
 import {getLanguageLabel, LanguageType} from './utils';
 import useGetName from '../../utils/useGetName';
 import {capitalizeFirstLetter} from '../../utils/common';
+import {useLocalUid} from '../../../agora-rn-uikit';
 
 interface IuseSTTAPI {
   start: (lang: LanguageType[]) => Promise<{message: string} | null>;
@@ -32,6 +33,7 @@ const useSTTAPI = (): IuseSTTAPI => {
   const currentLangRef = React.useRef<LanguageType[]>([]);
   const STT_API_URL = `${$config.BACKEND_ENDPOINT}/v1/stt`;
   const username = useGetName();
+  const localUid = useLocalUid();
 
   React.useEffect(() => {
     currentLangRef.current = language;
@@ -84,6 +86,7 @@ const useSTTAPI = (): IuseSTTAPI => {
           EventNames.STT_LANGUAGE,
           JSON.stringify({
             username: capitalizeFirstLetter(username),
+            uid: localUid,
             prevLang: language,
             newLang: lang,
           }),
@@ -92,21 +95,21 @@ const useSTTAPI = (): IuseSTTAPI => {
         setLanguage(lang);
 
         // updaing transcript for self
-        const action =
+        const actionText =
           language.indexOf('') !== -1
             ? `has set the spoken language to  "${getLanguageLabel(lang)}" `
             : `changed the spoken language from "${getLanguageLabel(
                 language,
               )}" to "${getLanguageLabel(lang)}" `;
-        const msg = `${capitalizeFirstLetter(username)} ${action} `;
+        const msg = `${capitalizeFirstLetter(username)} ${actionText} `;
         setMeetingTranscript((prev) => {
           return [
             ...prev,
             {
               name: 'langUpdate',
               time: new Date().getTime(),
-              uid: 'langUpdate',
-              text: msg,
+              uid: `langUpdate-${localUid}`,
+              text: actionText,
             },
           ];
         });

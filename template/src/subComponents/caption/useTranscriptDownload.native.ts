@@ -15,7 +15,10 @@ const useTranscriptDownload = (): {
       try {
         const formattedContent = meetingTranscript
           .map((item) => {
-            if (item.uid === 'langUpdate') return item.text;
+            if (item.uid.toString().indexOf('langUpdate') !== -1)
+              return `${renderList[item?.uid?.split('-')[1]]?.name} ${
+                item.text
+              }`;
             return `${renderList[item.uid].name} ${formatTime(
               Number(item.time),
             )}:\n${item.text}`;

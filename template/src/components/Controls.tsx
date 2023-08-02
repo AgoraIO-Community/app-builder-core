@@ -66,6 +66,7 @@ import Toast from '../../react-native-toast-message';
 import {getLanguageLabel} from '../../src/subComponents/caption/utils';
 import ImageIcon from '../atoms/ImageIcon';
 import useGetName from '../utils/useGetName';
+import {useRender} from 'customization-api';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -390,11 +391,17 @@ const Controls = () => {
   const isDesktop = useIsDesktop();
   // attendee can view option if any host has started STT
   const {isAuthorizedSTTUser} = useSTTAPI();
+  const {renderList} = useRender();
   const {
     data: {isHost},
   } = useMeetingInfo();
   const {width} = useWindowDimensions();
   const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
+  const renderListRef = React.useRef(renderList);
+
+  React.useEffect(() => {
+    renderListRef.current = renderList;
+  }, [renderList]);
 
   React.useEffect(() => {
     // for native events are set in VideoCallMobileView as this action is action sheet
@@ -405,14 +412,16 @@ const Controls = () => {
       });
 
       events.on(EventNames.STT_LANGUAGE, (data) => {
-        const {username, prevLang, newLang} = JSON.parse(data?.payload);
-        const action =
+        const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
+        const actionText =
           prevLang.indexOf('') !== -1
             ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
             : `changed the spoken language from "${getLanguageLabel(
                 prevLang,
               )}" to "${getLanguageLabel(newLang)}" `;
-        const msg = `${username} ${action} `;
+        const msg = `${
+          renderListRef.current[uid]?.name || username
+        } ${actionText} `;
 
         Toast.show({
           type: 'info',
@@ -432,8 +441,8 @@ const Controls = () => {
             {
               name: 'langUpdate',
               time: new Date().getTime(),
-              uid: 'langUpdate',
-              text: msg,
+              uid: `langUpdate-${uid}`,
+              text: actionText,
             },
           ];
         });

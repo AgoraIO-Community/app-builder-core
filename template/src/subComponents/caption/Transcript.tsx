@@ -92,7 +92,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const renderItem = ({item}) => {
-    return item.uid === 'langUpdate' ? (
+    return item.uid.toString().indexOf('langUpdate') !== -1 ? (
       <View style={styles.langChangeContainer}>
         <ImageIcon
           iconType="plain"
@@ -101,7 +101,9 @@ const Transcript = (props: TranscriptProps) => {
           name={'lang-select'}
         />
 
-        <Text style={styles.langChange}>{item.text}</Text>
+        <Text style={styles.langChange}>
+          {renderList[item?.uid?.split('-')[1]].name + ' ' + item.text}
+        </Text>
       </View>
     ) : (
       <TranscriptText
