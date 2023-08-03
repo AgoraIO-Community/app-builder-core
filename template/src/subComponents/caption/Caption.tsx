@@ -1,4 +1,4 @@
-import {StyleSheet, View, ScrollView} from 'react-native';
+import {StyleSheet, View, ScrollView, Text} from 'react-native';
 import React from 'react';
 import {useRender, useRtc} from 'customization-api';
 
@@ -22,6 +22,8 @@ const Caption: React.FC = () => {
     setIsSTTListenerAdded,
     activeSpeakerUID,
     prevActiveSpeakerUID,
+    setPrevActiveSpeakerUID,
+    setActiveSpeakerUID,
   } = useCaption();
 
   const {streamMessageCallback} = useStreamMessageUtils();
@@ -43,13 +45,23 @@ const Caption: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (!isSTTListenerAdded) {
+    if (1 || !isSTTListenerAdded) {
       RtcEngine.addListener(
         'StreamMessage',
         handleStreamMessageCallback1 as unknown as StreamMessageCallback,
       );
     }
-    setCaptionObj({}); // clear live captions on mount
+    return () => {
+      // RtcEngine.removeListener is not a function
+      // RtcEngine.removeListener(
+      //   'StreamMessage',
+      //   handleStreamMessageCallback1 as unknown as StreamMessageCallback,
+      // );
+      setPrevActiveSpeakerUID('');
+      setActiveSpeakerUID('');
+      setCaptionObj({});
+    };
+    //  setCaptionObj({}); // clear live captions on mount
   }, []);
 
   if (isLangChangeInProgress)
@@ -81,7 +93,15 @@ const Caption: React.FC = () => {
     <View style={styles.captionContainer}>
       {
         <>
-          {speakerCount == 2 &&
+          <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
+            Active Speaker : {renderList[activeSpeakerUID]?.name || ''} (
+            {activeSpeakerUID})
+          </Text>
+          <Text style={{color: 'pink', position: 'absolute', top: 0}}>
+            Prev Speaker: {renderList[prevActiveSpeakerUID]?.name || ''} (
+            {prevActiveSpeakerUID})
+          </Text>
+          {speakerCount === 2 &&
           captionObj[prevActiveSpeakerUID] &&
           captionObj[prevActiveSpeakerUID].text ? (
             <>
