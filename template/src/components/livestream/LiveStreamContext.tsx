@@ -149,6 +149,7 @@ export const LiveStreamContextProvider: React.FC<liveStreamPropsInterface> = (
     }
 
     Toast.show({
+      leadingIconName: 'info',
       type: 'info',
       text1: text,
       text2: text2 ? text2 : null,

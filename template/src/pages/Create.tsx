@@ -141,6 +141,7 @@ const Create = () => {
         await createRoomFun(roomTitle, enablePSTN, isSeparateHostLink);
         setLoading(false);
         Toast.show({
+          leadingIconName: 'tick-fill',
           type: 'success',
           text1: trimText(roomTitle) + createdText,
           text2: 'Your New meeting is now live',
@@ -207,6 +208,7 @@ const Create = () => {
 
   const showError = () => {
     Toast.show({
+      leadingIconName:'alert',
       type: 'error',
       text1: 'Backend endpoint not configured',
       text2: 'Please configure backend endpoint config.json',

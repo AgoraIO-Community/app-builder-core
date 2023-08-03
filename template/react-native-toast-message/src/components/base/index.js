@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Icon from '../icon';
 import { icons } from '../../assets';
 import { stylePropType } from '../../utils/prop-types';
-import styles, { HEIGHT } from './styles';
+import styles from './styles';
 
 function BaseToast({
   leadingIcon,
@@ -26,7 +26,7 @@ function BaseToast({
   return (
     <TouchableOpacity
       testID='rootView'
-      style={[styles.base, styles.borderTop, style]}
+      style={[styles.base, style]}
       onPress={onPress}
       activeOpacity={onPress ? activeOpacity : 1}>
       <View
@@ -60,7 +60,7 @@ function BaseToast({
           <View
             style={{
               flexDirection: 'row',
-              paddingTop: 20
+              paddingTop: 16
             }}>
             {primaryBtn ? primaryBtn : <></>}
             {secondaryBtn ? secondaryBtn : <></>}
@@ -73,8 +73,6 @@ function BaseToast({
     </TouchableOpacity>
   );
 }
-
-BaseToast.HEIGHT = HEIGHT;
 
 BaseToast.propTypes = {
   leadingIcon: PropTypes.node,
@@ -94,6 +92,7 @@ BaseToast.propTypes = {
 BaseToast.defaultProps = {
   leadingIcon: null,
   trailingIcon: null,
+  leadingIconName: null,
   text1: undefined,
   text2: undefined,
   onPress: undefined,

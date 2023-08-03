@@ -79,6 +79,7 @@ const Join = () => {
         const isInvalidUrl =
           error?.message.toLowerCase().trim() === 'invalid url' || false;
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text1: isInvalidUrl ? 'Meeting ID Invalid.' : 'Some Error Occured.',
           text2: isInvalidUrl

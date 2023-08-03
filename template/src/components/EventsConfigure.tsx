@@ -60,6 +60,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     events.on(controlMessageEnum.muteVideo, async ({payload, sender}) => {
       Toast.show({
         type: 'info',
+        leadingIconName: 'video-off',
         // text1: `${
         //   renderListRef.current.renderList[sender].name || 'The host'
         // } muted you.`,
@@ -79,6 +80,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
     events.on(controlMessageEnum.muteAudio, ({sender}) => {
       Toast.show({
         type: 'info',
+        leadingIconName: 'mic-off',
         // text1: `${
         //   renderListRef.current.renderList[sender].name || 'The host'
         // } muted you.`,
@@ -105,6 +107,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
       }
 
       Toast.show({
+        leadingIconName: 'info',
         type: 'info',
         text1: 'The host has removed you from the meeting.',
         visibilityTime: 5000,
@@ -121,12 +124,13 @@ const EventsConfigure: React.FC<Props> = (props) => {
     events.on(controlMessageEnum.requestAudio, () => {
       Toast.show({
         type: 'info',
+        leadingIconName: 'mic-on',
         text1: 'The host has requested you to speak',
         visibilityTime: 3000,
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
-            textStyle={{fontWeight: '600', fontSize: 16, paddingLeft: 0}}
+            textStyle={style.textStyle}
             text="UNMUTE"
             onPress={() => {
               RtcEngine.muteLocalAudioStream(false);
@@ -144,12 +148,13 @@ const EventsConfigure: React.FC<Props> = (props) => {
     events.on(controlMessageEnum.requestVideo, () => {
       Toast.show({
         type: 'info',
+        leadingIconName: 'video-on',
         text1: 'The host has asked you to start your video.',
         visibilityTime: 3000,
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
-            textStyle={style.primaryBtnText}
+            textStyle={style.textStyle}
             text="UNMUTE"
             onPress={async () => {
               isWebInternal()
@@ -190,17 +195,18 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 9,
   },
-  primaryBtnText: {
+  textStyle: {
     fontFamily: ThemeConfig.FontFamily.sansPro,
     fontWeight: '600',
     fontSize: 14,
+    lineHeight: 14,
     color: $config.FONT_COLOR,
   },
 });
 const SecondaryBtn = (
   <TertiaryButton
     containerStyle={style.secondaryBtn}
-    textStyle={style.primaryBtnText}
+    textStyle={style.textStyle}
     text="LATER"
     onPress={() => {
       Toast.hide();

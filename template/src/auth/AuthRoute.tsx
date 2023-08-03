@@ -31,6 +31,7 @@ const AuthRoute: React.FC<PrivateRouteProps> = (props) => {
     if (!didMountRef.current) return;
     if (!authenticated) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: 'Authentication failed',
         visibilityTime: 1000,

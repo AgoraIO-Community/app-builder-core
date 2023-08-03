@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text, Pressable } from 'react-native';
 import PropTypes from 'prop-types';
 import { stylePropType } from '../utils/prop-types';
-import styles, { HEIGHT } from './base/styles';
+import styles from './base/styles';
 import Checkbox from '../../../src/subComponents/Checkbox';
 import { PrimaryButton } from 'customization-api';
 import TertiaryButton from '../../../src/atoms/TertiaryButton';
@@ -30,7 +30,7 @@ function BaseToast({
   return (
     <TouchableOpacity
       testID='rootView'
-      style={[styles.base, styles.borderTop, style]}
+      style={[styles.base, style]}
       onPress={onPress}
       activeOpacity={onPress ? activeOpacity : 1}>
       <View
@@ -76,9 +76,7 @@ function BaseToast({
             style={{
               flex: 1,
               flexDirection: 'row',
-              paddingTop: 16,
-              paddingBottom: 8,
-              marginLeft: 4
+              paddingTop: 12
             }}
             onPress={() => {
               setChecked((e) => !e);
@@ -97,19 +95,22 @@ function BaseToast({
         {primaryBtn || secondaryBtn ? (
           <View
             style={{
-              flex: 1,
               flexDirection: 'row',
-              paddingTop: 16,
-              paddingBottom: 24
+              marginTop: 16
             }}>
             {primaryBtn && (
               <PrimaryButton
-                textStyle={{ fontWeight: '600', fontSize: 16, paddingLeft: 0 }}
+                textStyle={{
+                  fontWeight: '600',
+                  fontSize: 14,
+                  lineHeight: 14,
+                  paddingLeft: 0
+                }}
                 containerStyle={{
-                  height: 40,
+                  height: 32,
                   borderRadius: 4,
-                  paddingVertical: 0,
-                  paddingHorizontal: 12,
+                  paddingVertical: 9,
+                  paddingHorizontal: 20,
                   minWidth: 'unset'
                 }}
                 {...primaryBtn}
@@ -121,11 +122,17 @@ function BaseToast({
             )}
             {secondaryBtn && (
               <TertiaryButton
-                textStyle={{ fontWeight: '600', fontSize: 16, paddingLeft: 0 }}
+                textStyle={{
+                  fontWeight: '600',
+                  fontSize: 14,
+                  paddingLeft: 0,
+                  lineHeight: 14
+                }}
                 containerStyle={{
-                  height: 40,
-                  marginLeft: 16,
-                  paddingVertical: 0
+                  height: 32,
+                  marginLeft: 12,
+                  paddingVertical: 9,
+                  paddingHorizontal: 20
                 }}
                 {...secondaryBtn}
                 onPress={(e) => {
@@ -142,8 +149,6 @@ function BaseToast({
     </TouchableOpacity>
   );
 }
-
-BaseToast.HEIGHT = HEIGHT;
 
 BaseToast.propTypes = {
   leadingIcon: PropTypes.node,

@@ -440,7 +440,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           checkDeviceExists(storedDevice, deviceList)
         ) {
           log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
-          setDevice(storedDevice).catch((e:Error) => {
+          setDevice(storedDevice).catch((e: Error) => {
             log(
               logTag,
               deviceLogTag,
@@ -686,6 +686,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     Toast.show({
       type: 'checked',
+      leadingIconName: 'mic-on',
       // leadingIcon: <CustomIcon name={'mic-on'} />,
       text1: `New ${name} detected`,
       // @ts-ignore
