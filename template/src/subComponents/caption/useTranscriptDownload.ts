@@ -1,6 +1,6 @@
 import {formatTime} from './utils';
 import {useCaption} from './useCaption';
-import {useRender} from 'customization-api';
+import {useMeetingInfo, useRender} from 'customization-api';
 
 const useTranscriptDownload = (): {
   downloadTranscript: () => Promise<string | null>;
@@ -8,6 +8,9 @@ const useTranscriptDownload = (): {
   const {meetingTranscript} = useCaption();
 
   const {renderList} = useRender();
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
 
   const downloadTranscript = (): Promise<string | null> => {
     return new Promise((resolve, reject) => {
@@ -24,8 +27,15 @@ const useTranscriptDownload = (): {
           })
           .join('\n\n');
 
+        const startTime = new Date(meetingTranscript[0].time);
+        const attendees = Object.entries(renderList)
+          .filter((arr) => arr[1].type === 'rtc')
+          .map((arr) => arr[1].name)
+          .join(',');
+        const finalContent = `${meetingTitle}-${startTime}-Transcript \n\nAttendees\n${attendees} \n\nTranscript \n${formattedContent}`;
+
         // blob with required content
-        const blob = new Blob([formattedContent], {type: 'text/plain'});
+        const blob = new Blob([finalContent], {type: 'text/plain'});
 
         // url to download content
         const downloadUrl = URL.createObjectURL(blob);

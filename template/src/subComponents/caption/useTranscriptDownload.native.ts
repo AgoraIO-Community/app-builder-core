@@ -1,7 +1,7 @@
 import {formatTime} from './utils';
 import {useCaption} from './useCaption';
 import RNFetchBlob from 'rn-fetch-blob';
-import {isAndroid, isIOS, useRender} from 'customization-api';
+import {isAndroid, isIOS, useMeetingInfo, useRender} from 'customization-api';
 import Share from 'react-native-share';
 
 const useTranscriptDownload = (): {
@@ -9,6 +9,9 @@ const useTranscriptDownload = (): {
 } => {
   const {meetingTranscript} = useCaption();
   const {renderList} = useRender();
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
 
   const downloadTranscript = (): Promise<string | null> => {
     return new Promise((resolve, reject) => {
@@ -25,7 +28,14 @@ const useTranscriptDownload = (): {
           })
           .join('\n\n');
 
-        // get path to the Documents directory, don't have access to Downloads folder so saving in documents
+        const startTime = new Date(meetingTranscript[0].time);
+        const attendees = Object.entries(renderList)
+          .filter((arr) => arr[1].type === 'rtc')
+          .map((arr) => arr[1].name)
+          .join(',');
+        const finalContent = `${meetingTitle}-${startTime}-Transcript \n\nAttendees\n${attendees} \n\nTranscript \n${formattedContent}`;
+
+        // get path to the Documents directory, don't have access to Downloads folder so saving in documents 1
         const documentsDir = RNFetchBlob.fs.dirs.DocumentDir;
 
         // current date and time for file name
@@ -42,7 +52,7 @@ const useTranscriptDownload = (): {
 
         // Writing content to the file
         RNFetchBlob.fs
-          .writeFile(filePath, formattedContent, 'utf8')
+          .writeFile(filePath, finalContent, 'utf8')
           .then(() => {
             console.warn('Content downloaded successfully on native.');
             // display preview of the document and option to share
