@@ -41,7 +41,7 @@
   "PSTN": false,
   "PRECALL": true,
   "CHAT": true,
-  "CLOUD_RECORDING": false,
+  "CLOUD_RECORDING": true,
   "SCREEN_SHARING": true,
   "LANDING_SUB_HEADING": "The Real-Time Engagement Platform for meaningful human connections.",
   "BG": "",
