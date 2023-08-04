@@ -206,6 +206,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           primaryBtn: null,
           secondaryBtn: null,
           type: 'info',
+          leadingIconName: 'chat-nav',
           text1:
             privateMessages && privateMessages.length
               ? 'New comments in Public & Private Chat'
@@ -231,6 +232,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           primaryBtn: null,
           secondaryBtn: null,
           type: 'info',
+          leadingIconName: 'chat-nav',
           text1: `You’ve received ${privateMessages.length} private messages`,
           text2: ``,
           visibilityTime: 3000,
@@ -261,6 +263,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
           primaryBtn: null,
           secondaryBtn: null,
           type: 'info',
+          leadingIconName: 'chat-nav',
           text1: isPrivateMessage
             ? privateMessageLabel
             : renderListRef.current.renderList[uidAsNumber]?.name

@@ -48,6 +48,7 @@ const CommonError: React.FC = () => {
   useEffect(() => {
     if (error?.name || error?.message) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: error.name,
         text2: error.message,

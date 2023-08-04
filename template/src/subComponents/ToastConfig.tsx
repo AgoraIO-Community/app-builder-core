@@ -21,24 +21,25 @@ import {IconsInterface} from 'src/atoms/CustomIcon';
 import {autoUpdater} from 'electron';
 
 const trailingIcon = (
-  <TouchableOpacity
-    onPress={() => Toast.hide()}
-    style={{alignSelf: 'flex-end'}}>
-    <View style={{width: 26, height: 26}}>
-      <ImageIcon
-        iconType="plain"
-        tintColor={$config.SECONDARY_ACTION_COLOR}
-        name="close"
-        iconSize={26}
-      />
-    </View>
+  <TouchableOpacity onPress={() => Toast.hide()} style={{}}>
+    <ImageIcon
+      iconType="plain"
+      tintColor={$config.SECONDARY_ACTION_COLOR}
+      name="close"
+      iconSize={24}
+    />
   </TouchableOpacity>
 );
 
 const leadingIcon = (iconName: keyof IconsInterface, color: string) => {
   return (
-    <View style={{marginRight: 4, alignSelf: 'center', width: 26, height: 26}}>
-      <ImageIcon iconType="plain" tintColor={color} name={iconName} />
+    <View style={{marginRight: 4, alignSelf: 'center'}}>
+      <ImageIcon
+        iconType="plain"
+        tintColor={color}
+        name={iconName}
+        iconSize={20}
+      />
     </View>
   );
 };
@@ -48,21 +49,18 @@ const ToastConfig = {
       overwrite 'success' type, 
       modifying the existing `BaseToast` component
     */
-  success: ({text1, text2, props, ...rest}) => (
+  success: ({text1, text2, leadingIconName, props, ...rest}) => (
     <BaseToast
       {...rest}
       //BaseToast is modified to have zIndex: 100
-      leadingIcon={leadingIcon('tick-fill', $config.SEMANTIC_SUCCESS)}
+      leadingIcon={leadingIcon(
+        leadingIconName ? leadingIconName : 'tick-fill',
+        $config.SEMANTIC_SUCCESS,
+      )}
       trailingIcon={trailingIcon}
       style={{
-        borderRadius: 4,
-        borderTopWidth: 6,
-        backgroundColor: $config.CARD_LAYER_4_COLOR,
-        //width: !isMobileOrTablet() ? '40%' : '95%',
-        width: '100%',
         borderTopColor: $config.SEMANTIC_SUCCESS,
       }}
-      contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
       text2Style={styles.text2Style}
       text1={text1}
@@ -71,21 +69,18 @@ const ToastConfig = {
       secondaryBtn={null}
     />
   ),
-  error: ({text1, text2, props, ...rest}) => (
+  error: ({text1, text2, leadingIconName, props, ...rest}) => (
     <BaseToast
       {...rest}
       //BaseToast is modified to have zIndex: 100
-      leadingIcon={leadingIcon('alert', $config.SEMANTIC_ERROR)}
+      leadingIcon={leadingIcon(
+        leadingIconName ? leadingIconName : 'alert',
+        $config.SEMANTIC_ERROR,
+      )}
       trailingIcon={trailingIcon}
       style={{
-        borderRadius: 4,
-        borderTopWidth: 6,
-        backgroundColor: $config.CARD_LAYER_4_COLOR,
-        //width: !isMobileOrTablet() ? '40%' : '95%',
-        width: '100%',
         borderTopColor: $config.SEMANTIC_ERROR,
       }}
-      contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
       text2Style={styles.text2Style}
       text1={text1}
@@ -94,28 +89,36 @@ const ToastConfig = {
       secondaryBtn={null}
     />
   ),
-  info: ({text1, text2, props, primaryBtn, secondaryBtn, ...rest}) => (
-    <BaseToast
-      {...rest}
-      //BaseToast is modified to have zIndex: 100
-      trailingIcon={trailingIcon}
-      style={{
-        height: 'auto', //primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
-        borderRadius: ThemeConfig.BorderRadius.small,
-        borderTopWidth: 6,
-        backgroundColor: $config.CARD_LAYER_4_COLOR,
-        width: '100%',
-        borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
-      }}
-      contentContainerStyle={styles.contentContainerStyle}
-      text1Style={styles.text1Style}
-      text2Style={styles.text2Style}
-      text1={text1}
-      text2={text2}
-      primaryBtn={primaryBtn ? primaryBtn : null}
-      secondaryBtn={secondaryBtn ? secondaryBtn : null}
-    />
-  ),
+  info: ({
+    text1,
+    text2,
+    props,
+    primaryBtn,
+    leadingIconName,
+    secondaryBtn,
+    ...rest
+  }) => {
+    return (
+      <BaseToast
+        {...rest}
+        //BaseToast is modified to have zIndex: 100
+        leadingIcon={leadingIcon(
+          leadingIconName ? leadingIconName : 'info',
+          $config.FONT_COLOR,
+        )}
+        trailingIcon={trailingIcon}
+        style={{
+          borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
+        }}
+        text1Style={styles.text1Style}
+        text2Style={styles.text2Style}
+        text1={text1}
+        text2={text2}
+        primaryBtn={primaryBtn ? primaryBtn : null}
+        secondaryBtn={secondaryBtn ? secondaryBtn : null}
+      />
+    );
+  },
   checked: ({
     text1,
     text2,
@@ -123,21 +126,20 @@ const ToastConfig = {
     primaryBtn,
     secondaryBtn,
     checkbox,
+    leadingIconName,
     ...rest
   }) => (
     <CheckBoxBaseToast
       {...rest}
       //BaseToast is modified to have zIndex: 100
+      leadingIcon={leadingIcon(
+        leadingIconName ? leadingIconName : 'info',
+        $config.FONT_COLOR,
+      )}
       trailingIcon={trailingIcon}
       style={{
-        height: primaryBtn || secondaryBtn ? 185 : text1 && text2 ? 105 : 70,
-        borderRadius: 4,
-        borderTopWidth: 6,
-        backgroundColor: $config.CARD_LAYER_4_COLOR,
-        width: '100%',
         borderTopColor: $config.PRIMARY_ACTION_BRAND_COLOR,
       }}
-      contentContainerStyle={styles.contentContainerStyle}
       text1Style={styles.text1Style}
       text2Style={styles.text2Style}
       subTextStyle={styles.subTextStyle}
@@ -154,32 +156,13 @@ export default ToastConfig;
 
 const styles = StyleSheet.create({
   text1Style: {
-    fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: 22,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '600',
     color: $config.FONT_COLOR,
     alignSelf: 'center',
   },
   text2Style: {
-    fontSize: ThemeConfig.FontSize.normal,
-    lineHeight: 22,
-    fontFamily: ThemeConfig.FontFamily.sansPro,
-    fontWeight: '400',
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
-    marginTop: 11,
-    alignSelf: 'center',
   },
   subTextStyle: {
     color: $config.FONT_COLOR + ThemeConfig.EmphasisPlus.medium,
   },
-  contentContainerStyle: {
-    paddingHorizontal: 15,
-    paddingTop: 20,
-    paddingBottom: 25,
-    overflow: 'hidden',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-  },
-  containerStyle: {},
 });

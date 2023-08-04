@@ -148,6 +148,7 @@ const AuthProvider = (props: AuthProviderProps) => {
           if (url?.indexOf('msg') !== -1) {
             //adding time delay to open in app browser
             Toast.show({
+              leadingIconName: 'alert',
               type: 'error',
               text1: 'Your session has timed out, Retrying...',
               visibilityTime: 3000,
@@ -244,6 +245,7 @@ const AuthProvider = (props: AuthProviderProps) => {
 
     if (!isSDK() && $config.ENABLE_TOKEN_AUTH) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: 'Token Server Authentication only supports SDK integration',
         text2: 'Please use Auth0 Authentication.',
@@ -252,6 +254,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     }
     if (isSDK() && $config.ENABLE_IDP_AUTH) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: 'Auth0 Authentication does not support SDK integration',
         text2: 'Please use Token Server Authentication.',
@@ -263,6 +266,7 @@ const AuthProvider = (props: AuthProviderProps) => {
   useEffect(() => {
     if (!authenticated && authError) {
       Toast.show({
+        leadingIconName: 'alert',
         type: 'error',
         text1: authError,
         visibilityTime: 3000,
@@ -319,6 +323,7 @@ const AuthProvider = (props: AuthProviderProps) => {
     } else {
       if (location?.search?.indexOf('msg') !== -1) {
         Toast.show({
+          leadingIconName: 'alert',
           type: 'error',
           text1: 'Your session has timed out, Retrying...',
           visibilityTime: 3000,

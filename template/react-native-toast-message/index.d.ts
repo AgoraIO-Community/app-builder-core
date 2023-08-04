@@ -1,5 +1,6 @@
 import React from 'react';
 import { ViewStyle, TextStyle, ImageSourcePropType } from 'react-native';
+import { IconsInterface } from '../src/atoms/CustomIcon';
 
 declare module 'react-native-toast-message' {
   interface AnyObject {
@@ -56,6 +57,7 @@ declare module 'react-native-toast-message' {
       onShow?: () => void;
       onHide?: () => void;
       onPress?: () => void;
+      leadingIconName?: keyof IconsInterface;
     }): void;
 
     static hide(): void;

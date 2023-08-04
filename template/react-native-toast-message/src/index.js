@@ -382,6 +382,7 @@ class Toast extends Component {
           'text1',
           'text2',
           'leadingIcon',
+          'leadingIconName',
           'hide',
           'show',
           'onPress',

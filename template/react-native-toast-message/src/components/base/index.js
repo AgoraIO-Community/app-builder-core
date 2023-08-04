@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Icon from '../icon';
 import { icons } from '../../assets';
 import { stylePropType } from '../../utils/prop-types';
-import styles, { HEIGHT } from './styles';
+import styles from './styles';
 
 function BaseToast({
   leadingIcon,
@@ -26,7 +26,7 @@ function BaseToast({
   return (
     <TouchableOpacity
       testID='rootView'
-      style={[styles.base, styles.borderTop, style]}
+      style={[styles.base, style]}
       onPress={onPress}
       activeOpacity={onPress ? activeOpacity : 1}>
       <View
@@ -37,43 +37,30 @@ function BaseToast({
             style={{
               flex: 1,
               flexDirection: 'row',
-              justifyContent: 'space-between'
+              alignItems: 'center'
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                flex: 1
-              }}>
-              {leadingIcon ? leadingIcon : <></>}
-              <Text
-                testID='text1'
-                style={[styles.text1, text1Style]}
-                numberOfLines={text1NumberOfLines}>
-                {text1}
-              </Text>
-            </View>
-            <View style={{ justifyContent: 'flex-start', alignSelf: 'center' }}>
-              {trailingIcon ? trailingIcon : <></>}
-            </View>
+            {leadingIcon ? leadingIcon : <></>}
+            <Text
+              testID='text1'
+              style={[styles.text1, text1Style]}
+              numberOfLines={text1NumberOfLines}>
+              {text1}
+            </Text>
           </View>
         )}
         {(text2 || text2?.length > 0) && (
-          <View>
-            <Text
-              testID='text2'
-              style={[styles.text2, text2Style]}
-              numberOfLines={text2NumberOfLines}>
-              {text2}
-            </Text>
-          </View>
+          <Text
+            testID='text2'
+            style={[styles.text2, text2Style]}
+            numberOfLines={text2NumberOfLines}>
+            {text2}
+          </Text>
         )}
         {primaryBtn || secondaryBtn ? (
           <View
             style={{
-              flex: 1,
               flexDirection: 'row',
-              paddingTop: 32,
-              paddingBottom: 24
+              paddingTop: 16
             }}>
             {primaryBtn ? primaryBtn : <></>}
             {secondaryBtn ? secondaryBtn : <></>}
@@ -82,11 +69,10 @@ function BaseToast({
           <></>
         )}
       </View>
+      {trailingIcon ? trailingIcon : <></>}
     </TouchableOpacity>
   );
 }
-
-BaseToast.HEIGHT = HEIGHT;
 
 BaseToast.propTypes = {
   leadingIcon: PropTypes.node,
@@ -106,6 +92,7 @@ BaseToast.propTypes = {
 BaseToast.defaultProps = {
   leadingIcon: null,
   trailingIcon: null,
+  leadingIconName: null,
   text1: undefined,
   text2: undefined,
   onPress: undefined,
