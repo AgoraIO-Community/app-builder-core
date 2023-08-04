@@ -26,6 +26,7 @@ const DownloadTranscriptBtn = (props: DownloadTranscriptBtn) => {
     <View style={styles.btnContainer}>
       <PrimaryButton
         iconSize={20}
+        iconColor={$config.FONT_COLOR}
         iconName={iconName}
         containerStyle={[styles.btnContainerStyle, containerStyle] as Object}
         textStyle={[styles.btnTxtStyle, textStyle] as Object}
@@ -56,5 +57,6 @@ const styles = StyleSheet.create({
     lineHeight: ThemeConfig.FontSize.small,
     fontWeight: '600',
     textTransform: 'capitalize',
+    color: $config.FONT_COLOR,
   },
 });

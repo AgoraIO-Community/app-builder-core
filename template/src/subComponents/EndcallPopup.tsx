@@ -23,7 +23,7 @@ const DownloadTranscript = () => {
         <ImageIcon
           iconType="plain"
           name={'transcript-mode'}
-          tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+          tintColor={$config.FONT_COLOR}
           iconSize={20}
         />
         <Spacer size={4} horizontal />
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     color: $config.PRIMARY_ACTION_BRAND_COLOR,
   },
   label: {
-    color: $config.PRIMARY_ACTION_TEXT_COLOR,
+    color: $config.FONT_COLOR,
     fontSize: ThemeConfig.FontSize.tiny,
     lineHeight: 20,
     fontWeight: '600',
