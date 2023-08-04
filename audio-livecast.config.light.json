@@ -8,6 +8,7 @@
   "APP_CERTIFICATE": "6545ecd19d554737be863eb1eaaf9cee",
   "CUSTOMER_ID": "40b25d211955491580720cb54099c3c4",
   "CUSTOMER_CERTIFICATE": "555d0c42035c450a9b562ec20773d6b4",
+  "FRONTEND_ENDPOINT": "",
   "BACKEND_ENDPOINT": "https://managedservices-dev.rteappbuilder.com",
   "PSTN": true,
   "PRECALL": true,
