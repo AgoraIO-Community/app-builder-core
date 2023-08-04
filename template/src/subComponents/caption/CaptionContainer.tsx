@@ -67,7 +67,7 @@ const CaptionContainer = () => {
         ]}>
         <View
           style={[
-            !isDesktop() ? styles.mobileContainer : styles.container,
+            isMobileUA() ? styles.mobileContainer : styles.container,
             isMobileUA() && {marginHorizontal: 0},
             !isMobileUA() && isSmall() && {marginTop: 0},
           ]}>
