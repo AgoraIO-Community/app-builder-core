@@ -93,14 +93,14 @@ const Caption: React.FC = () => {
     <View style={styles.captionContainer}>
       {
         <>
-          <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
+          {/* <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
             Active Speaker : {renderList[activeSpeakerUID]?.name || ''} (
             {activeSpeakerUID})
           </Text>
           <Text style={{color: 'pink', position: 'absolute', top: 0}}>
             Prev Speaker: {renderList[prevActiveSpeakerUID]?.name || ''} (
             {prevActiveSpeakerUID})
-          </Text>
+          </Text> */}
           {speakerCount === 2 &&
           captionObj[prevActiveSpeakerUID] &&
           captionObj[prevActiveSpeakerUID].text ? (

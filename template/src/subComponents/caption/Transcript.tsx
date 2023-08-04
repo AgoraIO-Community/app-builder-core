@@ -70,7 +70,7 @@ const Transcript = (props: TranscriptProps) => {
   const [isFocused, setIsFocused] = React.useState(false);
   const {setIsTranscriptON} = useCaption();
   const {transcriptHeight} = useCaptionWidth();
-  const isLatestClicked = React.useRef<boolean>(false);
+  const isScrolledToEnd = React.useRef(false);
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -81,14 +81,7 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleLayout = (event) => {
-    flatListHeightRef.current = event.nativeEvent.layout.height;
-    if (contentHeightRef.current > event.nativeEvent.layout.height) {
-      //setShowButton(true);
-    }
-    // Scroll to the last item on initial mount
-    if (flatListRef.current && data.length > 0) {
-      flatListRef.current.scrollToEnd({animated: false});
-    }
+    // when viewport changes , handleScroll will determine is list at bottom or not
   };
 
   const renderItem = ({item}) => {
@@ -116,35 +109,35 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleViewLatest = () => {
-    // flatListRef.current.scrollToOffset({
-    //   offset: contentHeightRef.current,
-    //   animated: false,
-    // });
+    flatListRef.current.scrollToOffset({
+      offset: contentHeightRef.current,
+      animated: false,
+    });
     setShowButton(false);
-    flatListRef.current.scrollToEnd({animated: false});
-    isLatestClicked.current = true;
+
+    isScrolledToEnd.current = true;
   };
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
     contentHeightRef.current = contentHeight;
-    if (!showButton) {
+    if (!showButton || searchQuery.length === 0) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
         animated: false,
       });
+
+      isScrolledToEnd.current = true;
     }
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (isLatestClicked.current) {
-      isLatestClicked.current = false;
+    if (isScrolledToEnd.current) {
+      isScrolledToEnd.current = false;
       return;
     }
-    setShowButton(false);
     const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
-    const isAtTop = contentOffset.y <= 0;
     const isAtBottom =
-      contentOffset.y + layoutMeasurement.height >= contentSize.height;
+      contentOffset.y + layoutMeasurement.height >= contentSize.height - 1; // -1 threshold when the exact bottom position not calcualted , diff ~.5
     setShowButton(!isAtBottom);
   };
 
