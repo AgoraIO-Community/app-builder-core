@@ -78,16 +78,12 @@ const CaptionText = ({
   };
 
   return (
-    <View
-      style={[
-        styles.captionContainer,
-        {borderColor: isActiveSpeaker ? 'yellow' : 'pink'},
-        {flex: activeContainerFlex},
-      ]}>
+    <View style={[styles.captionContainer, {flex: activeContainerFlex}]}>
       <Text
         style={[
           styles.captionUserName,
           isMobile ? styles.mobileNameFontSize : styles.desktopNameFontSize,
+          {color: isActiveSpeaker ? 'yellow' : 'white'},
         ]}
         numberOfLines={1}
         textBreakStrategy="simple"

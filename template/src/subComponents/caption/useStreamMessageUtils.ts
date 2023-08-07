@@ -58,12 +58,26 @@ const useStreamMessageUtils = (): {
       .decode(payload as Uint8Array) as any;
     console.log('STT - Parsed Textstream : ', textstream);
 
+    console.group('STT-logs');
+    console.log('Recived uid =>', textstream.uid);
+    console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
+    console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
+    console.log('final List =>', finalList);
+    console.groupEnd();
+
     //Updating Active speakers only if there is a change in active speaker
 
     if (textstream.uid !== activeSpeakerRef.current) {
-      // we have a speaker change so clear the contect
+      // we have a speaker change so clear the contect for rest
       if (prevSpeakerRef.current !== '') {
-        finalList.current[prevSpeakerRef.current] = [];
+        //   finalList.current[prevSpeakerRef.current] = [];
+        // const activeUserCaptions = Object.entries(finalList.current).filter(
+        //   (uid, data) => {
+        //     return uid[0] === activeSpeakerRef.current;
+        //   },
+        // );
+        // finalList.current = Object.fromEntries(activeUserCaptions);
+        finalList.current = Object.fromEntries([]);
       }
 
       //finalList.current[activeSpeakerRef.current] = [];
@@ -173,11 +187,6 @@ const useStreamMessageUtils = (): {
           //  ...inActiveUserObj,
         };
       });
-
-    console.group('STT-logs');
-    console.log('stt-finalList =>', finalList.current);
-    console.log('stt - current text =>', currentText);
-    console.groupEnd();
   };
 
   return {
