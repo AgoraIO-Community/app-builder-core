@@ -31,6 +31,7 @@ const useStreamMessageUtils = (): {
 
   const activeSpeakerRef = useRef(activeSpeakerUID);
   const prevSpeakerRef = useRef(prevActiveSpeakerUID);
+  const isInterjecting = useRef(false);
 
   useEffect(() => {
     activeSpeakerRef.current = activeSpeakerUID;
@@ -72,10 +73,11 @@ const useStreamMessageUtils = (): {
       if (prevSpeakerRef.current !== '') {
         finalList.current[prevSpeakerRef.current] = [];
       }
-
-      //finalList.current[activeSpeakerRef.current] = [];
+      isInterjecting.current = true;
       setPrevActiveSpeakerUID(activeSpeakerRef.current);
       setActiveSpeakerUID(textstream.uid);
+    } else {
+      isInterjecting.current = false;
     }
 
     /* creating [] for each user to store their complete transcripts
@@ -162,10 +164,9 @@ const useStreamMessageUtils = (): {
      Previous final words of the uid are prepended and 
      then current non final words so that context of speech is not lost
     */
-    let stringBuilder =
-      textstream.uid === prevSpeakerRef.current
-        ? ''
-        : finalList?.current[textstream.uid]?.join(' ');
+    let stringBuilder = isInterjecting.current
+      ? ''
+      : finalList?.current[textstream.uid]?.join(' ');
     stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
     stringBuilder += nonFinalList?.join(' ');
 
