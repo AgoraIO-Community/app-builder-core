@@ -68,16 +68,9 @@ const useStreamMessageUtils = (): {
     //Updating Active speakers only if there is a change in active speaker
 
     if (textstream.uid !== activeSpeakerRef.current) {
-      // we have a speaker change so clear the contect for rest
+      // we have a speaker change so clear the context for prev speaker
       if (prevSpeakerRef.current !== '') {
-        //   finalList.current[prevSpeakerRef.current] = [];
-        // const activeUserCaptions = Object.entries(finalList.current).filter(
-        //   (uid, data) => {
-        //     return uid[0] === activeSpeakerRef.current;
-        //   },
-        // );
-        // finalList.current = Object.fromEntries(activeUserCaptions);
-        finalList.current = Object.fromEntries([]);
+        finalList.current[prevSpeakerRef.current] = [];
       }
 
       //finalList.current[activeSpeakerRef.current] = [];
@@ -169,7 +162,10 @@ const useStreamMessageUtils = (): {
      Previous final words of the uid are prepended and 
      then current non final words so that context of speech is not lost
     */
-    let stringBuilder = finalList?.current[textstream.uid]?.join(' ');
+    let stringBuilder =
+      textstream.uid === prevSpeakerRef.current
+        ? ''
+        : finalList?.current[textstream.uid]?.join(' ');
     stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
     stringBuilder += nonFinalList?.join(' ');
 
