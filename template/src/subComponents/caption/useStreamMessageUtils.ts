@@ -227,6 +227,7 @@ const useStreamMessageUtils = (): {
     };
     (async () => {
       await queue.add(() => queueCallback(args));
+      console.log('using pqueue');
     })();
   };
   return {
