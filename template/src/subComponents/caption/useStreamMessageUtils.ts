@@ -58,27 +58,37 @@ const useStreamMessageUtils = (): {
       .decode(payload as Uint8Array) as any;
     console.log('STT - Parsed Textstream : ', textstream);
 
-    console.group('STT-logs');
-    console.log('Recived uid =>', textstream.uid);
-    console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
-    console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
-    console.log('final List =>', finalList);
-    console.groupEnd();
-
     //Updating Active speakers only if there is a change in active speaker
+    // Approach 1.1
+    /* 
+    console.log(
+      'is prev spek 1',
+      textstream.uid !== prevSpeakerRef.current,
+      textstream.uid,
+      prevSpeakerRef.current,
+      finalList.current,
+    );
 
     if (textstream.uid !== activeSpeakerRef.current) {
-      // we have a speaker change so clear the context for prev speaker
-      if (prevSpeakerRef.current !== '') {
-        finalList.current[prevSpeakerRef.current] = [];
-      }
-
-      //finalList.current[activeSpeakerRef.current] = [];
-      setPrevActiveSpeakerUID(activeSpeakerRef.current);
       setActiveSpeakerUID(textstream.uid);
     }
+    if (textstream.uid !== prevSpeakerRef.current) {
+      console.log(
+        'is prev spek 1.1 clearing for ',
+        prevSpeakerRef.current,
+        finalList.current,
+      );
+
+      finalList.current[prevSpeakerRef.current] = [];
+      console.log('is prev spek 1.1 after clearing ', finalList.current);
+    }
+    if (textstream.uid !== prevSpeakerRef.current) {
+      setPrevActiveSpeakerUID(textstream.uid);
+    }
+    */
 
     /* creating [] for each user to store their complete transcripts
+       initializing captions state for cuurent speaker
        ex: {282190954:[]}
     */
     if (!finalList.current[textstream.uid]) {
@@ -144,6 +154,7 @@ const useStreamMessageUtils = (): {
           prevTranscript[prevTranscript.length - 1] = currentTranscript;
           return prevTranscript;
         } else {
+          //
           // adding new entry
           return [
             ...prevTranscript,
@@ -162,27 +173,51 @@ const useStreamMessageUtils = (): {
      Previous final words of the uid are prepended and 
      then current non final words so that context of speech is not lost
     */
-    let stringBuilder =
-      textstream.uid === prevSpeakerRef.current
-        ? ''
-        : finalList?.current[textstream.uid]?.join(' ');
-    stringBuilder += stringBuilder?.length > 0 ? ' ' : '';
-    stringBuilder += nonFinalList?.join(' ');
+    // const existingStringBuffer = finalList?.current[textstream.uid]?.join(' ');
+
+    if (textstream.uid !== activeSpeakerRef.current) {
+      // we have a speaker change so clear the context for prev speaker
+      if (prevSpeakerRef.current !== '') {
+        finalList.current[prevSpeakerRef.current] = [];
+      }
+
+      //finalList.current[activeSpeakerRef.current] = [];
+      setPrevActiveSpeakerUID(activeSpeakerRef.current);
+      setActiveSpeakerUID(textstream.uid);
+    }
+    const existingStringBuffer = finalList?.current[textstream.uid]?.join(' ');
+    const latestString = nonFinalList?.join(' ');
+    const captionText =
+      existingStringBuffer.length > 0
+        ? existingStringBuffer + ' ' + latestString
+        : latestString;
 
     // updating the captions when there is some text
-    stringBuilder &&
+    latestString &&
       setCaptionObj((prevState) => {
-        // also check for last updated for other speakers
-
         return {
           ...prevState,
           [textstream.uid]: {
-            text: stringBuilder,
+            text: captionText,
             lastUpdated: new Date().getTime(),
           },
-          //  ...inActiveUserObj,
         };
       });
+
+    console.group('STT-logs');
+    console.log('Recived uid =>', textstream.uid);
+    console.log('PrevSpeaker uid =>', prevSpeakerRef.current);
+    console.log('ActiveSpeaker uid=>', activeSpeakerRef.current);
+    console.log('final List =>', finalList);
+    console.groupEnd();
+
+    console.log(
+      'is prev spek 2',
+      textstream.uid !== prevSpeakerRef.current,
+      textstream.uid,
+      prevSpeakerRef.current,
+      finalList.current,
+    );
   };
 
   return {
