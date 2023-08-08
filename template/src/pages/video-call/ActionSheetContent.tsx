@@ -271,14 +271,19 @@ const LayoutIcon = (props: LayoutIconProps) => {
 
 interface CaptionIconBtnProps {
   showLabel?: boolean;
+  isAllowedSTTUser: boolean;
 }
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {showLabel = $config.ICON_TEXT, isAllowedSTTUser} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <CaptionIcon isOnActionSheet={true} showLabel={false} />
+        <CaptionIcon
+          isOnActionSheet={true}
+          showLabel={false}
+          disabled={!isAllowedSTTUser}
+        />
       </View>
       {showLabel && <Text style={styles.iconText}>Caption</Text>}
     </View>
@@ -287,14 +292,19 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
 
 interface TranscriptIconProps {
   showLabel?: boolean;
+  isAllowedSTTUser: boolean;
 }
 
 const TranscriptIconBtn = (props: TranscriptIconProps) => {
-  const {showLabel = $config.ICON_TEXT} = props;
+  const {showLabel = $config.ICON_TEXT, isAllowedSTTUser} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
+        <TranscriptIcon
+          isOnActionSheet={true}
+          showLabel={false}
+          disabled={!isAllowedSTTUser}
+        />
       </View>
       {showLabel && <Text style={styles.iconText}>Transcript</Text>}
     </View>
@@ -365,6 +375,7 @@ const ActionSheetContent = (props) => {
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+  const isAllowedSTTUser = isAuthorizedSTTUser();
 
   return (
     <View>
@@ -476,7 +487,7 @@ const ActionSheetContent = (props) => {
                   {/* invite */}
                   <ShareIcon />
                   {/* caption  */}
-                  {isAuthorizedSTTUser() && <CaptionIconBtn />}
+                  <CaptionIconBtn isAllowedSTTUser={isAllowedSTTUser} />
                 </View>
               ),
             },
@@ -485,7 +496,7 @@ const ActionSheetContent = (props) => {
               component: (
                 <View style={styles.row}>
                   {/* Transcript */}
-                  {isAuthorizedSTTUser() && <TranscriptIconBtn />}
+                  <TranscriptIconBtn isAllowedSTTUser={isAllowedSTTUser} />
                 </View>
               ),
             },

@@ -67,7 +67,9 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
       iconBackgroundColor: isTranscriptON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isTranscriptON
+      tintColor: disabled
+        ? $config.SEMANTIC_NEUTRAL
+        : isTranscriptON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },

@@ -57,12 +57,15 @@ const CaptionIcon = (props: CaptionIconProps) => {
         setLanguagePopup(true);
       }
     },
+    disabled: disabled,
     iconProps: {
       name: 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: isCaptionON
+      tintColor: disabled
+        ? $config.SEMANTIC_NEUTRAL
+        : isCaptionON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
