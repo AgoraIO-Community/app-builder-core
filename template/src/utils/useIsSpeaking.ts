@@ -10,12 +10,16 @@ enum volumeEnum {
 }
 const useIsSpeaking = () => {
   const {RtcEngine} = useRtc();
+  const {renderList} = useRender();
   const {audio, uid} = useLocalUserInfo();
   const speechRef = useRef(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const setIntervalRef = useRef(null);
   const isSpeakingRef = useRef(isSpeaking);
   const audioRef = useRef(audio);
+  const renderListRef = useRef(renderList);
+  const maxSpeakingVolumeRef = useRef(0);
+  const minNonSpeakingVolumeRef = useRef(100);
 
   /**
    * for each user
@@ -32,10 +36,14 @@ const useIsSpeaking = () => {
   }, [isSpeaking]);
 
   useEffect(() => {
+    renderListRef.current = renderList;
+  }, [renderList]);
+
+  useEffect(() => {
     audioRef.current = audio;
   }, [audio]);
 
-  const normlize = (value, min, max) => {
+  const normalize = (value, min, max) => {
     return (value - min) / (max - min);
   };
 
@@ -48,8 +56,11 @@ const useIsSpeaking = () => {
     const normalizedValues = {};
 
     currentUsersVolume.forEach((i) => {
-      if (usersVolume.current[i.uid]?.isSpeaking) {
-        const returnVal = normlize(
+      if (
+        renderListRef.current[i.uid]?.audio &&
+        usersVolume.current[i.uid]?.isSpeaking
+      ) {
+        const returnVal = normalize(
           i.level,
           usersVolume.current[i.uid]?.nonSpeakingVolume || 0,
           usersVolume.current[i.uid]?.speakingVolume || 100,
@@ -62,10 +73,14 @@ const useIsSpeaking = () => {
       return normalizedValues[b] - normalizedValues[a];
     });
 
-    if (sorted && sorted.length) {
-      setActiveSpeaker(parseInt(sorted[0]));
-    } else {
+    if (!sorted || !sorted?.length) {
       setActiveSpeaker(0);
+    } else if (
+      sorted &&
+      sorted.length &&
+      parseInt(sorted[0]) !== activeSpeaker
+    ) {
+      setActiveSpeaker(parseInt(sorted[0]));
     }
   };
 
@@ -81,33 +96,29 @@ const useIsSpeaking = () => {
   };
 
   const speakingVolumeEventCallBack = ({payload, sender}) => {
+    console.log('debugging speaking volume sender', sender, '=', payload);
+
     usersVolume.current = {
       ...usersVolume.current,
       [sender]: {
         ...usersVolume.current[sender],
-        speakingVolume: !usersVolume.current[sender]?.speakingVolume
-          ? parseFloat(payload)
-          : parseFloat(payload) > usersVolume.current[sender]?.speakingVolume
-          ? parseFloat(payload)
-          : usersVolume.current[sender].speakingVolume,
+        speakingVolume: parseFloat(payload),
       },
     };
-    //findActiveSpeaker();
+    findActiveSpeaker();
   };
 
   const nonSpeakingVolumeEventCallback = ({payload, sender}) => {
+    //console.log('debugging non speaking volume sender', sender, '=', payload);
+
     usersVolume.current = {
       ...usersVolume.current,
       [sender]: {
         ...usersVolume.current[sender],
-        nonSpeakingVolume: !usersVolume.current[sender]?.nonSpeakingVolume
-          ? parseFloat(payload)
-          : parseFloat(payload) < usersVolume.current[sender]?.nonSpeakingVolume
-          ? parseFloat(payload)
-          : usersVolume.current[sender]?.nonSpeakingVolume,
+        nonSpeakingVolume: parseFloat(payload),
       },
     };
-    //findActiveSpeaker();
+    findActiveSpeaker();
   };
   useEffect(() => {
     events.on(volumeEnum.SPEAKING_VOLUME, speakingVolumeEventCallBack);
@@ -139,30 +150,42 @@ const useIsSpeaking = () => {
           if (localUserData && localUserData.level) {
             volume = Math.round(localUserData.level * 100) / 100;
           }
-          if (isSpeakingRef.current && audioRef.current) {
-            //for remote users
-            events.send(
-              volumeEnum.SPEAKING_VOLUME,
-              volume.toString(),
-              EventPersistLevel.LEVEL2,
-            );
-            //for local user
-            speakingVolumeEventCallBack({
-              payload: volume.toString(),
-              sender: uid,
-            });
-          } else if (!isSpeakingRef.current && audioRef.current) {
-            //for remote users
-            events.send(
-              volumeEnum.NON_SPEAKING_VOLUME,
-              volume.toString(),
-              EventPersistLevel.LEVEL2,
-            );
-            //for local user
-            nonSpeakingVolumeEventCallback({
-              payload: volume.toString(),
-              sender: uid,
-            });
+          if (volume) {
+            if (
+              isSpeakingRef.current &&
+              audioRef.current &&
+              volume > maxSpeakingVolumeRef.current
+            ) {
+              //for remote users
+              maxSpeakingVolumeRef.current = volume;
+              events.send(
+                volumeEnum.SPEAKING_VOLUME,
+                volume.toString(),
+                EventPersistLevel.LEVEL2,
+              );
+              //for local user
+              speakingVolumeEventCallBack({
+                payload: volume.toString(),
+                sender: uid,
+              });
+            } else if (
+              !isSpeakingRef.current &&
+              audioRef.current &&
+              volume < minNonSpeakingVolumeRef.current
+            ) {
+              //for remote users
+              minNonSpeakingVolumeRef.current = volume;
+              events.send(
+                volumeEnum.NON_SPEAKING_VOLUME,
+                volume.toString(),
+                EventPersistLevel.LEVEL2,
+              );
+              //for local user
+              nonSpeakingVolumeEventCallback({
+                payload: volume.toString(),
+                sender: uid,
+              });
+            }
           }
         }, 500);
         // send local user speaking and non speaking volume to remote users
@@ -173,7 +196,7 @@ const useIsSpeaking = () => {
             audio: true,
           })
           .then((audioStream) => {
-            speechRef.current = hark(audioStream, {});
+            speechRef.current = hark(audioStream, {interval: 100});
             speechRef.current.on('speaking', function () {
               if (audioRef.current) {
                 //for remote usage
