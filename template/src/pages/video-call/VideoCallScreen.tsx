@@ -31,10 +31,8 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
-import useIsSpeaking from '../../utils/useIsSpeaking';
 
 const VideoCallScreen = () => {
-  useIsSpeaking();
   const {sidePanel} = useSidePanel();
   const [name] = useUserName();
   const rtc = useRtc();
