@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {View} from 'react-native';
 import useLayoutsData from './useLayoutsData';
 import {isArray, useIsDesktop, isValidReactComponent} from '../../utils/common';
+import {PropsContext, ClientRole} from '../../../agora-rn-uikit';
 import {useLayout} from '../../utils/useLayout';
 import {useContent} from 'customization-api';
 import {getGridLayoutName} from './DefaultLayouts';
@@ -15,6 +16,7 @@ const VideoComponent = () => {
   const layoutsData = useLayoutsData();
   const {currentLayout, setLayout} = useLayout();
   const {activeUids, pinnedUid} = useContent();
+  const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
 
   useEffect(() => {
@@ -38,13 +40,21 @@ const VideoComponent = () => {
     }
   }, [currentLayout]);
 
+  const showInviteTile = () => {
+    if ($config.EVENT_MODE && rtcProps.role == ClientRole.Audience) {
+      return false;
+    }
+    if (activeUids.length == 1) return true;
+    return false;
+  };
+
   if (
     layoutsData &&
     layoutsData[layout] &&
     isValidReactComponent(layoutsData[layout].component)
   ) {
     const CurrentLayout = layoutsData[layout].component;
-    if (activeUids.length == 1) {
+    if (showInviteTile()) {
       return (
         <View
           style={{
