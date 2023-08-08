@@ -145,7 +145,7 @@ const Transcript = (props: TranscriptProps) => {
     setSearchQuery(text);
     // Filter the data based on the search query
     const filteredResults = meetingTranscript.filter((item) =>
-      item.text.toLowerCase().includes(searchQuery.toLowerCase()),
+      item.text.toLowerCase().includes(text.toLowerCase()),
     );
     setSearchResults(filteredResults);
     // Scroll to the top of the FlatList when searching
