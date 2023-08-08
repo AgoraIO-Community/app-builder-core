@@ -423,7 +423,7 @@ const ActionSheetContent = (props) => {
           data={[
             {
               id: 'slide_1',
-              comp: (
+              component: (
                 <View style={styles.row}>
                   {/**
                    * In event mode when raise hand feature is active
@@ -482,7 +482,7 @@ const ActionSheetContent = (props) => {
             },
             {
               id: 'slide_2',
-              comp: (
+              component: (
                 <View style={styles.row}>
                   {/* Transcript */}
                   {isAuthorizedSTTUser() && <TranscriptIconBtn />}

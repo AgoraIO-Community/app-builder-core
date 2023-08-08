@@ -3,8 +3,13 @@ import {View, FlatList, StyleSheet, Dimensions, Pressable} from 'react-native';
 
 const {width} = Dimensions.get('window');
 
+interface CarouselItem {
+  id: string;
+  component: React.ReactNode;
+}
+
 interface CarouselProps {
-  data: any[];
+  data: CarouselItem[];
 }
 
 const Carousel: React.FC<CarouselProps> = ({data}) => {
@@ -17,8 +22,8 @@ const Carousel: React.FC<CarouselProps> = ({data}) => {
     const index = Math.round(contentOffset.x / width);
     setActiveIndex(index);
   };
-  const renderItem = ({item}: {item: any}) => {
-    return <View style={[styles.item, {width: width}]}>{item.comp}</View>;
+  const renderItem = ({item}: {item: CarouselItem}) => {
+    return <View style={[styles.item, {width: width}]}>{item.component}</View>;
   };
 
   const scrollToIndex = (index: number) => {
