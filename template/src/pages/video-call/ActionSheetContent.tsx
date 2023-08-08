@@ -39,6 +39,7 @@ import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import protoRoot from '../../../src/subComponents/caption/proto/ptoto';
 import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
+import Carousel from '../../atoms/Carousel';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -364,6 +365,7 @@ const ActionSheetContent = (props) => {
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+
   return (
     <View>
       {/* Row Always Visible */}
@@ -416,60 +418,79 @@ const ActionSheetContent = (props) => {
           onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
         />
       </View>
+      <View style={[{flexDirection: 'row'}]}>
+        <Carousel
+          data={[
+            {
+              id: 'slide_1',
+              comp: (
+                <View style={styles.row}>
+                  {/**
+                   * In event mode when raise hand feature is active
+                   * and audience is promoted to host, the audience can also
+                   * demote himself
+                   */}
+                  {(isLiveStream && isAudience) ||
+                  (isBroadCasting && !isHost) ? (
+                    $config.RAISE_HAND && !isAudioRoom ? (
+                      <LiveStreamIcon isHandRaised={isHandRaised} />
+                    ) : null
+                  ) : null}
 
-      {/* Rest Of Controls */}
-      <View style={styles.row}>
-        {/**
-         * In event mode when raise hand feature is active
-         * and audience is promoted to host, the audience can also
-         * demote himself
-         */}
-        {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && !isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} />
-          ) : null
-        ) : null}
+                  {/* Layout view */}
+                  <LayoutIcon />
 
-        {/* Layout view */}
-        <LayoutIcon />
+                  {/* chat */}
+                  {!(
+                    isAudioCastHost ||
+                    isVoiceChatHost ||
+                    isVoiceChatAudience
+                  ) && <ChatIcon />}
+                  {/* participants */}
+                  <ParticipantsIcon
+                    showNotification={
+                      $config.EVENT_MODE && isPendingRequestToReview
+                    }
+                  />
+                  {/* record */}
+                  {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
 
-        {/* chat */}
-        {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
-          <ChatIcon />
-        )}
-        {/* participants */}
-        <ParticipantsIcon
-          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
+                  {/* switch camera */}
+                  {!isAudioRoom &&
+                    (isAudioVideoControlsDisabled ? null : (
+                      <SwitchCameraIcon
+                        disabled={
+                          (isLiveStream && isAudience && !isBroadCasting) ||
+                          isVideoDisabled
+                        }
+                      />
+                    ))}
+
+                  {/* settings */}
+                  <SettingsIcon
+                    onPress={() => {
+                      setSidePanel(SidePanelType.Settings);
+                    }}
+                  />
+
+                  {/* invite */}
+                  <ShareIcon />
+                  {/* caption  */}
+                  {isAuthorizedSTTUser() && <CaptionIconBtn />}
+                </View>
+              ),
+            },
+            {
+              id: 'slide_2',
+              comp: (
+                <View style={styles.row}>
+                  {/* Transcript */}
+                  {isAuthorizedSTTUser() && <TranscriptIconBtn />}
+                </View>
+              ),
+            },
+          ]}
         />
-        {/* record */}
-        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
-
-        {/* switch camera */}
-        {!isAudioRoom &&
-          (isAudioVideoControlsDisabled ? null : (
-            <SwitchCameraIcon
-              disabled={
-                (isLiveStream && isAudience && !isBroadCasting) ||
-                isVideoDisabled
-              }
-            />
-          ))}
-
-        {/* settings */}
-        <SettingsIcon
-          onPress={() => {
-            setSidePanel(SidePanelType.Settings);
-          }}
-        />
-
-        {/* invite */}
-        <ShareIcon />
-
-        {/* caption  */}
-        {isAuthorizedSTTUser() && <CaptionIconBtn />}
-
-        {/* Transcript */}
-        {isAuthorizedSTTUser() && <TranscriptIconBtn />}
       </View>
     </View>
   );
