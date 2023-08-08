@@ -37,7 +37,6 @@ import {isWeb, useLocalUserInfo, useRtc} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
 import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
-import protoRoot from '../../../src/subComponents/caption/proto/ptoto';
 import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 import Carousel from '../../atoms/Carousel';
 
@@ -271,19 +270,15 @@ const LayoutIcon = (props: LayoutIconProps) => {
 
 interface CaptionIconBtnProps {
   showLabel?: boolean;
-  isAllowedSTTUser: boolean;
 }
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
-  const {showLabel = $config.ICON_TEXT, isAllowedSTTUser} = props;
+  const {showLabel = $config.ICON_TEXT} = props;
+  const {} = useSTTAPI();
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <CaptionIcon
-          isOnActionSheet={true}
-          showLabel={false}
-          disabled={!isAllowedSTTUser}
-        />
+        <CaptionIcon isOnActionSheet={true} showLabel={false} />
       </View>
       {showLabel && <Text style={styles.iconText}>Caption</Text>}
     </View>
@@ -292,19 +287,14 @@ const CaptionIconBtn = (props: CaptionIconBtnProps) => {
 
 interface TranscriptIconProps {
   showLabel?: boolean;
-  isAllowedSTTUser: boolean;
 }
 
 const TranscriptIconBtn = (props: TranscriptIconProps) => {
-  const {showLabel = $config.ICON_TEXT, isAllowedSTTUser} = props;
+  const {showLabel = $config.ICON_TEXT} = props;
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
-        <TranscriptIcon
-          isOnActionSheet={true}
-          showLabel={false}
-          disabled={!isAllowedSTTUser}
-        />
+        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
       </View>
       {showLabel && <Text style={styles.iconText}>Transcript</Text>}
     </View>
@@ -353,7 +343,7 @@ const ActionSheetContent = (props) => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
-  const {isAuthorizedSTTUser} = useSTTAPI();
+
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
@@ -375,7 +365,9 @@ const ActionSheetContent = (props) => {
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
   const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
-  const isAllowedSTTUser = isAuthorizedSTTUser();
+  const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
+
+  const isPaginationRequired = isLiveStream || (isConferencing && isHost);
 
   return (
     <View>
@@ -429,80 +421,94 @@ const ActionSheetContent = (props) => {
           onPress={() => handleSheetChanges(isExpanded ? 0 : 1)}
         />
       </View>
-      <View style={[{flexDirection: 'row'}]}>
-        <Carousel
-          data={[
-            {
-              id: 'slide_1',
-              component: (
-                <View style={styles.row}>
-                  {/**
-                   * In event mode when raise hand feature is active
-                   * and audience is promoted to host, the audience can also
-                   * demote himself
-                   */}
-                  {(isLiveStream && isAudience) ||
-                  (isBroadCasting && !isHost) ? (
-                    $config.RAISE_HAND && !isAudioRoom ? (
-                      <LiveStreamIcon isHandRaised={isHandRaised} />
-                    ) : null
-                  ) : null}
 
-                  {/* Layout view */}
-                  <LayoutIcon />
+      <CarouselWrapper
+        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}>
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+            $config.RAISE_HAND && !isAudioRoom ? (
+              <LiveStreamIcon isHandRaised={isHandRaised} />
+            ) : null
+          ) : null}
 
-                  {/* chat */}
-                  {!(
-                    isAudioCastHost ||
-                    isVoiceChatHost ||
-                    isVoiceChatAudience
-                  ) && <ChatIcon />}
-                  {/* participants */}
-                  <ParticipantsIcon
-                    showNotification={
-                      $config.EVENT_MODE && isPendingRequestToReview
-                    }
-                  />
-                  {/* record */}
-                  {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
+          {/* Layout view */}
+          <LayoutIcon />
 
-                  {/* switch camera */}
-                  {!isAudioRoom &&
-                    (isAudioVideoControlsDisabled ? null : (
-                      <SwitchCameraIcon
-                        disabled={
-                          (isLiveStream && isAudience && !isBroadCasting) ||
-                          isVideoDisabled
-                        }
-                      />
-                    ))}
+          {/* chat */}
+          {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
+            <ChatIcon />
+          )}
+          {/* participants */}
+          <ParticipantsIcon
+            showNotification={$config.EVENT_MODE && isPendingRequestToReview}
+          />
+          {/* record */}
+          {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
 
-                  {/* settings */}
-                  <SettingsIcon
-                    onPress={() => {
-                      setSidePanel(SidePanelType.Settings);
-                    }}
-                  />
+          {/* switch camera */}
+          {!isAudioRoom &&
+            (isAudioVideoControlsDisabled ? null : (
+              <SwitchCameraIcon
+                disabled={
+                  (isLiveStream && isAudience && !isBroadCasting) ||
+                  isVideoDisabled
+                }
+              />
+            ))}
 
-                  {/* invite */}
-                  <ShareIcon />
-                  {/* caption  */}
-                  <CaptionIconBtn isAllowedSTTUser={isAllowedSTTUser} />
-                </View>
-              ),
-            },
-            {
-              id: 'slide_2',
-              component: (
-                <View style={styles.row}>
-                  {/* Transcript */}
-                  <TranscriptIconBtn isAllowedSTTUser={isAllowedSTTUser} />
-                </View>
-              ),
-            },
-          ]}
-        />
-      </View>
+          {/* settings */}
+          <SettingsIcon
+            onPress={() => {
+              setSidePanel(SidePanelType.Settings);
+            }}
+          />
+
+          {/* invite */}
+          <ShareIcon />
+          {/* caption  */}
+          {$config.ENABLE_STT ? <CaptionIconBtn /> : <></>}
+        </>
+      </CarouselWrapper>
+    </View>
+  );
+};
+
+const CarouselWrapper = ({isPaginationRequired, children}) => {
+  return isPaginationRequired ? (
+    <View style={{flexDirection: 'row'}}>
+      <Carousel
+        data={[
+          {
+            id: 'slide_1',
+            component: <View style={styles.row}>{children}</View>,
+          },
+          {
+            id: 'slide_2',
+            component: (
+              <View style={styles.row}>
+                {/* Transcript */}
+                <TranscriptIconBtn />
+              </View>
+            ),
+          },
+        ]}
+      />
+    </View>
+  ) : (
+    <View style={styles.row}>
+      {$config.ENABLE_STT ? (
+        <>
+          {children}
+          <TranscriptIconBtn />
+        </>
+      ) : (
+        children
+      )}
     </View>
   );
 };

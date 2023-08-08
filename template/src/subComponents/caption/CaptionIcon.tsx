@@ -43,9 +43,9 @@ const CaptionIcon = (props: CaptionIconProps) => {
     React.useState<boolean>(false);
 
   const isFirstTimePopupOpen = React.useRef(false);
-  const {start, restart} = useSTTAPI();
+  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const username = useGetName();
-
+  const isDisabled = !isAuthorizedSTTUser();
   const label = isCaptionON ? 'Hide Caption' : 'Show Caption';
   const iconButtonProps: IconButtonProps = {
     onPress: () => {
@@ -57,13 +57,13 @@ const CaptionIcon = (props: CaptionIconProps) => {
         setLanguagePopup(true);
       }
     },
-    disabled: disabled,
+    disabled: isDisabled,
     iconProps: {
       name: 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: disabled
+      tintColor: isDisabled
         ? $config.SEMANTIC_NEUTRAL
         : isCaptionON
         ? $config.PRIMARY_ACTION_TEXT_COLOR

@@ -28,7 +28,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     isOnActionSheet = false,
     isMobileView = false,
   } = props;
-  const {start, restart} = useSTTAPI();
+  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
 
   const {
     isTranscriptON,
@@ -41,6 +41,7 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
     data: {isHost},
   } = useMeetingInfo();
   const username = useGetName();
+  const isDisabled = !isAuthorizedSTTUser();
 
   const [isLanguagePopupOpen, setLanguagePopup] =
     React.useState<boolean>(false);
@@ -67,12 +68,13 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
       iconBackgroundColor: isTranscriptON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',
-      tintColor: disabled
+      tintColor: isDisabled
         ? $config.SEMANTIC_NEUTRAL
         : isTranscriptON
         ? $config.PRIMARY_ACTION_TEXT_COLOR
         : $config.SECONDARY_ACTION_COLOR,
     },
+    disabled: isDisabled,
     btnTextProps: {
       text: showLabel ? label : '',
       textColor: $config.FONT_COLOR,
