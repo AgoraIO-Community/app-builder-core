@@ -16,6 +16,8 @@ interface CaptionTextProps {
   setActiveContainerFlex: React.Dispatch<React.SetStateAction<number>>;
   activelinesAvailable: number;
   setActiveLinesAvailable: React.Dispatch<React.SetStateAction<number>>;
+  inActiveLinesAvailable: number;
+  setInActiveLinesAvaialble: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const DESKTOP_LINE_HEIGHT = 28;
@@ -30,14 +32,13 @@ const CaptionText = ({
   setActiveContainerFlex,
   activelinesAvailable,
   setActiveLinesAvailable,
+  inActiveLinesAvailable,
+  setInActiveLinesAvaialble,
 }: CaptionTextProps) => {
   const isMobile = isMobileUA();
 
-  const [captionContainerHeight, setCaptionContainerHeight] = React.useState(
-    () => (isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT),
-  );
-  const activeLinesRef = React.useRef(1);
-  const preActiveLinesRef = React.useRef(1);
+  const activeLinesRef = React.useRef(0);
+  const preActiveLinesRef = React.useRef(0);
 
   const LINE_HEIGHT = isMobile ? MOBILE_LINE_HEIGHT : DESKTOP_LINE_HEIGHT;
 
@@ -48,8 +49,13 @@ const CaptionText = ({
 
     if (isActiveSpeaker) {
       activeLinesRef.current = Math.min(currentLines, 3); // setting activeUser Lines
+      setActiveLinesAvailable(Math.min(currentLines, 3));
+      setInActiveLinesAvaialble((prev) =>
+        Math.min(prev, 3 - activeLinesRef.current),
+      );
     } else {
       preActiveLinesRef.current = Math.min(currentLines, 3); // setting in-activeUser Lines
+      setInActiveLinesAvaialble(Math.min(currentLines, 3));
     }
 
     // max caption lines means how many lines can be accomadated: Max 3 for 1 speaker and 2 for 2 speakers
@@ -62,18 +68,15 @@ const CaptionText = ({
 
     const currentActiveLines = Math.min(currentLines, MaxLines);
 
-    if (isActiveSpeaker && activeSpeakersCount !== 1) {
+    if (isActiveSpeaker) {
       setActiveContainerFlex(
         activeSpeakersCount === 1 ? 1 : (currentActiveLines + 1) * 0.2, // total 5 lines (3 caption + 2 name tag) so 1 line will take 1/5 =>0.2
       );
     }
 
-    if (isActiveSpeaker) {
-      setActiveLinesAvailable(currentActiveLines);
-    }
-
     if (isActiveSpeaker && activeSpeakersCount !== 1 && currentLines >= 3) {
       setActiveContainerFlex(() => 1);
+      setInActiveLinesAvaialble(0);
     }
   };
 
@@ -97,8 +100,7 @@ const CaptionText = ({
             height:
               (isActiveSpeaker
                 ? activelinesAvailable
-                : Math.min(activelinesAvailable, preActiveLinesRef.current)) *
-              LINE_HEIGHT,
+                : inActiveLinesAvailable) * LINE_HEIGHT,
           },
         ]}>
         <Text

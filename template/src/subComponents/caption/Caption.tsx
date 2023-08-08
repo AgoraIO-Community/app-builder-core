@@ -30,6 +30,7 @@ const Caption: React.FC = () => {
   const {renderList} = useRender();
   const [activeContainerFlex, setActiveContainerFlex] = React.useState(1);
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(1);
+  const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
 
   const handleStreamMessageCallback1 = (
     ...args: [number, Uint8Array] | [number, string, Uint8Array]
@@ -95,11 +96,11 @@ const Caption: React.FC = () => {
         <>
           <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
             Active Speaker : {renderList[activeSpeakerUID]?.name || ''} (
-            {activeSpeakerUID})
+            {activeSpeakerUID}){/* - Lines : {activelinesAvailable} */}
           </Text>
           <Text style={{color: 'white', position: 'absolute', top: 0}}>
             Prev Speaker: {renderList[prevActiveSpeakerUID]?.name || ''} (
-            {prevActiveSpeakerUID})
+            {prevActiveSpeakerUID}){/* - Lines : {inActiveLinesAvailable} */}
           </Text>
           {speakerCount === 2 &&
           captionObj[prevActiveSpeakerUID] &&
@@ -114,6 +115,8 @@ const Caption: React.FC = () => {
                 setActiveContainerFlex={setActiveContainerFlex}
                 activelinesAvailable={3 - activelinesAvailable}
                 setActiveLinesAvailable={setActiveLinesAvailable}
+                inActiveLinesAvailable={inActiveLinesAvailable}
+                setInActiveLinesAvaialble={setInActiveLinesAvaialble}
               />
             </>
           ) : (
@@ -129,6 +132,8 @@ const Caption: React.FC = () => {
               setActiveContainerFlex={setActiveContainerFlex}
               activelinesAvailable={activelinesAvailable}
               setActiveLinesAvailable={setActiveLinesAvailable}
+              inActiveLinesAvailable={inActiveLinesAvailable}
+              setInActiveLinesAvaialble={setInActiveLinesAvaialble}
             />
           ) : (
             <></>
