@@ -13,7 +13,7 @@ import IconButton from '../../atoms/IconButton';
 import UserActionMenuOptionsOptions from '../../components/participants/UserActionMenuOptions';
 import {isMobileUA, isWebInternal} from '../../utils/common';
 import ThemeConfig from '../../theme';
-import useIsSpeaking from '../../utils/useIsSpeaking';
+import {useVideoCall} from '../../components/useVideoCall';
 
 interface VideoRendererProps {
   user: RenderInterface;
@@ -21,10 +21,10 @@ interface VideoRendererProps {
 }
 const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
   const {dispatch} = useRtc();
+  const {activeSpeaker: activeSpeakerUID} = useVideoCall();
   //const isActiveSpeaker = useIsActiveSpeaker();
   const {pinnedUid, activeUids} = useRender();
-  const activeSpeakerId = useIsSpeaking();
-  const activeSpeaker = activeSpeakerId == user.uid;
+  const activeSpeaker = user.uid == activeSpeakerUID;
   //const activeSpeaker = isActiveSpeaker(user.uid);
   const [isHovered, setIsHovered] = useState(false);
   const {rtcProps} = useContext(PropsContext);
