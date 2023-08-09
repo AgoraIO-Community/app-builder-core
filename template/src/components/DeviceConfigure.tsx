@@ -440,7 +440,15 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
           checkDeviceExists(storedDevice, deviceList)
         ) {
           log(logTag, deviceLogTag, 'Setting to active id', storedDevice);
-          setDevice(storedDevice);
+          setDevice(storedDevice).catch((e:Error) => {
+            log(
+              logTag,
+              deviceLogTag,
+              'ERROR:Setting to active id',
+              storedDevice,
+              e.message,
+            );
+          });
         } else {
           eventEmitter(currentDevice);
           setDeviceUi(currentDevice);
@@ -624,7 +632,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
     return new Promise<void>((res, rej) => {
       if (mutexRef.current) {
         const e = new Error(logtag + ' Change already in progress');
-        log('DeviceConfigure:', logtag, 'Error setting', kind, e);
+        log('DeviceConfigure:', logtag, 'Error setting', kind, e.message);
         rej(e);
         return;
       }
