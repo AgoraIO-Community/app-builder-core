@@ -154,6 +154,7 @@ const ActionSheet = () => {
           <ActionSheetContent
             handleSheetChanges={handleSheetChanges}
             isExpanded={isExpanded}
+            native={false}
           />
         </BottomSheet>
         {/* Chat  Action Sheet */}

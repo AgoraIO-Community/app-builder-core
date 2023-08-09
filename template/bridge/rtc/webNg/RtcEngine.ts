@@ -217,6 +217,16 @@ export default class RtcEngine {
     return engine;
   }
 
+  getRemoteVideoStats(id: string) {
+    try {
+      const data = this.client.getRemoteVideoStats();
+      return data && data[id] ? data[id] : null;
+    } catch (error) {
+      console.log(`ERROR: on getRemoteVideoStats - ` + error?.message);
+      return null;
+    }
+  }
+
   async setVideoProfile(profile: VideoProfile): Promise<void> {
     this.videoProfile = profile;
   }
