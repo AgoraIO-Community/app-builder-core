@@ -12,43 +12,46 @@ interface TranscriptTextProps {
   searchQuery?: string;
 }
 
-export const TranscriptText = React.memo(
-  ({user, time, value, searchQuery = ''}: TranscriptTextProps) => {
-    const t = time ? formatTime(Number(time)) : '';
-    const regex = new RegExp(`(${searchQuery})`, 'gi');
-    const parts = value.split(regex);
+export const TranscriptText = ({
+  user,
+  time,
+  value,
+  searchQuery = '',
+}: TranscriptTextProps) => {
+  const t = time ? formatTime(Number(time)) : '';
+  const regex = searchQuery ? new RegExp(`(${searchQuery})`, 'gi') : ' ';
+  const parts = value.split(regex);
 
-    return (
-      <View key={user} style={styles.transcriptTextContainer}>
-        <View style={styles.nameTimeContainer}>
-          <Text
-            numberOfLines={1}
-            textBreakStrategy="simple"
-            ellipsizeMode="tail"
-            style={[styles.transcriptName]}>
-            {user}
-          </Text>
-          <Text style={styles.timestamp}>{t}</Text>
-        </View>
-
-        <View>
-          <Text style={[styles.transciptText]}>
-            {/* If substring matches search query then highlight it */}
-            {parts.map((part, index) =>
-              part.toLowerCase() === searchQuery.toLowerCase() ? (
-                <Text key={index} style={styles.highlightedText}>
-                  {part}
-                </Text>
-              ) : (
-                <Text key={index}>{part}</Text>
-              ),
-            )}
-          </Text>
-        </View>
+  return (
+    <View key={user} style={styles.transcriptTextContainer}>
+      <View style={styles.nameTimeContainer}>
+        <Text
+          numberOfLines={1}
+          textBreakStrategy="simple"
+          ellipsizeMode="tail"
+          style={[styles.transcriptName]}>
+          {user}
+        </Text>
+        <Text style={styles.timestamp}>{t}</Text>
       </View>
-    );
-  },
-);
+
+      <View>
+        <Text style={[styles.transciptText]}>
+          {/* If substring matches search query then highlight it */}
+          {parts.map((part, index) =>
+            part.toLowerCase() === searchQuery.toLowerCase() ? (
+              <Text key={index} style={styles.highlightedText}>
+                {searchQuery ? part : part + ' '}
+              </Text>
+            ) : (
+              <Text key={index}>{searchQuery ? part : part + ' '}</Text>
+            ),
+          )}
+        </Text>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   nameTimeContainer: {
