@@ -164,15 +164,16 @@ const useStreamMessageUtils = (): {
         : latestString;
 
     // updating the captions
-    setCaptionObj((prevState) => {
-      return {
-        ...prevState,
-        [textstream.uid]: {
-          text: captionText,
-          lastUpdated: new Date().getTime(),
-        },
-      };
-    });
+    latestString &&
+      setCaptionObj((prevState) => {
+        return {
+          ...prevState,
+          [textstream.uid]: {
+            text: captionText,
+            lastUpdated: new Date().getTime(),
+          },
+        };
+      });
 
     console.group('STT-logs');
     console.log('Recived uid =>', textstream.uid);
