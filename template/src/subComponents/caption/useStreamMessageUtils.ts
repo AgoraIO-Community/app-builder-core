@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import {useCaption} from './useCaption';
 import protoRoot from './proto/ptoto';
 
@@ -21,8 +21,9 @@ const useStreamMessageUtils = (): {
     activeSpeakerRef,
     prevSpeakerRef,
   } = useCaption();
-  const startTimeRef = useRef<number>(0);
-  const finalList = useRef<FinalListType>({});
+
+  let captionStartTime: number = 0;
+  const finalList: FinalListType = {};
 
   const streamMessageCallback: StreamMessageCallback = (args) => {
     /* uid - bot which sends stream message in channel
@@ -71,7 +72,7 @@ const useStreamMessageUtils = (): {
     if (textstream.uid !== activeSpeakerRef.current) {
       // we have a speaker change so clear the context for prev speaker
       if (prevSpeakerRef.current !== '') {
-        finalList.current[prevSpeakerRef.current] = [];
+        finalList[prevSpeakerRef.current] = [];
         isInterjecting = true;
       }
       prevSpeakerRef.current = activeSpeakerRef.current;
@@ -82,8 +83,8 @@ const useStreamMessageUtils = (): {
        initializing captions state for cuurent speaker
        ex: {282190954:[]}
     */
-    if (!finalList.current[textstream.uid]) {
-      finalList.current[textstream.uid] = [];
+    if (!finalList[textstream.uid]) {
+      finalList[textstream.uid] = [];
     }
 
     const words = textstream.words; //[Word,Word]
@@ -98,18 +99,18 @@ const useStreamMessageUtils = (): {
   */
     for (const word of words) {
       if (word.isFinal) {
-        finalList.current[textstream.uid].push(word.text);
+        finalList[textstream.uid].push(word.text);
         currentFinalText = word.text;
         // log info to show measure the duration of passes in which a sentence gets finalized
-        const duration = performance.now() - startTimeRef.current;
+        const duration = performance.now() - captionStartTime;
         console.log(
           `stt-Time taken to finalize caption ${currentFinalText}: ${duration}ms`,
         );
-        startTimeRef.current = null; // Reset start time
+        captionStartTime = null; // Reset start time
       } else {
         nonFinalText = word.text !== '.' ? word.text : nonFinalText;
-        if (!startTimeRef.current) {
-          startTimeRef.current = performance.now();
+        if (!captionStartTime) {
+          captionStartTime = performance.now();
         }
       }
     }
@@ -155,7 +156,7 @@ const useStreamMessageUtils = (): {
     */
     const existingStringBuffer = isInterjecting
       ? ''
-      : finalList?.current[textstream.uid]?.join(' ');
+      : finalList[textstream.uid]?.join(' ');
     const latestString = nonFinalText;
     const captionText =
       existingStringBuffer.length > 0
