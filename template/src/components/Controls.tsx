@@ -482,22 +482,6 @@ const Controls = () => {
           <View testID="invite-btn" style={{marginHorizontal: 10}}>
             <CopyJoinInfo />
           </View>
-
-          {/* STT works on host mode only */}
-          {/* TODO:// to be refactored to more menu */}
-
-          {/* {isAuthorizedSTTUser() ? (
-            <>
-              <View testID="caption-btn" style={{marginHorizontal: 10}}>
-                <CaptionIcon />
-              </View>
-              <View testID="transcript-btn" style={{marginHorizontal: 10}}>
-                <TranscriptIcon />
-              </View>
-            </>
-          ) : (
-            <></>
-          )} */}
         </View>
       )}
       <View style={style.centerContent}>
@@ -565,12 +549,11 @@ const Controls = () => {
             </View>
           )}
         </>
-        {width < BREAKPOINTS.md ||
-          ($config.ENABLE_STT && (
-            <View testID="more-btn" style={{marginHorizontal: 10}}>
-              <MoreButton />
-            </View>
-          ))}
+        {(width < BREAKPOINTS.md || $config.ENABLE_STT) && (
+          <View testID="more-btn" style={{marginHorizontal: 10}}>
+            <MoreButton />
+          </View>
+        )}
         <View testID="endCall-btn" style={{marginHorizontal: 10}}>
           <LocalEndcall />
         </View>
