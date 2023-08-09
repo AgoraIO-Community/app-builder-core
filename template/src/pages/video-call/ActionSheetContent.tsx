@@ -39,6 +39,7 @@ import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
 import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
 import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 import Carousel from '../../atoms/Carousel';
+import {useCaption} from '../../subComponents/caption/useCaption';
 
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
@@ -274,13 +275,41 @@ interface CaptionIconBtnProps {
 
 const CaptionIconBtn = (props: CaptionIconBtnProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
-  const {} = useSTTAPI();
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const {isCaptionON} = useCaption();
+  const isDisabled = !isAuthorizedSTTUser();
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
         <CaptionIcon isOnActionSheet={true} showLabel={false} />
       </View>
-      {showLabel && <Text style={styles.iconText}>Caption</Text>}
+      {showLabel && (
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+              },
+            ]}>
+            {isCaptionON ? 'Hide' : 'Show'}
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Caption
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -291,12 +320,41 @@ interface TranscriptIconProps {
 
 const TranscriptIconBtn = (props: TranscriptIconProps) => {
   const {showLabel = $config.ICON_TEXT} = props;
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const {isTranscriptON} = useCaption();
+  const isDisabled = !isAuthorizedSTTUser();
   return (
     <View style={styles.iconWithText}>
       <View style={styles.iconContainer}>
         <TranscriptIcon isOnActionSheet={true} showLabel={false} />
       </View>
-      {showLabel && <Text style={styles.iconText}>Transcript</Text>}
+      {showLabel && (
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+              },
+            ]}>
+            {isTranscriptON ? 'Hide' : 'Show'}
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Transcript
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

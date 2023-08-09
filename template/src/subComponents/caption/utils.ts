@@ -55,3 +55,21 @@ export function getLanguageLabel(
   });
   return langLabels ? langLabels.join(',') : undefined;
 }
+
+export function formatDateWithTimeZone(date: Date): string {
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const year = date.getUTCFullYear();
+
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+  const timeZoneOffset = 5.5 * 60; // Offset in minutes for GMT +5:30
+  const offsetHours = Math.floor(timeZoneOffset / 60);
+  const offsetMinutes = timeZoneOffset % 60;
+  const offsetSign = '+';
+
+  return `${day}/${month}/${year} ${hours}:${minutes} GMT ${offsetSign}${offsetHours}:${String(
+    offsetMinutes,
+  ).padStart(2, '0')}`;
+}
