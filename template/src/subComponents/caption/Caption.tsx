@@ -20,10 +20,8 @@ const Caption: React.FC = () => {
     setCaptionObj,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
-    activeSpeakerUID,
-    prevActiveSpeakerUID,
-    setPrevActiveSpeakerUID,
-    setActiveSpeakerUID,
+    activeSpeakerRef,
+    prevSpeakerRef,
   } = useCaption();
 
   const {streamMessageCallback} = useStreamMessageUtils();
@@ -46,23 +44,11 @@ const Caption: React.FC = () => {
   };
 
   React.useEffect(() => {
-    if (1 || !isSTTListenerAdded) {
+    !isSTTListenerAdded &&
       RtcEngine.addListener(
         'StreamMessage',
         handleStreamMessageCallback1 as unknown as StreamMessageCallback,
       );
-    }
-    return () => {
-      // RtcEngine.removeListener is not a function
-      // RtcEngine.removeListener(
-      //   'StreamMessage',
-      //   handleStreamMessageCallback1 as unknown as StreamMessageCallback,
-      // );
-      setPrevActiveSpeakerUID('');
-      setActiveSpeakerUID('');
-      setCaptionObj({});
-    };
-    //  setCaptionObj({}); // clear live captions on mount
   }, []);
 
   if (isLangChangeInProgress)
@@ -75,16 +61,16 @@ const Caption: React.FC = () => {
       />
     );
 
-  console.log('current speaker uid', activeSpeakerUID);
-  console.log('prev current uid ', prevActiveSpeakerUID);
+  console.log('current speaker uid', activeSpeakerRef.current);
+  console.log('prev current uid ', prevSpeakerRef.current);
 
   if (Object.keys(captionObj).length === 0) return <></>;
 
-  const prevActiveSpeakerText = captionObj[prevActiveSpeakerUID]?.text;
-  const activeSpeakerText = captionObj[activeSpeakerUID]?.text;
+  const prevActiveSpeakerText = captionObj[prevSpeakerRef.current]?.text;
+  const activeSpeakerText = captionObj[activeSpeakerRef.current]?.text;
 
   const speakerCount =
-    prevActiveSpeakerUID === '' ||
+    prevSpeakerRef.current === '' ||
     (prevActiveSpeakerText === '' && activeSpeakerText !== '') ||
     (prevActiveSpeakerText !== '' && activeSpeakerText === '')
       ? 1
@@ -94,21 +80,21 @@ const Caption: React.FC = () => {
     <View style={styles.captionContainer}>
       {
         <>
-          <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
-            Active Speaker : {renderList[activeSpeakerUID]?.name || ''} (
-            {activeSpeakerUID}){/* - Lines : {activelinesAvailable} */}
+          {/* <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
+            Active Speaker : {renderList[activeSpeakerRef.current]?.name || ''}{' '}
+            ({activeSpeakerRef.current})- Lines : {activelinesAvailable}
           </Text>
           <Text style={{color: 'white', position: 'absolute', top: 0}}>
-            Prev Speaker: {renderList[prevActiveSpeakerUID]?.name || ''} (
-            {prevActiveSpeakerUID}){/* - Lines : {inActiveLinesAvailable} */}
-          </Text>
+            Prev Speaker: {renderList[prevSpeakerRef.current]?.name || ''} (
+            {prevSpeakerRef.current})- Lines : {inActiveLinesAvailable}
+          </Text> */}
           {speakerCount === 2 &&
-          captionObj[prevActiveSpeakerUID] &&
-          captionObj[prevActiveSpeakerUID].text ? (
+          captionObj[prevSpeakerRef.current] &&
+          captionObj[prevSpeakerRef.current].text ? (
             <>
               <CaptionText
-                user={renderList[prevActiveSpeakerUID].name || 'Speaker'}
-                value={captionObj[prevActiveSpeakerUID].text}
+                user={renderList[prevSpeakerRef.current].name || 'Speaker'}
+                value={captionObj[prevSpeakerRef.current].text}
                 activeSpeakersCount={speakerCount}
                 isActiveSpeaker={false}
                 activeContainerFlex={1 - activeContainerFlex}
@@ -122,10 +108,11 @@ const Caption: React.FC = () => {
           ) : (
             <></>
           )}
-          {captionObj[activeSpeakerUID] && captionObj[activeSpeakerUID].text ? (
+          {captionObj[activeSpeakerRef.current] &&
+          captionObj[activeSpeakerRef.current].text ? (
             <CaptionText
-              user={renderList[activeSpeakerUID].name || 'Speaker'}
-              value={captionObj[activeSpeakerUID].text}
+              user={renderList[activeSpeakerRef.current].name || 'Speaker'}
+              value={captionObj[activeSpeakerRef.current].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
               activeContainerFlex={activeContainerFlex}

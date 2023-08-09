@@ -48,11 +48,8 @@ export const CaptionContext = React.createContext<{
   isSTTListenerAdded: boolean;
   setIsSTTListenerAdded: React.Dispatch<React.SetStateAction<boolean>>;
 
-  activeSpeakerUID: string;
-  setActiveSpeakerUID: React.Dispatch<React.SetStateAction<string>>;
-
-  prevActiveSpeakerUID: string;
-  setPrevActiveSpeakerUID: React.Dispatch<React.SetStateAction<string>>;
+  activeSpeakerRef: React.MutableRefObject<string>;
+  prevSpeakerRef: React.MutableRefObject<string>;
 }>({
   isCaptionON: false,
   setIsCaptionON: () => {},
@@ -70,10 +67,8 @@ export const CaptionContext = React.createContext<{
   setCaptionObj: () => {},
   isSTTListenerAdded: false,
   setIsSTTListenerAdded: () => {},
-  activeSpeakerUID: '',
-  setActiveSpeakerUID: () => {},
-  prevActiveSpeakerUID: '',
-  setPrevActiveSpeakerUID: () => {},
+  activeSpeakerRef: {current: ''},
+  prevSpeakerRef: {current: ''},
 });
 
 const CaptionProvider = ({children}) => {
@@ -92,6 +87,9 @@ const CaptionProvider = ({children}) => {
   const [activeSpeakerUID, setActiveSpeakerUID] = React.useState<string>('');
   const [prevActiveSpeakerUID, setPrevActiveSpeakerUID] =
     React.useState<string>('');
+
+  const activeSpeakerRef = React.useRef('');
+  const prevSpeakerRef = React.useRef('');
 
   return (
     <CaptionContext.Provider
@@ -112,10 +110,8 @@ const CaptionProvider = ({children}) => {
         setCaptionObj,
         isSTTListenerAdded,
         setIsSTTListenerAdded,
-        activeSpeakerUID,
-        setActiveSpeakerUID,
-        prevActiveSpeakerUID,
-        setPrevActiveSpeakerUID,
+        activeSpeakerRef,
+        prevSpeakerRef,
       }}>
       {children}
     </CaptionContext.Provider>
