@@ -164,7 +164,7 @@ const useStreamMessageUtils = (): {
         : latestString;
 
     // updating the captions
-    latestString &&
+    captionText &&
       setCaptionObj((prevState) => {
         return {
           ...prevState,
