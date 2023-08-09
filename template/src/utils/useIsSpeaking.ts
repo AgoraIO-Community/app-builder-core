@@ -74,6 +74,7 @@ const useIsSpeaking = () => {
     });
 
     if (!sorted || !sorted?.length) {
+      console.log('debugging no active speaker');
       setActiveSpeaker(0);
     } else if (
       sorted &&
@@ -81,6 +82,26 @@ const useIsSpeaking = () => {
       parseInt(sorted[0]) !== activeSpeaker
     ) {
       setActiveSpeaker(parseInt(sorted[0]));
+
+      //for logging purpose
+      let obj = {};
+      sorted.map((i) => {
+        let id = parseInt(i);
+        const curtdata = currentUsersVolume.find((i) => i.uid === id);
+        const cl =
+          curtdata && curtdata?.level
+            ? Math.round(curtdata?.level * 100) / 100
+            : 'no vol';
+        obj[id] = {
+          name: renderList[id].name,
+          normalizedVolume: normalizedValues[id],
+          currentVolume: cl,
+          minNonSpeakingVolume: usersVolume.current[id]?.nonSpeakingVolume,
+          speakingVolume: usersVolume.current[id]?.speakingVolume,
+        };
+      });
+      console.log('debugging active speaker data', JSON.stringify(obj));
+      //for logging purpose
     }
   };
 
@@ -96,7 +117,7 @@ const useIsSpeaking = () => {
   };
 
   const speakingVolumeEventCallBack = ({payload, sender}) => {
-    console.log('debugging speaking volume sender', sender, '=', payload);
+    //console.log('debugging speaking volume sender', sender, '=', payload);
 
     usersVolume.current = {
       ...usersVolume.current,
