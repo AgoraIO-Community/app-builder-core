@@ -47,13 +47,13 @@ export default function MeetingInfoGridTile() {
                     </Text>
                   </View>
                   {isMobile && <Spacer size={10} />}
-                  <Text
-                    style={style.subheading}
-                    numberOfLines={isMobile ? 2 : 1}>
-                    {isMobile
-                      ? `No one else has joined yet, invite others ?`
-                      : `No one else has joined yet`}
-                  </Text>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={[style.subheading, {flexShrink: 1}]}>
+                      {isMobile
+                        ? `No one else has joined yet, invite others ?`
+                        : `No one else has joined yet`}
+                    </Text>
+                  </View>
                 </>
               </MeetingInfoCardHeader>
               {isMobile ? <Spacer size={20} /> : <Spacer size={40} />}

@@ -55,6 +55,7 @@ export const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
   },
   avatar: {
     marginRight: 10,
