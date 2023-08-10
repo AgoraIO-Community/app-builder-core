@@ -70,6 +70,7 @@
     "nanoevents": "7.0.1",
     "nanoid": "4.0.0",
     "nosleep.js": "0.12.0",
+    "p-queue": "^7.3.4",
     "protobufjs": "^7.2.3",
     "react": "17.0.1",
     "react-dom": "17.0.1",
