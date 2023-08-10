@@ -4,8 +4,14 @@ import ImageIcon from '../../../atoms/ImageIcon';
 import {IconsInterface} from '../../../atoms/CustomIcon';
 import hexadecimalTransparency from '../../../utils/hexadecimalTransparency';
 import MeetingLink from '../../../atoms/MeetingLink';
-import {SHARE_LINK_CONTENT_TYPE} from '../../../components/useShareLink';
-import {useIsDesktop} from '../../../utils/common';
+import {
+  SHARE_LINK_CONTENT_TYPE,
+  useShareLink,
+} from '../../../components/useShareLink';
+import {isMobileUA, useIsDesktop} from '../../../utils/common';
+import TertiaryButton from '../../../atoms/TertiaryButton';
+import ThemeConfig from '../../../theme';
+import Spacer from '../../../atoms/Spacer';
 
 interface Feature {
   id: number;
@@ -46,8 +52,13 @@ const features: Feature[] = [
 ];
 function FeatureTile({feature}: {feature: Feature}) {
   const isDesktop = useIsDesktop();
+  const isMobile = isMobileUA();
   return (
-    <View style={[style.card, isDesktop() ? style.cardWeb : style.cardMobile]}>
+    <View
+      style={[
+        style.card,
+        isDesktop() && !isMobile ? style.cardWeb : style.cardMobile,
+      ]}>
       <View style={style.cardHeader}>
         <View style={style.cardHeaderAvatar}>
           <View style={style.cardHeaderAvatarIcon}>
@@ -63,7 +74,7 @@ function FeatureTile({feature}: {feature: Feature}) {
           <View>
             <Text style={style.cardTitle}>{feature.title}</Text>
           </View>
-          <View style={{flexShrink: 0}}>
+          <View style={{flexShrink: 1}}>
             <Text style={style.cardDesc}>{feature.description}</Text>
           </View>
         </View>
@@ -73,6 +84,9 @@ function FeatureTile({feature}: {feature: Feature}) {
 }
 
 export default function LiveStreamAttendeeLandingTile() {
+  const isMobile = isMobileUA();
+  const {copyShareLinkToClipboard} = useShareLink();
+
   return (
     <View style={style.tileBackdrop}>
       <ScrollView contentContainerStyle={{flexGrow: 1}}>
@@ -97,19 +111,44 @@ export default function LiveStreamAttendeeLandingTile() {
             </View>
             <View style={[style.tileSection]}>
               <View>
-                <Text style={style.tileSubheading}>Invite other attendees</Text>
-              </View>
-              <View>
-                <MeetingLink
-                  styleProps={{
-                    size: 'tiny',
-                    variant: 'secondary',
-                    linkFontSize: 'tiny',
-                  }}
-                  label=""
-                  link={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
-                  linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
-                />
+                {isMobile ? (
+                  <>
+                    <TertiaryButton
+                      text="INVITE OTHER ATTENDEES"
+                      containerStyle={{
+                        width: '100%',
+                        height: 48,
+                        paddingVertical: 12,
+                        paddingHorizontal: 12,
+                        borderRadius: ThemeConfig.BorderRadius.medium,
+                      }}
+                      {...(isMobile && {iconName: 'share', iconSize: 20})}
+                      onPress={() => {
+                        copyShareLinkToClipboard(
+                          SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
+                        );
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <View>
+                      <Text style={style.cardTitle}>
+                        Invite other attendees
+                      </Text>
+                    </View>
+                    <MeetingLink
+                      styleProps={{
+                        size: 'tiny',
+                        variant: 'secondary',
+                        linkFontSize: 'tiny',
+                      }}
+                      label=""
+                      link={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
+                      linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
+                    />
+                  </>
+                )}
               </View>
             </View>
           </View>
@@ -127,13 +166,9 @@ const style = StyleSheet.create({
     marginHorizontal: 'auto',
     marginVertical: 4,
   },
-  scrollView: {
-    // display: 'flex',
-    // flex: 1,
-  },
   tileContainer: {
     maxWidth: 600,
-    minWidth: 400,
+    minWidth: 200,
     margin: 'auto',
     padding: 20,
   },
@@ -175,7 +210,7 @@ const style = StyleSheet.create({
     color: $config.FONT_COLOR,
   },
   tileSubheading: {
-    color: $config.VIDEO_AUDIO_TILE_TEXT_COLOR,
+    color: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
     fontSize: 14,
     fontWeight: '400',
     lineHeight: 14,
