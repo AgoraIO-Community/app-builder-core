@@ -123,7 +123,7 @@ const Transcript = (props: TranscriptProps) => {
     if (!showButton || searchQuery.length === 0) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
-        animated: false,
+        animated: true,
       });
 
       isScrolledToEnd.current = true;

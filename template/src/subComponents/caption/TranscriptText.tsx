@@ -39,7 +39,8 @@ export const TranscriptText = ({
         <Text style={[styles.transciptText]}>
           {/* If substring matches search query then highlight it */}
           {parts.map((part, index) =>
-            part.toLowerCase() === searchQuery.toLowerCase() ? (
+            part.toLowerCase() === searchQuery.toLowerCase() &&
+            searchQuery !== '' ? (
               <Text key={index} style={styles.highlightedText}>
                 {searchQuery ? part : part + ' '}
               </Text>
