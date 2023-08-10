@@ -130,7 +130,7 @@ const useFindActiveSpeaker = () => {
             ? Math.round(curtdata?.level * 100) / 100
             : 'no vol';
         obj[id] = {
-          name: renderList[id].name,
+          name: renderListRef.current[id]?.name,
           normalizedVolume: normalizedValues[id],
           currentVolume: cl,
           minNonSpeakingVolume: usersVolume.current[id]?.nonSpeakingVolume,
