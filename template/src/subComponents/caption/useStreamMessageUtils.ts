@@ -189,6 +189,7 @@ const useStreamMessageUtils = (): {
     };
     (async () => {
       await queue.add(() => queueCallback(args));
+      console.log('stt- using pq queue');
     })();
   };
 

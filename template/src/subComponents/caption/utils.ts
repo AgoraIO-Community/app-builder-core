@@ -1,3 +1,6 @@
+import {RenderObjects} from '../../../agora-rn-uikit/src/Contexts/RtcContext';
+import {TranscriptItem} from './useCaption';
+
 export function formatTime(timestamp: number): string {
   const d = new Date(timestamp);
   const h = d.getHours();
@@ -73,3 +76,43 @@ export function formatDateWithTimeZone(date: Date): string {
     offsetMinutes,
   ).padStart(2, '0')}`;
 }
+
+export const formatTranscriptContent = (
+  meetingTranscript: TranscriptItem[],
+  meetingTitle: string,
+  renderList: RenderObjects,
+) => {
+  const formattedContent = meetingTranscript
+    .map((item) => {
+      if (item.uid.toString().indexOf('langUpdate') !== -1) {
+        return `${renderList[item?.uid?.split('-')[1]]?.name} ${item.text}`;
+      }
+      return `${renderList[item.uid].name} ${formatTime(Number(item.time))}:\n${
+        item.text
+      }`;
+    })
+    .join('\n\n');
+
+  const startTime = formatDateWithTimeZone(new Date(meetingTranscript[0].time));
+  const attendees = Object.entries(renderList)
+    .filter((arr) => arr[1].type === 'rtc')
+    .map((arr) => arr[1].name)
+    .join(',');
+
+  const info =
+    'This editable transcript was computer generated and might contain errors. People can also change\nthe text after it was created.';
+  const finalContent = `${meetingTitle} (${startTime}) - Transcript \n\nParticipants\n${attendees} \n\nTranscript\n${info} \n\n${formattedContent}`;
+
+  // to give unique file name
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().slice(0, 10);
+  const formattedTime = currentDate
+    .toTimeString()
+    .slice(0, 8)
+    .replace(/:/g, '');
+
+  // adding the filename
+  const fileName = `MeetingTranscript_${formattedDate}_${formattedTime}.txt`;
+
+  return [finalContent, fileName];
+};

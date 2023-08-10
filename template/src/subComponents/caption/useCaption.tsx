@@ -2,7 +2,7 @@ import {createHook} from 'customization-implementation';
 import React from 'react';
 import {LanguageType} from './utils';
 
-type TranscriptItem = {
+export type TranscriptItem = {
   uid: string;
   time: number;
   text: string;
