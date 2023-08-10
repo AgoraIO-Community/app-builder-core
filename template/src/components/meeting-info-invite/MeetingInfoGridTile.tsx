@@ -7,7 +7,6 @@ import ThemeConfig from '../../theme';
 import Spacer from '../../atoms/Spacer';
 import TertiaryButton from '../../atoms/TertiaryButton';
 import {SHARE_LINK_CONTENT_TYPE, useShareLink} from '../useShareLink';
-import ImageIcon from '../../atoms/ImageIcon';
 import useGetName from '../../utils/useGetName';
 import hexadecimalTransparency from '../../utils/hexadecimalTransparency';
 import {isMobileUA} from '../../utils/common';

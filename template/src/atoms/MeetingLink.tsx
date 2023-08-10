@@ -13,6 +13,7 @@ import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 
 interface MeetingLinkStyleProps {
   size?: keyof FontSizes;
+  linkFontSize?: keyof FontSizes;
   variant?: 'primary' | 'secondary';
 }
 
@@ -98,6 +99,11 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
     };
     customStyles.linkText = {
       fontSize: ThemeConfig.FontSize.small,
+    };
+  }
+  if (styleProps?.linkFontSize === 'tiny') {
+    customStyles.linkText = {
+      fontSize: ThemeConfig.FontSize.tiny,
     };
   }
   if (styleProps.variant === 'secondary') {
