@@ -1,12 +1,9 @@
-import {StyleSheet, View, ScrollView, Text} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 import React from 'react';
 import {useRender, useRtc} from 'customization-api';
-
 import {useCaption} from './useCaption';
 import CaptionText from './CaptionText';
-import Spacer from '../../../src/atoms/Spacer';
 import Loading from '../Loading';
-// import {streamMessageCallback} from './utils';
 import {isWebInternal} from '../../utils/common';
 import useStreamMessageUtils from './useStreamMessageUtils';
 import {StreamMessageCallback} from 'react-native-agora/lib/typescript/common/RtcEvents';
@@ -17,7 +14,6 @@ const Caption: React.FC = () => {
   const {
     isLangChangeInProgress,
     captionObj, //state for current live caption for all users
-    setCaptionObj,
     isSTTListenerAdded,
     setIsSTTListenerAdded,
     activeSpeakerRef,
@@ -26,11 +22,12 @@ const Caption: React.FC = () => {
 
   const {streamMessageCallback} = useStreamMessageUtils();
   const {renderList} = useRender();
+
   const [activeContainerFlex, setActiveContainerFlex] = React.useState(1);
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(1);
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
 
-  const handleStreamMessageCallback1 = (
+  const handleStreamMessageCallback = (
     ...args: [number, Uint8Array] | [number, string, Uint8Array]
   ) => {
     setIsSTTListenerAdded(true);
@@ -47,7 +44,7 @@ const Caption: React.FC = () => {
     !isSTTListenerAdded &&
       RtcEngine.addListener(
         'StreamMessage',
-        handleStreamMessageCallback1 as unknown as StreamMessageCallback,
+        handleStreamMessageCallback as unknown as StreamMessageCallback,
       );
   }, []);
 
@@ -66,15 +63,7 @@ const Caption: React.FC = () => {
 
   if (Object.keys(captionObj).length === 0) return <></>;
 
-  const prevActiveSpeakerText = captionObj[prevSpeakerRef.current]?.text;
-  const activeSpeakerText = captionObj[activeSpeakerRef.current]?.text;
-
-  const speakerCount =
-    prevSpeakerRef.current === '' ||
-    (prevActiveSpeakerText === '' && activeSpeakerText !== '') ||
-    (prevActiveSpeakerText !== '' && activeSpeakerText === '')
-      ? 1
-      : 2;
+  const speakerCount = prevSpeakerRef.current === '' ? 1 : 2;
 
   return (
     <View style={styles.captionContainer}>
@@ -88,23 +77,21 @@ const Caption: React.FC = () => {
             Prev Speaker: {renderList[prevSpeakerRef.current]?.name || ''} (
             {prevSpeakerRef.current})- Lines : {inActiveLinesAvailable}
           </Text> */}
-          {speakerCount === 2 &&
-          captionObj[prevSpeakerRef.current] &&
+
+          {captionObj[prevSpeakerRef.current] &&
           captionObj[prevSpeakerRef.current].text ? (
-            <>
-              <CaptionText
-                user={renderList[prevSpeakerRef.current].name || 'Speaker'}
-                value={captionObj[prevSpeakerRef.current].text}
-                activeSpeakersCount={speakerCount}
-                isActiveSpeaker={false}
-                activeContainerFlex={1 - activeContainerFlex}
-                setActiveContainerFlex={setActiveContainerFlex}
-                activelinesAvailable={3 - activelinesAvailable}
-                setActiveLinesAvailable={setActiveLinesAvailable}
-                inActiveLinesAvailable={inActiveLinesAvailable}
-                setInActiveLinesAvaialble={setInActiveLinesAvaialble}
-              />
-            </>
+            <CaptionText
+              user={renderList[prevSpeakerRef.current].name || 'Speaker'}
+              value={captionObj[prevSpeakerRef.current].text}
+              activeSpeakersCount={speakerCount}
+              isActiveSpeaker={false}
+              activeContainerFlex={1 - activeContainerFlex}
+              setActiveContainerFlex={setActiveContainerFlex}
+              activelinesAvailable={3 - activelinesAvailable}
+              setActiveLinesAvailable={setActiveLinesAvailable}
+              inActiveLinesAvailable={inActiveLinesAvailable}
+              setInActiveLinesAvaialble={setInActiveLinesAvaialble}
+            />
           ) : (
             <></>
           )}
@@ -127,21 +114,6 @@ const Caption: React.FC = () => {
           )}
         </>
       }
-
-      {/* {speakers.map(([key, value], index) => {
-        return (
-          <React.Fragment key={key}>
-            {value?.text ? (
-              <CaptionText
-                user={renderList[Number(key)]?.name || 'Speaker'}
-                value={value.text.trim()}
-                activeSpeakersCount={activeSpeakers?.length || 0}
-              />
-            ) : null}
-            {index !== speakers.length - 1 && <Spacer size={10} />}
-          </React.Fragment>
-        );
-      })} */}
     </View>
   );
 };
@@ -153,4 +125,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Caption;
+export default React.memo(Caption);
