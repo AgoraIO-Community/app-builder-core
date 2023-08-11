@@ -22,10 +22,17 @@ interface ButtonProps extends TouchableOpacityProps {
   textStyle?: TextStyle;
   iconName?: keyof IconsInterface;
   iconSize?: number;
+  iconColor?: string;
 }
 
 const TertiaryButton = (props: ButtonProps) => {
-  const {text, iconName, iconSize = 26, ...rest} = props;
+  const {
+    text,
+    iconName,
+    iconSize = 26,
+    iconColor = $config.PRIMARY_ACTION_TEXT_COLOR,
+    ...rest
+  } = props;
   const [isHovered, setIsHovered] = useState();
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
@@ -49,7 +56,7 @@ const TertiaryButton = (props: ButtonProps) => {
                 iconSize={iconSize}
                 iconType="plain"
                 name={iconName}
-                tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+                tintColor={iconColor}
               />
             </View>
           )}
