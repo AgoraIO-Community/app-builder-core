@@ -59,7 +59,7 @@ const CaptionIcon = (props: CaptionIconProps) => {
     },
     disabled: isDisabled,
     iconProps: {
-      name: 'captions',
+      name: isCaptionON ? 'captions-off' : 'captions',
       iconBackgroundColor: isCaptionON
         ? $config.PRIMARY_ACTION_BRAND_COLOR
         : '',

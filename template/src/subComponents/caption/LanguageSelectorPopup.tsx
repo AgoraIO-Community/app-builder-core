@@ -45,12 +45,10 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
     <Popup
       modalVisible={props.modalVisible}
       setModalVisible={props.setModalVisible}
-      showCloseIcon={false}
-      contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.heading}>{heading}</Text>
-      <Spacer size={8} />
-      <Text style={styles.subHeading}>{subHeading}</Text>
-
+      showCloseIcon={true}
+      contentContainerStyle={styles.contentContainer}
+      title={heading}
+      subtitle={subHeading}>
       {isLangChangeInProgress ? (
         <View style={styles.changeInProgress}>
           <Loading
@@ -62,7 +60,6 @@ const LanguageSelectorPopup = (props: LanguageSelectorPopup) => {
         </View>
       ) : (
         <>
-          <Spacer size={32} />
           <View>
             <DropdownMulti
               selectedValues={selectedValues}

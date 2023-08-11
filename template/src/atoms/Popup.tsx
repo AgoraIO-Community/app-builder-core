@@ -12,9 +12,11 @@ import IconButton from './IconButton';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {isMobileUA, useIsDesktop} from '../../src/utils/common';
+import Spacer from './Spacer';
 
 interface PopupProps extends ModalProps {
   title?: string;
+  subtitle?: string;
   modalVisible: boolean;
   setModalVisible: React.Dispatch<SetStateAction<boolean>>;
   showCloseIcon?: boolean;
@@ -26,6 +28,7 @@ interface PopupProps extends ModalProps {
 const Popup = (props: PopupProps) => {
   const {
     title,
+    subtitle = '',
     modalVisible,
     setModalVisible,
     children,
@@ -60,33 +63,42 @@ const Popup = (props: PopupProps) => {
 
         <View style={[styles.modalView, props?.contentContainerStyle]}>
           {title || showCloseIcon ? (
-            <View style={styles.header}>
-              <Text style={styles.title}>{title}</Text>
-              {showCloseIcon ? (
-                <View>
-                  <IconButton
-                    hoverEffect={true}
-                    hoverEffectStyle={{
-                      backgroundColor: $config.ICON_BG_COLOR,
-                      borderRadius: 20,
-                    }}
-                    iconProps={{
-                      iconType: 'plain',
-                      iconContainerStyle: {
-                        padding: isMobileUA() ? 0 : 5,
-                      },
-                      name: 'close',
-                      tintColor: $config.SECONDARY_ACTION_COLOR,
-                    }}
-                    onPress={() => {
-                      setModalVisible(false);
-                    }}
-                  />
-                </View>
+            <>
+              <View style={styles.header}>
+                <Text style={styles.title}>{title}</Text>
+                {showCloseIcon ? (
+                  <View>
+                    <IconButton
+                      hoverEffect={true}
+                      hoverEffectStyle={{
+                        backgroundColor: $config.ICON_BG_COLOR,
+                        borderRadius: 20,
+                      }}
+                      iconProps={{
+                        iconType: 'plain',
+                        iconContainerStyle: {
+                          padding: isMobileUA() ? 0 : 5,
+                        },
+                        name: 'close',
+                        tintColor: $config.SECONDARY_ACTION_COLOR,
+                      }}
+                      onPress={() => {
+                        setModalVisible(false);
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <></>
+                )}
+              </View>
+              {subtitle ? (
+                <Text style={styles.subtitle}>{subtitle}</Text>
               ) : (
                 <></>
               )}
-            </View>
+
+              <Spacer size={32} />
+            </>
           ) : (
             <></>
           )}
@@ -136,7 +148,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 32,
   },
   title: {
     color: $config.FONT_COLOR,
@@ -144,6 +155,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 24,
     fontWeight: '600',
-    flex: 0.9,
+  },
+  subtitle: {
+    fontFamily: ThemeConfig.FontFamily.sansPro,
+    fontWeight: '400',
+    fontSize: ThemeConfig.FontSize.small,
+    lineHeight: 20,
+    color: $config.FONT_COLOR + hexadecimalTransparency['70%'],
+    marginTop: 8,
   },
 });
