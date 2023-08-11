@@ -122,7 +122,11 @@ export default function LiveStreamAttendeeLandingTile() {
                         paddingHorizontal: 12,
                         borderRadius: ThemeConfig.BorderRadius.medium,
                       }}
-                      {...(isMobile && {iconName: 'share', iconSize: 20})}
+                      {...(isMobile && {
+                        iconName: 'share',
+                        iconSize: 20,
+                        iconColor: $config.SECONDARY_ACTION_COLOR,
+                      })}
                       onPress={() => {
                         copyShareLinkToClipboard(
                           SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
