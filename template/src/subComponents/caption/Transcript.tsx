@@ -120,7 +120,7 @@ const Transcript = (props: TranscriptProps) => {
 
   const handleContentSizeChange = (contentWidth, contentHeight) => {
     contentHeightRef.current = contentHeight;
-    if (!showButton || searchQuery.length === 0) {
+    if (!showButton && searchQuery.length === 0) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
         animated: true,
@@ -135,6 +135,7 @@ const Transcript = (props: TranscriptProps) => {
       isScrolledToEnd.current = false;
       return;
     }
+
     const {contentOffset, contentSize, layoutMeasurement} = event.nativeEvent;
     const isAtBottom =
       contentOffset.y + layoutMeasurement.height >= contentSize.height - 1; // -1 threshold when the exact bottom position not calcualted , diff ~.5
@@ -147,6 +148,7 @@ const Transcript = (props: TranscriptProps) => {
     const filteredResults = meetingTranscript.filter((item) =>
       item.text.toLowerCase().includes(text.toLowerCase()),
     );
+    setShowButton(false);
     setSearchResults(filteredResults);
     // Scroll to the top of the FlatList when searching
     flatListRef.current.scrollToOffset({offset: 0, animated: true});
@@ -186,10 +188,6 @@ const Transcript = (props: TranscriptProps) => {
       setIsTranscriptON(false);
     };
   }, []);
-
-  const handleEndReached = () => {
-    console.log('check');
-  };
 
   return (
     <View
@@ -267,14 +265,13 @@ const Transcript = (props: TranscriptProps) => {
               keyExtractor={(item) => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
               onScroll={
-                isWebInternal() ? debounceFn(handleScroll, 300) : handleScroll
+                isWebInternal() ? debounceFn(handleScroll, 100) : handleScroll
               }
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
               ListFooterComponentStyle={styles.footer}
               contentContainerStyle={styles.content}
-              onEndReached={handleEndReached}
             />
 
             {showButton ? (
