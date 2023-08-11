@@ -181,6 +181,7 @@ const style = StyleSheet.create({
   },
   tile: {
     display: 'flex',
+    width: '100%',
     flexDirection: 'column',
     borderRadius: 16,
     borderWidth: 1,
