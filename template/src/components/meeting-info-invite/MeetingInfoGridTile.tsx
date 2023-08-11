@@ -59,7 +59,7 @@ export default function MeetingInfoGridTile() {
               {!isMobile && (
                 <MeetingInfoLinks variant="secondary" size="tiny" />
               )}
-              <View style={{width: isMobile ? 200 : '100%'}}>
+              <View style={{width: '100%'}}>
                 <Spacer size={20} />
                 <TertiaryButton
                   text={copyInviteButton}

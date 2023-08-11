@@ -87,6 +87,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
             helperText={
               showHelperText && 'Share this with attendees you want to invite.'
             }
+            gutterBottom
           />
         </>
       ) : (
@@ -106,6 +107,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               showHelperText &&
               'Share this with other co-hosts you want to invite'
             }
+            gutterBottom
           />
         </>
       ) : (
@@ -126,6 +128,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               showHelperText &&
               'Share this phone number and pin to dial from phone.'
             }
+            gutterBottom
           />
         </>
       ) : (

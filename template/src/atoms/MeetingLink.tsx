@@ -23,6 +23,7 @@ interface MeetingLinkProps {
   linkToCopy?: SHARE_LINK_CONTENT_TYPE;
   helperText?: string;
   styleProps?: MeetingLinkStyleProps;
+  gutterBottom?: boolean;
 }
 const urlWeb = {wordBreak: 'break-all'};
 
@@ -36,6 +37,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
       size: 'medium',
       variant: 'primary',
     },
+    gutterBottom = false,
   } = props;
 
   const style = useStyles(styleProps);
@@ -48,7 +50,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
 
   return (
     <>
-      <Text style={style.label}>{label}</Text>
+      {label ? <Text style={style.label}>{label}</Text> : <></>}
       <Spacer size={5} />
       <View style={style.linkContainer}>
         <View style={style.linkTextBox}>
@@ -73,7 +75,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
           <Text style={style.linkHelperText}>{helperText}</Text>{' '}
         </>
       )}
-      <Spacer size={25} />
+      {gutterBottom && <Spacer size={25} />}
     </>
   );
 };

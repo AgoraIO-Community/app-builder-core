@@ -74,7 +74,7 @@ function FeatureTile({feature}: {feature: Feature}) {
           <View>
             <Text style={style.cardTitle}>{feature.title}</Text>
           </View>
-          <View style={{flexShrink: 1, paddingTop: 5}}>
+          <View style={{flexShrink: 1, paddingTop: 2}}>
             <Text style={style.cardDesc}>{feature.description}</Text>
           </View>
         </View>
@@ -98,7 +98,7 @@ export default function LiveStreamAttendeeLandingTile() {
               </Text>
             </View>
             <View style={[style.tileSection, style.tilebody]}>
-              <View style={{paddingBottom: 20}}>
+              <View>
                 <Text style={style.tileSubheading}>
                   Here's what you can do here :
                 </Text>
@@ -133,7 +133,7 @@ export default function LiveStreamAttendeeLandingTile() {
                 ) : (
                   <>
                     <View>
-                      <Text style={style.cardTitle}>
+                      <Text style={[style.cardTitle, {paddingBottom: 3}]}>
                         Invite other attendees
                       </Text>
                     </View>
@@ -184,9 +184,8 @@ const style = StyleSheet.create({
     backgroundColor: $config.CARD_LAYER_1_COLOR,
   },
   tileSection: {
-    paddingVertical: 25,
-    paddingHorizontal: 15,
-    minHeight: 60,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
   },
   tileSectionGrid: {
     display: 'flex',
@@ -208,6 +207,7 @@ const style = StyleSheet.create({
     fontWeight: '600',
     lineHeight: 20,
     color: $config.FONT_COLOR,
+    fontFamily: 'Source Sans Pro',
   },
   tileSubheading: {
     color: $config.VIDEO_AUDIO_TILE_AVATAR_COLOR,
@@ -219,7 +219,8 @@ const style = StyleSheet.create({
   // Feature card css
   card: {
     minHeight: 50,
-    padding: 10,
+    paddingTop: 16,
+    paddingRight: 16,
   },
   cardWeb: {
     flexBasis: '50%',
@@ -242,7 +243,7 @@ const style = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 12,
   },
   cardHeaderAvatarIcon: {
     flexShrink: 0,
