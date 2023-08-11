@@ -29,70 +29,73 @@ import RenderComponent from '../pages/video-call/RenderComponent';
 import IconButton from '../atoms/IconButton';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
 import {BREAKPOINTS, isMobileUA, useIsDesktop} from '../utils/common';
+import {useVideoCall} from './useVideoCall';
 const {topPinned} = layoutProps;
 
 const PinnedVideo: layoutComponent = ({renderData}) => {
-  const {pinnedUid, activeUids, renderList, activeSpeaker} = useRender();
+  const {pinnedUid, activeUids, renderList} = useRender();
   const [collapse, setCollapse] = useState(false);
   const localUid = useLocalUid();
   const {width, height} = useWindowDimensions();
   const isDesktop = width > BREAKPOINTS.xl;
   const isSidePinnedlayout = topPinned === true ? false : isDesktop; // if either explicity set to false or auto evaluation
-  //const [maxUid, ...minUids] = renderData;
+  const [maxUid, ...minUids] = renderData;
   const {dispatch} = useRtc();
-  const [uids, setUids] = useState(renderData);
+  const {activeSpeaker} = useVideoCall();
+
+  //const [uids, setUids] = useState(renderData);
 
   const [screenShareOn, setScreenShareOn] = useState(false);
 
-  useEffect(() => {
-    const nonPinnedUids = activeUids.filter((uid) => uid !== pinnedUid);
+  // useEffect(() => {
+  //   const nonPinnedUids = activeUids.filter((uid) => uid !== pinnedUid);
 
-    const nonActiveSpeakerUids = nonPinnedUids.filter(
-      (uid) => uid !== activeSpeaker,
-    );
+  //   const nonActiveSpeakerUids = nonPinnedUids.filter(
+  //     (uid) => uid !== activeSpeaker,
+  //   );
 
-    const remoteScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
-      return (
-        renderList[uid].type === 'screenshare' &&
-        renderList[uid].parentUid !== localUid
-      );
-    });
+  //   const remoteScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
+  //     return (
+  //       renderList[uid].type === 'screenshare' &&
+  //       renderList[uid].parentUid !== localUid
+  //     );
+  //   });
 
-    const localScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
-      return (
-        renderList[uid].type === 'screenshare' &&
-        renderList[uid].parentUid === localUid
-      );
-    });
-    if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
-      setScreenShareOn(true);
-    }
+  //   const localScreenShareUids = nonActiveSpeakerUids.filter((uid) => {
+  //     return (
+  //       renderList[uid].type === 'screenshare' &&
+  //       renderList[uid].parentUid === localUid
+  //     );
+  //   });
+  //   if (remoteScreenShareUids?.length || localScreenShareUids?.length) {
+  //     setScreenShareOn(true);
+  //   }
 
-    const restOfTheUids = nonActiveSpeakerUids.filter(
-      (uid) => renderList[uid].type !== 'screenshare',
-    );
+  //   const restOfTheUids = nonActiveSpeakerUids.filter(
+  //     (uid) => renderList[uid].type !== 'screenshare',
+  //   );
 
-    /**
-     * Order for pinned layout -
-     * - [1] means only one user
-     * - [N] means multiple users
-     * 1.Pinned User[1]
-     * 2.Remote screenshare users[N]
-     * 3.Active Speaker[1]
-     * 4.Local Screenshare[1]
-     * 5 and etc.Other Users[N]
-     */
+  //   /**
+  //    * Order for pinned layout -
+  //    * - [1] means only one user
+  //    * - [N] means multiple users
+  //    * 1.Pinned User[1]
+  //    * 2.Remote screenshare users[N]
+  //    * 3.Active Speaker[1]
+  //    * 4.Local Screenshare[1]
+  //    * 5 and etc.Other Users[N]
+  //    */
 
-    const updatedOrder = [
-      pinnedUid,
-      ...remoteScreenShareUids,
-      pinnedUid !== activeSpeaker ? activeSpeaker : 0,
-      ...localScreenShareUids,
-      ...restOfTheUids,
-    ].filter((uid) => uid !== undefined && uid !== 0);
+  //   const updatedOrder = [
+  //     pinnedUid,
+  //     ...remoteScreenShareUids,
+  //     pinnedUid !== activeSpeaker ? activeSpeaker : 0,
+  //     ...localScreenShareUids,
+  //     ...restOfTheUids,
+  //   ].filter((uid) => uid !== undefined && uid !== 0);
 
-    setUids(updatedOrder);
-  }, [activeUids, renderList, activeSpeaker, pinnedUid]);
+  //   setUids(updatedOrder);
+  // }, [activeUids, renderList, activeSpeaker, pinnedUid]);
 
   return (
     <View
@@ -118,9 +121,52 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 }
           }>
           {/* Pinned Video Top View(Desktop minimized and Mobile native and Mobile web) / Side View(Desktop maximized)*/}
-          {uids?.map((minUid, i) => {
+          {minUids?.indexOf(activeSpeaker) !== -1 ? (
+            <Pressable
+              //old
+              //if user pinned somebody then side panel items should not be clickable - swap video should be called
+              //instead we will show replace pin button on hovering the video tile
+              //old
+              // disabled={
+              //   //old fix
+              //   //activeSpeaker || pinnedUid || screenShareOn ? true : false
+              //   //old fix
+
+              //   //latest fix : pinned video sidepanel layout should not be clickable
+              //   //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
+              //   true
+              // }
+              style={
+                isSidePinnedlayout
+                  ? {
+                      width: '100%',
+                      height: width * 0.1125 + 2, // width * 20/100 * 9/16 + 2
+                      zIndex: 40,
+                      paddingBottom: 8,
+                    }
+                  : {
+                      // width: ((height / 3) * 16) / 9 / 2 + 12, //dim[1] /4.3
+                      width: 254,
+                      height: '100%',
+                      zIndex: 40,
+                      marginRight: 8,
+                    }
+              }
+              key={'minVideo' + activeSpeaker}
+              onPress={() => {
+                dispatch({type: 'SwapVideo', value: [activeSpeaker]});
+              }}>
+              <RenderComponent uid={activeSpeaker} />
+            </Pressable>
+          ) : (
+            <></>
+          )}
+          {minUids?.map((minUid, i) => {
             //first item -> maximized view so returning null
-            if (i === 0) return null;
+            //if (i === 0) return null;
+            if (minUid === activeSpeaker) {
+              return null;
+            }
             //remaining items -> minimized view
             {
               /**Rendering minimized views */
@@ -131,15 +177,15 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 //if user pinned somebody then side panel items should not be clickable - swap video should be called
                 //instead we will show replace pin button on hovering the video tile
                 //old
-                disabled={
-                  //old fix
-                  //activeSpeaker || pinnedUid || screenShareOn ? true : false
-                  //old fix
+                // disabled={
+                //   //old fix
+                //   //activeSpeaker || pinnedUid || screenShareOn ? true : false
+                //   //old fix
 
-                  //latest fix : pinned video sidepanel layout should not be clickable
-                  //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
-                  true
-                }
+                //   //latest fix : pinned video sidepanel layout should not be clickable
+                //   //if user hover on it we will show pin for me/replace pin(if someone already pinned) button
+                //   true
+                // }
                 style={
                   isSidePinnedlayout
                     ? {
@@ -166,7 +212,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
           })}
         </ScrollView>
       )}
-      {uids && uids?.length && (
+      {maxUid && (
         <View
           style={
             isSidePinnedlayout
@@ -175,7 +221,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
                 : style.width80
               : style.flex8
           }>
-          <View style={style.flex1} key={'maxVideo' + uids[0]}>
+          <View style={style.flex1} key={'maxVideo' + maxUid[0]}>
             {isSidePinnedlayout && (
               <IconButton
                 containerStyle={{
@@ -240,7 +286,7 @@ const PinnedVideo: layoutComponent = ({renderData}) => {
               <></>
             )}
             {/** Render the maximized view */}
-            <RenderComponent uid={uids[0]} isMax={true} />
+            <RenderComponent uid={maxUid} isMax={true} />
           </View>
         </View>
       )}
