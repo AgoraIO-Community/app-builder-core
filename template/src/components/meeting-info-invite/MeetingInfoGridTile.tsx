@@ -32,10 +32,7 @@ export default function MeetingInfoGridTile() {
                     <Avatar
                       name={waveHandEmoji}
                       containerStyle={style.avatarContainerStyle}
-                      textStyle={[
-                        style.avatarTextStyle,
-                        {transform: [{rotate: '-180deg'}]},
-                      ]}
+                      textStyle={[style.avatarTextStyle]}
                     />
                   )
                 }>
@@ -163,5 +160,7 @@ const style = StyleSheet.create({
     lineHeight: 12,
     fontWeight: '400',
     textAlignVertical: 'center',
+    transform: [{scaleX: -1}],
+    display: 'flex',
   },
 });
