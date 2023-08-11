@@ -135,7 +135,8 @@ const useStreamMessageUtils = (): {
           if (lastTranscript && lastTranscript.uid === textstream.uid) {
             const updatedTranscript = {
               ...lastTranscript,
-              text: lastTranscript.text + ' ' + currentFinalText,
+              //text: lastTranscript.text + ' ' + currentFinalText, // missing few updates with reading prev values
+              text: finalList[textstream.uid].join(' '),
             };
 
             return [
