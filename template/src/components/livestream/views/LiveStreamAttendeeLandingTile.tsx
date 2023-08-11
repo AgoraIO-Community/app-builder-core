@@ -175,10 +175,11 @@ const style = StyleSheet.create({
     minWidth: 200,
     margin: 'auto',
     padding: 20,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tile: {
-    width: '100%',
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     borderRadius: 16,

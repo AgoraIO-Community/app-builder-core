@@ -16,7 +16,7 @@ const waveHandEmoji = '👋';
 
 export default function MeetingInfoGridTile() {
   const isMobile = isMobileUA();
-  const copyInviteButton = isMobile ? 'COPY INVITE' : 'COPY INVITATION';
+  const copyInviteButton = isMobile ? 'INVITE OTHERS' : 'COPY INVITATION';
   const {copyShareLinkToClipboard} = useShareLink();
   const username = useGetName();
 
@@ -32,14 +32,23 @@ export default function MeetingInfoGridTile() {
                     <Avatar
                       name={waveHandEmoji}
                       containerStyle={style.avatarContainerStyle}
-                      textStyle={style.avatarTextStyle}
+                      textStyle={[
+                        style.avatarTextStyle,
+                        {transform: [{rotate: '-180deg'}]},
+                      ]}
                     />
                   )
                 }>
                 <>
                   <View style={style.flexRow}>
                     {isMobile && (
-                      <Text style={{marginRight: 5}}>{waveHandEmoji}</Text>
+                      <Text
+                        style={{
+                          marginRight: 5,
+                          transform: [{scaleX: -1}],
+                        }}>
+                        {waveHandEmoji}
+                      </Text>
                     )}
                     <Text style={style.heading} numberOfLines={1}>
                       Welcome {username}
@@ -55,11 +64,11 @@ export default function MeetingInfoGridTile() {
                   </View>
                 </>
               </MeetingInfoCardHeader>
-              {isMobile ? <Spacer size={20} /> : <Spacer size={40} />}
+              {isMobile ? <Spacer size={20} /> : <Spacer size={30} />}
               {!isMobile && (
                 <MeetingInfoLinks variant="secondary" size="tiny" />
               )}
-              <View style={{width: '100%'}}>
+              <View>
                 <Spacer size={20} />
                 <TertiaryButton
                   text={copyInviteButton}
@@ -70,7 +79,15 @@ export default function MeetingInfoGridTile() {
                     paddingHorizontal: 12,
                     borderRadius: ThemeConfig.BorderRadius.medium,
                   }}
-                  {...(isMobile && {iconName: 'share', iconSize: 20})}
+                  textStyle={{
+                    fontSize: ThemeConfig.FontSize.normal,
+                    lineHeight: 24,
+                  }}
+                  {...(isMobile && {
+                    iconName: 'share',
+                    iconSize: 20,
+                    iconColor: $config.SECONDARY_ACTION_COLOR,
+                  })}
                   onPress={() => {
                     copyShareLinkToClipboard(
                       SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
@@ -107,7 +124,10 @@ const style = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    paddingHorizontal: isMobileUA() ? 0 : 35,
+    paddingHorizontal: isMobileUA() ? 5 : 35,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: $config.CARD_LAYER_3_COLOR,
   },
   flexRow: {
     display: 'flex',
@@ -115,7 +135,9 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   heading: {
-    fontSize: ThemeConfig.FontSize.tiny,
+    fontSize: isMobileUA()
+      ? ThemeConfig.FontSize.small
+      : ThemeConfig.FontSize.tiny,
     fontWeight: '400',
     lineHeight: ThemeConfig.FontSize.normal,
     color: $config.FONT_COLOR + hexadecimalTransparency['70%'],

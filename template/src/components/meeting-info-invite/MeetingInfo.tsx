@@ -55,7 +55,10 @@ const MeetingInfo = (props: MeetingInfoProps) => {
       )}
       <ScrollView contentContainerStyle={style.scrollMain}>
         <Card margin={margin} padding={padding}>
-          <View>{children}</View>
+          <View
+            style={{display: 'flex', flex: 1, justifyContent: 'space-between'}}>
+            {children}
+          </View>
         </Card>
       </ScrollView>
     </View>

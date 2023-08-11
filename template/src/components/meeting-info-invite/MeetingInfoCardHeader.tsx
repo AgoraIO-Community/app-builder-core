@@ -32,12 +32,16 @@ export const MeetingInfoCardHeader = (props: MeetingInfoCardHeaderProps) => {
           alignItems: 'center',
         }}>
         {isMobileUA() ? (
-          <IDPLogoutComponent containerStyle={{marginTop: 0, marginRight: 0}} />
+          <>
+            <IDPLogoutComponent
+              containerStyle={{marginTop: 0, marginRight: 0}}
+            />
+            <Spacer size={20} />
+          </>
         ) : (
           <></>
         )}
       </View>
-      <Spacer size={20} />
       <View style={style.flexRow}>
         {React.isValidElement(avatar) && (
           <View style={style.avatar}>{avatar}</View>
