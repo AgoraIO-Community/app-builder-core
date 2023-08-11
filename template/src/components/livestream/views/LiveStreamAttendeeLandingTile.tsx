@@ -44,7 +44,7 @@ const features: Feature[] = [
   },
   {
     id: 4,
-    icon: 'raise-hand',
+    icon: 'celebration',
     title: 'Join in activities',
     tint: $config.SEMANTIC_ERROR,
     description: `Jam with everyone on a whiteboard`,
@@ -74,7 +74,7 @@ function FeatureTile({feature}: {feature: Feature}) {
           <View>
             <Text style={style.cardTitle}>{feature.title}</Text>
           </View>
-          <View style={{flexShrink: 1}}>
+          <View style={{flexShrink: 1, paddingTop: 5}}>
             <Text style={style.cardDesc}>{feature.description}</Text>
           </View>
         </View>
@@ -249,7 +249,7 @@ const style = StyleSheet.create({
   },
   cardHeaderContent: {
     flex: 1,
-    marginTop: 5,
+    marginTop: 2,
   },
   cardTitle: {
     color: $config.FONT_COLOR,
