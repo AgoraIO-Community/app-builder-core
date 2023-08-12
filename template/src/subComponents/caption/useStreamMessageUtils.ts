@@ -25,6 +25,7 @@ const useStreamMessageUtils = (): {
 
   let captionStartTime: number = 0;
   const finalList: FinalListType = {};
+  const finalTranscriptList: FinalListType = {};
   const queue = new PQueue({concurrency: 1});
 
   const streamMessageCallback: StreamMessageCallback = (args) => {
@@ -88,6 +89,7 @@ const useStreamMessageUtils = (): {
     */
       if (!finalList[textstream.uid]) {
         finalList[textstream.uid] = [];
+        finalTranscriptList[textstream.uid] = [];
       }
 
       const words = textstream.words; //[Word,Word]
@@ -103,6 +105,7 @@ const useStreamMessageUtils = (): {
       for (const word of words) {
         if (word.isFinal) {
           finalList[textstream.uid].push(word.text);
+          finalTranscriptList[textstream.uid].push(word.text);
           currentFinalText = word.text;
           // log info to show measure the duration of passes in which a sentence gets finalized
           const duration = performance.now() - captionStartTime;
@@ -136,7 +139,7 @@ const useStreamMessageUtils = (): {
             const updatedTranscript = {
               ...lastTranscript,
               //text: lastTranscript.text + ' ' + currentFinalText, // missing few updates with reading prev values
-              text: finalList[textstream.uid].join(' '),
+              text: finalTranscriptList[textstream.uid].join(' '),
             };
 
             return [
@@ -144,6 +147,11 @@ const useStreamMessageUtils = (): {
               updatedTranscript,
             ];
           } else {
+            const isLangUpdate =
+              lastTranscript.uid.toString().indexOf('langUpdate') > -1;
+            if (isLangUpdate) {
+              finalTranscriptList[textstream.uid] = [currentFinalText];
+            }
             return [
               ...prevTranscript,
               {
