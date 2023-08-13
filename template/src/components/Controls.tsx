@@ -281,9 +281,9 @@ const MoreButton = () => {
   }
 
   useEffect(() => {
-    if (isHovered) {
+    if (isHovered || isHoveredOnModal) {
       setActionMenuVisible(true);
-    }
+    } else setActionMenuVisible(false);
   }, [isHovered]);
 
   useEffect(() => {
