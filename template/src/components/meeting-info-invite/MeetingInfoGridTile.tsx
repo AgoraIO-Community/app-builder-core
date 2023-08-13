@@ -121,7 +121,7 @@ const style = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    paddingHorizontal: isMobileUA() ? 5 : 35,
+    paddingHorizontal: isMobileUA() ? 0 : 35,
     borderRadius: 2,
     borderWidth: 1,
     borderColor: $config.CARD_LAYER_3_COLOR,
