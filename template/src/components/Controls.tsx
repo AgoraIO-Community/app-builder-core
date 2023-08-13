@@ -284,7 +284,7 @@ const MoreButton = () => {
     if (isHovered || isHoveredOnModal) {
       setActionMenuVisible(true);
     } else setActionMenuVisible(false);
-  }, [isHovered]);
+  }, [isHovered, isHoveredOnModal]);
 
   useEffect(() => {
     //hide action menu when user change layout
