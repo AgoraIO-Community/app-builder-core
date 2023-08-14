@@ -53,7 +53,7 @@
   "ICON_TEXT": true,
   "ICON_BG_COLOR": "#242529",
   "TOOLBAR_COLOR": "#111111",
-  "ACTIVE_SPEAKER": true,
+  "ACTIVE_SPEAKER": false,
   "ENABLE_TOKEN_AUTH": false,
   "ENABLE_IDP_AUTH": false,
   "PROJECT_ID": "8d2b1a60e4e0e95ac455",
