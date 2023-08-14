@@ -281,10 +281,10 @@ const MoreButton = () => {
   }
 
   useEffect(() => {
-    if (isHovered || isHoveredOnModal) {
+    if (isHovered) {
       setActionMenuVisible(true);
     } else setActionMenuVisible(false);
-  }, [isHovered, isHoveredOnModal]);
+  }, [isHovered]);
 
   useEffect(() => {
     //hide action menu when user change layout
@@ -341,7 +341,7 @@ const MoreButton = () => {
         hoverMode={true}
         onHover={(isVisible) => setIsHoveredOnModal(isVisible)}
         from={'control-bar'}
-        actionMenuVisible={(isHovered || isHoveredOnModal) && actionMenuVisible}
+        actionMenuVisible={isHovered || isHoveredOnModal}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={{
           bottom: 8,
