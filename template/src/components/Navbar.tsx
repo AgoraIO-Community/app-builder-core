@@ -9,7 +9,7 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -211,6 +211,17 @@ export const ChatIconButton = (props: ChatIconButtonProps) => {
   //const chatLabel = useString('chatLabel')();
   const chatLabel = 'Chat';
   const isPanelActive = sidePanel === SidePanelType.Chat;
+
+  //when chat panel is close then we need to show the toast notification. for that
+  //we are resetting flag which used when chat panel is active
+  useEffect(() => {
+    if (sidePanel !== SidePanelType.Chat) {
+      setGroupActive(false);
+      setPrivateActive(false);
+      setSelectedChatUserId(0);
+    }
+  }, [sidePanel]);
+
   const onPress = () => {
     {
       if (isPanelActive) {

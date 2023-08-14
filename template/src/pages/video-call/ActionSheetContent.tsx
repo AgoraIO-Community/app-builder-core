@@ -41,6 +41,8 @@ import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
 import Carousel from '../../atoms/Carousel';
 import {useCaption} from '../../subComponents/caption/useCaption';
 
+import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
+import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 //Icon for expanding Action Sheet
 interface ShowMoreIconProps {
   isExpanded: boolean;
@@ -200,6 +202,16 @@ const ShareIcon = () => {
         <CopyJoinInfo showLabel={false} isOnActionSheet={true} />
       </View>
       {$config.ICON_TEXT && <Text style={styles.iconText}>Invite</Text>}
+    </View>
+  );
+};
+const ScreenshareIcon = () => {
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <ScreenshareButton showLabel={false} isOnActionSheet={true} />
+      </View>
+      {$config.ICON_TEXT && <Text style={styles.iconText}>Screen Share</Text>}
     </View>
   );
 };
@@ -388,8 +400,9 @@ export const ActionSheetComponentsArray: ActionSheetComponentsProps = [
 ];
 
 const ActionSheetContent = (props) => {
-  const {handleSheetChanges, isExpanded} = props;
+  const {handleSheetChanges, isExpanded, native = false} = props;
   const {onlineUsersCount, localUid} = useContext(ChatContext);
+  const {isScreenshareActive} = useScreenshare();
   const layouts = useLayoutsData();
   const {currentLayout} = useLayout();
   const changeLayout = useChangeDefaultLayout();
@@ -422,11 +435,14 @@ const ActionSheetContent = (props) => {
 
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
-  const isVideoDisabled = useLocalUserInfo().video === ToggleState.disabled;
+
   const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
 
   const isPaginationRequired = isLiveStream || (isConferencing && isHost);
 
+  const isVideoDisabled = native
+    ? useLocalUserInfo().video === ToggleState.disabled || isScreenshareActive
+    : useLocalUserInfo().video === ToggleState.disabled;
   return (
     <View>
       {/* Row Always Visible */}
@@ -481,7 +497,8 @@ const ActionSheetContent = (props) => {
       </View>
 
       <CarouselWrapper
-        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}>
+        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
+        native={native}>
         <>
           {/**
            * In event mode when raise hand feature is active
@@ -530,13 +547,18 @@ const ActionSheetContent = (props) => {
           <ShareIcon />
           {/* caption  */}
           {$config.ENABLE_STT ? <CaptionIconBtn /> : <></>}
+          {native && $config.SCREEN_SHARING && !isPaginationRequired ? (
+            <ScreenshareIcon />
+          ) : (
+            <></>
+          )}
         </>
       </CarouselWrapper>
     </View>
   );
 };
 
-const CarouselWrapper = ({isPaginationRequired, children}) => {
+const CarouselWrapper = ({isPaginationRequired, children, native}) => {
   return isPaginationRequired ? (
     <View style={{flexDirection: 'row'}}>
       <Carousel
@@ -551,6 +573,7 @@ const CarouselWrapper = ({isPaginationRequired, children}) => {
               <View style={styles.row}>
                 {/* Transcript */}
                 <TranscriptIconBtn />
+                {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
               </View>
             ),
           },

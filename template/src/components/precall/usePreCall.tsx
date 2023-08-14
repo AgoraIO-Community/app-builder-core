@@ -13,11 +13,10 @@ import React, {createContext, useContext, useEffect} from 'react';
 import {createHook} from 'customization-implementation';
 import {ApolloError} from '@apollo/client';
 import {SdkApiContext} from '../SdkApiContext';
-import {
-  useMeetingInfo,
-} from '../meeting-info/useMeetingInfo';
+import {useMeetingInfo} from '../meeting-info/useMeetingInfo';
 import SDKEvents from '../../utils/SdkEvents';
 import DeviceContext from '../DeviceContext';
+import useSetName from '../../utils/useSetName';
 
 export interface PreCallContextInterface {
   callActive: boolean;
@@ -52,17 +51,26 @@ interface PreCallProviderProps {
 }
 
 const PreCallProvider = (props: PreCallProviderProps) => {
-  const {join} = useContext(SdkApiContext);
+  const {join, enterRoom} = useContext(SdkApiContext);
   const meetingInfo = useMeetingInfo();
   const {deviceList} = useContext(DeviceContext);
+  const setUsername = useSetName();
 
   useEffect(() => {
-    if (join.phrase) {
+    if (join.initialized && join.phrase) {
+      if (join.userName) {
+        setUsername(join.userName);
+      }
+
       //@ts-ignore
       join?.promise?.res([
         meetingInfo.data,
-        () => {
-          props.value.setCallActive(true);
+        (userName: string) => {
+          return new Promise((res, rej) => {
+            setUsername(userName);
+            enterRoom.set({res, rej});
+            props.value.setCallActive(true);
+          });
         },
       ]);
     }

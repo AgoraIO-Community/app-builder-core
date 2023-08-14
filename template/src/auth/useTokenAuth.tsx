@@ -1,15 +1,16 @@
-import React, {useEffect, useContext} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useEffect, useContext, useRef} from 'react';
 import jwt_decode from 'jwt-decode';
 import StorageContext from '../components/StorageContext';
 import SdkEvents from '../utils/SdkEvents';
 import isSDK from '../utils/isSDK';
+import {getPlatformId} from './config';
 const REFRESH_TOKEN_DURATION_IN_SEC = 59;
 
 const useTokenAuth = () => {
+  const tokenRef = useRef(null);
   const {setStore, store} = useContext(StorageContext);
   const [tokenExpiresAt, setTokenExpiresAt] = React.useState(0);
-
+  const timerRef = useRef(null);
   const updateToken = (token: string) => {
     setStore && setStore((store) => ({...store, token}));
   };
@@ -34,25 +35,33 @@ const useTokenAuth = () => {
   };
 
   const getRefreshToken = async () => {
-    await fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: store?.token ? `Bearer ${store.token}` : '',
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data?.token) {
-          updateToken(data.token);
-        }
-      });
+    if (store?.token) {
+      await fetch(`${$config.BACKEND_ENDPOINT}/v1/token/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: store?.token ? `Bearer ${store.token}` : '',
+          'X-Platform-ID': getPlatformId(),
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data?.token) {
+            updateToken(data.token);
+            if (isSDK()) {
+              SdkEvents.emit('token-refreshed');
+            }
+          }
+        });
+    } else {
+      console.log('debugging no token to refresh');
+    }
   };
 
   useEffect(() => {
     if (!tokenExpiresAt) return;
 
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       const diffInSeconds = Math.floor(
         Math.abs(tokenExpiresAt - Date.now()) / 1000,
       );
@@ -65,35 +74,43 @@ const useTokenAuth = () => {
             SdkEvents.emit('will-token-expire');
           }
           getRefreshToken();
-          clearInterval(timer);
+          clearInterval(timerRef.current);
         } catch (error) {
-          clearInterval(timer);
+          clearInterval(timerRef.current);
         }
       }
       if (diffInSeconds < 0) {
-        clearInterval(timer);
+        clearInterval(timerRef.current);
       }
     }, 1000);
 
     return () => {
-      clearInterval(timer);
+      clearInterval(timerRef.current);
     };
   }, [tokenExpiresAt]);
 
   useEffect(() => {
     const syncToken = async () => {
-      if (!store?.token) return;
-      const decoded = jwt_decode(store.token);
-      const expiresAt = decoded?.exp * 1000;
-      if (Date.now() >= expiresAt) {
-        if (isSDK()) {
-          SdkEvents.emit('did-token-expire');
+      if (!store?.token) {
+        try {
+          timerRef.current && clearInterval(timerRef.current);
+        } catch (error) {
+          console.log('debugging error on clearing interval');
         }
-        throw 'Token expired. Pass a new token';
       } else {
-        setTokenExpiresAt(expiresAt);
+        const decoded = jwt_decode(store.token);
+        const expiresAt = decoded?.exp * 1000;
+        if (Date.now() >= expiresAt) {
+          if (isSDK()) {
+            SdkEvents.emit('did-token-expire');
+          }
+          console.log('token expired');
+        } else {
+          setTokenExpiresAt(expiresAt);
+        }
       }
     };
+    tokenRef.current = store.token;
     syncToken();
   }, [store?.token]);
 
@@ -109,24 +126,27 @@ const useTokenAuth = () => {
           token = store?.token;
         }
         if (token) {
-          if (validateToken(token)) {
-            if (updateTokenInStore) {
-              updateToken(token);
+          try {
+            if (validateToken(token)) {
+              if (updateTokenInStore) {
+                updateToken(token);
+              }
+              setTimeout(() => {
+                resolve(true);
+              });
+            } else {
+              if (isSDK()) {
+                SdkEvents.emit('did-token-expire');
+              }
             }
-            setTimeout(() => {
-              resolve(true);
-            });
-          } else {
-            if (isSDK()) {
-              SdkEvents.emit('did-token-expire');
-            }
-            throw new Error('Token expired');
+          } catch (e) {
+            reject('Token expired');
           }
         } else {
           if (isSDK()) {
             SdkEvents.emit('token-not-found');
           }
-          throw new Error('Token not found');
+          reject('Token not found');
         }
       } catch (error) {
         reject(error);
@@ -143,7 +163,9 @@ const useTokenAuth = () => {
             ? {credentials: 'include'}
             : {
                 headers: {
-                  authorization: store?.token ? `Bearer ${store.token}` : '',
+                  authorization: tokenRef.current
+                    ? `Bearer ${tokenRef.current}`
+                    : '',
                 },
               },
         )

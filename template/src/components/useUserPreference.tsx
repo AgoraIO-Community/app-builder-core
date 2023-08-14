@@ -62,6 +62,8 @@ const UserPreferenceProvider = (props: {children: React.ReactNode}) => {
           variables: {
             name,
           },
+        }).catch((error) => {
+          console.log('ERROR, could not save the name', error);
         });
       } catch (error) {
         console.log('ERROR, could not save the name', error);

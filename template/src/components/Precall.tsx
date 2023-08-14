@@ -19,6 +19,7 @@ import {
   trimText,
   useIsDesktop,
   useResponsive,
+  isValidReactComponent,
 } from '../utils/common';
 import {useMeetingInfo} from './meeting-info/useMeetingInfo';
 import {useCustomization} from 'customization-implementation';
@@ -277,23 +278,23 @@ const Precall = () => {
           res(devices);
         }),
       ).then((devices: MediaDeviceInfo[]) => {
-        SDKEvents.emit('preJoin', meetingTitle, devices);
+        SDKEvents.emit('ready-to-join', meetingTitle, devices);
       });
     }
   }, [isJoinDataFetched]);
 
   const FpePrecallComponent = useCustomization((data) => {
     // commented for v1 release
-    // if (
-    //   data?.components?.precall &&
-    //   typeof data?.components?.precall !== 'object'
-    // ) {
-    //   if (isValidReactComponent(data?.components?.precall)) {
-    //     return data?.components?.precall;
-    //   }
-    //   return undefined;
-    // }
-    return undefined;
+    if (
+      data?.components?.precall &&
+      typeof data?.components?.precall !== 'object'
+    ) {
+      if (isValidReactComponent(data?.components?.precall)) {
+        return data?.components?.precall;
+      }
+      return undefined;
+    }
+    // return undefined;
   });
 
   const isDesktop = useIsDesktop();

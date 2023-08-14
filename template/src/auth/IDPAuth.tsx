@@ -4,25 +4,16 @@ import {useHistory, useParams} from '../components/Router';
 import Loading from '../subComponents/Loading';
 import {useApolloClient} from '@apollo/client';
 import Toast from '../../react-native-toast-message';
+import {getParamFromURL} from '../utils/common';
+import useTokenAuth from './useTokenAuth';
 
 export const IDPAuth = () => {
   const {setIsAuthenticated, authLogin} = useAuth();
   const history = useHistory();
-  const {token}: {token: string} = useParams();
+  const {token: returnTo}: {token: string} = useParams();
+  //token used as returnTo and webToken is sent on the token query param
   const apolloClient = useApolloClient();
-  //web token set in the cookies, using this route redirect user to origin url
-  //token used as path
-
-  // const getSearchParamFromURL = (url, param) => {
-  //   const include = url.includes(param);
-
-  //   if (!include) return null;
-
-  //   const params = url.split(/([&,?,=])/);
-  //   const index = params.indexOf(param);
-  //   const value = params[index + 2];
-  //   return value;
-  // };
+  const {enableTokenAuth} = useTokenAuth();
 
   async function getUserDetails() {
     try {
@@ -36,28 +27,32 @@ export const IDPAuth = () => {
   }
 
   useEffect(() => {
-    //web token set in the cookies
-    //verify the token by calling the query
-    getUserDetails()
-      .then((_) => {
-        setIsAuthenticated(true);
-        if (token && token.indexOf('authorize') === -1) {
-          history.push('/' + token);
-        } else {
-          history.push('/');
-        }
-      })
-      .catch(() => {
-        setIsAuthenticated(false);
-        Toast.show({
-          type: 'error',
-          text1: 'Error occured on Login, Please login again.',
-          visibilityTime: 3000,
+    const token = getParamFromURL(history.location.search, 'token');
+    if (token) {
+      enableTokenAuth(token)
+        .then(() => {
+          setIsAuthenticated(true);
+          if (returnTo && returnTo.indexOf('authorize') === -1) {
+            history.push('/' + returnTo);
+          } else {
+            history.push('/');
+          }
+        })
+        .catch(() => {
+          setIsAuthenticated(false);
+          console.log('debugging error on IDP token setting');
         });
-        setTimeout(() => {
-          authLogin();
-        }, 3000);
+    } else {
+      setIsAuthenticated(false);
+      Toast.show({
+        type: 'error',
+        text1: 'Error occured on Login, Please login again.',
+        visibilityTime: 3000,
       });
+      setTimeout(() => {
+        authLogin();
+      }, 3000);
+    }
   }, []);
 
   return <Loading text={'Authorizing app...'} />;

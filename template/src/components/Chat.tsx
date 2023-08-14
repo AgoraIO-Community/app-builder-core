@@ -83,14 +83,15 @@ const Chat = (props?: ChatProps) => {
   const {primaryColor} = useContext(ColorContext);
   const {transcriptHeight} = useCaptionWidth();
 
-  React.useEffect(() => {
-    return () => {
-      // reset both the active tabs
-      setGroupActive(false);
-      setPrivateActive(false);
-      setSelectedUser(0);
-    };
-  }, []);
+  //not need since state are controlled by chatUIControl
+  // React.useEffect(() => {
+  //   return () => {
+  //     // reset both the active tabs
+  //     setGroupActive(false);
+  //     setPrivateActive(false);
+  //     setSelectedUser(0);
+  //   };
+  // }, []);
 
   const selectUser = (userUID: UidType) => {
     setSelectedUser(userUID);

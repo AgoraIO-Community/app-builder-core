@@ -26,10 +26,35 @@ const PermissionHelper = () => {
     });
   };
   useEffect(() => {
+    Promise.all([
+      navigator.permissions.query({name: 'camera'}),
+      navigator.permissions.query({name: 'microphone'}),
+    ])
+      .then(([cameraResult, micResult]) => {
+        // Chrome
+        if (cameraResult.state !== 'granted' || micResult.state !== 'granted') {
+          setShowPopup(true);
+          const onChangeFunc = () => {
+            if (
+              cameraResult.state === 'granted' &&
+              micResult.state === 'granted'
+            )
+              setShowPopup(false);
+          };
+          micResult.onchange = onChangeFunc;
+          cameraResult.onchange = onChangeFunc;
+        }
+      })
+      .catch((e) => {
+        // Firefox
+        setTimeout(() => {
+          setShowPopup(true);
+        }, 1000);
+      });
     //If permission already given it will take few milliseconds to resolve the promise. it will show the popup which not required. so added timeout
-    setTimeout(() => {
-      setShowPopup(true);
-    }, 500);
+    // setTimeout(() => {
+    //   setShowPopup(true);
+    // }, 1000);
   }, []);
   //todo hari update the modal message based the veritical
   return (

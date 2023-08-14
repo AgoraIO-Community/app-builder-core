@@ -31,3 +31,7 @@ target 'HelloWorld-tvOS' do
     # Pods for testing
   end
 end
+
+target 'ScreenSharing' do
+  pod 'AgoraRtcEngine_iOS', '3.7.0.3'
+end

@@ -2,6 +2,7 @@ import {gql, useMutation} from '@apollo/client';
 import {MeetingInfoContextInterface} from '../components/meeting-info/useMeetingInfo';
 import {useSetMeetingInfo} from '../components/meeting-info/useSetMeetingInfo';
 import SDKEvents from '../utils/SdkEvents';
+import isSDK from './isSDK';
 
 const CREATE_CHANNEL = gql`
   mutation CreateChannel($title: String!, $enablePSTN: Boolean) {
@@ -36,7 +37,11 @@ export default function useCreateMeeting() {
         enablePSTN: enablePSTN,
       },
     });
-    if (error) {
+    // in React-SDK mode, we use a more recent package of @apollo/client
+    // which is compatible with react18, long term we should be looking to
+    // upgrade core dependency as well. The following condition accounts
+    // for differences in the way the two version function.
+    if (error && !isSDK) {
       throw error;
     }
     if (res && res?.data && res?.data?.createChannel) {

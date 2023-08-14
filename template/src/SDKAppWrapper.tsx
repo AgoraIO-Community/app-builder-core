@@ -11,68 +11,96 @@ import SDKMethodEventsManager from './utils/SdkMethodEvents';
 import App from './App';
 import SdkApiContextProvider from './components/SdkApiContext';
 import {Unsubscribe} from 'nanoevents';
+import {deviceId} from './components/DeviceConfigure';
 
-// type makeAsync<T extends (...p: any) => void> = (
-//   ...p: Parameters<T>
-// ) => PromiseLike<ReturnType<T>>;
-//
-// type takeOnlyFirstParam<T extends (...p: any) => void> = (
-//   p: Parameters<T>[0],
-// ) => ReturnType<T>;
+type meetingData = Partial<MeetingInfoContextInterface['data']>;
 
-export interface SdkMethodEvents {
-  customize: (customization: CustomizationApiInterface) => void;
-  join(
-    roomid: string | Partial<MeetingInfoContextInterface['data']>,
-    skipPrecall?: boolean,
-  ): MeetingInfoContextInterface['data'];
-  'login':(token:string) => Promise<void>
-  'logout':() => Promise<void>
+export interface AppBuilderSdkApiInterface {
+  customize: (customization: CustomizationApiInterface) => Promise<void>;
+  joinRoom: (
+    roomDetails: string | meetingData,
+    userName?: string,
+  ) => Promise<meetingData>;
+  joinPrecall: (
+    roomDetails: string | meetingData,
+    userName?: string,
+  ) => Promise<
+    [
+      meetingData,
+      (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
+    ]
+  >;
+  setMicrophone: (deviceId: deviceId) => Promise<void>;
+  setCamera: (deviceId: deviceId) => Promise<void>;
+  setSpeaker: (deviceId: deviceId) => Promise<void>;
+  muteAudio: (
+    mute: boolean | ((currentMute: boolean) => boolean),
+  ) => Promise<void>;
+  muteVideo: (
+    mute: boolean | ((currentMute: boolean) => boolean),
+  ) => Promise<void>;
+  createCustomization: (
+    customization: CustomizationApiInterface,
+  ) => CustomizationApiInterface;
+  login: (token: string) => Promise<void>;
+  logout: () => Promise<void>;
+  customEvents: typeof customEvents;
+  on: <T extends keyof userEventsMapInterface>(
+    userEventName: T,
+    cb: userEventsMapInterface[T],
+  ) => Unsubscribe;
 }
 
-// interface AppBuilderSdkApiInterface {
-//   customize: makeAsync<SdkMethodEvents['customize']>;
-//   joinRoom: makeAsync<takeOnlyFirstParam<SdkMethodEvents['join']>>;
-//   joinPrecall: makeAsync<takeOnlyFirstParam<SdkMethodEvents['join']>>;
-//   createCustomization: (
-//     customization: CustomizationApiInterface,
-//   ) => CustomizationApiInterface;
-//   on: <T extends keyof userEventsMapInterface>(
-//     userEventName: T,
-//     callBack: userEventsMapInterface[T],
-//   ) => Unsubscribe;
-// }
-
-export const AppBuilderSdkApi = {
+export const AppBuilderSdkApi: AppBuilderSdkApiInterface = {
   login: async (token: string) => {
     return await SDKMethodEventsManager.emit('login', token);
   },
   logout: async () => {
     return await SDKMethodEventsManager.emit('logout');
   },
-  customize: async (customization: CustomizationApiInterface) => {
+  customize: async (customization) => {
     return await SDKMethodEventsManager.emit('customize', customization);
   },
   customEvents: customEvents,
-  join: async (roomDetails: string) => {
-    await SDKMethodEventsManager.emit('join', roomDetails, false);
+  joinRoom: async (roomDetails, userName) => {
+    return await SDKMethodEventsManager.emit(
+      'join',
+      roomDetails,
+      true,
+      userName,
+    );
   },
-  joinRoom: async (
-    roomDetails: string | Partial<MeetingInfoContextInterface['data']>,
-  ) => {
-    return await SDKMethodEventsManager.emit('join', roomDetails, true);
+  joinPrecall: async (roomDetails, userName) => {
+    if (!$config.PRECALL)
+      throw new Error('Precall disabled in config, cant join precall');
+    const t = await SDKMethodEventsManager.emit(
+      'join',
+      roomDetails,
+      false,
+      userName,
+    );
+    return t as unknown as [
+      MeetingInfoContextInterface['data'],
+      (userName?: string) => Promise<MeetingInfoContextInterface['data']>,
+    ];
   },
-  joinPrecall: async (
-    roomDetails: string | Partial<MeetingInfoContextInterface['data']>,
-  ) => {
-    const t = await SDKMethodEventsManager.emit('join', roomDetails);
-    return t as unknown as [MeetingInfoContextInterface['data'], () => {}];
+  setMicrophone: async (deviceId) => {
+    return await SDKMethodEventsManager.emit('microphoneDevice', deviceId);
+  },
+  setSpeaker: async (deviceId) => {
+    return await SDKMethodEventsManager.emit('speakerDevice', deviceId);
+  },
+  setCamera: async (deviceId) => {
+    return await SDKMethodEventsManager.emit('cameraDevice', deviceId);
+  },
+  muteAudio: async (state) => {
+    return await SDKMethodEventsManager.emit('muteAudio', state);
+  },
+  muteVideo: async (state) => {
+    return await SDKMethodEventsManager.emit('muteVideo', state);
   },
   createCustomization: customize,
-  on: <T extends keyof userEventsMapInterface>(
-    userEventName: T,
-    cb: userEventsMapInterface[T],
-  ): Unsubscribe => {
+  on: (userEventName, cb) => {
     console.log('SDKEvents: Event Registered', userEventName);
     return SDKEvents.on(userEventName, cb);
   },

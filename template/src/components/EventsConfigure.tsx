@@ -21,6 +21,8 @@ import {useRender} from 'customization-api';
 import {useParams} from '../components/Router';
 import StorageContext from './StorageContext';
 import {isWebInternal, trimText} from '../utils/common';
+import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
+import {isAndroid, isIOS} from '../utils/common';
 
 interface Props {
   children: React.ReactNode;
@@ -28,10 +30,18 @@ interface Props {
 
 const EventsConfigure: React.FC<Props> = (props) => {
   const {setStore} = useContext(StorageContext);
+  //@ts-ignore
+  const {isScreenshareActive, ScreenshareStoppedCallback, stopUserScreenShare} =
+    useScreenshare();
+  const isLiveStream = $config.EVENT_MODE;
   const {RtcEngine, dispatch} = useContext(RtcContext);
   const {renderList} = useRender();
   const renderListRef = useRef({renderList});
+  const isScreenshareActiveRef = useRef({isScreenshareActive});
   const {phrase} = useParams<{phrase: string}>();
+  useEffect(() => {
+    isScreenshareActiveRef.current.isScreenshareActive = isScreenshareActive;
+  }, [isScreenshareActive]);
   useEffect(() => {
     renderListRef.current.renderList = renderList;
   }, [renderList]);
@@ -61,13 +71,22 @@ const EventsConfigure: React.FC<Props> = (props) => {
         secondaryBtn: null,
         leadingIcon: null,
       });
-      isWebInternal()
-        ? await RtcEngine.muteLocalVideoStream(true)
-        : await RtcEngine.enableLocalVideo(false);
-      dispatch({
-        type: 'LocalMuteVideo',
-        value: [0],
-      });
+      if (
+        (isAndroid() || isIOS()) &&
+        isScreenshareActiveRef.current.isScreenshareActive
+      ) {
+        //@ts-ignore
+        stopUserScreenShare(false, true);
+      } else {
+        isWebInternal()
+          ? await RtcEngine.muteLocalVideoStream(true)
+          : await RtcEngine.enableLocalVideo(false);
+        await updateVideoStream(true);
+        dispatch({
+          type: 'LocalMuteVideo',
+          value: [0],
+        });
+      }
     });
     events.on(controlMessageEnum.muteAudio, ({sender}) => {
       Toast.show({
@@ -88,6 +107,16 @@ const EventsConfigure: React.FC<Props> = (props) => {
       });
     });
     events.on(controlMessageEnum.kickUser, () => {
+      //before kickoff the user we have check whether screenshare on/off
+      //if its on then stop screenshare and emit event for screensharing is stopped
+      try {
+        if (isScreenshareActiveRef?.current?.isScreenshareActive) {
+          ScreenshareStoppedCallback && ScreenshareStoppedCallback();
+        }
+      } catch (error) {
+        console.log('error on stop the screeshare', error);
+      }
+
       Toast.show({
         type: 'info',
         text1: 'The host has removed you from the meeting.',
@@ -141,6 +170,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
               isWebInternal()
                 ? await RtcEngine.muteLocalVideoStream(false)
                 : await RtcEngine.enableLocalVideo(true);
+              await updateVideoStream(false);
               dispatch({
                 type: 'LocalMuteVideo',
                 value: [1],
@@ -152,6 +182,12 @@ const EventsConfigure: React.FC<Props> = (props) => {
         secondaryBtn: SecondaryBtn,
       });
     });
+
+    const updateVideoStream = async (enabled: boolean) => {
+      if ((isAndroid() || isIOS()) && isLiveStream) {
+        await RtcEngine.muteLocalVideoStream(enabled);
+      }
+    };
 
     return () => {
       //events.off(controlMessageEnum.newUserJoined);
