@@ -44,8 +44,6 @@ const useSTTAPI = (): IuseSTTAPI => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': 'ACoac4ccff5c1ea40d29a97fb5b5bd63d78',
-        'X-Project-ID': $config.PROJECT_ID,
         authorization: store.token ? `Bearer ${store.token}` : '',
       },
       body: JSON.stringify({
