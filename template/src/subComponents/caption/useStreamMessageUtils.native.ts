@@ -144,9 +144,9 @@ const useStreamMessageUtils = (): {
         } else {
           const isLangUpdate =
             lastTranscript?.uid.toString().indexOf('langUpdate') > -1;
-          if (isLangUpdate) {
-            finalTranscriptList[textstream.uid] = [currentFinalText];
-          }
+
+          finalTranscriptList[textstream.uid] = [currentFinalText];
+
           return [
             ...prevTranscript,
             {
