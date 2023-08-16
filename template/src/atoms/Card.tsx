@@ -47,8 +47,7 @@ const useStyles = (margin: 'dense' | 'normal', padding: 'dense' | 'normal') => {
     },
     mobile: {
       paddingHorizontal: 16,
-      paddingTop: 20,
-      paddingBottom: 40,
+      paddingVertical: 20,
       justifyContent: 'space-between',
     },
     desktop: {

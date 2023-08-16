@@ -57,7 +57,7 @@ export default function MeetingInfoGridTile() {
                   <View style={{flexDirection: 'row'}}>
                     <Text style={[style.subheading, {flexShrink: 1}]}>
                       {isMobile
-                        ? `No one else has joined yet, invite others ?`
+                        ? `No one else has joined yet, invite others?`
                         : `No one else has joined yet`}
                     </Text>
                   </View>
