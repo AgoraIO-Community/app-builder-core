@@ -15,7 +15,7 @@ import Hyperlink from 'react-native-hyperlink';
 import {useString} from '../utils/useString';
 import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
-import {isWebInternal} from '../utils/common';
+import {isWebInternal, trimText} from '../utils/common';
 import {useChatUIControl, useRender} from 'customization-api';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
@@ -98,8 +98,8 @@ const ChatBubble = (props: ChatBubbleProps) => {
           <Text style={style.userNameStyle}>
             {isLocal
               ? 'You'
-              : renderList[uid]
-              ? renderList[uid].name
+              : renderList[uid]?.name
+              ? trimText(renderList[uid].name)
               : remoteUserDefaultLabel}
           </Text>
           <Text style={style.timestampStyle}>{time}</Text>

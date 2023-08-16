@@ -85,7 +85,7 @@ export const ChatTextInput = (props: ChatTextInputProps) => {
   // )();
   const [name] = useUserName();
   const chatMessageInputPlaceholder = privateActive
-    ? `Private Message to ${renderList[selectedUserId].name}`
+    ? `Private Message to ${renderList[selectedUserId]?.name}`
     : `Chat publicly as ${name}...`;
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
