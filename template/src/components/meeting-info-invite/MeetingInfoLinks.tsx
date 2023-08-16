@@ -121,8 +121,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               variant,
             }}
             label={pstnLabel}
-            link={`${pstnNumberLabel} - ${pstn?.number} {' | '} ${pinLabel} -{' '}
-            ${pstn?.pin}`}
+            link={`${pstnNumberLabel} - ${pstn?.number}  |  ${pinLabel} - ${pstn?.pin}`}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.PSTN}
             helperText={
               showHelperText &&
