@@ -159,7 +159,12 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
                   : {
                       position: 'absolute',
                       top: 8,
-                      left: 8,
+                      left:
+                        pinnedUid &&
+                        pinnedUid == user.uid &&
+                        !isScreenShareOnFullView
+                          ? 100
+                          : 8,
                       zIndex: 999,
                       elevation: 999,
                     }
