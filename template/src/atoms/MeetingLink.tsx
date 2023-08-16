@@ -64,7 +64,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
             ]}>
             {
               // @ts-ignore
-              link && getShareLink(link)
+              link
             }
           </Text>
         </View>
@@ -129,6 +129,7 @@ const useStyles = (styleProps: MeetingLinkStyleProps) => {
     },
     linkTextBox: {
       flex: 0.9,
+      width: 0,
       backgroundColor: $config.INPUT_FIELD_BACKGROUND_COLOR,
       borderColor: $config.INPUT_FIELD_BORDER_COLOR,
       borderWidth: 1,

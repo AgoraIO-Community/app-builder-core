@@ -47,7 +47,9 @@ export default function MeetingInfoGridTile() {
                         {waveHandEmoji}
                       </Text>
                     )}
-                    <Text style={style.heading} numberOfLines={1}>
+                    <Text
+                      style={[style.heading, {flexShrink: 1}]}
+                      numberOfLines={1}>
                       Welcome {username}
                     </Text>
                   </View>

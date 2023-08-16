@@ -225,6 +225,7 @@ const style = StyleSheet.create({
   // Feature card css
   card: {
     minHeight: 50,
+    width: '100%',
     paddingTop: 16,
     paddingRight: 16,
   },
