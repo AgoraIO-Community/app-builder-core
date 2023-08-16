@@ -23,7 +23,6 @@ const Caption: React.FC = () => {
   const {streamMessageCallback} = useStreamMessageUtils();
   const {renderList} = useRender();
 
-  const [activeContainerFlex, setActiveContainerFlex] = React.useState(1);
   const [activelinesAvailable, setActiveLinesAvailable] = React.useState(1);
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
 
@@ -69,14 +68,14 @@ const Caption: React.FC = () => {
     <View style={styles.captionContainer}>
       {
         <>
-          {/* <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
+          <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
             Active Speaker : {renderList[activeSpeakerRef.current]?.name || ''}{' '}
             ({activeSpeakerRef.current})- Lines : {activelinesAvailable}
           </Text>
           <Text style={{color: 'white', position: 'absolute', top: 0}}>
             Prev Speaker: {renderList[prevSpeakerRef.current]?.name || ''} (
             {prevSpeakerRef.current})- Lines : {inActiveLinesAvailable}
-          </Text> */}
+          </Text>
 
           {captionObj[prevSpeakerRef.current] &&
           captionObj[prevSpeakerRef.current].text ? (
@@ -85,9 +84,7 @@ const Caption: React.FC = () => {
               value={captionObj[prevSpeakerRef.current].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={false}
-              activeContainerFlex={1 - activeContainerFlex}
-              setActiveContainerFlex={setActiveContainerFlex}
-              activelinesAvailable={3 - activelinesAvailable}
+              activelinesAvailable={activelinesAvailable}
               setActiveLinesAvailable={setActiveLinesAvailable}
               inActiveLinesAvailable={inActiveLinesAvailable}
               setInActiveLinesAvaialble={setInActiveLinesAvaialble}
@@ -102,8 +99,6 @@ const Caption: React.FC = () => {
               value={captionObj[activeSpeakerRef.current].text}
               activeSpeakersCount={speakerCount}
               isActiveSpeaker={true}
-              activeContainerFlex={activeContainerFlex}
-              setActiveContainerFlex={setActiveContainerFlex}
               activelinesAvailable={activelinesAvailable}
               setActiveLinesAvailable={setActiveLinesAvailable}
               inActiveLinesAvailable={inActiveLinesAvailable}
