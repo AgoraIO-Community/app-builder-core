@@ -129,7 +129,7 @@ export default function LiveStreamAttendeeLandingTile() {
                       })}
                       onPress={() => {
                         copyShareLinkToClipboard(
-                          SHARE_LINK_CONTENT_TYPE.MEETING_INVITE,
+                          SHARE_LINK_CONTENT_TYPE.ATTENDEE,
                         );
                       }}
                     />

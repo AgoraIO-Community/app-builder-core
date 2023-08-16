@@ -66,6 +66,7 @@ export const style = StyleSheet.create({
   },
   header: {
     marginTop: 2,
+    flex: 1,
   },
   heading: {
     fontSize: ThemeConfig.FontSize.extraLarge,
