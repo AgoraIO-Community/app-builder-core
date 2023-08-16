@@ -64,7 +64,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
             ]}>
             {
               // @ts-ignore
-              link
+              link && getShareLink(link)
             }
           </Text>
         </View>
