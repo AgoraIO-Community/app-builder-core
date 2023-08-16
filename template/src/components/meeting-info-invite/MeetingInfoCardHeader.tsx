@@ -36,7 +36,6 @@ export const MeetingInfoCardHeader = (props: MeetingInfoCardHeaderProps) => {
             <IDPLogoutComponent
               containerStyle={{marginTop: 0, marginRight: 0}}
             />
-            <Spacer size={20} />
           </>
         ) : (
           <></>
