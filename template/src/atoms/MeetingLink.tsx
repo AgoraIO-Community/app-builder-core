@@ -62,10 +62,7 @@ const MeetingLink = (props: MeetingLinkProps) => {
               //@ts-ignore
               isWebCheck ? urlWeb : {opacity: 1},
             ]}>
-            {
-              // @ts-ignore
-              link && getShareLink(link)
-            }
+            {link}
           </Text>
         </View>
         <ClipboardIconButton text={linkToCopy} variant="secondary" size={20} />

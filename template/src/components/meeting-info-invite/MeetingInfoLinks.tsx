@@ -27,6 +27,8 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
   const {
     data: {isHost, pstn, isSeparateHostLink},
   } = useRoomInfo();
+  const {getShareLink} = useShareLink();
+
   //commented for v1 release
   // const meetingUrlText = useString('meetingUrlLabel')();
   // const meetingIdText = useString('meetingIdLabel')();
@@ -82,7 +84,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               variant,
             }}
             label={getAttendeeLabel()}
-            link={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
+            link={getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
             helperText={
               showHelperText && 'Share this with attendees you want to invite.'
@@ -101,7 +103,7 @@ export const MeetingInfoLinks = (props?: MeetingInfoBodyProps) => {
               variant,
             }}
             label={getHostLabel()}
-            link={SHARE_LINK_CONTENT_TYPE.HOST}
+            link={getShareLink(SHARE_LINK_CONTENT_TYPE.HOST)}
             linkToCopy={SHARE_LINK_CONTENT_TYPE.HOST}
             helperText={
               showHelperText &&
