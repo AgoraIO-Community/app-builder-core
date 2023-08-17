@@ -68,13 +68,20 @@ const Caption: React.FC = () => {
     <View style={styles.captionContainer}>
       {
         <>
-          <Text style={{color: 'yellow', position: 'absolute', top: 20}}>
-            Active Speaker : {renderList[activeSpeakerRef.current]?.name || ''}{' '}
-            ({activeSpeakerRef.current})- Lines : {activelinesAvailable}
+          <Text
+            style={{
+              color: 'yellow',
+              position: 'absolute',
+              top: -20,
+              left: 120,
+            }}>
+            Active: {renderList[activeSpeakerRef.current]?.name || ''} -{' '}
+            {activelinesAvailable}
           </Text>
-          <Text style={{color: 'white', position: 'absolute', top: 0}}>
-            Prev Speaker: {renderList[prevSpeakerRef.current]?.name || ''} (
-            {prevSpeakerRef.current})- Lines : {inActiveLinesAvailable}
+          <Text
+            style={{color: 'white', position: 'absolute', top: -20, left: 0}}>
+            Prev: {renderList[prevSpeakerRef.current]?.name || ''}-{' '}
+            {inActiveLinesAvailable}
           </Text>
 
           {captionObj[prevSpeakerRef.current] &&

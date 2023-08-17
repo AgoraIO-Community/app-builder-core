@@ -126,8 +126,8 @@ const MoreMenu = React.forwardRef<View, MoreMenuProps>((props, ref) => {
         alignItems: 'center',
         borderRadius: 20,
         position: 'absolute',
-        right: 8,
-        top: 8,
+        right: isMobile ? 3 : 8,
+        top: isMobile ? 3 : 8,
         zIndex: 999,
       }}>
       <IconButton
