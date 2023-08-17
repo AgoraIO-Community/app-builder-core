@@ -48,7 +48,9 @@ const CaptionText = ({
       setActiveLinesAvailable(currentAllowedLines);
       // setting prev Speaker Lines
       setInActiveLinesAvaialble((prev) =>
-        Math.min(prev, MAX_CAPTIONS_LINES_ALLOWED - currentAllowedLines),
+        prev === 0 && activeSpeakersCount != 1
+          ? MAX_CAPTIONS_LINES_ALLOWED - currentAllowedLines
+          : Math.min(prev, MAX_CAPTIONS_LINES_ALLOWED - currentAllowedLines),
       );
     } else {
       setInActiveLinesAvaialble(
