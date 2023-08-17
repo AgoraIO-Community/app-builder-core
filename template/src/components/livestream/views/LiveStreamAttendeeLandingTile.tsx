@@ -85,7 +85,7 @@ function FeatureTile({feature}: {feature: Feature}) {
 
 export default function LiveStreamAttendeeLandingTile() {
   const isMobile = isMobileUA();
-  const {copyShareLinkToClipboard} = useShareLink();
+  const {copyShareLinkToClipboard, getShareLink} = useShareLink();
 
   return (
     <View style={style.tileBackdrop}>
@@ -148,7 +148,7 @@ export default function LiveStreamAttendeeLandingTile() {
                         linkFontSize: 'tiny',
                       }}
                       label=""
-                      link={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
+                      link={getShareLink(SHARE_LINK_CONTENT_TYPE.ATTENDEE)}
                       linkToCopy={SHARE_LINK_CONTENT_TYPE.ATTENDEE}
                     />
                   </>
