@@ -30,8 +30,10 @@ const useStreamMessageUtils = (): {
     /* uid - bot which sends stream message in channel
        payload - stream message in Uint8Array format
       */
+
     const [uid, payload] = args;
     let nonFinalText = ''; // holds intermediate results
+    let finalText = ''; // holds final strings
     let currentFinalText = ''; // holds current caption
     let isInterjecting = false;
 
@@ -99,23 +101,29 @@ const useStreamMessageUtils = (): {
       "confidence": 0.8549408316612244
       }
   */
+
     for (const word of words) {
       if (word.isFinal) {
-        finalList[textstream.uid].push(word.text);
-        finalTranscriptList[textstream.uid].push(word.text);
-        currentFinalText = word.text;
-        // log info to show measure the duration of passes in which a sentence gets finalized
-        const duration = performance.now() - captionStartTime;
-        console.log(
-          `stt-Time taken to finalize caption ${currentFinalText}: ${duration}ms`,
-        );
-        captionStartTime = null; // Reset start time
+        finalText = finalText + word.text;
       } else {
-        nonFinalText = word.text !== '.' ? word.text : nonFinalText;
+        nonFinalText =
+          word.text !== '.' ? nonFinalText + word.text : nonFinalText;
         if (!captionStartTime) {
           captionStartTime = performance.now();
         }
       }
+    }
+
+    if (finalText) {
+      finalList[textstream.uid].push(finalText);
+      finalTranscriptList[textstream.uid].push(finalText);
+      currentFinalText = finalText;
+      // log info to show measure the duration of passes in which a sentence gets finalized
+      const duration = performance.now() - captionStartTime;
+      console.log(
+        `stt-Time taken to finalize caption ${currentFinalText}: ${duration}ms`,
+      );
+      captionStartTime = null; // Reset start time
     }
 
     /* Updating Meeting Transcript */
