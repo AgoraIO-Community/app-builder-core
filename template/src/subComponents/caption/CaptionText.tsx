@@ -38,35 +38,23 @@ const CaptionText = ({
   const handleTextLayout = (event: LayoutChangeEvent) => {
     let textHeight = event.nativeEvent.layout.height; // height of the <Text>
 
-    /* safari at only zoom level 85% gives value as 27,54,81... for linrheight instead of 28,56,84... */
-    const isDiffLineHeight = textHeight % LINE_HEIGHT;
+    /* safari at only zoom level 85% gives value as 27,54,81... for lineHeight instead of 28,56,84... */
+    /* IOS goves 19.33 instead of 19 */
+    /* so added the threshold of 1 in isDiffLineHeight */
+    const isDiffLineHeight = textHeight % LINE_HEIGHT > 1;
     const delta = isDiffLineHeight
       ? LINE_HEIGHT - (textHeight % LINE_HEIGHT)
       : 0;
     const currentLines = Math.floor((textHeight + delta) / LINE_HEIGHT); // calculate numberOfLines
-
     const currentAllowedLines = Math.min(
       currentLines,
       MAX_CAPTIONS_LINES_ALLOWED,
     );
 
-    if (currentLines > MAX_CAPTIONS_LINES_ALLOWED) return;
-
     if (isActiveSpeaker) {
-      // setting active Speaker Lines
       setActiveLinesAvailable(currentAllowedLines);
-      // setting prev Speaker Lines
-      setInActiveLinesAvaialble((prev) =>
-        prev === 0 && activeSpeakersCount != 1
-          ? MAX_CAPTIONS_LINES_ALLOWED - currentAllowedLines
-          : Math.min(prev, MAX_CAPTIONS_LINES_ALLOWED - currentAllowedLines),
-      );
     } else {
-      setInActiveLinesAvaialble((prev) => {
-        console.log('stt-change-prev', prev);
-        console.log('stt-change-activelinesAvailable', activelinesAvailable);
-        return Math.min(currentAllowedLines, MAX_CAPTIONS_LINES_ALLOWED - 1);
-      });
+      setInActiveLinesAvaialble(currentAllowedLines);
     }
   };
 
@@ -95,6 +83,7 @@ const CaptionText = ({
               ? 0
               : 1 - (activelinesAvailable + 1) * 0.2,
         },
+        !isActiveSpeaker && activelinesAvailable === 3 && {height: 0},
       ]}>
       <Text
         style={[
@@ -113,7 +102,10 @@ const CaptionText = ({
             height:
               (isActiveSpeaker
                 ? activelinesAvailable
-                : inActiveLinesAvailable) * LINE_HEIGHT,
+                : Math.min(
+                    inActiveLinesAvailable,
+                    MAX_CAPTIONS_LINES_ALLOWED - activelinesAvailable,
+                  )) * LINE_HEIGHT,
           },
         ]}>
         <Text
