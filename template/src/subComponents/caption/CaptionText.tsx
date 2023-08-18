@@ -50,7 +50,7 @@ const CaptionText = ({
       MAX_CAPTIONS_LINES_ALLOWED,
     );
 
-    if (currentLines > MAX_CAPTIONS_LINES_ALLOWED) return;
+    // if (currentLines > MAX_CAPTIONS_LINES_ALLOWED) return;
 
     if (isActiveSpeaker) {
       // setting active Speaker Lines
