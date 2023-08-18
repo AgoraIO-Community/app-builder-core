@@ -36,8 +36,15 @@ const CaptionText = ({
 
   // callback triggers whenevere captions reaches next line
   const handleTextLayout = (event: LayoutChangeEvent) => {
-    const textHeight = event.nativeEvent.layout.height; // height of the <Text>
-    const currentLines = Math.floor(textHeight / LINE_HEIGHT); // calculate numberOfLines
+    let textHeight = event.nativeEvent.layout.height; // height of the <Text>
+
+    /* safari at only zoom level 85% gives value as 27,54,81... for linrheight instead of 28,56,84... */
+    const isDiffLineHeight = textHeight % LINE_HEIGHT;
+    const delta = isDiffLineHeight
+      ? LINE_HEIGHT - (textHeight % LINE_HEIGHT)
+      : 0;
+    const currentLines = Math.floor((textHeight + delta) / LINE_HEIGHT); // calculate numberOfLines
+
     const currentAllowedLines = Math.min(
       currentLines,
       MAX_CAPTIONS_LINES_ALLOWED,
@@ -55,9 +62,11 @@ const CaptionText = ({
           : Math.min(prev, MAX_CAPTIONS_LINES_ALLOWED - currentAllowedLines),
       );
     } else {
-      setInActiveLinesAvaialble(
-        Math.min(currentAllowedLines, MAX_CAPTIONS_LINES_ALLOWED - 1),
-      );
+      setInActiveLinesAvaialble((prev) => {
+        console.log('stt-change-prev', prev);
+        console.log('stt-change-activelinesAvailable', activelinesAvailable);
+        return Math.min(currentAllowedLines, MAX_CAPTIONS_LINES_ALLOWED - 1);
+      });
     }
   };
 
@@ -131,7 +140,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 620,
     justifyContent: 'flex-end',
-    //borderWidth: 1,
+
     borderStyle: 'dotted',
   },
 
