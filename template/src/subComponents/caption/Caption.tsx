@@ -23,7 +23,7 @@ const Caption: React.FC = () => {
   const {streamMessageCallback} = useStreamMessageUtils();
   const {renderList} = useRender();
 
-  const [activelinesAvailable, setActiveLinesAvailable] = React.useState(1);
+  const [activelinesAvailable, setActiveLinesAvailable] = React.useState(0);
   const [inActiveLinesAvailable, setInActiveLinesAvaialble] = React.useState(0);
 
   const handleStreamMessageCallback = (
@@ -59,8 +59,6 @@ const Caption: React.FC = () => {
 
   console.log('current speaker uid', activeSpeakerRef.current);
   console.log('prev current uid ', prevSpeakerRef.current);
-
-  if (Object.keys(captionObj).length === 0) return <></>;
 
   const speakerCount = prevSpeakerRef.current === '' ? 1 : 2;
 
