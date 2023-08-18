@@ -70,16 +70,16 @@ const Caption: React.FC = () => {
             style={{
               color: 'yellow',
               position: 'absolute',
-              top: -20,
-              left: 120,
+              top: 0,
+              left: 0,
             }}>
-            Active: {renderList[activeSpeakerRef.current]?.name || ''} -{' '}
-            {activelinesAvailable}
+            Active: {renderList[activeSpeakerRef.current]?.name || ''} (
+            {activeSpeakerRef.current}) Line : {activelinesAvailable}
           </Text>
           <Text
-            style={{color: 'white', position: 'absolute', top: -20, left: 0}}>
-            Prev: {renderList[prevSpeakerRef.current]?.name || ''}-{' '}
-            {inActiveLinesAvailable}
+            style={{color: 'white', position: 'absolute', top: 25, left: 0}}>
+            Prev: {renderList[prevSpeakerRef.current]?.name || ''} (
+            {prevSpeakerRef.current}) Line : {inActiveLinesAvailable}
           </Text>
 
           {captionObj[prevSpeakerRef.current] &&
