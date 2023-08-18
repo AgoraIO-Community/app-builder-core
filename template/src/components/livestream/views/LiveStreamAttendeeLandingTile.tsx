@@ -11,7 +11,6 @@ import {
 import {isMobileUA, useIsDesktop} from '../../../utils/common';
 import TertiaryButton from '../../../atoms/TertiaryButton';
 import ThemeConfig from '../../../theme';
-import Spacer from '../../../atoms/Spacer';
 
 interface Feature {
   id: number;
@@ -122,11 +121,9 @@ export default function LiveStreamAttendeeLandingTile() {
                         paddingHorizontal: 12,
                         borderRadius: ThemeConfig.BorderRadius.medium,
                       }}
-                      {...(isMobile && {
-                        iconName: 'share',
-                        iconSize: 20,
-                        iconColor: $config.SECONDARY_ACTION_COLOR,
-                      })}
+                      iconName="share"
+                      iconSize={20}
+                      iconColor={$config.SECONDARY_ACTION_COLOR}
                       onPress={() => {
                         copyShareLinkToClipboard(
                           SHARE_LINK_CONTENT_TYPE.ATTENDEE,

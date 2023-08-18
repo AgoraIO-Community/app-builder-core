@@ -10,7 +10,7 @@ import {
 import React, {useState} from 'react';
 import ThemeConfig from '../theme';
 import hexadecimalTransparency from '../utils/hexadecimalTransparency';
-import {isWebInternal} from '../utils/common';
+import {isWebInternal, isMobileUA} from '../utils/common';
 import {IconsInterface} from '../atoms/CustomIcon';
 import ImageIcon from '../atoms/ImageIcon';
 
@@ -33,7 +33,8 @@ const TertiaryButton = (props: ButtonProps) => {
     iconColor = $config.PRIMARY_ACTION_TEXT_COLOR,
     ...rest
   } = props;
-  const [isHovered, setIsHovered] = useState();
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <PlatformWrapper setIsHovered={setIsHovered}>
       <TouchableOpacity
@@ -67,7 +68,7 @@ const TertiaryButton = (props: ButtonProps) => {
   );
 };
 const PlatformWrapper = ({children, setIsHovered}) => {
-  return isWebInternal() ? (
+  return isWebInternal() && !isMobileUA() ? (
     <div
       onMouseEnter={() => {
         setIsHovered(true);
