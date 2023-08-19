@@ -427,11 +427,13 @@ const Controls = () => {
         Toast.show({
           type: 'info',
           leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-          text1: msg,
+          text1: `Spoken Language ${
+            prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+          }`,
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
-          text2: null,
+          text2: msg,
         });
         // syncing local set language
         newLang && setLanguage(newLang);

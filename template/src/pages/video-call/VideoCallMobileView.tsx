@@ -167,9 +167,11 @@ const VideoCallMobileView = () => {
       Toast.show({
         type: 'info',
         leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
-        text1: msg,
+        text1: `Spoken Language ${
+          prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+        }`,
         visibilityTime: 3000,
-        text2: null,
+        text2: msg,
         primaryBtn: null,
         secondaryBtn: null,
       });
