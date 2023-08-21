@@ -188,7 +188,6 @@ interface TranscriptHeaderActionMenuProps {
 
 const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
   const {actionMenuVisible, setActionMenuVisible, btnRef} = props;
-  const {setSidePanel} = useSidePanel();
   const {
     language: prevLang,
     meetingTranscript,
@@ -277,7 +276,7 @@ const TranscriptHeaderActionMenu = (props: TranscriptHeaderActionMenuProps) => {
     <>
       <ActionMenu
         from={'transcript-header'}
-        actionMenuVisible={actionMenuVisible}
+        actionMenuVisible={actionMenuVisible && isPosCalculated}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={modalPosition}
         items={actionMenuitems}

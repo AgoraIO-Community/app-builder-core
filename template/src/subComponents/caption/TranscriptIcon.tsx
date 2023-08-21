@@ -50,10 +50,13 @@ const TranscriptIcon = (props: TranscriptIconProps) => {
   //const isTranscriptON = sidePanel === SidePanelType.Transcript;
   const onPress = () => {
     if (isSTTActive) {
-      setIsTranscriptON((prev) => !prev);
-      !isTranscriptON
-        ? setSidePanel(SidePanelType.Transcript)
-        : setSidePanel(SidePanelType.None);
+      setIsTranscriptON((prev) => {
+        const newIsTranscriptON = !prev;
+        setSidePanel(
+          newIsTranscriptON ? SidePanelType.Transcript : SidePanelType.None,
+        );
+        return newIsTranscriptON;
+      });
     } else {
       isFirstTimePopupOpen.current = true;
       setLanguagePopup(true);
