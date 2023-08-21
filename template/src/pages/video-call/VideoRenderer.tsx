@@ -82,10 +82,9 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
               return FallbackLogo(
                 user?.name,
                 activeSpeaker,
-                // (showReplacePin || showPinForMe) && !isMobileUA()
-                //   ? true
-                //   : false,
-                false,
+                (showReplacePin || showPinForMe) && !isMobileUA()
+                  ? true
+                  : false,
                 isMax,
                 avatarSize,
               );
@@ -111,7 +110,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
           ) : (
             <></>
           )}
-          {/* {(showReplacePin || showPinForMe) && !isMobileUA() ? (
+          {(showReplacePin || showPinForMe) && !isMobileUA() ? (
             <IconButton
               onPress={() => {
                 dispatch({type: 'UserPin', value: [user.uid]});
@@ -135,7 +134,7 @@ const VideoRenderer: React.FC<VideoRendererProps> = ({user, isMax = false}) => {
             />
           ) : (
             <></>
-          )} */}
+          )}
         </View>
       </PlatformWrapper>
     </>
