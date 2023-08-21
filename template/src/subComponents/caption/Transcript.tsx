@@ -81,7 +81,14 @@ const Transcript = (props: TranscriptProps) => {
   };
 
   const handleLayout = (event) => {
-    // when viewport changes , handleScroll will determine is list at bottom or not
+    if (flatListRef.current && !isWebInternal()) {
+      flatListRef.current.scrollToOffset({
+        offset: contentHeightRef.current,
+        animated: false,
+      });
+
+      isScrolledToEnd.current = true;
+    }
   };
 
   const renderItem = ({item}) => {
@@ -123,7 +130,7 @@ const Transcript = (props: TranscriptProps) => {
     if (!showButton && searchQuery.length === 0) {
       flatListRef.current.scrollToOffset({
         offset: contentHeightRef.current,
-        animated: true,
+        animated: false,
       });
 
       isScrolledToEnd.current = true;
@@ -151,7 +158,7 @@ const Transcript = (props: TranscriptProps) => {
     setShowButton(false);
     setSearchResults(filteredResults);
     // Scroll to the top of the FlatList when searching
-    flatListRef.current.scrollToOffset({offset: 0, animated: true});
+    flatListRef.current.scrollToOffset({offset: 0, animated: false});
   };
 
   const renderedData = searchQuery ? searchResults : data;
