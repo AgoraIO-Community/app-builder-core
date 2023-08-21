@@ -2,6 +2,7 @@ import {useLocalUserInfo, useRender, useRtc} from 'customization-api';
 import {useEffect, useRef, useState} from 'react';
 import events, {EventPersistLevel} from '../rtm-events-api';
 import useIsLocalUserSpeaking from './useIsLocalUserSpeaking';
+import {filterObject} from '../utils/index';
 
 enum volumeEnum {
   IS_SPEAKING = 'IS_SPEAKING',
@@ -85,6 +86,67 @@ const useFindActiveSpeaker = () => {
 
   //findout who is active speaker using usersVolume(speaking and non speaking volume) and current user volume
   const findActiveSpeaker = () => {
+    //filter the user id who are all speaking
+    const speakingUids = Object.keys(
+      //@ts-ignore
+      filterObject(usersVolume.current, ([k, v]) => {
+        //@ts-ignore
+        return v?.isSpeaking && renderListRef.current[k]?.audio;
+      }),
+    );
+    if (!speakingUids || speakingUids?.length == 0) {
+      console.log('debugging no active speaker');
+      setActiveSpeaker(0);
+    } else {
+      if (speakingUids?.length === 1) {
+        console.log('debugging only one user is speaking ', speakingUids[0]);
+        setActiveSpeaker(parseInt(speakingUids[0]));
+      } else {
+        console.log('debugging multiple users are speaking ', speakingUids);
+        //get current volume levels for users
+        //@ts-ignore
+        const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
+        const normalizedValues = {};
+        speakingUids?.forEach((uid) => {
+          const uuid = parseInt(uid);
+          const data = currentUsersVolume?.find((i) => i.uid === uuid);
+          const returnVal = normalize(
+            data?.level || usersVolume.current[uuid]?.speakingVolume, //current level
+            usersVolume.current[uid]?.nonSpeakingVolume || 0,
+            usersVolume.current[uuid]?.speakingVolume || 100,
+          );
+          normalizedValues[uuid] = returnVal;
+        });
+
+        const sorted = Object.keys(normalizedValues).sort((a, b) => {
+          return normalizedValues[b] - normalizedValues[a];
+        });
+        setActiveSpeaker(parseInt(sorted[0]));
+
+        //for logging purpose
+        let obj = {};
+        sorted.map((i) => {
+          let id = parseInt(i);
+          const curtdata = currentUsersVolume.find((i) => i.uid === id);
+          const cl =
+            curtdata && curtdata?.level
+              ? Math.round(curtdata?.level * 100) / 100
+              : 'no vol';
+          obj[id] = {
+            name: renderListRef.current[id]?.name,
+            normalizedVolume: normalizedValues[id],
+            currentVolume: cl,
+            minNonSpeakingVolume: usersVolume.current[id]?.nonSpeakingVolume,
+            speakingVolume: usersVolume.current[id]?.speakingVolume,
+            isSpeaking: usersVolume.current[id]?.isSpeaking,
+          };
+        });
+        console.log('debugging active speaker data', JSON.stringify(obj));
+        //for logging purpose
+      }
+    }
+
+    /*
     //get current volume levels for users
     //@ts-ignore
     const currentUsersVolume = RtcEngine?.getUsersVolumeLevel();
@@ -140,7 +202,7 @@ const useFindActiveSpeaker = () => {
       });
       console.log('debugging active speaker data', JSON.stringify(obj));
       //for logging purpose
-    }
+    }*/
   };
 
   const isSpeakingEventCallback = ({payload, sender}) => {
