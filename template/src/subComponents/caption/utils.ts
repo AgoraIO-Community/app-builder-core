@@ -56,7 +56,7 @@ export function getLanguageLabel(
   const langLabels = languageCode.map((langCode) => {
     return langData.find((data) => data.value === langCode).label;
   });
-  return langLabels ? langLabels.join(',') : undefined;
+  return langLabels ? langLabels.join(', ') : undefined;
 }
 
 export function formatDateWithTimeZone(date: Date): string {
