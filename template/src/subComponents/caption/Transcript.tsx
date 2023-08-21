@@ -22,7 +22,6 @@ import {
   isMobileUA,
   isWebInternal,
   useIsSmall,
-  debounceFn,
 } from '../../utils/common';
 import {TranscriptHeader} from '../../pages/video-call/SidePanelHeader';
 import {useRtc, useRender} from 'customization-api';
@@ -281,9 +280,7 @@ const Transcript = (props: TranscriptProps) => {
               renderItem={renderItem}
               keyExtractor={(item) => item.uid + '-' + item.time}
               onContentSizeChange={handleContentSizeChange}
-              onScroll={
-                isWebInternal() ? debounceFn(handleScroll, 100) : handleScroll
-              }
+              onScroll={handleScroll}
               onLayout={handleLayout}
               ListEmptyComponent={searchQuery && <NoResultsMsg />}
               ListFooterComponent={DownloadTranscriptBtn}
