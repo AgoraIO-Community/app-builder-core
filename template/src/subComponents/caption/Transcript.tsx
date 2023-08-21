@@ -11,6 +11,7 @@ import {
   Platform,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  VirtualizedList,
 } from 'react-native';
 import React from 'react';
 import CommonStyles from '../../components/CommonStyles';
@@ -257,7 +258,7 @@ const Transcript = (props: TranscriptProps) => {
       ) : (
         <>
           <View style={{flex: 1}}>
-            <FlatList
+            {/* <FlatList
               ref={flatListRef}
               style={styles.contentContainer}
               data={renderedData}
@@ -272,6 +273,24 @@ const Transcript = (props: TranscriptProps) => {
               ListFooterComponent={DownloadTranscriptBtn}
               ListFooterComponentStyle={styles.footer}
               contentContainerStyle={styles.content}
+            /> */}
+            <VirtualizedList
+              ref={flatListRef}
+              style={styles.contentContainer}
+              data={renderedData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.uid + '-' + item.time}
+              onContentSizeChange={handleContentSizeChange}
+              onScroll={
+                isWebInternal() ? debounceFn(handleScroll, 100) : handleScroll
+              }
+              onLayout={handleLayout}
+              ListEmptyComponent={searchQuery && <NoResultsMsg />}
+              ListFooterComponent={DownloadTranscriptBtn}
+              ListFooterComponentStyle={styles.footer}
+              contentContainerStyle={styles.content}
+              getItemCount={() => renderedData.length}
+              getItem={(data, index) => renderedData[index]}
             />
 
             {showButton ? (
