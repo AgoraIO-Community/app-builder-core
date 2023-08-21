@@ -66,7 +66,7 @@ const Caption: React.FC = () => {
     <View style={styles.captionContainer}>
       {
         <>
-          <Text
+          {/* <Text
             style={{
               color: 'yellow',
               position: 'absolute',
@@ -80,7 +80,7 @@ const Caption: React.FC = () => {
             style={{color: 'white', position: 'absolute', top: -25, left: 0}}>
             Prev: {renderList[prevSpeakerRef.current]?.name || ' '} Line :
             {Math.min(inActiveLinesAvailable, 3 - activelinesAvailable)}
-          </Text>
+          </Text> */}
 
           {captionObj[prevSpeakerRef.current] &&
           captionObj[prevSpeakerRef.current].text ? (
