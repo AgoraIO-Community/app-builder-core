@@ -797,7 +797,7 @@ SPEC CHECKSUMS:
   AgoraRtcEngine_iOS: 549bb3853d5afb18fabca4197786f39f31141da8
   AgoraRtm_iOS: 595a9fa33a409831e6183396ea8f8bc563918403
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
-  boost: aa2b592ac91fab4ac2c3e44ad705dede8075a81f
+  boost: 57d2868c099736d80fcd648bf211b4431e51a558
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 5d4a3b7f411219a45a6d952f77d2c0a6c9989da5
