@@ -70,13 +70,14 @@ const ActionSheet = () => {
         break;
       }
       case SidePanelType.None: {
-        if (isAndroid) {
+        if (isAndroid()) {
           timeout = setTimeout(() => {
             // Code to be executed after the timeout until https://github.com/gorhom/react-native-bottom-sheet/pull/1164/files is merged
             chatSheetRef?.current.close();
             participantsSheetRef?.current.close();
             settingsSheetRef?.current.close();
             transcriptSheetRef?.current.close();
+            bottomSheetRef?.current.present();
           }, 200);
         } else {
           // Code to be executed immediately without a timer
