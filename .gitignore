@@ -62,6 +62,9 @@ template/*.jsbundle
 # CocoaPods
 template/ios/Pods/
 
+# IOS Builds
+template/ios/build/
+
 # UI Kit
 template/agora-rn-uikit/
 
