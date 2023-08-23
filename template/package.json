@@ -66,12 +66,15 @@
     "electron-squirrel-startup": "1.0.0",
     "electron-updater": "4.3.9",
     "exponential-backoff": "3.1.0",
+    "fetch-retry": "^5.0.6",
     "graphql": "15.5.0",
     "hark": "^1.2.3",
     "jwt-decode": "3.1.2",
     "nanoevents": "7.0.1",
     "nanoid": "4.0.0",
     "nosleep.js": "0.12.0",
+    "p-queue": "^7.3.4",
+    "protobufjs": "^7.2.3",
     "npm": "^9.7.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -86,6 +89,7 @@
     "react-native-keyboard-manager": "6.5.4-1",
     "react-native-reanimated": "3.4.2",
     "react-native-responsive-fontsize": "0.5.1",
+    "react-native-share": "7.9.0",
     "react-native-svg": "13.6.0",
     "react-native-vector-icons": "9.2.0",
     "react-native-walkthrough-tooltip": "1.4.0",
@@ -93,7 +97,8 @@
     "react-router-dom": "5.2.0",
     "react-router-native": "5.2.0",
     "react-spring-bottom-sheet": "3.4.1",
-    "react-tooltip": "4.5.1"
+    "react-tooltip": "4.5.1",
+    "rn-fetch-blob": "0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

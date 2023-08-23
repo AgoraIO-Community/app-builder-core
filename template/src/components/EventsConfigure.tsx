@@ -69,6 +69,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
       if (
         (isAndroid() || isIOS()) &&
@@ -97,6 +98,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         visibilityTime: 3000,
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
       });
       RtcEngine.muteLocalAudioStream(true);
       dispatch({
@@ -134,6 +136,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         type: 'info',
         text1: 'The host has requested you to speak',
         visibilityTime: 3000,
+        leadingIcon: null,
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}
@@ -157,6 +160,7 @@ const EventsConfigure: React.FC<Props> = (props) => {
         type: 'info',
         text1: 'The host has asked you to start your video.',
         visibilityTime: 3000,
+        leadingIcon: null,
         primaryBtn: (
           <PrimaryButton
             containerStyle={style.primaryBtn}

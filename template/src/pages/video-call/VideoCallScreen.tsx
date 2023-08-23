@@ -18,6 +18,7 @@ import {
   isValidReactComponent,
   isWebInternal,
   useIsDesktop,
+  useIsSmall,
 } from '../../utils/common';
 import {useSidePanel} from '../../utils/useSidePanel';
 import VideoComponent from './VideoComponent';
@@ -31,6 +32,10 @@ import {useMeetingInfo} from '../../components/meeting-info/useMeetingInfo';
 import {controlMessageEnum, useRtc, useUserName} from 'customization-api';
 import events, {EventPersistLevel} from '../../rtm-events-api';
 import VideoCallMobileView from './VideoCallMobileView';
+import CaptionContainer from '../../subComponents/caption/CaptionContainer';
+import Transcript from '../../subComponents/caption/Transcript';
+import {useCaption} from '../../subComponents/caption/useCaption';
+import Spacer from '../../atoms/Spacer';
 
 const VideoCallScreen = () => {
   const {sidePanel} = useSidePanel();
@@ -39,6 +44,7 @@ const VideoCallScreen = () => {
   const {
     data: {meetingTitle, isHost},
   } = useMeetingInfo();
+  const {isCaptionON} = useCaption();
   const {
     ChatComponent,
     VideocallComponent,
@@ -143,6 +149,7 @@ const VideoCallScreen = () => {
   });
 
   const isDesktop = useIsDesktop();
+  const isSmall = useIsSmall();
 
   return VideocallComponent ? (
     <VideocallComponent />
@@ -159,10 +166,12 @@ const VideoCallScreen = () => {
           value={{buttonTemplateName: ButtonTemplateName.topBar}}>
           <TopbarComponent />
         </ButtonTemplateProvider>
+        <Spacer size={10} />
         <View
           style={[
             style.videoView,
-            {paddingHorizontal: isDesktop() ? 32 : 10, paddingVertical: 10},
+            {paddingHorizontal: isDesktop() ? 32 : 10},
+            {paddingVertical: isSmall() ? 10 : 0},
           ]}>
           <VideoComponent />
           {sidePanel === SidePanelType.Participants ? (
@@ -180,12 +189,15 @@ const VideoCallScreen = () => {
             <></>
           )}
           {sidePanel === SidePanelType.Settings ? <SettingsComponent /> : <></>}
+          {sidePanel === SidePanelType.Transcript ? <Transcript /> : <></>}
         </View>
         {!isWebInternal() && sidePanel === SidePanelType.Chat ? (
           <></>
         ) : (
           <ButtonTemplateProvider
             value={{buttonTemplateName: ButtonTemplateName.bottomBar}}>
+            {isCaptionON && <CaptionContainer />}
+            {<Spacer size={10} />}
             <BottombarComponent />
           </ButtonTemplateProvider>
         )}

@@ -63,7 +63,12 @@ const GridVideo: layoutComponent = ({renderData}) => {
   return (
     <View style={[style.full]}>
       {matrix.map((r, ridx) => (
-        <View style={style.gridRow} key={ridx}>
+        <View
+          style={[
+            style.gridRow,
+            {paddingBottom: ridx === matrix.length - 1 ? 0 : 4},
+          ]}
+          key={ridx}>
           {r.map((c, cidx) => (
             <Pressable
               disabled={renderData.length === 1}
@@ -118,7 +123,7 @@ const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     width: '100%',
-    paddingVertical: 4,
+    paddingTop: 4,
   },
   gridVideoContainerInner: {
     //borderRadius: 12,

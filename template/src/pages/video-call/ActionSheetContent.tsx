@@ -33,8 +33,14 @@ import {useChatNotification} from '../../components/chat-notification/useChatNot
 import {SidePanelType} from '../../subComponents/SidePanelEnum';
 import {useSidePanel} from '../../utils/useSidePanel';
 import Settings from '../../components/Settings';
-import {useLocalUserInfo} from 'customization-api';
+import {isWeb, useLocalUserInfo, useRtc} from 'customization-api';
 import LayoutIconButton from '../../subComponents/LayoutIconButton';
+import CaptionIcon from '../../../src/subComponents/caption/CaptionIcon';
+import TranscriptIcon from '../../../src/subComponents/caption/TranscriptIcon';
+import useSTTAPI from '../../../src/subComponents/caption/useSTTAPI';
+import Carousel from '../../atoms/Carousel';
+import {useCaption} from '../../subComponents/caption/useCaption';
+
 import ScreenshareButton from '../../subComponents/screenshare/ScreenshareButton';
 import {useScreenshare} from '../../subComponents/screenshare/useScreenshare';
 //Icon for expanding Action Sheet
@@ -275,6 +281,96 @@ const LayoutIcon = (props: LayoutIconProps) => {
   );
 };
 
+interface CaptionIconBtnProps {
+  showLabel?: boolean;
+}
+
+const CaptionIconBtn = (props: CaptionIconBtnProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const {isCaptionON} = useCaption();
+  const isDisabled = !isAuthorizedSTTUser();
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <CaptionIcon isOnActionSheet={true} showLabel={false} />
+      </View>
+      {showLabel && (
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+              },
+            ]}>
+            {isCaptionON ? 'Hide' : 'Show'}
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Caption
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+interface TranscriptIconProps {
+  showLabel?: boolean;
+}
+
+const TranscriptIconBtn = (props: TranscriptIconProps) => {
+  const {showLabel = $config.ICON_TEXT} = props;
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const {isTranscriptON} = useCaption();
+  const isDisabled = !isAuthorizedSTTUser();
+  return (
+    <View style={styles.iconWithText}>
+      <View style={styles.iconContainer}>
+        <TranscriptIcon isOnActionSheet={true} showLabel={false} />
+      </View>
+      {showLabel && (
+        <View>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+              },
+            ]}>
+            {isTranscriptON ? 'Hide' : 'Show'}
+          </Text>
+          <Text
+            style={[
+              styles.iconText,
+              {
+                color: isDisabled
+                  ? $config.SEMANTIC_NEUTRAL
+                  : $config.FONT_COLOR,
+                marginTop: 0,
+              },
+            ]}>
+            Transcript
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
 type ActionSheetComponentsProps = [
   (props: AudioIconProps) => JSX.Element,
   (props: CamIconProps) => JSX.Element,
@@ -318,6 +414,7 @@ const ActionSheetContent = (props) => {
   const {isPendingRequestToReview, raiseHandList} =
     useContext(LiveStreamContext);
   const {totalUnreadCount} = useChatNotification();
+
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const isLiveStream = $config.EVENT_MODE;
   const isAudience = rtcProps?.role == ClientRole.Audience;
@@ -338,6 +435,11 @@ const ActionSheetContent = (props) => {
 
   const isAudioVideoControlsDisabled =
     isAudience && $config.EVENT_MODE && !$config.RAISE_HAND;
+
+  const isConferencing = !$config.EVENT_MODE && !$config.AUDIO_ROOM;
+
+  const isPaginationRequired = isLiveStream || (isConferencing && isHost);
+
   const isVideoDisabled = native
     ? useLocalUserInfo().video === ToggleState.disabled || isScreenshareActive
     : useLocalUserInfo().video === ToggleState.disabled;
@@ -394,56 +496,100 @@ const ActionSheetContent = (props) => {
         />
       </View>
 
-      {/* Rest Of Controls */}
-      <View style={styles.row}>
-        {/**
-         * In event mode when raise hand feature is active
-         * and audience is promoted to host, the audience can also
-         * demote himself
-         */}
-        {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
-          $config.RAISE_HAND && !isAudioRoom ? (
-            <LiveStreamIcon isHandRaised={isHandRaised} />
-          ) : null
-        ) : null}
+      <CarouselWrapper
+        isPaginationRequired={$config.ENABLE_STT && isPaginationRequired}
+        native={native}>
+        <>
+          {/**
+           * In event mode when raise hand feature is active
+           * and audience is promoted to host, the audience can also
+           * demote himself
+           */}
+          {(isLiveStream && isAudience) || (isBroadCasting && !isHost) ? (
+            $config.RAISE_HAND && !isAudioRoom ? (
+              <LiveStreamIcon isHandRaised={isHandRaised} />
+            ) : null
+          ) : null}
 
-        {/* Layout view */}
-        <LayoutIcon />
+          {/* Layout view */}
+          <LayoutIcon />
 
-        {/* chat */}
-        {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
-          <ChatIcon />
-        )}
-        {/* participants */}
-        <ParticipantsIcon
-          showNotification={$config.EVENT_MODE && isPendingRequestToReview}
-        />
-        {/* record */}
-        {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
+          {/* chat */}
+          {!(isAudioCastHost || isVoiceChatHost || isVoiceChatAudience) && (
+            <ChatIcon />
+          )}
+          {/* participants */}
+          <ParticipantsIcon
+            showNotification={$config.EVENT_MODE && isPendingRequestToReview}
+          />
+          {/* record */}
+          {isHost && $config.CLOUD_RECORDING ? <RecordingIcon /> : null}
 
-        {/* switch camera */}
-        {!isAudioRoom &&
-          (isAudioVideoControlsDisabled ? null : (
-            <SwitchCameraIcon
-              disabled={
-                (isLiveStream && isAudience && !isBroadCasting) ||
-                isVideoDisabled
-              }
-            />
-          ))}
+          {/* switch camera */}
+          {!isAudioRoom &&
+            (isAudioVideoControlsDisabled ? null : (
+              <SwitchCameraIcon
+                disabled={
+                  (isLiveStream && isAudience && !isBroadCasting) ||
+                  isVideoDisabled
+                }
+              />
+            ))}
 
-        {/* settings */}
-        <SettingsIcon
-          onPress={() => {
-            setSidePanel(SidePanelType.Settings);
-          }}
-        />
+          {/* settings */}
+          <SettingsIcon
+            onPress={() => {
+              setSidePanel(SidePanelType.Settings);
+            }}
+          />
 
-        {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
+          {/* invite */}
+          <ShareIcon />
+          {/* caption  */}
+          {$config.ENABLE_STT ? <CaptionIconBtn /> : <></>}
+          {native && $config.SCREEN_SHARING && !isPaginationRequired ? (
+            <ScreenshareIcon />
+          ) : (
+            <></>
+          )}
+        </>
+      </CarouselWrapper>
+    </View>
+  );
+};
 
-        {/* invite */}
-        <ShareIcon />
-      </View>
+const CarouselWrapper = ({isPaginationRequired, children, native}) => {
+  return isPaginationRequired ? (
+    <View style={{flexDirection: 'row'}}>
+      <Carousel
+        data={[
+          {
+            id: 'slide_1',
+            component: <View style={styles.row}>{children}</View>,
+          },
+          {
+            id: 'slide_2',
+            component: (
+              <View style={styles.row}>
+                {/* Transcript */}
+                <TranscriptIconBtn />
+                {native && $config.SCREEN_SHARING ? <ScreenshareIcon /> : <></>}
+              </View>
+            ),
+          },
+        ]}
+      />
+    </View>
+  ) : (
+    <View style={styles.row}>
+      {$config.ENABLE_STT ? (
+        <>
+          {children}
+          <TranscriptIconBtn />
+        </>
+      ) : (
+        children
+      )}
     </View>
   );
 };

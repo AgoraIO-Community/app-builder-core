@@ -149,6 +149,7 @@ const ChatMessagesProvider = (props: ChatMessagesProviderProps) => {
       Toast.show({
         primaryBtn: null,
         secondaryBtn: null,
+        leadingIcon: null,
         type: 'info',
         text1: isPrivateMessage
           ? privateMessageLabel

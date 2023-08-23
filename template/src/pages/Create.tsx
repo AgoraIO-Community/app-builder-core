@@ -147,6 +147,7 @@ const Create = () => {
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
+          leadingIcon: null,
         });
         showShareScreen();
       } catch (error) {
@@ -213,6 +214,7 @@ const Create = () => {
       visibilityTime: 1000 * 10,
       primaryBtn: null,
       secondaryBtn: null,
+      leadingIcon: null,
     });
   };
 

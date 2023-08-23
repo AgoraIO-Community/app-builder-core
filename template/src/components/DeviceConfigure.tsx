@@ -686,6 +686,7 @@ const DeviceConfigure: React.FC<Props> = (props: any) => {
 
     Toast.show({
       type: 'checked',
+      leadingIcon: null,
       // leadingIcon: <CustomIcon name={'mic-on'} />,
       text1: `New ${name} detected`,
       // @ts-ignore

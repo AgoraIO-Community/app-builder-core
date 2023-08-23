@@ -55,6 +55,18 @@ import {
 import {useVideoCall} from './useVideoCall';
 import {useScreenshare} from '../subComponents/screenshare/useScreenshare';
 import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
+import TranscriptIcon from '../../src/subComponents/caption/TranscriptIcon';
+import CaptionIcon from '../../src/subComponents/caption/CaptionIcon';
+import {useCaption} from '../../src/subComponents/caption/useCaption';
+import LanguageSelectorPopup from '../../src/subComponents/caption/LanguageSelectorPopup';
+import useSTTAPI from '../../src/subComponents/caption/useSTTAPI';
+import {EventNames} from '../rtm-events';
+import events, {EventPersistLevel} from '../rtm-events-api';
+import Toast from '../../react-native-toast-message';
+import {getLanguageLabel} from '../../src/subComponents/caption/utils';
+import ImageIcon from '../atoms/ImageIcon';
+import useGetName from '../utils/useGetName';
+import {useRender} from 'customization-api';
 
 const MoreButton = () => {
   const {rtcProps} = useContext(PropsContext);
@@ -67,6 +79,22 @@ const MoreButton = () => {
   const {currentLayout, setLayout} = useLayout();
   const layout = layouts.findIndex((item) => item.name === currentLayout);
   const {setSidePanel, sidePanel} = useSidePanel();
+  const username = useGetName();
+  const {
+    isCaptionON,
+    isTranscriptON,
+    isSTTActive,
+    setIsTranscriptON,
+    setIsCaptionON,
+    setLanguage,
+    language: prevLang,
+  } = useCaption();
+  const [isLanguagePopupOpen, setLanguagePopup] =
+    React.useState<boolean>(false);
+  const isFirstTimePopupOpen = React.useRef(false);
+  const STT_clicked = React.useRef(null);
+
+  const {start, restart, isAuthorizedSTTUser} = useSTTAPI();
   const {
     data: {isHost},
   } = useMeetingInfo();
@@ -81,6 +109,48 @@ const MoreButton = () => {
   const {isRecordingActive, startRecording, inProgress} = useRecording();
   const {setGroupActive} = useChatUIControl();
   const actionMenuitems: ActionMenuItem[] = [];
+
+  // host can see stt options and attendee can view only when stt is enabled by a host in the channel
+
+  actionMenuitems.push({
+    icon: `${isCaptionON ? 'captions-off' : 'captions'}`,
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    disabled: !isAuthorizedSTTUser(),
+    title: `${isCaptionON ? 'Hide Caption' : 'Show Caption'}`,
+    callback: () => {
+      setActionMenuVisible(false);
+      STT_clicked.current = !isCaptionON ? 'caption' : null;
+      if (isSTTActive) {
+        setIsCaptionON((prev) => !prev);
+        // is lang popup has been shown once for any user in meeting
+      } else {
+        isFirstTimePopupOpen.current = true;
+        setLanguagePopup(true);
+      }
+    },
+  });
+
+  actionMenuitems.push({
+    icon: 'transcript',
+    iconColor: $config.SECONDARY_ACTION_COLOR,
+    textColor: $config.FONT_COLOR,
+    disabled: !isAuthorizedSTTUser(),
+    title: `${isTranscriptON ? 'Hide Transcript' : 'Show Transcript'}`,
+    callback: () => {
+      setActionMenuVisible(false);
+      STT_clicked.current = !isTranscriptON ? 'transcript' : null;
+      if (isSTTActive) {
+        setIsTranscriptON((prev) => !prev);
+        !isTranscriptON
+          ? setSidePanel(SidePanelType.Transcript)
+          : setSidePanel(SidePanelType.None);
+      } else {
+        isFirstTimePopupOpen.current = true;
+        setLanguagePopup(true);
+      }
+    },
+  });
 
   if (globalWidth <= BREAKPOINTS.sm) {
     actionMenuitems.push({
@@ -213,7 +283,7 @@ const MoreButton = () => {
   useEffect(() => {
     if (isHovered) {
       setActionMenuVisible(true);
-    }
+    } else setActionMenuVisible(false);
   }, [isHovered]);
 
   useEffect(() => {
@@ -221,14 +291,57 @@ const MoreButton = () => {
     setActionMenuVisible(false);
   }, [currentLayout]);
 
+  const onConfirm = async (langChanged, language) => {
+    const isCaptionClicked = STT_clicked.current === 'caption';
+    const isTranscriptClicked = STT_clicked.current === 'transcript';
+    setLanguagePopup(false);
+    isFirstTimePopupOpen.current = false;
+    const method = isCaptionClicked
+      ? isCaptionON
+      : isTranscriptON
+      ? 'stop'
+      : 'start';
+    if (isTranscriptClicked) {
+      if (!isTranscriptON) {
+        setSidePanel(SidePanelType.Transcript);
+      } else {
+        setSidePanel(SidePanelType.None);
+      }
+    }
+    if (method === 'stop') return; // not closing the stt service as it will stop for whole channel
+    if (method === 'start' && isSTTActive === true) return; // not triggering the start service if STT Service already started by anyone else in the channel
+
+    if (isCaptionClicked) {
+      setIsCaptionON((prev) => !prev);
+    } else {
+      setIsTranscriptON((prev) => !prev);
+    }
+
+    try {
+      const res = await start(language);
+      if (res?.message.includes('STARTED')) {
+        // channel is already started now restart
+        await restart(language);
+      }
+    } catch (error) {
+      console.log('eror in starting stt', error);
+    }
+  };
+
   return (
     <>
+      <LanguageSelectorPopup
+        modalVisible={isLanguagePopupOpen}
+        setModalVisible={setLanguagePopup}
+        onConfirm={onConfirm}
+        isFirstTimePopupOpen={isFirstTimePopupOpen.current}
+      />
       <ActionMenu
         containerStyle={{width: 180}}
         hoverMode={true}
         onHover={(isVisible) => setIsHoveredOnModal(isVisible)}
         from={'control-bar'}
-        actionMenuVisible={(isHovered || isHoveredOnModal) && actionMenuVisible}
+        actionMenuVisible={isHovered || isHoveredOnModal}
         setActionMenuVisible={setActionMenuVisible}
         modalPosition={{
           bottom: 8,
@@ -277,10 +390,74 @@ const MoreButton = () => {
 const Controls = () => {
   const {rtcProps} = useContext(PropsContext);
   const isDesktop = useIsDesktop();
+  // attendee can view option if any host has started STT
+  const {isAuthorizedSTTUser} = useSTTAPI();
+  const {renderList} = useRender();
   const {
     data: {isHost},
   } = useMeetingInfo();
   const {width} = useWindowDimensions();
+  const {setIsSTTActive, setLanguage, setMeetingTranscript} = useCaption();
+  const renderListRef = React.useRef(renderList);
+
+  React.useEffect(() => {
+    renderListRef.current = renderList;
+  }, [renderList]);
+
+  React.useEffect(() => {
+    // for native events are set in VideoCallMobileView as this action is action sheet
+    if (isWebInternal()) {
+      events.on(EventNames.STT_ACTIVE, (data) => {
+        const payload = JSON.parse(data?.payload);
+        setIsSTTActive(payload.active);
+      });
+
+      events.on(EventNames.STT_LANGUAGE, (data) => {
+        const {username, prevLang, newLang, uid} = JSON.parse(data?.payload);
+        const actionText =
+          prevLang.indexOf('') !== -1
+            ? `has set the spoken language to  "${getLanguageLabel(newLang)}" `
+            : `changed the spoken language from "${getLanguageLabel(
+                prevLang,
+              )}" to "${getLanguageLabel(newLang)}" `;
+        const msg = `${
+          renderListRef.current[uid]?.name || username
+        } ${actionText} `;
+
+        Toast.show({
+          type: 'info',
+          leadingIcon: <ToastIcon color={$config.SECONDARY_ACTION_COLOR} />,
+          text1: `Spoken Language ${
+            prevLang.indexOf('') !== -1 ? 'Set' : 'Changed'
+          }`,
+          visibilityTime: 3000,
+          primaryBtn: null,
+          secondaryBtn: null,
+          text2: msg,
+        });
+        // syncing local set language
+        newLang && setLanguage(newLang);
+        // add spoken lang msg to transcript
+        setMeetingTranscript((prev) => {
+          return [
+            ...prev,
+            {
+              name: 'langUpdate',
+              time: new Date().getTime(),
+              uid: `langUpdate-${uid}`,
+              text: actionText,
+            },
+          ];
+        });
+      });
+    }
+  }, []);
+
+  const ToastIcon = ({color}) => (
+    <View style={{marginRight: 12, alignSelf: 'center', width: 24, height: 24}}>
+      <ImageIcon iconType="plain" tintColor={color} name={'lang-select'} />
+    </View>
+  );
 
   return (
     <View
@@ -374,7 +551,7 @@ const Controls = () => {
             </View>
           )}
         </>
-        {width < BREAKPOINTS.md && (
+        {(width < BREAKPOINTS.md || $config.ENABLE_STT) && (
           <View testID="more-btn" style={{marginHorizontal: 10}}>
             <MoreButton />
           </View>

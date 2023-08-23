@@ -85,4 +85,17 @@ export interface IconsInterface {
   'video-on-outlined': string;
   'video-off-filled': string;
   'video-off-outlined': string;
+  'down-arrow': string;
+  'closed-caption': string;
+  globe: string;
+  'lang-select': string;
+  search: string;
+  captions: string;
+  'captions-off': string;
+  download: string;
+  'transcript-stop': string;
+  transcript: string;
+  'view-last': string;
+  'transcript-mode': string;
+  '': string;
 }

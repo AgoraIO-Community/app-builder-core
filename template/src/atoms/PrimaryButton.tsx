@@ -29,10 +29,20 @@ export interface PrimaryButtonProps extends TouchableOpacityProps {
   iconName?: keyof IconsInterface;
   containerStyle?: ViewStyle;
   textStyle?: TextStyle;
+  iconSize?: number;
+  iconColor?: string;
 }
 
 export default function PrimaryButton(props: PrimaryButtonProps) {
-  const {children, iconName, textStyle, containerStyle, ...otherProps} = props;
+  const {
+    children,
+    iconName,
+    textStyle,
+    containerStyle,
+    iconSize,
+    iconColor = $config.PRIMARY_ACTION_TEXT_COLOR,
+    ...otherProps
+  } = props;
   return (
     <TouchableOpacity
       style={[
@@ -43,14 +53,17 @@ export default function PrimaryButton(props: PrimaryButtonProps) {
         containerStyle ? containerStyle : {},
       ]}
       {...otherProps}>
-      {iconName && (
-        <View style={{marginRight: 8}}>
+      {iconName ? (
+        <View style={{marginRight: 4}}>
           <ImageIcon
             iconType="plain"
             name={iconName}
-            tintColor={$config.PRIMARY_ACTION_TEXT_COLOR}
+            tintColor={iconColor}
+            iconSize={iconSize}
           />
         </View>
+      ) : (
+        <></>
       )}
       {props.text && (
         <Text style={[styles.text, textStyle ? textStyle : {}]}>

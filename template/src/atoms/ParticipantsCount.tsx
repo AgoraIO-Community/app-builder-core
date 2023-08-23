@@ -35,13 +35,11 @@ const ParticipantsCount = () => {
         name: 'people',
         iconType: 'plain',
         iconSize: 20,
-        tintColor:
-          $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+        tintColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
       }}
       btnTextProps={{
         text: numFormatter(onlineUsersCount),
-        textColor:
-          $config.SECONDARY_ACTION_COLOR + hexadecimalTransparency['50%'],
+        textColor: $config.FONT_COLOR + hexadecimalTransparency['50%'],
         textStyle: {
           fontWeight: '600',
           fontSize: 12,

@@ -87,6 +87,7 @@ const Join = () => {
           visibilityTime: 3000,
           primaryBtn: null,
           secondaryBtn: null,
+          leadingIcon: null,
         });
       });
   };

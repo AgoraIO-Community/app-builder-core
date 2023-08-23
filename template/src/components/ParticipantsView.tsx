@@ -40,6 +40,7 @@ import {useVideoMeetingData} from './contexts/VideoMeetingDataContext';
 import {useLayout, useRender} from 'customization-api';
 import {getGridLayoutName} from '../pages/video-call/DefaultLayouts';
 import {PeopleHeader} from '../pages/video-call/SidePanelHeader';
+import useCaptionWidth from '../../src/subComponents/caption/useCaptionWidth';
 
 const ParticipantView = (props) => {
   const {activeUids} = useRender();
@@ -71,6 +72,7 @@ const ParticipantView = (props) => {
   const [showTempHostSection, setShowTempHostSection] = useState(true);
   const [showAudienceSection, setShowAudienceSection] = useState(true);
   const {currentLayout} = useLayout();
+  const {transcriptHeight} = useCaptionWidth();
   return (
     <View
       testID="videocall-participants"
@@ -86,6 +88,7 @@ const ParticipantView = (props) => {
         isWebInternal() && !isSmall() && currentLayout === getGridLayoutName()
           ? {marginVertical: 4}
           : {},
+        transcriptHeight && !isMobileUA() && {height: transcriptHeight},
       ]}>
       {showHeader && <PeopleHeader />}
       <ScrollView style={[style.bodyContainer]}>
